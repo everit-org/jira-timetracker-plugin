@@ -40,28 +40,28 @@
     <properties>
         <jira.version>4.0.1</jira.version>
         <jira.data.version>4.0</jira.data.version>
-        <projectpath>github.com/everit-org/jira-timetracker-plugin</projectpath>
+        <projectpath>jira-timetracker-plugin</projectpath>
     </properties>
     
     <scm>
-        <connection>scm:git:git://${projectpath}.git</connection>
-        <developerConnection>scm:git:https://${projectpath}.git</developerConnection>
-        <url>https://${projectpath}</url>
+        <connection>scm:git:git://github.com/everit-org/${projectpath}.git</connection>
+        <developerConnection>scm:git:https://github.com/everit-org/${projectpath}.git</developerConnection>
+        <url>https://github.com/everit-org/${projectpath}</url>
     </scm>
     
     <distributionManagement>
         <site>
             <id>everit.org</id>
-            <url>dav:${everit.public.site.url}/jira-timetracker-plugin</url>
+            <url>dav:${everit.public.site.url}/${projectpath}</url>
         </site>
     </distributionManagement>
     <ciManagement>
         <system>Jenkins</system>
-        <url>https://ci.everit.biz/jenkins/job/jira-timetracker-plugin</url>
+        <url>https://ci.everit.biz/jenkins/job/${projectpath}</url>
     </ciManagement>
     <issueManagement>
         <system>GitHub</system>
-        <url>https://github.com/everit-org/jira-timetracker-plugin/issues</url>
+        <url>https://github.com/everit-org/${projectpath}/issues</url>
     </issueManagement>
 
     <build>
