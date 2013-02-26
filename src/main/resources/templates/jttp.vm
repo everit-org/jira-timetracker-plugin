@@ -32,7 +32,7 @@ $webResourceManager.requireResource("jira.webresources:global-static")
 <form name="myForm"  method="post" #if($editedWorklogId == 0) action="JiraTimetarckerWebAction.jspa?dateFormated=$dateFormated" #else action="JiraTimetarckerWebAction.jspa?editedWorklogId=$editedWorklogId&dateFormated=$dateFormated #end"/>   
 	#set($rendererType = "atlassian-wiki-renderer")
 	<div id="plugin_head" class="item-header">
- 			<h1 class="item-summary">Jira Timetracker Beta</h1>
+ 			<h1 class="item-summary">Timetracker</h1>
   	</div>
 	<div id="main-content" class="content rounded" >
 		<div style="margin:10px; ">
