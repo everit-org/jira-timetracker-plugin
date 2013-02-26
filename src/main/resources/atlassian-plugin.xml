@@ -39,7 +39,7 @@
         <link linkId="my_jttp_link"><![CDATA[/secure/JiraTimetarckerWebAction!default.jspa]]></link>
         <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserLoggedInCondition" />
     </web-item>
-
+	
     <webwork1 key="jttp-webaction" name="Jira Timetracker Plugin Webwork actions" class="java.lang.Object">
         <resource type="i18n" name="i18n-jttp-vm" location="i18n/jttp" />
         <actions>

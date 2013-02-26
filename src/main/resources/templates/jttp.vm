@@ -26,13 +26,14 @@
     }
    
 </style>
+$webResourceManager.requireResource("jira.webresources:global-static")
 $webResourceManager.requireResource("jira.webresources:calendar")
 $webResourceManager.requireResource("jira.webresources:calendar-en")
-$webResourceManager.requireResource("jira.webresources:global-static")
+
 <form name="myForm"  method="post" #if($editedWorklogId == 0) action="JiraTimetarckerWebAction.jspa?dateFormated=$dateFormated" #else action="JiraTimetarckerWebAction.jspa?editedWorklogId=$editedWorklogId&dateFormated=$dateFormated #end"/>   
 	#set($rendererType = "atlassian-wiki-renderer")
 	<div id="plugin_head" class="item-header">
- 			<h1 class="item-summary">Jira Timetracker Beta</h1>
+ 			<h1 class="item-summary">Timetracker</h1>
   	</div>
 	<div id="main-content" class="content rounded" >
 		<div style="margin:10px; ">
@@ -44,15 +45,16 @@ $webResourceManager.requireResource("jira.webresources:global-static")
 				<input type="submit" id="weekBack"  name="weekBack" value="<<" class="button"  />
 				<input type="submit" id="dayBack"  name="dayBack" value="<" class="button"  />
 				 $dateFormated
-				<input type="text" id="date" name="date"  style="display: none" onchange="this.form.datesubmit.click()" />
+				<input type="text" id="date" name="date" style="display: none" onchange="this.form.datesubmit.click()" />
 				<img id="date_trigger" src="/images/icons/cal.gif" width="16" height="16" border="0"
 					alt="Pick a date"/>
 				<input type="submit" id="datesubmit" name="datesubmit" class="spaced" style="display: none"/>
 				<input type="submit" id="dayNext"  name="dayNext" value=">"  class="button"/>
 				<input type="submit" id="weekNext"  name="weekNext" value=">>"  class="button"/>
 				<input type="submit" id="monthNext"  name="monthNext" value=">>>" class="button" />
-				<script>
-				Calendar.setup({
+			</div>
+			<script>
+				var cal= Calendar.setup({
 					firstDay : 0,
 					inputField : 'date',
 					button : 'date_trigger',
@@ -64,8 +66,26 @@ $webResourceManager.requireResource("jira.webresources:global-static")
 					useISO8601WeekNumbers : false,
 					ifFormat : '%Y-%m-%d'
 				});
+				##This is the not popup calendar. Works but not nice
+				Calendar.setup({
+					firstDay : 0,
+					align : 'Br',
+					electric: true,
+					singleClick : true,
+					showOthers: true,
+					useISO8601WeekNumbers : false,
+					flat: 'calendar_div',
+					flatCallback: dateChanged,
+					ifFormat : '%Y-%m-%d'
+				});
+				
+				function dateChanged(calendar)
+				  {
+				      document.getElementById("date").value=calendar.date.print(calendar.params.ifFormat);
+				      jQuery(document.getElementById("date")).change();
+				  };
+				
 				</script>
-			</div>
 			<div id="summary" style="text-align: right; float: right; padding:5px;">
 				$i18n.getText("plugin.summary") $i18n.getText("plugin.day") ( $daySummary ) $i18n.getText("plugin.week") ( $weekSummary) $i18n.getText("plugin.month") ( $monthSummary)
 			</div>
