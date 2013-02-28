@@ -467,11 +467,14 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         daySummary = jiraTimetrackerPlugin.summary(start, end);
 
         startCalendar = (Calendar) originalStartcalendar.clone();
-        startCalendar.set(Calendar.DAY_OF_MONTH, (date.getDate() - date.getDay()) + 1);
+        startCalendar.set(Calendar.DAY_OF_MONTH, (date.getDate() - (date.getDay() == 0 ? 6 : date.getDay() - 1)));
         start = startCalendar.getTime();
 
         endCalendar = (Calendar) originalEndCcalendar.clone();
-        endCalendar.set(Calendar.DAY_OF_MONTH, date.getDate() + (DateTimeConverterUtil.DAYS_PER_WEEK - date.getDay()));
+        endCalendar
+                .set(Calendar.DAY_OF_MONTH,
+                        (date.getDate() + (DateTimeConverterUtil.DAYS_PER_WEEK - (date.getDay() == 0 ? 7 : date
+                                .getDay()))));
         end = endCalendar.getTime();
 
         weekSummary = jiraTimetrackerPlugin.summary(start, end);
