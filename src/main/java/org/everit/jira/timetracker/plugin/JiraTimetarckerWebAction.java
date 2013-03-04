@@ -33,6 +33,7 @@ import org.apache.log4j.Logger;
 import org.everit.jira.timetracker.plugin.dto.ActionResult;
 import org.everit.jira.timetracker.plugin.dto.ActionResultStatus;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
+import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
 import org.ofbiz.core.entity.GenericEntityException;
 
 import com.atlassian.jira.issue.Issue;
@@ -163,6 +164,15 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
     Date datePCalendar = new Date();
 
     /**
+     * The calendar isPopup.
+     */
+    private boolean isPopup;
+    /**
+     * The calendar show actual Date Or Last Worklog Date.
+     */
+    private boolean isActualDate;
+
+    /**
      * Simple constructor.
      * 
      * @param jiraTimetrackerPlugin
@@ -227,9 +237,23 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 
     @Override
     public String doDefault() throws ParseException {
+
+        loadPluginSettingAndParseResult();
+
+        // Just the here have to use the plugin actualDateOrLastWorklogDate setting
         if (dateFormated.equals("")) {
-            date = Calendar.getInstance().getTime();
-            dateFormated = DateTimeConverterUtil.dateToString(date);
+            if (isActualDate) {
+                date = Calendar.getInstance().getTime();
+                dateFormated = DateTimeConverterUtil.dateToString(date);
+            } else {
+                try {
+                    date = jiraTimetrackerPlugin.firstMissingWorklogsDate();
+                    dateFormated = DateTimeConverterUtil.dateToString(date);
+                } catch (Exception e) {
+                    LOGGER.error("Error when try set the plugin date.", e);
+                    return ERROR;
+                }
+            }
         }
         date = DateTimeConverterUtil.stringToDate(dateFormated);
         if ((deletedWorklogId != null) && !DEFAULT_WORKLOG_ID.equals(deletedWorklogId)) {
@@ -271,6 +295,8 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
     @Override
     public String doExecute() throws ParseException {
 
+        loadPluginSettingAndParseResult();
+
         message = "";
         messageParameter = "";
 
@@ -293,6 +319,22 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 
         // if not edit and not submit than just a simple date change
         if ((request.getParameter("edit") == null) && (request.getParameter("submit") == null)) {
+            // if we edit a worklog then put the worlog values to the right field
+            if ((editedWorklogId != null) && !DEFAULT_WORKLOG_ID.equals(editedWorklogId)) {
+                isEdit = true;
+                EveritWorklog editWorklog;
+                try {
+                    editWorklog = jiraTimetrackerPlugin.getWorklog(editedWorklogId);
+                } catch (ParseException e) {
+                    LOGGER.error("Error when try parse the worklog.", e);
+                    return ERROR;
+                }
+                issueKey = editWorklog.getIssue();
+                comment = editWorklog.getBody();
+                startTime = editWorklog.getStartTime();
+                endTime = editWorklog.getEndTime();
+                durationTime = editWorklog.getDuration();
+            }
             return SUCCESS;
         }
 
@@ -340,7 +382,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
     public String editAction() {
         String[] startTimeValue = request.getParameterValues("startTime");
         ActionResult updateResult = jiraTimetrackerPlugin.editWorklog(editedWorklogId, issueKey,
-                comment, startTimeValue[0], timeSpent);
+                comment, dateFormated, startTimeValue[0], timeSpent);
         if (updateResult.getStatus() == ActionResultStatus.FAIL) {
             message = updateResult.getMessage();
             messageParameter = updateResult.getMessageParameter();
@@ -399,6 +441,10 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         return isEdit;
     }
 
+    public boolean getIsPopup() {
+        return isPopup;
+    }
+
     public String getIssueKey() {
         return issueKey;
     }
@@ -435,6 +481,12 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         return worklogs;
     }
 
+    public void loadPluginSettingAndParseResult() {
+        PluginSettingsValues pluginSettingsValues = jiraTimetrackerPlugin.loadPluginSettings();
+        isPopup = pluginSettingsValues.isCalendarPopup();
+        isActualDate = pluginSettingsValues.isActualDate();
+    }
+
     /**
      * Make summary today, this week and this month.
      * 
@@ -467,11 +519,13 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         daySummary = jiraTimetrackerPlugin.summary(start, end);
 
         startCalendar = (Calendar) originalStartcalendar.clone();
-        startCalendar.set(Calendar.DAY_OF_MONTH, (date.getDate() - date.getDay()) + 1);
+        startCalendar.set(Calendar.DAY_OF_MONTH, (date.getDate() - (date.getDay() == 0 ? 6 : date.getDay() - 1)));
         start = startCalendar.getTime();
 
         endCalendar = (Calendar) originalEndCcalendar.clone();
-        endCalendar.set(Calendar.DAY_OF_MONTH, date.getDate() + (DateTimeConverterUtil.DAYS_PER_WEEK - date.getDay()));
+        endCalendar.set(Calendar.DAY_OF_MONTH,
+                (date.getDate() + (DateTimeConverterUtil.DAYS_PER_WEEK - (date.getDay() == 0 ? 7 : date
+                        .getDay()))));
         end = endCalendar.getTime();
 
         weekSummary = jiraTimetrackerPlugin.summary(start, end);
@@ -559,6 +613,10 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 
     public void setMonthSummary(final String monthSummary) {
         this.monthSummary = monthSummary;
+    }
+
+    public void setPopup(final boolean isPopup) {
+        this.isPopup = isPopup;
     }
 
     public void setProjectsId(final List<String> projectsId) {

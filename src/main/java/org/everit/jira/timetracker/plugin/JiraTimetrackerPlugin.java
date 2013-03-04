@@ -27,6 +27,7 @@ import java.util.List;
 
 import org.everit.jira.timetracker.plugin.dto.ActionResult;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
+import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
 import org.ofbiz.core.entity.GenericEntityException;
 
 import com.atlassian.jira.issue.Issue;
@@ -71,13 +72,27 @@ public interface JiraTimetrackerPlugin {
      *            The worklog Issue.
      * @param comment
      *            The worklog note.
+     * @param dateFormated
+     *            The date of the worklog (yyyy-MM-dd).
      * @param time
      *            When start the worklog. (kk:mm)
      * @param timeSpent
      *            The spent time in the worklog (Jira format : 1h 30m)
      * @return {@link ActionResult} Success if the worklog edited and Fail if not.
      */
-    ActionResult editWorklog(Long worklogId, String issueId, String comment, String time, String timeSpent);
+    ActionResult editWorklog(Long worklogId, String issueId, String comment, String dateFormated, String time,
+            String timeSpent);
+
+    /**
+     * Give back the date of the first day where missing worklogs. Use the properties files includes and excludes date
+     * settings.
+     * 
+     * @return The Date representation of the day.
+     * @throws GenericEntityException
+     *             GenericEntityException
+     */
+    // TODO params? current date, intervalum?check the throws to!
+    Date firstMissingWorklogsDate() throws GenericEntityException;
 
     /**
      * Give back the Issues.
@@ -131,6 +146,22 @@ public interface JiraTimetrackerPlugin {
      *             When can't parse the worklog date.
      */
     String lastEndTime(List<EveritWorklog> worklogs) throws ParseException;
+
+    /**
+     * Give back the plugin settings values.
+     * 
+     * @return {@link PluginSettingsValues} object what contains the settings.
+     */
+    PluginSettingsValues loadPluginSettings();
+
+    /**
+     * Set the plugin settings and save them.
+     * 
+     * @param pluginSettingsParameter
+     *            The plugin settings parameters.
+     * @return {@link ActionResult} if the plugin settings was saved successful SUCCESS else FAIL.
+     */
+    ActionResult savePluginSettings(PluginSettingsValues pluginSettingsParameter);
 
     /**
      * Give back the all worklogs spent time between the two date.

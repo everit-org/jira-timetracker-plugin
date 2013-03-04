@@ -1,0 +1,72 @@
+## Style Declaration
+<style type="text/css">
+	.rowHeader {
+        background-color:#E2E2E2;
+    }
+    .rowAlter {
+        background-color:#F2F2F2;
+    }
+    .button {
+        padding: 2px;
+    }
+    .grid {
+        font-family:Arial,Helvetica,sans-serif;
+        font-size:12px;
+        background-color:#FCFCFC;
+        border:1px solid #D2D2D2;
+        border-collapse:collapse;
+    }
+    .grid th, .grid td {
+        border:1px solid #D2D2D2;
+        padding:4px;
+    }
+   
+</style>
+<form name="myForm"  method="post" action="JiraTimetrackerSettingsWebAction.jspa"/>   
+	<div id="plugin_head" class="item-header">
+ 			<h1 class="item-summary">Timetracker Settings</h1>
+  	</div>
+  	<div id="main-content" class="content rounded" >
+		<div style="margin:10px; ">
+			<p>This is the Jira Timetracker Plugin Setting Page.</p>
+			<table  width="80%" padding:"5px" >
+				<tbody>
+		        	<tr>
+						<td width="20%">
+						##i18n
+							Use popup Calender: 
+						</td>
+						<td width="80%">
+						 	#if($isPopup)
+                         		<input id="calendarPopupCheckBox" checked="checked" type="checkbox" name="calendarPopupCheckBox" value="true" class="checkbox" style="margin-right: 10px"/>
+                     		#else
+                         		<input id="calendarPopupCheckBox" type="checkbox" name="calendarPopupCheckBox" value="true" class="checkbox" style="margin-right: 10px" />
+                      		#end
+						</td>
+					</tr>
+					<tr>
+						<td width="20%">
+						##i18n
+							Calendar show actual: 
+						</td>
+						<td width="80%">
+						 	#if($isActualDate)
+                         		<input id="actualDateCheckBox" checked="checked" type="checkbox" name="actualDateCheckBox" value="true" class="checkbox" style="margin-right: 10px"/>
+                     		#else
+                         		<input id="actualDateCheckBox" type="checkbox" name="actualDateCheckBox" value="true" class="checkbox" style="margin-right: 10px" />
+                      		#end
+						</td>
+					</tr>
+					<tr class="buttons-container">
+						<td colspan="2">
+							<input id="savesettings"  type="submit" name="savesettings" value="$i18n.getText('plugin.save')" class="button"/>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			
+		</div>
+	</div>
+	
+	
+</from>

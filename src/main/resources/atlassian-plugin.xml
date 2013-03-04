@@ -24,14 +24,17 @@
     plugins-version="2">
 
     <plugin-info>
-        <version>1.0.0</version>
+        <version>1.1.0</version>
         <description>Jira Timetracker Plugin</description>
         <application-version min="4.4" />
         <vendor name="EverIT Kft." url="https://www.everit.biz" />
     </plugin-info>
-
+	
+    <component-import key="pluginSettingFactroy" interface="com.atlassian.sal.api.pluginsettings.PluginSettingsFactory" />
+    
     <component key="JTTP" name="Jira Timetracker Plugin" class="org.everit.jira.timetracker.plugin.JiraTimetrackerPluginImpl">
         <interface class="org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin" />
+         <interface>org.springframework.beans.factory.InitializingBean</interface>
     </component>
 
     <web-item key="jttp_link" name="Jttp Link" section="system.top.navigation.bar" weight="47">
@@ -48,7 +51,12 @@
                 <view name="input">/templates/jttp.vm</view>
                 <view name="error">/templates/jttp.vm</view>
             </action>
+             <action name="org.everit.jira.timetracker.plugin.JiraTimetrackerSettingsWebAction" alias="JiraTimetrackerSettingsWebAction">
+                <view name="success">/templates/settings.vm</view>
+                <view name="input">/templates/settings.vm</view>
+                <view name="error">/templates/error.vm</view>
+            </action>
         </actions>
     </webwork1>
-
+	
 </atlassian-plugin>
