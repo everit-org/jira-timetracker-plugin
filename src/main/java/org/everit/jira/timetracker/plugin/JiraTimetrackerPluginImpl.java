@@ -187,7 +187,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
         PermissionManager permissionManager = ComponentManager.getInstance()
                 .getPermissionManager();
         if (!permissionManager.hasPermission(Permissions.WORK_ISSUE, issue, user)) {
-            return new ActionResult(ActionResultStatus.FAIL, "plugin.nopermisson_issue", issueId);
+            return new ActionResult(ActionResultStatus.FAIL, "plugin.nopermission_issue", issueId);
         }
         String dateAndTime = dateFormated + " " + startTime;
         Date date;
@@ -246,7 +246,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
             PermissionManager permissionManager = ComponentManager.getInstance()
                     .getPermissionManager();
             if (!permissionManager.hasPermission(Permissions.WORK_ISSUE, issue, user)) {
-                return new ActionResult(ActionResultStatus.FAIL, "plugin.nopermisson_issue", issueId);
+                return new ActionResult(ActionResultStatus.FAIL, "plugin.nopermission_issue", issueId);
             }
             ActionResult deleteResult = deleteWorklog(id);
             if (deleteResult.getStatus() == ActionResultStatus.FAIL) {
