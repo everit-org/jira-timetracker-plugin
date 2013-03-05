@@ -467,11 +467,14 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         daySummary = jiraTimetrackerPlugin.summary(start, end);
 
         startCalendar = (Calendar) originalStartcalendar.clone();
-        startCalendar.set(Calendar.DAY_OF_MONTH, (date.getDate() - date.getDay()) + 1);
+        startCalendar.set(Calendar.DAY_OF_MONTH, (date.getDate() - (date.getDay() == 0 ? 6 : date.getDay() - 1)));
         start = startCalendar.getTime();
 
         endCalendar = (Calendar) originalEndCcalendar.clone();
-        endCalendar.set(Calendar.DAY_OF_MONTH, date.getDate() + (DateTimeConverterUtil.DAYS_PER_WEEK - date.getDay()));
+        endCalendar
+                .set(Calendar.DAY_OF_MONTH,
+                        (date.getDate() + (DateTimeConverterUtil.DAYS_PER_WEEK - (date.getDay() == 0 ? 7 : date
+                                .getDay()))));
         end = endCalendar.getTime();
 
         weekSummary = jiraTimetrackerPlugin.summary(start, end);
@@ -588,7 +591,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         String[] commentsValue = request.getParameterValues("comments");
 
         if (!DateTimeConverterUtil.isValidTime(startTimeValue[0])) {
-            message = "plugin.invalide_startTime";
+            message = "plugin.invalid_startTime";
             return ERROR;
         }
         if (commentsValue[0] == null) {
@@ -597,14 +600,14 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         if (endOrDurationValue[0].equals("duration")) {
             String[] durationTimeValue = request.getParameterValues("durationTime");
             if (!DateTimeConverterUtil.isValidTime(durationTimeValue[0])) {
-                message = "plugin.invalide_durationTime";
+                message = "plugin.invalid_durationTime";
                 return ERROR;
             }
             Date durationDateTime;
             try {
                 durationDateTime = DateTimeConverterUtil.stringTimeToDateTimeGMT(durationTimeValue[0]);
             } catch (ParseException e) {
-                message = "plugin.invalide_durationTime";
+                message = "plugin.invalid_durationTime";
                 return ERROR;
             }
 
@@ -613,7 +616,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         } else {
             String[] endTimeValue = request.getParameterValues("endTime");
             if (!DateTimeConverterUtil.isValidTime(endTimeValue[0])) {
-                message = "plugin.invalide_endTime";
+                message = "plugin.invalid_endTime";
                 return ERROR;
             }
             Date startDateTime;
@@ -622,7 +625,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
                 startDateTime = DateTimeConverterUtil.stringTimeToDateTimeGMT(startTimeValue[0]);
                 endDateTime = DateTimeConverterUtil.stringTimeToDateTimeGMT(endTimeValue[0]);
             } catch (ParseException e) {
-                message = "plugin.invalide_endTime";
+                message = "plugin.invalid_endTime";
                 return ERROR;
             }
 
@@ -631,7 +634,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
             if (seconds > 0) {
                 timeSpent = DateTimeConverterUtil.secondConvertToString(seconds);
             } else {
-                message = "plugin.invalide_timeIntervalume";
+                message = "plugin.invalid_timeInterval";
                 return ERROR;
             }
         }
