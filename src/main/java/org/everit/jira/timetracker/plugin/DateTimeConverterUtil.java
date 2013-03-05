@@ -267,6 +267,22 @@ public final class DateTimeConverterUtil {
     }
 
     /**
+     * Covert String time (hh:mm) to jira format (1h 30m) String. Use the {@link DateTimeConverterUtil} methods.
+     * 
+     * @param time
+     *            The time.
+     * @return The new formated String.
+     * @throws ParseException
+     *             If can't parse the date.
+     */
+    public static String stringTimeToString(final String time) throws ParseException {
+        long seconds = DateTimeConverterUtil.stringTimeToDateTimeGMT(
+                time).getTime() / 1000;
+        String result = DateTimeConverterUtil.secondConvertToString(seconds);
+        return result;
+    }
+
+    /**
      * Convert String ({@value #DATE_FORMAT}) to Date.
      * 
      * @param dateString

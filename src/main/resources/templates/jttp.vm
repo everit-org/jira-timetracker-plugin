@@ -30,7 +30,10 @@ $webResourceManager.requireResource("jira.webresources:global-static")
 $webResourceManager.requireResource("jira.webresources:calendar")
 $webResourceManager.requireResource("jira.webresources:calendar-en")
 
-<form name="myForm"  method="post" #if($editedWorklogId == 0) action="JiraTimetarckerWebAction.jspa?dateFormated=$dateFormated" #else action="JiraTimetarckerWebAction.jspa?editedWorklogId=$editedWorklogId&dateFormated=$dateFormated #end"/>   
+<form name="myForm"  method="post"
+					#if($isEdit) action="JiraTimetarckerWebAction.jspa?editedWorklogId=$editedWorklogId&dateFormated=$dateFormated" 
+					#elseif($isEditAll) action="JiraTimetarckerWebAction.jspa?editAllIds=$editAllIds&dateFormated=$dateFormated" 
+					#else action="JiraTimetarckerWebAction.jspa?dateFormated=$dateFormated" #end/>   
 	#set($rendererType = "atlassian-wiki-renderer")
 	<div id="plugin_head" class="item-header">
  			<h1 class="item-summary">Timetracker</h1>
@@ -78,7 +81,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 	   		<table  width="100%">
 	   			<tbody>
 	   				<tr>
-	   					<input id="editAll"  type="submit" name="editall" value="$i18n.getText('plugin.edit.all')" class="button" />
+	   					<input id="editAll" type="button" name="editall" value="$i18n.getText('plugin.edit.all')" onclick="location.href='JiraTimetarckerWebAction!default.jspa?editAllIds=$worklogsIds&dateFormated=$dateFormated'" class="button" />
 	   					<td width="70%">
 							<table>
 						                <tbody>
@@ -147,7 +150,6 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 														#if (${action.currentJQL})
 															data-ajax-options.data.current_jql=${action.currentJQL}
 														#end>
-														
 													</select> 
 										    		<script>
 														var ip = new AJS.IssuePicker({
@@ -193,7 +195,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 											function dateChanged(calendar)
 											  {
 											      document.getElementById("date").value=calendar.date.print(calendar.params.ifFormat);
-											      console.log(jQuery(document.getElementById("date")).change().length);
+											      jQuery(document.getElementById("date")).change();
 											  };
 											
 											</script>
@@ -230,6 +232,21 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 		    </table>
 			#if($isEdit)
 				<input id="Edit"  type="submit" name="edit" value="$i18n.getText('plugin.save')" class="button" />
+			#elseif($isEditAll)
+				<input id="editallsave"  type="submit" name="editallsave" value="$i18n.getText('plugin.save')" class="button" />	
+				##set input fields disable
+				<script>
+				document.getElementById("startTime").disabled= true;
+				document.getElementById("startNow").disabled= true;
+				document.getElementById("radioEnd").disabled= true;
+				document.getElementById("endTime").disabled= true;
+				document.getElementById("endNow").disabled= true;
+				document.getElementById("radioDuration").disabled= true;
+				document.getElementById("durationTime").disabled= true;
+				document.getElementById("issueSelect-textarea").disabled= true;
+				document.getElementById("issueSelect-textarea").disabled= true;
+				document.getElementById("comments").disabled= true;
+				</script>
 			#else
 				<input id="Submit"  type="submit" name="submit" value="$i18n.getText('plugin.submit')" class="button" />
 			#end
