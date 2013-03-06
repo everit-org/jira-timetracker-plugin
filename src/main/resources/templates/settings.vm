@@ -28,13 +28,16 @@
   	</div>
   	<div id="main-content" class="content rounded" >
 		<div style="margin:10px; ">
-			<p>This is the Jira Timetracker Plugin Setting Page.</p>
 			<table  width="80%" padding:"5px" >
 				<tbody>
+					<tr>
+						<td colspan="2">
+							<p><strong>$i18n.getText("plugin.personal.settings")</strong></p>
+						</td>
+					</tr>
 		        	<tr>
 						<td width="20%">
-						##i18n
-							Use popup Calender: 
+							$i18n.getText("plugin.setting.ispopup"): 
 						</td>
 						<td width="80%">
 						 	#if($isPopup)
@@ -46,8 +49,7 @@
 					</tr>
 					<tr>
 						<td width="20%">
-						##i18n
-							Calendar show actual: 
+							$i18n.getText("plugin.setting.isactualdate"):  
 						</td>
 						<td width="80%">
 						 	#if($isActualDate)
@@ -57,9 +59,58 @@
                       		#end
 						</td>
 					</tr>
+					#if ($authcontext.user.inGroup('jira-administrators'))
+						<tr>
+							<td colspan="2">
+							<p><strong>$i18n.getText("plugin.admin.settings")</strong></p>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								$i18n.getText("plugin.setting.filtered.issues")
+							</td>
+						</tr>
+						<tr>
+							<td colspan="2">
+								<div id="issueSelect_container" class="ajax_autocomplete atlassian-autocomplete" >
+									<select class="hidden"
+											multiple="none" 
+								   			name="issueSelect" 
+											id="issueSelect" 
+								   			data-popup-link-message="" 
+								   			data-popup-width="620" 
+								   			data-popup-height="500" 
+								   			data-remove-on-un-select="true" 
+								   			data-ajax-options.query="true" 
+								   			data-ajax-options.url="${req.contextPath}/rest/api/1.0/issues/picker" 
+								   			data-ajax-options.data.query="-" 
+								   			data-ajax-options.data.current-issue-key=""
+								   			data-ajax-options.data.show-sub-tasks="true" 
+									    	data-ajax-options.data.show-sub-task-parent="true"
+											#if (${action.currentJQL})
+												data-ajax-options.data.current_jql=${action.currentJQL}
+											#end>
+									</select> 
+									<script>
+											var ip = new AJS.IssuePicker({
+									  		element: AJS.$("#issueSelect"),
+									 		userEnteredOptionsMsg: AJS.params.enterIssueKey,
+									  		uppercaseUserEnteredOnSelect: true,
+									  		singleSelectOnly: true,
+									   		currentProjectId: $projectsId,
+											});
+											//Set the issues key all of them	
+											AJS.$("#issueSelect-textarea").append("$issueKey");
+											ip.handleFreeInput();
+									</script>
+								</div>
+							</td>
+						</tr>
+					#end
 					<tr class="buttons-container">
 						<td colspan="2">
 							<input id="savesettings"  type="submit" name="savesettings" value="$i18n.getText('plugin.save')" class="button"/>
+							<input id="cancelButton"  type="button" name="Cancel" value="$i18n.getText('plugin.cancel')" onclick="location.href='JiraTimetrackerSettingsWebAction.jspa'" class="button"/>
 						</td>
 					</tr>
 				</tbody>

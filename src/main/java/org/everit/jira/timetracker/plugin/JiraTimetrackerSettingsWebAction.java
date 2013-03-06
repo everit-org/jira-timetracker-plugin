@@ -22,11 +22,18 @@ package org.everit.jira.timetracker.plugin;
  */
 
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.log4j.Logger;
 import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
 
+import com.atlassian.crowd.embedded.api.User;
+import com.atlassian.jira.ComponentManager;
+import com.atlassian.jira.issue.IssueManager;
+import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
 
 public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
@@ -44,6 +51,25 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 
     boolean isActualDate;
 
+    /**
+     * The issue key.
+     */
+    private String issueKey = "";
+    /**
+     * The IDs of the projects.
+     */
+    private List<String> projectsId;
+
+    /**
+     * Logger.
+     */
+    private static final Logger LOGGER = Logger.getLogger(JiraTimetrackerSettingsWebAction.class);
+
+    /**
+     * The filtered Issues id.
+     */
+    private List<Long> issuesId;
+
     public JiraTimetrackerSettingsWebAction(final JiraTimetrackerPlugin jiraTimetrackerPlugin) {
         this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
     }
@@ -52,13 +78,26 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     public String doDefault() throws ParseException {
 
         loadPluginSettingAndParseResult();
+        try {
+            projectsId = jiraTimetrackerPlugin.getProjectsId();
+        } catch (Exception e) {
+            LOGGER.error("Error when try set the plugin variables.", e);
+            return ERROR;
+        }
 
         return INPUT;
     }
 
     @Override
     public String doExecute() throws ParseException {
-        // loadPluginSettingAndParseResult();
+        loadPluginSettingAndParseResult();
+        try {
+            projectsId = jiraTimetrackerPlugin.getProjectsId();
+        } catch (Exception e) {
+            LOGGER.error("Error when try set the plugin variables.", e);
+            return ERROR;
+        }
+
         if (request.getParameter("savesettings") != null) {
             parseSaveSettings(request);
             savePluginSettings();
@@ -77,13 +116,47 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
         return isPopup;
     }
 
+    public String getIssueKey() {
+        return issueKey;
+    }
+
+    public List<String> getProjectsId() {
+        return projectsId;
+    }
+
     public void loadPluginSettingAndParseResult() {
         PluginSettingsValues pluginSettingsValues = jiraTimetrackerPlugin.loadPluginSettings();
         isPopup = pluginSettingsValues.isCalendarPopup();
         isActualDate = pluginSettingsValues.isActualDate();
+        issuesId = pluginSettingsValues.getFilteredSummaryIssues();
+        for (Long issueId : issuesId) {
+            IssueManager issueManager = ComponentManager.getInstance().getIssueManager();
+            String filteredIssueKey = issueManager.getIssueObject(issueId).getKey();
+            issueKey += filteredIssueKey + " ";
+        }
     }
 
     public void parseSaveSettings(final HttpServletRequest request) {
+        JiraAuthenticationContext authenticationContext = ComponentManager.getInstance()
+                .getJiraAuthenticationContext();
+        User user = authenticationContext.getLoggedInUser();
+        // check the logged user admin or not
+        boolean isUserAdmin = ComponentManager.getInstance().getUserUtil().getJiraSystemAdministrators().contains(user);
+
+        String[] issueSelectValue = request.getParameterValues("issueSelect");
+        // if the user is admin and issueSelectValue is null means we don't want to filters
+        // else if issueSelectValue not null then the user is admin and we save the new filters
+        // else not have to implement because we use the loaded issuesId list
+        if ((issueSelectValue == null) && isUserAdmin) {
+            issuesId = new ArrayList<Long>();
+        } else if (issueSelectValue != null) {
+            issuesId = new ArrayList<Long>();
+            for (String filteredIssueKey : issueSelectValue) {
+                IssueManager issueManager = ComponentManager.getInstance().getIssueManager();
+                Long filteredIssueId = issueManager.getIssueObject(filteredIssueKey).getId();
+                issuesId.add(filteredIssueId);
+            }
+        }
         String calendarPopupCheckBoxValues = request.getParameter("calendarPopupCheckBox");
         if (calendarPopupCheckBoxValues == null) {
             isPopup = false;
@@ -100,9 +173,8 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     }
 
     public void savePluginSettings() {
-        PluginSettingsValues pluginSettingValues = new PluginSettingsValues(isPopup, isActualDate);
+        PluginSettingsValues pluginSettingValues = new PluginSettingsValues(isPopup, isActualDate, issuesId);
         jiraTimetrackerPlugin.savePluginSettings(pluginSettingValues);
-
     }
 
     public void setIsActualDate(final boolean actualDateOrLastWorklogDate) {
@@ -111,5 +183,13 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 
     public void setIsPopup(final boolean isPopup) {
         this.isPopup = isPopup;
+    }
+
+    public void setIssueKey(final String issueKey) {
+        this.issueKey = issueKey;
+    }
+
+    public void setProjectsId(final List<String> projectsId) {
+        this.projectsId = projectsId;
     }
 }

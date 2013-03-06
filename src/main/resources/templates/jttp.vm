@@ -74,6 +74,9 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 			</div>
 			<div id="summary" style="text-align: right; float: right; padding:5px;">
 				$i18n.getText("plugin.summary") $i18n.getText("plugin.day") ( $daySummary ) $i18n.getText("plugin.week") ( $weekSummary) $i18n.getText("plugin.month") ( $monthSummary)
+				#if($issuesId.size() != 0)
+					</br> $i18n.getText("plugin.filtered") $i18n.getText("plugin.summary") $i18n.getText("plugin.day") ( $dayFilteredSummary ) $i18n.getText("plugin.week") ( $weekFilteredSummary) $i18n.getText("plugin.month") ( $monthFilteredSummary)
+				#end
 			</div>
 		    #parse("templates/list.vm")
 	   		</br>
@@ -131,7 +134,6 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 						                    <tr>
 						                    	<td width="50%">
 						                           Issue: <img src="/images/required.png" width="16" height="16" border="0"/>
-						                          ## <div id="issueSelect_cont_cont" >
 					  							   <div id="issueSelect_container" class="ajax_autocomplete atlassian-autocomplete" >
 										    		<select class="hidden"
 										    			multiple="none" 
@@ -164,7 +166,6 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 														AJS.$("#issueSelect-textarea").append("$issueKey");
 														ip.handleFreeInput();
 													</script>
-												##</div>
 											 	</div>
 						                        </td>
 						                    	 <td>

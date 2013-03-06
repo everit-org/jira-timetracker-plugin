@@ -117,19 +117,37 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
     /**
      * The summary of month.
      */
+    private String monthFilteredSummary = "";
+    /**
+     * The summary of week.
+     */
+    private String weekFilteredSummary = "";
+
+    /**
+     * The summary of day.
+     */
+    private String dayFilteredSummary = "";
+
+    /**
+     * The summary of month.
+     */
     private String monthSummary = "";
+
     /**
      * The summary of week.
      */
     private String weekSummary = "";
+
     /**
      * The summary of day.
      */
     private String daySummary = "";
+
     /**
      * The edited worklog id.
      */
     private Long editedWorklogId = DEFAULT_WORKLOG_ID;
+
     /**
      * The WebAction is edit a worklog or not.
      */
@@ -138,16 +156,15 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
      * The WebAction is edit all worklog or not.
      */
     private boolean isEditAll = false;
+
     /**
      * The issue key.
      */
     private String issueKey = "";
-
     /**
      * The worklog start time.
      */
     private String startTime = "";
-
     /**
      * The worklog end time.
      */
@@ -187,6 +204,11 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
      * The calendar show actual Date Or Last Worklog Date.
      */
     private boolean isActualDate;
+
+    /**
+     * The filtered Issues id.
+     */
+    private List<Long> issuesId;
 
     /**
      * Simple constructor.
@@ -474,6 +496,10 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         return datePCalendar;
     }
 
+    public String getDayFilteredSummary() {
+        return dayFilteredSummary;
+    }
+
     public String getDaySummary() {
         return daySummary;
     }
@@ -498,10 +524,6 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         return endTime;
     }
 
-    // public List<Long> getEditAllIds() {
-    // return editAllIds;
-    // }
-
     public boolean getIsEdit() {
         return isEdit;
     }
@@ -522,12 +544,20 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         return issues;
     }
 
+    public List<Long> getIssuesId() {
+        return issuesId;
+    }
+
     public String getMessage() {
         return message;
     }
 
     public String getMessageParameter() {
         return messageParameter;
+    }
+
+    public String getMonthFilteredSummary() {
+        return monthFilteredSummary;
     }
 
     public String getMonthSummary() {
@@ -540,6 +570,10 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 
     public String getStartTime() {
         return startTime;
+    }
+
+    public String getWeekFilteredSummary() {
+        return weekFilteredSummary;
     }
 
     public String getWeekSummary() {
@@ -581,6 +615,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         PluginSettingsValues pluginSettingsValues = jiraTimetrackerPlugin.loadPluginSettings();
         isPopup = pluginSettingsValues.isCalendarPopup();
         isActualDate = pluginSettingsValues.isActualDate();
+        issuesId = pluginSettingsValues.getFilteredSummaryIssues();
     }
 
     /**
@@ -626,7 +661,10 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         Calendar originalEndCcalendar = (Calendar) endCalendar.clone();
         Date end = endCalendar.getTime();
 
-        daySummary = jiraTimetrackerPlugin.summary(start, end);
+        daySummary = jiraTimetrackerPlugin.summary(start, end, null);
+        if ((issuesId != null) && !issuesId.isEmpty()) {
+            dayFilteredSummary = jiraTimetrackerPlugin.summary(start, end, issuesId);
+        }
 
         startCalendar = (Calendar) originalStartcalendar.clone();
         startCalendar.set(Calendar.DAY_OF_MONTH, (date.getDate() - (date.getDay() == 0 ? 6 : date.getDay() - 1)));
@@ -638,7 +676,10 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
                         .getDay()))));
         end = endCalendar.getTime();
 
-        weekSummary = jiraTimetrackerPlugin.summary(start, end);
+        weekSummary = jiraTimetrackerPlugin.summary(start, end, null);
+        if ((issuesId != null) && !issuesId.isEmpty()) {
+            weekFilteredSummary = jiraTimetrackerPlugin.summary(start, end, issuesId);
+        }
 
         startCalendar = (Calendar) originalStartcalendar.clone();
         startCalendar.set(Calendar.DAY_OF_MONTH, 1);
@@ -647,7 +688,11 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         endCalendar = (Calendar) originalEndCcalendar.clone();
         endCalendar.set(Calendar.DAY_OF_MONTH, DateTimeConverterUtil.LAST_DAY_OF_MONTH);
         end = endCalendar.getTime();
-        monthSummary = jiraTimetrackerPlugin.summary(start, end);
+
+        monthSummary = jiraTimetrackerPlugin.summary(start, end, null);
+        if ((issuesId != null) && !issuesId.isEmpty()) {
+            monthFilteredSummary = jiraTimetrackerPlugin.summary(start, end, issuesId);
+        }
     }
 
     /**
@@ -681,6 +726,10 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         this.datePCalendar = datePCalendar;
     }
 
+    public void setDayFilteredSummary(final String dayFilteredSummary) {
+        this.dayFilteredSummary = dayFilteredSummary;
+    }
+
     public void setDaySummary(final String daySummary) {
         this.daySummary = daySummary;
     }
@@ -705,10 +754,6 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         this.editAllIds = editAllIds;
     }
 
-    // public void setEditAllIds(final List<Long> editAllIds) {
-    // this.editAllIds = editAllIds;
-    // }
-
     public void setEditedWorklogId(final Long editedWorklogId) {
         this.editedWorklogId = editedWorklogId;
     }
@@ -725,12 +770,20 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         this.issues = issues;
     }
 
+    public void setIssuesId(final List<Long> issuesId) {
+        this.issuesId = issuesId;
+    }
+
     public void setMessage(final String message) {
         this.message = message;
     }
 
     public void setMessageParameter(final String messageParameter) {
         this.messageParameter = messageParameter;
+    }
+
+    public void setMonthFilteredSummary(final String monthFilteredSummary) {
+        this.monthFilteredSummary = monthFilteredSummary;
     }
 
     public void setMonthSummary(final String monthSummary) {
@@ -747,6 +800,10 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 
     public void setStartTime(final String startTime) {
         this.startTime = startTime;
+    }
+
+    public void setWeekFilteredSummary(final String weekFilteredSummary) {
+        this.weekFilteredSummary = weekFilteredSummary;
     }
 
     public void setWeekSummary(final String weekSummary) {

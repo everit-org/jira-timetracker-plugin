@@ -21,6 +21,8 @@ package org.everit.jira.timetracker.plugin.dto;
  * MA 02110-1301  USA
  */
 
+import java.util.List;
+
 import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
 
 /**
@@ -38,14 +40,22 @@ public class PluginSettingsValues {
      */
     private Boolean isActualDate;
 
+    private List<Long> filteredSummaryIssues;
+
     public PluginSettingsValues() {
 
     }
 
-    public PluginSettingsValues(final boolean isCalendarPopup, final boolean isActualDate) {
+    public PluginSettingsValues(final boolean isCalendarPopup, final boolean isActualDate,
+            final List<Long> filteredSummaryIssues) {
         super();
         this.isCalendarPopup = isCalendarPopup;
         this.isActualDate = isActualDate;
+        this.filteredSummaryIssues = filteredSummaryIssues;
+    }
+
+    public List<Long> getFilteredSummaryIssues() {
+        return filteredSummaryIssues;
     }
 
     public Boolean isActualDate() {
@@ -62,6 +72,10 @@ public class PluginSettingsValues {
 
     public void setCalendarPopup(final boolean isCalendarPopup) {
         this.isCalendarPopup = isCalendarPopup;
+    }
+
+    public void setFilteredSummaryIssues(final List<Long> filteredSummaryIssues) {
+        this.filteredSummaryIssues = filteredSummaryIssues;
     }
 
 }

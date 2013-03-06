@@ -44,6 +44,8 @@ import org.everit.jira.timetracker.plugin.dto.ActionResultStatus;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklogComparator;
 import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
+import org.ofbiz.core.entity.EntityCondition;
+import org.ofbiz.core.entity.EntityConditionList;
 import org.ofbiz.core.entity.EntityExpr;
 import org.ofbiz.core.entity.EntityOperator;
 import org.ofbiz.core.entity.GenericEntityException;
@@ -91,6 +93,10 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
      */
     private PluginSettings pluginSettings;
     /**
+     * The plugin global setting form the settingsFactory.
+     */
+    private PluginSettings globalSettings;
+    /**
      * The plugin setting values.
      */
     private PluginSettingsValues pluginSettingsValues;
@@ -127,6 +133,25 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
      * Logger.
      */
     private static final Logger LOGGER = Logger.getLogger(JiraTimetrackerPluginImpl.class);
+
+    List<Long> issuesId;
+
+    /**
+     * The plugin settings key prefix.
+     */
+    private static final String JTTP_PLUGIN_SETTINGS_KEY_PREFIX = "jttp";
+    /**
+     * The plugin setting Summary Filters key.
+     */
+    private static final String JTTP_PLUGIN_SETTINGS_SUMMARY_FILTERS = "SummaryFilters";
+    /**
+     * The plugin setting is calendar popup key.
+     */
+    private static final String JTTP_PLUGIN_SETTINGS_IS_CALENDAR_POPUP = "isCalendarPopup";
+    /**
+     * The plugin setting is actual date key.
+     */
+    private static final String JTTP_PLUGIN_SETTINGS_IS_ACTUAL_DATE = "isActualDate";
 
     /**
      * Default constructor.
@@ -464,12 +489,26 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
         JiraAuthenticationContext authenticationContext = ComponentManager.getInstance()
                 .getJiraAuthenticationContext();
         User user = authenticationContext.getLoggedInUser();
-        pluginSettings = settingsFactory.createSettingsForKey(user.getName());
+
+        globalSettings = settingsFactory.createGlobalSettings();
+        if (globalSettings.get(JTTP_PLUGIN_SETTINGS_KEY_PREFIX + JTTP_PLUGIN_SETTINGS_SUMMARY_FILTERS) != null) {
+            issuesId = new ArrayList<Long>();
+            List<String> tempIssueList = (List<String>) globalSettings.get(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+                    + JTTP_PLUGIN_SETTINGS_SUMMARY_FILTERS);
+            for (String tempIssueId : tempIssueList) {
+                issuesId.add(Long.valueOf(tempIssueId));
+            }
+        } else {
+            // default empty list
+            issuesId = new ArrayList<Long>();
+        }
+
+        pluginSettings = settingsFactory.createSettingsForKey(JTTP_PLUGIN_SETTINGS_KEY_PREFIX + user.getName());
         Boolean isPopup = null;
-        if (pluginSettings.get("isCalendarPopup") != null) {
-            if (pluginSettings.get("isCalendarPopup").equals("true")) {
+        if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_IS_CALENDAR_POPUP) != null) {
+            if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_IS_CALENDAR_POPUP).equals("true")) {
                 isPopup = true;
-            } else if (pluginSettings.get("isCalendarPopup").equals("false")) {
+            } else if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_IS_CALENDAR_POPUP).equals("false")) {
                 isPopup = false;
             }
         } else {
@@ -477,10 +516,10 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
             isPopup = true;
         }
         Boolean isActualDate = null;
-        if (pluginSettings.get("isActualDate") != null) {
-            if (pluginSettings.get("isActualDate").equals("true")) {
+        if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_IS_ACTUAL_DATE) != null) {
+            if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_IS_ACTUAL_DATE).equals("true")) {
                 isActualDate = true;
-            } else if (pluginSettings.get("isActualDate").equals("false")) {
+            } else if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_IS_ACTUAL_DATE).equals("false")) {
                 isActualDate = false;
             }
         } else {
@@ -488,7 +527,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
             isActualDate = true;
         }
         // Here set the other values
-        pluginSettingsValues = new PluginSettingsValues(isPopup, isActualDate);
+        pluginSettingsValues = new PluginSettingsValues(isPopup, isActualDate, issuesId);
         return pluginSettingsValues;
     }
 
@@ -497,15 +536,21 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
         JiraAuthenticationContext authenticationContext = ComponentManager.getInstance()
                 .getJiraAuthenticationContext();
         User user = authenticationContext.getLoggedInUser();
-        pluginSettings = settingsFactory.createSettingsForKey(user.getName());
-        pluginSettings.put("isCalendarPopup", pluginSettingsParameters.isCalendarPopup().toString());
-        pluginSettings.put("isActualDate", pluginSettingsParameters.isActualDate().toString());
+        pluginSettings = settingsFactory.createSettingsForKey(JTTP_PLUGIN_SETTINGS_KEY_PREFIX + user.getName());
+        pluginSettings.put(JTTP_PLUGIN_SETTINGS_IS_CALENDAR_POPUP, pluginSettingsParameters.isCalendarPopup()
+                .toString());
+        pluginSettings.put(JTTP_PLUGIN_SETTINGS_IS_ACTUAL_DATE, pluginSettingsParameters.isActualDate().toString());
+
+        globalSettings = settingsFactory.createGlobalSettings();
+        globalSettings.put(JTTP_PLUGIN_SETTINGS_KEY_PREFIX + JTTP_PLUGIN_SETTINGS_SUMMARY_FILTERS,
+                pluginSettingsParameters.getFilteredSummaryIssues());
         // TODO better message
         return new ActionResult(ActionResultStatus.SUCCESS, "");
     }
 
     @Override
-    public String summary(final Date startSummary, final Date finishSummary) throws GenericEntityException {
+    public String summary(final Date startSummary, final Date finishSummary, final List<Long> issuesId)
+            throws GenericEntityException {
         JiraAuthenticationContext authenticationContext = ComponentManager.getInstance().getJiraAuthenticationContext();
         User user = authenticationContext.getLoggedInUser();
         startSummary.setSeconds(0);
@@ -529,7 +574,22 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
         if (endExpr != null) {
             exprs.add(endExpr);
         }
-        List<GenericValue> worklogs = CoreFactory.getGenericDelegator().findByAnd("Worklog", exprs);
+        List<GenericValue> worklogs;
+        // if issuesId not null we make a filtered summary
+        if ((issuesId != null) && !issuesId.isEmpty()) {
+            List<EntityExpr> issuesConditions = new ArrayList<EntityExpr>();
+            for (Long issueId : issuesId) {
+                issuesConditions.add(new EntityExpr("issue", EntityOperator.NOT_EQUAL, issueId));
+            }
+            EntityCondition issueCondition = new EntityConditionList(issuesConditions, EntityOperator.AND);
+            EntityCondition otherCondition = new EntityConditionList(exprs, EntityOperator.AND);
+            EntityExpr allConditionInOne = new EntityExpr(issueCondition, EntityOperator.AND, otherCondition);
+            List<EntityExpr> allExps = new ArrayList<EntityExpr>();
+            allExps.add(allConditionInOne);
+            worklogs = CoreFactory.getGenericDelegator().findByAnd("Worklog", allExps);
+        } else {
+            worklogs = CoreFactory.getGenericDelegator().findByAnd("Worklog", exprs);
+        }
 
         long timeSpent = 0;
         Iterator<GenericValue> worklogsIterator = worklogs.iterator();
@@ -539,5 +599,4 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
         }
         return DateTimeConverterUtil.secondConvertToString(timeSpent);
     }
-
 }
