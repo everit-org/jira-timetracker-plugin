@@ -45,6 +45,11 @@ margin-bottom: 0em;
 		                    	<tr #if($rowCount % 2 != 0) class="rowAlter" #end>
 		                    	 	<td>
 		                    	 		<a href="/browse/$worklog.issue" class="issue-link">$worklog.issue</a>
+		                    	 		
+		                    	 		#if(!$worklog.isMoreEstimatedTime)
+		                    	 			<img id="no_estimated" src="/images/icons/priority_blocker.gif" width="16" height="16" border="0"
+															alt="No more estimated time. Check the issue." style="vertical-align: text-bottom;"/>
+										#end
 		                    	 	</td>
 		                    	 	<td>
 		                    	 		$worklog.startTime
