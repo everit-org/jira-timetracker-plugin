@@ -91,8 +91,18 @@ public interface JiraTimetrackerPlugin {
      * @throws GenericEntityException
      *             GenericEntityException
      */
-    // TODO params? current date, intervalum?check the throws to!
     Date firstMissingWorklogsDate() throws GenericEntityException;
+
+    /**
+     * Create a query and give back the list of dates where are no worklogs. The query examine the days between the user
+     * creation date and the current date. The method not examine the weekends and the properties file exclude dates but
+     * check the properties file include dates.
+     * 
+     * @return The list of the dates.
+     * @throws GenericEntityException
+     *             If GenericEntity Exception.
+     */
+    List<Date> getDates(Date from, Date to) throws GenericEntityException;
 
     /**
      * Give back the Issues.

@@ -32,7 +32,9 @@
 				<tbody>
 					<tr>
 						<td colspan="2">
-							<p><strong>$i18n.getText("plugin.personal.settings")</strong></p>
+							<div style="margin-top: 10px; margin-bottom: 10px;">
+								<strong>$i18n.getText("plugin.personal.settings")</strong>
+							<div>
 						</td>
 					</tr>
 		        	<tr>
@@ -62,7 +64,9 @@
 					#if ($authcontext.user.inGroup('jira-administrators'))
 						<tr>
 							<td colspan="2">
-							<p><strong>$i18n.getText("plugin.admin.settings")</strong></p>
+							<div style="margin-top: 10px; margin-bottom: 10px;">
+								<strong>$i18n.getText("plugin.admin.settings")</strong>
+							</div>	
 							</td>
 						</tr>
 						<tr>
@@ -72,7 +76,7 @@
 						</tr>
 						<tr>
 							<td colspan="2">
-								<div id="issueSelect_container" class="ajax_autocomplete atlassian-autocomplete" >
+								<div id="issueSelect_container" class="ajax_autocomplete atlassian-autocomplete" style="margin-bottom: 35px" >
 									<select class="hidden"
 											multiple="none" 
 								   			name="issueSelect" 

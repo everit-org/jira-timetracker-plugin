@@ -40,6 +40,18 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
   	</div>
 	<div id="main-content" class="content rounded" >
 		<div style="margin:10px; ">
+			##TAB START
+			<div class="tabwrap tabs2" id="tabs-jttp">
+	    		<ul class="tabs horizontal">
+	        		<li class="active">
+	            		<a href="JiraTimetarckerWebAction!default.jspa"><strong>Timetracker</strong></a>
+	        		</li>
+	        		<li>
+	            		<a href="JiraTimetrackerWorklogsWebAction!default.jspa"><strong>Missing Days Report</strong></a>
+	        		</li>
+	    		</ul>
+	    	</div>
+			##TAB END
 			<div id="message" style="color: red; ">
 		 			$i18n.getText($message) $messageParameter
 		  	</div>
@@ -56,7 +68,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 				<input type="submit" id="dayNext"  name="dayNext" value=">"  class="button"/>
 				<input type="submit" id="weekNext"  name="weekNext" value=">>"  class="button"/>
 				<input type="submit" id="monthNext"  name="monthNext" value=">>>" class="button" />
-			<script>
+				<script>
 				var cal= Calendar.setup({
 					firstDay : 0,
 					inputField : 'date',
@@ -252,7 +264,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 				<input id="Submit"  type="submit" name="submit" value="$i18n.getText('plugin.submit')" class="button" />
 			#end
 			<input id="cancelButton"  type="button" name="Cancel" value="$i18n.getText('plugin.cancel')" onclick="location.href='JiraTimetarckerWebAction!default.jspa?dateFormated=$dateFormated'" class="button"/>
-			<input id="setting"  type="button" name="setting" onclick="location.href='JiraTimetrackerSettingsWebAction!default.jspa'" value="$i18n.getText('plugin.settings')" class="button"/>
+			<input id="setting"  type="button" name="setting" onclick="location.href='JiraTimetrackerSettingsWebAction!default.jspa'" value="$i18n.getText('plugin.settings')" class="button" style="float: right; margin-right: 15px;"/>
 			</div>
 		</div>	
 	</div>

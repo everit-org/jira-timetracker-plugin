@@ -347,7 +347,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
 
     @Override
     public Date firstMissingWorklogsDate() throws GenericEntityException {
-        // TODO implement better :)
         Calendar scanedDate = Calendar.getInstance();
         // one week
         scanedDate
@@ -383,6 +382,39 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
         }
         // if we find everything all right then return with the current date
         return scanedDate.getTime();
+    }
+
+    @Override
+    public List<Date> getDates(final Date from, final Date to) throws GenericEntityException {
+        JiraAuthenticationContext authenticationContext = ComponentManager.getInstance().getJiraAuthenticationContext();
+        User user = authenticationContext.getLoggedInUser();
+        List<Date> datesWhereNoWorklog = new ArrayList<Date>();
+        while (!from.equals(to)) {
+            String scanedDateString = DateTimeConverterUtil.dateToString(to);
+            if (excludeDates.contains(scanedDateString)) {
+                to.setDate(to.getDate() - 1);
+                continue;
+            }
+            // check includes - not check weekend
+            if (!includeDates.contains(scanedDateString)) {
+                Calendar toDate = Calendar.getInstance();
+                toDate.setTime(to);
+                // check weekend - pass
+                if ((toDate.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY)
+                        || (toDate.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY)) {
+                    to.setDate(to.getDate() - 1);
+                    continue;
+                }
+            }
+            // check worklog. if no worklog set result else ++ scanedDate
+            boolean isDateContainsWorklog = isContainsWorklog(to);
+            if (!isDateContainsWorklog) {
+                datesWhereNoWorklog.add((Date) to.clone());
+            }
+            to.setDate(to.getDate() - 1);
+
+        }
+        return datesWhereNoWorklog;
     }
 
     @Override
@@ -472,9 +504,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
             }
             properties.load(inputStream);
             emailSender = properties.getProperty(EMAIL_SENDER);
-            // FIXME fix it
-            String issueCheckTime = properties.getProperty(ISSUE_CHECK_TIME);
-            issueCheckTimeInMinutes = Long.valueOf(issueCheckTime).longValue();
+            issueCheckTimeInMinutes = Long.valueOf(properties.getProperty(ISSUE_CHECK_TIME)).longValue();
             excludeDatesString = properties.getProperty(EXCLUDE_DATES);
             includeDatesString = properties.getProperty(INCLUDE_DATES);
         } finally {
