@@ -171,7 +171,7 @@ public interface JiraTimetrackerPlugin {
      *            The plugin settings parameters.
      * @return {@link ActionResult} if the plugin settings was saved successful SUCCESS else FAIL.
      */
-    ActionResult savePluginSettings(PluginSettingsValues pluginSettingsParameter);
+    void savePluginSettings(PluginSettingsValues pluginSettingsParameter);
 
     /**
      * Give back the all worklogs spent time between the two date.

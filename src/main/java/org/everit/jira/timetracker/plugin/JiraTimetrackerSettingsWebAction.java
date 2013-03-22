@@ -124,6 +124,9 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
         return projectsId;
     }
 
+    /**
+     * Load the plugin settings and set the variables.
+     */
     public void loadPluginSettingAndParseResult() {
         PluginSettingsValues pluginSettingsValues = jiraTimetrackerPlugin.loadPluginSettings();
         isPopup = pluginSettingsValues.isCalendarPopup();
@@ -136,6 +139,12 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
         }
     }
 
+    /**
+     * Parse the reqest after the save button was clicked. Set the variables.
+     * 
+     * @param request
+     *            The HttpServletRequest.
+     */
     public void parseSaveSettings(final HttpServletRequest request) {
         JiraAuthenticationContext authenticationContext = ComponentManager.getInstance()
                 .getJiraAuthenticationContext();
@@ -172,6 +181,9 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
         }
     }
 
+    /**
+     * Save the plugin settings.
+     */
     public void savePluginSettings() {
         PluginSettingsValues pluginSettingValues = new PluginSettingsValues(isPopup, isActualDate, issuesId);
         jiraTimetrackerPlugin.savePluginSettings(pluginSettingValues);

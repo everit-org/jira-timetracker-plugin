@@ -75,7 +75,7 @@ public class IssueEstimatedTimeChecker implements Runnable {
      */
     @Override
     public void run() {
-        // last 24 h the end is now end the start is now - 1 day
+        // check the last 24 hour
         checkerCalendar = Calendar.getInstance();
         Date end = checkerCalendar.getTime();
         checkerCalendar.add(Calendar.DAY_OF_MONTH, -1);
@@ -110,7 +110,8 @@ public class IssueEstimatedTimeChecker implements Runnable {
             MutableIssue issueObject = issueManager.getIssueObject(issueId);
             if (!JiraTimetrackerUtil.checkIssueEstimatedTime(issueObject)) {
                 // send mail
-                sendNotificationEmail(issueObject.getReporterUser().getEmailAddress(), issueObject);
+                sendNotificationEmail(issueObject.getReporterUser().getEmailAddress(), issueObject.getProjectObject()
+                        .getLeadUser().getEmailAddress(), issueObject);
             }
         }
 
@@ -119,14 +120,17 @@ public class IssueEstimatedTimeChecker implements Runnable {
     /**
      * Create and send a notification mail.
      * 
-     * @param notifiedEmails
+     * @param issueReporter
      *            The mail address where have to send the notification.
      * @param issue
      *            The notification subject.
      */
-    private void sendNotificationEmail(final String notifiedEmails, final MutableIssue issue) {
-        Email email = new Email(notifiedEmails);
+    private void sendNotificationEmail(final String issueReporter, final String projectLead, final MutableIssue issue) {
+        Email email = new Email(issueReporter);
         email.setFrom(emailSender);
+        if (!issueReporter.equals(projectLead)) {
+            email.setCc(projectLead);
+        }
         email.setSubject("No more estimated time in the " + issue.getKey() + " issue.");
         email.setBody("Since " + DateTimeConverterUtil.dateAndTimeToString(checkerCalendar.getTime()) + " the "
                 + issue.getKey()

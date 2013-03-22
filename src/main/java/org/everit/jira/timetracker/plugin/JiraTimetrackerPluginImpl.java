@@ -202,13 +202,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
 
         final Runnable issueEstimatedTimeChecker = new IssueEstimatedTimeChecker(emailSender);
 
-        // FIXME this is TEST initTIME
-        Calendar now = Calendar.getInstance();
-        Long nowPlusTWOMin = (long) ((now.get(Calendar.HOUR_OF_DAY) * 60) + now.get(Calendar.MINUTE) + 1);
-
         issueEstimatedTimeCheckerFuture = scheduledExecutorService.scheduleAtFixedRate(issueEstimatedTimeChecker,
-                calculateInitialDelay(nowPlusTWOMin), // FIXME fix the time
-                                                      // calculateInitialDelay(issueCheckTimeInMinutes),
+                calculateInitialDelay(issueCheckTimeInMinutes),
                 ONE_DAY_IN_MINUTES, TimeUnit.MINUTES);
     }
 
@@ -642,7 +637,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
     }
 
     @Override
-    public ActionResult savePluginSettings(final PluginSettingsValues pluginSettingsParameters) {
+    public void savePluginSettings(final PluginSettingsValues pluginSettingsParameters) {
         JiraAuthenticationContext authenticationContext = ComponentManager.getInstance()
                 .getJiraAuthenticationContext();
         User user = authenticationContext.getLoggedInUser();
@@ -654,8 +649,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
         globalSettings = settingsFactory.createGlobalSettings();
         globalSettings.put(JTTP_PLUGIN_SETTINGS_KEY_PREFIX + JTTP_PLUGIN_SETTINGS_SUMMARY_FILTERS,
                 pluginSettingsParameters.getFilteredSummaryIssues());
-        // TODO better message
-        return new ActionResult(ActionResultStatus.SUCCESS, "");
     }
 
     @Override

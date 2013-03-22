@@ -281,7 +281,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
                     dateFormated = requestDate;
                 }
                 date = DateTimeConverterUtil.stringToDate(dateFormated);
-            } else if ((dateFormated == null) && dateFormated.equals("")) { // TODO check this modification
+            } else if ((dateFormated == null) && dateFormated.equals("")) {
                 date = new Date();
                 dateFormated = DateTimeConverterUtil.dateToString(date);
             } else {
