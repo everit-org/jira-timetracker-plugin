@@ -31,51 +31,82 @@
 			<table  width="80%" padding:"5px" >
 				<tbody>
 					<tr>
-						<td colspan="2">
+						<td style="text-align: right;" width="10%">
 							<div style="margin-top: 10px; margin-bottom: 10px;">
 								<strong>$i18n.getText("plugin.personal.settings")</strong>
 							<div>
 						</td>
 					</tr>
 		        	<tr>
-						<td width="20%">
+						<td style="text-align: right;" width="10%"> 
 							$i18n.getText("plugin.setting.ispopup"): 
 						</td>
-						<td width="80%">
+						<td width="40%">
 						 	#if($isPopup)
-                         		<input id="calendarPopupCheckBox" checked="checked" type="checkbox" name="calendarPopupCheckBox" value="true" class="checkbox" style="margin-right: 10px"/>
+						 		<input id="radioPopup" type="radio" name="popupOrInline" value="popup" style="margin-right: 10px" checked="true">
                      		#else
-                         		<input id="calendarPopupCheckBox" type="checkbox" name="calendarPopupCheckBox" value="true" class="checkbox" style="margin-right: 10px" />
+                         		<input id="radioPopup" type="radio" name="popupOrInline" value="popup" style="margin-right: 10px">
                       		#end
+                      		$i18n.getText("plugin.setting.popup")
 						</td>
 					</tr>
 					<tr>
-						<td width="20%">
+						<td style="text-align: right;"  width="10%">
+							
+						</td>
+						<td width="40%">
+						 	#if($isPopup)
+						 		<input id="radioInline" type="radio" name="popupOrInline" value="inline" style="margin-right: 10px"> 
+                     		#else
+                         		<input id="radioInline" type="radio" name="popupOrInline" value="inline" style="margin-right: 10px" checked="true">
+                      		#end
+                      		$i18n.getText("plugin.setting.inline")
+                      		<div class="description">
+								$i18n.getText("plugin.setting.ispopup.help")
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td width="10%" style="text-align: right;">
 							$i18n.getText("plugin.setting.isactualdate"):  
 						</td>
-						<td width="80%">
+						<td width="40%">
 						 	#if($isActualDate)
-                         		<input id="actualDateCheckBox" checked="checked" type="checkbox" name="actualDateCheckBox" value="true" class="checkbox" style="margin-right: 10px"/>
+                         		<input id="radioCurrent" type="radio" name="currentOrLast" value="current" style="margin-right: 10px" checked="true">  
                      		#else
-                         		<input id="actualDateCheckBox" type="checkbox" name="actualDateCheckBox" value="true" class="checkbox" style="margin-right: 10px" />
+                         		<input id="radioCurrent" type="radio" name="currentOrLast" value="current" style="margin-right: 10px">
                       		#end
+                      		$i18n.getText("plugin.setting.current")
+						</td>
+					</tr>
+					<tr>
+						<td width="10%">
+						</td>
+						<td width="40%">
+						 	#if($isActualDate)
+                         		<input id="radioLast" type="radio" name="currentOrLast" value="last" style="margin-right: 10px">  
+                     		#else
+                         		<input id="radioLast" type="radio" name="currentOrLast" value="last" style="margin-right: 10px" checked="true"> 
+                      		#end
+                      		$i18n.getText("plugin.setting.last")
+                      		<div class="description">
+								$i18n.getText("plugin.setting.isactualdate.help")
+							</div>
 						</td>
 					</tr>
 					#if ($authcontext.user.inGroup('jira-administrators'))
 						<tr>
-							<td colspan="2">
-							<div style="margin-top: 10px; margin-bottom: 10px;">
-								<strong>$i18n.getText("plugin.admin.settings")</strong>
-							</div>	
+							<td style="text-align: right;" width="10%">
+								<div style="margin-top: 10px; margin-bottom: 10px;">
+									<strong>$i18n.getText("plugin.admin.settings")</strong>
+								</div>	
 							</td>
 						</tr>
 						<tr>
-							<td>
+							<td style="text-align: right;" width="10%">
 								$i18n.getText("plugin.setting.non.working.issues")
 							</td>
-						</tr>
-						<tr>
-							<td colspan="2">
+							<td >
 								<div id="issueSelect_container" class="ajax_autocomplete atlassian-autocomplete" style="margin-bottom: 35px" >
 									<select class="hidden"
 											multiple="none" 
@@ -108,13 +139,24 @@
 											ip.handleFreeInput();
 									</script>
 								</div>
+								
 							</td>
+						</tr>
+						<tr>
+							<td>
+							</td>
+							<td>
+								<div class="description">
+										$i18n.getText("plugin.setting.non.working.issues.help")
+								</div>
+							</td>		
 						</tr>
 					#end
 					<tr class="buttons-container">
 						<td colspan="2">
 							<input id="savesettings"  type="submit" name="savesettings" value="$i18n.getText('plugin.save')" class="button"/>
-							<input id="cancelButton"  type="button" name="Cancel" value="$i18n.getText('plugin.reset')" onclick="location.href='JiraTimetrackerSettingsWebAction.jspa'" class="button"/>
+							<input id="resetButton"  type="button" name="reset" value="$i18n.getText('plugin.reset')" onclick="location.href='JiraTimetrackerSettingsWebAction.jspa'" class="button"/>
+							<input id="cancelButton"  type="button" name="cancel" value="$i18n.getText('plugin.cancel')" onclick="location.href='JiraTimetarckerWebAction!default.jspa'" class="button"/>
 						</td>
 					</tr>
 				</tbody>

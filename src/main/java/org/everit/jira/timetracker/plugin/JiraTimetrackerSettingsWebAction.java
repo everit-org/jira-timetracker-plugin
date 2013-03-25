@@ -166,19 +166,19 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
                 issuesId.add(filteredIssueId);
             }
         }
-        String calendarPopupCheckBoxValues = request.getParameter("calendarPopupCheckBox");
-        if (calendarPopupCheckBoxValues == null) {
-            isPopup = false;
-        } else {
+        String[] popupOrInlineValue = request.getParameterValues("popupOrInline");
+        if (popupOrInlineValue[0].equals("popup")) {
             isPopup = true;
-        }
-        String actualDateCheckBoxValues = request
-                .getParameter("actualDateCheckBox");
-        if (actualDateCheckBoxValues == null) {
-            isActualDate = false;
         } else {
-            isActualDate = true;
+            isPopup = false;
         }
+        String[] currentOrLastValue = request.getParameterValues("currentOrLast");
+        if (currentOrLastValue[0].equals("current")) {
+            isActualDate = true;
+        } else {
+            isActualDate = false;
+        }
+
     }
 
     /**
