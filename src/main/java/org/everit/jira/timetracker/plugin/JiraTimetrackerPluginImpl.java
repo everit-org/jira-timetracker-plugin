@@ -100,21 +100,25 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
      */
     private static final String PROPERTIES = "jiraTimetracker.properties";
     /**
-     * The exclude dates key in the properties file..
+     * The exclude dates key in the properties file.
      */
     private static final String EMAIL_SENDER = "EMAIL_SENDER";
     /**
-     * The exclude dates key in the properties file..
+     * The exclude dates key in the properties file.
      */
     private static final String ISSUE_CHECK_TIME = "ISSUE_CHECK_TIME";
     /**
-     * The exclude dates key in the properties file..
+     * The exclude dates key in the properties file.
      */
     private static final String EXCLUDE_DATES = "EXCLUDE_DATES";
     /**
-     * The include dates key in the properties file..
+     * The include dates key in the properties file.
      */
     private static final String INCLUDE_DATES = "INCLUDE_DATES";
+    /**
+     * The default non working issues key in the properties file.
+     */
+    private static final String NON_WORKING_ISSUES = "NON_WORKING_ISSUES";
     /**
      * The plugin settings key prefix.
      */
@@ -169,6 +173,10 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
      */
     private String includeDatesString;
     /**
+     * The non working issues keys from the properties file.
+     */
+    private String nonWorkingIssuesString;
+    /**
      * The parsed exclude dates.
      */
     private final Set<String> excludeDates = new HashSet<String>();
@@ -180,6 +188,10 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
      * The summary filter issues ids.
      */
     private List<Long> summaryFilteredIssuesId;
+    /**
+     * The summary filter issues ids.
+     */
+    private List<Long> defaultNonWorkingIssuesId = new ArrayList<Long>();
     /**
      * The plugin Scheduled Executor Service.
      */
@@ -502,9 +514,20 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
             issueCheckTimeInMinutes = Long.valueOf(properties.getProperty(ISSUE_CHECK_TIME)).longValue();
             excludeDatesString = properties.getProperty(EXCLUDE_DATES);
             includeDatesString = properties.getProperty(INCLUDE_DATES);
+            nonWorkingIssuesString = properties.getProperty(NON_WORKING_ISSUES);
         } finally {
             if (inputStream != null) {
                 inputStream.close();
+            }
+        }
+        for (String issueKey : nonWorkingIssuesString.split(",")) {
+            IssueManager issueManager = ComponentManager.getInstance().getIssueManager();
+            MutableIssue issueObject = issueManager.getIssueObject(issueKey);
+            if (issueObject != null) {
+                Long issueId = issueObject.getId();
+                defaultNonWorkingIssuesId.add(issueId);
+            } else {
+                LOGGER.error("Can't find issue whit the given key: " + issueKey);
             }
         }
         for (String dateString : excludeDatesString.split(",")) {
@@ -604,8 +627,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
                 summaryFilteredIssuesId.add(Long.valueOf(tempIssueId));
             }
         } else {
-            // default empty list
-            summaryFilteredIssuesId = new ArrayList<Long>();
+            // default! from properties load default issues!!
+            summaryFilteredIssuesId = defaultNonWorkingIssuesId;
         }
 
         pluginSettings = settingsFactory.createSettingsForKey(JTTP_PLUGIN_SETTINGS_KEY_PREFIX + user.getName());
