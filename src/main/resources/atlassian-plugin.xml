@@ -25,22 +25,22 @@
 
     <plugin-info>
         <version>1.0.0</version>
-        <description>Jira Timetracker Plugin</description>
+        <description>Timetracker</description>
         <application-version min="4.4" />
         <vendor name="EverIT Kft." url="https://www.everit.biz" />
     </plugin-info>
 
-    <component key="JTTP" name="Jira Timetracker Plugin" class="org.everit.jira.timetracker.plugin.JiraTimetrackerPluginImpl">
+    <component key="JTTP" name="Timetracker" class="org.everit.jira.timetracker.plugin.JiraTimetrackerPluginImpl">
         <interface class="org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin" />
     </component>
 
-    <web-item key="jttp_link" name="Jttp Link" section="system.top.navigation.bar" weight="47">
+    <web-item key="jttp_link" name="JTTP Link" section="system.top.navigation.bar" weight="47">
         <label>Timetracker</label>
         <link linkId="my_jttp_link"><![CDATA[/secure/JiraTimetarckerWebAction!default.jspa]]></link>
         <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserLoggedInCondition" />
     </web-item>
 
-    <webwork1 key="jttp-webaction" name="Jira Timetracker Plugin Webwork actions" class="java.lang.Object">
+    <webwork1 key="jttp-webaction" name="JTTP Webwork actions" class="java.lang.Object">
         <resource type="i18n" name="i18n-jttp-vm" location="i18n/jttp" />
         <actions>
             <action name="org.everit.jira.timetracker.plugin.JiraTimetarckerWebAction" alias="JiraTimetarckerWebAction">
