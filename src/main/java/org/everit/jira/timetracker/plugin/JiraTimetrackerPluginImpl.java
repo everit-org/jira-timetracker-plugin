@@ -187,11 +187,11 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
     /**
      * The summary filter issues ids.
      */
-    private List<Long> summaryFilteredIssuesId;
+    private List<Long> summaryFilteredIssueIds;
     /**
      * The summary filter issues ids.
      */
-    private List<Long> defaultNonWorkingIssuesId = new ArrayList<Long>();
+    private List<Long> defaultNonWorkingIssueIds = new ArrayList<Long>();
     /**
      * The plugin Scheduled Executor Service.
      */
@@ -354,27 +354,27 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
 
     @Override
     public Date firstMissingWorklogsDate() throws GenericEntityException {
-        Calendar scanedDate = Calendar.getInstance();
+        Calendar scannedDate = Calendar.getInstance();
         // one week
-        scanedDate
-                .set(Calendar.DAY_OF_YEAR, scanedDate.get(Calendar.DAY_OF_YEAR) - DateTimeConverterUtil.DAYS_PER_WEEK);
+        scannedDate
+                .set(Calendar.DAY_OF_YEAR, scannedDate.get(Calendar.DAY_OF_YEAR) - DateTimeConverterUtil.DAYS_PER_WEEK);
         for (int i = 0; i < DateTimeConverterUtil.DAYS_PER_WEEK; i++) {
             // convert date to String
-            Date scanedDateDate = scanedDate.getTime();
+            Date scanedDateDate = scannedDate.getTime();
             String scanedDateString = DateTimeConverterUtil.dateToString(scanedDateDate);
             // check excludse - pass
             if (excludeDates.contains(scanedDateString)) {
-                scanedDate
-                        .set(Calendar.DAY_OF_YEAR, scanedDate.get(Calendar.DAY_OF_YEAR) + 1);
+                scannedDate
+                        .set(Calendar.DAY_OF_YEAR, scannedDate.get(Calendar.DAY_OF_YEAR) + 1);
                 continue;
             }
             // check includes - not check weekend
             if (!includeDates.contains(scanedDateString)) {
                 // check weekend - pass
-                if ((scanedDate.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY)
-                        || (scanedDate.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY)) {
-                    scanedDate
-                            .set(Calendar.DAY_OF_YEAR, scanedDate.get(Calendar.DAY_OF_YEAR) + 1);
+                if ((scannedDate.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY)
+                        || (scannedDate.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY)) {
+                    scannedDate
+                            .set(Calendar.DAY_OF_YEAR, scannedDate.get(Calendar.DAY_OF_YEAR) + 1);
                     continue;
                 }
             }
@@ -383,12 +383,12 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
             if (!isDateContainsWorklog) {
                 return scanedDateDate;
             } else {
-                scanedDate
-                        .set(Calendar.DAY_OF_YEAR, scanedDate.get(Calendar.DAY_OF_YEAR) + 1);
+                scannedDate
+                        .set(Calendar.DAY_OF_YEAR, scannedDate.get(Calendar.DAY_OF_YEAR) + 1);
             }
         }
         // if we find everything all right then return with the current date
-        return scanedDate.getTime();
+        return scannedDate.getTime();
     }
 
     @Override
@@ -525,7 +525,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
             MutableIssue issueObject = issueManager.getIssueObject(issueKey);
             if (issueObject != null) {
                 Long issueId = issueObject.getId();
-                defaultNonWorkingIssuesId.add(issueId);
+                defaultNonWorkingIssueIds.add(issueId);
             } else {
                 LOGGER.error("Can't find issue whit the given key: " + issueKey);
             }
@@ -620,15 +620,15 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
 
         globalSettings = settingsFactory.createGlobalSettings();
         if (globalSettings.get(JTTP_PLUGIN_SETTINGS_KEY_PREFIX + JTTP_PLUGIN_SETTINGS_SUMMARY_FILTERS) != null) {
-            summaryFilteredIssuesId = new ArrayList<Long>();
+            summaryFilteredIssueIds = new ArrayList<Long>();
             List<String> tempIssueList = (List<String>) globalSettings.get(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
                     + JTTP_PLUGIN_SETTINGS_SUMMARY_FILTERS);
             for (String tempIssueId : tempIssueList) {
-                summaryFilteredIssuesId.add(Long.valueOf(tempIssueId));
+                summaryFilteredIssueIds.add(Long.valueOf(tempIssueId));
             }
         } else {
             // default! from properties load default issues!!
-            summaryFilteredIssuesId = defaultNonWorkingIssuesId;
+            summaryFilteredIssueIds = defaultNonWorkingIssueIds;
         }
 
         pluginSettings = settingsFactory.createSettingsForKey(JTTP_PLUGIN_SETTINGS_KEY_PREFIX + user.getName());
@@ -655,7 +655,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
             isActualDate = true;
         }
         // Here set the other values
-        pluginSettingsValues = new PluginSettingsValues(isPopup, isActualDate, summaryFilteredIssuesId);
+        pluginSettingsValues = new PluginSettingsValues(isPopup, isActualDate, summaryFilteredIssueIds);
         return pluginSettingsValues;
     }
 
@@ -675,7 +675,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
     }
 
     @Override
-    public String summary(final Date startSummary, final Date finishSummary, final List<Long> issuesId)
+    public String summary(final Date startSummary, final Date finishSummary, final List<Long> issueIds)
             throws GenericEntityException {
         JiraAuthenticationContext authenticationContext = ComponentManager.getInstance().getJiraAuthenticationContext();
         User user = authenticationContext.getLoggedInUser();
@@ -702,9 +702,9 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
         }
         List<GenericValue> worklogs;
         // if issuesId not null we make a filtered summary
-        if ((issuesId != null) && !issuesId.isEmpty()) {
+        if ((issueIds != null) && !issueIds.isEmpty()) {
             List<EntityExpr> issuesConditions = new ArrayList<EntityExpr>();
-            for (Long issueId : issuesId) {
+            for (Long issueId : issueIds) {
                 issuesConditions.add(new EntityExpr("issue", EntityOperator.NOT_EQUAL, issueId));
             }
             EntityCondition issueCondition = new EntityConditionList(issuesConditions, EntityOperator.AND);

@@ -180,11 +180,11 @@ public interface JiraTimetrackerPlugin {
      *            The start date.
      * @param finishSummary
      *            The finish date.
-     * @param issuesId
+     * @param issueIds
      *            The filtered issues ids. If null or empty then don't make filtered summary.
      * @return The summary spent time in Jira format (1h 30m)
      * @throws GenericEntityException
      *             GenericEntityException.
      */
-    String summary(Date startSummary, Date finishSummary, List<Long> issuesId) throws GenericEntityException;
+    String summary(Date startSummary, Date finishSummary, List<Long> issueIds) throws GenericEntityException;
 }
