@@ -136,7 +136,7 @@ public class IssueEstimatedTimeChecker implements Runnable {
                 + issue.getKey()
                 + " issue worklogs spent time ( " + DateTimeConverterUtil.secondConvertToString(issue.getTimeSpent())
                 + ") was set more than the original estimted time ("
-                + DateTimeConverterUtil.secondConvertToString(issue.getOriginalEstimate()) + ".");
+                + DateTimeConverterUtil.secondConvertToString(issue.getOriginalEstimate()) + ").");
         SingleMailQueueItem singleMailQueueItem = new SingleMailQueueItem(email);
         singleMailQueueItem.setMailThreader(null);
         ComponentAccessor.getMailQueue().addItem(singleMailQueueItem);

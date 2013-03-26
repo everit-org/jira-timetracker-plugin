@@ -105,7 +105,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 						                        <div class="field-group">
 						                          	 	$i18n.getText("plugin.start.time"): <img src="/images/required.png" width="16" height="16" border="0" />
 						                          </div>	 
-						                           <input id="startTime"  type="text" name="startTime" value="$startTime"/> <input id="startNow"  type="button" name="startNow" value="$i18n.getText('plugin.now')" class="button"/>
+						                           <input id="startTime"  type="text" name="startTime" value="$startTime" tabindex="1"/> <input id="startNow"  type="button" name="startNow" value="$i18n.getText('plugin.now')" class="button"/>
 						                           <script>
 														AJS.$("#startNow").click(function() {
 					                   						var currentTime = new Date();
@@ -120,11 +120,14 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 															var now = hour + ':' + minute;
 															AJS.$("#startTime").val(now);
 					               						 });
+					               						 window.onload = function() {
+  																document.getElementById("startTime").focus();
+														 };
 													</script>
 						                        </td>
 												<td>
 						                    	 	<input id="radioEnd" type="radio" name="endOrDuration" value="end" style="margin-right: 10px" checked="true" onclick="this.form.durationTime.readOnly=true;this.form.endTime.readOnly=false"> $i18n.getText("plugin.end.time"):</br>
-						                    	 	<input id="endTime"  type="text" name="endTime" value="$endTime" onclick="this.form.durationTime.readOnly=true;this.form.endTime.readOnly=false;this.form.radioEnd.checked=true" /> <input id="endNow"  type="button" name="endNow" value="$i18n.getText('plugin.now')" class="button" />
+						                    	 	<input id="endTime"  type="text" name="endTime" value="$endTime" onclick="this.form.durationTime.readOnly=true;this.form.endTime.readOnly=false;this.form.radioEnd.checked=true"  tabindex="2"/> <input id="endNow"  type="button" name="endNow" value="$i18n.getText('plugin.now')" class="button" />
 						                           <script>
 														AJS.$("#endNow").click(function() {
 					                   						var currentTime = new Date();
@@ -176,6 +179,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 														
 														//Set the issue key			
 														AJS.$("#issueSelect-textarea").append("$issueKey");
+														AJS.$("#issueSelect-textarea").attr("tabindex","3");
 														ip.handleFreeInput();
 													</script>
 											 	</div>
@@ -235,6 +239,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 						 	  					#parse("templates/plugins/renderers/wiki/wiki-renderer-edit.vm")
 						 	  					<script>
 						 	  						AJS.$("#comments").append("$comment");
+						 	  						AJS.$("#comments").attr("tabindex","4");
 						 	  					</script>
 						 	  				</td>
 						               </tr>
@@ -244,7 +249,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 		    	</tbody>
 		    </table>
 			#if($isEdit)
-				<input id="Edit"  type="submit" name="edit" value="$i18n.getText('plugin.save')" class="button" />
+				<input id="Edit"  type="submit" name="edit" value="$i18n.getText('plugin.save')" class="button" tabindex="5"/>
 			#elseif($isEditAll)
 				<input id="editallsave"  type="submit" name="editallsave" value="$i18n.getText('plugin.save')" class="button" />	
 				##set input fields disable
@@ -261,7 +266,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 				document.getElementById("comments").disabled= true;
 				</script>
 			#else
-				<input id="Submit"  type="submit" name="submit" value="$i18n.getText('plugin.submit')" class="button" />
+				<input id="Submit"  type="submit" name="submit" value="$i18n.getText('plugin.submit')" class="button" tabindex="5"/>
 			#end
 			<input id="cancelButton"  type="button" name="Cancel" value="$i18n.getText('plugin.cancel')" onclick="location.href='JiraTimetarckerWebAction!default.jspa?dateFormated=$dateFormated'" class="button"/>
 			<input id="setting"  type="button" name="setting" onclick="location.href='JiraTimetrackerSettingsWebAction!default.jspa'" value="$i18n.getText('plugin.settings')" class="button" style="float: right; margin-right: 15px;"/>
