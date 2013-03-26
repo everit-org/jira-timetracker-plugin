@@ -20,7 +20,7 @@
     MA 02110-1301  USA
 
 -->
-<atlassian-plugin key="org.everit.jira.timetracker.plugin" name="Jira Timetracker Plugin"
+<atlassian-plugin key="org.everit.jira.timetracker.plugin" name="Timetracker"
     plugins-version="2">
 
     <plugin-info>
