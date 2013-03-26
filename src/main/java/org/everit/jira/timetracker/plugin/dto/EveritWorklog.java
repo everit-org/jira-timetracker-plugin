@@ -25,10 +25,12 @@ import java.io.Serializable;
 import java.text.ParseException;
 
 import org.everit.jira.timetracker.plugin.DateTimeConverterUtil;
+import org.everit.jira.timetracker.plugin.JiraTimetrackerUtil;
 import org.ofbiz.core.entity.GenericValue;
 
 import com.atlassian.jira.ComponentManager;
 import com.atlassian.jira.issue.IssueManager;
+import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.worklog.Worklog;
 
 /**
@@ -72,6 +74,10 @@ public class EveritWorklog implements Serializable {
      * The worklog note.
      */
     private String body;
+    /**
+     * The issue estimated time is 0 or not.
+     */
+    private boolean isMoreEstimatedTime;
 
     /**
      * Simple constructor whit GenericValue.
@@ -87,7 +93,9 @@ public class EveritWorklog implements Serializable {
         startTime = DateTimeConverterUtil.stringDateToStringTime(startTime);
         issueId = new Long(worklogGv.getString("issue"));
         IssueManager issueManager = ComponentManager.getInstance().getIssueManager();
-        issue = issueManager.getIssueObject(issueId).getKey();
+        MutableIssue issueObject = issueManager.getIssueObject(issueId);
+        issue = issueObject.getKey();
+        isMoreEstimatedTime = JiraTimetrackerUtil.checkIssueEstimatedTime(issueObject);
         body = worklogGv.getString("body");
         body = body.replace("\"", "\\\"");
         body = body.replace("\r", "\\r");
@@ -133,6 +141,10 @@ public class EveritWorklog implements Serializable {
         return endTime;
     }
 
+    public boolean getIsMoreEstimatedTime() {
+        return isMoreEstimatedTime;
+    }
+
     public String getIssue() {
         return issue;
     }
@@ -167,6 +179,10 @@ public class EveritWorklog implements Serializable {
 
     public void setMilliseconds(final long milliseconds) {
         this.milliseconds = milliseconds;
+    }
+
+    public void setMoreEstimatedTime(final boolean isMoreEstimatedTime) {
+        this.isMoreEstimatedTime = isMoreEstimatedTime;
     }
 
     public void setStartTime(final String startTime) {
