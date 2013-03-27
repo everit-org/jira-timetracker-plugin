@@ -176,7 +176,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
     /**
      * The worklog comment.
      */
-    private String comment = "Default worklog description!";
+    private String comment = "";
     /**
      * The spent time in Jira time format (1h 20m).
      */
@@ -292,6 +292,11 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 
     @Override
     public String doDefault() throws ParseException {
+        boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
+        if (!isUserLogged) {
+            setReturnUrl("/secure/Dashboard.jspa");
+            return getRedirect(NONE);
+        }
 
         loadPluginSettingAndParseResult();
 
@@ -337,6 +342,12 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 
     @Override
     public String doExecute() throws ParseException {
+
+        boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
+        if (!isUserLogged) {
+            setReturnUrl("/secure/Dashboard.jspa");
+            return getRedirect(NONE);
+        }
 
         loadPluginSettingAndParseResult();
 
@@ -404,6 +415,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         try {
             loadWorklogsAndMakeSummary();
             startTime = jiraTimetrackerPlugin.lastEndTime(worklogs);
+            comment = "";
         } catch (Exception e) {
             LOGGER.error("Error when try set the plugin variables.", e);
             return ERROR;
@@ -429,6 +441,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
             loadWorklogsAndMakeSummary();
             startTime = jiraTimetrackerPlugin.lastEndTime(worklogs);
             endTime = DateTimeConverterUtil.dateTimeToString(new Date());
+            comment = "";
         } catch (Exception e) {
             LOGGER.error("Error when try set the plugin variables.", e);
             return ERROR;

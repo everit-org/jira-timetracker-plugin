@@ -61,6 +61,11 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     private List<String> projectsId;
 
     /**
+     * The user is admin or not.
+     */
+    private boolean isUserAdmin;
+
+    /**
      * Logger.
      */
     private static final Logger LOGGER = Logger.getLogger(JiraTimetrackerSettingsWebAction.class);
@@ -74,9 +79,30 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
         this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
     }
 
+    /**
+     * Check the user have admin or sys admin permission.
+     * 
+     * @return True if had any admin permission.
+     */
+    private boolean checkTheUserAdminPermissions() {
+        JiraAuthenticationContext authenticationContext = ComponentManager.getInstance()
+                .getJiraAuthenticationContext();
+        User user = authenticationContext.getLoggedInUser();
+        // check the logged user admin or not
+        boolean isUserSysAdmin = ComponentManager.getInstance().getUserUtil().getJiraSystemAdministrators()
+                .contains(user);
+        boolean isUserAdmin = ComponentManager.getInstance().getUserUtil().getJiraAdministrators().contains(user);
+        return isUserSysAdmin || isUserAdmin;
+    }
+
     @Override
     public String doDefault() throws ParseException {
-
+        boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
+        if (!isUserLogged) {
+            setReturnUrl("/secure/Dashboard.jspa");
+            return getRedirect(NONE);
+        }
+        isUserAdmin = checkTheUserAdminPermissions();
         loadPluginSettingAndParseResult();
         try {
             projectsId = jiraTimetrackerPlugin.getProjectsId();
@@ -90,6 +116,12 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 
     @Override
     public String doExecute() throws ParseException {
+        boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
+        if (!isUserLogged) {
+            setReturnUrl("/secure/Dashboard.jspa");
+            return getRedirect(NONE);
+        }
+        isUserAdmin = checkTheUserAdminPermissions();
         loadPluginSettingAndParseResult();
         try {
             projectsId = jiraTimetrackerPlugin.getProjectsId();
@@ -101,7 +133,7 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
         if (request.getParameter("savesettings") != null) {
             parseSaveSettings(request);
             savePluginSettings();
-            setReturnUrl("/secure/JiraTimetarckerWebAction!default.jspa");
+            setReturnUrl("/secure/JiraTimetarckerWebAction!default.jspa#scroll_inputfields");
             return getRedirect(INPUT);
         }
 
@@ -118,6 +150,10 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 
     public String getIssueKey() {
         return issueKey;
+    }
+
+    public boolean getIsUserAdmin() {
+        return isUserAdmin;
     }
 
     public List<String> getProjectsId() {
@@ -146,12 +182,6 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
      *            The HttpServletRequest.
      */
     public void parseSaveSettings(final HttpServletRequest request) {
-        JiraAuthenticationContext authenticationContext = ComponentManager.getInstance()
-                .getJiraAuthenticationContext();
-        User user = authenticationContext.getLoggedInUser();
-        // check the logged user admin or not
-        boolean isUserAdmin = ComponentManager.getInstance().getUserUtil().getJiraSystemAdministrators().contains(user);
-
         String[] issueSelectValue = request.getParameterValues("issueSelect");
         // if the user is admin and issueSelectValue is null means we don't want to filters
         // else if issueSelectValue not null then the user is admin and we save the new filters
@@ -203,5 +233,9 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 
     public void setProjectsId(final List<String> projectsId) {
         this.projectsId = projectsId;
+    }
+
+    public void setUserAdmin(final boolean isUserAdmin) {
+        this.isUserAdmin = isUserAdmin;
     }
 }

@@ -94,7 +94,7 @@
 							</div>
 						</td>
 					</tr>
-					#if ($authcontext.user.inGroup('jira-administrators'))
+					#if ($isUserAdmin)
 						<tr>
 							<td style="text-align: right;" width="10%">
 								<div style="margin-top: 10px; margin-bottom: 10px;">
@@ -156,7 +156,7 @@
 						<td colspan="2">
 							<input id="savesettings"  type="submit" name="savesettings" value="$i18n.getText('plugin.save')" class="button"/>
 							<input id="resetButton"  type="button" name="reset" value="$i18n.getText('plugin.reset')" onclick="location.href='JiraTimetrackerSettingsWebAction.jspa'" class="button"/>
-							<input id="cancelButton"  type="button" name="cancel" value="$i18n.getText('plugin.cancel')" onclick="location.href='JiraTimetarckerWebAction!default.jspa'" class="button"/>
+							<input id="cancelButton"  type="button" name="cancel" value="$i18n.getText('plugin.cancel')" onclick="location.href='JiraTimetarckerWebAction!default.jspa#scroll_inputfields'" class="button"/>
 						</td>
 					</tr>
 				</tbody>

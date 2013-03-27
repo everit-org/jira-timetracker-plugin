@@ -176,6 +176,11 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
     @Override
     public String doDefault() throws ParseException {
+        boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
+        if (!isUserLogged) {
+            setReturnUrl("/secure/Dashboard.jspa");
+            return getRedirect(NONE);
+        }
         if (dateToFormated.equals("")) {
             dateToDefaultInit();
         }
@@ -204,6 +209,11 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     @Override
     public String doExecute() throws ParseException {
         // set variables default value back
+        boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
+        if (!isUserLogged) {
+            setReturnUrl("/secure/Dashboard.jspa");
+            return getRedirect(NONE);
+        }
         message = "";
         messageParameter = "";
         statisticsMessageParameter = "0";

@@ -21,7 +21,11 @@ package org.everit.jira.timetracker.plugin;
  * MA 02110-1301  USA
  */
 
+import com.atlassian.crowd.embedded.api.User;
+import com.atlassian.jira.ComponentManager;
 import com.atlassian.jira.issue.MutableIssue;
+import com.atlassian.jira.issue.status.Status;
+import com.atlassian.jira.security.JiraAuthenticationContext;
 
 /**
  * The Jira Timetracker plugin utils class.
@@ -37,14 +41,28 @@ public final class JiraTimetrackerUtil {
      * @return True if not specified, bigger or equals whit spent time else false.
      */
     public static boolean checkIssueEstimatedTime(final MutableIssue issue) {
-        Long originalEstimated = issue.getOriginalEstimate();
+        Long estimated = issue.getEstimate();
         Long timeSpent = issue.getTimeSpent();
-        if (originalEstimated != null) {
-            if (timeSpent > originalEstimated) {
-                return false;
-            }
+        Status issueStatus = issue.getStatusObject();
+        String issueStatusId = issueStatus.getId();
+        if (((estimated == null) || (estimated == 0)) && !issueStatusId.equals("6")) {
+            return false;
         }
         return true;
     }
 
+    /**
+     * Check the user is logged or not.
+     * 
+     * @return True if we have logged user else false.
+     */
+    public static boolean isUserLogged() {
+        JiraAuthenticationContext authenticationContext = ComponentManager.getInstance()
+                .getJiraAuthenticationContext();
+        User user = authenticationContext.getLoggedInUser();
+        if (user == null) {
+            return false;
+        }
+        return true;
+    }
 }

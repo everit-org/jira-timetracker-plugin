@@ -43,7 +43,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 			<div class="tabwrap tabs2" id="tabs-jttp">
 	    		<ul class="tabs horizontal">
 	        		<li>
-	            		<a href="JiraTimetarckerWebAction!default.jspa"><strong>Timetracker</strong></a>
+	            		<a href="JiraTimetarckerWebAction!default.jspa#scroll_inputfields"><strong>Timetracker</strong></a>
 	        		</li>
 	        		<li class="active">
 	            		<a href="JiraTimetrackerWorklogsWebAction!default.jspa"><strong>Missing Days Report</strong></a>
@@ -122,7 +122,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 					                   	#foreach ($date in $showDatesWhereNoWorklog)
 					                    	<tr #if($rowCount % 2 != 0) class="rowAlter" #end>
 					                    	 	<td>
-					                    	 		<a href="JiraTimetarckerWebAction.jspa?dateFormated=$date">$date</a>
+					                    	 		<a href="JiraTimetarckerWebAction.jspa?dateFormated=$date#scroll_inputfields">$date</a>
 					                    	 	</td>
 					                    	</tr>
 					                    	#set($rowCount = $rowCount + 1)

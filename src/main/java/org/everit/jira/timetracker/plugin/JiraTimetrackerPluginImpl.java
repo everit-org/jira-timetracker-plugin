@@ -214,6 +214,14 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
 
         final Runnable issueEstimatedTimeChecker = new IssueEstimatedTimeChecker(emailSender);
 
+        // TEST SETTINGS
+        // Calendar now = Calendar.getInstance();
+        // Long nowPlusTWOMin = (long) ((now.get(Calendar.HOUR_OF_DAY) * 60) + now.get(Calendar.MINUTE) + 1);
+        // issueEstimatedTimeCheckerFuture = scheduledExecutorService.scheduleAtFixedRate(issueEstimatedTimeChecker,
+        // calculateInitialDelay(nowPlusTWOMin), // FIXME fix the time
+        // // calculateInitialDelay(issueCheckTimeInMinutes),
+        // 5, TimeUnit.MINUTES);
+
         issueEstimatedTimeCheckerFuture = scheduledExecutorService.scheduleAtFixedRate(issueEstimatedTimeChecker,
                 calculateInitialDelay(issueCheckTimeInMinutes),
                 ONE_DAY_IN_MINUTES, TimeUnit.MINUTES);
