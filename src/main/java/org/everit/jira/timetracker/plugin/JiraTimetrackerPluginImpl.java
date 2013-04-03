@@ -120,6 +120,10 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
      */
     private static final String NON_WORKING_ISSUES = "NON_WORKING_ISSUES";
     /**
+     * The default collector issues key in the properties file.
+     */
+    private static final String COLLECTOR_ISSUES = "COLLECTOR_ISSUES";
+    /**
      * The plugin settings key prefix.
      */
     private static final String JTTP_PLUGIN_SETTINGS_KEY_PREFIX = "jttp";
@@ -127,6 +131,10 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
      * The plugin setting Summary Filters key.
      */
     private static final String JTTP_PLUGIN_SETTINGS_SUMMARY_FILTERS = "SummaryFilters";
+    /**
+     * The plugin setting Summary Filters key.
+     */
+    private static final String JTTP_PLUGIN_SETTINGS_COLLECTOR_ISSUES = "CollectorIssues";
     /**
      * The plugin setting is calendar popup key.
      */
@@ -177,6 +185,10 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
      */
     private String nonWorkingIssuesString;
     /**
+     * The collector issues keys from the properties file.
+     */
+    private String collectorIssuesString;
+    /**
      * The parsed exclude dates.
      */
     private final Set<String> excludeDates = new HashSet<String>();
@@ -189,9 +201,17 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
      */
     private List<Long> summaryFilteredIssueIds;
     /**
+     * The collector issues ids.
+     */
+    private List<Long> collectorIssueIds;
+    /**
      * The summary filter issues ids.
      */
     private List<Long> defaultNonWorkingIssueIds = new ArrayList<Long>();
+    /**
+     * The collector issues ids.
+     */
+    private List<Long> defaultCollectorIssueIds = new ArrayList<Long>();
     /**
      * The plugin Scheduled Executor Service.
      */
@@ -212,9 +232,9 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
     public void afterPropertiesSet() throws Exception {
         importProperties();
 
-        final Runnable issueEstimatedTimeChecker = new IssueEstimatedTimeChecker(emailSender);
+        final Runnable issueEstimatedTimeChecker = new IssueEstimatedTimeChecker(emailSender, this);
 
-        // TEST SETTINGS
+        // //TEST SETTINGS
         // Calendar now = Calendar.getInstance();
         // Long nowPlusTWOMin = (long) ((now.get(Calendar.HOUR_OF_DAY) * 60) + now.get(Calendar.MINUTE) + 1);
         // issueEstimatedTimeCheckerFuture = scheduledExecutorService.scheduleAtFixedRate(issueEstimatedTimeChecker,
@@ -400,6 +420,14 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
     }
 
     @Override
+    public List<Long> getCollectorIssueIds() {
+        if (collectorIssueIds == null) {
+            collectorIssueIds = defaultCollectorIssueIds;
+        }
+        return collectorIssueIds;
+    }
+
+    @Override
     public List<Date> getDates(final Date from, final Date to) throws GenericEntityException {
         JiraAuthenticationContext authenticationContext = ComponentManager.getInstance().getJiraAuthenticationContext();
         User user = authenticationContext.getLoggedInUser();
@@ -493,7 +521,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
         List<GenericValue> worklogGVList = CoreFactory.getGenericDelegator().findByAnd("Worklog", exprList);
         List<EveritWorklog> worklogs = new ArrayList<EveritWorklog>();
         for (GenericValue worklogGv : worklogGVList) {
-            EveritWorklog worklog = new EveritWorklog(worklogGv);
+            EveritWorklog worklog = new EveritWorklog(worklogGv, collectorIssueIds);
             worklogs.add(worklog);
         }
 
@@ -523,6 +551,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
             excludeDatesString = properties.getProperty(EXCLUDE_DATES);
             includeDatesString = properties.getProperty(INCLUDE_DATES);
             nonWorkingIssuesString = properties.getProperty(NON_WORKING_ISSUES);
+            collectorIssuesString = properties.getProperty(COLLECTOR_ISSUES);
         } finally {
             if (inputStream != null) {
                 inputStream.close();
@@ -534,6 +563,16 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
             if (issueObject != null) {
                 Long issueId = issueObject.getId();
                 defaultNonWorkingIssueIds.add(issueId);
+            } else {
+                LOGGER.error("Can't find issue whit the given key: " + issueKey);
+            }
+        }
+        for (String issueKey : collectorIssuesString.split(",")) {
+            IssueManager issueManager = ComponentManager.getInstance().getIssueManager();
+            MutableIssue issueObject = issueManager.getIssueObject(issueKey);
+            if (issueObject != null) {
+                Long issueId = issueObject.getId();
+                defaultCollectorIssueIds.add(issueId);
             } else {
                 LOGGER.error("Can't find issue whit the given key: " + issueKey);
             }
@@ -627,18 +666,30 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
         User user = authenticationContext.getLoggedInUser();
 
         globalSettings = settingsFactory.createGlobalSettings();
-        if (globalSettings.get(JTTP_PLUGIN_SETTINGS_KEY_PREFIX + JTTP_PLUGIN_SETTINGS_SUMMARY_FILTERS) != null) {
+        List<String> tempIssueList = (List<String>) globalSettings.get(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+                + JTTP_PLUGIN_SETTINGS_SUMMARY_FILTERS);
+        if (tempIssueList != null) {
+            // add non working issues
             summaryFilteredIssueIds = new ArrayList<Long>();
-            List<String> tempIssueList = (List<String>) globalSettings.get(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
-                    + JTTP_PLUGIN_SETTINGS_SUMMARY_FILTERS);
             for (String tempIssueId : tempIssueList) {
                 summaryFilteredIssueIds.add(Long.valueOf(tempIssueId));
             }
         } else {
             // default! from properties load default issues!!
             summaryFilteredIssueIds = defaultNonWorkingIssueIds;
-        }
 
+        }
+        tempIssueList = (List<String>) globalSettings.get(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+                + JTTP_PLUGIN_SETTINGS_COLLECTOR_ISSUES);
+        if (tempIssueList != null) {
+            // add collector issues
+            collectorIssueIds = new ArrayList<Long>();
+            for (String tempIssueId : tempIssueList) {
+                collectorIssueIds.add(Long.valueOf(tempIssueId));
+            }
+        } else {
+            collectorIssueIds = defaultCollectorIssueIds;
+        }
         pluginSettings = settingsFactory.createSettingsForKey(JTTP_PLUGIN_SETTINGS_KEY_PREFIX + user.getName());
         Boolean isPopup = null;
         if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_IS_CALENDAR_POPUP) != null) {
@@ -663,7 +714,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
             isActualDate = true;
         }
         // Here set the other values
-        pluginSettingsValues = new PluginSettingsValues(isPopup, isActualDate, summaryFilteredIssueIds);
+        pluginSettingsValues = new PluginSettingsValues(isPopup, isActualDate, summaryFilteredIssueIds,
+                collectorIssueIds);
         return pluginSettingsValues;
     }
 
@@ -680,6 +732,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
         globalSettings = settingsFactory.createGlobalSettings();
         globalSettings.put(JTTP_PLUGIN_SETTINGS_KEY_PREFIX + JTTP_PLUGIN_SETTINGS_SUMMARY_FILTERS,
                 pluginSettingsParameters.getFilteredSummaryIssues());
+        globalSettings.put(JTTP_PLUGIN_SETTINGS_KEY_PREFIX + JTTP_PLUGIN_SETTINGS_COLLECTOR_ISSUES,
+                pluginSettingsParameters.getCollectorIssues());
     }
 
     @Override

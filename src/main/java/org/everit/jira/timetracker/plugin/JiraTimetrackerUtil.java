@@ -21,6 +21,8 @@ package org.everit.jira.timetracker.plugin;
  * MA 02110-1301  USA
  */
 
+import java.util.List;
+
 import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jira.ComponentManager;
 import com.atlassian.jira.issue.MutableIssue;
@@ -40,9 +42,13 @@ public final class JiraTimetrackerUtil {
      *            The issue.
      * @return True if not specified, bigger or equals whit spent time else false.
      */
-    public static boolean checkIssueEstimatedTime(final MutableIssue issue) {
+    public static boolean checkIssueEstimatedTime(final MutableIssue issue,
+            final List<Long> collectorIssueIds) {
+        Long issueId = issue.getId();
+        if (collectorIssueIds.contains(issueId)) {
+            return true;
+        }
         Long estimated = issue.getEstimate();
-        Long timeSpent = issue.getTimeSpent();
         Status issueStatus = issue.getStatusObject();
         String issueStatusId = issueStatus.getId();
         if (((estimated == null) || (estimated == 0)) && !issueStatusId.equals("6")) {
@@ -65,4 +71,5 @@ public final class JiraTimetrackerUtil {
         }
         return true;
     }
+
 }

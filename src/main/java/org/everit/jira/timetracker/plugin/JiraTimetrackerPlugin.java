@@ -94,6 +94,12 @@ public interface JiraTimetrackerPlugin {
     Date firstMissingWorklogsDate() throws GenericEntityException;
 
     /**
+     * Give back the collector issue ids. If the list will be null, then give back the propeties file default collecter
+     * issues list.
+     */
+    List<Long> getCollectorIssueIds();
+
+    /**
      * Create a query and give back the list of dates where are no worklogs. The query examine the days between the user
      * creation date and the current date. The method not examine the weekends and the properties file exclude dates but
      * check the properties file include dates.

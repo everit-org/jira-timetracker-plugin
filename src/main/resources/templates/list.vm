@@ -48,7 +48,7 @@ margin-bottom: 0em;
 		                    	 		
 		                    	 		#if(!$worklog.isMoreEstimatedTime)
 		                    	 			<img id="no_estimated" src="/images/icons/priority_blocker.gif" width="16" height="16" border="0"
-															alt="No more estimated time. Check the issue." style="vertical-align: text-bottom;"/>
+															alt="$i18n.getText('plugin.exclamation.mark.message')" style="vertical-align: text-bottom;" title="$i18n.getText('plugin.exclamation.mark.message')"/>
 										#end
 		                    	 	</td>
 		                    	 	<td style="vertical-align: middle;">
@@ -89,10 +89,10 @@ margin-bottom: 0em;
 		                    	 	</td>
 		                    	 	<td style="vertical-align: middle;">
 		                    	 		<input id="hiddenWorklogId" type="hidden" value="$worklog.worklogId" >
-		                    	 		<input id="edit" type="button" name="edit" value="$i18n.getText('plugin.edit')" onclick="location.href='JiraTimetarckerWebAction!default.jspa?editedWorklogId=$worklog.worklogId&dateFormated=$dateFormated#scroll_inputfields'" class="button" />
+		                    	 		<input id="edit" type="button" name="edit" value="$i18n.getText('plugin.edit')" onclick="location.href='JiraTimetarckerWebAction!default.jspa?editedWorklogId=$worklog.worklogId&dateFormated=$dateFormated'" class="button" />
 		                    	 	</td>
 		                    	 	<td style="vertical-align: middle;">
-		                    	 		<input id="delete" type="button" name="delete" value="$i18n.getText('plugin.delete')" onclick="location.href='JiraTimetarckerWebAction!default.jspa?deletedWorklogId=$worklog.worklogId&dateFormated=$dateFormated#scroll_inputfields'" class="button"/>
+		                    	 		<input id="delete" type="button" name="delete" value="$i18n.getText('plugin.delete')" onclick="location.href='JiraTimetarckerWebAction!default.jspa?deletedWorklogId=$worklog.worklogId&dateFormated=$dateFormated'" class="button"/>
 		                    	 	</td>
 		                    	</tr>
 		                    	#set($rowCount = $rowCount + 1)

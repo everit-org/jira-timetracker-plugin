@@ -31,9 +31,9 @@ $webResourceManager.requireResource("jira.webresources:calendar")
 $webResourceManager.requireResource("jira.webresources:calendar-en")
 
 <form name="myForm"  method="post"
-					#if($isEdit) action="JiraTimetarckerWebAction.jspa?editedWorklogId=$editedWorklogId&dateFormated=$dateFormated#scroll_inputfields" 
+					#if($isEdit) action="JiraTimetarckerWebAction.jspa?editedWorklogId=$editedWorklogId&dateFormated=$dateFormated" 
 					#elseif($isEditAll) action="JiraTimetarckerWebAction.jspa?editAllIds=$editAllIds&dateFormated=$dateFormated" 
-					#else action="JiraTimetarckerWebAction.jspa?dateFormated=$dateFormated#scroll_inputfields" #end/>   
+					#else action="JiraTimetarckerWebAction.jspa?dateFormated=$dateFormated" #end/>   
 	#set($rendererType = "atlassian-wiki-renderer")
 	<div id="plugin_head" class="item-header">
  			<h1 class="item-summary">Timetracker</h1>
@@ -44,7 +44,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 			<div class="tabwrap tabs2" id="tabs-jttp">
 	    		<ul class="tabs horizontal">
 	        		<li class="active">
-	            		<a href="JiraTimetarckerWebAction!default.jspa#scroll_inputfields"><strong>Timetracker</strong></a>
+	            		<a href="JiraTimetarckerWebAction!default.jspa"><strong>Timetracker</strong></a>
 	        		</li>
 	        		<li>
 	            		<a href="JiraTimetrackerWorklogsWebAction!default.jspa"><strong>Missing Days Report</strong></a>
@@ -92,7 +92,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 			</div>
 		    #parse("templates/list.vm")
 	   		</br>
-	   		<div>
+	   		<div id="inputfields" name="inputfields">
 	   		<table  width="100%">
 	   			<tbody>
 	   				<tr>
@@ -105,7 +105,6 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 						                        <div class="field-group">
 						                          	 	$i18n.getText("plugin.start.time"): <img src="/images/required.png" width="16" height="16" border="0" />
 						                          </div>
-						                          <a id="scroll_inputfields"></a>	 
 						                           <input id="startTime"  type="text" name="startTime" value="$startTime" tabindex="1"/> <input id="startNow"  type="button" name="startNow" value="$i18n.getText('plugin.now')" class="button"/>
 						                           <script>
 														AJS.$("#startNow").click(function() {
@@ -269,9 +268,15 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 			#else
 				<input id="Submit"  type="submit" name="submit" value="$i18n.getText('plugin.submit')" class="button" tabindex="5"/>
 			#end
-			<input id="cancelButton"  type="button" name="Cancel" value="$i18n.getText('plugin.cancel')" onclick="location.href='JiraTimetarckerWebAction!default.jspa?dateFormated=$dateFormated#scroll_inputfields'" class="button"/>
-			<input id="setting"  type="button" name="setting" onclick="location.href='JiraTimetrackerSettingsWebAction!default.jspa#scroll_inputfields'" value="$i18n.getText('plugin.settings')" class="button" style="float: right; margin-right: 15px;"/>
+			<input id="cancelButton"  type="button" name="Cancel" value="$i18n.getText('plugin.cancel')" onclick="location.href='JiraTimetarckerWebAction!default.jspa?dateFormated=$dateFormated'" class="button"/>
+			<input id="setting"  type="button" name="setting" onclick="location.href='JiraTimetrackerSettingsWebAction!default.jspa'" value="$i18n.getText('plugin.settings')" class="button" style="float: right; margin-right: 15px;"/>
 			</div>
 		</div>	
 	</div>
+	<script>
+		window.onload = function() {
+			document.getElementById("startTime").scrollLeft=0;
+			document.getElementById("startTime").scrollIntoView();
+		 };
+	</script>	
 </form>

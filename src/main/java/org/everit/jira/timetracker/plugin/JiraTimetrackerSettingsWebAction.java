@@ -46,15 +46,22 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
      * The {@link JiraTimetrackerPlugin}.
      */
     private JiraTimetrackerPlugin jiraTimetrackerPlugin;
-
-    boolean isPopup;
-
-    boolean isActualDate;
-
+    /**
+     * The calendar is popup or not.
+     */
+    private boolean isPopup;
+    /**
+     * The calenar show the actualDate or the last unfilled date.
+     */
+    private boolean isActualDate;
     /**
      * The issue key.
      */
     private String issueKey = "";
+    /**
+     * The collector issue key.
+     */
+    private String collectorIssueKey = "";
     /**
      * The IDs of the projects.
      */
@@ -69,11 +76,14 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
      * Logger.
      */
     private static final Logger LOGGER = Logger.getLogger(JiraTimetrackerSettingsWebAction.class);
-
     /**
      * The filtered Issues id.
      */
     private List<Long> issuesId;
+    /**
+     * The collector issue ids.
+     */
+    private List<Long> collectorIssueIds;
 
     public JiraTimetrackerSettingsWebAction(final JiraTimetrackerPlugin jiraTimetrackerPlugin) {
         this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
@@ -133,11 +143,19 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
         if (request.getParameter("savesettings") != null) {
             parseSaveSettings(request);
             savePluginSettings();
-            setReturnUrl("/secure/JiraTimetarckerWebAction!default.jspa#scroll_inputfields");
+            setReturnUrl("/secure/JiraTimetarckerWebAction!default.jspa");
             return getRedirect(INPUT);
         }
 
         return SUCCESS;
+    }
+
+    public List<Long> getCollectorIssueIds() {
+        return collectorIssueIds;
+    }
+
+    public String getCollectorIssueKey() {
+        return collectorIssueKey;
     }
 
     public boolean getIsActualDate() {
@@ -173,6 +191,12 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
             String filteredIssueKey = issueManager.getIssueObject(issueId).getKey();
             issueKey += filteredIssueKey + " ";
         }
+        collectorIssueIds = pluginSettingsValues.getCollectorIssues();
+        for (Long issueId : collectorIssueIds) {
+            IssueManager issueManager = ComponentManager.getInstance().getIssueManager();
+            String filteredIssueKey = issueManager.getIssueObject(issueId).getKey();
+            collectorIssueKey += filteredIssueKey + " ";
+        }
     }
 
     /**
@@ -183,6 +207,7 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
      */
     public void parseSaveSettings(final HttpServletRequest request) {
         String[] issueSelectValue = request.getParameterValues("issueSelect");
+        String[] collectorIssueSelectValue = request.getParameterValues("issueSelect_collector");
         // if the user is admin and issueSelectValue is null means we don't want to filters
         // else if issueSelectValue not null then the user is admin and we save the new filters
         // else not have to implement because we use the loaded issuesId list
@@ -194,6 +219,16 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
                 IssueManager issueManager = ComponentManager.getInstance().getIssueManager();
                 Long filteredIssueId = issueManager.getIssueObject(filteredIssueKey).getId();
                 issuesId.add(filteredIssueId);
+            }
+        }
+        if ((collectorIssueSelectValue == null) && isUserAdmin) {
+            collectorIssueIds = new ArrayList<Long>();
+        } else if (collectorIssueSelectValue != null) {
+            collectorIssueIds = new ArrayList<Long>();
+            for (String filteredIssueKey : collectorIssueSelectValue) {
+                IssueManager issueManager = ComponentManager.getInstance().getIssueManager();
+                Long filteredIssueId = issueManager.getIssueObject(filteredIssueKey).getId();
+                collectorIssueIds.add(filteredIssueId);
             }
         }
         String[] popupOrInlineValue = request.getParameterValues("popupOrInline");
@@ -215,8 +250,17 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
      * Save the plugin settings.
      */
     public void savePluginSettings() {
-        PluginSettingsValues pluginSettingValues = new PluginSettingsValues(isPopup, isActualDate, issuesId);
+        PluginSettingsValues pluginSettingValues = new PluginSettingsValues(isPopup, isActualDate, issuesId,
+                collectorIssueIds);
         jiraTimetrackerPlugin.savePluginSettings(pluginSettingValues);
+    }
+
+    public void setCollectorIssueIds(final List<Long> collectorIssueIds) {
+        this.collectorIssueIds = collectorIssueIds;
+    }
+
+    public void setCollectorIssueKey(final String collectorIssueKey) {
+        this.collectorIssueKey = collectorIssueKey;
     }
 
     public void setIsActualDate(final boolean actualDateOrLastWorklogDate) {

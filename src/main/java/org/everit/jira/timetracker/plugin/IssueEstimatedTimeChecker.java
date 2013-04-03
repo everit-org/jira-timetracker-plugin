@@ -38,6 +38,7 @@ import org.ofbiz.core.entity.GenericValue;
 import com.atlassian.core.ofbiz.CoreFactory;
 import com.atlassian.jira.ComponentManager;
 import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.config.properties.APKeys;
 import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.mail.Email;
@@ -59,13 +60,37 @@ public class IssueEstimatedTimeChecker implements Runnable {
     private Calendar checkerCalendar;
 
     /**
+     * The {@link JiraTimetrackerPlugin}.
+     */
+    private JiraTimetrackerPlugin jiraTimetrackerPlugin;
+
+    /**
      * Simple constructor.
      * 
      * @param emailSender
      *            TThe email address of the sender, come from the plugin properties file.
      */
-    public IssueEstimatedTimeChecker(final String emailSender) {
+    public IssueEstimatedTimeChecker(final String emailSender, final JiraTimetrackerPlugin jiraTimetrackerPlugin) {
         this.emailSender = emailSender;
+        this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
+    }
+
+    /**
+     * Create the mail body String.
+     * 
+     * @param issue
+     *            The issue object.
+     * @return The email body.
+     */
+    private String createBodyString(final MutableIssue issue) {
+        String baseURL = ComponentManager.getInstance().getApplicationProperties().getString(APKeys.JIRA_BASEURL);
+        String bodyString = "Work was logged on issue " + issue.getKey() + " without remaining time."
+                + "\n"
+                + "\n" + "The issue summary: " + issue.getSummary()
+                + "\n" + "The issue description: " + issue.getDescription()
+                + "\n" + "The issue key: " + issue.getKey()
+                + "\n" + "The issue URL: " + baseURL + "/browse/" + issue.getKey();
+        return bodyString;
     }
 
     /**
@@ -108,7 +133,7 @@ public class IssueEstimatedTimeChecker implements Runnable {
         IssueManager issueManager = ComponentManager.getInstance().getIssueManager();
         for (Long issueId : issueIdSet) {
             MutableIssue issueObject = issueManager.getIssueObject(issueId);
-            if (!JiraTimetrackerUtil.checkIssueEstimatedTime(issueObject)) {
+            if (!JiraTimetrackerUtil.checkIssueEstimatedTime(issueObject, jiraTimetrackerPlugin.getCollectorIssueIds())) {
                 // send mail
                 sendNotificationEmail(issueObject.getReporterUser().getEmailAddress(), issueObject.getProjectObject()
                         .getLeadUser().getEmailAddress(), issueObject);
@@ -132,11 +157,7 @@ public class IssueEstimatedTimeChecker implements Runnable {
             email.setCc(projectLead);
         }
         email.setSubject("No more estimated time in the " + issue.getKey() + " issue.");
-        email.setBody("Since " + DateTimeConverterUtil.dateAndTimeToString(checkerCalendar.getTime()) + " the "
-                + issue.getKey()
-                + " issue worklogs spent time ( " + DateTimeConverterUtil.secondConvertToString(issue.getTimeSpent())
-                + ") was set more than the original estimted time ("
-                + DateTimeConverterUtil.secondConvertToString(issue.getOriginalEstimate()) + ").");
+        email.setBody(createBodyString(issue));
         SingleMailQueueItem singleMailQueueItem = new SingleMailQueueItem(email);
         singleMailQueueItem.setMailThreader(null);
         ComponentAccessor.getMailQueue().addItem(singleMailQueueItem);

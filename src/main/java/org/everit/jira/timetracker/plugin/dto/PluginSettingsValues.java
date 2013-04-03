@@ -39,19 +39,30 @@ public class PluginSettingsValues {
      * The plugin calendar show the actual date when start or the latest day what not contains worklog.
      */
     private Boolean isActualDate;
-
+    /**
+     * The non working issues list.
+     */
     private List<Long> filteredSummaryIssues;
+    /**
+     * The collector issues list;
+     */
+    private List<Long> collectorIssues;
 
     public PluginSettingsValues() {
 
     }
 
     public PluginSettingsValues(final boolean isCalendarPopup, final boolean isActualDate,
-            final List<Long> filteredSummaryIssues) {
+            final List<Long> filteredSummaryIssues, final List<Long> collectorIssues) {
         super();
         this.isCalendarPopup = isCalendarPopup;
         this.isActualDate = isActualDate;
         this.filteredSummaryIssues = filteredSummaryIssues;
+        this.collectorIssues = collectorIssues;
+    }
+
+    public List<Long> getCollectorIssues() {
+        return collectorIssues;
     }
 
     public List<Long> getFilteredSummaryIssues() {
@@ -72,6 +83,10 @@ public class PluginSettingsValues {
 
     public void setCalendarPopup(final boolean isCalendarPopup) {
         this.isCalendarPopup = isCalendarPopup;
+    }
+
+    public void setCollectorIssues(final List<Long> collectorIssues) {
+        this.collectorIssues = collectorIssues;
     }
 
     public void setFilteredSummaryIssues(final List<Long> filteredSummaryIssues) {

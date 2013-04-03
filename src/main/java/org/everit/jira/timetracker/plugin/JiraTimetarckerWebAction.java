@@ -319,6 +319,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         if ((deletedWorklogId != null) && !DEFAULT_WORKLOG_ID.equals(deletedWorklogId)) {
             ActionResult deleteResult = jiraTimetrackerPlugin.deleteWorklog(deletedWorklogId);
             if (deleteResult.getStatus() == ActionResultStatus.FAIL) {
+                message = deleteResult.getMessage();
                 return ERROR;
             }
         }
@@ -387,19 +388,17 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
             return editAllAction();
         }
 
+        String validateInputFieldsResult = validateInputFields();
+        if (validateInputFieldsResult.equals(ERROR)) {
+            return SUCCESS;
+        }
+
         if (issueSelectValue == null) {
             message = "plugin.missing_issue";
             return SUCCESS;
         }
 
         issueKey = issueSelectValue[0];
-
-        String validateInputFieldsResult = validateInputFields();
-        if (validateInputFieldsResult.equals(ERROR)) {
-            return SUCCESS;
-        }
-
-        comment = commentsValue[0];
 
         if (request.getParameter("edit") != null) {
             return editAction();
@@ -409,7 +408,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
                 startTimeValue[0], timeSpent);
         if (createResult.getStatus() == ActionResultStatus.FAIL) {
             message = createResult.getMessage();
-            messageParameter = createResult.getMessageParameter();
+            // messageParameter = createResult.getMessageParameter();
         }
         endTime = DateTimeConverterUtil.dateTimeToString(new Date());
         try {
@@ -434,7 +433,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
                 comment, dateFormated, startTimeValue[0], timeSpent);
         if (updateResult.getStatus() == ActionResultStatus.FAIL) {
             message = updateResult.getMessage();
-            messageParameter = updateResult.getMessageParameter();
+            // messageParameter = updateResult.getMessageParameter();
             return SUCCESS;
         }
         try {
@@ -843,11 +842,13 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         String[] endOrDurationValue = request.getParameterValues("endOrDuration");
         String[] commentsValue = request.getParameterValues("comments");
 
-        if (!DateTimeConverterUtil.isValidTime(startTimeValue[0])) {
-            message = "plugin.invalid_startTime";
+        if (commentsValue[0] == null) {
             return ERROR;
         }
-        if (commentsValue[0] == null) {
+        comment = commentsValue[0];
+
+        if (!DateTimeConverterUtil.isValidTime(startTimeValue[0])) {
+            message = "plugin.invalid_startTime";
             return ERROR;
         }
         if (endOrDurationValue[0].equals("duration")) {

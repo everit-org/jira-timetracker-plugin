@@ -23,6 +23,7 @@ package org.everit.jira.timetracker.plugin.dto;
 
 import java.io.Serializable;
 import java.text.ParseException;
+import java.util.List;
 
 import org.everit.jira.timetracker.plugin.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerUtil;
@@ -87,7 +88,7 @@ public class EveritWorklog implements Serializable {
      * @throws ParseException
      *             If can't parse the date.
      */
-    public EveritWorklog(final GenericValue worklogGv) throws ParseException {
+    public EveritWorklog(final GenericValue worklogGv, final List<Long> collectorIssueIds) throws ParseException {
         worklogId = worklogGv.getLong("id");
         startTime = worklogGv.getString("startdate");
         startTime = DateTimeConverterUtil.stringDateToStringTime(startTime);
@@ -95,7 +96,7 @@ public class EveritWorklog implements Serializable {
         IssueManager issueManager = ComponentManager.getInstance().getIssueManager();
         MutableIssue issueObject = issueManager.getIssueObject(issueId);
         issue = issueObject.getKey();
-        isMoreEstimatedTime = JiraTimetrackerUtil.checkIssueEstimatedTime(issueObject);
+        isMoreEstimatedTime = JiraTimetrackerUtil.checkIssueEstimatedTime(issueObject, collectorIssueIds);
         body = worklogGv.getString("body");
         body = body.replace("\"", "\\\"");
         body = body.replace("\r", "\\r");
