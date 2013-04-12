@@ -42,6 +42,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 import org.everit.jira.timetracker.plugin.dto.ActionResult;
@@ -203,7 +204,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
     /**
      * The collector issues ids.
      */
-    private List<Long> collectorIssueIds;
+    private List<Pattern> collectorIssuePatterns;
     /**
      * The summary filter issues ids.
      */
@@ -211,7 +212,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
     /**
      * The collector issues ids.
      */
-    private List<Long> defaultCollectorIssueIds = new ArrayList<Long>();
+    private List<Pattern> defaultCollectorIssuePatterns = new ArrayList<Pattern>();
     /**
      * The plugin Scheduled Executor Service.
      */
@@ -420,11 +421,11 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
     }
 
     @Override
-    public List<Long> getCollectorIssueIds() {
-        if (collectorIssueIds == null) {
-            collectorIssueIds = defaultCollectorIssueIds;
+    public List<Pattern> getCollectorIssuePatterns() {
+        if (collectorIssuePatterns == null) {
+            collectorIssuePatterns = defaultCollectorIssuePatterns;
         }
-        return collectorIssueIds;
+        return collectorIssuePatterns;
     }
 
     @Override
@@ -521,7 +522,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
         List<GenericValue> worklogGVList = CoreFactory.getGenericDelegator().findByAnd("Worklog", exprList);
         List<EveritWorklog> worklogs = new ArrayList<EveritWorklog>();
         for (GenericValue worklogGv : worklogGVList) {
-            EveritWorklog worklog = new EveritWorklog(worklogGv, collectorIssueIds);
+            EveritWorklog worklog = new EveritWorklog(worklogGv, collectorIssuePatterns);
             worklogs.add(worklog);
         }
 
@@ -567,15 +568,10 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
                 LOGGER.error("Can't find issue whit the given key: " + issueKey);
             }
         }
-        for (String issueKey : collectorIssuesString.split(",")) {
-            IssueManager issueManager = ComponentManager.getInstance().getIssueManager();
-            MutableIssue issueObject = issueManager.getIssueObject(issueKey);
-            if (issueObject != null) {
-                Long issueId = issueObject.getId();
-                defaultCollectorIssueIds.add(issueId);
-            } else {
-                LOGGER.error("Can't find issue whit the given key: " + issueKey);
-            }
+        for (String issuePatternString : collectorIssuesString.split(",")) {
+            // Create default pattern list.
+            Pattern issuePattern = Pattern.compile(issuePatternString);
+            defaultCollectorIssuePatterns.add(issuePattern);
         }
         for (String dateString : excludeDatesString.split(",")) {
             try {
@@ -666,12 +662,12 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
         User user = authenticationContext.getLoggedInUser();
 
         globalSettings = settingsFactory.createGlobalSettings();
-        List<String> tempIssueList = (List<String>) globalSettings.get(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+        List<String> tempIssuePatternList = (List<String>) globalSettings.get(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
                 + JTTP_PLUGIN_SETTINGS_SUMMARY_FILTERS);
-        if (tempIssueList != null) {
+        if (tempIssuePatternList != null) {
             // add non working issues
             summaryFilteredIssueIds = new ArrayList<Long>();
-            for (String tempIssueId : tempIssueList) {
+            for (String tempIssueId : tempIssuePatternList) {
                 summaryFilteredIssueIds.add(Long.valueOf(tempIssueId));
             }
         } else {
@@ -679,28 +675,28 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
             summaryFilteredIssueIds = defaultNonWorkingIssueIds;
 
         }
-        tempIssueList = (List<String>) globalSettings.get(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+        tempIssuePatternList = (List<String>) globalSettings.get(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
                 + JTTP_PLUGIN_SETTINGS_COLLECTOR_ISSUES);
-        if (tempIssueList != null) {
+        if (tempIssuePatternList != null) {
             // add collector issues
-            collectorIssueIds = new ArrayList<Long>();
-            for (String tempIssueId : tempIssueList) {
-                collectorIssueIds.add(Long.valueOf(tempIssueId));
+            collectorIssuePatterns = new ArrayList<Pattern>();
+            for (String tempIssuePattern : tempIssuePatternList) {
+                collectorIssuePatterns.add(Pattern.compile(tempIssuePattern));
             }
         } else {
-            collectorIssueIds = defaultCollectorIssueIds;
+            collectorIssuePatterns = defaultCollectorIssuePatterns;
         }
         pluginSettings = settingsFactory.createSettingsForKey(JTTP_PLUGIN_SETTINGS_KEY_PREFIX + user.getName());
-        Boolean isPopup = null;
+        Integer isPopup = null;
         if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_IS_CALENDAR_POPUP) != null) {
-            if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_IS_CALENDAR_POPUP).equals("true")) {
-                isPopup = true;
-            } else if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_IS_CALENDAR_POPUP).equals("false")) {
-                isPopup = false;
+            isPopup = Integer.valueOf(pluginSettings.get(JTTP_PLUGIN_SETTINGS_IS_CALENDAR_POPUP).toString());
+            if (isPopup == null) {
+                // the default is the popup calendar
+                isPopup = JiraTimetrackerUtil.POPUP_CALENDAR_CODE;
             }
         } else {
             // the default is the popup calendar
-            isPopup = true;
+            isPopup = JiraTimetrackerUtil.POPUP_CALENDAR_CODE;
         }
         Boolean isActualDate = null;
         if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_IS_ACTUAL_DATE) != null) {
@@ -715,7 +711,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
         }
         // Here set the other values
         pluginSettingsValues = new PluginSettingsValues(isPopup, isActualDate, summaryFilteredIssueIds,
-                collectorIssueIds);
+                collectorIssuePatterns);
         return pluginSettingsValues;
     }
 
@@ -725,8 +721,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
                 .getJiraAuthenticationContext();
         User user = authenticationContext.getLoggedInUser();
         pluginSettings = settingsFactory.createSettingsForKey(JTTP_PLUGIN_SETTINGS_KEY_PREFIX + user.getName());
-        pluginSettings.put(JTTP_PLUGIN_SETTINGS_IS_CALENDAR_POPUP, pluginSettingsParameters.isCalendarPopup()
-                .toString());
+        pluginSettings.put(JTTP_PLUGIN_SETTINGS_IS_CALENDAR_POPUP,
+                Integer.toString(pluginSettingsParameters.isCalendarPopup()));
         pluginSettings.put(JTTP_PLUGIN_SETTINGS_IS_ACTUAL_DATE, pluginSettingsParameters.isActualDate().toString());
 
         globalSettings = settingsFactory.createGlobalSettings();

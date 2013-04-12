@@ -130,10 +130,11 @@ public class IssueEstimatedTimeChecker implements Runnable {
         } catch (GenericEntityException e) {
             LOGGER.info("Error when try to make a worklog query. ", e);
         }
+
         IssueManager issueManager = ComponentManager.getInstance().getIssueManager();
         for (Long issueId : issueIdSet) {
             MutableIssue issueObject = issueManager.getIssueObject(issueId);
-            if (!JiraTimetrackerUtil.checkIssueEstimatedTime(issueObject, jiraTimetrackerPlugin.getCollectorIssueIds())) {
+            if (!JiraTimetrackerUtil.checkIssueEstimatedTime(issueObject, jiraTimetrackerPlugin.getCollectorIssuePatterns())) {
                 // send mail
                 sendNotificationEmail(issueObject.getReporterUser().getEmailAddress(), issueObject.getProjectObject()
                         .getLeadUser().getEmailAddress(), issueObject);

@@ -24,6 +24,7 @@ package org.everit.jira.timetracker.plugin.dto;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.everit.jira.timetracker.plugin.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerUtil;
@@ -85,10 +86,13 @@ public class EveritWorklog implements Serializable {
      * 
      * @param worklogGv
      *            GenericValue worklog.
+     * @param collectorIssuePatterns
+     *            The collector Issues Pattern list.
      * @throws ParseException
      *             If can't parse the date.
      */
-    public EveritWorklog(final GenericValue worklogGv, final List<Long> collectorIssueIds) throws ParseException {
+    public EveritWorklog(final GenericValue worklogGv, final List<Pattern> collectorIssuePatterns)
+            throws ParseException {
         worklogId = worklogGv.getLong("id");
         startTime = worklogGv.getString("startdate");
         startTime = DateTimeConverterUtil.stringDateToStringTime(startTime);
@@ -96,11 +100,16 @@ public class EveritWorklog implements Serializable {
         IssueManager issueManager = ComponentManager.getInstance().getIssueManager();
         MutableIssue issueObject = issueManager.getIssueObject(issueId);
         issue = issueObject.getKey();
-        isMoreEstimatedTime = JiraTimetrackerUtil.checkIssueEstimatedTime(issueObject, collectorIssueIds);
+        isMoreEstimatedTime = JiraTimetrackerUtil.checkIssueEstimatedTime(issueObject, collectorIssuePatterns);
         body = worklogGv.getString("body");
-        body = body.replace("\"", "\\\"");
-        body = body.replace("\r", "\\r");
-        body = body.replace("\n", "\\n");
+        if (body != null) {
+            body = body.replace("\"", "\\\"");
+            body = body.replace("\r", "\\r");
+            body = body.replace("\n", "\\n");
+        }
+        else {
+            body = "";
+        }
         long timeSpentInSec = worklogGv.getLong("timeworked").longValue();
         milliseconds = timeSpentInSec * DateTimeConverterUtil.MILLISECONDS_PER_SECOND;
         duration = DateTimeConverterUtil.secondConvertToString(timeSpentInSec);
@@ -121,9 +130,13 @@ public class EveritWorklog implements Serializable {
         startTime = DateTimeConverterUtil.dateTimeToString(worklog.getStartDate());
         issue = worklog.getIssue().getKey();
         body = worklog.getComment();
-        body = body.replace("\"", "\\\"");
-        body = body.replace("\r", "\\r");
-        body = body.replace("\n", "\\n");
+        if (body != null) {
+            body = body.replace("\"", "\\\"");
+            body = body.replace("\r", "\\r");
+            body = body.replace("\n", "\\n");
+        } else {
+            body = "";
+        }
         long timeSpentInSec = worklog.getTimeSpent().longValue();
         milliseconds = timeSpentInSec * DateTimeConverterUtil.MILLISECONDS_PER_SECOND;
         duration = DateTimeConverterUtil.millisecondConvertToStringTime(milliseconds);

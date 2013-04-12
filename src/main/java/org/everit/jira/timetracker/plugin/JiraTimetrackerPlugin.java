@@ -24,6 +24,7 @@ package org.everit.jira.timetracker.plugin;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.everit.jira.timetracker.plugin.dto.ActionResult;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
@@ -94,10 +95,10 @@ public interface JiraTimetrackerPlugin {
     Date firstMissingWorklogsDate() throws GenericEntityException;
 
     /**
-     * Give back the collector issue ids. If the list will be null, then give back the propeties file default collecter
-     * issues list.
+     * Give back the collector issue patterns. If the list will be null, then give back the propeties file default
+     * collecter issues patterns list.
      */
-    List<Long> getCollectorIssueIds();
+    List<Pattern> getCollectorIssuePatterns();
 
     /**
      * Create a query and give back the list of dates where are no worklogs. The query examine the days between the user

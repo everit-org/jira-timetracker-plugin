@@ -22,6 +22,7 @@ package org.everit.jira.timetracker.plugin;
  */
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jira.ComponentManager;
@@ -33,6 +34,18 @@ import com.atlassian.jira.security.JiraAuthenticationContext;
  * The Jira Timetracker plugin utils class.
  */
 public final class JiraTimetrackerUtil {
+    /**
+     * The plugin calendar popup code.
+     */
+    public static final int POPUP_CALENDAR_CODE = 1;
+    /**
+     * The plugin calendar inline code.
+     */
+    public static final int INLINE_CALENDAR_CODE = 2;
+    /**
+     * The plugin calendar both type code.
+     */
+    public static final int BOTH_TYPE_CALENDAR_CODE = 3;
 
     /**
      * Check the issue original estimated time. If null then the original estimated time wasn't specified, else compare
@@ -43,10 +56,14 @@ public final class JiraTimetrackerUtil {
      * @return True if not specified, bigger or equals whit spent time else false.
      */
     public static boolean checkIssueEstimatedTime(final MutableIssue issue,
-            final List<Long> collectorIssueIds) {
-        Long issueId = issue.getId();
-        if (collectorIssueIds.contains(issueId)) {
-            return true;
+            final List<Pattern> collectorIssueIds) {
+        String issueKey = issue.getKey();
+        for (Pattern issuePattern : collectorIssueIds) {
+            // check matches
+            boolean isCollectorIssue = issuePattern.matcher(issueKey).matches();
+            if (isCollectorIssue) {
+                return true;
+            }
         }
         Long estimated = issue.getEstimate();
         Status issueStatus = issue.getStatusObject();

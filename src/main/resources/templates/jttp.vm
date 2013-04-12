@@ -58,7 +58,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 		  	<input type="text" id="date" name="date" style="display: none" onchange="this.form.datesubmit.click()" />
 			<input type="submit" id="datesubmit" name="datesubmit" class="spaced" style="display: none"/>
 			<div id="calendar_div" style="text-align: left; vertical-align: inherit; float: left; padding:5px;">
-			#if($isPopup)
+			#if($isPopup != 2)
 				<input type="submit" id="monthBack"  name="monthBack" value="<<<" class="button" />
 				<input type="submit" id="weekBack"  name="weekBack" value="<<" class="button"  />
 				<input type="submit" id="dayBack"  name="dayBack" value="<" class="button"  />
@@ -194,7 +194,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 		            			</td>
 		            			<td width="246px">
 						            <div id="not_popup_calendar" width="246px" padding-left="30px">
-						            	#if(!$isPopup)
+						            	#if($isPopup != 1)
 						            		<script>
 											##This is the not popup calendar. Works but not nice
 											Calendar.setup({

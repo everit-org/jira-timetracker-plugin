@@ -22,6 +22,7 @@ package org.everit.jira.timetracker.plugin.dto;
  */
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
 
@@ -33,7 +34,7 @@ public class PluginSettingsValues {
     /**
      * The plugin calendar is popup.
      */
-    private Boolean isCalendarPopup;
+    private int isCalendarPopup;
 
     /**
      * The plugin calendar show the actual date when start or the latest day what not contains worklog.
@@ -44,16 +45,16 @@ public class PluginSettingsValues {
      */
     private List<Long> filteredSummaryIssues;
     /**
-     * The collector issues list;
+     * The collector issues pattern list;
      */
-    private List<Long> collectorIssues;
+    private List<Pattern> collectorIssues;
 
     public PluginSettingsValues() {
 
     }
 
-    public PluginSettingsValues(final boolean isCalendarPopup, final boolean isActualDate,
-            final List<Long> filteredSummaryIssues, final List<Long> collectorIssues) {
+    public PluginSettingsValues(final int isCalendarPopup, final boolean isActualDate,
+            final List<Long> filteredSummaryIssues, final List<Pattern> collectorIssues) {
         super();
         this.isCalendarPopup = isCalendarPopup;
         this.isActualDate = isActualDate;
@@ -61,7 +62,7 @@ public class PluginSettingsValues {
         this.collectorIssues = collectorIssues;
     }
 
-    public List<Long> getCollectorIssues() {
+    public List<Pattern> getCollectorIssues() {
         return collectorIssues;
     }
 
@@ -73,7 +74,7 @@ public class PluginSettingsValues {
         return isActualDate;
     }
 
-    public Boolean isCalendarPopup() {
+    public int isCalendarPopup() {
         return isCalendarPopup;
     }
 
@@ -81,11 +82,11 @@ public class PluginSettingsValues {
         isActualDate = actualDateOrLastWorklogDate;
     }
 
-    public void setCalendarPopup(final boolean isCalendarPopup) {
+    public void setCalendarPopup(final int isCalendarPopup) {
         this.isCalendarPopup = isCalendarPopup;
     }
 
-    public void setCollectorIssues(final List<Long> collectorIssues) {
+    public void setCollectorIssues(final List<Pattern> collectorIssues) {
         this.collectorIssues = collectorIssues;
     }
 

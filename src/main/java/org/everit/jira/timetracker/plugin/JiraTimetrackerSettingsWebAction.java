@@ -24,6 +24,7 @@ package org.everit.jira.timetracker.plugin;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -47,9 +48,9 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
      */
     private JiraTimetrackerPlugin jiraTimetrackerPlugin;
     /**
-     * The calendar is popup or not.
+     * The calendar is popup, inLine or both.
      */
-    private boolean isPopup;
+    private int isPopup;
     /**
      * The calenar show the actualDate or the last unfilled date.
      */
@@ -83,7 +84,7 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     /**
      * The collector issue ids.
      */
-    private List<Long> collectorIssueIds;
+    private List<Pattern> collectorIssuePatterns;
 
     public JiraTimetrackerSettingsWebAction(final JiraTimetrackerPlugin jiraTimetrackerPlugin) {
         this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
@@ -150,8 +151,8 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
         return SUCCESS;
     }
 
-    public List<Long> getCollectorIssueIds() {
-        return collectorIssueIds;
+    public List<Pattern> getCollectorIssueIds() {
+        return collectorIssuePatterns;
     }
 
     public String getCollectorIssueKey() {
@@ -162,7 +163,7 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
         return isActualDate;
     }
 
-    public boolean getIsPopup() {
+    public int getIsPopup() {
         return isPopup;
     }
 
@@ -191,11 +192,9 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
             String filteredIssueKey = issueManager.getIssueObject(issueId).getKey();
             issueKey += filteredIssueKey + " ";
         }
-        collectorIssueIds = pluginSettingsValues.getCollectorIssues();
-        for (Long issueId : collectorIssueIds) {
-            IssueManager issueManager = ComponentManager.getInstance().getIssueManager();
-            String filteredIssueKey = issueManager.getIssueObject(issueId).getKey();
-            collectorIssueKey += filteredIssueKey + " ";
+        collectorIssuePatterns = pluginSettingsValues.getCollectorIssues();
+        for (Pattern issuePattern : collectorIssuePatterns) {
+            collectorIssueKey += issuePattern.toString() + " ";
         }
     }
 
@@ -222,20 +221,20 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
             }
         }
         if ((collectorIssueSelectValue == null) && isUserAdmin) {
-            collectorIssueIds = new ArrayList<Long>();
+            collectorIssuePatterns = new ArrayList<Pattern>();
         } else if (collectorIssueSelectValue != null) {
-            collectorIssueIds = new ArrayList<Long>();
+            collectorIssuePatterns = new ArrayList<Pattern>();
             for (String filteredIssueKey : collectorIssueSelectValue) {
-                IssueManager issueManager = ComponentManager.getInstance().getIssueManager();
-                Long filteredIssueId = issueManager.getIssueObject(filteredIssueKey).getId();
-                collectorIssueIds.add(filteredIssueId);
+                collectorIssuePatterns.add(Pattern.compile(filteredIssueKey));
             }
         }
         String[] popupOrInlineValue = request.getParameterValues("popupOrInline");
         if (popupOrInlineValue[0].equals("popup")) {
-            isPopup = true;
+            isPopup = JiraTimetrackerUtil.POPUP_CALENDAR_CODE;
+        } else if (popupOrInlineValue[0].equals("inline")) {
+            isPopup = JiraTimetrackerUtil.INLINE_CALENDAR_CODE;
         } else {
-            isPopup = false;
+            isPopup = JiraTimetrackerUtil.BOTH_TYPE_CALENDAR_CODE;
         }
         String[] currentOrLastValue = request.getParameterValues("currentOrLast");
         if (currentOrLastValue[0].equals("current")) {
@@ -251,12 +250,12 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
      */
     public void savePluginSettings() {
         PluginSettingsValues pluginSettingValues = new PluginSettingsValues(isPopup, isActualDate, issuesId,
-                collectorIssueIds);
+                collectorIssuePatterns);
         jiraTimetrackerPlugin.savePluginSettings(pluginSettingValues);
     }
 
-    public void setCollectorIssueIds(final List<Long> collectorIssueIds) {
-        this.collectorIssueIds = collectorIssueIds;
+    public void setCollectorIssueIds(final List<Pattern> collectorIssueIds) {
+        collectorIssuePatterns = collectorIssueIds;
     }
 
     public void setCollectorIssueKey(final String collectorIssueKey) {
@@ -267,7 +266,7 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
         isActualDate = actualDateOrLastWorklogDate;
     }
 
-    public void setIsPopup(final boolean isPopup) {
+    public void setIsPopup(final int isPopup) {
         this.isPopup = isPopup;
     }
 

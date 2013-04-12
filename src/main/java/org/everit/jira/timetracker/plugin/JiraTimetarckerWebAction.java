@@ -199,7 +199,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
     /**
      * The calendar isPopup.
      */
-    private boolean isPopup;
+    private int isPopup;
     /**
      * The calendar show actual Date Or Last Worklog Date.
      */
@@ -408,7 +408,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
                 startTimeValue[0], timeSpent);
         if (createResult.getStatus() == ActionResultStatus.FAIL) {
             message = createResult.getMessage();
-            // messageParameter = createResult.getMessageParameter();
+            return SUCCESS;
         }
         endTime = DateTimeConverterUtil.dateTimeToString(new Date());
         try {
@@ -433,7 +433,6 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
                 comment, dateFormated, startTimeValue[0], timeSpent);
         if (updateResult.getStatus() == ActionResultStatus.FAIL) {
             message = updateResult.getMessage();
-            // messageParameter = updateResult.getMessageParameter();
             return SUCCESS;
         }
         try {
@@ -546,7 +545,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         return isEditAll;
     }
 
-    public boolean getIsPopup() {
+    public int getIsPopup() {
         return isPopup;
     }
 
@@ -804,7 +803,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         this.monthSummary = monthSummary;
     }
 
-    public void setPopup(final boolean isPopup) {
+    public void setPopup(final int isPopup) {
         this.isPopup = isPopup;
     }
 
