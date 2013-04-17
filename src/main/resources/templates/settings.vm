@@ -20,7 +20,7 @@
         border:1px solid #D2D2D2;
         padding:4px;
     }
-   
+    
 </style>
 <form name="myForm"  method="post" action="JiraTimetrackerSettingsWebAction.jspa"/>   
 	<div id="plugin_head" class="item-header">
@@ -33,13 +33,13 @@
 					<tr>
 						<td style="text-align: right;" width="10%">
 							<div style="margin-top: 10px; margin-bottom: 10px;">
-								<strong>$i18n.getText("plugin.personal.settings")</strong>
+								<h2>$i18n.getText("plugin.setting.calendar.appearance")</h2>
 							<div>
 						</td>
 					</tr>
 		        	<tr>
 						<td style="text-align: right;" width="10%"> 
-							$i18n.getText("plugin.setting.ispopup"): 
+							<h3>$i18n.getText("plugin.setting.ispopup"):<h3> 
 						</td>
 						<td width="40%">
 						 	#if($isPopup == 1)
@@ -81,7 +81,7 @@
 					</tr>
 					<tr>
 						<td width="10%" style="text-align: right;">
-							$i18n.getText("plugin.setting.isactualdate"):  
+							<h3>$i18n.getText("plugin.setting.isactualdate"):<h3>  
 						</td>
 						<td width="40%">
 						 	#if($isActualDate)
@@ -111,13 +111,13 @@
 						<tr>
 							<td style="text-align: right;" width="10%">
 								<div style="margin-top: 10px; margin-bottom: 10px;">
-									<strong>$i18n.getText("plugin.admin.settings")</strong>
+									<h2>$i18n.getText("plugin.admin.settings")</h2>
 								</div>	
 							</td>
 						</tr>
 						<tr>
 							<td style="text-align: right;" width="10%">
-								$i18n.getText("plugin.setting.non.working.issues")
+								<h3>$i18n.getText("plugin.setting.non.working.issues")</h3>
 							</td>
 							<td >
 								<div id="issueSelect_container" class="ajax_autocomplete atlassian-autocomplete" style="margin-bottom: 35px" >
@@ -165,7 +165,7 @@
 						</tr>
 						<tr>
 							<td style="text-align: right;" width="10%">
-								$i18n.getText("plugin.setting.collector.issues")
+								<h3>$i18n.getText("plugin.setting.nonestimated.issues")</h3>
 							</td>
 							<td >
 								<div id="issueSelect_container_collector" class="ajax_autocomplete atlassian-autocomplete" style="margin-bottom: 35px" >
@@ -207,7 +207,60 @@
 							</td>
 							<td>
 								<div class="description">
-										$i18n.getText("plugin.setting.collector.issues.help")
+										$i18n.getText("plugin.setting.nonestimated.issues.help")
+								</div>
+							</td>		
+						</tr>
+						<tr>
+							<td style="text-align: right;" width="10%">
+								<div style="margin-top: 10px; margin-bottom: 10px;">
+									<h3>$i18n.getText("plugin.setting.working.day")</h3>
+								</div>	
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align: right;" width="10%">
+								<strong>$i18n.getText("plugin.setting.exclude.dates")</strong>
+							</td>
+							<td>
+								<div id="messageExclude" style="color: red; ">
+		 								$i18n.getText($messageExclude) $messageParameterExclude
+		  						</div>
+								<textarea id="excludedates" name="excludedates"></textarea>
+								<script>
+									AJS.$("#excludedates").append("$excludeDates");
+								</script>
+							</td>		
+						</tr>
+						<tr>
+							<td>
+							</td>
+							<td>
+								<div class="description">
+										$i18n.getText("plugin.setting.exclude.dates.help")
+								</div>
+							</td>		
+						</tr>
+						<tr>
+							<td style="text-align: right;" width="10%">
+								<strong>$i18n.getText("plugin.setting.include.dates")</strong>
+							</td>
+							<td>
+								<div id="messageInclude" style="color: red; ">
+		 								$i18n.getText($messageInclude) $messageParameterInclude
+		  						</div>
+								<textarea id="includedates" name="includedates"></textarea>
+								<script>
+									AJS.$("#includedates").append("$includeDates");
+								</script>
+							</td>		
+						</tr>
+						<tr>
+							<td>
+							</td>
+							<td>
+								<div class="description">
+										$i18n.getText("plugin.setting.include.dates.help")
 								</div>
 							</td>		
 						</tr>

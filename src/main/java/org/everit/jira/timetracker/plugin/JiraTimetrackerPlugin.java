@@ -193,5 +193,5 @@ public interface JiraTimetrackerPlugin {
      * @throws GenericEntityException
      *             GenericEntityException.
      */
-    String summary(Date startSummary, Date finishSummary, List<Long> issueIds) throws GenericEntityException;
+    String summary(Date startSummary, Date finishSummary, List<Pattern> issueIds) throws GenericEntityException;
 }

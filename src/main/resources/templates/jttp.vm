@@ -38,8 +38,8 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 	<div id="plugin_head" class="item-header">
  			<h1 class="item-summary">Timetracker</h1>
   	</div>
-	<div id="main-content" class="content rounded" >
-		<div style="margin:10px; ">
+	<div id="main-content" class="content rounded">
+		<div style="margin:10px; width:970px;">
 			##TAB START
 			<div class="tabwrap tabs2" id="tabs-jttp">
 	    		<ul class="tabs horizontal">
@@ -85,10 +85,11 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 			#end
 			</div>
 			<div id="summary" style="text-align: right; float: right; padding:5px;">
-				$i18n.getText("plugin.summary") $i18n.getText("plugin.day") ( $daySummary ) $i18n.getText("plugin.week") ( $weekSummary) $i18n.getText("plugin.month") ( $monthSummary)
+				<p>$i18n.getText("plugin.summary") $i18n.getText("plugin.day") ($daySummary) $i18n.getText("plugin.week") ($weekSummary) $i18n.getText("plugin.month") ($monthSummary)
 				#if($issuesId.size() != 0)
-					</br> $i18n.getText("plugin.real.work") $i18n.getText("plugin.summary") $i18n.getText("plugin.day") ( $dayFilteredSummary ) $i18n.getText("plugin.week") ( $weekFilteredSummary) $i18n.getText("plugin.month") ( $monthFilteredSummary)
+					</br>$i18n.getText("plugin.real.work") $i18n.getText("plugin.summary") $i18n.getText("plugin.day") ($dayFilteredSummary) $i18n.getText("plugin.week") ($weekFilteredSummary) $i18n.getText("plugin.month") ($monthFilteredSummary)
 				#end
+				</p>
 			</div>
 		    #parse("templates/list.vm")
 	   		</br>
@@ -97,14 +98,14 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 	   			<tbody>
 	   				<tr>
 	   					<input id="editAll" type="button" name="editall" value="$i18n.getText('plugin.edit.all')" onclick="location.href='JiraTimetarckerWebAction!default.jspa?editAllIds=$worklogsIds&dateFormated=$dateFormated'" class="button" />
-	   					<td width="70%">
+	   					<td>
 							<table>
 						                <tbody>
 						                    <tr>
-						                        <td width="50%">
-						                        <div class="field-group">
+						                        <td style="padding-right: 15px;" >
+						                           <div class="field-group">
 						                          	 	$i18n.getText("plugin.start.time"): <img src="/images/required.png" width="16" height="16" border="0" />
-						                          </div>
+						                           </div>
 						                           <input id="startTime"  type="text" name="startTime" value="$startTime" tabindex="1"/> <input id="startNow"  type="button" name="startNow" value="$i18n.getText('plugin.now')" class="button"/>
 						                           <script>
 														AJS.$("#startNow").click(function() {
@@ -125,9 +126,9 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 														 };
 													</script>
 						                        </td>
-												<td>
-						                    	 	<input id="radioEnd" type="radio" name="endOrDuration" value="end" style="margin-right: 10px" checked="true" onclick="this.form.durationTime.readOnly=true;this.form.endTime.readOnly=false"> $i18n.getText("plugin.end.time"):</br>
-						                    	 	<input id="endTime"  type="text" name="endTime" value="$endTime" onclick="this.form.durationTime.readOnly=true;this.form.endTime.readOnly=false;this.form.radioEnd.checked=true"  tabindex="2"/> <input id="endNow"  type="button" name="endNow" value="$i18n.getText('plugin.now')" class="button" />
+												<td style="padding-right: 15px;" >
+						                    	 	<input id="radioEnd" type="radio" name="endOrDuration" value="end" style="margin-right: 10px" checked="true" onclick="this.form.durationTime.readOnly=true;this.form.durationTime.disabled=true;this.form.endTime.readOnly=false;this.form.endTime.disabled=false;"> $i18n.getText("plugin.end.time"):</br>
+						                    	 	<input id="endTime"  type="text" name="endTime" value="$endTime" tabindex="2"/> <input id="endNow"  type="button" name="endNow" value="$i18n.getText('plugin.now')" class="button" />
 						                           <script>
 														AJS.$("#endNow").click(function() {
 					                   						var currentTime = new Date();
@@ -145,9 +146,13 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 													</script>
 						                    	 	
 						                    	 </td>
+						                    	 <td style="padding-right: 15px;">
+						                    	 	<input id="radioDuration" type="radio" name="endOrDuration" value="duration" style="margin-right: 10px" onclick="this.form.endTime.readOnly=true;this.form.endTime.disabled=true;this.form.durationTime.readOnly=false;this.form.durationTime.disabled=false;" > $i18n.getText("plugin.duration.time"): </br>
+						                    	 	<input id="durationTime"  type="text" name="durationTime" disabled value="$durationTime" />
+						                    	 </td>
 						                    </tr>
 						                    <tr>
-						                    	<td width="50%">
+						                    	<td colspan="3">
 						                           Issue: <img src="/images/required.png" width="16" height="16" border="0"/>
 					  							   <div id="issueSelect_container" class="ajax_autocomplete atlassian-autocomplete" >
 										    		<select class="hidden"
@@ -177,23 +182,38 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 												   		currentProjectId: $projectsId,
 														});
 														
-														//Set the issue key			
+														AJS.$("#issueSelect-multi-select").attr("style","width: 630px;");
+														//Set the issue key		
 														AJS.$("#issueSelect-textarea").append("$issueKey");
 														AJS.$("#issueSelect-textarea").attr("tabindex","3");
+														AJS.$("#issueSelect-textarea").attr("style","width: 605px;");
+														
 														ip.handleFreeInput();
 													</script>
 											 	</div>
 						                        </td>
-						                    	 <td>
-						                    	 	<input id="radioDuration" type="radio" name="endOrDuration" value="duration" style="margin-right: 10px" onclick="this.form.endTime.readOnly=true;this.form.durationTime.readOnly=false" > $i18n.getText("plugin.duration.time"): </br>
-						                    	 	<input id="durationTime"  type="text" name="durationTime" value="$durationTime" onclick="this.form.endTime.readOnly=true;this.form.durationTime.readOnly=false;this.form.radioDuration.checked=true "/>
-						                    	 </td>
 						                    </tr>
+						                    <tr>
+						            	 		<td colspan="3">
+							                    	$i18n.getText("plugin.note"):</br>
+							 	  					#set($fieldId = "comments")	
+							 	  					#parse("templates/plugins/renderers/wiki/wiki-renderer-edit.vm")
+							 	  					<script>
+							 	  						AJS.$("#comments-wiki-edit").attr("style","width: 650px;");
+							 	  						AJS.$("#comments").append("$comment");
+							 	  						AJS.$("#comments").attr("tabindex","4");
+							 	  						AJS.$("#comments").attr("height","100px");
+							 	  						AJS.$("#comments").attr("style","width: 650px");
+							 	  					</script>
+						 	  					</td>
+						              		</tr>
 						                  </tbody>
 						            </table>     
 		            			</td>
-		            			<td width="246px">
-						            <div id="not_popup_calendar" width="246px" padding-left="30px">
+		            			##<td width="246px">
+						        ##    <div id="not_popup_calendar" width="246px" padding-left="30px">
+						        <td>
+						            <div id="not_popup_calendar" style="float: right;">
 						            	#if($isPopup != 1)
 						            		<script>
 											##This is the not popup calendar. Works but not nice
@@ -228,24 +248,14 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 										#end
 						            </div>
 		            			</td>
-		            		</tr>
-		            		<tr>
-		            			<td colspan="2">
-						            <table width="100%">
-						            	 <tr>
-						            	 	<td width="100%">
-						                    	$i18n.getText("plugin.note"):</br>
-						 	  					#set($fieldId = "comments")	
-						 	  					#parse("templates/plugins/renderers/wiki/wiki-renderer-edit.vm")
-						 	  					<script>
-						 	  						AJS.$("#comments").append("$comment");
-						 	  						AJS.$("#comments").attr("tabindex","4");
-						 	  					</script>
-						 	  				</td>
-						               </tr>
-							</table>   
-		            	</td>
-		        	<tr>
+		            	##	</tr>
+		            	##	<tr>
+		            	##		<td colspan="2">
+						##            <table width="100%">
+						##           	 
+						##			</table>   
+		            	##		</td>
+		        		##	<tr>
 		    	</tbody>
 		    </table>
 			#if($isEdit)

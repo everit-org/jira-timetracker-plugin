@@ -43,31 +43,46 @@ public class PluginSettingsValues {
     /**
      * The non working issues list.
      */
-    private List<Long> filteredSummaryIssues;
+    private List<Pattern> filteredSummaryIssues;
     /**
      * The collector issues pattern list;
      */
     private List<Pattern> collectorIssues;
+
+    private String excludeDates;
+
+    private String includeDates;
 
     public PluginSettingsValues() {
 
     }
 
     public PluginSettingsValues(final int isCalendarPopup, final boolean isActualDate,
-            final List<Long> filteredSummaryIssues, final List<Pattern> collectorIssues) {
+            final List<Pattern> filteredSummaryIssues, final List<Pattern> collectorIssues,
+            final String excludeDates, final String includeDates) {
         super();
         this.isCalendarPopup = isCalendarPopup;
         this.isActualDate = isActualDate;
         this.filteredSummaryIssues = filteredSummaryIssues;
         this.collectorIssues = collectorIssues;
+        this.excludeDates = excludeDates;
+        this.includeDates = includeDates;
     }
 
     public List<Pattern> getCollectorIssues() {
         return collectorIssues;
     }
 
-    public List<Long> getFilteredSummaryIssues() {
+    public String getExcludeDates() {
+        return excludeDates;
+    }
+
+    public List<Pattern> getFilteredSummaryIssues() {
         return filteredSummaryIssues;
+    }
+
+    public String getIncludeDates() {
+        return includeDates;
     }
 
     public Boolean isActualDate() {
@@ -90,8 +105,16 @@ public class PluginSettingsValues {
         this.collectorIssues = collectorIssues;
     }
 
-    public void setFilteredSummaryIssues(final List<Long> filteredSummaryIssues) {
+    public void setExcludeDates(final String excludeDates) {
+        this.excludeDates = excludeDates;
+    }
+
+    public void setFilteredSummaryIssues(final List<Pattern> filteredSummaryIssues) {
         this.filteredSummaryIssues = filteredSummaryIssues;
+    }
+
+    public void setIncludeDates(final String includeDates) {
+        this.includeDates = includeDates;
     }
 
 }

@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 import org.everit.jira.timetracker.plugin.dto.ActionResult;
@@ -205,10 +206,11 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
      */
     private boolean isActualDate;
 
+    // TODO FIXME fix variables name
     /**
      * The filtered Issues id.
      */
-    private List<Long> issuesId;
+    private List<Pattern> issuesId;
 
     /**
      * Simple constructor.
@@ -557,7 +559,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         return issues;
     }
 
-    public List<Long> getIssuesId() {
+    public List<Pattern> getIssuesId() {
         return issuesId;
     }
 
@@ -783,7 +785,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         this.issues = issues;
     }
 
-    public void setIssuesId(final List<Long> issuesId) {
+    public void setIssuesId(final List<Pattern> issuesId) {
         this.issuesId = issuesId;
     }
 

@@ -53,7 +53,7 @@ public class IssueEstimatedTimeChecker implements Runnable {
     /**
      * The email address of the sender.
      */
-    private final String emailSender;
+    private String emailSender;
     /**
      * The check dates calendar.
      */
@@ -70,8 +70,7 @@ public class IssueEstimatedTimeChecker implements Runnable {
      * @param emailSender
      *            TThe email address of the sender, come from the plugin properties file.
      */
-    public IssueEstimatedTimeChecker(final String emailSender, final JiraTimetrackerPlugin jiraTimetrackerPlugin) {
-        this.emailSender = emailSender;
+    public IssueEstimatedTimeChecker(final JiraTimetrackerPlugin jiraTimetrackerPlugin) {
         this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
     }
 
@@ -91,6 +90,10 @@ public class IssueEstimatedTimeChecker implements Runnable {
                 + "\n" + "The issue key: " + issue.getKey()
                 + "\n" + "The issue URL: " + baseURL + "/browse/" + issue.getKey();
         return bodyString;
+    }
+
+    public String getEmailSender() {
+        return emailSender;
     }
 
     /**
@@ -134,7 +137,8 @@ public class IssueEstimatedTimeChecker implements Runnable {
         IssueManager issueManager = ComponentManager.getInstance().getIssueManager();
         for (Long issueId : issueIdSet) {
             MutableIssue issueObject = issueManager.getIssueObject(issueId);
-            if (!JiraTimetrackerUtil.checkIssueEstimatedTime(issueObject, jiraTimetrackerPlugin.getCollectorIssuePatterns())) {
+            if (!JiraTimetrackerUtil.checkIssueEstimatedTime(issueObject,
+                    jiraTimetrackerPlugin.getCollectorIssuePatterns())) {
                 // send mail
                 sendNotificationEmail(issueObject.getReporterUser().getEmailAddress(), issueObject.getProjectObject()
                         .getLeadUser().getEmailAddress(), issueObject);
@@ -153,7 +157,7 @@ public class IssueEstimatedTimeChecker implements Runnable {
      */
     private void sendNotificationEmail(final String issueReporter, final String projectLead, final MutableIssue issue) {
         Email email = new Email(issueReporter);
-        email.setFrom(emailSender);
+        // email.setFrom(emailSender);
         if (!issueReporter.equals(projectLead)) {
             email.setCc(projectLead);
         }

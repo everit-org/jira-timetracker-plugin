@@ -42,7 +42,7 @@
         <link linkId="my_jttp_link"><![CDATA[/secure/JiraTimetarckerWebAction!default.jspa]]></link>
         <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserLoggedInCondition" />
     </web-item>
-	
+    
     <webwork1 key="jttp-webaction" name="Jira Timetracker Plugin Webwork actions" class="java.lang.Object">
         <resource type="i18n" name="i18n-jttp-vm" location="i18n/jttp" />
         <actions>
@@ -61,7 +61,22 @@
                 <view name="input">/templates/settings.vm</view>
                 <view name="error">/templates/error.vm</view>
             </action>
+             <action name="org.everit.jira.timetracker.plugin.AdminSettingsWebAction" alias="JiraTimetrackerAdminSettingsWebAction">
+                <view name="success">/templates/adminsettings.vm</view>
+                <view name="input">/templates/adminsettings.vm</view>
+                <view name="error">/templates/error.vm</view>
+            </action>
         </actions>
     </webwork1>
 	
+<!--     Admin settings -->
+    
+    <web-section key="jttp_section" location="admin_plugins_menu" >
+		    <label key="Timetracker"/> 
+	</web-section>
+    
+     <web-item key="jttp_settings_link" name="Jttp Settings Link" section="admin_plugins_menu/jttp_section" weight="47">
+        <label>Global Settings</label>
+        <link linkId="my_jttp_settings_link"><![CDATA[/secure/admin/JiraTimetrackerAdminSettingsWebAction!default.jspa]]></link>
+    </web-item>
 </atlassian-plugin>

@@ -21,12 +21,7 @@ package org.everit.jira.timetracker.plugin;
  * MA 02110-1301  USA
  */
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.Serializable;
-import java.net.URL;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -36,7 +31,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -50,8 +44,6 @@ import org.everit.jira.timetracker.plugin.dto.ActionResultStatus;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklogComparator;
 import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
-import org.ofbiz.core.entity.EntityCondition;
-import org.ofbiz.core.entity.EntityConditionList;
 import org.ofbiz.core.entity.EntityExpr;
 import org.ofbiz.core.entity.EntityOperator;
 import org.ofbiz.core.entity.GenericEntityException;
@@ -78,7 +70,7 @@ import com.atlassian.jira.issue.worklog.WorklogManager;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.PermissionManager;
 import com.atlassian.jira.security.Permissions;
-import com.atlassian.plugin.util.ClassLoaderUtils;
+import com.atlassian.mail.MailException;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
@@ -97,34 +89,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
     private static final Logger LOGGER = Logger.getLogger(JiraTimetrackerPluginImpl.class);
 
     /**
-     * The name of the plugin properties files.
-     */
-    private static final String PROPERTIES = "jiraTimetracker.properties";
-    /**
-     * The exclude dates key in the properties file.
-     */
-    private static final String EMAIL_SENDER = "EMAIL_SENDER";
-    /**
-     * The exclude dates key in the properties file.
-     */
-    private static final String ISSUE_CHECK_TIME = "ISSUE_CHECK_TIME";
-    /**
-     * The exclude dates key in the properties file.
-     */
-    private static final String EXCLUDE_DATES = "EXCLUDE_DATES";
-    /**
-     * The include dates key in the properties file.
-     */
-    private static final String INCLUDE_DATES = "INCLUDE_DATES";
-    /**
-     * The default non working issues key in the properties file.
-     */
-    private static final String NON_WORKING_ISSUES = "NON_WORKING_ISSUES";
-    /**
-     * The default collector issues key in the properties file.
-     */
-    private static final String COLLECTOR_ISSUES = "COLLECTOR_ISSUES";
-    /**
      * The plugin settings key prefix.
      */
     private static final String JTTP_PLUGIN_SETTINGS_KEY_PREFIX = "jttp";
@@ -135,7 +99,15 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
     /**
      * The plugin setting Summary Filters key.
      */
-    private static final String JTTP_PLUGIN_SETTINGS_COLLECTOR_ISSUES = "CollectorIssues";
+    private static final String JTTP_PLUGIN_SETTINGS_NON_ESTIMATED_ISSUES = "NonEstimated";
+    /**
+     * The plugin setting Exclude dates key.
+     */
+    private static final String JTTP_PLUGIN_SETTINGS_EXCLUDE_DATES = "ExcludeDates";
+    /**
+     * The plugin setting Include dates key.
+     */
+    private static final String JTTP_PLUGIN_SETTINGS_INCLUDE_DATES = "IncludeDates";
     /**
      * The plugin setting is calendar popup key.
      */
@@ -166,10 +138,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
      */
     private PluginSettingsValues pluginSettingsValues;
     /**
-     * The email Sender from the properties file.
-     */
-    private String emailSender;
-    /**
      * The issue check time in minutes.
      */
     private long issueCheckTimeInMinutes;
@@ -182,25 +150,17 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
      */
     private String includeDatesString;
     /**
-     * The non working issues keys from the properties file.
-     */
-    private String nonWorkingIssuesString;
-    /**
-     * The collector issues keys from the properties file.
-     */
-    private String collectorIssuesString;
-    /**
      * The parsed exclude dates.
      */
-    private final Set<String> excludeDates = new HashSet<String>();
+    private Set<String> excludeDatesSet = new HashSet<String>();
     /**
      * The parsed include dates.
      */
-    private final Set<String> includeDates = new HashSet<String>();
+    private Set<String> includeDatesSet = new HashSet<String>();
     /**
      * The summary filter issues ids.
      */
-    private List<Long> summaryFilteredIssueIds;
+    private List<Pattern> summaryFilteredIssuePatterns;
     /**
      * The collector issues ids.
      */
@@ -208,11 +168,11 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
     /**
      * The summary filter issues ids.
      */
-    private List<Long> defaultNonWorkingIssueIds = new ArrayList<Long>();
+    private List<Pattern> defaultNonWorkingIssueIds = new ArrayList<Pattern>();
     /**
      * The collector issues ids.
      */
-    private List<Pattern> defaultCollectorIssuePatterns = new ArrayList<Pattern>();
+    private List<Pattern> defaultNonEstimedIssuePatterns = new ArrayList<Pattern>();
     /**
      * The plugin Scheduled Executor Service.
      */
@@ -231,21 +191,22 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        importProperties();
 
-        final Runnable issueEstimatedTimeChecker = new IssueEstimatedTimeChecker(emailSender, this);
+        setDefaultVairablesValue();
+
+        final Runnable issueEstimatedTimeChecker = new IssueEstimatedTimeChecker(this);
 
         // //TEST SETTINGS
-        // Calendar now = Calendar.getInstance();
-        // Long nowPlusTWOMin = (long) ((now.get(Calendar.HOUR_OF_DAY) * 60) + now.get(Calendar.MINUTE) + 1);
-        // issueEstimatedTimeCheckerFuture = scheduledExecutorService.scheduleAtFixedRate(issueEstimatedTimeChecker,
-        // calculateInitialDelay(nowPlusTWOMin), // FIXME fix the time
-        // // calculateInitialDelay(issueCheckTimeInMinutes),
-        // 5, TimeUnit.MINUTES);
-
+        Calendar now = Calendar.getInstance();
+        Long nowPlusTWOMin = (long) ((now.get(Calendar.HOUR_OF_DAY) * 60) + now.get(Calendar.MINUTE) + 1);
         issueEstimatedTimeCheckerFuture = scheduledExecutorService.scheduleAtFixedRate(issueEstimatedTimeChecker,
-                calculateInitialDelay(issueCheckTimeInMinutes),
-                ONE_DAY_IN_MINUTES, TimeUnit.MINUTES);
+                calculateInitialDelay(nowPlusTWOMin), // FIXME fix the time
+                // calculateInitialDelay(issueCheckTimeInMinutes),
+                5, TimeUnit.MINUTES);
+
+        // issueEstimatedTimeCheckerFuture = scheduledExecutorService.scheduleAtFixedRate(issueEstimatedTimeChecker,
+        // calculateInitialDelay(issueCheckTimeInMinutes),
+        // ONE_DAY_IN_MINUTES, TimeUnit.MINUTES);
     }
 
     private long calculateInitialDelay(final long time) {
@@ -392,13 +353,13 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
             Date scanedDateDate = scannedDate.getTime();
             String scanedDateString = DateTimeConverterUtil.dateToString(scanedDateDate);
             // check excludse - pass
-            if (excludeDates.contains(scanedDateString)) {
+            if (excludeDatesSet.contains(scanedDateString)) {
                 scannedDate
                         .set(Calendar.DAY_OF_YEAR, scannedDate.get(Calendar.DAY_OF_YEAR) + 1);
                 continue;
             }
             // check includes - not check weekend
-            if (!includeDates.contains(scanedDateString)) {
+            if (!includeDatesSet.contains(scanedDateString)) {
                 // check weekend - pass
                 if ((scannedDate.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY)
                         || (scannedDate.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY)) {
@@ -423,7 +384,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
     @Override
     public List<Pattern> getCollectorIssuePatterns() {
         if (collectorIssuePatterns == null) {
-            collectorIssuePatterns = defaultCollectorIssuePatterns;
+            collectorIssuePatterns = defaultNonEstimedIssuePatterns;
         }
         return collectorIssuePatterns;
     }
@@ -435,12 +396,12 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
         List<Date> datesWhereNoWorklog = new ArrayList<Date>();
         while (!from.equals(to)) {
             String scanedDateString = DateTimeConverterUtil.dateToString(to);
-            if (excludeDates.contains(scanedDateString)) {
+            if (excludeDatesSet.contains(scanedDateString)) {
                 to.setDate(to.getDate() - 1);
                 continue;
             }
             // check includes - not check weekend
-            if (!includeDates.contains(scanedDateString)) {
+            if (!includeDatesSet.contains(scanedDateString)) {
                 Calendar toDate = Calendar.getInstance();
                 toDate.setTime(to);
                 // check weekend - pass
@@ -531,68 +492,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
     }
 
     /**
-     * Import the properties file values.
-     * 
-     * @throws IOException
-     *             If IO Exception.
-     */
-    private void importProperties() throws IOException {
-        InputStream inputStream = null;
-        Properties properties = new Properties();
-        try {
-            inputStream = ClassLoaderUtils.getResourceAsStream(PROPERTIES, JiraTimetrackerPluginImpl.class);
-            if (inputStream == null) {
-                URL resource = ClassLoaderUtils.getResource(PROPERTIES, JiraTimetrackerPluginImpl.class);
-                File propertiesFile = new File(resource.getFile());
-                inputStream = new FileInputStream(propertiesFile);
-            }
-            properties.load(inputStream);
-            emailSender = properties.getProperty(EMAIL_SENDER);
-            issueCheckTimeInMinutes = Long.valueOf(properties.getProperty(ISSUE_CHECK_TIME)).longValue();
-            excludeDatesString = properties.getProperty(EXCLUDE_DATES);
-            includeDatesString = properties.getProperty(INCLUDE_DATES);
-            nonWorkingIssuesString = properties.getProperty(NON_WORKING_ISSUES);
-            collectorIssuesString = properties.getProperty(COLLECTOR_ISSUES);
-        } finally {
-            if (inputStream != null) {
-                inputStream.close();
-            }
-        }
-        for (String issueKey : nonWorkingIssuesString.split(",")) {
-            IssueManager issueManager = ComponentManager.getInstance().getIssueManager();
-            MutableIssue issueObject = issueManager.getIssueObject(issueKey);
-            if (issueObject != null) {
-                Long issueId = issueObject.getId();
-                defaultNonWorkingIssueIds.add(issueId);
-            } else {
-                LOGGER.error("Can't find issue whit the given key: " + issueKey);
-            }
-        }
-        for (String issuePatternString : collectorIssuesString.split(",")) {
-            // Create default pattern list.
-            Pattern issuePattern = Pattern.compile(issuePatternString);
-            defaultCollectorIssuePatterns.add(issuePattern);
-        }
-        for (String dateString : excludeDatesString.split(",")) {
-            try {
-                DateTimeConverterUtil.stringToDate(dateString);
-                excludeDates.add(dateString);
-            } catch (ParseException e) {
-                LOGGER.error("Faild parse exculde date [" + dateString + "] to ISO-8601 format (2012-12-15)", e);
-            }
-        }
-        for (String dateString : includeDatesString.split(",")) {
-            try {
-                DateTimeConverterUtil.stringToDate(dateString);
-                includeDates.add(dateString);
-            } catch (ParseException e) {
-                LOGGER.error("Faild parse include date [" + dateString + "] to ISO-8601 format (2012-12-15)", e);
-            }
-        }
-
-    }
-
-    /**
      * Check the given date, the user have worklogs or not.
      * 
      * @param date
@@ -666,17 +565,17 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
                 + JTTP_PLUGIN_SETTINGS_SUMMARY_FILTERS);
         if (tempIssuePatternList != null) {
             // add non working issues
-            summaryFilteredIssueIds = new ArrayList<Long>();
-            for (String tempIssueId : tempIssuePatternList) {
-                summaryFilteredIssueIds.add(Long.valueOf(tempIssueId));
+            summaryFilteredIssuePatterns = new ArrayList<Pattern>();
+            for (String tempIssuePattern : tempIssuePatternList) {
+                summaryFilteredIssuePatterns.add(Pattern.compile(tempIssuePattern));
             }
         } else {
             // default! from properties load default issues!!
-            summaryFilteredIssueIds = defaultNonWorkingIssueIds;
+            summaryFilteredIssuePatterns = defaultNonWorkingIssueIds;
 
         }
         tempIssuePatternList = (List<String>) globalSettings.get(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
-                + JTTP_PLUGIN_SETTINGS_COLLECTOR_ISSUES);
+                + JTTP_PLUGIN_SETTINGS_NON_ESTIMATED_ISSUES);
         if (tempIssuePatternList != null) {
             // add collector issues
             collectorIssuePatterns = new ArrayList<Pattern>();
@@ -684,8 +583,35 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
                 collectorIssuePatterns.add(Pattern.compile(tempIssuePattern));
             }
         } else {
-            collectorIssuePatterns = defaultCollectorIssuePatterns;
+            collectorIssuePatterns = defaultNonEstimedIssuePatterns;
         }
+        String tempSpecialDates = (String) globalSettings.get(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+                + JTTP_PLUGIN_SETTINGS_EXCLUDE_DATES);
+        if (tempSpecialDates != null) {
+            excludeDatesString = tempSpecialDates;
+            excludeDatesSet = new HashSet<String>();
+            for (String excludeDate : excludeDatesString.split(",")) {
+                excludeDatesSet.add(excludeDate);
+            }
+        } else {
+            // Default Empty
+            excludeDatesSet = new HashSet<String>();
+            excludeDatesString = "";
+        }
+        tempSpecialDates = (String) globalSettings.get(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+                + JTTP_PLUGIN_SETTINGS_INCLUDE_DATES);
+        if (tempSpecialDates != null) {
+            includeDatesString = tempSpecialDates;
+            includeDatesSet = new HashSet<String>();
+            for (String includeDate : includeDatesString.split(",")) {
+                includeDatesSet.add(includeDate);
+            }
+        } else {
+            // Default Empty
+            includeDatesSet = new HashSet<String>();
+            includeDatesString = "";
+        }
+
         pluginSettings = settingsFactory.createSettingsForKey(JTTP_PLUGIN_SETTINGS_KEY_PREFIX + user.getName());
         Integer isPopup = null;
         if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_IS_CALENDAR_POPUP) != null) {
@@ -710,8 +636,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
             isActualDate = true;
         }
         // Here set the other values
-        pluginSettingsValues = new PluginSettingsValues(isPopup, isActualDate, summaryFilteredIssueIds,
-                collectorIssuePatterns);
+        pluginSettingsValues = new PluginSettingsValues(isPopup, isActualDate, summaryFilteredIssuePatterns,
+                collectorIssuePatterns, excludeDatesString, includeDatesString);
         return pluginSettingsValues;
     }
 
@@ -728,12 +654,30 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
         globalSettings = settingsFactory.createGlobalSettings();
         globalSettings.put(JTTP_PLUGIN_SETTINGS_KEY_PREFIX + JTTP_PLUGIN_SETTINGS_SUMMARY_FILTERS,
                 pluginSettingsParameters.getFilteredSummaryIssues());
-        globalSettings.put(JTTP_PLUGIN_SETTINGS_KEY_PREFIX + JTTP_PLUGIN_SETTINGS_COLLECTOR_ISSUES,
+        globalSettings.put(JTTP_PLUGIN_SETTINGS_KEY_PREFIX + JTTP_PLUGIN_SETTINGS_NON_ESTIMATED_ISSUES,
                 pluginSettingsParameters.getCollectorIssues());
+        globalSettings.put(JTTP_PLUGIN_SETTINGS_KEY_PREFIX + JTTP_PLUGIN_SETTINGS_EXCLUDE_DATES,
+                pluginSettingsParameters.getExcludeDates());
+        globalSettings.put(JTTP_PLUGIN_SETTINGS_KEY_PREFIX + JTTP_PLUGIN_SETTINGS_INCLUDE_DATES,
+                pluginSettingsParameters.getIncludeDates());
+    }
+
+    /**
+     * Set the default values of the important variables.
+     * 
+     * @throws MailException
+     */
+    private void setDefaultVairablesValue() throws MailException {
+        // Default exclude and include dates set are empty. No DATA!!
+        // Default: no non working issue. we simple use the empty list
+        // defaultNonWorkingIssueIds = new ArrayList<Long>();
+        // The default non estimted issues regex. All issue non estimeted.
+        defaultNonEstimedIssuePatterns = new ArrayList<Pattern>();
+        defaultNonEstimedIssuePatterns.add(Pattern.compile(".*"));
     }
 
     @Override
-    public String summary(final Date startSummary, final Date finishSummary, final List<Long> issueIds)
+    public String summary(final Date startSummary, final Date finishSummary, final List<Pattern> issuePatterns)
             throws GenericEntityException {
         JiraAuthenticationContext authenticationContext = ComponentManager.getInstance().getJiraAuthenticationContext();
         User user = authenticationContext.getLoggedInUser();
@@ -759,22 +703,24 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
             exprs.add(endExpr);
         }
         List<GenericValue> worklogs;
-        // if issuesId not null we make a filtered summary
-        if ((issueIds != null) && !issueIds.isEmpty()) {
-            List<EntityExpr> issuesConditions = new ArrayList<EntityExpr>();
-            for (Long issueId : issueIds) {
-                issuesConditions.add(new EntityExpr("issue", EntityOperator.NOT_EQUAL, issueId));
+        // worklog query
+        worklogs = CoreFactory.getGenericDelegator().findByAnd("Worklog", exprs);
+        // if we have non estimated issues
+        if ((issuePatterns != null) && !issuePatterns.isEmpty()) {
+            for (GenericValue worklog : worklogs) {
+                IssueManager issueManager = ComponentManager.getInstance().getIssueManager();
+                Long issueId = worklog.getLong("issue");
+                MutableIssue issue = issueManager.getIssueObject(issueId);
+                for (Pattern issuePattern : issuePatterns) {
+                    boolean issueMatches = issuePattern.matcher(issue.getKey()).matches();
+                    // if match not count in summary
+                    if (issueMatches) {
+                        worklogs.remove(worklog);
+                        break;
+                    }
+                }
             }
-            EntityCondition issueCondition = new EntityConditionList(issuesConditions, EntityOperator.AND);
-            EntityCondition otherCondition = new EntityConditionList(exprs, EntityOperator.AND);
-            EntityExpr allConditionInOne = new EntityExpr(issueCondition, EntityOperator.AND, otherCondition);
-            List<EntityExpr> allExps = new ArrayList<EntityExpr>();
-            allExps.add(allConditionInOne);
-            worklogs = CoreFactory.getGenericDelegator().findByAnd("Worklog", allExps);
-        } else {
-            worklogs = CoreFactory.getGenericDelegator().findByAnd("Worklog", exprs);
         }
-
         long timeSpent = 0;
         Iterator<GenericValue> worklogsIterator = worklogs.iterator();
         while (worklogsIterator.hasNext()) {

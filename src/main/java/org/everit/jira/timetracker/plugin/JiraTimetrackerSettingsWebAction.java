@@ -33,7 +33,6 @@ import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
 
 import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jira.ComponentManager;
-import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
 
@@ -60,13 +59,40 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
      */
     private String issueKey = "";
     /**
+     * The settings page message parameter.
+     */
+    private String messageExclude = "";
+    /**
+     * The paramater of the message.
+     */
+    private String messageParameterExclude = "";
+    /**
+     * The settings page message parameter.
+     */
+    private String messageInclude = "";
+    /**
+     * The paramater of the message.
+     */
+    private String messageParameterInclude = "";
+    /**
      * The collector issue key.
      */
     private String collectorIssueKey = "";
+
     /**
      * The IDs of the projects.
      */
     private List<String> projectsId;
+
+    /**
+     * The exclude dates in String format.
+     */
+    private String excludeDates = "";
+
+    /**
+     * The include dates in String format.
+     */
+    private String includeDates = "";
 
     /**
      * The user is admin or not.
@@ -77,10 +103,12 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
      * Logger.
      */
     private static final Logger LOGGER = Logger.getLogger(JiraTimetrackerSettingsWebAction.class);
+
     /**
      * The filtered Issues id.
      */
-    private List<Long> issuesId;
+    private List<Pattern> issuesPatterns;
+
     /**
      * The collector issue ids.
      */
@@ -142,7 +170,10 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
         }
 
         if (request.getParameter("savesettings") != null) {
-            parseSaveSettings(request);
+            String parseReuslt = parseSaveSettings(request);
+            if (parseReuslt != null) {
+                return parseReuslt;
+            }
             savePluginSettings();
             setReturnUrl("/secure/JiraTimetarckerWebAction!default.jspa");
             return getRedirect(INPUT);
@@ -157,6 +188,14 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 
     public String getCollectorIssueKey() {
         return collectorIssueKey;
+    }
+
+    public String getExcludeDates() {
+        return excludeDates;
+    }
+
+    public String getIncludeDates() {
+        return includeDates;
     }
 
     public boolean getIsActualDate() {
@@ -175,6 +214,22 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
         return isUserAdmin;
     }
 
+    public String getMessageExclude() {
+        return messageExclude;
+    }
+
+    public String getMessageInclude() {
+        return messageInclude;
+    }
+
+    public String getMessageParameterExclude() {
+        return messageParameterExclude;
+    }
+
+    public String getMessageParameterInclude() {
+        return messageParameterInclude;
+    }
+
     public List<String> getProjectsId() {
         return projectsId;
     }
@@ -186,16 +241,18 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
         PluginSettingsValues pluginSettingsValues = jiraTimetrackerPlugin.loadPluginSettings();
         isPopup = pluginSettingsValues.isCalendarPopup();
         isActualDate = pluginSettingsValues.isActualDate();
-        issuesId = pluginSettingsValues.getFilteredSummaryIssues();
-        for (Long issueId : issuesId) {
-            IssueManager issueManager = ComponentManager.getInstance().getIssueManager();
-            String filteredIssueKey = issueManager.getIssueObject(issueId).getKey();
-            issueKey += filteredIssueKey + " ";
+        issuesPatterns = pluginSettingsValues.getFilteredSummaryIssues();
+        for (Pattern issueId : issuesPatterns) {
+            // IssueManager issueManager = ComponentManager.getInstance().getIssueManager();
+            // String filteredIssueKey = issueManager.getIssueObject(issueId).getKey();
+            issueKey += issueId.toString() + " ";
         }
         collectorIssuePatterns = pluginSettingsValues.getCollectorIssues();
         for (Pattern issuePattern : collectorIssuePatterns) {
             collectorIssueKey += issuePattern.toString() + " ";
         }
+        excludeDates = pluginSettingsValues.getExcludeDates();
+        includeDates = pluginSettingsValues.getIncludeDates();
     }
 
     /**
@@ -204,20 +261,20 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
      * @param request
      *            The HttpServletRequest.
      */
-    public void parseSaveSettings(final HttpServletRequest request) {
+    public String parseSaveSettings(final HttpServletRequest request) {
         String[] issueSelectValue = request.getParameterValues("issueSelect");
         String[] collectorIssueSelectValue = request.getParameterValues("issueSelect_collector");
+        String[] excludeDatesValue = request.getParameterValues("excludedates");
+        String[] includeDatesValue = request.getParameterValues("includedates");
         // if the user is admin and issueSelectValue is null means we don't want to filters
         // else if issueSelectValue not null then the user is admin and we save the new filters
         // else not have to implement because we use the loaded issuesId list
         if ((issueSelectValue == null) && isUserAdmin) {
-            issuesId = new ArrayList<Long>();
+            issuesPatterns = new ArrayList<Pattern>();
         } else if (issueSelectValue != null) {
-            issuesId = new ArrayList<Long>();
+            issuesPatterns = new ArrayList<Pattern>();
             for (String filteredIssueKey : issueSelectValue) {
-                IssueManager issueManager = ComponentManager.getInstance().getIssueManager();
-                Long filteredIssueId = issueManager.getIssueObject(filteredIssueKey).getId();
-                issuesId.add(filteredIssueId);
+                issuesPatterns.add(Pattern.compile(filteredIssueKey));
             }
         }
         if ((collectorIssueSelectValue == null) && isUserAdmin) {
@@ -228,6 +285,7 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
                 collectorIssuePatterns.add(Pattern.compile(filteredIssueKey));
             }
         }
+
         String[] popupOrInlineValue = request.getParameterValues("popupOrInline");
         if (popupOrInlineValue[0].equals("popup")) {
             isPopup = JiraTimetrackerUtil.POPUP_CALENDAR_CODE;
@@ -242,6 +300,62 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
         } else {
             isActualDate = false;
         }
+        boolean parseExcludeException = false;
+        boolean parseIncludeException = false;
+        // TODO other not lose vaule.... but textarea not hold the value
+        // Handle exclude and include date in the parse method end.
+        if ((excludeDatesValue == null) && isUserAdmin) {
+            excludeDates = "";
+        } else if (excludeDatesValue != null) {
+            // Check the date, and parse them.... if one of them not good ...throw some exception.....
+            String excludeDatesValueString = excludeDatesValue[0];
+            if (!excludeDatesValueString.isEmpty()) {
+                for (String dateString : excludeDatesValueString.split(",")) {
+                    try {
+                        DateTimeConverterUtil.stringToDate(dateString);
+                    } catch (ParseException e) {
+                        parseExcludeException = true;
+                        messageExclude = "plugin.parse.exception.exclude";
+                        if (messageParameterExclude.isEmpty()) {
+                            messageParameterExclude += dateString;
+                        } else {
+                            messageParameterExclude += ", " + dateString;
+                        }
+
+                    }
+                }
+            }
+            excludeDates = excludeDatesValueString;
+
+        }
+        if ((includeDatesValue == null) && isUserAdmin) {
+            includeDates = "";
+        } else if (includeDatesValue != null) {
+            // Check the date, and parse them.... if one of them not good ...throw some exception.....
+            String includeDatesValueString = includeDatesValue[0];
+            if (!includeDatesValueString.isEmpty()) {
+                for (String dateString : includeDatesValueString.split(",")) {
+                    try {
+                        DateTimeConverterUtil.stringToDate(dateString);
+                    } catch (ParseException e) {
+                        parseIncludeException = true;
+                        messageInclude = "plugin.parse.exception.include";
+                        if (messageParameterInclude.isEmpty()) {
+                            messageParameterInclude += dateString;
+                        } else {
+                            messageParameterInclude += ", " + dateString;
+                        }
+                    }
+                }
+            }
+            includeDates = includeDatesValueString;
+
+        }
+        if (parseExcludeException || parseIncludeException) {
+            return SUCCESS;
+        }
+
+        return null;
 
     }
 
@@ -249,8 +363,8 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
      * Save the plugin settings.
      */
     public void savePluginSettings() {
-        PluginSettingsValues pluginSettingValues = new PluginSettingsValues(isPopup, isActualDate, issuesId,
-                collectorIssuePatterns);
+        PluginSettingsValues pluginSettingValues = new PluginSettingsValues(isPopup, isActualDate, issuesPatterns,
+                collectorIssuePatterns, excludeDates, includeDates);
         jiraTimetrackerPlugin.savePluginSettings(pluginSettingValues);
     }
 
@@ -260,6 +374,14 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 
     public void setCollectorIssueKey(final String collectorIssueKey) {
         this.collectorIssueKey = collectorIssueKey;
+    }
+
+    public void setExcludeDates(final String excludeDates) {
+        this.excludeDates = excludeDates;
+    }
+
+    public void setIncludeDates(final String includeDates) {
+        this.includeDates = includeDates;
     }
 
     public void setIsActualDate(final boolean actualDateOrLastWorklogDate) {
@@ -272,6 +394,22 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 
     public void setIssueKey(final String issueKey) {
         this.issueKey = issueKey;
+    }
+
+    public void setMessageExclude(final String messageExclude) {
+        this.messageExclude = messageExclude;
+    }
+
+    public void setMessageInclude(final String messageInclude) {
+        this.messageInclude = messageInclude;
+    }
+
+    public void setMessageParameterExclude(final String messageParameterExclude) {
+        this.messageParameterExclude = messageParameterExclude;
+    }
+
+    public void setMessageParameterInclude(final String messageParameterInclude) {
+        this.messageParameterInclude = messageParameterInclude;
     }
 
     public void setProjectsId(final List<String> projectsId) {
