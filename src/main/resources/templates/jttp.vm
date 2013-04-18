@@ -30,7 +30,7 @@ $webResourceManager.requireResource("jira.webresources:global-static")
 $webResourceManager.requireResource("jira.webresources:calendar")
 $webResourceManager.requireResource("jira.webresources:calendar-en")
 
-<form name="myForm"  method="post"
+<form name="jttpForm"  method="post"
 					#if($isEdit) action="JiraTimetarckerWebAction.jspa?editedWorklogId=$editedWorklogId&dateFormated=$dateFormated" 
 					#elseif($isEditAll) action="JiraTimetarckerWebAction.jspa?editAllIds=$editAllIds&dateFormated=$dateFormated" 
 					#else action="JiraTimetarckerWebAction.jspa?dateFormated=$dateFormated" #end/>   

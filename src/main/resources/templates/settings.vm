@@ -22,7 +22,7 @@
     }
     
 </style>
-<form name="myForm"  method="post" action="JiraTimetrackerSettingsWebAction.jspa"/>   
+<form name="settingsForm"  method="post" action="JiraTimetrackerSettingsWebAction.jspa"/>   
 	<div id="plugin_head" class="item-header">
  			<h1 class="item-summary">Timetracker Settings</h1>
   	</div>
@@ -33,13 +33,13 @@
 					<tr>
 						<td style="text-align: right;" width="10%">
 							<div style="margin-top: 10px; margin-bottom: 10px;">
-								<h2>$i18n.getText("plugin.setting.calendar.appearance")</h2>
+								<h3>$i18n.getText("plugin.setting.calendar.appearance")</h3>
 							<div>
 						</td>
 					</tr>
 		        	<tr>
 						<td style="text-align: right;" width="10%"> 
-							<h3>$i18n.getText("plugin.setting.ispopup"):<h3> 
+							<strong>$i18n.getText("plugin.setting.ispopup"):</strong> 
 						</td>
 						<td width="40%">
 						 	#if($isPopup == 1)
@@ -81,7 +81,7 @@
 					</tr>
 					<tr>
 						<td width="10%" style="text-align: right;">
-							<h3>$i18n.getText("plugin.setting.isactualdate"):<h3>  
+							<strong>$i18n.getText("plugin.setting.isactualdate"):</strong>  
 						</td>
 						<td width="40%">
 						 	#if($isActualDate)
@@ -107,169 +107,11 @@
 							</div>
 						</td>
 					</tr>
-					#if ($isUserAdmin)
-						<tr>
-							<td style="text-align: right;" width="10%">
-								<div style="margin-top: 10px; margin-bottom: 10px;">
-									<h2>$i18n.getText("plugin.admin.settings")</h2>
-								</div>	
-							</td>
-						</tr>
-						<tr>
-							<td style="text-align: right;" width="10%">
-								<h3>$i18n.getText("plugin.setting.non.working.issues")</h3>
-							</td>
-							<td >
-								<div id="issueSelect_container" class="ajax_autocomplete atlassian-autocomplete" style="margin-bottom: 35px" >
-									<select class="hidden"
-											multiple="none" 
-								   			name="issueSelect" 
-											id="issueSelect" 
-								   			data-popup-link-message="" 
-								   			data-popup-width="620" 
-								   			data-popup-height="500" 
-								   			data-remove-on-un-select="true" 
-								   			data-ajax-options.query="true" 
-								   			data-ajax-options.url="${req.contextPath}/rest/api/1.0/issues/picker" 
-								   			data-ajax-options.data.query="-" 
-								   			data-ajax-options.data.current-issue-key=""
-								   			data-ajax-options.data.show-sub-tasks="true" 
-									    	data-ajax-options.data.show-sub-task-parent="true"
-											#if (${action.currentJQL})
-												data-ajax-options.data.current_jql=${action.currentJQL}
-											#end>
-									</select> 
-									<script>
-											var ip = new AJS.IssuePicker({
-									  		element: AJS.$("#issueSelect"),
-									 		userEnteredOptionsMsg: AJS.params.enterIssueKey,
-									  		uppercaseUserEnteredOnSelect: true,
-									  		singleSelectOnly: true,
-									   		currentProjectId: $projectsId,
-											});
-											//Set the issues key all of them	
-											AJS.$("#issueSelect-textarea").append("$issueKey");
-											ip.handleFreeInput();
-									</script>
-								</div>
-							</td>
-						</tr>
-						<tr>
-							<td>
-							</td>
-							<td>
-								<div class="description">
-										$i18n.getText("plugin.setting.non.working.issues.help")
-								</div>
-							</td>		
-						</tr>
-						<tr>
-							<td style="text-align: right;" width="10%">
-								<h3>$i18n.getText("plugin.setting.nonestimated.issues")</h3>
-							</td>
-							<td >
-								<div id="issueSelect_container_collector" class="ajax_autocomplete atlassian-autocomplete" style="margin-bottom: 35px" >
-									<select class="hidden"
-											multiple="none" 
-								   			name="issueSelect_collector" 
-											id="issueSelect_collector" 
-								   			data-popup-link-message="" 
-								   			data-popup-width="620" 
-								   			data-popup-height="500" 
-								   			data-remove-on-un-select="true" 
-								   			data-ajax-options.query="true" 
-								   			data-ajax-options.url="${req.contextPath}/rest/api/1.0/issues/picker" 
-								   			data-ajax-options.data.query="-" 
-								   			data-ajax-options.data.current-issue-key=""
-								   			data-ajax-options.data.show-sub-tasks="true" 
-									    	data-ajax-options.data.show-sub-task-parent="true"
-											#if (${action.currentJQL})
-												data-ajax-options.data.current_jql=${action.currentJQL}
-											#end>
-									</select> 
-									<script>
-											var ip = new AJS.IssuePicker({
-									  		element: AJS.$("#issueSelect_collector"),
-									 		userEnteredOptionsMsg: AJS.params.enterIssueKey,
-									  		uppercaseUserEnteredOnSelect: true,
-									  		singleSelectOnly: true,
-									   		currentProjectId: $projectsId,
-											});
-											//Set the issues key all of them	
-											AJS.$("#issueSelect_collector-textarea").append("$collectorIssueKey");
-											ip.handleFreeInput();
-									</script>
-								</div>
-							</td>
-						</tr>
-						<tr>
-							<td>
-							</td>
-							<td>
-								<div class="description">
-										$i18n.getText("plugin.setting.nonestimated.issues.help")
-								</div>
-							</td>		
-						</tr>
-						<tr>
-							<td style="text-align: right;" width="10%">
-								<div style="margin-top: 10px; margin-bottom: 10px;">
-									<h3>$i18n.getText("plugin.setting.working.day")</h3>
-								</div>	
-							</td>
-						</tr>
-						<tr>
-							<td style="text-align: right;" width="10%">
-								<strong>$i18n.getText("plugin.setting.exclude.dates")</strong>
-							</td>
-							<td>
-								<div id="messageExclude" style="color: red; ">
-		 								$i18n.getText($messageExclude) $messageParameterExclude
-		  						</div>
-								<textarea id="excludedates" name="excludedates"></textarea>
-								<script>
-									AJS.$("#excludedates").append("$excludeDates");
-								</script>
-							</td>		
-						</tr>
-						<tr>
-							<td>
-							</td>
-							<td>
-								<div class="description">
-										$i18n.getText("plugin.setting.exclude.dates.help")
-								</div>
-							</td>		
-						</tr>
-						<tr>
-							<td style="text-align: right;" width="10%">
-								<strong>$i18n.getText("plugin.setting.include.dates")</strong>
-							</td>
-							<td>
-								<div id="messageInclude" style="color: red; ">
-		 								$i18n.getText($messageInclude) $messageParameterInclude
-		  						</div>
-								<textarea id="includedates" name="includedates"></textarea>
-								<script>
-									AJS.$("#includedates").append("$includeDates");
-								</script>
-							</td>		
-						</tr>
-						<tr>
-							<td>
-							</td>
-							<td>
-								<div class="description">
-										$i18n.getText("plugin.setting.include.dates.help")
-								</div>
-							</td>		
-						</tr>
-					#end
 					<tr class="buttons-container">
 						<td colspan="2">
 							<input id="savesettings"  type="submit" name="savesettings" value="$i18n.getText('plugin.save')" class="button"/>
 							<input id="resetButton"  type="button" name="reset" value="$i18n.getText('plugin.reset')" onclick="location.href='JiraTimetrackerSettingsWebAction.jspa'" class="button"/>
-							<input id="cancelButton"  type="button" name="cancel" value="$i18n.getText('plugin.cancel')" onclick="location.href='JiraTimetarckerWebAction!default.jspa#scroll_inputfields'" class="button"/>
+							<input id="cancelButton"  type="button" name="cancel" value="$i18n.getText('plugin.cancel')" onclick="location.href='JiraTimetarckerWebAction!default.jspa'" class="button"/>
 						</td>
 					</tr>
 				</tbody>
