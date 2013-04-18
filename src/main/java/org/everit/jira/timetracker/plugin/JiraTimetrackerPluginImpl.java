@@ -615,9 +615,11 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
         pluginSettings = settingsFactory.createSettingsForKey(JTTP_PLUGIN_SETTINGS_KEY_PREFIX + user.getName());
         Integer isPopup = null;
         if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_IS_CALENDAR_POPUP) != null) {
-            isPopup = Integer.valueOf(pluginSettings.get(JTTP_PLUGIN_SETTINGS_IS_CALENDAR_POPUP).toString());
-            if (isPopup == null) {
+            try {
+                isPopup = Integer.valueOf(pluginSettings.get(JTTP_PLUGIN_SETTINGS_IS_CALENDAR_POPUP).toString());
+            } catch (NumberFormatException e) {
                 // the default is the popup calendar
+                LOGGER.error("Wrong formated calender type. Set the default value (popup).", e);
                 isPopup = JiraTimetrackerUtil.POPUP_CALENDAR_CODE;
             }
         } else {

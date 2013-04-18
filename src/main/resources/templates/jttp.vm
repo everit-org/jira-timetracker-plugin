@@ -87,11 +87,11 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 			<div id="summary" style="text-align: right; float: right; padding-right: 5px;">
 				$i18n.getText("plugin.summary") $i18n.getText("plugin.day") ($daySummary) $i18n.getText("plugin.week") ($weekSummary) $i18n.getText("plugin.month") ($monthSummary)
 			</div>
-				#if($issuesId.size() != 0)
+			#if($issuesId.size() != 0)
 				<div id="summary_real" style="text-align: right; float: right; padding-right: 5px;">
 					$i18n.getText("plugin.real.work") $i18n.getText("plugin.summary") $i18n.getText("plugin.day") ($dayFilteredSummary) $i18n.getText("plugin.week") ($weekFilteredSummary) $i18n.getText("plugin.month") ($monthFilteredSummary)
 				</div>
-				#end
+			#end
 			
 		    #parse("templates/list.vm")
 	   		</br>
