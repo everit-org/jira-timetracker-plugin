@@ -38,7 +38,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
  			<h1 class="item-summary">Timetracker</h1>
   	</div>
 	<div id="main-content" class="content rounded" >
-		<div style="margin:10px; ">
+		<div style="margin:10px; width:970px;">
 			##TAB START
 			<div class="tabwrap tabs2" id="tabs-jttp">
 	    		<ul class="tabs horizontal">

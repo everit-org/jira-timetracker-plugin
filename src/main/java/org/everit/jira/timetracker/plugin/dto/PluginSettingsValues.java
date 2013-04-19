@@ -22,6 +22,7 @@ package org.everit.jira.timetracker.plugin.dto;
  */
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
 
@@ -33,36 +34,62 @@ public class PluginSettingsValues {
     /**
      * The plugin calendar is popup.
      */
-    private Boolean isCalendarPopup;
+    private int isCalendarPopup;
 
     /**
      * The plugin calendar show the actual date when start or the latest day what not contains worklog.
      */
     private Boolean isActualDate;
+    /**
+     * The non working issues list.
+     */
+    private List<Pattern> filteredSummaryIssues;
+    /**
+     * The collector issues pattern list;
+     */
+    private List<Pattern> collectorIssues;
 
-    private List<Long> filteredSummaryIssues;
+    private String excludeDates;
+
+    private String includeDates;
 
     public PluginSettingsValues() {
 
     }
 
-    public PluginSettingsValues(final boolean isCalendarPopup, final boolean isActualDate,
-            final List<Long> filteredSummaryIssues) {
+    public PluginSettingsValues(final int isCalendarPopup, final boolean isActualDate,
+            final List<Pattern> filteredSummaryIssues, final List<Pattern> collectorIssues,
+            final String excludeDates, final String includeDates) {
         super();
         this.isCalendarPopup = isCalendarPopup;
         this.isActualDate = isActualDate;
         this.filteredSummaryIssues = filteredSummaryIssues;
+        this.collectorIssues = collectorIssues;
+        this.excludeDates = excludeDates;
+        this.includeDates = includeDates;
     }
 
-    public List<Long> getFilteredSummaryIssues() {
+    public List<Pattern> getCollectorIssues() {
+        return collectorIssues;
+    }
+
+    public String getExcludeDates() {
+        return excludeDates;
+    }
+
+    public List<Pattern> getFilteredSummaryIssues() {
         return filteredSummaryIssues;
+    }
+
+    public String getIncludeDates() {
+        return includeDates;
     }
 
     public Boolean isActualDate() {
         return isActualDate;
     }
 
-    public Boolean isCalendarPopup() {
+    public int isCalendarPopup() {
         return isCalendarPopup;
     }
 
@@ -70,12 +97,24 @@ public class PluginSettingsValues {
         isActualDate = actualDateOrLastWorklogDate;
     }
 
-    public void setCalendarPopup(final boolean isCalendarPopup) {
+    public void setCalendarPopup(final int isCalendarPopup) {
         this.isCalendarPopup = isCalendarPopup;
     }
 
-    public void setFilteredSummaryIssues(final List<Long> filteredSummaryIssues) {
+    public void setCollectorIssues(final List<Pattern> collectorIssues) {
+        this.collectorIssues = collectorIssues;
+    }
+
+    public void setExcludeDates(final String excludeDates) {
+        this.excludeDates = excludeDates;
+    }
+
+    public void setFilteredSummaryIssues(final List<Pattern> filteredSummaryIssues) {
         this.filteredSummaryIssues = filteredSummaryIssues;
+    }
+
+    public void setIncludeDates(final String includeDates) {
+        this.includeDates = includeDates;
     }
 
 }
