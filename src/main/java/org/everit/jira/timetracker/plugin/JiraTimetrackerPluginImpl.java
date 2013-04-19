@@ -29,7 +29,6 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executors;
@@ -197,16 +196,16 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
         final Runnable issueEstimatedTimeChecker = new IssueEstimatedTimeChecker(this);
 
         // //TEST SETTINGS
-        Calendar now = Calendar.getInstance();
-        Long nowPlusTWOMin = (long) ((now.get(Calendar.HOUR_OF_DAY) * 60) + now.get(Calendar.MINUTE) + 1);
-        issueEstimatedTimeCheckerFuture = scheduledExecutorService.scheduleAtFixedRate(issueEstimatedTimeChecker,
-                calculateInitialDelay(nowPlusTWOMin), // FIXME fix the time
-                // calculateInitialDelay(issueCheckTimeInMinutes),
-                5, TimeUnit.MINUTES);
-
+        // Calendar now = Calendar.getInstance();
+        // Long nowPlusTWOMin = (long) ((now.get(Calendar.HOUR_OF_DAY) * 60) + now.get(Calendar.MINUTE) + 1);
         // issueEstimatedTimeCheckerFuture = scheduledExecutorService.scheduleAtFixedRate(issueEstimatedTimeChecker,
-        // calculateInitialDelay(issueCheckTimeInMinutes),
-        // ONE_DAY_IN_MINUTES, TimeUnit.MINUTES);
+        // calculateInitialDelay(nowPlusTWOMin), // FIXME fix the time
+        // // calculateInitialDelay(issueCheckTimeInMinutes),
+        // 5, TimeUnit.MINUTES);
+
+        issueEstimatedTimeCheckerFuture = scheduledExecutorService.scheduleAtFixedRate(issueEstimatedTimeChecker,
+                calculateInitialDelay(issueCheckTimeInMinutes),
+                ONE_DAY_IN_MINUTES, TimeUnit.MINUTES);
     }
 
     private long calculateInitialDelay(final long time) {
@@ -670,6 +669,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
      * @throws MailException
      */
     private void setDefaultVairablesValue() throws MailException {
+        // DEFAULT 20:00
+        issueCheckTimeInMinutes = 1200;
         // Default exclude and include dates set are empty. No DATA!!
         // Default: no non working issue. we simple use the empty list
         // defaultNonWorkingIssueIds = new ArrayList<Long>();
@@ -707,9 +708,11 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
         List<GenericValue> worklogs;
         // worklog query
         worklogs = CoreFactory.getGenericDelegator().findByAnd("Worklog", exprs);
-        // if we have non estimated issues
+        List<GenericValue> worklogsCopy = new ArrayList<GenericValue>();
+        worklogsCopy.addAll(worklogs);
+        // if we have non-estimated issues
         if ((issuePatterns != null) && !issuePatterns.isEmpty()) {
-            for (GenericValue worklog : worklogs) {
+            for (GenericValue worklog : worklogsCopy) {
                 IssueManager issueManager = ComponentManager.getInstance().getIssueManager();
                 Long issueId = worklog.getLong("issue");
                 MutableIssue issue = issueManager.getIssueObject(issueId);
@@ -724,10 +727,13 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Seriali
             }
         }
         long timeSpent = 0;
-        Iterator<GenericValue> worklogsIterator = worklogs.iterator();
-        while (worklogsIterator.hasNext()) {
-            GenericValue worklog = worklogsIterator.next();
-            timeSpent = timeSpent + worklog.getLong("timeworked").longValue();
+        // Iterator<GenericValue> worklogsIterator = worklogs.iterator();
+        // while (worklogsIterator.hasNext()) {
+        // GenericValue worklog = worklogsIterator.next();
+        // timeSpent = timeSpent + worklog.getLong("timeworked").longValue();
+        // }
+        for (GenericValue worklog : worklogs) {
+            timeSpent += worklog.getLong("timeworked").longValue();
         }
         return DateTimeConverterUtil.secondConvertToString(timeSpent);
     }
