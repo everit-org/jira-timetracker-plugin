@@ -154,21 +154,21 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 						                	<tr>
 						                		<td style="width: 110px;">
 						                			<div class="field-group" style="width: 95px;">
-						                          	 	$i18n.getText("plugin.start.time"): <img src="/images/required.png" width="16" height="16" border="0" />
+						                          	 	$i18n.getText("plugin.start.time") <img src="/images/required.png" width="16" height="16" border="0" />
 						                           </div>
 						                		</td>
 						                		<td>
 						                		</td>
 						                		<td style="width: 110px;">
 							                		<div style="width: 110px;" >
-						                				<input id="radioEnd" type="radio" name="endOrDuration" value="end" style="margin-right: 10px" checked="true" onclick="this.form.durationTime.readOnly=true;this.form.durationTime.disabled=true;this.form.endTime.readOnly=false;this.form.endTime.disabled=false;"> $i18n.getText("plugin.end.time"):
+						                				<input id="radioEnd" type="radio" name="endOrDuration" value="end" style="margin-right: 10px" checked="true" onclick="this.form.durationTime.readOnly=true;this.form.durationTime.disabled=true;this.form.endTime.readOnly=false;this.form.endTime.disabled=false;"> $i18n.getText("plugin.end.time")
 						                			</div>	
 						                		</td>
 						                		<td>
 						                		</td>
 						                		<td style="width: 120px">
 						                			<div style="width: 120px;" >
-						                				<input id="radioDuration" type="radio" name="endOrDuration" value="duration" style="margin-right: 10px" onclick="this.form.endTime.readOnly=true;this.form.endTime.disabled=true;this.form.durationTime.readOnly=false;this.form.durationTime.disabled=false;" > $i18n.getText("plugin.duration.time"):
+						                				<input id="radioDuration" type="radio" name="endOrDuration" value="duration" style="margin-right: 10px" onclick="this.form.endTime.readOnly=true;this.form.endTime.disabled=true;this.form.durationTime.readOnly=false;this.form.durationTime.disabled=false;" > $i18n.getText("plugin.duration.time")
 						                			</div>	
 						                		</td>
 						                	 	<td width="auto">
