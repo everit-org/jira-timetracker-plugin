@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 import org.everit.jira.timetracker.plugin.dto.ActionResult;
@@ -176,7 +177,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
     /**
      * The worklog comment.
      */
-    private String comment = "Default worklog description!";
+    private String comment = "";
     /**
      * The spent time in Jira time format (1h 20m).
      */
@@ -199,16 +200,17 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
     /**
      * The calendar isPopup.
      */
-    private boolean isPopup;
+    private int isPopup;
     /**
      * The calendar show actual Date Or Last Worklog Date.
      */
     private boolean isActualDate;
 
+    // TODO FIXME fix variables name
     /**
      * The filtered Issues id.
      */
-    private List<Long> issuesId;
+    private List<Pattern> issuesId;
 
     /**
      * Simple constructor.
@@ -292,6 +294,11 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 
     @Override
     public String doDefault() throws ParseException {
+        boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
+        if (!isUserLogged) {
+            setReturnUrl("/secure/Dashboard.jspa");
+            return getRedirect(NONE);
+        }
 
         loadPluginSettingAndParseResult();
 
@@ -314,6 +321,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         if ((deletedWorklogId != null) && !DEFAULT_WORKLOG_ID.equals(deletedWorklogId)) {
             ActionResult deleteResult = jiraTimetrackerPlugin.deleteWorklog(deletedWorklogId);
             if (deleteResult.getStatus() == ActionResultStatus.FAIL) {
+                message = deleteResult.getMessage();
                 return ERROR;
             }
         }
@@ -337,6 +345,12 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 
     @Override
     public String doExecute() throws ParseException {
+
+        boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
+        if (!isUserLogged) {
+            setReturnUrl("/secure/Dashboard.jspa");
+            return getRedirect(NONE);
+        }
 
         loadPluginSettingAndParseResult();
 
@@ -376,19 +390,17 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
             return editAllAction();
         }
 
+        String validateInputFieldsResult = validateInputFields();
+        if (validateInputFieldsResult.equals(ERROR)) {
+            return SUCCESS;
+        }
+
         if (issueSelectValue == null) {
             message = "plugin.missing_issue";
             return SUCCESS;
         }
 
         issueKey = issueSelectValue[0];
-
-        String validateInputFieldsResult = validateInputFields();
-        if (validateInputFieldsResult.equals(ERROR)) {
-            return SUCCESS;
-        }
-
-        comment = commentsValue[0];
 
         if (request.getParameter("edit") != null) {
             return editAction();
@@ -398,12 +410,13 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
                 startTimeValue[0], timeSpent);
         if (createResult.getStatus() == ActionResultStatus.FAIL) {
             message = createResult.getMessage();
-            messageParameter = createResult.getMessageParameter();
+            return SUCCESS;
         }
         endTime = DateTimeConverterUtil.dateTimeToString(new Date());
         try {
             loadWorklogsAndMakeSummary();
             startTime = jiraTimetrackerPlugin.lastEndTime(worklogs);
+            comment = "";
         } catch (Exception e) {
             LOGGER.error("Error when try set the plugin variables.", e);
             return ERROR;
@@ -422,13 +435,13 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
                 comment, dateFormated, startTimeValue[0], timeSpent);
         if (updateResult.getStatus() == ActionResultStatus.FAIL) {
             message = updateResult.getMessage();
-            messageParameter = updateResult.getMessageParameter();
             return SUCCESS;
         }
         try {
             loadWorklogsAndMakeSummary();
             startTime = jiraTimetrackerPlugin.lastEndTime(worklogs);
             endTime = DateTimeConverterUtil.dateTimeToString(new Date());
+            comment = "";
         } catch (Exception e) {
             LOGGER.error("Error when try set the plugin variables.", e);
             return ERROR;
@@ -534,7 +547,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         return isEditAll;
     }
 
-    public boolean getIsPopup() {
+    public int getIsPopup() {
         return isPopup;
     }
 
@@ -546,7 +559,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         return issues;
     }
 
-    public List<Long> getIssuesId() {
+    public List<Pattern> getIssuesId() {
         return issuesId;
     }
 
@@ -772,7 +785,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         this.issues = issues;
     }
 
-    public void setIssuesId(final List<Long> issuesId) {
+    public void setIssuesId(final List<Pattern> issuesId) {
         this.issuesId = issuesId;
     }
 
@@ -792,7 +805,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         this.monthSummary = monthSummary;
     }
 
-    public void setPopup(final boolean isPopup) {
+    public void setPopup(final int isPopup) {
         this.isPopup = isPopup;
     }
 
@@ -830,11 +843,13 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         String[] endOrDurationValue = request.getParameterValues("endOrDuration");
         String[] commentsValue = request.getParameterValues("comments");
 
-        if (!DateTimeConverterUtil.isValidTime(startTimeValue[0])) {
-            message = "plugin.invalid_startTime";
+        if (commentsValue[0] == null) {
             return ERROR;
         }
-        if (commentsValue[0] == null) {
+        comment = commentsValue[0];
+
+        if (!DateTimeConverterUtil.isValidTime(startTimeValue[0])) {
+            message = "plugin.invalid_startTime";
             return ERROR;
         }
         if (endOrDurationValue[0].equals("duration")) {
