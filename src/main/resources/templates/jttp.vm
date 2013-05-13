@@ -194,9 +194,6 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 															var now = hour + ':' + minute;
 															AJS.$("#startTime").val(now);
 					               						 });
-					               						 window.onload = function() {
-  																document.getElementById("startTime").focus();
-														 };
 													</script>
 						                        </td>
 												<td  style="width: 110px">
@@ -372,6 +369,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 		window.onload = function() {
 			document.getElementById("startTime").scrollLeft=0;
 			document.getElementById("startTime").scrollIntoView();
+ 			document.getElementById("startTime").focus();
 		 };
 	</script>	
 </form>

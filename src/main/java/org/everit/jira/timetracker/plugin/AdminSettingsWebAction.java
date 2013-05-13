@@ -244,6 +244,7 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
         } else {
             String excludeDatesValueString = excludeDatesValue[0];
             if (!excludeDatesValueString.isEmpty()) {
+                excludeDatesValueString = excludeDatesValueString.replace(" ", "").replace("\r", "").replace("\n", "");
                 for (String dateString : excludeDatesValueString.split(",")) {
                     try {
                         DateTimeConverterUtil.stringToDate(dateString);
@@ -266,6 +267,7 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
         } else {
             String includeDatesValueString = includeDatesValue[0];
             if (!includeDatesValueString.isEmpty()) {
+                includeDatesValueString = includeDatesValueString.replace(" ", "").replace("\r", "").replace("\n", "");
                 for (String dateString : includeDatesValueString.split(",")) {
                     try {
                         DateTimeConverterUtil.stringToDate(dateString);
