@@ -77,7 +77,12 @@ public final class DateTimeConverterUtil {
      * The number of seconds per minute.
      */
     public static final int SECONDS_PER_MINUTE = 60;
-
+    
+    /**
+     * The number of seconds in 8 hour. 
+     */
+    public static final int EIGHT_HOUR_IN_SECONDS = 8 * 60 * 60;
+    
     /**
      * The number of milliseconds per seconds.
      */
