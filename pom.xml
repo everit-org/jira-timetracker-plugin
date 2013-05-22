@@ -144,7 +144,7 @@
         <repository>
             <id>everit.groups.public</id>
             <name>Everit Public Repository Group</name>
-            <url>https://repository.everit.biz/nexus/content/groups/public</url>
+            <url>http://repository.everit.biz/nexus/content/groups/public</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -155,7 +155,7 @@
         <repository>
             <id>everit.groups.proxy</id>
             <name>Everit Proxy Repository Group</name>
-            <url>https://repository.everit.biz/nexus/content/groups/proxy</url>
+            <url>http://repository.everit.biz/nexus/content/groups/proxy</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -183,23 +183,13 @@
                 <enabled>false</enabled>
             </snapshots>
         </repository>
-        <repository>
-            <id>atlassianinside</id>
-            <url>https://repository.atlassian.com/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
     </repositories>
 
     <pluginRepositories>
         <pluginRepository>
             <id>everit.groups.public</id>
             <name>Everit Public Repository Group</name>
-            <url>https://repository.everit.biz/nexus/content/groups/public</url>
+            <url>http://repository.everit.biz/nexus/content/groups/public</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -210,7 +200,7 @@
         <pluginRepository>
             <id>everit.groups.proxy</id>
             <name>Everit Proxy Repository Group</name>
-            <url>https://repository.everit.biz/nexus/content/groups/proxy</url>
+            <url>http://repository.everit.biz/nexus/content/groups/proxy</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
