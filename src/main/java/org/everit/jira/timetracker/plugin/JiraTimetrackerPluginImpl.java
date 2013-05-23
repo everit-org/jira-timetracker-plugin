@@ -467,6 +467,22 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
 	}
 
 	@Override
+	public List<String> getExluceDaysOfTheMonth(final String date) {
+		// TODO implement this method, try to create an universal method!
+		List<String> resultexcludeDays = new ArrayList<String>();
+		for (String exludeDate : excludeDatesSet) {
+			// TODO this if not handle the 2013-4-04 date..... this is wrong or
+			// not? .... think about it.
+			if (exludeDate.startsWith(date.substring(0, 6))) {
+				resultexcludeDays
+						.add(exludeDate.substring(exludeDate.length() - 2));
+			}
+		}
+
+		return resultexcludeDays;
+	}
+
+	@Override
 	public List<Issue> getIssues() throws GenericEntityException {
 		List<GenericValue> issuesGV = null;
 		issuesGV = CoreFactory.getGenericDelegator().findAll("Issue");

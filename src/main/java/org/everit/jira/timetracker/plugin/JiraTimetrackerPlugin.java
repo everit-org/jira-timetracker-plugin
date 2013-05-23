@@ -126,6 +126,9 @@ public interface JiraTimetrackerPlugin {
 	List<Date> getDates(Date from, Date to, boolean workingHours,
 			boolean nonWorking) throws GenericEntityException;
 
+	// TODO java doc
+	List<String> getExluceDaysOfTheMonth(String date);
+
 	/**
 	 * Give back the Issues.
 	 * 

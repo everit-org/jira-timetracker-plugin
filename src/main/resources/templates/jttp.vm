@@ -31,6 +31,30 @@
 	}
    
 </style>
+<script>
+	
+	 function setIncludeDatesToWeekend(){
+		 	var dayNumber =  $excludeDays.size();
+		 	for(var i = 0; i < dayNumber; i++){
+		 		var theDay = $excludeDays[i];
+		 		var calendarDays = document.getElementsByClassName("day day-"+theDay);
+		 		for (var j=0;j<calendarDays.length;j++){
+		 			if(!(calendarDays[j].classList.contains("selected") || calendarDays[j].classList.contains("weekend") || calendarDays[j].classList.contains("othermonth"))){
+		 				calendarDays[j].className += " weekend";
+		 			}
+		 		}
+		 	}
+		 }
+
+	var original = Calendar.prototype.show;
+	
+	Calendar.prototype.show = function(){
+		original.call(this);
+		setIncludeDatesToWeekend();
+	}
+	
+	
+</script>
 $webResourceManager.requireResource("jira.webresources:global-static")
 $webResourceManager.requireResource("jira.webresources:calendar")
 $webResourceManager.requireResource("jira.webresources:calendar-en")
@@ -89,6 +113,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 								useISO8601WeekNumbers : false,
 								ifFormat : '%Y-%m-%d'
 							});
+							
 							</script>
 						#end
 						</div>
@@ -369,7 +394,9 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 		window.onload = function() {
 			document.getElementById("startTime").scrollLeft=0;
 			document.getElementById("startTime").scrollIntoView();
+			setIncludeDatesToWeekend();
  			document.getElementById("startTime").focus();
 		 };
+		 
 	</script>	
 </form>
