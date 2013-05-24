@@ -24,9 +24,11 @@ package org.everit.jira.timetracker.plugin;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.everit.jira.timetracker.plugin.dto.ActionResult;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
+import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
 import org.ofbiz.core.entity.GenericEntityException;
 
 import com.atlassian.jira.issue.Issue;
@@ -71,13 +73,43 @@ public interface JiraTimetrackerPlugin {
      *            The worklog Issue.
      * @param comment
      *            The worklog note.
+     * @param dateFormated
+     *            The date of the worklog (yyyy-MM-dd).
      * @param time
      *            When start the worklog. (kk:mm)
      * @param timeSpent
      *            The spent time in the worklog (Jira format : 1h 30m)
      * @return {@link ActionResult} Success if the worklog edited and Fail if not.
      */
-    ActionResult editWorklog(Long worklogId, String issueId, String comment, String time, String timeSpent);
+    ActionResult editWorklog(Long worklogId, String issueId, String comment, String dateFormated, String time,
+            String timeSpent);
+
+    /**
+     * Give back the date of the first day where missing worklogs. Use the properties files includes and excludes date
+     * settings.
+     * 
+     * @return The Date representation of the day.
+     * @throws GenericEntityException
+     *             GenericEntityException
+     */
+    Date firstMissingWorklogsDate() throws GenericEntityException;
+
+    /**
+     * Give back the collector issue patterns. If the list will be null, then give back the propeties file default
+     * collecter issues patterns list.
+     */
+    List<Pattern> getCollectorIssuePatterns();
+
+    /**
+     * Create a query and give back the list of dates where are no worklogs. The query examine the days between the user
+     * creation date and the current date. The method not examine the weekends and the properties file exclude dates but
+     * check the properties file include dates.
+     * 
+     * @return The list of the dates.
+     * @throws GenericEntityException
+     *             If GenericEntity Exception.
+     */
+    List<Date> getDates(Date from, Date to) throws GenericEntityException;
 
     /**
      * Give back the Issues.
@@ -133,15 +165,33 @@ public interface JiraTimetrackerPlugin {
     String lastEndTime(List<EveritWorklog> worklogs) throws ParseException;
 
     /**
+     * Give back the plugin settings values.
+     * 
+     * @return {@link PluginSettingsValues} object what contains the settings.
+     */
+    PluginSettingsValues loadPluginSettings();
+
+    /**
+     * Set the plugin settings and save them.
+     * 
+     * @param pluginSettingsParameter
+     *            The plugin settings parameters.
+     * @return {@link ActionResult} if the plugin settings was saved successful SUCCESS else FAIL.
+     */
+    void savePluginSettings(PluginSettingsValues pluginSettingsParameter);
+
+    /**
      * Give back the all worklogs spent time between the two date.
      * 
      * @param startSummary
      *            The start date.
      * @param finishSummary
      *            The finish date.
+     * @param issueIds
+     *            The filtered issues ids. If null or empty then don't make filtered summary.
      * @return The summary spent time in Jira format (1h 30m)
      * @throws GenericEntityException
      *             GenericEntityException.
      */
-    String summary(Date startSummary, Date finishSummary) throws GenericEntityException;
+    String summary(Date startSummary, Date finishSummary, List<Pattern> issueIds) throws GenericEntityException;
 }

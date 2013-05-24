@@ -23,12 +23,16 @@ package org.everit.jira.timetracker.plugin.dto;
 
 import java.io.Serializable;
 import java.text.ParseException;
+import java.util.List;
+import java.util.regex.Pattern;
 
 import org.everit.jira.timetracker.plugin.DateTimeConverterUtil;
+import org.everit.jira.timetracker.plugin.JiraTimetrackerUtil;
 import org.ofbiz.core.entity.GenericValue;
 
 import com.atlassian.jira.ComponentManager;
 import com.atlassian.jira.issue.IssueManager;
+import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.worklog.Worklog;
 
 /**
@@ -72,26 +76,40 @@ public class EveritWorklog implements Serializable {
      * The worklog note.
      */
     private String body;
+    /**
+     * The issue estimated time is 0 or not.
+     */
+    private boolean isMoreEstimatedTime;
 
     /**
      * Simple constructor whit GenericValue.
      * 
      * @param worklogGv
      *            GenericValue worklog.
+     * @param collectorIssuePatterns
+     *            The collector Issues Pattern list.
      * @throws ParseException
      *             If can't parse the date.
      */
-    public EveritWorklog(final GenericValue worklogGv) throws ParseException {
+    public EveritWorklog(final GenericValue worklogGv, final List<Pattern> collectorIssuePatterns)
+            throws ParseException {
         worklogId = worklogGv.getLong("id");
         startTime = worklogGv.getString("startdate");
         startTime = DateTimeConverterUtil.stringDateToStringTime(startTime);
         issueId = new Long(worklogGv.getString("issue"));
         IssueManager issueManager = ComponentManager.getInstance().getIssueManager();
-        issue = issueManager.getIssueObject(issueId).getKey();
+        MutableIssue issueObject = issueManager.getIssueObject(issueId);
+        issue = issueObject.getKey();
+        isMoreEstimatedTime = JiraTimetrackerUtil.checkIssueEstimatedTime(issueObject, collectorIssuePatterns);
         body = worklogGv.getString("body");
-        body = body.replace("\"", "\\\"");
-        body = body.replace("\r", "\\r");
-        body = body.replace("\n", "\\n");
+        if (body != null) {
+            body = body.replace("\"", "\\\"");
+            body = body.replace("\r", "\\r");
+            body = body.replace("\n", "\\n");
+        }
+        else {
+            body = "";
+        }
         long timeSpentInSec = worklogGv.getLong("timeworked").longValue();
         milliseconds = timeSpentInSec * DateTimeConverterUtil.MILLISECONDS_PER_SECOND;
         duration = DateTimeConverterUtil.secondConvertToString(timeSpentInSec);
@@ -112,9 +130,13 @@ public class EveritWorklog implements Serializable {
         startTime = DateTimeConverterUtil.dateTimeToString(worklog.getStartDate());
         issue = worklog.getIssue().getKey();
         body = worklog.getComment();
-        body = body.replace("\"", "\\\"");
-        body = body.replace("\r", "\\r");
-        body = body.replace("\n", "\\n");
+        if (body != null) {
+            body = body.replace("\"", "\\\"");
+            body = body.replace("\r", "\\r");
+            body = body.replace("\n", "\\n");
+        } else {
+            body = "";
+        }
         long timeSpentInSec = worklog.getTimeSpent().longValue();
         milliseconds = timeSpentInSec * DateTimeConverterUtil.MILLISECONDS_PER_SECOND;
         duration = DateTimeConverterUtil.millisecondConvertToStringTime(milliseconds);
@@ -131,6 +153,10 @@ public class EveritWorklog implements Serializable {
 
     public String getEndTime() {
         return endTime;
+    }
+
+    public boolean getIsMoreEstimatedTime() {
+        return isMoreEstimatedTime;
     }
 
     public String getIssue() {
@@ -167,6 +193,10 @@ public class EveritWorklog implements Serializable {
 
     public void setMilliseconds(final long milliseconds) {
         this.milliseconds = milliseconds;
+    }
+
+    public void setMoreEstimatedTime(final boolean isMoreEstimatedTime) {
+        this.isMoreEstimatedTime = isMoreEstimatedTime;
     }
 
     public void setStartTime(final String startTime) {
