@@ -1,0 +1,144 @@
+## Style Declaration
+<style type="text/css">
+	. grid td {
+		text-align: center;
+		vertical-align: inherit;
+	}
+	.rowHeader {
+        background-color:#E2E2E2;
+    }
+    .rowAlter {
+        background-color:#F2F2F2;
+    }
+    .button {
+        padding: 2px;
+    }
+    .grid {
+        font-family:Arial,Helvetica,sans-serif;
+        font-size:12px;
+        background-color:#FCFCFC;
+        border:1px solid #D2D2D2;
+        border-collapse:collapse;
+    }
+    .grid th, .grid td {
+        border:1px solid #D2D2D2;
+        padding:4px;
+    }
+   
+</style>
+$webResourceManager.requireResource("jira.webresources:global-static")
+$webResourceManager.requireResource("jira.webresources:calendar")
+$webResourceManager.requireResource("jira.webresources:calendar-en")
+$webResourceManager.requireResource("jira.webresources:dwr", null)   
+$webResourceManager.requireResource("jira.webresources:ajax-preview", null)
+
+<form name="myForm"  method="post" action="JiraTimetrackerWorklogsWebAction.jspa?dateFromFormated=$dateFromFormated&dateToFormated=$dateToFormated&actualPage=$actualPage" />   
+	#set($rendererType = "atlassian-wiki-renderer")
+	<div id="plugin_head" class="item-header">
+ 			<h1 class="item-summary">Timetracker</h1>
+  	</div>
+	<div id="main-content" class="content rounded" >
+		<div style="margin:10px; width:970px;">
+			##TAB START
+			<div class="tabwrap tabs2" id="tabs-jttp">
+	    		<ul class="tabs horizontal">
+	        		<li>
+	            		<a href="JiraTimetarckerWebAction!default.jspa"><strong>Timetracker</strong></a>
+	        		</li>
+	        		<li class="active">
+	            		<a href="JiraTimetrackerWorklogsWebAction!default.jspa"><strong>Missing Days Report</strong></a>
+	        		</li>
+	    		</ul>
+	    	</div>
+			##TAB END
+			<div id="message" style="color: red; padding-bottom: 5px;">
+		 			$i18n.getText($message) $messageParameter
+		  	</div>
+			<div id="calendar_div" style="text-align: left; vertical-align: inherit; float: left; padding:5px;">
+				$i18n.getText("plugin.from")
+				<input type="text" id="dateFrom" name="dateFrom" value="$dateFromFormated"/>
+				<img id="date_trigger_from" src="/images/icons/cal.gif" width="16" height="16" border="0"
+					alt="Pick a date"/>
+				<script>
+				var cal= Calendar.setup({
+					firstDay : 0,
+					inputField : 'dateFrom',
+					button : 'date_trigger_from',
+					date : '$dateFromFormated',
+					align : 'Br',
+					electric: false,
+					singleClick : true,
+					showOthers: true,
+					useISO8601WeekNumbers : false,
+					ifFormat : '%Y-%m-%d'
+				});
+				</script>
+				$i18n.getText("plugin.to")
+				<input type="text" id="dateTo" name="dateTo" value="$dateToFormated"/>
+				<img id="date_trigger_to" src="/images/icons/cal.gif" width="16" height="16" border="0"
+					alt="Pick a date"/>
+				<script>
+				var cal= Calendar.setup({
+					firstDay : 0,
+					inputField : 'dateTo',
+					button : 'date_trigger_to',
+					date : '$dateToFormated',
+					align : 'Br',
+					electric: false,
+					singleClick : true,
+					showOthers: true,
+					useISO8601WeekNumbers : false,
+					ifFormat : '%Y-%m-%d'
+				});
+				</script>
+				<input id="search"  type="submit" name="search" value="$i18n.getText('plugin.search')" class="button" />
+			</div>
+			<style type="text/css">
+			{
+				margin-bottom: 0em;
+			}
+			</style>
+			<div id="statistics-message" style="width: 30%; padding-bottom: 5px;">
+		 			$i18n.getText("plugin.statistics.message") $statisticsMessageParameter
+		  	</div>
+			#set($rowCount = 0)
+			<div class="results-wrap">
+				<div>
+				    <table class="grid" border="0" cellpadding="2" cellspacing="0" width="30%" style="text-align: center; padding-bottom: 5px;">
+				           <thead>
+				              <tr class="rowHeader">
+				                  <td width="5%">
+				                       $i18n.getText("plugin.dates")
+				                   </td>
+			                   </tr>
+			                </thead>
+			                #if($showDatesWhereNoWorklog.size() == 0)
+			            		</table>
+			            			<div id="message" style="text-align: center; padding: 3px; font-size: 14px; width: 30%;" >
+							 			$i18n.getText("plugin.no.dates")
+								  	</div>
+			                #else
+			                	   	<tbody>
+					                   	#foreach ($date in $showDatesWhereNoWorklog)
+					                    	<tr #if($rowCount % 2 != 0) class="rowAlter" #end>
+					                    	 	<td>
+					                    	 		<a href="JiraTimetarckerWebAction.jspa?dateFormated=$date">$date</a>
+					                    	 	</td>
+					                    	</tr>
+					                    	#set($rowCount = $rowCount + 1)
+					                    #end
+					                </tbody>
+					            </table>
+					         #end
+					</div>
+			 </div>
+			 #if($showDatesWhereNoWorklog.size() != 0)
+				<div style="text-align: center; width: 30%; " >
+					<input type="submit" id="pageBack"  name="pageBack" value="<" class="button"  />
+					$actualPage / $numberOfPages
+					<input type="submit" id="pageNext"  name="pageNext" value=">"  class="button"/>
+				</div>
+			 #end
+		</div>	
+	</div>
+</form>

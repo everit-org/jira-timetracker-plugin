@@ -1,0 +1,124 @@
+## Style Declaration
+<style type="text/css">
+	.rowHeader {
+        background-color:#E2E2E2;
+    }
+    .rowAlter {
+        background-color:#F2F2F2;
+    }
+    .button {
+        padding: 2px;
+    }
+    .grid {
+        font-family:Arial,Helvetica,sans-serif;
+        font-size:12px;
+        background-color:#FCFCFC;
+        border:1px solid #D2D2D2;
+        border-collapse:collapse;
+    }
+    .grid th, .grid td {
+        border:1px solid #D2D2D2;
+        padding:4px;
+    }
+    
+</style>
+<form name="settingsForm"  method="post" action="JiraTimetrackerSettingsWebAction.jspa"/>   
+	<div id="plugin_head" class="item-header">
+ 			<h1 class="item-summary">Timetracker Settings</h1>
+  	</div>
+  	<div id="main-content" class="content rounded" >
+		<div style="margin:10px; ">
+			<table  width="80%" padding:"5px" >
+				<tbody>
+					<tr>
+						<td style="text-align: right;" width="10%">
+							<div style="margin-top: 10px; margin-bottom: 10px;">
+								<h3>$i18n.getText("plugin.setting.calendar.appearance")</h3>
+							<div>
+						</td>
+					</tr>
+		        	<tr>
+						<td style="text-align: right;" width="10%"> 
+							<strong>$i18n.getText("plugin.setting.ispopup"):</strong> 
+						</td>
+						<td width="40%">
+						 	#if($isPopup == 1)
+						 		<input id="radioPopup" type="radio" name="popupOrInline" value="popup" style="margin-right: 10px" checked="true">
+                     		#else
+                         		<input id="radioPopup" type="radio" name="popupOrInline" value="popup" style="margin-right: 10px">
+                      		#end
+                      		$i18n.getText("plugin.setting.popup")
+						</td>
+					</tr>
+					<tr>
+						<td style="text-align: right;"  width="10%">
+							
+						</td>
+						<td width="40%">
+						 	#if($isPopup == 2)
+						 		<input id="radioInline" type="radio" name="popupOrInline" value="inline" style="margin-right: 10px" checked="true">
+                     		#else
+                         		<input id="radioInline" type="radio" name="popupOrInline" value="inline" style="margin-right: 10px"> 
+                      		#end
+                      		$i18n.getText("plugin.setting.inline")
+						</td>
+					</tr>
+					<tr>
+						<td style="text-align: right;"  width="10%">
+							
+						</td>
+						<td width="40%">
+						 	#if($isPopup == 3)
+						 		<input id="radioBoth" type="radio" name="popupOrInline" value="both" style="margin-right: 10px" checked="true">
+                     		#else
+                         		<input id="radioBoth" type="radio" name="popupOrInline" value="both" style="margin-right: 10px">
+                      		#end
+                      		$i18n.getText("plugin.setting.both")
+                      		<div class="description">
+								$i18n.getText("plugin.setting.ispopup.help")
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td width="10%" style="text-align: right;">
+							<strong>$i18n.getText("plugin.setting.isactualdate"):</strong>  
+						</td>
+						<td width="40%">
+						 	#if($isActualDate)
+                         		<input id="radioCurrent" type="radio" name="currentOrLast" value="current" style="margin-right: 10px" checked="true">  
+                     		#else
+                         		<input id="radioCurrent" type="radio" name="currentOrLast" value="current" style="margin-right: 10px">
+                      		#end
+                      		$i18n.getText("plugin.setting.current")
+						</td>
+					</tr>
+					<tr>
+						<td width="10%">
+						</td>
+						<td width="40%">
+						 	#if($isActualDate)
+                         		<input id="radioLast" type="radio" name="currentOrLast" value="last" style="margin-right: 10px">  
+                     		#else
+                         		<input id="radioLast" type="radio" name="currentOrLast" value="last" style="margin-right: 10px" checked="true"> 
+                      		#end
+                      		$i18n.getText("plugin.setting.last")
+                      		<div class="description">
+								$i18n.getText("plugin.setting.isactualdate.help")
+							</div>
+						</td>
+					</tr>
+					<tr class="buttons-container">
+						<td colspan="2">
+							<input id="savesettings"  type="submit" name="savesettings" value="$i18n.getText('plugin.save')" class="button"/>
+							<input id="resetButton"  type="button" name="reset" value="$i18n.getText('plugin.reset')" onclick="location.href='JiraTimetrackerSettingsWebAction.jspa'" class="button"/>
+							<input id="cancelButton"  type="button" name="cancel" value="$i18n.getText('plugin.cancel')" onclick="location.href='JiraTimetarckerWebAction!default.jspa'" class="button"/>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			
+		</div>
+	</div>
+	
+	
+</from>
