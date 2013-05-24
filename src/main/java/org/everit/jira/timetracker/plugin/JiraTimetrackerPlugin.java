@@ -138,6 +138,10 @@ public interface JiraTimetrackerPlugin {
 	 */
 	List<Issue> getIssues() throws GenericEntityException;
 
+	// TODO java doc
+	List<String> getLoggedDaysOfTheMonth(Date date)
+			throws GenericEntityException;
+
 	/**
 	 * Give back the Projects.
 	 * 

@@ -495,6 +495,31 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
 	}
 
 	@Override
+	public List<String> getLoggedDaysOfTheMonth(final Date date)
+			throws GenericEntityException {
+		// TODO implement this method
+		List<String> resultDays = new ArrayList<String>();
+		// TODO TEST THIS SHIT!!!
+		int dayOfMonth = 1;
+		Calendar startCalendar = Calendar.getInstance();
+		startCalendar.set(Calendar.YEAR, date.getYear()
+				+ DateTimeConverterUtil.BEGIN_OF_YEAR);
+		startCalendar.set(Calendar.MONTH, date.getMonth());
+		startCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+		Date start = startCalendar.getTime();
+
+		while (dayOfMonth != DateTimeConverterUtil.LAST_DAY_OF_MONTH) {
+			if (isContainsWorklog(start)) {
+				resultDays.add(Integer.toString(dayOfMonth));
+			}
+			startCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth++);
+			start = startCalendar.getTime();
+		}
+
+		return resultDays;
+	}
+
+	@Override
 	public List<String> getProjectsId() throws GenericEntityException {
 		List<String> projectsId = new ArrayList<String>();
 		List<GenericValue> projectsGV = CoreFactory.getGenericDelegator()

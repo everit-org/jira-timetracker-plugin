@@ -33,24 +33,24 @@
 </style>
 <script>
 	
-	 function setIncludeDatesToWeekend(){
-		 	var dayNumber =  $excludeDays.size();
-		 	for(var i = 0; i < dayNumber; i++){
-		 		var theDay = $excludeDays[i];
-		 		var calendarDays = document.getElementsByClassName("day day-"+theDay);
-		 		for (var j=0;j<calendarDays.length;j++){
-		 			if(!(calendarDays[j].classList.contains("selected") || calendarDays[j].classList.contains("weekend") || calendarDays[j].classList.contains("othermonth"))){
-		 				calendarDays[j].className += " weekend";
-		 			}
-		 		}
-		 	}
-		 }
+	function setExcludeDaysToWeekend(){
+	 	var dayNumber =  $excludeDays.size();
+	 	for(var i = 0; i < dayNumber; i++){
+	 		var theDay = $excludeDays[i];
+	 		var calendarDays = document.getElementsByClassName("day day-"+theDay);
+	 		for (var j=0;j<calendarDays.length;j++){
+	 			if(!(calendarDays[j].classList.contains("selected") || calendarDays[j].classList.contains("weekend") || calendarDays[j].classList.contains("othermonth"))){
+	 				calendarDays[j].className += " weekend";
+	 			}
+	 		}
+	 	}
+	}
 
 	var original = Calendar.prototype.show;
 	
 	Calendar.prototype.show = function(){
 		original.call(this);
-		setIncludeDatesToWeekend();
+		setExcludeDaysToWeekend();
 	}
 	
 	
@@ -394,7 +394,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 		window.onload = function() {
 			document.getElementById("startTime").scrollLeft=0;
 			document.getElementById("startTime").scrollIntoView();
-			setIncludeDatesToWeekend();
+			setExcludeDaysToWeekend();
  			document.getElementById("startTime").focus();
 		 };
 		 

@@ -108,6 +108,9 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 
 	// TODO add java doc
 	private List<String> excludeDays = new ArrayList<String>();
+
+	// TODO add java doc
+	private List<String> loggedDays = new ArrayList<String>();
 	/**
 	 * The date.
 	 */
@@ -122,6 +125,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 	 * The summary of month.
 	 */
 	private String monthFilteredSummary = "";
+
 	/**
 	 * The summary of week.
 	 */
@@ -131,7 +135,6 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 	 * The summary of day.
 	 */
 	private String dayFilteredSummary = "";
-
 	/**
 	 * The summary of month.
 	 */
@@ -156,6 +159,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 	 * The WebAction is edit a worklog or not.
 	 */
 	private boolean isEdit = false;
+
 	/**
 	 * The WebAction is edit all worklog or not.
 	 */
@@ -169,6 +173,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 	 * The worklog start time.
 	 */
 	private String startTime = "";
+
 	/**
 	 * The worklog end time.
 	 */
@@ -189,17 +194,17 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 	 * The IDs of the projects.
 	 */
 	private List<String> projectsId;
-
 	/**
 	 * The message.
 	 */
 	private String message = "";
-
 	/**
 	 * The message parameter.
 	 */
 	private String messageParameter = "";
+
 	Date datePCalendar = new Date();
+
 	/**
 	 * The calendar isPopup.
 	 */
@@ -208,7 +213,6 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 	 * The calendar show actual Date Or Last Worklog Date.
 	 */
 	private boolean isActualDate;
-
 	// TODO FIXME fix variables name
 	/**
 	 * The filtered Issues id.
@@ -587,6 +591,10 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 		return issuesId;
 	}
 
+	public List<String> getLoggedDays() {
+		return loggedDays;
+	}
+
 	public String getMessage() {
 		return message;
 	}
@@ -832,6 +840,10 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 
 	public void setIssuesId(final List<Pattern> issuesId) {
 		this.issuesId = issuesId;
+	}
+
+	public void setLoggedDays(final List<String> loggedDays) {
+		this.loggedDays = loggedDays;
 	}
 
 	public void setMessage(final String message) {
