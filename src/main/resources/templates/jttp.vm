@@ -41,9 +41,9 @@
 		var dayNumber =  $loggedDays.size();
 	 	for(var i = 0; i < dayNumber; i++){
 	 		var theDay = $loggedDays[i];
-	 		var calendarDays = document.getElementsByClassName("day day-"+theDay);
+	 		var calendarDays = AJS.$('.day.day-'+theDay);
 	 		for (var j=0;j<calendarDays.length;j++){
-	 			if(!(calendarDays[j].classList.contains("selected") || calendarDays[j].classList.contains("othermonth") || calendarDays[j].classList.contains("logged"))){
+	 			if(!(AJS.$(calendarDays[j]).hasClass('selected') || AJS.$(calendarDays[j]).hasClass('othermonth') || AJS.$(calendarDays[j]).hasClass('logged'))){
 	 				calendarDays[j].className += " logged";
 	 			}
 	 		}
@@ -54,9 +54,9 @@
 	 	var dayNumber =  $excludeDays.size();
 	 	for(var i = 0; i < dayNumber; i++){
 	 		var theDay = $excludeDays[i];
-	 		var calendarDays = document.getElementsByClassName("day day-"+theDay);
+	 		var calendarDays = AJS.$('.day.day-'+theDay);
 	 		for (var j=0;j<calendarDays.length;j++){
-	 			if(!(calendarDays[j].classList.contains("selected") || calendarDays[j].classList.contains("weekend") || calendarDays[j].classList.contains("othermonth"))){
+	 			if(!(AJS.$(calendarDays[j]).hasClass('selected') || AJS.$(calendarDays[j]).hasClass('othermonth') || AJS.$(calendarDays[j]).hasClass('weekend'))){
 	 				calendarDays[j].className += " weekend";
 	 			}
 	 		}
