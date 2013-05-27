@@ -100,16 +100,17 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 	 * The all edit worklogs ids.
 	 */
 	private String editAllIds = "";
-
 	/**
 	 * The deleted worklog id.
 	 */
 	private Long deletedWorklogId = DEFAULT_WORKLOG_ID;
-
-	// TODO add java doc
+	/**
+	 * List of the exclude days of the date variable current months.
+	 */
 	private List<String> excludeDays = new ArrayList<String>();
-
-	// TODO add java doc
+	/**
+	 * List of the logged days of the date variable current months.
+	 */
 	private List<String> loggedDays = new ArrayList<String>();
 	/**
 	 * The date.
@@ -327,12 +328,18 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 			}
 		}
 		date = DateTimeConverterUtil.stringToDate(dateFormated);
-		// TODO the include date list for the month. have to set here
 		excludeDays = jiraTimetrackerPlugin
 				.getExluceDaysOfTheMonth(dateFormated);
-		// TODO test
-		// excludeDays.add("15");
-		// excludeDays.add("30");
+		try {
+			loggedDays = jiraTimetrackerPlugin.getLoggedDaysOfTheMonth(date);
+		} catch (GenericEntityException e1) {
+			// Not return whit error. Log the error and set a message to inform
+			// the user. The calendar fill will missing.
+			LOGGER.error(
+					"Error while try to collect the logged days for the calendar color fulling",
+					e1);
+			message = "plugin.calendar.logged.coloring.fail";
+		}
 		if ((deletedWorklogId != null)
 				&& !DEFAULT_WORKLOG_ID.equals(deletedWorklogId)) {
 			ActionResult deleteResult = jiraTimetrackerPlugin
@@ -381,12 +388,19 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 		dateSwitcherAction();
 
 		try {
-			// TODO the include date day list for the month. have to set here
 			excludeDays = jiraTimetrackerPlugin
 					.getExluceDaysOfTheMonth(dateFormated);
-			// TODO test
-			// includeDays.add("15");
-			// includeDays.add("30");
+			try {
+				loggedDays = jiraTimetrackerPlugin
+						.getLoggedDaysOfTheMonth(date);
+			} catch (GenericEntityException e1) {
+				// Not return whit error. Log the error and set a message to
+				// inform the user. The calendar fill will missing.
+				LOGGER.error(
+						"Error while try to collect the logged days for the calendar color fulling",
+						e1);
+				message = "plugin.calendar.logged.coloring.fail";
+			}
 			loadWorklogsAndMakeSummary();
 			startTime = jiraTimetrackerPlugin.lastEndTime(worklogs);
 			projectsId = jiraTimetrackerPlugin.getProjectsId();

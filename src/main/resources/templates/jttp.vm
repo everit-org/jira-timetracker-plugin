@@ -30,8 +30,25 @@
 		background:#D3D3D3;
 	}
    
+    .calendar tbody td.logged{
+    	background-color: #FF7800;
+    	font-weight: 500;
+    }
 </style>
 <script>
+	
+	function setLoggedDaysDesign(){
+		var dayNumber =  $loggedDays.size();
+	 	for(var i = 0; i < dayNumber; i++){
+	 		var theDay = $loggedDays[i];
+	 		var calendarDays = document.getElementsByClassName("day day-"+theDay);
+	 		for (var j=0;j<calendarDays.length;j++){
+	 			if(!(calendarDays[j].classList.contains("selected") || calendarDays[j].classList.contains("othermonth") || calendarDays[j].classList.contains("logged"))){
+	 				calendarDays[j].className += " logged";
+	 			}
+	 		}
+	 	}
+	}
 	
 	function setExcludeDaysToWeekend(){
 	 	var dayNumber =  $excludeDays.size();
@@ -51,6 +68,7 @@
 	Calendar.prototype.show = function(){
 		original.call(this);
 		setExcludeDaysToWeekend();
+		setLoggedDaysDesign();
 	}
 	
 	
@@ -395,6 +413,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 			document.getElementById("startTime").scrollLeft=0;
 			document.getElementById("startTime").scrollIntoView();
 			setExcludeDaysToWeekend();
+			setLoggedDaysDesign();
  			document.getElementById("startTime").focus();
 		 };
 		 

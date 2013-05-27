@@ -126,7 +126,13 @@ public interface JiraTimetrackerPlugin {
 	List<Date> getDates(Date from, Date to, boolean workingHours,
 			boolean nonWorking) throws GenericEntityException;
 
-	// TODO java doc
+	/**
+	 * The method find the exclude date of the given date month.
+	 * 
+	 * @param date
+	 *            The date.
+	 * @return The list of the days in String format. (Eg. ["12","15"])
+	 */
 	List<String> getExluceDaysOfTheMonth(String date);
 
 	/**
@@ -138,7 +144,13 @@ public interface JiraTimetrackerPlugin {
 	 */
 	List<Issue> getIssues() throws GenericEntityException;
 
-	// TODO java doc
+	/**
+	 * The method find the logged days of the given date month.
+	 * 
+	 * @param date
+	 *            The date.
+	 * @return The list of the days in String format. (Eg. ["12","15"])
+	 */
 	List<String> getLoggedDaysOfTheMonth(Date date)
 			throws GenericEntityException;
 

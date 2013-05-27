@@ -468,7 +468,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
 
 	@Override
 	public List<String> getExluceDaysOfTheMonth(final String date) {
-		// TODO implement this method, try to create an universal method!
 		List<String> resultexcludeDays = new ArrayList<String>();
 		for (String exludeDate : excludeDatesSet) {
 			// TODO this if not handle the 2013-4-04 date..... this is wrong or
@@ -497,9 +496,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
 	@Override
 	public List<String> getLoggedDaysOfTheMonth(final Date date)
 			throws GenericEntityException {
-		// TODO implement this method
 		List<String> resultDays = new ArrayList<String>();
-		// TODO TEST THIS SHIT!!!
 		int dayOfMonth = 1;
 		Calendar startCalendar = Calendar.getInstance();
 		startCalendar.set(Calendar.YEAR, date.getYear()
@@ -512,7 +509,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
 			if (isContainsWorklog(start)) {
 				resultDays.add(Integer.toString(dayOfMonth));
 			}
-			startCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth++);
+			startCalendar.set(Calendar.DAY_OF_MONTH, ++dayOfMonth);
 			start = startCalendar.getTime();
 		}
 
