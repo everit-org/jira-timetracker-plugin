@@ -206,14 +206,20 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 
 	Date datePCalendar = new Date();
 
+	// TODO javadox
+	private int startTimeChange;
+	private int endTimeChange;
+
 	/**
 	 * The calendar isPopup.
 	 */
 	private int isPopup;
+
 	/**
 	 * The calendar show actual Date Or Last Worklog Date.
 	 */
 	private boolean isActualDate;
+
 	// TODO FIXME fix variables name
 	/**
 	 * The filtered Issues id.
@@ -577,6 +583,10 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 		return endTime;
 	}
 
+	public int getEndTimeChange() {
+		return endTimeChange;
+	}
+
 	public List<String> getExcludeDays() {
 		return excludeDays;
 	}
@@ -633,6 +643,10 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 		return startTime;
 	}
 
+	public int getStartTimeChange() {
+		return startTimeChange;
+	}
+
 	public String getWeekFilteredSummary() {
 		return weekFilteredSummary;
 	}
@@ -679,6 +693,8 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 		isPopup = pluginSettingsValues.isCalendarPopup();
 		isActualDate = pluginSettingsValues.isActualDate();
 		issuesId = pluginSettingsValues.getFilteredSummaryIssues();
+		startTimeChange = pluginSettingsValues.getStartTimeChange();
+		endTimeChange = pluginSettingsValues.getEndTimeChange();
 	}
 
 	/**
@@ -840,6 +856,10 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 		this.endTime = endTime;
 	}
 
+	public void setEndTimeChange(final int endTimeChange) {
+		this.endTimeChange = endTimeChange;
+	}
+
 	public void setExcludeDays(final List<String> excludeDays) {
 		this.excludeDays = excludeDays;
 	}
@@ -886,6 +906,10 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 
 	public void setStartTime(final String startTime) {
 		this.startTime = startTime;
+	}
+
+	public void setStartTimeChange(final int startTimeChange) {
+		this.startTimeChange = startTimeChange;
 	}
 
 	public void setWeekFilteredSummary(final String weekFilteredSummary) {

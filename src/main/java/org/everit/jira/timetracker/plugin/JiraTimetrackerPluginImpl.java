@@ -114,6 +114,14 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
 	 */
 	private static final String JTTP_PLUGIN_SETTINGS_IS_CALENDAR_POPUP = "isCalendarPopup";
 	/**
+	 * The plugin setting is calendar popup key.
+	 */
+	private static final String JTTP_PLUGIN_SETTINGS_START_TIME_CHANGE = "startTimeChange";
+	/**
+	 * The plugin setting is calendar popup key.
+	 */
+	private static final String JTTP_PLUGIN_SETTINGS_END_TIME_CHANGE = "endTimechange";
+	/**
 	 * The plugin setting is actual date key.
 	 */
 	private static final String JTTP_PLUGIN_SETTINGS_IS_ACTUAL_DATE = "isActualDate";
@@ -833,10 +841,35 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
 			// the default is the Actual Date
 			isActualDate = true;
 		}
+		// SET startTime Change the defaulte value is 1
+		int startTimeChange = 1;
+		if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_START_TIME_CHANGE) != null) {
+			try {
+				startTimeChange = Integer.valueOf(pluginSettings.get(
+						JTTP_PLUGIN_SETTINGS_START_TIME_CHANGE).toString());
+			} catch (NumberFormatException e) {
+				LOGGER.error(
+						"Wrong formated startTime change value. Set the default value (1).",
+						e);
+			}
+		}
+		// SET endtTime Change the defaulte value is 1
+		int endTimeChange = 1;
+		if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_END_TIME_CHANGE) != null) {
+			try {
+				endTimeChange = Integer.valueOf(pluginSettings.get(
+						JTTP_PLUGIN_SETTINGS_END_TIME_CHANGE).toString());
+			} catch (NumberFormatException e) {
+				LOGGER.error(
+						"Wrong formated startTime change value. Set the default value (1).",
+						e);
+			}
+		}
 		// Here set the other values
 		pluginSettingsValues = new PluginSettingsValues(isPopup, isActualDate,
 				summaryFilteredIssuePatterns, collectorIssuePatterns,
-				excludeDatesString, includeDatesString);
+				excludeDatesString, includeDatesString, startTimeChange,
+				endTimeChange);
 		return pluginSettingsValues;
 	}
 
@@ -853,6 +886,12 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
 				Integer.toString(pluginSettingsParameters.isCalendarPopup()));
 		pluginSettings.put(JTTP_PLUGIN_SETTINGS_IS_ACTUAL_DATE,
 				pluginSettingsParameters.isActualDate().toString());
+		pluginSettings
+				.put(JTTP_PLUGIN_SETTINGS_START_TIME_CHANGE,
+						Integer.toString(pluginSettingsParameters
+								.getStartTimeChange()));
+		pluginSettings.put(JTTP_PLUGIN_SETTINGS_END_TIME_CHANGE,
+				Integer.toString(pluginSettingsParameters.getEndTimeChange()));
 
 		globalSettings = settingsFactory.createGlobalSettings();
 		globalSettings.put(JTTP_PLUGIN_SETTINGS_KEY_PREFIX

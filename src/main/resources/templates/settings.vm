@@ -28,6 +28,9 @@
   	</div>
   	<div id="main-content" class="content rounded" >
 		<div style="margin:10px; ">
+			<div id="message" style="color: red; ">
+		 			$i18n.getText($message) $messageParameter
+		  	</div>
 			<table  width="80%" padding:"5px" >
 				<tbody>
 					<tr>
@@ -104,6 +107,37 @@
                       		$i18n.getText("plugin.setting.last")
                       		<div class="description">
 								$i18n.getText("plugin.setting.isactualdate.help")
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td style="text-align: right;" width="10%">
+							<div style="margin-top: 10px; margin-bottom: 10px;">
+								<h3>$i18n.getText("plugin.setting.input.fields.settings")</h3>
+							<div>
+						</td>
+					</tr>
+		        	<tr>
+						<td style="text-align: right;" width="10%"> 
+							<strong>$i18n.getText("plugin.setting.starttime.value"):</strong> 
+						</td>
+						<td width="40%">
+						 	 <input id="startTime"  type="text" name="startTime" value="$startTime"  style="margin-right: 5px; width: 100px;"/> 
+						 	 $i18n.getText("plugin.setting.min")                      		
+                      		<div class="description">
+								$i18n.getText("plugin.setting.starttime.help")
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td style="text-align: right;" width="10%"> 
+							<strong>$i18n.getText("plugin.setting.endtime.value"):</strong> 
+						</td>
+						<td width="40%">
+						 	<input id="endTime"  type="text" name="endTime" value="$endTime" style="margin-right: 5px; width: 100px;"/> 
+						 	 $i18n.getText("plugin.setting.min")   
+                      		<div class="description">
+								$i18n.getText("plugin.setting.endtime.help")
 							</div>
 						</td>
 					</tr>
