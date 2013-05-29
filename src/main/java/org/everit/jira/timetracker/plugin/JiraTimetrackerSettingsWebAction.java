@@ -211,7 +211,6 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 		} else {
 			isActualDate = false;
 		}
-		// TODO hadnle excaption !!!! NFE
 		try {
 			if (validateTimeChange(startTimeValue[0])) {
 				startTime = startTimeValue[0];
@@ -277,7 +276,16 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 		this.startTime = startTime;
 	}
 
-	// TODO javadoc
+	/**
+	 * Validate the start and end time changer buttons values. The acceptable
+	 * values: 1, 5, 10, 15, 20, 30.
+	 * 
+	 * @param changeValue
+	 *            The new value.
+	 * @return True if the value acceptable else false.
+	 * @throws NumberFormatException
+	 *             If the value can't parse to int.
+	 */
 	private boolean validateTimeChange(final String changeValue)
 			throws NumberFormatException {
 		int changeValueInt = Integer.valueOf(changeValue);

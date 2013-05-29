@@ -233,9 +233,9 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 						                           <input id="startTime"  type="text" name="startTime" value="$startTime" tabindex="1" style="margin-right: 5px; width: 100px;"/> 
 						                        </td>
 						                        <td style="width: 110px;">
-						                           <input id="startChangeDec"  type="button" name="startChangeDec" value="<" class="button" width: 20px;"/>
+						                           <input id="startChangeDec"  type="button" name="startChangeDec" value="<" class="button" width: 20px;" title="$i18n.getText('plugin.start.time.dec.title')$startTimeChange min."/>
 						                           <input id="startNow"  type="button" name="startNow" value="$i18n.getText('plugin.now')" class="button" width: 40px;"/>
-						                           <input id="startChangeInc"  type="button" name="startNow" value=">" class="button" style="margin-right: 30px; width: 20px;"/>
+						                           <input id="startChangeInc"  type="button" name="startNow" value=">" class="button" style="margin-right: 30px; width: 20px;"  title="$i18n.getText('plugin.start.time.inc.title')$startTimeChange min."/>
 						                           <script>
 														AJS.$("#startNow").click(function() {
 					                   						var currentTime = new Date();
@@ -282,9 +282,9 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 						                    	 	<input id="endTime"  type="text" name="endTime" value="$endTime" tabindex="2"  style="margin-right: 5px; width: 100px"/> 
 						                    	 </td>
 						                    	 <td style="width: 85px;">
-						                    	   <input id="endChangeDec"  type="button" name="endChangeDec" value="<" class="button" width: 20px;"/>
+						                    	   <input id="endChangeDec"  type="button" name="endChangeDec" value="<" class="button" width: 20px;" title="$i18n.getText('plugin.end.time.dec.title')$endTimeChange min."/>
 						                    	   <input id="endNow"  type="button" name="endNow" value="$i18n.getText('plugin.now')" class="button" width: 40px;"/>
-						                    	   <input id="endChangeInc"  type="button" name="endChangeInc" value=">" class="button" style="margin-right: 5px; width: 20px;"/>
+						                    	   <input id="endChangeInc"  type="button" name="endChangeInc" value=">" class="button" style="margin-right: 5px; width: 20px;" title="$i18n.getText('plugin.end.time.inc.title')$endTimeChange min."/>
 						                           <script>
 														AJS.$("#endNow").click(function() {
 					                   						var currentTime = new Date();

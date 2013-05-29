@@ -203,28 +203,31 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 	 * The message parameter.
 	 */
 	private String messageParameter = "";
-
-	Date datePCalendar = new Date();
-
-	// TODO javadox
+	/**
+	 * 
+	 */
+	// private Date datePCalendar = new Date();
+	/**
+	 * The startTime input field changer buttons value.
+	 */
 	private int startTimeChange;
+	/**
+	 * The endTime input field changer buttons value.
+	 */
 	private int endTimeChange;
 
 	/**
 	 * The calendar isPopup.
 	 */
 	private int isPopup;
-
 	/**
 	 * The calendar show actual Date Or Last Worklog Date.
 	 */
 	private boolean isActualDate;
-
-	// TODO FIXME fix variables name
 	/**
 	 * The filtered Issues id.
 	 */
-	private List<Pattern> issuesId;
+	private List<Pattern> issuesRegex;
 
 	/**
 	 * Simple constructor.
@@ -551,9 +554,10 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 		return dateFormated;
 	}
 
-	public Date getDatePCalendar() {
-		return datePCalendar;
-	}
+	// TODO check
+	// public Date getDatePCalendar() {
+	// return datePCalendar;
+	// }
 
 	public String getDayFilteredSummary() {
 		return dayFilteredSummary;
@@ -611,8 +615,8 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 		return issues;
 	}
 
-	public List<Pattern> getIssuesId() {
-		return issuesId;
+	public List<Pattern> getIssuesRegex() {
+		return issuesRegex;
 	}
 
 	public List<String> getLoggedDays() {
@@ -692,7 +696,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 				.loadPluginSettings();
 		isPopup = pluginSettingsValues.isCalendarPopup();
 		isActualDate = pluginSettingsValues.isActualDate();
-		issuesId = pluginSettingsValues.getFilteredSummaryIssues();
+		issuesRegex = pluginSettingsValues.getFilteredSummaryIssues();
 		startTimeChange = pluginSettingsValues.getStartTimeChange();
 		endTimeChange = pluginSettingsValues.getEndTimeChange();
 	}
@@ -748,9 +752,9 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 		Date end = endCalendar.getTime();
 
 		daySummary = jiraTimetrackerPlugin.summary(start, end, null);
-		if ((issuesId != null) && !issuesId.isEmpty()) {
+		if ((issuesRegex != null) && !issuesRegex.isEmpty()) {
 			dayFilteredSummary = jiraTimetrackerPlugin.summary(start, end,
-					issuesId);
+					issuesRegex);
 		}
 
 		startCalendar = (Calendar) originalStartcalendar.clone();
@@ -767,9 +771,9 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 		end = endCalendar.getTime();
 
 		weekSummary = jiraTimetrackerPlugin.summary(start, end, null);
-		if ((issuesId != null) && !issuesId.isEmpty()) {
+		if ((issuesRegex != null) && !issuesRegex.isEmpty()) {
 			weekFilteredSummary = jiraTimetrackerPlugin.summary(start, end,
-					issuesId);
+					issuesRegex);
 		}
 
 		startCalendar = (Calendar) originalStartcalendar.clone();
@@ -782,9 +786,9 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 		end = endCalendar.getTime();
 
 		monthSummary = jiraTimetrackerPlugin.summary(start, end, null);
-		if ((issuesId != null) && !issuesId.isEmpty()) {
+		if ((issuesRegex != null) && !issuesRegex.isEmpty()) {
 			monthFilteredSummary = jiraTimetrackerPlugin.summary(start, end,
-					issuesId);
+					issuesRegex);
 		}
 	}
 
@@ -816,9 +820,10 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 		this.dateFormated = dateFormated;
 	}
 
-	public void setDatePCalendar(final Date datePCalendar) {
-		this.datePCalendar = datePCalendar;
-	}
+	// TODO check
+	// public void setDatePCalendar(final Date datePCalendar) {
+	// this.datePCalendar = datePCalendar;
+	// }
 
 	public void setDayFilteredSummary(final String dayFilteredSummary) {
 		this.dayFilteredSummary = dayFilteredSummary;
@@ -872,8 +877,8 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 		this.issues = issues;
 	}
 
-	public void setIssuesId(final List<Pattern> issuesId) {
-		this.issuesId = issuesId;
+	public void setIssuesRegex(final List<Pattern> issuesRegex) {
+		this.issuesRegex = issuesRegex;
 	}
 
 	public void setLoggedDays(final List<String> loggedDays) {
