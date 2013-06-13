@@ -31,7 +31,7 @@
 	}
    
     .calendar tbody td.logged{
-    	background-color: #FF7800;
+    	background-color: #FFFF45;
     	font-weight: 500;
     }
 </style>
@@ -49,15 +49,17 @@
 	}
 	
 	function setLoggedDaysDesign(){
-		var dayNumber =  $loggedDays.size();
-	 	for(var i = 0; i < dayNumber; i++){
-	 		var theDay = $loggedDays[i];
-	 		var calendarDays = AJS.$('.day.day-'+theDay);
-	 		for (var j=0;j<calendarDays.length;j++){
-	 			if(!(AJS.$(calendarDays[j]).hasClass('selected') || AJS.$(calendarDays[j]).hasClass('othermonth') || AJS.$(calendarDays[j]).hasClass('logged'))){
-	 				calendarDays[j].className += " logged";
-	 			}
-	 		}
+		if($isColoring){
+			var dayNumber =  $loggedDays.size();
+		 	for(var i = 0; i < dayNumber; i++){
+		 		var theDay = $loggedDays[i];
+		 		var calendarDays = AJS.$('.day.day-'+theDay);
+		 		for (var j=0;j<calendarDays.length;j++){
+		 			if(!(AJS.$(calendarDays[j]).hasClass('selected') || AJS.$(calendarDays[j]).hasClass('othermonth') || AJS.$(calendarDays[j]).hasClass('logged'))){
+		 				calendarDays[j].className += " logged";
+		 			}
+		 		}
+		 	}
 	 	}
 	}
 	

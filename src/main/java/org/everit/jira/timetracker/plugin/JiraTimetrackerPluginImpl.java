@@ -126,6 +126,10 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
 	 */
 	private static final String JTTP_PLUGIN_SETTINGS_IS_ACTUAL_DATE = "isActualDate";
 	/**
+	 * The plugin setting is actual date key.
+	 */
+	private static final String JTTP_PLUGIN_SETTINGS_IS_COLORIG = "isColoring";
+	/**
 	 * A day in minutes.
 	 */
 	private static final int ONE_DAY_IN_MINUTES = 1440;
@@ -841,6 +845,21 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
 			// the default is the Actual Date
 			isActualDate = true;
 		}
+		Boolean isColoring = null;
+		if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_IS_COLORIG) != null) {
+			if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_IS_COLORIG).equals(
+					"true")) {
+				isColoring = true;
+			} else if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_IS_COLORIG)
+					.equals("false")) {
+				isColoring = false;
+			}
+
+		} else {
+			// the default coloring is TRUE
+			isColoring = true;
+		}
+
 		// SET startTime Change the defaulte value is 1
 		int startTimeChange = 1;
 		if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_START_TIME_CHANGE) != null) {
@@ -869,7 +888,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
 		pluginSettingsValues = new PluginSettingsValues(isPopup, isActualDate,
 				summaryFilteredIssuePatterns, collectorIssuePatterns,
 				excludeDatesString, includeDatesString, startTimeChange,
-				endTimeChange);
+				endTimeChange, isColoring);
 		return pluginSettingsValues;
 	}
 
@@ -886,6 +905,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
 				Integer.toString(pluginSettingsParameters.isCalendarPopup()));
 		pluginSettings.put(JTTP_PLUGIN_SETTINGS_IS_ACTUAL_DATE,
 				pluginSettingsParameters.isActualDate().toString());
+		pluginSettings.put(JTTP_PLUGIN_SETTINGS_IS_COLORIG,
+				pluginSettingsParameters.isColoring().toString());
 		pluginSettings
 				.put(JTTP_PLUGIN_SETTINGS_START_TIME_CHANGE,
 						Integer.toString(pluginSettingsParameters

@@ -71,9 +71,18 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
 	 * The calenar show the actualDate or the last unfilled date.
 	 */
 	private boolean isActualDate;
-	// TODO JAVADOC
+	/**
+	 * The pluginSetting startTime value.
+	 */
 	private int startTime;
+	/**
+	 * The pluginSetting endTime value.
+	 */
 	private int endTime;
+	/**
+	 * The pluginSetting isColoring value.
+	 */
+	private boolean isColoring;
 	/**
 	 * The issue key.
 	 */
@@ -204,6 +213,7 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
 		isActualDate = pluginSettingsValues.isActualDate();
 		startTime = pluginSettingsValues.getStartTimeChange();
 		endTime = pluginSettingsValues.getEndTimeChange();
+		isColoring = pluginSettingsValues.isColoring();
 
 		issuesPatterns = pluginSettingsValues.getFilteredSummaryIssues();
 		for (Pattern issueId : issuesPatterns) {
@@ -308,7 +318,7 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
 	public void savePluginSettings() {
 		PluginSettingsValues pluginSettingValues = new PluginSettingsValues(
 				isPopup, isActualDate, issuesPatterns, collectorIssuePatterns,
-				excludeDates, includeDates, startTime, endTime);
+				excludeDates, includeDates, startTime, endTime, isColoring);
 		jiraTimetrackerPlugin.savePluginSettings(pluginSettingValues);
 	}
 

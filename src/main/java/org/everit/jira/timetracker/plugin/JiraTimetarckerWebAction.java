@@ -225,6 +225,10 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 	 */
 	private boolean isActualDate;
 	/**
+	 * The calendar highlights coloring function is active or not.
+	 */
+	private boolean isColoring;
+	/**
 	 * The filtered Issues id.
 	 */
 	private List<Pattern> issuesRegex;
@@ -554,11 +558,6 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 		return dateFormated;
 	}
 
-	// TODO check
-	// public Date getDatePCalendar() {
-	// return datePCalendar;
-	// }
-
 	public String getDayFilteredSummary() {
 		return dayFilteredSummary;
 	}
@@ -593,6 +592,10 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 
 	public List<String> getExcludeDays() {
 		return excludeDays;
+	}
+
+	public boolean getIsColoring() {
+		return isColoring;
 	}
 
 	public boolean getIsEdit() {
@@ -699,6 +702,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 		issuesRegex = pluginSettingsValues.getFilteredSummaryIssues();
 		startTimeChange = pluginSettingsValues.getStartTimeChange();
 		endTimeChange = pluginSettingsValues.getEndTimeChange();
+		isColoring = pluginSettingsValues.isColoring();
 	}
 
 	/**
@@ -808,6 +812,10 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 		issues = new ArrayList<Issue>();
 	}
 
+	public void setColoring(final boolean isColoring) {
+		this.isColoring = isColoring;
+	}
+
 	public void setComment(final String comment) {
 		this.comment = comment;
 	}
@@ -819,11 +827,6 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 	public void setDateFormated(final String dateFormated) {
 		this.dateFormated = dateFormated;
 	}
-
-	// TODO check
-	// public void setDatePCalendar(final Date datePCalendar) {
-	// this.datePCalendar = datePCalendar;
-	// }
 
 	public void setDayFilteredSummary(final String dayFilteredSummary) {
 		this.dayFilteredSummary = dayFilteredSummary;

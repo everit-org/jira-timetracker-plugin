@@ -61,6 +61,8 @@ public class PluginSettingsValues {
 
 	private String includeDates;
 
+	private Boolean isColoring;
+
 	public PluginSettingsValues() {
 
 	}
@@ -70,7 +72,7 @@ public class PluginSettingsValues {
 			final List<Pattern> filteredSummaryIssues,
 			final List<Pattern> collectorIssues, final String excludeDates,
 			final String includeDates, final int startTimeChange,
-			final int endTimeChange) {
+			final int endTimeChange, final boolean isColoring) {
 		super();
 		this.isCalendarPopup = isCalendarPopup;
 		this.isActualDate = isActualDate;
@@ -80,6 +82,7 @@ public class PluginSettingsValues {
 		this.includeDates = includeDates;
 		this.startTimeChange = startTimeChange;
 		this.endTimeChange = endTimeChange;
+		this.isColoring = isColoring;
 	}
 
 	public List<Pattern> getCollectorIssues() {
@@ -102,6 +105,10 @@ public class PluginSettingsValues {
 		return includeDates;
 	}
 
+	public int getIsCalendarPopup() {
+		return isCalendarPopup;
+	}
+
 	public int getStartTimeChange() {
 		return startTimeChange;
 	}
@@ -114,6 +121,10 @@ public class PluginSettingsValues {
 		return isCalendarPopup;
 	}
 
+	public Boolean isColoring() {
+		return isColoring;
+	}
+
 	public void setActualDate(final boolean actualDateOrLastWorklogDate) {
 		isActualDate = actualDateOrLastWorklogDate;
 	}
@@ -124,6 +135,10 @@ public class PluginSettingsValues {
 
 	public void setCollectorIssues(final List<Pattern> collectorIssues) {
 		this.collectorIssues = collectorIssues;
+	}
+
+	public void setColoring(final boolean isColoring) {
+		this.isColoring = isColoring;
 	}
 
 	public void setEndTimeChange(final int endTimeChange) {
@@ -141,6 +156,10 @@ public class PluginSettingsValues {
 
 	public void setIncludeDates(final String includeDates) {
 		this.includeDates = includeDates;
+	}
+
+	public void setIsCalendarPopup(final int isCalendarPopup) {
+		this.isCalendarPopup = isCalendarPopup;
 	}
 
 	public void setStartTimeChange(final int startTimeChange) {

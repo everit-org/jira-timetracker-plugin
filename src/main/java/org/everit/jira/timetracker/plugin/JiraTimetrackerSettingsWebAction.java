@@ -70,11 +70,18 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 	 * The message parameter.
 	 */
 	private String messageParameter = "";
-
+	/**
+	 * The startTime.
+	 */
 	private String startTime;
-
+	/**
+	 * The endTime.
+	 */
 	private String endTime;
-
+	/**
+	 * The calendar highlights coloring.
+	 */
+	private boolean isColoring;
 	/**
 	 * Logger.
 	 */
@@ -149,6 +156,10 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 		return isActualDate;
 	}
 
+	public boolean getIsColoring() {
+		return isColoring;
+	}
+
 	public int getIsPopup() {
 		return isPopup;
 	}
@@ -183,6 +194,7 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 		includeDates = pluginSettingsValues.getIncludeDates();
 		startTime = Integer.toString(pluginSettingsValues.getStartTimeChange());
 		endTime = Integer.toString(pluginSettingsValues.getEndTimeChange());
+		isColoring = pluginSettingsValues.isColoring();
 	}
 
 	/**
@@ -210,6 +222,12 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 			isActualDate = true;
 		} else {
 			isActualDate = false;
+		}
+		String[] isColoringValue = request.getParameterValues("isColoring");
+		if (isColoringValue != null) {
+			isColoring = true;
+		} else {
+			isColoring = false;
 		}
 		try {
 			if (validateTimeChange(startTimeValue[0])) {
@@ -244,8 +262,12 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 		PluginSettingsValues pluginSettingValues = new PluginSettingsValues(
 				isPopup, isActualDate, issuesPatterns, collectorIssuePatterns,
 				excludeDates, includeDates, Integer.valueOf(startTime),
-				Integer.valueOf(endTime));
+				Integer.valueOf(endTime), isColoring);
 		jiraTimetrackerPlugin.savePluginSettings(pluginSettingValues);
+	}
+
+	public void setColoring(final boolean isColoring) {
+		this.isColoring = isColoring;
 	}
 
 	public void setEndTime(final String endTime) {
