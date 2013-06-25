@@ -89,7 +89,6 @@
 $webResourceManager.requireResource("jira.webresources:global-static")
 $webResourceManager.requireResource("jira.webresources:calendar")
 $webResourceManager.requireResource("jira.webresources:calendar-en")
-
 <form name="jttpForm"  method="post"
 					#if($isEdit) action="JiraTimetarckerWebAction.jspa?editedWorklogId=$editedWorklogId&dateFormated=$dateFormated" 
 					#elseif($isEditAll) action="JiraTimetarckerWebAction.jspa?editAllIds=$editAllIds&dateFormated=$dateFormated" 
@@ -479,8 +478,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 	</div>
 	<script>
 		window.onload = function() {
-			document.getElementById("startTime").scrollLeft=0;
-			document.getElementById("startTime").scrollIntoView();
+			document.getElementById('inputfields').scrollIntoView(allignWithTop=false);
 			setExcludeDaysToWeekend();
 			setLoggedDaysDesign();
  			document.getElementById("startTime").focus();
