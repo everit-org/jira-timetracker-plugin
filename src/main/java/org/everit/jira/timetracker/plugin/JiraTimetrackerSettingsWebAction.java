@@ -28,6 +28,7 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
+import org.everit.jira.timetracker.plugin.dto.CalendarSettingsValues;
 import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
 
 import com.atlassian.jira.web.action.JiraWebActionSupport;
@@ -260,9 +261,9 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 	 */
 	public void savePluginSettings() {
 		PluginSettingsValues pluginSettingValues = new PluginSettingsValues(
-				isPopup, isActualDate, issuesPatterns, collectorIssuePatterns,
-				excludeDates, includeDates, Integer.valueOf(startTime),
-				Integer.valueOf(endTime), isColoring);
+				new CalendarSettingsValues(isPopup, isActualDate, excludeDates, includeDates,
+						isColoring), issuesPatterns, collectorIssuePatterns, Integer.valueOf(startTime),
+				Integer.valueOf(endTime));
 		jiraTimetrackerPlugin.savePluginSettings(pluginSettingValues);
 	}
 

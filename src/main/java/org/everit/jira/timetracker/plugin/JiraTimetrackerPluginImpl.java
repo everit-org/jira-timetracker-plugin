@@ -40,6 +40,7 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 import org.everit.jira.timetracker.plugin.dto.ActionResult;
 import org.everit.jira.timetracker.plugin.dto.ActionResultStatus;
+import org.everit.jira.timetracker.plugin.dto.CalendarSettingsValues;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklogComparator;
 import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
@@ -885,10 +886,9 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
 			}
 		}
 		// Here set the other values
-		pluginSettingsValues = new PluginSettingsValues(isPopup, isActualDate,
-				summaryFilteredIssuePatterns, collectorIssuePatterns,
-				excludeDatesString, includeDatesString, startTimeChange,
-				endTimeChange, isColoring);
+		pluginSettingsValues = new PluginSettingsValues(new CalendarSettingsValues(isPopup, isActualDate, excludeDatesString, includeDatesString, isColoring), summaryFilteredIssuePatterns,
+				collectorIssuePatterns, startTimeChange,
+				endTimeChange);
 		return pluginSettingsValues;
 	}
 

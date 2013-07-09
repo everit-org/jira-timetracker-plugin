@@ -67,22 +67,20 @@ public class PluginSettingsValues {
 
 	}
 
-	public PluginSettingsValues(final int isCalendarPopup,
-			final boolean isActualDate,
+	public PluginSettingsValues(CalendarSettingsValues calendarSettingValues,
 			final List<Pattern> filteredSummaryIssues,
-			final List<Pattern> collectorIssues, final String excludeDates,
-			final String includeDates, final int startTimeChange,
-			final int endTimeChange, final boolean isColoring) {
+			final List<Pattern> collectorIssues,
+			final int startTimeChange, final int endTimeChange) {
 		super();
-		this.isCalendarPopup = isCalendarPopup;
-		this.isActualDate = isActualDate;
+		this.isCalendarPopup = calendarSettingValues.getIsCalendarPopup();
+		this.isActualDate = calendarSettingValues.isActualDate();
 		this.filteredSummaryIssues = filteredSummaryIssues;
 		this.collectorIssues = collectorIssues;
-		this.excludeDates = excludeDates;
-		this.includeDates = includeDates;
+		this.excludeDates = calendarSettingValues.getExcludeDates();
+		this.includeDates = calendarSettingValues.getIncludeDates();
 		this.startTimeChange = startTimeChange;
 		this.endTimeChange = endTimeChange;
-		this.isColoring = isColoring;
+		this.isColoring = calendarSettingValues.isColoring();
 	}
 
 	public List<Pattern> getCollectorIssues() {
