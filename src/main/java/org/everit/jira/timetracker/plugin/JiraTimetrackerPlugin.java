@@ -233,4 +233,17 @@ public interface JiraTimetrackerPlugin {
 	 */
 	String summary(Date startSummary, Date finishSummary, List<Pattern> issueIds)
 			throws GenericEntityException;
+
+	/**
+	 * Validate the start and end time changer buttons values. The acceptable
+	 * values: 1, 5, 10, 15, 20, 30.
+	 * 
+	 * @param changeValue
+	 *            The new value.
+	 * @return True if the value acceptable else false.
+	 * @throws NumberFormatException
+	 *             If the value can't parse to int.
+	 */
+	boolean validateTimeChange(final String changeValue)
+			throws NumberFormatException;
 }

@@ -485,7 +485,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
 		for (String exludeDate : excludeDatesSet) {
 			// TODO this if not handle the 2013-4-04 date..... this is wrong or
 			// not? .... think about it.
-			if (exludeDate.startsWith(date.substring(0, 6))) {
+			if (exludeDate.startsWith(date.substring(0, 7))) {
 				resultexcludeDays
 						.add(exludeDate.substring(exludeDate.length() - 2));
 			}
@@ -861,24 +861,32 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
 			isColoring = true;
 		}
 
-		// SET startTime Change the defaulte value is 1
-		int startTimeChange = 1;
+		// SET startTime Change the default value is 5
+		int startTimeChange = 5;
+
 		if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_START_TIME_CHANGE) != null) {
 			try {
 				startTimeChange = Integer.valueOf(pluginSettings.get(
 						JTTP_PLUGIN_SETTINGS_START_TIME_CHANGE).toString());
+				if (!validateTimeChange(Integer.toString(startTimeChange))) {
+					startTimeChange = 5;
+				}
 			} catch (NumberFormatException e) {
 				LOGGER.error(
 						"Wrong formated startTime change value. Set the default value (1).",
 						e);
 			}
 		}
-		// SET endtTime Change the defaulte value is 1
-		int endTimeChange = 1;
+		// SET endtTime Change the defaulte value is 5
+		int endTimeChange = 5;
+
 		if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_END_TIME_CHANGE) != null) {
 			try {
 				endTimeChange = Integer.valueOf(pluginSettings.get(
 						JTTP_PLUGIN_SETTINGS_END_TIME_CHANGE).toString());
+				if (!validateTimeChange(Integer.toString(endTimeChange))) {
+					endTimeChange = 5;
+				}
 			} catch (NumberFormatException e) {
 				LOGGER.error(
 						"Wrong formated startTime change value. Set the default value (1).",
@@ -886,9 +894,11 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
 			}
 		}
 		// Here set the other values
-		pluginSettingsValues = new PluginSettingsValues(new CalendarSettingsValues(isPopup, isActualDate, excludeDatesString, includeDatesString, isColoring), summaryFilteredIssuePatterns,
-				collectorIssuePatterns, startTimeChange,
-				endTimeChange);
+		pluginSettingsValues = new PluginSettingsValues(
+				new CalendarSettingsValues(isPopup, isActualDate,
+						excludeDatesString, includeDatesString, isColoring),
+				summaryFilteredIssuePatterns, collectorIssuePatterns,
+				startTimeChange, endTimeChange);
 		return pluginSettingsValues;
 	}
 
@@ -1008,5 +1018,27 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
 			timeSpent += worklog.getLong("timeworked").longValue();
 		}
 		return DateTimeConverterUtil.secondConvertToString(timeSpent);
+	}
+
+	@Override
+	public boolean validateTimeChange(final String changeValue)
+			throws NumberFormatException {
+		int changeValueInt = Integer.valueOf(changeValue);
+
+		switch (changeValueInt) {
+		case 5:
+			return true;
+		case 10:
+			return true;
+		case 15:
+			return true;
+		case 20:
+			return true;
+		case 30:
+			return true;
+		default:
+			return false;
+		}
+
 	}
 }

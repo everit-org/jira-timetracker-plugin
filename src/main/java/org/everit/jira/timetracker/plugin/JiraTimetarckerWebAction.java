@@ -441,6 +441,10 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 			return editAllAction();
 		}
 
+		if (issueSelectValue != null) {
+			issueKey = issueSelectValue[0];
+		}
+
 		String validateInputFieldsResult = validateInputFields();
 		if (validateInputFieldsResult.equals(ERROR)) {
 			return SUCCESS;
@@ -451,8 +455,6 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 			return SUCCESS;
 		}
 
-		issueKey = issueSelectValue[0];
-
 		if (request.getParameter("edit") != null) {
 			return editAction();
 		}
@@ -461,6 +463,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 				issueKey, comment, dateFormated, startTimeValue[0], timeSpent);
 		if (createResult.getStatus() == ActionResultStatus.FAIL) {
 			message = createResult.getMessage();
+			messageParameter = createResult.getMessageParameter();
 			return SUCCESS;
 		}
 		endTime = DateTimeConverterUtil.dateTimeToString(new Date());
@@ -951,7 +954,13 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 			return ERROR;
 		}
 		comment = commentsValue[0];
-
+		if (comment != null) {
+			comment = comment.replace("\"", "\\\"");
+			comment = comment.replace("\r", "\\r");
+			comment = comment.replace("\n", "\\n");
+		} else {
+			comment = "";
+		}
 		if (!DateTimeConverterUtil.isValidTime(startTimeValue[0])) {
 			message = "plugin.invalid_startTime";
 			return ERROR;

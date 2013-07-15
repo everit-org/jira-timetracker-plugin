@@ -231,7 +231,7 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 			isColoring = false;
 		}
 		try {
-			if (validateTimeChange(startTimeValue[0])) {
+			if (jiraTimetrackerPlugin.validateTimeChange(startTimeValue[0])) {
 				startTime = startTimeValue[0];
 			} else {
 				message = "plugin.setting.start.time.change.wrong";
@@ -241,7 +241,7 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 			messageParameter = startTimeValue[0];
 		}
 		try {
-			if (validateTimeChange(endTimeValue[0])) {
+			if (jiraTimetrackerPlugin.validateTimeChange(endTimeValue[0])) {
 				endTime = endTimeValue[0];
 			} else {
 				message = "plugin.setting.end.time.change.wrong";
@@ -261,8 +261,9 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 	 */
 	public void savePluginSettings() {
 		PluginSettingsValues pluginSettingValues = new PluginSettingsValues(
-				new CalendarSettingsValues(isPopup, isActualDate, excludeDates, includeDates,
-						isColoring), issuesPatterns, collectorIssuePatterns, Integer.valueOf(startTime),
+				new CalendarSettingsValues(isPopup, isActualDate, excludeDates,
+						includeDates, isColoring), issuesPatterns,
+				collectorIssuePatterns, Integer.valueOf(startTime),
 				Integer.valueOf(endTime));
 		jiraTimetrackerPlugin.savePluginSettings(pluginSettingValues);
 	}
@@ -297,39 +298,6 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 
 	public void setStartTime(final String startTime) {
 		this.startTime = startTime;
-	}
-
-	/**
-	 * Validate the start and end time changer buttons values. The acceptable
-	 * values: 1, 5, 10, 15, 20, 30.
-	 * 
-	 * @param changeValue
-	 *            The new value.
-	 * @return True if the value acceptable else false.
-	 * @throws NumberFormatException
-	 *             If the value can't parse to int.
-	 */
-	private boolean validateTimeChange(final String changeValue)
-			throws NumberFormatException {
-		int changeValueInt = Integer.valueOf(changeValue);
-
-		switch (changeValueInt) {
-		case 1:
-			return true;
-		case 5:
-			return true;
-		case 10:
-			return true;
-		case 15:
-			return true;
-		case 20:
-			return true;
-		case 30:
-			return true;
-		default:
-			return false;
-		}
-
 	}
 
 }

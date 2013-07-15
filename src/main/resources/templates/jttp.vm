@@ -31,9 +31,18 @@
 	}
    
     .calendar tbody td.logged{
-    	background-color: #FFFF45;
+    	background-color:  #FFFFC2;
     	font-weight: 500;
     }
+    
+    .calendar tbody td.othermonth.oweekend{
+    	color:  #ec8484  ;
+    }
+    
+    .calendar tbody td.othermonth{
+    	color:  #7e7a7a  ;
+    }
+    
 </style>
 <script>
 	
@@ -172,7 +181,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 				</tr>
 				<tr>
 					<td align="right" style="width: 15%" >	
-						#if($issuesId.size() != 0)
+						#if($issuesRegex.size() != 0)
 									$i18n.getText("plugin.real.work") $i18n.getText("plugin.summary") 
 								</td>
 								<td align="right" style="width: 5%">
@@ -234,35 +243,49 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 						                           <input id="startTime"  type="text" name="startTime" value="$startTime" tabindex="1" style="margin-right: 5px; width: 100px;"/> 
 						                        </td>
 						                        <td style="width: 110px;">
-						                           <input id="startChangeDec"  type="button" name="startChangeDec" value="<" class="button" width: 20px;" title="$i18n.getText('plugin.start.time.dec.title')$startTimeChange min."/>
 						                           <input id="startNow"  type="button" name="startNow" value="$i18n.getText('plugin.now')" class="button" width: 40px;"/>
-						                           <input id="startChangeInc"  type="button" name="startNow" value=">" class="button" style="margin-right: 30px; width: 20px;"  title="$i18n.getText('plugin.start.time.inc.title')$startTimeChange min."/>
 						                           <script>
+						                           		var startState = 0;
 														AJS.$("#startNow").click(function() {
-					                   						var currentTime = new Date();
+					                   						if(startState == 0){
+					                   							setStartNow();
+					                   						}else if(startState == 1){
+					                   						 	setStartInc();
+					                   						}else if(startState == 2){
+					                   							setStartDecTemporary();
+					                   						}	
+					               						});
+					               						function setStartNow(){
+					               							var currentTime = new Date();
 															var hour = currentTime.getHours();
 															var minute = currentTime.getMinutes();
+															startState = 1;
 															var now = calculateTimeForInputfileds(hour,minute);
 															AJS.$("#startTime").val(now);
-					               						 });
-					               						AJS.$("#startChangeDec").click(function() {
+					               						}
+					               						
+					               						function setStartDecTemporary(){
+					               							setStartNow();
 					               							var startTimeValParts = AJS.$("#startTime").val().split(':');
 					               							var hour = parseInt(startTimeValParts[0]);
-					               							var min = parseInt(startTimeValParts[1]);
-					               							if(min >= $startTimeChange){
+					               							var minString = startTimeValParts[1];
+					               							var min = parseInt(minString);
+					               							var minSubInt = parseInt(minString.substring(1,2));
+					               							if((minSubInt != 0) && (minSubInt != 5)){
 					               								min = min - $startTimeChange;
-					               							}else{
-					               								var div = $startTimeChange - min;
-					               								min = 60 - div;
-					               								hour = hour - 1;
-					               								if(hour < 0){
-					               								 hour = 23;
-					               								}
+					               								if(minSubInt < 5){
+						               								 	min = min + (5-minSubInt);
+						               							}else if(minSubInt > 5){
+						               								  	min = min + (10-minSubInt);
+						               							}
+					               								startState = 0;
 					               							}
 					               							var time = calculateTimeForInputfileds(hour,min);
 															AJS.$("#startTime").val(time);	
-					               						}); 
-					               						AJS.$("#startChangeInc").click(function() {
+					               							
+					               						}
+					               						function setStartInc(){
+					               							setStartNow();
 					               							var startTimeValParts = AJS.$("#startTime").val().split(':');
 					               							var hour = parseInt(startTimeValParts[0]);
 					               							var min = parseInt(startTimeValParts[1]);
@@ -274,44 +297,87 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 					               									hour = 0;
 					               								} 
 					               							}
+					               							var minString = min.toString();
+					               							var minSubInt;
+					               							if(minString.length > 1){
+					               							 minSubInt = parseInt(minString.substring(1,2));
+					               							}else{
+					               							 minSubInt = min;
+					               							}
+					               							if(minSubInt >= 5){
+					               								min = min - (minSubInt - 5);
+					               							}else{
+					               								min = min - minSubInt;
+					               							}
+					               							startState = 2;
 															var time = calculateTimeForInputfileds(hour,min);
-															AJS.$("#startTime").val(time);	
-					               						}); 
+															AJS.$("#startTime").val(time);
+					               						}  
 													</script>
 						                        </td>
 												<td  style="width: 110px">
 						                    	 	<input id="endTime"  type="text" name="endTime" value="$endTime" tabindex="2"  style="margin-right: 5px; width: 100px"/> 
 						                    	 </td>
 						                    	 <td style="width: 85px;">
-						                    	   <input id="endChangeDec"  type="button" name="endChangeDec" value="<" class="button" width: 20px;" title="$i18n.getText('plugin.end.time.dec.title')$endTimeChange min."/>
 						                    	   <input id="endNow"  type="button" name="endNow" value="$i18n.getText('plugin.now')" class="button" width: 40px;"/>
-						                    	   <input id="endChangeInc"  type="button" name="endChangeInc" value=">" class="button" style="margin-right: 5px; width: 20px;" title="$i18n.getText('plugin.end.time.inc.title')$endTimeChange min."/>
 						                           <script>
+						                           		var endState = 0;
 														AJS.$("#endNow").click(function() {
-					                   						var currentTime = new Date();
+					                   						if(endState == 0){
+					                   							setEndNow();
+					                   						}else if(endState == 1){
+					                   						 	setEndInc();
+					                   						}else if(endState == 2){
+					                   							setEndDecTemporary();
+					                   						}	
+					               						 });
+					               						 function setEndNow(){
+					               						 	var currentTime = new Date();
 															var hour = currentTime.getHours();
 															var minute = currentTime.getMinutes();
+															endState = 1;
 															var now =calculateTimeForInputfileds(hour,minute);
 															AJS.$("#endTime").val(now);
-					               						 });
-					               						 AJS.$("#endChangeDec").click(function() {
+					               						 }
+					               						
+					               						 function setEndDecTemporary(){
+					               							setEndNow();
 					               							var endTimeValParts = AJS.$("#endTime").val().split(':');
 					               							var hour = parseInt(endTimeValParts[0]);
-					               							var min = parseInt(endTimeValParts[1]);
-					               							if(min >= $startTimeChange){
+					               							var minString = endTimeValParts[1];
+					               							var min = parseInt(minString);
+					               							var minSubInt = parseInt(minString.substring(1,2));
+					               							if((minSubInt != 0) && (minSubInt != 5)){
 					               								min = min - $endTimeChange;
-					               							}else{
-					               								var div = $endTimeChange - min;
-					               								min = 60 - div;
-					               								hour = hour - 1;
-					               								if(hour < 0){
-					               								 hour = 23;
+					               								var checkHour = false;
+					               								if(min < 0){
+					               									min = 60 + min;
+					               									checkHour = true;
+					               									minSubInt =  parseInt(min.toString().substring(1,2));;
 					               								}
+					               								if(minSubInt < 5){
+						               								 	min = min + (5-minSubInt);
+						               							}else if(minSubInt > 5){
+						               								  	min = min + (10-minSubInt);
+						               							}
+						               							if(checkHour){
+						               								if(min != 60){
+						               									hour = hour - 1;
+						               									if(hour < 0){
+						               								 		hour = 23;
+						               									}
+						               								}else{
+						               								 	min = 0;
+						               								} 
+						               							}
+					               								endState = 0;
 					               							}
 					               							var time = calculateTimeForInputfileds(hour,min);
-															AJS.$("#endTime").val(time);	
-					               						}); 
-					               						AJS.$("#endChangeInc").click(function() {
+															AJS.$("#endTime").val(time);
+					               							
+					               						}
+					               						function setEndInc(){
+					               							setEndNow();
 					               							var endTimeValParts = AJS.$("#endTime").val().split(':');
 					               							var hour = parseInt(endTimeValParts[0]);
 					               							var min = parseInt(endTimeValParts[1]);
@@ -323,9 +389,22 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 					               									hour = 0;
 					               								} 
 					               							}
+					               							var minString = min.toString();
+					               							var minSubInt;
+					               							if(minString.length > 1){
+					               							 minSubInt = parseInt(minString.substring(1,2));
+					               							}else{
+					               							 minSubInt = min;
+					               							}
+					               							if(minSubInt >= 5){
+					               								min = min - (minSubInt - 5);
+					               							}else{
+					               								min = min - minSubInt;
+					               							}
+					               							endState = 2;
 															var time = calculateTimeForInputfileds(hour,min);
-															AJS.$("#endTime").val(time);	
-					               						}); 
+															AJS.$("#endTime").val(time);
+					               						}  
 													</script>
 						                    	 </td>
 						                    	 <td  style="width: 120px" >
