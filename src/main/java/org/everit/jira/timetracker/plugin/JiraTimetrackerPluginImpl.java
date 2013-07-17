@@ -252,7 +252,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
 		MutableIssue issue = issueManager.getIssueObject(issueId);
 		if (issue == null) {
 			return new ActionResult(ActionResultStatus.FAIL,
-					"plugin.invalide_issue", issueId);
+					"plugin.invalid_issue", issueId);
 		}
 		PermissionManager permissionManager = ComponentManager.getInstance()
 				.getPermissionManager();

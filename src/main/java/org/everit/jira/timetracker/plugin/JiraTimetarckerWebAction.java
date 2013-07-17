@@ -441,9 +441,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 			return editAllAction();
 		}
 
-		if (issueSelectValue != null) {
-			issueKey = issueSelectValue[0];
-		}
+		setFieldsValue();
 
 		String validateInputFieldsResult = validateInputFields();
 		if (validateInputFieldsResult.equals(ERROR)) {
@@ -875,6 +873,37 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 		this.excludeDays = excludeDays;
 	}
 
+	private void setFieldsValue() {
+		// TODO javadoc & impl
+		String[] issueSelectValue = request.getParameterValues("issueSelect");
+		String[] endTimeValue = request.getParameterValues("endTime");
+		String[] durationTimeValue = request.getParameterValues("durationTime");
+		String[] startTimeValue = request.getParameterValues("startTime");
+		String[] commentsValue = request.getParameterValues("comments");
+		if (issueSelectValue != null) {
+			issueKey = issueSelectValue[0];
+		}
+		if (startTimeValue != null) {
+			startTime = startTimeValue[0];
+		}
+		if (endTimeValue != null) {
+			endTime = endTimeValue[0];
+		}
+		if (durationTimeValue != null) {
+			durationTime = durationTimeValue[0];
+		}
+		if (commentsValue != null) {
+			comment = commentsValue[0];
+			if (comment != null) {
+				comment = comment.replace("\"", "\\\"");
+				comment = comment.replace("\r", "\\r");
+				comment = comment.replace("\n", "\\n");
+			} else {
+				comment = "";
+			}
+		}
+	}
+
 	public void setIssueKey(final String issueKey) {
 		this.issueKey = issueKey;
 	}
@@ -953,14 +982,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 		if (commentsValue[0] == null) {
 			return ERROR;
 		}
-		comment = commentsValue[0];
-		if (comment != null) {
-			comment = comment.replace("\"", "\\\"");
-			comment = comment.replace("\r", "\\r");
-			comment = comment.replace("\n", "\\n");
-		} else {
-			comment = "";
-		}
+
 		if (!DateTimeConverterUtil.isValidTime(startTimeValue[0])) {
 			message = "plugin.invalid_startTime";
 			return ERROR;
