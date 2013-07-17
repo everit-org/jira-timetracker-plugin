@@ -27,94 +27,141 @@ import java.util.regex.Pattern;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
 
 /**
- * PluginSettingsValues class contains the result of the {@link JiraTimetrackerPlugin} loadPluginSetting method.
+ * PluginSettingsValues class contains the result of the
+ * {@link JiraTimetrackerPlugin} loadPluginSetting method.
  */
 public class PluginSettingsValues {
 
-    /**
-     * The plugin calendar is popup.
-     */
-    private int isCalendarPopup;
+	/**
+	 * The plugin calendar is popup.
+	 */
+	private int isCalendarPopup;
 
-    /**
-     * The plugin calendar show the actual date when start or the latest day what not contains worklog.
-     */
-    private Boolean isActualDate;
-    /**
-     * The non working issues list.
-     */
-    private List<Pattern> filteredSummaryIssues;
-    /**
-     * The collector issues pattern list;
-     */
-    private List<Pattern> collectorIssues;
+	/**
+	 * The plugin calendar show the actual date when start or the latest day
+	 * what not contains worklog.
+	 */
+	private Boolean isActualDate;
+	/**
+	 * The non working issues list.
+	 */
+	private List<Pattern> filteredSummaryIssues;
+	/**
+	 * The collector issues pattern list;
+	 */
+	private List<Pattern> collectorIssues;
 
-    private String excludeDates;
+	// TODO javadoc !!! WHY MISSING!!!
 
-    private String includeDates;
+	private int startTimeChange;
 
-    public PluginSettingsValues() {
+	private int endTimeChange;
 
-    }
+	private String excludeDates;
 
-    public PluginSettingsValues(final int isCalendarPopup, final boolean isActualDate,
-            final List<Pattern> filteredSummaryIssues, final List<Pattern> collectorIssues,
-            final String excludeDates, final String includeDates) {
-        super();
-        this.isCalendarPopup = isCalendarPopup;
-        this.isActualDate = isActualDate;
-        this.filteredSummaryIssues = filteredSummaryIssues;
-        this.collectorIssues = collectorIssues;
-        this.excludeDates = excludeDates;
-        this.includeDates = includeDates;
-    }
+	private String includeDates;
 
-    public List<Pattern> getCollectorIssues() {
-        return collectorIssues;
-    }
+	private Boolean isColoring;
 
-    public String getExcludeDates() {
-        return excludeDates;
-    }
+	public PluginSettingsValues() {
 
-    public List<Pattern> getFilteredSummaryIssues() {
-        return filteredSummaryIssues;
-    }
+	}
 
-    public String getIncludeDates() {
-        return includeDates;
-    }
+	public PluginSettingsValues(CalendarSettingsValues calendarSettingValues,
+			final List<Pattern> filteredSummaryIssues,
+			final List<Pattern> collectorIssues,
+			final int startTimeChange, final int endTimeChange) {
+		super();
+		this.isCalendarPopup = calendarSettingValues.getIsCalendarPopup();
+		this.isActualDate = calendarSettingValues.isActualDate();
+		this.filteredSummaryIssues = filteredSummaryIssues;
+		this.collectorIssues = collectorIssues;
+		this.excludeDates = calendarSettingValues.getExcludeDates();
+		this.includeDates = calendarSettingValues.getIncludeDates();
+		this.startTimeChange = startTimeChange;
+		this.endTimeChange = endTimeChange;
+		this.isColoring = calendarSettingValues.isColoring();
+	}
 
-    public Boolean isActualDate() {
-        return isActualDate;
-    }
+	public List<Pattern> getCollectorIssues() {
+		return collectorIssues;
+	}
 
-    public int isCalendarPopup() {
-        return isCalendarPopup;
-    }
+	public int getEndTimeChange() {
+		return endTimeChange;
+	}
 
-    public void setActualDate(final boolean actualDateOrLastWorklogDate) {
-        isActualDate = actualDateOrLastWorklogDate;
-    }
+	public String getExcludeDates() {
+		return excludeDates;
+	}
 
-    public void setCalendarPopup(final int isCalendarPopup) {
-        this.isCalendarPopup = isCalendarPopup;
-    }
+	public List<Pattern> getFilteredSummaryIssues() {
+		return filteredSummaryIssues;
+	}
 
-    public void setCollectorIssues(final List<Pattern> collectorIssues) {
-        this.collectorIssues = collectorIssues;
-    }
+	public String getIncludeDates() {
+		return includeDates;
+	}
 
-    public void setExcludeDates(final String excludeDates) {
-        this.excludeDates = excludeDates;
-    }
+	public int getIsCalendarPopup() {
+		return isCalendarPopup;
+	}
 
-    public void setFilteredSummaryIssues(final List<Pattern> filteredSummaryIssues) {
-        this.filteredSummaryIssues = filteredSummaryIssues;
-    }
+	public int getStartTimeChange() {
+		return startTimeChange;
+	}
 
-    public void setIncludeDates(final String includeDates) {
-        this.includeDates = includeDates;
-    }
+	public Boolean isActualDate() {
+		return isActualDate;
+	}
+
+	public int isCalendarPopup() {
+		return isCalendarPopup;
+	}
+
+	public Boolean isColoring() {
+		return isColoring;
+	}
+
+	public void setActualDate(final boolean actualDateOrLastWorklogDate) {
+		isActualDate = actualDateOrLastWorklogDate;
+	}
+
+	public void setCalendarPopup(final int isCalendarPopup) {
+		this.isCalendarPopup = isCalendarPopup;
+	}
+
+	public void setCollectorIssues(final List<Pattern> collectorIssues) {
+		this.collectorIssues = collectorIssues;
+	}
+
+	public void setColoring(final boolean isColoring) {
+		this.isColoring = isColoring;
+	}
+
+	public void setEndTimeChange(final int endTimeChange) {
+		this.endTimeChange = endTimeChange;
+	}
+
+	public void setExcludeDates(final String excludeDates) {
+		this.excludeDates = excludeDates;
+	}
+
+	public void setFilteredSummaryIssues(
+			final List<Pattern> filteredSummaryIssues) {
+		this.filteredSummaryIssues = filteredSummaryIssues;
+	}
+
+	public void setIncludeDates(final String includeDates) {
+		this.includeDates = includeDates;
+	}
+
+	public void setIsCalendarPopup(final int isCalendarPopup) {
+		this.isCalendarPopup = isCalendarPopup;
+	}
+
+	public void setStartTimeChange(final int startTimeChange) {
+		this.startTimeChange = startTimeChange;
+	}
 
 }
