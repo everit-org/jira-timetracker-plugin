@@ -34,326 +34,375 @@ import com.atlassian.jira.web.action.JiraWebActionSupport;
 
 public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
-    /**
-     * Serial version UID.
-     */
-    private static final long serialVersionUID = 1L;
-    /**
-     * Logger.
-     */
-    private static final Logger LOGGER = Logger.getLogger(JiraTimetrackerWorklogsWebAction.class);
-    /**
-     * The {@link JiraTimetrackerPlugin}.
-     */
-    private JiraTimetrackerPlugin jiraTimetrackerPlugin;
+	/**
+	 * Serial version UID.
+	 */
+	private static final long serialVersionUID = 1L;
+	/**
+	 * Logger.
+	 */
+	private static final Logger LOGGER = Logger
+			.getLogger(JiraTimetrackerWorklogsWebAction.class);
+	/**
+	 * The {@link JiraTimetrackerPlugin}.
+	 */
+	private JiraTimetrackerPlugin jiraTimetrackerPlugin;
 
-    /**
-     * The number of rows in the dates table.
-     */
-    private static final int ROW_COUNT = 20;
+	/**
+	 * The number of rows in the dates table.
+	 */
+	private static final int ROW_COUNT = 20;
 
-    private List<String> allDatesWhereNoWorklog;
+	private List<String> allDatesWhereNoWorklog;
 
-    private List<String> showDatesWhereNoWorklog;
-    /**
-     * The date.
-     */
-    private Date dateFrom = null;
-    /**
-     * The formated date.
-     */
-    private String dateFromFormated = "";
-    /**
-     * The date.
-     */
-    private Date dateTo = null;
-    /**
-     * The formated date.
-     */
-    private String dateToFormated = "";
-    /**
-     * The message.
-     */
-    private String message = "";
-    /**
-     * The message parameter.
-     */
-    private String messageParameter = "";
-    /**
-     * The message parameter.
-     */
-    private String statisticsMessageParameter = "0";
-    /**
-     * The number of pages.
-     */
-    private int numberOfPages;
+	private List<String> showDatesWhereNoWorklog;
+	/**
+	 * The date.
+	 */
+	private Date dateFrom = null;
+	/**
+	 * The formated date.
+	 */
+	private String dateFromFormated = "";
+	/**
+	 * The date.
+	 */
+	private Date dateTo = null;
+	/**
+	 * The formated date.
+	 */
+	private String dateToFormated = "";
+	/**
+	 * The message.
+	 */
+	private String message = "";
+	/**
+	 * The message parameter.
+	 */
+	private String messageParameter = "";
+	/**
+	 * The message parameter.
+	 */
+	private String statisticsMessageParameter = "0";
+	/**
+	 * The number of pages.
+	 */
+	private int numberOfPages;
 
-    /**
-     * The actual page.
-     */
-    private int actualPage;
+	/**
+	 * The actual page.
+	 */
+	private int actualPage;
 
-    /**
-     * Simple constructor.
-     * 
-     * @param jiraTimetrackerPlugin
-     *            The {@link JiraTimetrackerPlugin}.
-     */
-    public JiraTimetrackerWorklogsWebAction(final JiraTimetrackerPlugin jiraTimetrackerPlugin) {
-        this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
-    }
+	/**
+	 * The report check the worklogs time spent is equal or greater than 8
+	 * hours.
+	 */
+	public boolean checkHours = false;
+	/**
+	 * If check the worklogs spent time, then exclude the non working issues, or
+	 * not.
+	 */
+	public boolean checkNonWorkingIssues = false;
 
-    /**
-     * Count how much page need to show the dates.
-     * 
-     * @return Number of pages.
-     */
-    private int countNumberOfPages() {
-        int numberOfPages = 0;
-        numberOfPages = allDatesWhereNoWorklog.size() / ROW_COUNT;
-        if ((allDatesWhereNoWorklog.size() % ROW_COUNT) != 0) {
-            numberOfPages++;
-        }
-        return numberOfPages;
-    }
+	/**
+	 * Simple constructor.
+	 * 
+	 * @param jiraTimetrackerPlugin
+	 *            The {@link JiraTimetrackerPlugin}.
+	 */
+	public JiraTimetrackerWorklogsWebAction(
+			final JiraTimetrackerPlugin jiraTimetrackerPlugin) {
+		this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
+	}
 
-    /**
-     * Set dateFrom and dateFromFormated default value.
-     */
-    private void dateFromDefaultInit() {
-        Calendar calendarFrom = Calendar.getInstance();
-        calendarFrom.set(Calendar.MONTH, calendarFrom.get(Calendar.MONTH) - 1);
-        dateFrom = calendarFrom.getTime();
-        dateFromFormated = DateTimeConverterUtil.dateToString(dateFrom);
-    }
+	/**
+	 * Count how much page need to show the dates.
+	 * 
+	 * @return Number of pages.
+	 */
+	private int countNumberOfPages() {
+		int numberOfPages = 0;
+		numberOfPages = allDatesWhereNoWorklog.size() / ROW_COUNT;
+		if ((allDatesWhereNoWorklog.size() % ROW_COUNT) != 0) {
+			numberOfPages++;
+		}
+		return numberOfPages;
+	}
 
-    /**
-     * Handle the date change.
-     * 
-     * @throws ParseException
-     *             When can't parse the date.
-     */
-    public void dateSwitcherAction() throws ParseException {
+	/**
+	 * Set dateFrom and dateFromFormated default value.
+	 */
+	private void dateFromDefaultInit() {
+		Calendar calendarFrom = Calendar.getInstance();
+		calendarFrom.set(Calendar.MONTH, calendarFrom.get(Calendar.MONTH) - 1);
+		dateFrom = calendarFrom.getTime();
+		dateFromFormated = DateTimeConverterUtil.dateToString(dateFrom);
+	}
 
-        String[] requestDateFromArray = request.getParameterValues("dateFrom");
-        if (requestDateFromArray != null) {
-            String requestDate = request.getParameterValues("dateFrom")[0];
-            if (!requestDate.equals("")) {
-                dateFromFormated = requestDate;
-            }
-            dateFrom = DateTimeConverterUtil.stringToDate(dateFromFormated);
-        } else if ((dateFromFormated == null) && dateFromFormated.equals("")) {
-            dateFromDefaultInit();
-        } else {
-            dateFrom = DateTimeConverterUtil.stringToDate(dateFromFormated);
-        }
+	/**
+	 * Handle the date change.
+	 * 
+	 * @throws ParseException
+	 *             When can't parse the date.
+	 */
+	public void dateSwitcherAction() throws ParseException {
 
-        String[] requestDateToArray = request.getParameterValues("dateTo");
-        if (requestDateToArray != null) {
-            String requestDate = request.getParameterValues("dateTo")[0];
-            if (!requestDate.equals("")) {
-                dateToFormated = requestDate;
-            }
-            dateTo = DateTimeConverterUtil.stringToDate(dateToFormated);
-        } else if ((dateToFormated == null) && dateToFormated.equals("")) {
-            dateToDefaultInit();
-        } else {
-            dateTo = DateTimeConverterUtil.stringToDate(dateToFormated);
-        }
+		String[] requestDateFromArray = request.getParameterValues("dateFrom");
+		if (requestDateFromArray != null) {
+			String requestDate = request.getParameterValues("dateFrom")[0];
+			if (!requestDate.equals("")) {
+				dateFromFormated = requestDate;
+			}
+			dateFrom = DateTimeConverterUtil.stringToDate(dateFromFormated);
+		} else if ((dateFromFormated == null) && dateFromFormated.equals("")) {
+			dateFromDefaultInit();
+		} else {
+			dateFrom = DateTimeConverterUtil.stringToDate(dateFromFormated);
+		}
 
-        dateFromFormated = DateTimeConverterUtil.dateToString(dateFrom);
-        dateToFormated = DateTimeConverterUtil.dateToString(dateTo);
-    }
+		String[] requestDateToArray = request.getParameterValues("dateTo");
+		if (requestDateToArray != null) {
+			String requestDate = request.getParameterValues("dateTo")[0];
+			if (!requestDate.equals("")) {
+				dateToFormated = requestDate;
+			}
+			dateTo = DateTimeConverterUtil.stringToDate(dateToFormated);
+		} else if ((dateToFormated == null) && dateToFormated.equals("")) {
+			dateToDefaultInit();
+		} else {
+			dateTo = DateTimeConverterUtil.stringToDate(dateToFormated);
+		}
 
-    /**
-     * Set dateTo and dateToFormated default values.
-     */
-    private void dateToDefaultInit() {
-        Calendar calendarTo = Calendar.getInstance();
-        dateTo = calendarTo.getTime();
-        dateToFormated = DateTimeConverterUtil.dateToString(dateTo);
-    }
+		dateFromFormated = DateTimeConverterUtil.dateToString(dateFrom);
+		dateToFormated = DateTimeConverterUtil.dateToString(dateTo);
+	}
 
-    @Override
-    public String doDefault() throws ParseException {
-        boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
-        if (!isUserLogged) {
-            setReturnUrl("/secure/Dashboard.jspa");
-            return getRedirect(NONE);
-        }
-        if (dateToFormated.equals("")) {
-            dateToDefaultInit();
-        }
-        dateTo = DateTimeConverterUtil.stringToDate(dateToFormated);
-        if (dateFromFormated.equals("")) {
-            dateFromDefaultInit();
-        }
-        dateFrom = DateTimeConverterUtil.stringToDate(dateFromFormated);
-        try {
-            List<Date> dateswhereNoWorklogDate = jiraTimetrackerPlugin.getDates(dateFrom, dateTo);
-            allDatesWhereNoWorklog = new ArrayList<String>();
-            for (Date date : dateswhereNoWorklogDate) {
-                allDatesWhereNoWorklog.add(DateTimeConverterUtil.dateToString(date));
-            }
-            statisticsMessageParameter = Integer.toString(allDatesWhereNoWorklog.size());
-        } catch (GenericEntityException e) {
-            LOGGER.error("Error when try to run the query.", e);
-            return ERROR;
-        }
-        numberOfPages = countNumberOfPages();
-        actualPage = 1;
-        setShowDatesListByActualPage(actualPage);
-        return INPUT;
-    }
+	/**
+	 * Set dateTo and dateToFormated default values.
+	 */
+	private void dateToDefaultInit() {
+		Calendar calendarTo = Calendar.getInstance();
+		dateTo = calendarTo.getTime();
+		dateToFormated = DateTimeConverterUtil.dateToString(dateTo);
+	}
 
-    @Override
-    public String doExecute() throws ParseException {
-        // set variables default value back
-        boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
-        if (!isUserLogged) {
-            setReturnUrl("/secure/Dashboard.jspa");
-            return getRedirect(NONE);
-        }
-        message = "";
-        messageParameter = "";
-        statisticsMessageParameter = "0";
-        allDatesWhereNoWorklog = new ArrayList<String>();
-        showDatesWhereNoWorklog = new ArrayList<String>();
+	@Override
+	public String doDefault() throws ParseException {
+		boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
+		if (!isUserLogged) {
+			setReturnUrl("/secure/Dashboard.jspa");
+			return getRedirect(NONE);
+		}
+		if (dateToFormated.equals("")) {
+			dateToDefaultInit();
+		}
+		dateTo = DateTimeConverterUtil.stringToDate(dateToFormated);
+		if (dateFromFormated.equals("")) {
+			dateFromDefaultInit();
+		}
+		dateFrom = DateTimeConverterUtil.stringToDate(dateFromFormated);
+		try {
+			// Default check box parameter false, false
+			List<Date> dateswhereNoWorklogDate = jiraTimetrackerPlugin
+					.getDates(dateFrom, dateTo, checkHours,
+							checkNonWorkingIssues);
+			allDatesWhereNoWorklog = new ArrayList<String>();
+			for (Date date : dateswhereNoWorklogDate) {
+				allDatesWhereNoWorklog.add(DateTimeConverterUtil
+						.dateToString(date));
+			}
+			statisticsMessageParameter = Integer
+					.toString(allDatesWhereNoWorklog.size());
+		} catch (GenericEntityException e) {
+			LOGGER.error("Error when try to run the query.", e);
+			return ERROR;
+		}
+		numberOfPages = countNumberOfPages();
+		actualPage = 1;
+		setShowDatesListByActualPage(actualPage);
+		return INPUT;
+	}
 
-        String[] searchValue = request.getParameterValues("search");
-        // if not null then we have to change the dates and make a new query
-        if (searchValue != null) {
-            // set actual page default! we start the new query whit the first page
-            dateSwitcherAction();
-            actualPage = 1;
-            if (dateFrom.compareTo(dateTo) >= 0) {
-                message = "plugin.worng.dates";
-                return SUCCESS;
-            }
-        } else {
-            dateFrom = DateTimeConverterUtil.stringToDate(dateFromFormated);
-            dateTo = DateTimeConverterUtil.stringToDate(dateToFormated);
-        }
-        try {
-            List<Date> dateswhereNoWorklogDate = jiraTimetrackerPlugin.getDates(dateFrom, dateTo);
-            for (Date date : dateswhereNoWorklogDate) {
-                allDatesWhereNoWorklog.add(DateTimeConverterUtil.dateToString(date));
-            }
-            statisticsMessageParameter = Integer.toString(allDatesWhereNoWorklog.size());
-        } catch (GenericEntityException e) {
-            LOGGER.error("Error when try to run the query.", e);
-            return ERROR;
-        }
-        // check the page changer buttons
-        numberOfPages = countNumberOfPages();
-        pageChangeAction();
-        setShowDatesListByActualPage(actualPage);
-        return SUCCESS;
-    }
+	@Override
+	public String doExecute() throws ParseException {
+		// set variables default value back
+		boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
+		if (!isUserLogged) {
+			setReturnUrl("/secure/Dashboard.jspa");
+			return getRedirect(NONE);
+		}
+		message = "";
+		messageParameter = "";
+		statisticsMessageParameter = "0";
+		allDatesWhereNoWorklog = new ArrayList<String>();
+		showDatesWhereNoWorklog = new ArrayList<String>();
+		String[] searchValue = request.getParameterValues("search");
+		// if not null then we have to change the dates and make a new query
+		if (searchValue != null) {
+			// set actual page default! we start the new query whit the first
+			// page
+			dateSwitcherAction();
+			actualPage = 1;
+			if (dateFrom.compareTo(dateTo) >= 0) {
+				message = "plugin.worng.dates";
+				return SUCCESS;
+			}
+			String[] hourValue = request.getParameterValues("hour");
+			String[] nonworkingValue = request.getParameterValues("nonworking");
+			if (hourValue != null) {
+				checkHours = true;
+			}
+			if (nonworkingValue != null) {
+				checkNonWorkingIssues = true;
+			}
+		} else {
+			dateFrom = DateTimeConverterUtil.stringToDate(dateFromFormated);
+			dateTo = DateTimeConverterUtil.stringToDate(dateToFormated);
+		}
+		try {
+			List<Date> dateswhereNoWorklogDate = jiraTimetrackerPlugin
+					.getDates(dateFrom, dateTo, checkHours,
+							checkNonWorkingIssues);
+			for (Date date : dateswhereNoWorklogDate) {
+				allDatesWhereNoWorklog.add(DateTimeConverterUtil
+						.dateToString(date));
+			}
+			statisticsMessageParameter = Integer
+					.toString(allDatesWhereNoWorklog.size());
+		} catch (GenericEntityException e) {
+			LOGGER.error("Error when try to run the query.", e);
+			return ERROR;
+		}
+		// check the page changer buttons
+		numberOfPages = countNumberOfPages();
+		pageChangeAction();
+		setShowDatesListByActualPage(actualPage);
+		return SUCCESS;
+	}
 
-    public int getActualPage() {
-        return actualPage;
-    }
+	public int getActualPage() {
+		return actualPage;
+	}
 
-    public String getDateFromFormated() {
-        return dateFromFormated;
-    }
+	public boolean getCheckHours() {
+		return checkHours;
+	}
 
-    public List<String> getDateswhereNoWorklog() {
-        return allDatesWhereNoWorklog;
-    }
+	public boolean getCheckNonWorkingIssues() {
+		return checkNonWorkingIssues;
+	}
 
-    public String getDateToFormated() {
-        return dateToFormated;
-    }
+	public String getDateFromFormated() {
+		return dateFromFormated;
+	}
 
-    public String getMessage() {
-        return message;
-    }
+	public List<String> getDateswhereNoWorklog() {
+		return allDatesWhereNoWorklog;
+	}
 
-    public String getMessageParameter() {
-        return messageParameter;
-    }
+	public String getDateToFormated() {
+		return dateToFormated;
+	}
 
-    public int getNumberOfPages() {
-        return numberOfPages;
-    }
+	public String getMessage() {
+		return message;
+	}
 
-    public List<String> getShowDatesWhereNoWorklog() {
-        return showDatesWhereNoWorklog;
-    }
+	public String getMessageParameter() {
+		return messageParameter;
+	}
 
-    public String getStatisticsMessageParameter() {
-        return statisticsMessageParameter;
-    }
+	public int getNumberOfPages() {
+		return numberOfPages;
+	}
 
-    /**
-     * Handle the page changer action.
-     */
-    public void pageChangeAction() {
-        String[] dayBackValue = request.getParameterValues("pageBack");
-        String[] dayNextValue = request.getParameterValues("pageNext");
-        if ((dayBackValue != null) && (actualPage > 1)) {
-            actualPage--;
-        }
-        if ((dayNextValue != null) && (actualPage < numberOfPages)) {
-            actualPage++;
-        }
+	public List<String> getShowDatesWhereNoWorklog() {
+		return showDatesWhereNoWorklog;
+	}
 
-    }
+	public String getStatisticsMessageParameter() {
+		return statisticsMessageParameter;
+	}
 
-    public void setActualPage(final int actualPage) {
-        this.actualPage = actualPage;
-    }
+	/**
+	 * Handle the page changer action.
+	 */
+	public void pageChangeAction() {
+		String[] dayBackValue = request.getParameterValues("pageBack");
+		String[] dayNextValue = request.getParameterValues("pageNext");
+		if ((dayBackValue != null) && (actualPage > 1)) {
+			actualPage--;
+		}
+		if ((dayNextValue != null) && (actualPage < numberOfPages)) {
+			actualPage++;
+		}
 
-    public void setDateFromFormated(final String dateFromFormated) {
-        this.dateFromFormated = dateFromFormated;
-    }
+	}
 
-    public void setDateswhereNoWorklog(final List<String> dateswhereNoWorklog) {
-        allDatesWhereNoWorklog = dateswhereNoWorklog;
-    }
+	public void setActualPage(final int actualPage) {
+		this.actualPage = actualPage;
+	}
 
-    public void setDateToFormated(final String dateToFormated) {
-        this.dateToFormated = dateToFormated;
-    }
+	public void setCheckHours(final boolean checkHours) {
+		this.checkHours = checkHours;
+	}
 
-    public void setMessage(final String message) {
-        this.message = message;
-    }
+	public void setCheckNonWorkingIssues(final boolean checkNonWorkingIssues) {
+		this.checkNonWorkingIssues = checkNonWorkingIssues;
+	}
 
-    public void setMessageParameter(final String messageParameter) {
-        this.messageParameter = messageParameter;
-    }
+	public void setDateFromFormated(final String dateFromFormated) {
+		this.dateFromFormated = dateFromFormated;
+	}
 
-    public void setNumberOfPages(final int numberOfPages) {
-        this.numberOfPages = numberOfPages;
-    }
+	public void setDateswhereNoWorklog(final List<String> dateswhereNoWorklog) {
+		allDatesWhereNoWorklog = dateswhereNoWorklog;
+	}
 
-    /**
-     * Set the showDatesWhereNoWorklog by the actual page.
-     * 
-     * @param actualPage
-     *            The sub list of allDatesWhereNoWorklog.
-     */
-    private void setShowDatesListByActualPage(final int actualPage) {
-        int from = (actualPage - 1) * ROW_COUNT;
-        int to = actualPage * ROW_COUNT;
-        if ((actualPage == 1) && (allDatesWhereNoWorklog.size() < ROW_COUNT)) {
-            to = allDatesWhereNoWorklog.size();
-        }
-        if ((actualPage == numberOfPages) && ((allDatesWhereNoWorklog.size() % ROW_COUNT) != 0)) {
-            to = from + (allDatesWhereNoWorklog.size() % ROW_COUNT);
-        }
-        showDatesWhereNoWorklog = allDatesWhereNoWorklog.subList(from, to);
-    }
+	public void setDateToFormated(final String dateToFormated) {
+		this.dateToFormated = dateToFormated;
+	}
 
-    public void setShowDatesWhereNoWorklog(final List<String> showDatesWhereNoWorklog) {
-        this.showDatesWhereNoWorklog = showDatesWhereNoWorklog;
-    }
+	public void setMessage(final String message) {
+		this.message = message;
+	}
 
-    public void setStatisticsMessageParameter(final String statisticsMessageParameter) {
-        this.statisticsMessageParameter = statisticsMessageParameter;
-    }
+	public void setMessageParameter(final String messageParameter) {
+		this.messageParameter = messageParameter;
+	}
+
+	public void setNumberOfPages(final int numberOfPages) {
+		this.numberOfPages = numberOfPages;
+	}
+
+	/**
+	 * Set the showDatesWhereNoWorklog by the actual page.
+	 * 
+	 * @param actualPage
+	 *            The sub list of allDatesWhereNoWorklog.
+	 */
+	private void setShowDatesListByActualPage(final int actualPage) {
+		int from = (actualPage - 1) * ROW_COUNT;
+		int to = actualPage * ROW_COUNT;
+		if ((actualPage == 1) && (allDatesWhereNoWorklog.size() < ROW_COUNT)) {
+			to = allDatesWhereNoWorklog.size();
+		}
+		if ((actualPage == numberOfPages)
+				&& ((allDatesWhereNoWorklog.size() % ROW_COUNT) != 0)) {
+			to = from + (allDatesWhereNoWorklog.size() % ROW_COUNT);
+		}
+		showDatesWhereNoWorklog = allDatesWhereNoWorklog.subList(from, to);
+	}
+
+	public void setShowDatesWhereNoWorklog(
+			final List<String> showDatesWhereNoWorklog) {
+		this.showDatesWhereNoWorklog = showDatesWhereNoWorklog;
+	}
+
+	public void setStatisticsMessageParameter(
+			final String statisticsMessageParameter) {
+		this.statisticsMessageParameter = statisticsMessageParameter;
+	}
 
 }

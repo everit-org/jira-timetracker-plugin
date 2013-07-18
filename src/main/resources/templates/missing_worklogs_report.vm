@@ -55,43 +55,94 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 		 			$i18n.getText($message) $messageParameter
 		  	</div>
 			<div id="calendar_div" style="text-align: left; vertical-align: inherit; float: left; padding:5px;">
-				$i18n.getText("plugin.from")
-				<input type="text" id="dateFrom" name="dateFrom" value="$dateFromFormated"/>
-				<img id="date_trigger_from" src="/images/icons/cal.gif" width="16" height="16" border="0"
-					alt="Pick a date"/>
-				<script>
-				var cal= Calendar.setup({
-					firstDay : 0,
-					inputField : 'dateFrom',
-					button : 'date_trigger_from',
-					date : '$dateFromFormated',
-					align : 'Br',
-					electric: false,
-					singleClick : true,
-					showOthers: true,
-					useISO8601WeekNumbers : false,
-					ifFormat : '%Y-%m-%d'
-				});
-				</script>
-				$i18n.getText("plugin.to")
-				<input type="text" id="dateTo" name="dateTo" value="$dateToFormated"/>
-				<img id="date_trigger_to" src="/images/icons/cal.gif" width="16" height="16" border="0"
-					alt="Pick a date"/>
-				<script>
-				var cal= Calendar.setup({
-					firstDay : 0,
-					inputField : 'dateTo',
-					button : 'date_trigger_to',
-					date : '$dateToFormated',
-					align : 'Br',
-					electric: false,
-					singleClick : true,
-					showOthers: true,
-					useISO8601WeekNumbers : false,
-					ifFormat : '%Y-%m-%d'
-				});
-				</script>
-				<input id="search"  type="submit" name="search" value="$i18n.getText('plugin.search')" class="button" />
+				<table>
+					<tbody>
+						<tr>
+							<td>
+								$i18n.getText("plugin.from")
+								<input type="text" id="dateFrom" name="dateFrom" value="$dateFromFormated"/>
+								<img id="date_trigger_from" src="/images/icons/cal.gif" width="16" height="16" border="0"
+									alt="Pick a date"/>
+								<script>
+								var cal= Calendar.setup({
+									firstDay : 0,
+									inputField : 'dateFrom',
+									button : 'date_trigger_from',
+									date : '$dateFromFormated',
+									align : 'Br',
+									electric: false,
+									singleClick : true,
+									showOthers: true,
+									useISO8601WeekNumbers : false,
+									ifFormat : '%Y-%m-%d'
+								});
+								</script>
+							</td>
+							<td>
+								$i18n.getText("plugin.to")
+								<input type="text" id="dateTo" name="dateTo" value="$dateToFormated"/>
+								<img id="date_trigger_to" src="/images/icons/cal.gif" width="16" height="16" border="0"
+									alt="Pick a date"/>
+								<script>
+								var cal= Calendar.setup({
+									firstDay : 0,
+									inputField : 'dateTo',
+									button : 'date_trigger_to',
+									date : '$dateToFormated',
+									align : 'Br',
+									electric: false,
+									singleClick : true,
+									showOthers: true,
+									useISO8601WeekNumbers : false,
+									ifFormat : '%Y-%m-%d'
+								});
+								</script>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<table>
+					<tbody>	
+						<tr>
+							<td>
+								<input id="hour" type="checkbox" value="check 8 h" name="hour" #if($checkHours) checked #end/>
+							</td>
+							<td>
+								$i18n.getText("plugin.missing.days.hours")
+							</td>
+						</tr>
+						<tr>
+							<td>		
+								<input id="nonworking" type="checkbox" value="non-working not count" name="nonworking" #if($checkNonWorkingIssues) checked #end/>
+								<script>
+									function setcheckworkedhours() {
+											if(AJS.$("#hour").is(":checked")){
+												document.getElementById("nonworking").disabled= false;
+											}else{
+												document.getElementById("nonworking").disabled= true;
+											}
+					               	};
+					               	
+					               	AJS.$("#hour").click(function(){
+					               		setcheckworkedhours();
+					               	});
+					               	
+					               	window.onload = function() {
+					               		setcheckworkedhours();
+					               	};
+								</script>
+							</td>
+							<td>
+								$i18n.getText("plugin.missing.days.nonworking")
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<input id="search"  type="submit" name="search" value="$i18n.getText('plugin.search')" class="button" />
+							</td>
+						</tr>
+					</tbody>
+				</table>	
 			</div>
 			<style type="text/css">
 			{

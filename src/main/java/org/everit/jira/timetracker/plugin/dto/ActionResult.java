@@ -23,65 +23,67 @@ package org.everit.jira.timetracker.plugin.dto;
 
 /**
  * The ActionResult class. When the web action use the
- * {@link org.everit.jira.timetracker.plugin.JiraTimetrackerPluginImpl} methods, the methods give back this result to
- * the web action-s.
+ * {@link org.everit.jira.timetracker.plugin.JiraTimetrackerPluginImpl} methods,
+ * the methods give back this result to the web action-s.
  */
 public class ActionResult {
-    /**
-     * The action result.
-     */
-    private final ActionResultStatus status;
-    /**
-     * The result message.
-     */
-    private final String message;
-    /**
-     * The result message parameter.
-     */
-    private String messageParameter;
+	/**
+	 * The action result.
+	 */
+	private final ActionResultStatus status;
+	/**
+	 * The result message.
+	 */
+	private final String message;
+	/**
+	 * The result message parameter.
+	 */
+	private String messageParameter;
 
-    /**
-     * Simple constructor.
-     * 
-     * @param status
-     *            The status.
-     * @param message
-     *            The message.
-     */
-    public ActionResult(final ActionResultStatus status, final String message) {
-        this.status = status;
-        this.message = message;
-    }
+	/**
+	 * Simple constructor.
+	 * 
+	 * @param status
+	 *            The status.
+	 * @param message
+	 *            The message.
+	 */
+	public ActionResult(final ActionResultStatus status, final String message) {
+		this.status = status;
+		this.message = message;
+		messageParameter = "";
+	}
 
-    /**
-     * Simple constructor.
-     * 
-     * @param status
-     *            The status.
-     * @param message
-     *            The message.
-     * @param messageParameter
-     *            The message parameter.
-     */
-    public ActionResult(final ActionResultStatus status, final String message, final String messageParameter) {
-        this.status = status;
-        this.message = message;
-        this.messageParameter = messageParameter;
-    }
+	/**
+	 * Simple constructor.
+	 * 
+	 * @param status
+	 *            The status.
+	 * @param message
+	 *            The message.
+	 * @param messageParameter
+	 *            The message parameter.
+	 */
+	public ActionResult(final ActionResultStatus status, final String message,
+			final String messageParameter) {
+		this.status = status;
+		this.message = message;
+		this.messageParameter = messageParameter;
+	}
 
-    public String getMessage() {
-        return message;
-    }
+	public String getMessage() {
+		return message;
+	}
 
-    public String getMessageParameter() {
-        return messageParameter;
-    }
+	public String getMessageParameter() {
+		return messageParameter;
+	}
 
-    public ActionResultStatus getStatus() {
-        return status;
-    }
+	public ActionResultStatus getStatus() {
+		return status;
+	}
 
-    public void setMessageParameter(final String messageParameter) {
-        this.messageParameter = messageParameter;
-    }
+	public void setMessageParameter(final String messageParameter) {
+		this.messageParameter = messageParameter;
+	}
 }
