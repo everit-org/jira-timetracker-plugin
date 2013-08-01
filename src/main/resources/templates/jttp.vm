@@ -500,47 +500,6 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 							 	  						AJS.$("#comments").append("$comment");
 							 	  						AJS.$("#comments").attr("tabindex","4");
 							 	  						AJS.$("#comments").attr("height","100px");
-						                           		AJS.$("#comments").bind("keydown",
-							                           function checkDurationTimeEnter(event){
-							                           if (event.keyCode == 13 && event.shiftKey) {
-															       var content = this.value;
-															       var caret = getCaret(this);
-															       this.value = content.substring(0,caret)+
-															                     "\n"+content.substring(caret,content.length);
-															       event.stopPropagation();
-																	event.preventDefault();
-																	return false;
-															  }else if (event.keyCode == 13) {
-														     	#if($isEdit)
-																	 AJS.$("#Edit").click();
-																#elseif($isEditAll)
-																 	 AJS.$("#editallsave").click();
-																#else
-																	AJS.$("#Submit").click();
-																#end
-																return false;
-												               }
-														});
-														function getCaret(el) {
-														  if (el.selectionStart) {
-														     return el.selectionStart;
-														  } else if (document.selection) {
-														     el.focus();
-														
-														   var r = document.selection.createRange();
-														   if (r == null) {
-														    return 0;
-														   }
-														
-														    var re = el.createTextRange(),
-														    rc = re.duplicate();
-														    re.moveToBookmark(r.getBookmark());
-														    rc.setEndPoint('EndToStart', re);
-														
-														    return rc.text.length;
-														  }  
-														  return 0;
-														}
 							 	  					</script>
 						 	  					</td>
 						              		</tr>
