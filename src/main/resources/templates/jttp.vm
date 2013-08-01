@@ -21,7 +21,7 @@
         border-collapse:collapse;
     }
     .grid th, .grid td {
-        border:1px solid #D2D2D2;
+        border:1px solid #D2D2D2;   
         padding:4px;
     }
     
@@ -240,7 +240,15 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 						                	</tr>
 						                    <tr>
 						                        <td  style="width: 110px;">
-						                           <input id="startTime"  type="text" name="startTime" value="$startTime" tabindex="1" style="margin-right: 5px; width: 100px;"/> 
+						                           <input id="startTime"  type="text" name="startTime" onkeydown="return checkStartTimeEnter(event);" value="$startTime" tabindex="1" style="margin-right: 5px; width: 100px;"/> 
+						                           <script>
+						                           function checkStartTimeEnter(event){
+													    if (event.keyCode == 13) {
+													      AJS.$("#endTime").focus();
+													      return false;
+													    }
+													}
+						                           </script>
 						                        </td>
 						                        <td style="width: 110px;">
 						                           <input id="startNow"  type="button" name="startNow" value="$i18n.getText('plugin.now')" class="button" width: 40px;"/>
@@ -316,7 +324,15 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 													</script>
 						                        </td>
 												<td  style="width: 110px">
-						                    	 	<input id="endTime"  type="text" name="endTime" value="$endTime" tabindex="2"  style="margin-right: 5px; width: 100px"/> 
+						                    	 	<input id="endTime"  type="text" name="endTime" value="$endTime" tabindex="2" onkeydown="return checkSEndTimeEnter(event);" style="margin-right: 5px; width: 100px"/> 
+						                    	 	<script>
+							                           function checkSEndTimeEnter(event){
+														    if (event.keyCode == 13) {
+														      AJS.$("#issueSelect-textarea").focus();
+												                return false;
+														    }
+														}
+							                           </script>
 						                    	 </td>
 						                    	 <td style="width: 85px;">
 						                    	   <input id="endNow"  type="button" name="endNow" value="$i18n.getText('plugin.now')" class="button" width: 40px;"/>
@@ -408,7 +424,15 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 													</script>
 						                    	 </td>
 						                    	 <td  style="width: 120px" >
-						                    	 	<input id="durationTime"  type="text" name="durationTime" disabled value="$durationTime"  style="width: 100px"/>
+						                    	 	<input id="durationTime"  type="text" name="durationTime" disabled value="$durationTime" onkeydown="return checkDurationTimeEnter(event);" style="width: 100px"/>
+						                    		<script>
+							                           function checkDurationTimeEnter(event){
+														    if (event.keyCode == 13) {
+														      AJS.$("#issueSelect-textarea").focus();
+												                return false;
+														    }
+														}
+							                           </script>
 						                    	 </td>
 						                    	<td width="auto">
 						                    	</td>
@@ -463,7 +487,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 						                    <tr>
 						            	 		<td colspan="6">
 							                    	$i18n.getText("plugin.note"):</br>
-							 	  					#set($fieldId = "comments")	
+							 	  					#set($fieldId = "comments")
 							 	  					#parse("templates/plugins/renderers/wiki/wiki-renderer-edit.vm")
 							 	  					<script>
 							 	  						#if($isPopup != 1)
@@ -476,6 +500,47 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 							 	  						AJS.$("#comments").append("$comment");
 							 	  						AJS.$("#comments").attr("tabindex","4");
 							 	  						AJS.$("#comments").attr("height","100px");
+						                           		AJS.$("#comments").bind("keydown",
+							                           function checkDurationTimeEnter(event){
+							                           if (event.keyCode == 13 && event.shiftKey) {
+															       var content = this.value;
+															       var caret = getCaret(this);
+															       this.value = content.substring(0,caret)+
+															                     "\n"+content.substring(caret,content.length);
+															       event.stopPropagation();
+																	event.preventDefault();
+																	return false;
+															  }else if (event.keyCode == 13) {
+														     	#if($isEdit)
+																	 AJS.$("#Edit").click();
+																#elseif($isEditAll)
+																 	 AJS.$("#editallsave").click();
+																#else
+																	AJS.$("#Submit").click();
+																#end
+																return false;
+												               }
+														});
+														function getCaret(el) {
+														  if (el.selectionStart) {
+														     return el.selectionStart;
+														  } else if (document.selection) {
+														     el.focus();
+														
+														   var r = document.selection.createRange();
+														   if (r == null) {
+														    return 0;
+														   }
+														
+														    var re = el.createTextRange(),
+														    rc = re.duplicate();
+														    re.moveToBookmark(r.getBookmark());
+														    rc.setEndPoint('EndToStart', re);
+														
+														    return rc.text.length;
+														  }  
+														  return 0;
+														}
 							 	  					</script>
 						 	  					</td>
 						              		</tr>

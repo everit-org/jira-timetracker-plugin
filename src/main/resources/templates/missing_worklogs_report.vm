@@ -60,7 +60,15 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 						<tr>
 							<td>
 								$i18n.getText("plugin.from")
-								<input type="text" id="dateFrom" name="dateFrom" value="$dateFromFormated"/>
+								<input type="text" id="dateFrom" name="dateFrom" tabindex="1" onkeydown="return checkFromEnter(event);" value="$dateFromFormated"/>
+								 <script>
+						            function checkFromEnter(event){
+									    if (event.keyCode == 13) {
+									      AJS.$("#dateTo").focus();
+									      return false;
+									    }
+									}
+						          </script>
 								<img id="date_trigger_from" src="/images/icons/cal.gif" width="16" height="16" border="0"
 									alt="Pick a date"/>
 								<script>
@@ -80,7 +88,15 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 							</td>
 							<td>
 								$i18n.getText("plugin.to")
-								<input type="text" id="dateTo" name="dateTo" value="$dateToFormated"/>
+								<input type="text" id="dateTo" name="dateTo" tabindex="2" onkeydown="return checkToEnter(event);" value="$dateToFormated"/>
+								 <script>
+						            function checkToEnter(event){
+									    if (event.keyCode == 13) {
+									      AJS.$("#search").click();
+									      return false;
+									    }
+									}
+						          </script>
 								<img id="date_trigger_to" src="/images/icons/cal.gif" width="16" height="16" border="0"
 									alt="Pick a date"/>
 								<script>
@@ -138,7 +154,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 						</tr>
 						<tr>
 							<td>
-								<input id="search"  type="submit" name="search" value="$i18n.getText('plugin.search')" class="button" />
+								<input id="search"  tabindex="3" type="submit" name="search" value="$i18n.getText('plugin.search')" class="button" />
 							</td>
 						</tr>
 					</tbody>
