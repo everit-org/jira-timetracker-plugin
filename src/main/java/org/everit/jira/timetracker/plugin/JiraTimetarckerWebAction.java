@@ -188,6 +188,10 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 	 */
 	private String comment = "";
 	/**
+	 * The worklog comment.
+	 */
+	private String commentForActions = "";
+	/**
 	 * The spent time in Jira time format (1h 20m).
 	 */
 	private String timeSpent = "";
@@ -458,7 +462,8 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 		}
 
 		ActionResult createResult = jiraTimetrackerPlugin.createWorklog(
-				issueKey, comment, dateFormated, startTimeValue[0], timeSpent);
+				issueKey, commentForActions, dateFormated, startTimeValue[0],
+				timeSpent);
 		if (createResult.getStatus() == ActionResultStatus.FAIL) {
 			message = createResult.getMessage();
 			messageParameter = createResult.getMessageParameter();
@@ -484,7 +489,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 	public String editAction() {
 		String[] startTimeValue = request.getParameterValues("startTime");
 		ActionResult updateResult = jiraTimetrackerPlugin.editWorklog(
-				editedWorklogId, issueKey, comment, dateFormated,
+				editedWorklogId, issueKey, commentForActions, dateFormated,
 				startTimeValue[0], timeSpent);
 		if (updateResult.getStatus() == ActionResultStatus.FAIL) {
 			message = updateResult.getMessage();
@@ -873,8 +878,10 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 		this.excludeDays = excludeDays;
 	}
 
+	/**
+	 * Set the read values to the input fields back.
+	 */
 	private void setFieldsValue() {
-		// TODO javadoc & impl
 		String[] issueSelectValue = request.getParameterValues("issueSelect");
 		String[] endTimeValue = request.getParameterValues("endTime");
 		String[] durationTimeValue = request.getParameterValues("durationTime");
@@ -894,6 +901,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 		}
 		if (commentsValue != null) {
 			comment = commentsValue[0];
+			commentForActions = commentsValue[0];
 			if (comment != null) {
 				comment = comment.replace("\"", "\\\"");
 				comment = comment.replace("\r", "\\r");

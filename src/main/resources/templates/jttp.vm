@@ -424,7 +424,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 													</script>
 						                    	 </td>
 						                    	 <td  style="width: 120px" >
-						                    	 	<input id="durationTime"  type="text" name="durationTime" disabled value="$durationTime" onkeydown="return checkDurationTimeEnter(event);" style="width: 100px"/>
+						                    	 	<input id="durationTime"  type="text" name="durationTime" tabindex="2" disabled value="$durationTime" onkeydown="return checkDurationTimeEnter(event);" style="width: 100px"/>
 						                    		<script>
 							                           function checkDurationTimeEnter(event){
 														    if (event.keyCode == 13) {
