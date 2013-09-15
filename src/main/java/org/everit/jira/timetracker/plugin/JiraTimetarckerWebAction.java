@@ -236,6 +236,10 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 	 * The filtered Issues id.
 	 */
 	private List<Pattern> issuesRegex;
+	/**
+	 * The JiraTimetarckerWebAction logger.
+	 */
+	private Logger log = Logger.getLogger(JiraTimetarckerWebAction.class);
 
 	/**
 	 * Simple constructor.
@@ -260,6 +264,8 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 		for (EveritWorklog worklog : worklogs) {
 			worklogIds.add(worklog.getWorklogId());
 		}
+		log.warn("JTWA log: copyWorklogIdsToArray: worklogIds size: "
+				+ worklogIds.size());
 		return worklogIds;
 	}
 
@@ -722,6 +728,8 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 	private void loadWorklogsAndMakeSummary() throws GenericEntityException,
 			ParseException {
 		worklogs = jiraTimetrackerPlugin.getWorklogs(date);
+		log.warn("JTWA log: loadWorklogsAndMakeSummary: worklogs size: "
+				+ worklogs.size());
 		worklogsIds = copyWorklogIdsToArray(worklogs);
 		makeSummary();
 	}

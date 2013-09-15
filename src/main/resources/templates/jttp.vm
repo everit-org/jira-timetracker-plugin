@@ -467,12 +467,14 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 												  		singleSelectOnly: true,
 												   		currentProjectId: $projectsId,
 														});
+														AJS.$('.drop-menu').attr("style","height: 47px; margin-top: 1px;");
+														AJS.$('.issue-picker-popup').attr("style","margin-bottom: 25px;");
 														#if($isPopup != 1)
 															AJS.$("#issueSelect-multi-select").attr("style","width: 630px;");
-															AJS.$("#issueSelect-textarea").attr("style","width: 605px;");
+															AJS.$("#issueSelect-textarea").attr("style","width: 630px; height: 50px");
 														#else
-															AJS.$("#issueSelect-multi-select").attr("style","width: 930px;");
-															AJS.$("#issueSelect-textarea").attr("style","width: 905px;");
+															AJS.$("#issueSelect-multi-select").attr("style","width: 922px;");
+															AJS.$("#issueSelect-textarea").attr("style","width: 930px; height: 50px");
 														#end	
 														//Set the issue key		
 														AJS.$("#issueSelect-textarea").append("$issueKey");
