@@ -11,7 +11,7 @@
 							<h3>$i18n.getText("plugin.setting.non.working.issues")</h3>
 						</td>
 						<td >
-							<div id="issueSelect_container" class="ajax_autocomplete atlassian-autocomplete" style="margin-bottom: 35px" >
+							<div id="issueSelect_container" class="ajax_autocomplete atlassian-autocomplete aui-ss" style="margin-bottom: 35px" >
 								<select class="hidden"
 										multiple="none" 
 							   			name="issueSelect" 
