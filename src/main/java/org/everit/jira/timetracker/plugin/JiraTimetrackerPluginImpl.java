@@ -196,6 +196,10 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
 	 * The issues Estimated Time Checker Future.
 	 */
 	private ScheduledFuture<?> issueEstimatedTimeCheckerFuture;
+	/**
+	 * The JiraTimetarckerPluginImpl logger.
+	 */
+	private Logger log = Logger.getLogger(JiraTimetrackerPluginImpl.class);
 
 	/**
 	 * Default constructor.
@@ -551,10 +555,12 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
 	@Override
 	public List<EveritWorklog> getWorklogs(final Date date)
 			throws GenericEntityException, ParseException {
+
 		JiraAuthenticationContext authenticationContext = ComponentManager
 				.getInstance().getJiraAuthenticationContext();
 		User user = authenticationContext.getLoggedInUser();
-
+		log.warn("JTTP LOG: getWorklogs user display: " + user.getDisplayName()
+				+ " user name: " + user.getName());
 		Date startDate = (Date) date.clone();
 		startDate.setHours(0);
 		startDate.setMinutes(0);
@@ -571,6 +577,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
 				EntityOperator.LESS_THAN, new Timestamp(endDate.getTime()));
 		EntityExpr userExpr = new EntityExpr("author", EntityOperator.EQUALS,
 				user.getName());
+		log.warn("JTTP LOG: getWorklogs start date: " + startDate.toString()
+				+ " end date:" + endDate.toString());
 
 		List<EntityExpr> exprList = new ArrayList<EntityExpr>();
 		exprList.add(userExpr);
@@ -580,8 +588,12 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
 		if (endExpr != null) {
 			exprList.add(endExpr);
 		}
+		log.warn("JTTP LOG: getWorklogs expr list size: " + exprList.size());
 		List<GenericValue> worklogGVList = CoreFactory.getGenericDelegator()
 				.findByAnd("Worklog", exprList);
+		log.warn("JTTP LOG: getWorklogs worklog GV list size: "
+				+ worklogGVList.size());
+
 		List<EveritWorklog> worklogs = new ArrayList<EveritWorklog>();
 		for (GenericValue worklogGv : worklogGVList) {
 			EveritWorklog worklog = new EveritWorklog(worklogGv,
@@ -590,6 +602,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
 		}
 
 		Collections.sort(worklogs, new EveritWorklogComparator());
+		log.warn("JTTP LOG: getWorklogs worklog GV list size: "
+				+ worklogs.size());
 		return worklogs;
 	}
 

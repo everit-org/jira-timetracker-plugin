@@ -37,7 +37,9 @@ import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
 import org.ofbiz.core.entity.GenericEntityException;
 
+import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.issue.Issue;
+import com.atlassian.jira.util.BuildUtilsInfo;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
 
 /**
@@ -236,6 +238,14 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 	 * The filtered Issues id.
 	 */
 	private List<Pattern> issuesRegex;
+	/**
+	 * The JiraTimetarckerWebAction logger.
+	 */
+	private Logger log = Logger.getLogger(JiraTimetarckerWebAction.class);
+	/**
+	 * The jira main version.
+	 */
+	private int jiraMainVersion;
 
 	/**
 	 * Simple constructor.
@@ -260,6 +270,8 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 		for (EveritWorklog worklog : worklogs) {
 			worklogIds.add(worklog.getWorklogId());
 		}
+		log.warn("JTWA log: copyWorklogIdsToArray: worklogIds size: "
+				+ worklogIds.size());
 		return worklogIds;
 	}
 
@@ -320,11 +332,20 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 
 	@Override
 	public String doDefault() throws ParseException {
+
 		boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
 		if (!isUserLogged) {
 			setReturnUrl("/secure/Dashboard.jspa");
 			return getRedirect(NONE);
 		}
+
+		BuildUtilsInfo component = ComponentAccessor
+				.getComponent(BuildUtilsInfo.class);
+		String version = component.getVersion();
+
+		String[] versionSplit = version.split("\\.");
+
+		jiraMainVersion = Integer.parseInt(versionSplit[0]);
 
 		loadPluginSettingAndParseResult();
 
@@ -386,12 +407,19 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 
 	@Override
 	public String doExecute() throws ParseException {
-
 		boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
 		if (!isUserLogged) {
 			setReturnUrl("/secure/Dashboard.jspa");
 			return getRedirect(NONE);
 		}
+
+		BuildUtilsInfo component = ComponentAccessor
+				.getComponent(BuildUtilsInfo.class);
+		String version = component.getVersion();
+
+		String[] versionSplit = version.split("\\.");
+
+		jiraMainVersion = Integer.parseInt(versionSplit[0]);
 
 		loadPluginSettingAndParseResult();
 
@@ -628,6 +656,10 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 		return issuesRegex;
 	}
 
+	public int getJiraMainVersion() {
+		return jiraMainVersion;
+	}
+
 	public List<String> getLoggedDays() {
 		return loggedDays;
 	}
@@ -722,6 +754,8 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 	private void loadWorklogsAndMakeSummary() throws GenericEntityException,
 			ParseException {
 		worklogs = jiraTimetrackerPlugin.getWorklogs(date);
+		log.warn("JTWA log: loadWorklogsAndMakeSummary: worklogs size: "
+				+ worklogs.size());
 		worklogsIds = copyWorklogIdsToArray(worklogs);
 		makeSummary();
 	}
@@ -922,6 +956,10 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 
 	public void setIssuesRegex(final List<Pattern> issuesRegex) {
 		this.issuesRegex = issuesRegex;
+	}
+
+	public void setJiraMainVersion(final int jiraMainVersion) {
+		this.jiraMainVersion = jiraMainVersion;
 	}
 
 	public void setLoggedDays(final List<String> loggedDays) {
