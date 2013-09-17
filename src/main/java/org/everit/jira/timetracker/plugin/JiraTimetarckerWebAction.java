@@ -430,6 +430,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 		String[] commentsValue = request.getParameterValues("comments");
 		String[] startTimeValue = request.getParameterValues("startTime");
 
+		setFieldsValue();
 		dateSwitcherAction();
 
 		try {
@@ -472,8 +473,6 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 		if (request.getParameter("editallsave") != null) {
 			return editAllAction();
 		}
-
-		setFieldsValue();
 
 		String validateInputFieldsResult = validateInputFields();
 		if (validateInputFieldsResult.equals(ERROR)) {
