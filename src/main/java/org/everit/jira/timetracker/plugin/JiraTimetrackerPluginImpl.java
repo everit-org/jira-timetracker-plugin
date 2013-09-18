@@ -298,6 +298,31 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
 				"plugin.worklog.create.success");
 	}
 
+	private List<EntityExpr> createWorklogQueryExprList(final User user,
+			final Date startDate, final Date endDate) {
+		String userKey = UserCompatibilityHelper.getKeyForUser(user);
+
+		EntityExpr startExpr = new EntityExpr("startdate",
+				EntityOperator.GREATER_THAN_EQUAL_TO, new Timestamp(
+						startDate.getTime()));
+		EntityExpr endExpr = new EntityExpr("startdate",
+				EntityOperator.LESS_THAN, new Timestamp(endDate.getTime()));
+		EntityExpr userExpr = new EntityExpr("author", EntityOperator.EQUALS,
+				userKey);
+		log.warn("JTTP LOG: getWorklogs start date: " + startDate.toString()
+				+ " end date:" + endDate.toString());
+
+		List<EntityExpr> exprList = new ArrayList<EntityExpr>();
+		exprList.add(userExpr);
+		if (startExpr != null) {
+			exprList.add(startExpr);
+		}
+		if (endExpr != null) {
+			exprList.add(endExpr);
+		}
+		return exprList;
+	}
+
 	@Override
 	public ActionResult deleteWorklog(final Long id) {
 		JiraAuthenticationContext authenticationContext = ComponentManager
@@ -576,26 +601,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
 		endDate.setMinutes(DateTimeConverterUtil.LAST_MINUTE_OF_HOUR);
 		endDate.setSeconds(DateTimeConverterUtil.LAST_SECOND_OF_MINUTE);
 
-		String userKey = UserCompatibilityHelper.getKeyForUser(user);
-
-		EntityExpr startExpr = new EntityExpr("startdate",
-				EntityOperator.GREATER_THAN_EQUAL_TO, new Timestamp(
-						startDate.getTime()));
-		EntityExpr endExpr = new EntityExpr("startdate",
-				EntityOperator.LESS_THAN, new Timestamp(endDate.getTime()));
-		EntityExpr userExpr = new EntityExpr("author", EntityOperator.EQUALS,
-				userKey);
-		log.warn("JTTP LOG: getWorklogs start date: " + startDate.toString()
-				+ " end date:" + endDate.toString());
-
-		List<EntityExpr> exprList = new ArrayList<EntityExpr>();
-		exprList.add(userExpr);
-		if (startExpr != null) {
-			exprList.add(startExpr);
-		}
-		if (endExpr != null) {
-			exprList.add(endExpr);
-		}
+		List<EntityExpr> exprList = createWorklogQueryExprList(user, startDate,
+				endDate);
 		log.warn("JTTP LOG: getWorklogs expr list size: " + exprList.size());
 		List<GenericValue> worklogGVList = CoreFactory.getGenericDelegator()
 				.findByAnd("Worklog", exprList);
@@ -643,24 +650,9 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
 		endDate.setMinutes(DateTimeConverterUtil.LAST_MINUTE_OF_HOUR);
 		endDate.setSeconds(DateTimeConverterUtil.LAST_SECOND_OF_MINUTE);
 
-		String userKey = UserCompatibilityHelper.getKeyForUser(user);
+		List<EntityExpr> exprList = createWorklogQueryExprList(user, startDate,
+				endDate);
 
-		EntityExpr startExpr = new EntityExpr("startdate",
-				EntityOperator.GREATER_THAN_EQUAL_TO, new Timestamp(
-						startDate.getTime()));
-		EntityExpr endExpr = new EntityExpr("startdate",
-				EntityOperator.LESS_THAN, new Timestamp(endDate.getTime()));
-		EntityExpr userExpr = new EntityExpr("author", EntityOperator.EQUALS,
-				userKey);
-
-		List<EntityExpr> exprList = new ArrayList<EntityExpr>();
-		exprList.add(userExpr);
-		if (startExpr != null) {
-			exprList.add(startExpr);
-		}
-		if (endExpr != null) {
-			exprList.add(endExpr);
-		}
 		List<GenericValue> worklogGVList = CoreFactory.getGenericDelegator()
 				.findByAnd("Worklog", exprList);
 		if ((worklogGVList == null) || worklogGVList.isEmpty()) {
@@ -729,24 +721,9 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
 		endDate.setMinutes(DateTimeConverterUtil.LAST_MINUTE_OF_HOUR);
 		endDate.setSeconds(DateTimeConverterUtil.LAST_SECOND_OF_MINUTE);
 
-		String userKey = UserCompatibilityHelper.getKeyForUser(user);
+		List<EntityExpr> exprList = createWorklogQueryExprList(user, startDate,
+				endDate);
 
-		EntityExpr startExpr = new EntityExpr("startdate",
-				EntityOperator.GREATER_THAN_EQUAL_TO, new Timestamp(
-						startDate.getTime()));
-		EntityExpr endExpr = new EntityExpr("startdate",
-				EntityOperator.LESS_THAN, new Timestamp(endDate.getTime()));
-		EntityExpr userExpr = new EntityExpr("author", EntityOperator.EQUALS,
-				userKey);
-
-		List<EntityExpr> exprList = new ArrayList<EntityExpr>();
-		exprList.add(userExpr);
-		if (startExpr != null) {
-			exprList.add(startExpr);
-		}
-		if (endExpr != null) {
-			exprList.add(endExpr);
-		}
 		List<GenericValue> worklogGVList = CoreFactory.getGenericDelegator()
 				.findByAnd("Worklog", exprList);
 		if ((worklogGVList == null) || worklogGVList.isEmpty()) {
@@ -989,31 +966,14 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
 		User user = authenticationContext.getLoggedInUser();
 		startSummary.setSeconds(0);
 		finishSummary.setSeconds(0);
-		EntityExpr startExpr = new EntityExpr("startdate",
-				EntityOperator.GREATER_THAN_EQUAL_TO, new Timestamp(
-						startSummary.getTime()));
-		EntityExpr endExpr = new EntityExpr("startdate",
-				EntityOperator.LESS_THAN,
-				new Timestamp(finishSummary.getTime()));
-		EntityExpr userExpr = null;
-		if (user != null) {
-			String userKey = UserCompatibilityHelper.getKeyForUser(user);
-			userExpr = new EntityExpr("author", EntityOperator.EQUALS, userKey);
-		}
-		List<EntityExpr> exprs = new ArrayList<EntityExpr>();
-		if (userExpr != null) {
-			exprs.add(userExpr);
-		}
-		if (startExpr != null) {
-			exprs.add(startExpr);
-		}
-		if (endExpr != null) {
-			exprs.add(endExpr);
-		}
+
+		List<EntityExpr> exprList = createWorklogQueryExprList(user,
+				startSummary, finishSummary);
+
 		List<GenericValue> worklogs;
 		// worklog query
-		worklogs = CoreFactory.getGenericDelegator()
-				.findByAnd("Worklog", exprs);
+		worklogs = CoreFactory.getGenericDelegator().findByAnd("Worklog",
+				exprList);
 		List<GenericValue> worklogsCopy = new ArrayList<GenericValue>();
 		worklogsCopy.addAll(worklogs);
 		// if we have non-estimated issues
