@@ -70,6 +70,7 @@ import com.atlassian.jira.issue.worklog.WorklogManager;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.PermissionManager;
 import com.atlassian.jira.security.Permissions;
+import com.atlassian.jira.usercompatibility.UserCompatibilityHelper;
 import com.atlassian.mail.MailException;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
@@ -250,7 +251,12 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
 		JiraAuthenticationContext authenticationContext = ComponentManager
 				.getInstance().getJiraAuthenticationContext();
 		User user = authenticationContext.getLoggedInUser();
+		log.warn("JTTP createWorklog: user: " + user.getDisplayName() + " "
+				+ user.getName() + " " + user.getEmailAddress());
 		JiraServiceContext serviceContext = new JiraServiceContextImpl(user);
+		log.warn("JTTP createWorklog: serviceContext User: "
+				+ serviceContext.getLoggedInUser().getName() + " "
+				+ serviceContext.getLoggedInUser().getEmailAddress());
 		IssueManager issueManager = ComponentManager.getInstance()
 				.getIssueManager();
 		MutableIssue issue = issueManager.getIssueObject(issueId);
@@ -570,13 +576,15 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
 		endDate.setMinutes(DateTimeConverterUtil.LAST_MINUTE_OF_HOUR);
 		endDate.setSeconds(DateTimeConverterUtil.LAST_SECOND_OF_MINUTE);
 
+		String userKey = UserCompatibilityHelper.getKeyForUser(user);
+
 		EntityExpr startExpr = new EntityExpr("startdate",
 				EntityOperator.GREATER_THAN_EQUAL_TO, new Timestamp(
 						startDate.getTime()));
 		EntityExpr endExpr = new EntityExpr("startdate",
 				EntityOperator.LESS_THAN, new Timestamp(endDate.getTime()));
 		EntityExpr userExpr = new EntityExpr("author", EntityOperator.EQUALS,
-				user.getName());
+				userKey);
 		log.warn("JTTP LOG: getWorklogs start date: " + startDate.toString()
 				+ " end date:" + endDate.toString());
 
@@ -635,13 +643,15 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
 		endDate.setMinutes(DateTimeConverterUtil.LAST_MINUTE_OF_HOUR);
 		endDate.setSeconds(DateTimeConverterUtil.LAST_SECOND_OF_MINUTE);
 
+		String userKey = UserCompatibilityHelper.getKeyForUser(user);
+
 		EntityExpr startExpr = new EntityExpr("startdate",
 				EntityOperator.GREATER_THAN_EQUAL_TO, new Timestamp(
 						startDate.getTime()));
 		EntityExpr endExpr = new EntityExpr("startdate",
 				EntityOperator.LESS_THAN, new Timestamp(endDate.getTime()));
 		EntityExpr userExpr = new EntityExpr("author", EntityOperator.EQUALS,
-				user.getName());
+				userKey);
 
 		List<EntityExpr> exprList = new ArrayList<EntityExpr>();
 		exprList.add(userExpr);
@@ -719,13 +729,15 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
 		endDate.setMinutes(DateTimeConverterUtil.LAST_MINUTE_OF_HOUR);
 		endDate.setSeconds(DateTimeConverterUtil.LAST_SECOND_OF_MINUTE);
 
+		String userKey = UserCompatibilityHelper.getKeyForUser(user);
+
 		EntityExpr startExpr = new EntityExpr("startdate",
 				EntityOperator.GREATER_THAN_EQUAL_TO, new Timestamp(
 						startDate.getTime()));
 		EntityExpr endExpr = new EntityExpr("startdate",
 				EntityOperator.LESS_THAN, new Timestamp(endDate.getTime()));
 		EntityExpr userExpr = new EntityExpr("author", EntityOperator.EQUALS,
-				user.getName());
+				userKey);
 
 		List<EntityExpr> exprList = new ArrayList<EntityExpr>();
 		exprList.add(userExpr);
@@ -985,8 +997,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
 				new Timestamp(finishSummary.getTime()));
 		EntityExpr userExpr = null;
 		if (user != null) {
-			userExpr = new EntityExpr("author", EntityOperator.EQUALS,
-					user.getName());
+			String userKey = UserCompatibilityHelper.getKeyForUser(user);
+			userExpr = new EntityExpr("author", EntityOperator.EQUALS, userKey);
 		}
 		List<EntityExpr> exprs = new ArrayList<EntityExpr>();
 		if (userExpr != null) {
