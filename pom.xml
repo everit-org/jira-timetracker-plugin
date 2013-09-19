@@ -69,9 +69,9 @@
             <plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<configuration>
-				    <descriptorRefs>
-						<descriptorRef>jar-with-dependencies</descriptorRef>
-					</descriptorRefs> 
+<!-- 				    <descriptorRefs> -->
+<!-- 						<descriptorRef>jar-with-dependencies</descriptorRef> -->
+<!-- 					</descriptorRefs>  -->
 					<archive>
 						<index>true</index>
 						<manifest>
@@ -86,6 +86,11 @@
 						<goals>
 							<goal>single</goal>
 						</goals>
+						<configuration>
+<!-- 							<finalName>${project.artifactId}-${project.version}</finalName> -->
+						    <appendAssemblyId>false</appendAssemblyId>
+                            <descriptor>assembly.xml</descriptor>
+                        </configuration>
 					</execution>
 				</executions>
 			</plugin> 	
