@@ -28,170 +28,276 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
+import org.everit.jira.timetracker.plugin.dto.CalendarSettingsValues;
 import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
 
 import com.atlassian.jira.web.action.JiraWebActionSupport;
 
 public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 
-    /**
-     * Serial version UID.
-     */
-    private static final long serialVersionUID = 1L;
-    /**
-     * The {@link JiraTimetrackerPlugin}.
-     */
-    private JiraTimetrackerPlugin jiraTimetrackerPlugin;
-    /**
-     * The calendar is popup, inLine or both.
-     */
-    private int isPopup;
-    /**
-     * The calenar show the actualDate or the last unfilled date.
-     */
-    private boolean isActualDate;
-    /**
-     * The IDs of the projects.
-     */
-    private List<String> projectsId;
-    /**
-     * The exclude dates in String format.
-     */
-    private String excludeDates = "";
-    /**
-     * The include dates in String format.
-     */
-    private String includeDates = "";
-    /**
-     * Logger.
-     */
-    private static final Logger LOGGER = Logger.getLogger(JiraTimetrackerSettingsWebAction.class);
-    /**
-     * The filtered Issues id.
-     */
-    private List<Pattern> issuesPatterns;
-    /**
-     * The collector issue ids.
-     */
-    private List<Pattern> collectorIssuePatterns;
+	/**
+	 * Serial version UID.
+	 */
+	private static final long serialVersionUID = 1L;
+	/**
+	 * The {@link JiraTimetrackerPlugin}.
+	 */
+	private JiraTimetrackerPlugin jiraTimetrackerPlugin;
+	/**
+	 * The calendar is popup, inLine or both.
+	 */
+	private int isPopup;
+	/**
+	 * The calenar show the actualDate or the last unfilled date.
+	 */
+	private boolean isActualDate;
+	/**
+	 * The IDs of the projects.
+	 */
+	private List<String> projectsId;
+	/**
+	 * The exclude dates in String format.
+	 */
+	private String excludeDates = "";
+	/**
+	 * The include dates in String format.
+	 */
+	private String includeDates = "";
+	/**
+	 * The message.
+	 */
+	private String message = "";
+	/**
+	 * The message parameter.
+	 */
+	private String messageParameter = "";
+	/**
+	 * The startTime.
+	 */
+	private String startTime;
+	/**
+	 * The endTime.
+	 */
+	private String endTime;
+	/**
+	 * The calendar highlights coloring.
+	 */
+	private boolean isColoring;
+	/**
+	 * Logger.
+	 */
+	private static final Logger LOGGER = Logger
+			.getLogger(JiraTimetrackerSettingsWebAction.class);
 
-    public JiraTimetrackerSettingsWebAction(final JiraTimetrackerPlugin jiraTimetrackerPlugin) {
-        this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
-    }
+	/**
+	 * The filtered Issues id.
+	 */
+	private List<Pattern> issuesPatterns;
 
-    @Override
-    public String doDefault() throws ParseException {
-        boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
-        if (!isUserLogged) {
-            setReturnUrl("/secure/Dashboard.jspa");
-            return getRedirect(NONE);
-        }
-        loadPluginSettingAndParseResult();
-        try {
-            projectsId = jiraTimetrackerPlugin.getProjectsId();
-        } catch (Exception e) {
-            LOGGER.error("Error when try set the plugin variables.", e);
-            return ERROR;
-        }
-        return INPUT;
-    }
+	/**
+	 * The collector issue ids.
+	 */
+	private List<Pattern> collectorIssuePatterns;
 
-    @Override
-    public String doExecute() throws ParseException {
-        boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
-        if (!isUserLogged) {
-            setReturnUrl("/secure/Dashboard.jspa");
-            return getRedirect(NONE);
-        }
-        loadPluginSettingAndParseResult();
-        try {
-            projectsId = jiraTimetrackerPlugin.getProjectsId();
-        } catch (Exception e) {
-            LOGGER.error("Error when try set the plugin variables.", e);
-            return ERROR;
-        }
+	public JiraTimetrackerSettingsWebAction(
+			final JiraTimetrackerPlugin jiraTimetrackerPlugin) {
+		this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
+	}
 
-        if (request.getParameter("savesettings") != null) {
-            String parseReuslt = parseSaveSettings(request);
-            if (parseReuslt != null) {
-                return parseReuslt;
-            }
-            savePluginSettings();
-            setReturnUrl("/secure/JiraTimetarckerWebAction!default.jspa");
-            return getRedirect(INPUT);
-        }
+	@Override
+	public String doDefault() throws ParseException {
+		boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
+		if (!isUserLogged) {
+			setReturnUrl("/secure/Dashboard.jspa");
+			return getRedirect(NONE);
+		}
+		loadPluginSettingAndParseResult();
+		try {
+			projectsId = jiraTimetrackerPlugin.getProjectsId();
+		} catch (Exception e) {
+			LOGGER.error("Error when try set the plugin variables.", e);
+			return ERROR;
+		}
+		return INPUT;
+	}
 
-        return SUCCESS;
-    }
+	@Override
+	public String doExecute() throws ParseException {
+		boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
+		if (!isUserLogged) {
+			setReturnUrl("/secure/Dashboard.jspa");
+			return getRedirect(NONE);
+		}
+		loadPluginSettingAndParseResult();
+		try {
+			projectsId = jiraTimetrackerPlugin.getProjectsId();
+		} catch (Exception e) {
+			LOGGER.error("Error when try set the plugin variables.", e);
+			return ERROR;
+		}
 
-    public boolean getIsActualDate() {
-        return isActualDate;
-    }
+		if (request.getParameter("savesettings") != null) {
+			String parseReuslt = parseSaveSettings(request);
+			if (parseReuslt != null) {
+				return parseReuslt;
+			}
+			savePluginSettings();
+			setReturnUrl("/secure/JiraTimetarckerWebAction!default.jspa");
+			return getRedirect(INPUT);
+		}
 
-    public int getIsPopup() {
-        return isPopup;
-    }
+		return SUCCESS;
+	}
 
-    public List<String> getProjectsId() {
-        return projectsId;
-    }
+	public String getEndTime() {
+		return endTime;
+	}
 
-    /**
-     * Load the plugin settings and set the variables.
-     */
-    public void loadPluginSettingAndParseResult() {
-        PluginSettingsValues pluginSettingsValues = jiraTimetrackerPlugin.loadPluginSettings();
-        isPopup = pluginSettingsValues.isCalendarPopup();
-        isActualDate = pluginSettingsValues.isActualDate();
-        issuesPatterns = pluginSettingsValues.getFilteredSummaryIssues();
-        collectorIssuePatterns = pluginSettingsValues.getCollectorIssues();
-        excludeDates = pluginSettingsValues.getExcludeDates();
-        includeDates = pluginSettingsValues.getIncludeDates();
-    }
+	public boolean getIsActualDate() {
+		return isActualDate;
+	}
 
-    /**
-     * Parse the reqest after the save button was clicked. Set the variables.
-     * 
-     * @param request
-     *            The HttpServletRequest.
-     */
-    public String parseSaveSettings(final HttpServletRequest request) {
-        String[] popupOrInlineValue = request.getParameterValues("popupOrInline");
-        if (popupOrInlineValue[0].equals("popup")) {
-            isPopup = JiraTimetrackerUtil.POPUP_CALENDAR_CODE;
-        } else if (popupOrInlineValue[0].equals("inline")) {
-            isPopup = JiraTimetrackerUtil.INLINE_CALENDAR_CODE;
-        } else {
-            isPopup = JiraTimetrackerUtil.BOTH_TYPE_CALENDAR_CODE;
-        }
-        String[] currentOrLastValue = request.getParameterValues("currentOrLast");
-        if (currentOrLastValue[0].equals("current")) {
-            isActualDate = true;
-        } else {
-            isActualDate = false;
-        }
-        return null;
-    }
+	public boolean getIsColoring() {
+		return isColoring;
+	}
 
-    /**
-     * Save the plugin settings.
-     */
-    public void savePluginSettings() {
-        PluginSettingsValues pluginSettingValues = new PluginSettingsValues(isPopup, isActualDate, issuesPatterns,
-                collectorIssuePatterns, excludeDates, includeDates);
-        jiraTimetrackerPlugin.savePluginSettings(pluginSettingValues);
-    }
+	public int getIsPopup() {
+		return isPopup;
+	}
 
-    public void setIsActualDate(final boolean actualDateOrLastWorklogDate) {
-        isActualDate = actualDateOrLastWorklogDate;
-    }
+	public String getMessage() {
+		return message;
+	}
 
-    public void setIsPopup(final int isPopup) {
-        this.isPopup = isPopup;
-    }
+	public String getMessageParameter() {
+		return messageParameter;
+	}
 
-    public void setProjectsId(final List<String> projectsId) {
-        this.projectsId = projectsId;
-    }
+	public List<String> getProjectsId() {
+		return projectsId;
+	}
+
+	public String getStartTime() {
+		return startTime;
+	}
+
+	/**
+	 * Load the plugin settings and set the variables.
+	 */
+	public void loadPluginSettingAndParseResult() {
+		PluginSettingsValues pluginSettingsValues = jiraTimetrackerPlugin
+				.loadPluginSettings();
+		isPopup = pluginSettingsValues.isCalendarPopup();
+		isActualDate = pluginSettingsValues.isActualDate();
+		issuesPatterns = pluginSettingsValues.getFilteredSummaryIssues();
+		collectorIssuePatterns = pluginSettingsValues.getCollectorIssues();
+		excludeDates = pluginSettingsValues.getExcludeDates();
+		includeDates = pluginSettingsValues.getIncludeDates();
+		startTime = Integer.toString(pluginSettingsValues.getStartTimeChange());
+		endTime = Integer.toString(pluginSettingsValues.getEndTimeChange());
+		isColoring = pluginSettingsValues.isColoring();
+	}
+
+	/**
+	 * Parse the reqest after the save button was clicked. Set the variables.
+	 * 
+	 * @param request
+	 *            The HttpServletRequest.
+	 */
+	public String parseSaveSettings(final HttpServletRequest request) {
+		String[] popupOrInlineValue = request
+				.getParameterValues("popupOrInline");
+		String[] startTimeValue = request.getParameterValues("startTime");
+		String[] endTimeValue = request.getParameterValues("endTime");
+
+		if (popupOrInlineValue[0].equals("popup")) {
+			isPopup = JiraTimetrackerUtil.POPUP_CALENDAR_CODE;
+		} else if (popupOrInlineValue[0].equals("inline")) {
+			isPopup = JiraTimetrackerUtil.INLINE_CALENDAR_CODE;
+		} else {
+			isPopup = JiraTimetrackerUtil.BOTH_TYPE_CALENDAR_CODE;
+		}
+		String[] currentOrLastValue = request
+				.getParameterValues("currentOrLast");
+		if (currentOrLastValue[0].equals("current")) {
+			isActualDate = true;
+		} else {
+			isActualDate = false;
+		}
+		String[] isColoringValue = request.getParameterValues("isColoring");
+		if (isColoringValue != null) {
+			isColoring = true;
+		} else {
+			isColoring = false;
+		}
+		try {
+			if (jiraTimetrackerPlugin.validateTimeChange(startTimeValue[0])) {
+				startTime = startTimeValue[0];
+			} else {
+				message = "plugin.setting.start.time.change.wrong";
+			}
+		} catch (NumberFormatException e) {
+			message = "plugin.settings.time.format";
+			messageParameter = startTimeValue[0];
+		}
+		try {
+			if (jiraTimetrackerPlugin.validateTimeChange(endTimeValue[0])) {
+				endTime = endTimeValue[0];
+			} else {
+				message = "plugin.setting.end.time.change.wrong";
+			}
+		} catch (NumberFormatException e) {
+			message = "plugin.settings.time.format";
+			messageParameter = endTimeValue[0];
+		}
+		if (!message.equals("")) {
+			return SUCCESS;
+		}
+		return null;
+	}
+
+	/**
+	 * Save the plugin settings.
+	 */
+	public void savePluginSettings() {
+		PluginSettingsValues pluginSettingValues = new PluginSettingsValues(
+				new CalendarSettingsValues(isPopup, isActualDate, excludeDates,
+						includeDates, isColoring), issuesPatterns,
+				collectorIssuePatterns, Integer.valueOf(startTime),
+				Integer.valueOf(endTime));
+		jiraTimetrackerPlugin.savePluginSettings(pluginSettingValues);
+	}
+
+	public void setColoring(final boolean isColoring) {
+		this.isColoring = isColoring;
+	}
+
+	public void setEndTime(final String endTime) {
+		this.endTime = endTime;
+	}
+
+	public void setIsActualDate(final boolean actualDateOrLastWorklogDate) {
+		isActualDate = actualDateOrLastWorklogDate;
+	}
+
+	public void setIsPopup(final int isPopup) {
+		this.isPopup = isPopup;
+	}
+
+	public void setMessage(final String message) {
+		this.message = message;
+	}
+
+	public void setMessageParameter(final String messageParameter) {
+		this.messageParameter = messageParameter;
+	}
+
+	public void setProjectsId(final List<String> projectsId) {
+		this.projectsId = projectsId;
+	}
+
+	public void setStartTime(final String startTime) {
+		this.startTime = startTime;
+	}
 
 }

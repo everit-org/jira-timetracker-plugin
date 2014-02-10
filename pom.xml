@@ -34,7 +34,7 @@
 
 	<groupId>org.everit.jira.timetracker</groupId>
 	<artifactId>org.everit.jira.timetracker.plugin</artifactId>
-	<version>1.1.0</version>
+	<version>1.2.0</version>
 
 	<packaging>bundle</packaging>
 
@@ -87,6 +87,11 @@
 	</build>
 
 	<dependencies>
+		<dependency>
+			<groupId>com.atlassian.usercompatibility</groupId>
+			<artifactId>usercompatibility-jira</artifactId>
+			<version>0.18</version>
+		</dependency>
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>

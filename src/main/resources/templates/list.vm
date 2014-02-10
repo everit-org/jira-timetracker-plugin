@@ -44,7 +44,7 @@ margin-bottom: 0em;
 		                   	#foreach ($worklog in $worklogs)
 		                    	<tr #if($rowCount % 2 != 0) class="rowAlter" #end>
 		                    	 	<td style="vertical-align: middle;">
-		                    	 		<a href="/browse/$worklog.issue" class="issue-link">$worklog.issue</a>
+		                    	 		<a href="/browse/$worklog.issue" class="issue-link" title="#if($worklog.issueParent != '') $i18n.getText('plugin.parent.issue') $worklog.issueParent &#13 $worklog.issueSummary #else $worklog.issueSummary #end">$worklog.issue</a>
 		                    	 		
 		                    	 		#if(!$worklog.isMoreEstimatedTime)
 		                    	 			<img id="no_estimated" src="/images/icons/priority_blocker.gif" width="16" height="16" border="0"
