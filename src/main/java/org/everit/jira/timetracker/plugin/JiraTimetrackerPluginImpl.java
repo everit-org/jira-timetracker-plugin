@@ -553,7 +553,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
 		startCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
 		Date start = startCalendar.getTime();
 
-		while (dayOfMonth != DateTimeConverterUtil.LAST_DAY_OF_MONTH) {
+		while (dayOfMonth <= DateTimeConverterUtil.LAST_DAY_OF_MONTH) {
 			if (isContainsWorklog(start)) {
 				resultDays.add(Integer.toString(dayOfMonth));
 			}
