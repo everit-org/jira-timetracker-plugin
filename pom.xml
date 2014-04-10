@@ -79,6 +79,7 @@
 						</Import-Package>
 						<Export-Package />
 						<_failok>true</_failok>
+						<Embed-Dependency>usercompatibility-jira</Embed-Dependency>
 					</instructions>
 					<log4jProperties>src/main/resources/log4j.properties</log4jProperties>
 				</configuration>
