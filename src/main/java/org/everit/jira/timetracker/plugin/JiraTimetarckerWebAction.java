@@ -825,7 +825,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 
 		endCalendar = (Calendar) originalEndCcalendar.clone();
 		endCalendar.set(Calendar.DAY_OF_MONTH,
-				DateTimeConverterUtil.LAST_DAY_OF_MONTH);
+				endCalendar.getActualMaximum(Calendar.DAY_OF_MONTH));
 		end = endCalendar.getTime();
 
 		monthSummary = jiraTimetrackerPlugin.summary(start, end, null);
