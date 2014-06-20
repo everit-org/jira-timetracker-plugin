@@ -4,6 +4,9 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 {
 margin-bottom: 0em;
 }
+.table-endtime:hover, .table-starttime:hover, .table-issue:hover, .table-comment:hover{
+cursor:pointer;
+}
 </style>
 #set($rowCount = 0)
 <div class="results-wrap">
@@ -32,6 +35,9 @@ margin-bottom: 0em;
 	                        <td width="5%" style="text-align: center;">
 	                          $i18n.getText("plugin.delete")
 	                        </td>
+	                        <td width="5%" style="text-align: center;">
+	                          $i18n.getText('plugin.copy')
+	                        </td>
 	                    </tr>
                     </thead>
                     #if($worklogs.size() == 0)
@@ -40,39 +46,37 @@ margin-bottom: 0em;
 				 			$i18n.getText("plugin.no.worklogs")
 					  	</div>
                     #else
-                    	<tbody>
+                    	<tbody id="issueTable">
 		                   	#foreach ($worklog in $worklogs)
 		                    	<tr #if($rowCount % 2 != 0) class="rowAlter" #end>
-		                    	 	<td style="vertical-align: middle;">
+		                    	 	<td class="table-issue" style="vertical-align: middle;">
 		                    	 		<a href="/browse/$worklog.issue" class="issue-link" title="#if($worklog.issueParent != '') $i18n.getText('plugin.parent.issue') $worklog.issueParent &#13 $worklog.issueSummary #else $worklog.issueSummary #end">$worklog.issue</a>
 		                    	 		
 		                    	 		#if(!$worklog.isMoreEstimatedTime)
-		                    	 			<img id="no_estimated" src="/images/icons/priority_blocker.gif" width="16" height="16" border="0"
+		                    	 			<img id="no_estimated" src="$contextPath/images/icons/priority_blocker.gif" width="16" height="16" border="0"
 															alt="$i18n.getText('plugin.exclamation.mark.message')" style="vertical-align: text-bottom;" title="$i18n.getText('plugin.exclamation.mark.message')"/>
 										#end
 		                    	 	</td>
-		                    	 	<td style="vertical-align: middle;">
+		                    	 	<td class="table-starttime" style="vertical-align: middle;">
 		                    	 		$worklog.startTime
 		                    	 	</td>
-		                    	 	<td style="vertical-align: middle;">
+		                    	 	<td class="table-endtime" style="vertical-align: middle;">
 		                    	 		$worklog.endTime
 		                    	 	</td>
 		                    	 	<td style="vertical-align: middle;">
 		                    	 		$worklog.duration
 		                    	 	</td>
-		                    	 	<td id="commentRow_$rowCount" name="commentRow_$rowCount" style="vertical-align: middle;">
-			                    	 		<script>
-			                    	 			
+		                    	 	<td id="commentRow_$rowCount" name="commentRow_$rowCount" class="table-comment wiki-edit-content" style="vertical-align: middle;">
+		                    	 		<input id="hiddenWorklogBody" type="hidden" value="$worklog.body">
+		                    	 	</td>
+		                    	 	<script>
 				                    	 		jQuery.ajax({
 				                    	 			url:  "${req.contextPath}/rest/api/1.0/render",
 	                								contentType: "application/json",
 	                								type:'POST',
 	                								data: JSON.stringify({
-	                    								rendererType: "$rendererType",
-	                    								unrenderedMarkup: "$worklog.body",
-	                    								issueKey: "$worklog.issue",
-                   										projectId: "",
-                    									issueType: ""
+	                    								rendererType: "atlassian-wiki-renderer",
+	                    								unrenderedMarkup: "$worklog.body"
 	                								}),
 	                								dataType: "text",
 	                								success: function(data){
@@ -82,17 +86,16 @@ margin-bottom: 0em;
 			                    	 				AJS.$("#commentRow_$rowCount").attr("style","vertical-align: middle;");
 			                    	 			}
 	            								}); 
-	            								
-	            								
-			                    	 			
-			                    	 		</script>
-		                    	 	</td>
+	            					</script>
 		                    	 	<td style="vertical-align: middle;">
 		                    	 		<input id="hiddenWorklogId" type="hidden" value="$worklog.worklogId" >
-		                    	 		<input id="edit" type="button" name="edit" value="$i18n.getText('plugin.edit')" onclick="location.href='JiraTimetarckerWebAction!default.jspa?editedWorklogId=$worklog.worklogId&dateFormated=$dateFormated'" class="button" />
+		                    	 		<input id="edit" type="button" name="edit" value="$i18n.getText('plugin.edit')" onclick="location.href='JiraTimetarckerWebAction.jspa?editedWorklogId=$worklog.worklogId&dateFormated=$dateFormated'" class="button" />
 		                    	 	</td>
 		                    	 	<td style="vertical-align: middle;">
 		                    	 		<input id="delete" type="button" name="delete" value="$i18n.getText('plugin.delete')" onclick="location.href='JiraTimetarckerWebAction!default.jspa?deletedWorklogId=$worklog.worklogId&dateFormated=$dateFormated'" class="button"/>
+		                    	 	</td>
+		                    	 	<td style="vertical-align: middle;">
+		                    	 		<input id="copy" type="button" name="copy" value="$i18n.getText('plugin.copy')" class="copy button"/>
 		                    	 	</td>
 		                    	</tr>
 		                    	#set($rowCount = $rowCount + 1)

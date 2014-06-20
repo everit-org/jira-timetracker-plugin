@@ -69,7 +69,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 									    }
 									}
 						          </script>
-								<img id="date_trigger_from" src="/images/icons/cal.gif" width="16" height="16" border="0"
+								<img id="date_trigger_from" src="$contextPath/images/icons/cal.gif" width="16" height="16" border="0"
 									alt="Pick a date"/>
 								<script>
 								var cal= Calendar.setup({
@@ -97,7 +97,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 									    }
 									}
 						          </script>
-								<img id="date_trigger_to" src="/images/icons/cal.gif" width="16" height="16" border="0"
+								<img id="date_trigger_to" src="$contextPath/images/icons/cal.gif" width="16" height="16" border="0"
 									alt="Pick a date"/>
 								<script>
 								var cal= Calendar.setup({
