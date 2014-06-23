@@ -504,7 +504,6 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 						                    <tr>
 						            	 		<td colspan="6" class="notes">
 							                    	$i18n.getText("plugin.note"):</br>
-							                    	<div id="idebele"></div>
 							                    	#set($fieldId = "comments")
 							                    	#parse("templates/plugins/renderers/wiki/wiki-renderer-edit.vm")
 							 	  					<script>
@@ -615,12 +614,19 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 		 });
 		 
 		 AJS.$('.table-comment').click(function(){
+		 
 		 var temp = AJS.$(this).find('#hiddenWorklogBody').val();
-		 temp = temp.replace(/(\\r\\n|\\n|\\r)/gm, "&#013;");
-     	 AJS.$("#comments").html(temp);
+		
+		 var temp2 = temp.replace(/(\\r\\n|\\n|\\r)/gm, "&#013;");
+		 var temp3 = temp.replace(/(\\r\\n|\\n|\\r)/gm, "\n");
+     
+     	 AJS.$("#comments").html(temp2);
+     	 AJS.$("#comments").val(temp3);
 		 });
 		 
 		 AJS.$('.table-issue').click(function(){
+		 	AJS.$('#issueSelect-textarea').parent().find('.item-delete').click();
+		 	
 		 	var temp = new String(AJS.$(this).find('a').html());
 		 	AJS.$('#issueSelect-textarea').val(temp.trim());
 		 	AJS.$('#issueSelect-textarea').focus();
@@ -628,12 +634,17 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 		 });
 		 
 		 AJS.$('.copy').click(function(){
+		    AJS.$('#issueSelect-textarea').parent().find('.item-delete').click();
+		    
 		 	var temp = AJS.$(this).parent().parent().find('.table-issue').find('a').html();
 		 	AJS.$('#issueSelect-textarea').val(temp.trim());
 		 	
 		 	temp = AJS.$(this).parent().parent().find('#hiddenWorklogBody').val();
-		 	temp = temp.replace(/(\\r\\n|\\n|\\r)/gm, "&#013;");
-		 	AJS.$("#comments").html(temp);
+		 	var temp2 = temp.replace(/(\\r\\n|\\n|\\r)/gm, "&#013;");
+		 	var temp3 = temp.replace(/(\\r\\n|\\n|\\r)/gm, "\n");
+		 	
+		 	AJS.$("#comments").html(temp2);
+		 	AJS.$("#comments").val(temp3);
 		 	
 		 	AJS.$('#issueSelect-textarea').focus();
 		 	AJS.$('#Submit').focus();
