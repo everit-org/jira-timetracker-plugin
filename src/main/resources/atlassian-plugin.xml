@@ -56,13 +56,13 @@
                 <view name="input">/templates/missing_worklogs_report.vm</view>
                 <view name="error">/templates/error.vm</view>
             </action>
-            <!--  
+
             <action name="org.everit.jira.timetracker.plugin.JiraTimetrackerChartWebAction" alias="JiraTimetrackerChartWebAction">
                 <view name="success">/templates/chart_report.vm</view>
                 <view name="input">/templates/chart_report.vm</view>
                 <view name="error">/templates/error.vm</view>
             </action>
-            -->
+
              <action name="org.everit.jira.timetracker.plugin.JiraTimetrackerSettingsWebAction" alias="JiraTimetrackerSettingsWebAction">
                 <view name="success">/templates/settings.vm</view>
                 <view name="input">/templates/settings.vm</view>

@@ -1,0 +1,164 @@
+## Style Declaration
+<style type="text/css">
+.button {
+        padding: 2px;
+    }
+</style>
+$webResourceManager.requireResource("jira.webresources:global-static")
+$webResourceManager.requireResource("jira.webresources:calendar")
+$webResourceManager.requireResource("jira.webresources:calendar-en")
+$webResourceManager.requireResource("jira.webresources:dwr", null)   
+$webResourceManager.requireResource("jira.webresources:ajax-preview", null)
+<div>
+
+<form name="chartReportForm"  method="post" action="JiraTimetrackerChartWebAction.jspa?dateFromFormated=$dateFromFormated&dateToFormated=$dateToFormated" />   
+	#set($rendererType = "atlassian-wiki-renderer")
+	<div id="plugin_head" class="item-header">
+ 			<h1 class="item-summary">Timetracker</h1>
+  	</div>
+	<div id="main-content" class="content rounded" >
+		<div style="margin:10px; width:970px;">
+			##TAB START
+			<div class="tabwrap tabs2" id="tabs-jttp">
+	    		<ul class="tabs horizontal">
+	        		<li>
+	            		<a href="JiraTimetarckerWebAction!default.jspa"><strong>Timetracker</strong></a>
+	        		</li>
+	        		<li>
+	            		<a href="JiraTimetrackerWorklogsWebAction!default.jspa"><strong>Missing Days Report</strong></a>
+	        		</li>
+	        		<li class="active">
+	            		<a href="JiraTimetrackerChartWebAction!default.jspa"><strong>Chart Report</strong></a>
+	        		</li>
+	    		</ul>
+	    	</div>
+			##TAB END
+			<div id="message" style="color: red; padding-bottom: 5px;">
+		 			$i18n.getText($message)
+		  	</div>
+			<div id="calendar_div" style="text-align: left; vertical-align: inherit; padding:5px;">
+				<table>
+					<tbody>
+						<tr>
+							<td>
+								$i18n.getText("plugin.from"): 
+								</td>
+								<td>
+								<input type="text" id="dateFrom" name="dateFrom" tabindex="1" onkeydown="return checkFromEnter(event);" value="$dateFromFormated"/>
+								 <script>
+						            function checkFromEnter(event){
+									    if (event.keyCode == 13) {
+									      AJS.$("#dateTo").focus();
+									      return false;
+									    }
+									}
+						          </script>
+								<img id="date_trigger_from" src="$contextPath/images/icons/cal.gif" width="16" height="16" border="0"
+									alt="Pick a date"/>
+								<script>
+								var cal= Calendar.setup({
+									firstDay : $fdow,
+									inputField : 'dateFrom',
+									button : 'date_trigger_from',
+									date : '$dateFromFormated',
+									align : 'Br',
+									electric: false,
+									singleClick : true,
+									showOthers: true,
+									useISO8601WeekNumbers : false,
+									ifFormat : '%Y-%m-%d'
+								});
+								</script>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								$i18n.getText("plugin.to"): 
+								</td>
+								<td>
+								<input type="text" id="dateTo" name="dateTo" tabindex="1" onkeydown="return checkToEnter(event);" value="$dateToFormated"/>
+								 <script>
+						            function checkToEnter(event){
+									    if (event.keyCode == 13) {
+									      AJS.$("#dateTo").focus();
+									      return false;
+									    }
+									}
+						          </script>
+								<img id="date_trigger_to" src="$contextPath/images/icons/cal.gif" width="16" height="16" border="0"
+									alt="Pick a date"/>
+								<script>
+								var cal= Calendar.setup({
+									firstDay : $fdow,
+									inputField : 'dateTo',
+									button : 'date_trigger_to',
+									date : '$dateToFormated',
+									align : 'Br',
+									electric: false,
+									singleClick : true,
+									showOthers: true,
+									useISO8601WeekNumbers : false,
+									ifFormat : '%Y-%m-%d'
+								});
+								</script>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								$i18n.getText("plugin.user"): 
+							</td>
+							<td>
+								<select name="userPicker">
+									#foreach ($user in $allUsers)
+										<option value="$user.getEmailAddress()" #if($user.getEmailAddress().equals($currentUserEmail)) selected #end >$user.getEmailAddress()</option>
+									#end
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<input id="search"  tabindex="3" type="submit" name="search" value="$i18n.getText('plugin.search')" class="button" />
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			#if($chartDataList && $chartDataList.size() == 0)
+				<div id="message" style="text-align: center; padding: 3px; font-size: 14px; width: 30%;" >
+							 			$i18n.getText("plugin.no.worklogs")
+				</div>
+			#elseif($chartDataList)
+				<div id="piechart" style="width: 800px; height: 500px; display: inline-block;"></div>
+			#end
+		</div>	
+	</div>
+</form>
+
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
+<script type="text/javascript">
+      google.load("visualization", "1", {packages:["corechart"]});
+      google.setOnLoadCallback(drawChart);
+      function drawChart() {
+      	 var dataArray = new Array();
+		 dataArray.push(['id','duration']);
+		 
+		 #foreach ($chartData in $chartDataList)
+		 	var projectId = new String('$chartData.projectId');
+		 	var duration = new Number('$chartData.duration');
+		 	duration = duration/(1000*60*60);
+		 	duration = +duration.toFixed(2);
+		 	dataArray.push([projectId.toString(),duration]);
+		 #end
+		 
+		 var data = google.visualization.arrayToDataTable(dataArray);
+        var options = {
+        	backgroundColor: 'transparent',
+        	pieSliceText: 'value',
+        	title: 'Hours worked by projects'
+        };
+
+        var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+        chart.draw(data, options);
+      }
+</script>

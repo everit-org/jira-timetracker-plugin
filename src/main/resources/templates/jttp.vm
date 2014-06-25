@@ -117,11 +117,11 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 	        		<li>
 	            		<a href="JiraTimetrackerWorklogsWebAction!default.jspa"><strong>Missing Days Report</strong></a>
 	        		</li>
-	        		<!--
+
 	        		<li>
 	            		<a href="JiraTimetrackerChartWebAction!default.jspa"><strong>Chart Report</strong></a>
 	        		</li>
-	        		-->
+
 	    		</ul>
 	    	</div>
 			##TAB END
