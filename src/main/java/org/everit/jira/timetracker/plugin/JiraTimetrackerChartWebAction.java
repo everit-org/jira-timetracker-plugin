@@ -24,7 +24,7 @@ package org.everit.jira.timetracker.plugin;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -120,9 +120,9 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
      */
     public boolean checkNonWorkingIssues = false;
 
-    private Collection<User> allUsers;
+    private List<User> allUsers;
 
-    private String currentUserEmail;
+    private String currentUserEmail = "";
 
     /**
      * Simple constructor.
@@ -173,7 +173,9 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
         }
         chartDataList = null;
 
-        allUsers = UserUtils.getAllUsers();
+        allUsers = new ArrayList<User>(UserUtils.getAllUsers());
+        Collections.sort(allUsers);
+
         JiraAuthenticationContext authenticationContext = ComponentManager
                 .getInstance().getJiraAuthenticationContext();
         currentUserEmail = authenticationContext.getLoggedInUser().getEmailAddress();
@@ -183,7 +185,6 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
     @Override
     public String doExecute() throws ParseException {
-        // set variables default value back
         boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
         if (!isUserLogged) {
             setReturnUrl("/secure/Dashboard.jspa");
@@ -193,88 +194,96 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
         normalizeContextPath();
         loadPluginSettingAndParseResult();
 
-        String[] searchValue = request.getParameterValues("search");
-        if (searchValue != null) {
+        allUsers = new ArrayList<User>(UserUtils.getAllUsers());
+        Collections.sort(allUsers);
 
-            String dateFrom = request.getParameterValues("dateFrom")[0];
-            if (dateFrom != null) {
-                dateFromFormated = dateFrom;
-            }
-            else {
-                return ERROR;
-            }
-            Calendar startDate = Calendar.getInstance();
-            startDate.setTime(DateTimeConverterUtil.stringToDate(dateFrom));
+        currentUserEmail = request.getParameterValues("userPicker")[0];
 
-            String dateTo = request.getParameterValues("dateTo")[0];
-            if (dateTo != null) {
-                dateToFormated = dateTo;
-            }
-            else {
-                return ERROR;
-            }
-
-            if (dateFrom.compareTo(dateTo) >= 0) {
-                message = "plugin.wrong.dates";
-                return SUCCESS;
-            }
-
-            Calendar lastDate = (Calendar) startDate.clone();
-            lastDate.setTime(DateTimeConverterUtil.stringToDate(dateTo));
-
-            lastDate.set(Calendar.HOUR_OF_DAY,
-                    DateTimeConverterUtil.LAST_HOUR_OF_DAY);
-            lastDate.set(Calendar.MINUTE,
-                    DateTimeConverterUtil.LAST_MINUTE_OF_HOUR);
-            lastDate.set(Calendar.SECOND,
-                    DateTimeConverterUtil.LAST_SECOND_OF_MINUTE);
-            lastDate.set(Calendar.MILLISECOND,
-                    DateTimeConverterUtil.LAST_MILLISECOND_OF_SECOND);
-
-            String userEmail = request.getParameterValues("userPicker")[0];
-            currentUserEmail = userEmail;
-
-            List<EveritWorklog> worklogs = new ArrayList<EveritWorklog>();
-            while (startDate.before(lastDate)) {
-                try {
-                    worklogs.addAll(jiraTimetrackerPlugin.getWorklogs(startDate.getTime(), userEmail));
-                } catch (GenericEntityException e) {
-                    LOGGER.error("Error when trying to get worklogs.", e);
-                    return ERROR;
-                }
-                startDate.add(Calendar.DATE, 1);
-            }
-
-            Map<String, Long> map = new HashMap<String, Long>();
-            for (EveritWorklog worklog : worklogs) {
-                String projectName = worklog.getIssue().split("-")[0];
-                Long newValue = worklog.getMilliseconds();
-                Long oldValue = map.get(projectName);
-                if (oldValue == null) {
-                    map.put(projectName, newValue);
-                } else {
-                    map.put(projectName, oldValue + newValue);
-                }
-            }
-
-            chartDataList = new ArrayList<ChartData>();
-            for (String key : map.keySet()) {
-                chartDataList.add(new ChartData(key, map.get(key)));
-            }
-
+        if (dateFromFormated.equals("")) {
+            dateFromDefaultInit();
+        }
+        if (dateToFormated.equals("")) {
+            dateToDefaultInit();
+        }
+        if (currentUserEmail.equals("")) {
+            JiraAuthenticationContext authenticationContext = ComponentManager
+                    .getInstance().getJiraAuthenticationContext();
+            currentUserEmail = authenticationContext.getLoggedInUser().getEmailAddress();
         }
 
-        allUsers = UserUtils.getAllUsers();
+        String dateFrom = request.getParameterValues("dateFrom")[0];
+        if ((dateFrom != null) && !dateFrom.equals("")) {
+            dateFromFormated = dateFrom;
+        }
+        else {
+            message = "plugin.invalid_startTime";
+            return SUCCESS;
+        }
+        Calendar startDate = Calendar.getInstance();
+        startDate.setTime(DateTimeConverterUtil.stringToDate(dateFrom));
+
+        String dateTo = request.getParameterValues("dateTo")[0];
+        if ((dateTo != null) && !dateTo.equals("")) {
+            dateToFormated = dateTo;
+        }
+        else {
+            message = "plugin.invalid_endTime";
+            return SUCCESS;
+        }
+
+        if (dateFrom.compareTo(dateTo) > 0) {
+            message = "plugin.wrong.dates";
+            return SUCCESS;
+        }
+
+        Calendar lastDate = (Calendar) startDate.clone();
+        lastDate.setTime(DateTimeConverterUtil.stringToDate(dateTo));
+
+        lastDate.set(Calendar.HOUR_OF_DAY,
+                DateTimeConverterUtil.LAST_HOUR_OF_DAY);
+        lastDate.set(Calendar.MINUTE,
+                DateTimeConverterUtil.LAST_MINUTE_OF_HOUR);
+        lastDate.set(Calendar.SECOND,
+                DateTimeConverterUtil.LAST_SECOND_OF_MINUTE);
+        lastDate.set(Calendar.MILLISECOND,
+                DateTimeConverterUtil.LAST_MILLISECOND_OF_SECOND);
+
+        List<EveritWorklog> worklogs = new ArrayList<EveritWorklog>();
+        while (startDate.before(lastDate)) {
+            try {
+                worklogs.addAll(jiraTimetrackerPlugin.getWorklogs(startDate.getTime(), currentUserEmail));
+            } catch (GenericEntityException e) {
+                LOGGER.error("Error when trying to get worklogs.", e);
+                return ERROR;
+            }
+            startDate.add(Calendar.DATE, 1);
+        }
+
+        Map<String, Long> map = new HashMap<String, Long>();
+        for (EveritWorklog worklog : worklogs) {
+            String projectName = worklog.getIssue().split("-")[0];
+            Long newValue = worklog.getMilliseconds();
+            Long oldValue = map.get(projectName);
+            if (oldValue == null) {
+                map.put(projectName, newValue);
+            } else {
+                map.put(projectName, oldValue + newValue);
+            }
+        }
+
+        chartDataList = new ArrayList<ChartData>();
+        for (String key : map.keySet()) {
+            chartDataList.add(new ChartData(key, map.get(key)));
+        }
 
         return SUCCESS;
-
     }
 
     public int getActualPage() {
         return actualPage;
     }
 
-    public Collection<User> getAllUsers() {
+    public List<User> getAllUsers() {
         return allUsers;
     }
 
@@ -372,7 +381,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
         this.actualPage = actualPage;
     }
 
-    public void setAllUsers(final Collection<User> allUsers) {
+    public void setAllUsers(final List<User> allUsers) {
         this.allUsers = allUsers;
     }
 
