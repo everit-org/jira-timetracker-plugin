@@ -26,6 +26,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -121,7 +122,7 @@ public final class DateTimeConverterUtil {
     /**
      * The JIRA duration pattern.
      */
-    public static final String JIRA_DURATION_PATTERN = "(([01]?[0-9]|2[0-3])[h]*[\\s]+([0-5]?[0-9][m])*)|([0-5]?[0-9][m])+|(([01]?[0-9]|2[0-3])[h])+";
+    public static final String JIRA_DURATION_PATTERN = "(([01]?[0-9]|2[0-3])[h]*[\\s]+(([0-5]?[0-9])[m])*)|(([0-5]?[0-9])[m])+|(([01]?[0-9]|2[0-3])[h])+";
 
     /**
      * Count the worklog end time.
@@ -199,6 +200,27 @@ public final class DateTimeConverterUtil {
      */
     public static boolean isValidTime(final String time) {
         return Pattern.matches(TIME24HOURS_PATTERN, time);
+    }
+
+    public static int jiraDurationToSeconds(final String duration) {
+        Pattern durPatt = Pattern.compile(DateTimeConverterUtil.JIRA_DURATION_PATTERN);
+        Matcher m = durPatt.matcher(duration);
+        int seconds = 0;
+        if (m.matches()) {
+            if (m.group(8) != null) {
+                seconds = Integer.parseInt(m.group(8)) * DateTimeConverterUtil.MINUTES_PER_HOUR
+                        * DateTimeConverterUtil.SECONDS_PER_MINUTE;
+            }
+            else if (m.group(6) != null) {
+                seconds = Integer.parseInt(m.group(6)) * DateTimeConverterUtil.SECONDS_PER_MINUTE;
+            }
+            else if ((m.group(2) != null) && (m.group(4) != null)) {
+                seconds = Integer.parseInt(m.group(2)) * DateTimeConverterUtil.MINUTES_PER_HOUR
+                        * DateTimeConverterUtil.SECONDS_PER_MINUTE;
+                seconds += Integer.parseInt(m.group(4)) * DateTimeConverterUtil.SECONDS_PER_MINUTE;
+            }
+        }
+        return seconds;
     }
 
     /**

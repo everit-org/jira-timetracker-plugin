@@ -30,6 +30,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.everit.jira.timetracker.plugin.dto.ActionResult;
 import org.everit.jira.timetracker.plugin.dto.ActionResultStatus;
@@ -517,7 +518,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         // endTime = DateTimeConverterUtil.dateTimeToString(new Date());
         try {
             loadWorklogsAndMakeSummary();
-            // startTime = jiraTimetrackerPlugin.lastEndTime(worklogs);
+            startTime = jiraTimetrackerPlugin.lastEndTime(worklogs);
             comment = "";
         } catch (Exception e) {
             LOGGER.error("Error when try set the plugin variables.", e);
@@ -803,7 +804,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
      *             If getWorklogs can't parse date.
      */
     private void loadWorklogsAndMakeSummary() throws GenericEntityException,
-    ParseException {
+            ParseException {
         worklogs = jiraTimetrackerPlugin.getWorklogs(date);
         log.warn("JTWA log: loadWorklogsAndMakeSummary: worklogs size: "
                 + worklogs.size());
@@ -854,9 +855,9 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 
         startCalendar = (Calendar) originalStartcalendar.clone();
         startCalendar
-        .set(Calendar.DAY_OF_MONTH,
-                (date.getDate() - (date.getDay() == 0 ? 6 : date
-                        .getDay() - 1)));
+                .set(Calendar.DAY_OF_MONTH,
+                        (date.getDate() - (date.getDay() == 0 ? 6 : date
+                                .getDay() - 1)));
         start = startCalendar.getTime();
 
         endCalendar = (Calendar) originalEndCcalendar.clone();
@@ -907,7 +908,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
      *             ClassNotFoundException.
      */
     private void readObject(final ObjectInputStream in) throws IOException,
-    ClassNotFoundException {
+            ClassNotFoundException {
         in.defaultReadObject();
         issues = new ArrayList<Issue>();
     }
@@ -1124,12 +1125,27 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         if (endOrDurationValue[0].equals("duration")) {
             String[] durationTimeValue = request
                     .getParameterValues("durationTime");
+            Date startDateTime;
+            try {
+                startDateTime = DateTimeConverterUtil
+                        .stringTimeToDateTime(startTimeValue[0]);
+            } catch (ParseException e) {
+                message = "plugin.invalid_startTime";
+                return ERROR;
+            }
+
             if (!DateTimeConverterUtil.isValidTime(durationTimeValue[0])) {
                 if (!DateTimeConverterUtil.isValidJiraTime(durationTimeValue[0])) {
                     message = "plugin.invalid_durationTime";
                     return ERROR;
                 } else {
                     timeSpent = durationTimeValue[0];
+                    int seconds = DateTimeConverterUtil.jiraDurationToSeconds(durationTimeValue[0]);
+                    Date endTime = DateUtils.addSeconds(startDateTime, seconds);
+                    if (!DateUtils.isSameDay(startDateTime, endTime)) {
+                        message = "plugin.invalid_durationTime";
+                        return ERROR;
+                    }
                 }
             } else {
                 Date durationDateTime;
@@ -1144,6 +1160,13 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
                 long seconds = durationDateTime.getTime()
                         / DateTimeConverterUtil.MILLISECONDS_PER_SECOND;
                 timeSpent = DateTimeConverterUtil.secondConvertToString(seconds);
+
+                // check the duration time to not exceed the present day
+                Date endTime = DateUtils.addSeconds(startDateTime, (int) seconds);
+                if (!DateUtils.isSameDay(startDateTime, endTime)) {
+                    message = "plugin.invalid_durationTime";
+                    return ERROR;
+                }
             }
         } else {
             String[] endTimeValue = request.getParameterValues("endTime");
