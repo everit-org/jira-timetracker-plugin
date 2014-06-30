@@ -57,10 +57,6 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
      * The {@link JiraTimetrackerPlugin}.
      */
     private JiraTimetrackerPlugin jiraTimetrackerPlugin;
-
-    private List<String> allDatesWhereNoWorklog;
-
-    private List<String> showDatesWhereNoWorklog;
     /**
      * The date.
      */
@@ -81,44 +77,15 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
      * The message.
      */
     private String message = "";
-    /**
-     * The message parameter.
-     */
-    private String messageParameter = "";
-    /**
-     * The message parameter.
-     */
-    private String statisticsMessageParameter = "0";
-    /**
-     * The number of pages.
-     */
-    private int numberOfPages;
-
-    /**
-     * The actual page.
-     */
-    private int actualPage;
-
-    /**
-     * The interval of the search.
-     */
-    private int interval;
 
     private String contextPath;
 
+    /**
+     * The first day of the week
+     */
     private int fdow;
 
     private List<ChartData> chartDataList;
-
-    /**
-     * The report check the worklogs time spent is equal or greater than 8 hours.
-     */
-    public boolean checkHours = false;
-
-    /**
-     * If check the worklogs spent time, then exclude the non working issues, or not.
-     */
-    public boolean checkNonWorkingIssues = false;
 
     private List<User> allUsers;
 
@@ -270,17 +237,11 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
                 map.put(projectName, oldValue + newValue);
             }
         }
-
         chartDataList = new ArrayList<ChartData>();
         for (String key : map.keySet()) {
             chartDataList.add(new ChartData(key, map.get(key)));
         }
-
         return SUCCESS;
-    }
-
-    public int getActualPage() {
-        return actualPage;
     }
 
     public List<User> getAllUsers() {
@@ -289,14 +250,6 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
     public List<ChartData> getChartDataList() {
         return chartDataList;
-    }
-
-    public boolean getCheckHours() {
-        return checkHours;
-    }
-
-    public boolean getCheckNonWorkingIssues() {
-        return checkNonWorkingIssues;
     }
 
     public String getContextPath() {
@@ -311,10 +264,6 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
         return dateFromFormated;
     }
 
-    public List<String> getDateswhereNoWorklog() {
-        return allDatesWhereNoWorklog;
-    }
-
     public String getDateToFormated() {
         return dateToFormated;
     }
@@ -323,28 +272,8 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
         return fdow;
     }
 
-    public int getInterval() {
-        return interval;
-    }
-
     public String getMessage() {
         return message;
-    }
-
-    public String getMessageParameter() {
-        return messageParameter;
-    }
-
-    public int getNumberOfPages() {
-        return numberOfPages;
-    }
-
-    public List<String> getShowDatesWhereNoWorklog() {
-        return showDatesWhereNoWorklog;
-    }
-
-    public String getStatisticsMessageParameter() {
-        return statisticsMessageParameter;
     }
 
     private void loadPluginSettingAndParseResult() {
@@ -362,39 +291,12 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
         }
     }
 
-    /**
-     * Handle the page changer action.
-     */
-    public void pageChangeAction() {
-        String[] dayBackValue = request.getParameterValues("pageBack");
-        String[] dayNextValue = request.getParameterValues("pageNext");
-        if ((dayBackValue != null) && (actualPage > 1)) {
-            actualPage--;
-        }
-        if ((dayNextValue != null) && (actualPage < numberOfPages)) {
-            actualPage++;
-        }
-
-    }
-
-    public void setActualPage(final int actualPage) {
-        this.actualPage = actualPage;
-    }
-
     public void setAllUsers(final List<User> allUsers) {
         this.allUsers = allUsers;
     }
 
     public void setChartDataList(final List<ChartData> chartDataList) {
         this.chartDataList = chartDataList;
-    }
-
-    public void setCheckHours(final boolean checkHours) {
-        this.checkHours = checkHours;
-    }
-
-    public void setCheckNonWorkingIssues(final boolean checkNonWorkingIssues) {
-        this.checkNonWorkingIssues = checkNonWorkingIssues;
     }
 
     public void setContextPath(final String contextPath) {
@@ -409,10 +311,6 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
         this.dateFromFormated = dateFromFormated;
     }
 
-    public void setDateswhereNoWorklog(final List<String> dateswhereNoWorklog) {
-        allDatesWhereNoWorklog = dateswhereNoWorklog;
-    }
-
     public void setDateToFormated(final String dateToFormated) {
         this.dateToFormated = dateToFormated;
     }
@@ -421,30 +319,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
         this.fdow = fdow;
     }
 
-    public void setInterval(final int interval) {
-        this.interval = interval;
-    }
-
     public void setMessage(final String message) {
         this.message = message;
     }
-
-    public void setMessageParameter(final String messageParameter) {
-        this.messageParameter = messageParameter;
-    }
-
-    public void setNumberOfPages(final int numberOfPages) {
-        this.numberOfPages = numberOfPages;
-    }
-
-    public void setShowDatesWhereNoWorklog(
-            final List<String> showDatesWhereNoWorklog) {
-        this.showDatesWhereNoWorklog = showDatesWhereNoWorklog;
-    }
-
-    public void setStatisticsMessageParameter(
-            final String statisticsMessageParameter) {
-        this.statisticsMessageParameter = statisticsMessageParameter;
-    }
-
 }
