@@ -104,6 +104,8 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
      */
     private int fdow;
 
+    private String contextPath;
+
     public JiraTimetrackerSettingsWebAction(
             final JiraTimetrackerPlugin jiraTimetrackerPlugin) {
         this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
@@ -116,6 +118,7 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
             setReturnUrl("/secure/Dashboard.jspa");
             return getRedirect(NONE);
         }
+        normalizeContextPath();
         loadPluginSettingAndParseResult();
         try {
             projectsId = jiraTimetrackerPlugin.getProjectsId();
@@ -133,6 +136,7 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
             setReturnUrl("/secure/Dashboard.jspa");
             return getRedirect(NONE);
         }
+        normalizeContextPath();
         loadPluginSettingAndParseResult();
         try {
             projectsId = jiraTimetrackerPlugin.getProjectsId();
@@ -152,6 +156,10 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
         }
 
         return SUCCESS;
+    }
+
+    public String getContextPath() {
+        return contextPath;
     }
 
     public String getEndTime() {
@@ -206,6 +214,15 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
         endTime = Integer.toString(pluginSettingsValues.getEndTimeChange());
         isColoring = pluginSettingsValues.isColoring();
         fdow = pluginSettingsValues.getFdow();
+    }
+
+    private void normalizeContextPath() {
+        String path = request.getContextPath();
+        if ((path.length() > 0) && path.substring(path.length() - 1).equals("/")) {
+            contextPath = path.substring(0, path.length() - 1);
+        } else {
+            contextPath = path;
+        }
     }
 
     /**
@@ -280,6 +297,10 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 
     public void setColoring(final boolean isColoring) {
         this.isColoring = isColoring;
+    }
+
+    public void setContextPath(final String contextPath) {
+        this.contextPath = contextPath;
     }
 
     public void setEndTime(final String endTime) {

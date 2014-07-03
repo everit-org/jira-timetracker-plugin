@@ -1,30 +1,8 @@
 ## Style Declaration
 <style type="text/css">
-	. grid td {
-		text-align: center;
-		vertical-align: inherit;
-	}
-	.rowHeader {
-        background-color:#E2E2E2;
-    }
-    .rowAlter {
-        background-color:#F2F2F2;
-    }
-    .button {
+.button {
         padding: 2px;
     }
-    .grid {
-        font-family:Arial,Helvetica,sans-serif;
-        font-size:12px;
-        background-color:#FCFCFC;
-        border:1px solid #D2D2D2;
-        border-collapse:collapse;
-    }
-    .grid th, .grid td {
-        border:1px solid #D2D2D2;
-        padding:4px;
-    }
-    
     .content {
 		margin: 0 .714em .714em;
 		position: relative;
@@ -52,15 +30,15 @@
 		line-height: 1.167;
 		margin: 0;
 	}
-   
 </style>
 $webResourceManager.requireResource("jira.webresources:global-static")
 $webResourceManager.requireResource("jira.webresources:calendar")
 $webResourceManager.requireResource("jira.webresources:calendar-en")
 $webResourceManager.requireResource("jira.webresources:dwr", null)   
 $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
+<div>
 
-<form name="myForm"  method="post" action="JiraTimetrackerWorklogsWebAction.jspa?dateFromFormated=$dateFromFormated&dateToFormated=$dateToFormated&actualPage=$actualPage" />   
+<form name="chartReportForm"  method="get" action="JiraTimetrackerChartWebAction.jspa" />   
 	#set($rendererType = "atlassian-wiki-renderer")
 	<div id="plugin_head" class="item-header" style="width:980px;">
 			<div style="float: right;">
@@ -78,24 +56,26 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 	        		<li>
 	            		<a href="JiraTimetarckerWebAction!default.jspa"><strong>Timetracker</strong></a>
 	        		</li>
-	        		<li class="active">
+	        		<li>
 	            		<a href="JiraTimetrackerWorklogsWebAction!default.jspa"><strong>Missing Days Report</strong></a>
 	        		</li>
-	        		<li>
+	        		<li class="active">
 	            		<a href="JiraTimetrackerChartWebAction!default.jspa"><strong>Chart Report</strong></a>
 	        		</li>
 	    		</ul>
 	    	</div>
 			##TAB END
 			<div id="message" style="color: red; padding-bottom: 5px;">
-		 			$i18n.getText($message) $messageParameter
+		 			$i18n.getText($message)
 		  	</div>
-			<div id="calendar_div" style="text-align: left; vertical-align: inherit; float: left; padding:5px;">
+			<div id="calendar_div" style="text-align: left; vertical-align: inherit; padding:5px;">
 				<table>
 					<tbody>
 						<tr>
 							<td>
-								$i18n.getText("plugin.from")
+								$i18n.getText("plugin.from"): 
+								</td>
+								<td>
 								<input type="text" id="dateFrom" name="dateFrom" tabindex="1" onkeydown="return checkFromEnter(event);" value="$dateFromFormated"/>
 								 <script>
 						            function checkFromEnter(event){
@@ -109,7 +89,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 									alt="Pick a date"/>
 								<script>
 								var cal= Calendar.setup({
-									firstDay : 0,
+									firstDay : $fdow,
 									inputField : 'dateFrom',
 									button : 'date_trigger_from',
 									date : '$dateFromFormated',
@@ -122,13 +102,17 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 								});
 								</script>
 							</td>
+						</tr>
+						<tr>
 							<td>
-								$i18n.getText("plugin.to")
-								<input type="text" id="dateTo" name="dateTo" tabindex="2" onkeydown="return checkToEnter(event);" value="$dateToFormated"/>
+								$i18n.getText("plugin.to"): 
+								</td>
+								<td>
+								<input type="text" id="dateTo" name="dateTo" tabindex="1" onkeydown="return checkToEnter(event);" value="$dateToFormated"/>
 								 <script>
 						            function checkToEnter(event){
 									    if (event.keyCode == 13) {
-									      AJS.$("#search").click();
+									      AJS.$("#dateTo").focus();
 									      return false;
 									    }
 									}
@@ -137,7 +121,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 									alt="Pick a date"/>
 								<script>
 								var cal= Calendar.setup({
-									firstDay : 0,
+									firstDay : $fdow,
 									inputField : 'dateTo',
 									button : 'date_trigger_to',
 									date : '$dateToFormated',
@@ -151,41 +135,16 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 								</script>
 							</td>
 						</tr>
-					</tbody>
-				</table>
-				<table>
-					<tbody>	
 						<tr>
 							<td>
-								<input id="hour" type="checkbox" value="check 8 h" name="hour" #if($checkHours) checked #end/>
+								$i18n.getText("plugin.user"): 
 							</td>
 							<td>
-								$i18n.getText("plugin.missing.days.hours")
-							</td>
-						</tr>
-						<tr>
-							<td>		
-								<input id="nonworking" type="checkbox" value="non-working not count" name="nonworking" #if($checkNonWorkingIssues) checked #end/>
-								<script>
-									function setcheckworkedhours() {
-											if(AJS.$("#hour").is(":checked")){
-												document.getElementById("nonworking").disabled= false;
-											}else{
-												document.getElementById("nonworking").disabled= true;
-											}
-					               	};
-					               	
-					               	AJS.$("#hour").click(function(){
-					               		setcheckworkedhours();
-					               	});
-					               	
-					               	window.onload = function() {
-					               		setcheckworkedhours();
-					               	};
-								</script>
-							</td>
-							<td>
-								$i18n.getText("plugin.missing.days.nonworking")
+								<select name="userPicker">
+									#foreach ($user in $allUsers)
+										<option value="$user.getEmailAddress()" #if($user.getEmailAddress().equals($currentUserEmail)) selected #end >$user.getEmailAddress()</option>
+									#end
+								</select>
 							</td>
 						</tr>
 						<tr>
@@ -194,54 +153,47 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 							</td>
 						</tr>
 					</tbody>
-				</table>	
+				</table>
 			</div>
-			<style type="text/css">
-			{
-				margin-bottom: 0em;
-			}
-			</style>
-			<div id="statistics-message" style="width: 30%; padding-bottom: 5px;">
-		 			$i18n.getText("plugin.statistics.message") $statisticsMessageParameter
-		  	</div>
-			#set($rowCount = 0)
-			<div class="results-wrap">
-				<div>
-				    <table class="grid" border="0" cellpadding="2" cellspacing="0" width="30%" style="text-align: center; padding-bottom: 5px;">
-				           <thead>
-				              <tr class="rowHeader">
-				                  <td width="5%">
-				                       $i18n.getText("plugin.dates")
-				                   </td>
-			                   </tr>
-			                </thead>
-			                #if($showDatesWhereNoWorklog.size() == 0)
-			            		</table>
-			            			<div id="message" style="text-align: center; padding: 3px; font-size: 14px; width: 30%;" >
-							 			$i18n.getText("plugin.no.dates")
-								  	</div>
-			                #else
-			                	   	<tbody>
-					                   	#foreach ($date in $showDatesWhereNoWorklog)
-					                    	<tr #if($rowCount % 2 != 0) class="rowAlter" #end>
-					                    	 	<td>
-					                    	 		<a href="JiraTimetarckerWebAction.jspa?dateFormated=$date">$date</a>
-					                    	 	</td>
-					                    	</tr>
-					                    	#set($rowCount = $rowCount + 1)
-					                    #end
-					                </tbody>
-					            </table>
-					         #end
-					</div>
-			 </div>
-			 #if($showDatesWhereNoWorklog.size() != 0)
-				<div style="text-align: center; width: 30%; " >
-					<input type="submit" id="pageBack"  name="pageBack" value="<" class="button"  />
-					$actualPage / $numberOfPages
-					<input type="submit" id="pageNext"  name="pageNext" value=">"  class="button"/>
+			#if($chartDataList && $chartDataList.size() == 0)
+				<div id="message" style="text-align: center; padding: 3px; font-size: 14px; width: 35%;" >
+							 			$i18n.getText("plugin.no.worklogs")
 				</div>
-			 #end
+				<div id="warn_message" style="text-align: center; padding: 3px; font-size: 11px; width: 35%; color: #3c78b5; font-style:italic;" >
+							 			$i18n.getText("plugin.worklog.permission.warning")
+				</div>
+			#elseif($chartDataList)
+				<div id="piechart" style="width: 100%; height: 500px; display: inline-block;"></div>
+			#end
 		</div>	
 	</div>
 </form>
+
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
+<script type="text/javascript">
+      google.load("visualization", "1", {packages:["corechart"]});
+      google.setOnLoadCallback(drawChart);
+      function drawChart() {
+      	 var dataArray = new Array();
+		 dataArray.push(['id','duration']);
+		 
+		 #foreach ($chartData in $chartDataList)
+		 	var projectId = new String('$chartData.projectId');
+		 	var duration = new Number('$chartData.duration');
+		 	duration = duration/(1000*60*60);
+		 	duration = +duration.toFixed(2);
+		 	dataArray.push([projectId.toString(),duration]);
+		 #end
+		 
+		 var data = google.visualization.arrayToDataTable(dataArray);
+        var options = {
+        	backgroundColor: 'transparent',
+        	pieSliceText: 'value',
+        	title: 'Hours worked by projects'
+        };
+
+        var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+        chart.draw(data, options);
+      }
+</script>
