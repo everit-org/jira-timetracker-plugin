@@ -77,12 +77,12 @@ public final class DateTimeConverterUtil {
      * The number of seconds per minute.
      */
     public static final int SECONDS_PER_MINUTE = 60;
-    
+
     /**
-     * The number of seconds in 8 hour. 
+     * The number of seconds in 8 hour.
      */
     public static final int EIGHT_HOUR_IN_SECONDS = 8 * 60 * 60;
-    
+
     /**
      * The number of milliseconds per seconds.
      */
@@ -119,8 +119,13 @@ public final class DateTimeConverterUtil {
     public static final String TIME24HOURS_PATTERN = "([01]?[0-9]|2[0-3]):[0-5][0-9]";
 
     /**
+     * The JIRA duration pattern.
+     */
+    public static final String JIRA_DURATION_PATTERN = "(([01]?[0-9]|2[0-3])[h]*[\\s]+([0-5]?[0-9][m])*)|([0-5]?[0-9][m])+|(([01]?[0-9]|2[0-3])[h])+";
+
+    /**
      * Count the worklog end time.
-     * 
+     *
      * @param start
      *            When start the worklog.
      * @param spentMilliseconds
@@ -137,7 +142,7 @@ public final class DateTimeConverterUtil {
 
     /**
      * Convert date to string ({@value #DATE_TIME_FORMAT}).
-     * 
+     *
      * @param dateAndTime
      *            The date to convert.
      * @return The result String.
@@ -150,7 +155,7 @@ public final class DateTimeConverterUtil {
 
     /**
      * Convert the date time to string ({@value #TIME_FORMAT}).
-     * 
+     *
      * @param date
      *            The time to convert.
      * @return The result string.
@@ -163,7 +168,7 @@ public final class DateTimeConverterUtil {
 
     /**
      * Convert the date to String ({@value #DATE_FORMAT}).
-     * 
+     *
      * @param date
      *            The Date to convert.
      * @return The result time.
@@ -175,8 +180,19 @@ public final class DateTimeConverterUtil {
     }
 
     /**
+     * Check the Time is valid to the {@value #JIRA_DURATION_PATTERN} pattern.
+     *
+     * @param time
+     *            The time to validate.
+     * @return If valid then true else false.
+     */
+    public static boolean isValidJiraTime(final String time) {
+        return Pattern.matches(JIRA_DURATION_PATTERN, time);
+    }
+
+    /**
      * Check the Time is valid to the {@value #TIME24HOURS_PATTERN} pattern.
-     * 
+     *
      * @param time
      *            The time to validate.
      * @return If valid then true else false.
@@ -187,7 +203,7 @@ public final class DateTimeConverterUtil {
 
     /**
      * Convert the millisecond to String time.
-     * 
+     *
      * @param milliseconds
      *            The time in milliseconds.
      * @return The result String.
@@ -203,7 +219,7 @@ public final class DateTimeConverterUtil {
 
     /**
      * Convert the seconds to jira format (1h 30m) String.
-     * 
+     *
      * @param spentSeconds
      *            The spent seconds.
      * @return The result String.
@@ -227,7 +243,7 @@ public final class DateTimeConverterUtil {
 
     /**
      * Convert String Date to String Time.
-     * 
+     *
      * @param dateString
      *            The String date.
      * @return The String Time.
@@ -242,7 +258,7 @@ public final class DateTimeConverterUtil {
 
     /**
      * Convert String ({@value #TIME_FORMAT}) to Time.
-     * 
+     *
      * @param time
      *            The String time.
      * @return The result date.
@@ -257,7 +273,7 @@ public final class DateTimeConverterUtil {
 
     /**
      * Convert String ({@value #TIME_FORMAT}) to ({@value #TIME_ZONE_GMT}) Time.
-     * 
+     *
      * @param time
      *            The Sting date and time.
      * @return The result Date.
@@ -273,7 +289,7 @@ public final class DateTimeConverterUtil {
 
     /**
      * Covert String time (hh:mm) to jira format (1h 30m) String. Use the {@link DateTimeConverterUtil} methods.
-     * 
+     *
      * @param time
      *            The time.
      * @return The new formated String.
@@ -289,7 +305,7 @@ public final class DateTimeConverterUtil {
 
     /**
      * Convert String ({@value #DATE_FORMAT}) to Date.
-     * 
+     *
      * @param dateString
      *            The String date to convert.
      * @return The result Date.
@@ -304,7 +320,7 @@ public final class DateTimeConverterUtil {
 
     /**
      * Convert String ({@value #DATE_TIME_FORMAT}) to date and time.
-     * 
+     *
      * @param dateAndTimeString
      *            The date time string to convert.
      * @return The result Date.

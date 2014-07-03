@@ -117,6 +117,11 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 	        		<li>
 	            		<a href="JiraTimetrackerWorklogsWebAction!default.jspa"><strong>Missing Days Report</strong></a>
 	        		</li>
+	        		<!--
+	        		<li>
+	            		<a href="JiraTimetrackerChartWebAction!default.jspa"><strong>Chart Report</strong></a>
+	        		</li>
+	        		-->
 	    		</ul>
 	    	</div>
 			##TAB END
@@ -134,14 +139,14 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 							<input type="submit" id="weekBack"  name="weekBack" value="<<" class="button"  />
 							<input type="submit" id="dayBack"  name="dayBack" value="<" class="button"  />
 							 $dateFormated
-							<img id="date_trigger" src="/images/icons/cal.gif" width="16" height="16" border="0"
+							<img id="date_trigger" src="$contextPath/images/icons/cal.gif" width="16" height="16" border="0"
 								alt="Pick a date"/>
 							<input type="submit" id="dayNext"  name="dayNext" value=">"  class="button"/>
 							<input type="submit" id="weekNext"  name="weekNext" value=">>"  class="button"/>
 							<input type="submit" id="monthNext"  name="monthNext" value=">>>" class="button" />
 							<script>
 							var cal= Calendar.setup({
-								firstDay : 0,
+								firstDay : $fdow,
 								inputField : 'date',
 								button : 'date_trigger',
 								date : '$dateFormated',
@@ -218,7 +223,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 						                	<tr>
 						                		<td style="width: 110px;">
 						                			<div class="field-group" style="width: 95px;">
-						                          	 	$i18n.getText("plugin.start.time") <img src="/images/required.png" width="16" height="16" border="0" />
+						                          	 	$i18n.getText("plugin.start.time") <img src="$contextPath/images/required.png" width="16" height="16" border="0" />
 						                           </div>
 						                		</td>
 						                		<td>
@@ -439,7 +444,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 						                    </tr>
 						                    <tr>
 						                    	<td colspan="6">
-						                           Issue: <img src="/images/required.png" width="16" height="16" border="0"/>
+						                           Issue: <img src="$contextPath/images/required.png" width="16" height="16" border="0"/>
 					  							   <div id="issueSelect_container" class="ajax_autocomplete atlassian-autocomplete" >
 										    		<select class="hidden"
 										    			multiple="none" 
@@ -497,10 +502,10 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 						                        </td>
 						                    </tr>
 						                    <tr>
-						            	 		<td colspan="6">
+						            	 		<td colspan="6" class="notes">
 							                    	$i18n.getText("plugin.note"):</br>
-							 	  					#set($fieldId = "comments")
-							 	  					#parse("templates/plugins/renderers/wiki/wiki-renderer-edit.vm")
+							                    	#set($fieldId = "comments")
+							                    	#parse("templates/plugins/renderers/wiki/wiki-renderer-edit.vm")
 							 	  					<script>
 							 	  						#if($isPopup != 1)
 							 	  						  AJS.$("#comments-wiki-edit").attr("style","width: 650px;");
@@ -508,7 +513,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 							 	  						#else
 							 	  						  AJS.$("#comments-wiki-edit").attr("style","width: 950px;");
 							 	  						  AJS.$("#comments").attr("style","width: 950px");	
-							 	  						#end    
+							 	  						#end 
 							 	  						AJS.$("#comments").append("$comment");
 							 	  						AJS.$("#comments").attr("tabindex","4");
 							 	  						AJS.$("#comments").attr("height","100px");
@@ -526,7 +531,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 						            		<script>
 											##This is the not popup calendar. Works but not nice
 											Calendar.setup({
-												firstDay : 0,
+												firstDay : $fdow,
 												align : 'Br',
 												electric: true,
 												date : '$dateFormated',
@@ -587,7 +592,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 				<input id="Submit"  type="submit" name="submit" value="$i18n.getText('plugin.submit')" class="button" tabindex="5"/>
 			#end
 			<input id="cancelButton"  type="button" name="Cancel" value="$i18n.getText('plugin.cancel')" onclick="location.href='JiraTimetarckerWebAction!default.jspa?dateFormated=$dateFormated'" class="button"/>
-			<input id="setting"  type="button" name="setting" onclick="location.href='JiraTimetrackerSettingsWebAction!default.jspa'" value="$i18n.getText('plugin.settings')" class="button" style="float: right; margin-right: 15px;"/>
+			<input id="setting"  type="button" name="setting" onclick="location.href='JiraTimetrackerSettingsWebAction!default.jspa'" value="$i18n.getText('plugin.settings')" class="button" style="display: inline; float: right; margin-right: 15px;"/>
 			</div>
 		</div>	
 	</div>
@@ -598,6 +603,52 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 			setLoggedDaysDesign();
  			document.getElementById("startTime").focus();
 		 };
+		 
+		 AJS.$('.table-endtime').click(function(){
+		 	var temp = new String(AJS.$(this).html());
+		 	AJS.$('#startTime').val(temp.trim());
+		 });
+		 AJS.$('.table-starttime').click(function(){
+		 	var temp = new String(AJS.$(this).html());
+		 	AJS.$('#endTime').val(temp.trim());
+		 });
+		 
+		 AJS.$('.table-comment').click(function(){
+		 
+		 var temp = AJS.$(this).find('#hiddenWorklogBody').val();
+		
+		 var temp2 = temp.replace(/(\\r\\n|\\n|\\r)/gm, "&#013;");
+		 var temp3 = temp.replace(/(\\r\\n|\\n|\\r)/gm, "\n");
+     
+     	 AJS.$("#comments").html(temp2);
+     	 AJS.$("#comments").val(temp3);
+		 });
+		 
+		 AJS.$('.table-issue').click(function(){
+		 	AJS.$('#issueSelect-textarea').parent().find('.item-delete').click();
+		 	
+		 	var temp = new String(AJS.$(this).find('a').html());
+		 	AJS.$('#issueSelect-textarea').val(temp.trim());
+		 	AJS.$('#issueSelect-textarea').focus();
+		 	AJS.$('#Submit').focus();
+		 });
+		 
+		 AJS.$('.copy').click(function(){
+		    AJS.$('#issueSelect-textarea').parent().find('.item-delete').click();
+		    
+		 	var temp = AJS.$(this).parent().parent().find('.table-issue').find('a').html();
+		 	AJS.$('#issueSelect-textarea').val(temp.trim());
+		 	
+		 	temp = AJS.$(this).parent().parent().find('#hiddenWorklogBody').val();
+		 	var temp2 = temp.replace(/(\\r\\n|\\n|\\r)/gm, "&#013;");
+		 	var temp3 = temp.replace(/(\\r\\n|\\n|\\r)/gm, "\n");
+		 	
+		 	AJS.$("#comments").html(temp2);
+		 	AJS.$("#comments").val(temp3);
+		 	
+		 	AJS.$('#issueSelect-textarea').focus();
+		 	AJS.$('#Submit').focus();
+		 });
 		 
 	</script>	
 </form>

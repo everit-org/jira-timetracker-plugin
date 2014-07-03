@@ -48,9 +48,23 @@ public final class JiraTimetrackerUtil {
     public static final int BOTH_TYPE_CALENDAR_CODE = 3;
 
     /**
+     * Sunday first day of the week.
+     */
+    public static final int SUNDAY_CALENDAR_FDOW = 0;
+
+    /**
+     * Monday first day of the week.
+     */
+    public static final int MONDAY_CALENDAR_FDOW = 1;
+
+    public static final int DAY_INTERVAL = 0;
+    public static final int WEEK_INTERVAL = 1;
+    public static final int MONTH_INTERVAL = 2;
+
+    /**
      * Check the issue original estimated time. If null then the original estimated time wasn't specified, else compare
      * the spent time whit the original estimated time.
-     * 
+     *
      * @param issue
      *            The issue.
      * @return True if not specified, bigger or equals whit spent time else false.
@@ -58,11 +72,13 @@ public final class JiraTimetrackerUtil {
     public static boolean checkIssueEstimatedTime(final MutableIssue issue,
             final List<Pattern> collectorIssueIds) {
         String issueKey = issue.getKey();
-        for (Pattern issuePattern : collectorIssueIds) {
-            // check matches
-            boolean isCollectorIssue = issuePattern.matcher(issueKey).matches();
-            if (isCollectorIssue) {
-                return true;
+        if (collectorIssueIds != null) {
+            for (Pattern issuePattern : collectorIssueIds) {
+                // check matches
+                boolean isCollectorIssue = issuePattern.matcher(issueKey).matches();
+                if (isCollectorIssue) {
+                    return true;
+                }
             }
         }
         Long estimated = issue.getEstimate();
@@ -76,7 +92,7 @@ public final class JiraTimetrackerUtil {
 
     /**
      * Check the user is logged or not.
-     * 
+     *
      * @return True if we have logged user else false.
      */
     public static boolean isUserLogged() {

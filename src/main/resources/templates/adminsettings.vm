@@ -136,6 +136,32 @@
 							</div>
 						</td>		
 					</tr>
+					<tr>
+						<td style="text-align: right;  vertical-align: top;" width="15%">
+							<strong>$i18n.getText("plugin.setting.fdow")</strong>
+						</td>
+						<td width="40%">
+							#if($fdow == 0)
+                         		<input id="radioSunday" type="radio" name="sundayOrMonday" value="sunday" style="margin-right: 10px" checked="true"> 
+                         	#else
+                         		<input id="radioSunday" type="radio" name="sundayOrMonday" value="sunday" style="margin-right: 10px"> 
+                      		#end
+                      		$i18n.getText("plugin.setting.fdow.sunday")
+						</td>
+					</tr>
+					<tr>
+						<td width="10%">
+						</td>
+						<td width="40%">
+							#if($fdow == 1)
+                         		<input id="radioMonday" type="radio" name="sundayOrMonday" value="monday" style="margin-right: 10px" checked="true"> 
+                         	#else
+                         		<input id="radioMonday" type="radio" name="sundayOrMonday" value="monday" style="margin-right: 10px"> 
+                      		#end
+                      		$i18n.getText("plugin.setting.fdow.monday")
+						</td>
+					</tr>	
+					</tr>
 					<tr class="buttons-container">
 						<td colspan="2">
 							<input id="savesettings"  type="submit" name="savesettings" value="$i18n.getText('plugin.save')" class="button"/>
