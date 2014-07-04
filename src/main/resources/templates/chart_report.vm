@@ -36,7 +36,6 @@ $webResourceManager.requireResource("jira.webresources:calendar")
 $webResourceManager.requireResource("jira.webresources:calendar-en")
 $webResourceManager.requireResource("jira.webresources:dwr", null)   
 $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
-<div>
 
 <form name="chartReportForm"  method="get" action="JiraTimetrackerChartWebAction.jspa" />   
 	#set($rendererType = "atlassian-wiki-renderer")
@@ -165,7 +164,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 			#elseif($chartDataList)
 				<div id="piechart" style="width: 100%; height: 500px; display: inline-block;"></div>
 			#end
-		</div>	
+		</div>
 	</div>
 </form>
 

@@ -593,14 +593,6 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 										#end
 						            </div>
 		            			</td>
-		            	##	</tr>
-		            	##	<tr>
-		            	##		<td colspan="2">
-						##            <table width="100%">
-						##           	 
-						##			</table>   
-		            	##		</td>
-		        		##	<tr>
 		    	</tbody>
 		    </table>
 			#if($isEdit)

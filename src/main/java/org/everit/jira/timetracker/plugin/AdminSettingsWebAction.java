@@ -121,6 +121,8 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
      */
     private int fdow;
 
+    private String contextPath;
+
     public AdminSettingsWebAction(
             final JiraTimetrackerPlugin jiraTimetrackerPlugin) {
         this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
@@ -133,6 +135,7 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
             setReturnUrl("/secure/Dashboard.jspa");
             return getRedirect(NONE);
         }
+        normalizeContextPath();
         loadPluginSettingAndParseResult();
         try {
             projectsId = jiraTimetrackerPlugin.getProjectsId();
@@ -151,6 +154,7 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
             setReturnUrl("/secure/Dashboard.jspa");
             return getRedirect(NONE);
         }
+        normalizeContextPath();
         loadPluginSettingAndParseResult();
         try {
             projectsId = jiraTimetrackerPlugin.getProjectsId();
@@ -175,6 +179,10 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
 
     public String getCollectorIssueKey() {
         return collectorIssueKey;
+    }
+
+    public String getContextPath() {
+        return contextPath;
     }
 
     public String getExcludeDates() {
@@ -236,6 +244,15 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
         }
         excludeDates = pluginSettingsValues.getExcludeDates();
         includeDates = pluginSettingsValues.getIncludeDates();
+    }
+
+    private void normalizeContextPath() {
+        String path = request.getContextPath();
+        if ((path.length() > 0) && path.substring(path.length() - 1).equals("/")) {
+            contextPath = path.substring(0, path.length() - 1);
+        } else {
+            contextPath = path;
+        }
     }
 
     /**
@@ -337,12 +354,16 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
         PluginSettingsValues pluginSettingValues = new PluginSettingsValues(
                 new CalendarSettingsValues(isPopup, isActualDate, excludeDates, includeDates,
                         isColoring, fdow), issuesPatterns, collectorIssuePatterns, startTime,
-                        endTime);
+                endTime);
         jiraTimetrackerPlugin.savePluginSettings(pluginSettingValues);
     }
 
     public void setCollectorIssueKey(final String collectorIssueKey) {
         this.collectorIssueKey = collectorIssueKey;
+    }
+
+    public void setContextPath(final String contextPath) {
+        this.contextPath = contextPath;
     }
 
     public void setExcludeDates(final String excludeDates) {
