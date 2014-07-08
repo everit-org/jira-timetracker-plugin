@@ -73,6 +73,7 @@ import com.atlassian.jira.project.Project;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.PermissionManager;
 import com.atlassian.jira.security.Permissions;
+import com.atlassian.jira.user.UserUtils;
 import com.atlassian.jira.usercompatibility.UserCompatibilityHelper;
 import com.atlassian.mail.MailException;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
@@ -256,7 +257,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
                 .getProjectObjects(
                         Permissions.BROWSE,
                         user);
-
         // Issues query
         List<EntityExpr> issuesProjectExpr = new ArrayList<EntityExpr>();
         EntityExpr projectExpr;
@@ -353,7 +353,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
 
         List<EntityExpr> exprList = new ArrayList<EntityExpr>();
         EntityExpr userAndIssueExpr = new EntityExpr(userExpr, EntityOperator.AND, issueCond);
-
+        // TODO this is conflict! we use almost the same expr diffrent name an place.... not realy cool
         exprList.add(userAndIssueExpr);
         if (startExpr != null) {
             exprList.add(startExpr);
@@ -361,7 +361,12 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
         if (endExpr != null) {
             exprList.add(endExpr);
         }
-        return exprList;
+        EntityCondition dateAndUserCond = new EntityConditionList(exprList, EntityOperator.AND);
+        EntityExpr finalExpression = new EntityExpr(dateAndUserCond, EntityOperator.AND, issueCond);
+
+        List<EntityExpr> finalExprList = new ArrayList<EntityExpr>();
+        finalExprList.add(finalExpression);
+        return finalExprList;
     }
 
     @Override
@@ -625,6 +630,57 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
     }
 
     @Override
+    public List<EveritWorklog> getWorklogs(final Date date, final String userEmail)
+            throws GenericEntityException, ParseException {
+
+        User selectedUser = UserUtils.getUserByEmail(userEmail);
+        log.warn("JTTP LOG: getWorklogs user display: "
+                + selectedUser.getDisplayName()
+                + " user name: " + selectedUser.getName());
+        String selectedUserKey = UserCompatibilityHelper.getKeyForUser(selectedUser);
+        JiraAuthenticationContext authenticationContext = ComponentManager
+                .getInstance().getJiraAuthenticationContext();
+        User user = authenticationContext.getLoggedInUser();
+
+        Calendar startDate = Calendar.getInstance();
+        startDate.setTime(date);
+        startDate.set(Calendar.HOUR_OF_DAY, 0);
+        startDate.set(Calendar.MINUTE, 0);
+        startDate.set(Calendar.SECOND, 0);
+        startDate.set(Calendar.MILLISECOND, 0);
+
+        Calendar endDate = (Calendar) startDate.clone();
+        endDate.set(Calendar.HOUR_OF_DAY,
+                DateTimeConverterUtil.LAST_HOUR_OF_DAY);
+        endDate.set(Calendar.MINUTE,
+                DateTimeConverterUtil.LAST_MINUTE_OF_HOUR);
+        endDate.set(Calendar.SECOND,
+                DateTimeConverterUtil.LAST_SECOND_OF_MINUTE);
+        endDate.set(Calendar.MILLISECOND,
+                DateTimeConverterUtil.LAST_MILLISECOND_OF_SECOND);
+
+        List<EntityExpr> exprList = createWorklogQueryExprList(selectedUserKey, user, startDate.getTime(),
+                endDate.getTime());
+        log.warn("JTTP LOG: getWorklogs expr list size: " + exprList.size());
+        List<GenericValue> worklogGVList = CoreFactory.getGenericDelegator()
+                .findByAnd("Worklog", exprList);
+        log.warn("JTTP LOG: getWorklogs worklog GV list size: "
+                + worklogGVList.size());
+
+        List<EveritWorklog> worklogs = new ArrayList<EveritWorklog>();
+        for (GenericValue worklogGv : worklogGVList) {
+            EveritWorklog worklog = new EveritWorklog(worklogGv,
+                    collectorIssuePatterns);
+            worklogs.add(worklog);
+        }
+
+        Collections.sort(worklogs, new EveritWorklogComparator());
+        log.warn("JTTP LOG: getWorklogs worklog GV list size: "
+                + worklogs.size());
+        return worklogs;
+    }
+
+    @Override
     public List<EveritWorklog> getWorklogs(final String selectedUser, final Date date)
             throws GenericEntityException, ParseException {
         JiraAuthenticationContext authenticationContext = ComponentManager
@@ -632,17 +688,26 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
         User user = authenticationContext.getLoggedInUser();
         log.warn("JTTP LOG: getWorklogs user display: " + user.getDisplayName()
                 + " user name: " + user.getName());
-        Date startDate = (Date) date.clone();
-        startDate.setHours(0);
-        startDate.setMinutes(0);
-        startDate.setSeconds(0);
-        Date endDate = (Date) date.clone();
-        endDate.setHours(DateTimeConverterUtil.LAST_HOUR_OF_DAY);
-        endDate.setMinutes(DateTimeConverterUtil.LAST_MINUTE_OF_HOUR);
-        endDate.setSeconds(DateTimeConverterUtil.LAST_SECOND_OF_MINUTE);
 
-        List<EntityExpr> exprList = createWorklogQueryExprList(selectedUser, user, startDate,
-                endDate);
+        Calendar startDate = Calendar.getInstance();
+        startDate.setTime(date);
+        startDate.set(Calendar.HOUR_OF_DAY, 0);
+        startDate.set(Calendar.MINUTE, 0);
+        startDate.set(Calendar.SECOND, 0);
+        startDate.set(Calendar.MILLISECOND, 0);
+
+        Calendar endDate = (Calendar) startDate.clone();
+        endDate.set(Calendar.HOUR_OF_DAY,
+                DateTimeConverterUtil.LAST_HOUR_OF_DAY);
+        endDate.set(Calendar.MINUTE,
+                DateTimeConverterUtil.LAST_MINUTE_OF_HOUR);
+        endDate.set(Calendar.SECOND,
+                DateTimeConverterUtil.LAST_SECOND_OF_MINUTE);
+        endDate.set(Calendar.MILLISECOND,
+                DateTimeConverterUtil.LAST_MILLISECOND_OF_SECOND);
+
+        List<EntityExpr> exprList = createWorklogQueryExprList(selectedUser, user, startDate.getTime(),
+                endDate.getTime());
         log.warn("JTTP LOG: getWorklogs expr list size: " + exprList.size());
         List<GenericValue> worklogGVList = CoreFactory.getGenericDelegator()
                 .findByAnd("Worklog", exprList);
@@ -1084,4 +1149,5 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
         }
 
     }
+
 }

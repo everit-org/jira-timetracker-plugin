@@ -30,6 +30,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.everit.jira.timetracker.plugin.dto.ActionResult;
 import org.everit.jira.timetracker.plugin.dto.ActionResultStatus;
@@ -39,6 +40,8 @@ import org.ofbiz.core.entity.GenericEntityException;
 
 import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jira.ComponentManager;
+import com.atlassian.jira.avatar.Avatar;
+import com.atlassian.jira.avatar.AvatarService;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.util.BuildUtilsInfo;
@@ -244,6 +247,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
     private int fdow;
     private String contextPath;
 
+    private String avatarURL = "";
     /**
      * Jira Componentmanager instance.
      */
@@ -458,34 +462,20 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         String[] startTimeValue = request.getParameterValues("startTime");
         // String[] endTimeValue = request.getParameterValues("endTime");
 
-        // String[] selectUserSubmitValue = request.getParameterValues("selectUserSubmit");
-        // if (selectUserSubmitValue != null) {
         String[] selectedUserValue = request.getParameterValues("selectedUser");
         if (selectedUserValue != null) {
             selectedUser = selectedUserValue[0];
-            log.warn("We set selectedUSer " + selectedUser);
+            log.info("We set selectedUSer " + selectedUser);
         } else {
-            log.warn("We set selectedUSer to empty");
+            log.info("We set selectedUSer to empty");
             selectedUser = "";
         }
-        // }
-        LOGGER.warn("The selectedUser value: " + selectedUser);
+        LOGGER.info("The selectedUser value: " + selectedUser);
         dateSwitcherAction();
 
         try {
             excludeDays = jiraTimetrackerPlugin
                     .getExluceDaysOfTheMonth(dateFormated);
-            try {
-                loggedDays = jiraTimetrackerPlugin
-                        .getLoggedDaysOfTheMonth(selectedUser, date);
-            } catch (GenericEntityException e1) {
-                // Not return whit error. Log the error and set a message to
-                // inform the user. The calendar fill will missing.
-                LOGGER.error(
-                        "Error while try to collect the logged days for the calendar color fulling",
-                        e1);
-                message = "plugin.calendar.logged.coloring.fail";
-            }
             loadWorklogsAndMakeSummary();
 
             projectsId = jiraTimetrackerPlugin.getProjectsId();
@@ -506,9 +496,12 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
                 LOGGER.error("Error when try parse the worklog.", e);
                 return ERROR;
             }
+            setUserPickerObjectBasedOnSelectedUser();
             return SUCCESS;
         }
-        userPickerObject = componentManager.getJiraAuthenticationContext().getLoggedInUser();
+        selectedUser = "";
+        userPickerObject = null;
+        // componentManager.getJiraAuthenticationContext().getLoggedInUser();
         // edit all save before the input fields validate
         if (request.getParameter("editallsave") != null) {
             return editAllAction();
@@ -539,7 +532,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         // endTime = DateTimeConverterUtil.dateTimeToString(new Date());
         try {
             loadWorklogsAndMakeSummary();
-            // startTime = jiraTimetrackerPlugin.lastEndTime(worklogs);
+            startTime = jiraTimetrackerPlugin.lastEndTime(worklogs);
             comment = "";
         } catch (Exception e) {
             LOGGER.error("Error when try set the plugin variables.", e);
@@ -617,6 +610,10 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         }
         editAllIds = "";
         return SUCCESS;
+    }
+
+    public String getAvatarURL() {
+        return avatarURL;
     }
 
     public String getComment() {
@@ -834,6 +831,17 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
      */
     private void loadWorklogsAndMakeSummary() throws GenericEntityException,
             ParseException {
+        try {
+            loggedDays = jiraTimetrackerPlugin
+                    .getLoggedDaysOfTheMonth(selectedUser, date);
+        } catch (GenericEntityException e1) {
+            // Not return whit error. Log the error and set a message to
+            // inform the user. The calendar fill will missing.
+            LOGGER.error(
+                    "Error while try to collect the logged days for the calendar color fulling",
+                    e1);
+            message = "plugin.calendar.logged.coloring.fail";
+        }
         worklogs = jiraTimetrackerPlugin.getWorklogs(selectedUser, date);
         log.warn("JTWA log: loadWorklogsAndMakeSummary: worklogs size: "
                 + worklogs.size());
@@ -942,6 +950,10 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         issues = new ArrayList<Issue>();
     }
 
+    public void setAvatarURL(final String avatarURL) {
+        this.avatarURL = avatarURL;
+    }
+
     public void setColoring(final boolean isColoring) {
         this.isColoring = isColoring;
     }
@@ -1029,13 +1041,6 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         String[] commentsValue = request.getParameterValues("comments");
         if (issueSelectValue != null) {
             issueKey = issueSelectValue[0];
-        }
-        // TODO selectedUser key convert to Name
-        if ((selectedUser != null) && !selectedUser.equals("")) {
-            userPickerObject = componentManager.getUserUtil().getUserObject(selectedUser);
-            // selectedUser = userPickerObject.getDisplayName();
-        } else {
-            userPickerObject = null;
         }
 
         try {
@@ -1132,6 +1137,19 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         this.userPickerObject = userPickerObject;
     }
 
+    private void setUserPickerObjectBasedOnSelectedUser() {
+
+        if ((selectedUser != null) && !selectedUser.equals("")) {
+            userPickerObject = componentManager.getUserUtil().getUserObject(selectedUser);
+            AvatarService avatarService = ComponentManager
+                    .getComponentInstanceOfType(AvatarService.class);
+            // TODO logged user!
+            avatarURL = avatarService.getAvatarURL(userPickerObject, selectedUser, Avatar.Size.SMALL).toString();
+        } else {
+            userPickerObject = null;
+        }
+    }
+
     public void setWeekFilteredSummary(final String weekFilteredSummary) {
         this.weekFilteredSummary = weekFilteredSummary;
     }
@@ -1170,12 +1188,27 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         if (endOrDurationValue[0].equals("duration")) {
             String[] durationTimeValue = request
                     .getParameterValues("durationTime");
+            Date startDateTime;
+            try {
+                startDateTime = DateTimeConverterUtil
+                        .stringTimeToDateTime(startTimeValue[0]);
+            } catch (ParseException e) {
+                message = "plugin.invalid_startTime";
+                return ERROR;
+            }
+
             if (!DateTimeConverterUtil.isValidTime(durationTimeValue[0])) {
                 if (!DateTimeConverterUtil.isValidJiraTime(durationTimeValue[0])) {
                     message = "plugin.invalid_durationTime";
                     return ERROR;
                 } else {
                     timeSpent = durationTimeValue[0];
+                    int seconds = DateTimeConverterUtil.jiraDurationToSeconds(durationTimeValue[0]);
+                    Date endTime = DateUtils.addSeconds(startDateTime, seconds);
+                    if (!DateUtils.isSameDay(startDateTime, endTime)) {
+                        message = "plugin.invalid_durationTime";
+                        return ERROR;
+                    }
                 }
             } else {
                 Date durationDateTime;
@@ -1190,6 +1223,13 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
                 long seconds = durationDateTime.getTime()
                         / DateTimeConverterUtil.MILLISECONDS_PER_SECOND;
                 timeSpent = DateTimeConverterUtil.secondConvertToString(seconds);
+
+                // check the duration time to not exceed the present day
+                Date endTime = DateUtils.addSeconds(startDateTime, (int) seconds);
+                if (!DateUtils.isSameDay(startDateTime, endTime)) {
+                    message = "plugin.invalid_durationTime";
+                    return ERROR;
+                }
             }
         } else {
             String[] endTimeValue = request.getParameterValues("endTime");

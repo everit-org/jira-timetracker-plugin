@@ -248,12 +248,12 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
         String[] searchValue = request.getParameterValues("search");
         // if not null then we have to change the dates and make a new query
         if (searchValue != null) {
-            // set actual page default! we start the new query whit the first
+            // set actual page default! we start the new query with the first
             // page
             dateSwitcherAction();
             actualPage = 1;
             if (dateFrom.compareTo(dateTo) >= 0) {
-                message = "plugin.worng.dates";
+                message = "plugin.wrong.dates";
                 return SUCCESS;
             }
             String[] hourValue = request.getParameterValues("hour");

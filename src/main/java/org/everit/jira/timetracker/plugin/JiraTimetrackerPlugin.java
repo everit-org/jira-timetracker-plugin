@@ -177,6 +177,22 @@ public interface JiraTimetrackerPlugin {
     EveritWorklog getWorklog(Long worklogId) throws ParseException;
 
     /**
+     * Give back all worklog of the given day with the specified user.
+     * 
+     * @param date
+     *            The date.
+     * @param userEmail
+     *            The email address of the user.
+     * @return The list of the date all worklogs.
+     * @throws GenericEntityException
+     *             GenericEntityException .
+     * @throws ParseException
+     *             When can't parse the worklog date.
+     */
+    List<EveritWorklog> getWorklogs(Date date, String userEmail) throws GenericEntityException,
+            ParseException;
+
+    /**
      * Give back the days all worklog of the selectedUser. If selectedUser null or empty the actual logged in user will
      * used.
      * 
@@ -249,4 +265,5 @@ public interface JiraTimetrackerPlugin {
      */
     boolean validateTimeChange(final String changeValue)
             throws NumberFormatException;
+
 }
