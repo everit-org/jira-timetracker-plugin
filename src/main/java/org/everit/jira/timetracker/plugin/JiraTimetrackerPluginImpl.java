@@ -44,6 +44,8 @@ import org.everit.jira.timetracker.plugin.dto.CalendarSettingsValues;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklogComparator;
 import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
+import org.ofbiz.core.entity.EntityCondition;
+import org.ofbiz.core.entity.EntityConditionList;
 import org.ofbiz.core.entity.EntityExpr;
 import org.ofbiz.core.entity.EntityOperator;
 import org.ofbiz.core.entity.GenericEntityException;
@@ -67,6 +69,7 @@ import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.worklog.Worklog;
 import com.atlassian.jira.issue.worklog.WorklogManager;
+import com.atlassian.jira.project.Project;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.PermissionManager;
 import com.atlassian.jira.security.Permissions;
@@ -246,6 +249,32 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
         return initialDelay;
     }
 
+    private List<EntityExpr> createConditionsOfIssuesWithPermission(final User user)
+            throws GenericEntityException {
+
+        List<Project> projects = (List<Project>) ComponentManager.getInstance().getPermissionManager()
+                .getProjectObjects(
+                        Permissions.BROWSE,
+                        user);
+
+        // Issues query
+        List<EntityExpr> issuesProjectExpr = new ArrayList<EntityExpr>();
+        EntityExpr projectExpr;
+        for (Project project : projects) {
+            projectExpr = new EntityExpr("project", EntityOperator.EQUALS, project.getId());
+            issuesProjectExpr.add(projectExpr);
+
+        }
+        List<EntityExpr> issuesConditions = new ArrayList<EntityExpr>();
+        if (!issuesProjectExpr.isEmpty()) {
+            List<GenericValue> issueGvList = CoreFactory.getGenericDelegator().findByOr("Issue", issuesProjectExpr);
+            for (GenericValue issue : issueGvList) {
+                issuesConditions.add(new EntityExpr("issue", EntityOperator.EQUALS, issue.getLong("id")));
+            }
+        }
+        return issuesConditions;
+    }
+
     @Override
     public ActionResult createWorklog(final String issueId,
             final String comment, final String dateFormated,
@@ -300,9 +329,17 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
                 "plugin.worklog.create.success");
     }
 
-    private List<EntityExpr> createWorklogQueryExprList(final User user,
-            final Date startDate, final Date endDate) {
-        String userKey = UserCompatibilityHelper.getKeyForUser(user);
+    private List<EntityExpr> createWorklogQueryExprList(final String selectedUser, final User user,
+            final Date startDate, final Date endDate) throws GenericEntityException {
+        String userKey = "";
+        if ((selectedUser == null) || selectedUser.equals("")) {
+            userKey = UserCompatibilityHelper.getKeyForUser(user);
+        } else {
+            userKey = selectedUser;
+        }
+        // TODO userKey is okey. check auth user permissions!
+        List<EntityExpr> issuesConditions = createConditionsOfIssuesWithPermission(user);
+        EntityCondition issueCond = new EntityConditionList(issuesConditions, EntityOperator.OR);
 
         EntityExpr startExpr = new EntityExpr("startdate",
                 EntityOperator.GREATER_THAN_EQUAL_TO, new Timestamp(
@@ -315,7 +352,9 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
                 + " end date:" + endDate.toString());
 
         List<EntityExpr> exprList = new ArrayList<EntityExpr>();
-        exprList.add(userExpr);
+        EntityExpr userAndIssueExpr = new EntityExpr(userExpr, EntityOperator.AND, issueCond);
+
+        exprList.add(userAndIssueExpr);
         if (startExpr != null) {
             exprList.add(startExpr);
         }
@@ -426,7 +465,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
     }
 
     @Override
-    public Date firstMissingWorklogsDate() throws GenericEntityException {
+    public Date firstMissingWorklogsDate(final String selectedUser) throws GenericEntityException {
         Calendar scannedDate = Calendar.getInstance();
         // one week
         scannedDate.set(Calendar.DAY_OF_YEAR,
@@ -454,7 +493,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
                 }
             }
             // check worklog. if no worklog set result else ++ scanedDate
-            boolean isDateContainsWorklog = isContainsWorklog(scanedDateDate);
+            boolean isDateContainsWorklog = isContainsWorklog(selectedUser, scanedDateDate);
             if (!isDateContainsWorklog) {
                 return scanedDateDate;
             } else {
@@ -475,7 +514,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
     }
 
     @Override
-    public List<Date> getDates(final Date from, final Date to,
+    public List<Date> getDates(final String selectedUser, final Date from, final Date to,
             final boolean workingHour, final boolean checkNonWorking)
             throws GenericEntityException {
         JiraAuthenticationContext authenticationContext = ComponentManager
@@ -502,10 +541,10 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
             // check worklog. if no worklog set result else ++ scanedDate
             boolean isDateContainsWorklog;
             if (workingHour) {
-                isDateContainsWorklog = isContainsEnoughWorklog(to,
+                isDateContainsWorklog = isContainsEnoughWorklog(selectedUser, to,
                         checkNonWorking);
             } else {
-                isDateContainsWorklog = isContainsWorklog(to);
+                isDateContainsWorklog = isContainsWorklog(selectedUser, to);
             }
             if (!isDateContainsWorklog) {
                 datesWhereNoWorklog.add((Date) to.clone());
@@ -544,7 +583,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
     }
 
     @Override
-    public List<String> getLoggedDaysOfTheMonth(final Date date)
+    public List<String> getLoggedDaysOfTheMonth(final String selectedUser, final Date date)
             throws GenericEntityException {
         List<String> resultDays = new ArrayList<String>();
         int dayOfMonth = 1;
@@ -556,7 +595,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
         Date start = startCalendar.getTime();
 
         while (dayOfMonth <= DateTimeConverterUtil.LAST_DAY_OF_MONTH) {
-            if (isContainsWorklog(start)) {
+            if (isContainsWorklog(selectedUser, start)) {
                 resultDays.add(Integer.toString(dayOfMonth));
             }
             startCalendar.set(Calendar.DAY_OF_MONTH, ++dayOfMonth);
@@ -586,9 +625,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
     }
 
     @Override
-    public List<EveritWorklog> getWorklogs(final Date date)
+    public List<EveritWorklog> getWorklogs(final String selectedUser, final Date date)
             throws GenericEntityException, ParseException {
-
         JiraAuthenticationContext authenticationContext = ComponentManager
                 .getInstance().getJiraAuthenticationContext();
         User user = authenticationContext.getLoggedInUser();
@@ -603,7 +641,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
         endDate.setMinutes(DateTimeConverterUtil.LAST_MINUTE_OF_HOUR);
         endDate.setSeconds(DateTimeConverterUtil.LAST_SECOND_OF_MINUTE);
 
-        List<EntityExpr> exprList = createWorklogQueryExprList(user, startDate,
+        List<EntityExpr> exprList = createWorklogQueryExprList(selectedUser, user, startDate,
                 endDate);
         log.warn("JTTP LOG: getWorklogs expr list size: " + exprList.size());
         List<GenericValue> worklogGVList = CoreFactory.getGenericDelegator()
@@ -627,7 +665,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
     /**
      * Check the given date is containt enough worklog. The worklog spent time have to be equlase or greater then 8
      * hours.
-     *
+     * 
      * @param date
      *            The date what have to check.
      * @param checkNonWorking
@@ -636,7 +674,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
      * @throws GenericEntityException
      *             If GenericEntity Exception.
      */
-    private boolean isContainsEnoughWorklog(final Date date,
+    private boolean isContainsEnoughWorklog(final String selectedUser, final Date date,
             final boolean checkNonWorking) throws GenericEntityException {
         JiraAuthenticationContext authenticationContext = ComponentManager
                 .getInstance().getJiraAuthenticationContext();
@@ -651,7 +689,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
         endDate.setMinutes(DateTimeConverterUtil.LAST_MINUTE_OF_HOUR);
         endDate.setSeconds(DateTimeConverterUtil.LAST_SECOND_OF_MINUTE);
 
-        List<EntityExpr> exprList = createWorklogQueryExprList(user, startDate,
+        List<EntityExpr> exprList = createWorklogQueryExprList(selectedUser, user, startDate,
                 endDate);
 
         List<GenericValue> worklogGVList = CoreFactory.getGenericDelegator()
@@ -700,14 +738,14 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
 
     /**
      * Check the given date, the user have worklogs or not.
-     *
+     * 
      * @param date
      *            The date what have to check.
      * @return If The user have worklogs the given date then true, esle false.
      * @throws GenericEntityException
      *             GenericEntity Exception.
      */
-    private boolean isContainsWorklog(final Date date)
+    private boolean isContainsWorklog(final String selectedUser, final Date date)
             throws GenericEntityException {
         JiraAuthenticationContext authenticationContext = ComponentManager
                 .getInstance().getJiraAuthenticationContext();
@@ -722,7 +760,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
         endDate.setMinutes(DateTimeConverterUtil.LAST_MINUTE_OF_HOUR);
         endDate.setSeconds(DateTimeConverterUtil.LAST_SECOND_OF_MINUTE);
 
-        List<EntityExpr> exprList = createWorklogQueryExprList(user, startDate,
+        List<EntityExpr> exprList = createWorklogQueryExprList(selectedUser, user, startDate,
                 endDate);
 
         List<GenericValue> worklogGVList = CoreFactory.getGenericDelegator()
@@ -963,7 +1001,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
 
     /**
      * Set the default values of the important variables.
-     *
+     * 
      * @throws MailException
      */
     private void setDefaultVariablesValue() throws MailException {
@@ -978,7 +1016,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
     }
 
     @Override
-    public String summary(final Date startSummary, final Date finishSummary,
+    public String summary(final String selectedUser, final Date startSummary, final Date finishSummary,
             final List<Pattern> issuePatterns) throws GenericEntityException {
         JiraAuthenticationContext authenticationContext = ComponentManager
                 .getInstance().getJiraAuthenticationContext();
@@ -986,7 +1024,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
         startSummary.setSeconds(0);
         finishSummary.setSeconds(0);
 
-        List<EntityExpr> exprList = createWorklogQueryExprList(user,
+        List<EntityExpr> exprList = createWorklogQueryExprList(selectedUser, user,
                 startSummary, finishSummary);
 
         List<GenericValue> worklogs;

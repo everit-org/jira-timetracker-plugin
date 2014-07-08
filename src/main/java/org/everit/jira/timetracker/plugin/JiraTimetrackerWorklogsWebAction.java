@@ -108,7 +108,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
     /**
      * Simple constructor.
-     *
+     * 
      * @param jiraTimetrackerPlugin
      *            The {@link JiraTimetrackerPlugin}.
      */
@@ -119,7 +119,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
     /**
      * Count how much page need to show the dates.
-     *
+     * 
      * @return Number of pages.
      */
     private int countNumberOfPages() {
@@ -143,7 +143,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
     /**
      * Handle the date change.
-     *
+     * 
      * @throws ParseException
      *             When can't parse the date.
      */
@@ -207,9 +207,10 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
         }
         dateFrom = DateTimeConverterUtil.stringToDate(dateFromFormated);
         try {
+            // TODO not simple "" for selectedUser. Use user picker
             // Default check box parameter false, false
             List<Date> dateswhereNoWorklogDate = jiraTimetrackerPlugin
-                    .getDates(dateFrom, dateTo, checkHours,
+                    .getDates("", dateFrom, dateTo, checkHours,
                             checkNonWorkingIssues);
             allDatesWhereNoWorklog = new ArrayList<String>();
             for (Date date : dateswhereNoWorklogDate) {
@@ -268,8 +269,9 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
             dateTo = DateTimeConverterUtil.stringToDate(dateToFormated);
         }
         try {
+            // TODO not simple "" for selectedUser. Use user picker
             List<Date> dateswhereNoWorklogDate = jiraTimetrackerPlugin
-                    .getDates(dateFrom, dateTo, checkHours,
+                    .getDates("", dateFrom, dateTo, checkHours,
                             checkNonWorkingIssues);
             for (Date date : dateswhereNoWorklogDate) {
                 allDatesWhereNoWorklog.add(DateTimeConverterUtil
@@ -402,7 +404,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
     /**
      * Set the showDatesWhereNoWorklog by the actual page.
-     *
+     * 
      * @param actualPage
      *            The sub list of allDatesWhereNoWorklog.
      */
