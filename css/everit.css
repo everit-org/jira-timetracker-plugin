@@ -104,6 +104,11 @@ html {
 .nav-pills>li.active>a:focus {
     background-color: rgb(90, 183, 14);
 }
+.nav-pills>li.active>ul>li.active>a,
+.nav-pills>li.active>ul>li.active>a:hover,
+.nav-pills>li.active>ul>li.active>a:focus {
+    background-color: rgb(120, 213, 44);
+}
 a {
     color: rgb(90, 183, 14);
     text-decoration: none;
