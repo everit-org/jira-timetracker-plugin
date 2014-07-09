@@ -162,20 +162,27 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 		  	</div>
 		  	<table style="width: 100%; padding-right: 5px;">
 		  		<tr>
-			  		<div class="field-group">
-					     <label for="selectedUser">$i18n.getText('plugin.user.picker.label')</label>
-						<select  id="selectedUser" class="js-default-user-picker single-user-picker" name="selectedUser">
-						 #if(!(!$userPickerObject))
-							<option selected="selected"
-							  		data-field-text="$userPickerObject.getDisplayName()"
-							  		style="background-image:url('$avatarURL')" 
-							  		value="$userPickerObject.getName()">
-							  	$userPickerObject.getDisplayName()
-							 </option>
-						 #end			
-						</select>
-						<input type="submit" id="selectUserSubmit"  name="selectUserSubmit" value="$i18n.getText('plugin.search')"  class="button"/>
-					</div>
+		  			<td style="width: 60%">
+				  		<div class="field-group" >
+						 	<label for="selectedUser" style="margin-right: 10px;">$i18n.getText('plugin.user.picker.label')</label>
+							<select  id="selectedUser" class="js-default-user-picker single-user-picker" name="selectedUser">
+							 #if(!(!$userPickerObject))
+								<option selected="selected"
+								  		data-field-text="$userPickerObject.getDisplayName()"
+								  		style="background-image:url('$avatarURL')" 
+								  		value="$userPickerObject.getName()">
+								  	$userPickerObject.getDisplayName()
+								 </option>
+							 #end
+							</select>
+							<input type="submit" id="selectUserSubmit"  name="selectUserSubmit" value="$i18n.getText('plugin.search')"  class="button" style="margin-left: 10px;"/>
+							<script>
+								AJS.$('.field-group').attr("style","display: inline-flex; width: 500px; height: 30px");
+								AJS.$('.aui-ss-editing').attr("style","width: 250px;");
+ 								AJS.$('.aui-ss.aui-ss-editing .aui-ss-field').attr("style","width: 250px;");
+							</script>
+						</div>
+					</td>
 				</tr>
 		  		<tr>
 		  			<td rowspan="2" style="width: 40%">
@@ -647,6 +654,8 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 			setExcludeDaysToWeekend();
 			setLoggedDaysDesign();
  			document.getElementById("startTime").focus();
+ 			AJS.$('.aui-ss-editing').attr("style","width: 250px;");
+ 			AJS.$('.aui-ss.aui-ss-editing .aui-ss-field').attr("style","width: 250px;");
 		 };
 		 
 		 AJS.$('.table-endtime').click(function(){

@@ -1143,7 +1143,6 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
             userPickerObject = componentManager.getUserUtil().getUserObject(selectedUser);
             AvatarService avatarService = ComponentManager
                     .getComponentInstanceOfType(AvatarService.class);
-            // TODO logged user!
             avatarURL = avatarService.getAvatarURL(userPickerObject, selectedUser, Avatar.Size.SMALL).toString();
         } else {
             userPickerObject = null;
