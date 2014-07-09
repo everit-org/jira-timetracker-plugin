@@ -21,13 +21,13 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Everit Cookbook</title>
-    <link rel="icon" type="image/ico" href="../fonts/favicon.ico">
+    <title>Everit Timetracker Plugin</title>
+    <link rel="icon" type="image/ico" href="fonts/favicon.ico">
 
-    <!--    <link rel="stylesheet" type="text/css" href="../common/css/base.css">-->
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
-    <link href="../css/docs.min.css" rel="stylesheet">
-    <link href="../css/everit.css" rel="stylesheet">
+    <!--    <link rel="stylesheet" type="text/css" href="common/css/base.css">-->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/docs.min.css" rel="stylesheet">
+    <link href="css/everit.css" rel="stylesheet">
     <script type="text/javascript">
         var _gaq = _gaq || [];
         _gaq.push(['_setAccount', 'UA-15041869-4']);
@@ -65,10 +65,12 @@
 
     <div class="bs-docs-masthead everit-header" id="content" role="main">
         <div class="container">
-            <span class="bs-docs-booticon bs-docs-booticon-lg bs-docs-booticon-outline"> <img class="logo"
-        src="../fonts/sbz_e.svg" alt="E">
+            <div class="col-md-10">
+                <span class="bs-docs-booticon bs-docs-booticon-lg bs-docs-booticon-outline"> <img class="logo"
+        src="fonts/sbz_e.svg" alt="E">
       </span>
-            <p class="lead">Jira Timetracker Plugin</p>
+                <p class="lead">Jira Timetracker Plugin</p>
+            </div>
         </div>
     </div>
     <div class="container">
@@ -91,18 +93,19 @@
                 <h2>Timetracker plugin interface and input fields </h2>
                 <p>After clicking on the Timetracker menu item, the plugin interface appears. The interface consists of different parts: the date modification part, the worklog total part, the worklog table part and the input fields.
                 </p>
-                <img class="img-responsive img-thumbnail" src="/images/jttp_timetracker.png" alt="Timetracker" />
+                <img class="img-responsive img-thumbnail" src="images/jttp_timetracker.png" alt="Timetracker" />
 
                 <h3 id="date_modification">Date modification</h3>
                 <p>Based on the user settings, there are more options to modify the date. The pop-up calendar and the tools to modify the date can be found in the top left-hand corner. It is possible to increase or decrease the date with units of time (day, week, month). Besides, a date can be chosen from the pop-up calendar also. The inline calendar can be found below the worklog table on the right-hand side of the input fields block. The settings make it possible to use both types of calendars simultaneously.
                     <h4>The Calendar highlights funtion </h4>
                     The calendar coloring function has been extended. The exclude dates shows like weekend (colored with red). The other months weekend fonts is colored to pink. The dates that include worklog now appears with yellow background.</p>
-                <img class="img-responsive img-thumbnail" src="/images/jttp_calendar.png" alt="TT calendar" />
-                <img class="img-responsive img-thumbnail" src="/images/jttp_inline_calendar.png" alt="TT inline calendar" />
+                <img class="img-responsive img-thumbnail" src="images/jttp_calendar.png" alt="TT calendar" />
+                <br>
+                <img class="img-responsive img-thumbnail" src="images/jttp_inline_calendar.png" alt="TT inline calendar" />
 
                 <h3 id="worklog_total">Worklog total</h3>
                 <p>The worklog summary can be found in the top right-hand corner and it can be viewed in JIRA format ( d h m) broken down to a given day, week or month. In the case of a given day, the summary is created from 00:00:00 to 23:59:59. In the case of a given week, the summary is created from Monday 00:00:00 to Sunday 23:59:59. A monthly summary is created from the first day of the month 00:00:00 to the last day of the month 23:59:59. The worklogs related to actual work are summarized below the worklog summary. This Real Work Summary contains only the time spent with actual work based on the worklogs that are not related to non-working issues. The Real Work Summary uses Jira format (d h m) to display the daily, weekly and monthly summaries.</p>
-                <img class="img-responsive img-thumbnail" src="/images/jttp_summary.png" alt=Summary />
+                <img class="img-responsive img-thumbnail" src="images/jttp_summary.png" alt=Summary />
 
                 <h3 id="worklog_table">Worklog table</h3>
                 <p>In the worklog table, the worklogs belonging to the given day can be viewed. A row belongs to each worklog. The table has the following columns:
@@ -142,8 +145,8 @@
                             <a href="https://jira.atlassian.com/secure/WikiRendererHelpAction.jspa?section=all">Text formatting help</a>
                         </li>
                     </ul>The Issue and Note field can be copied from the <a href="#worklog_table">Worklog table</a> by clicking one of the worklogs appropriate cell. With this technique you can also copy the Start and End time field but in that case the values will be switched. This can be useful when you want to fill a hole between two worklogs.</p>
-                <img class="img-responsive img-thumbnail" src="/images/jttp_input_fields.png" alt="Input fields" />
-                <img class="img-responsive img-thumbnail" src="/images/jttp_autocomplete.png" alt="Autocomplete" />
+                <img class="img-responsive img-thumbnail" src="images/jttp_input_fields.png" alt="Input fields" />
+                <img class="img-responsive img-thumbnail" src="images/jttp_autocomplete.png" alt="Autocomplete" />
             </div>
             <hr class="featurette-divider">
 
@@ -151,7 +154,7 @@
                 <h2>Create Worklogs</h2>
                 <p>A worklog can be created by appropriately filling in the necessary input fields and clicking on the Submit button. Then, the worklog will be displayed in the worklog table.
                 </p>
-                <img class="img-responsive img-thumbnail" src="/images/jttp_input_fields.png" alt="Input fields" />
+                <img class="img-responsive img-thumbnail" src="images/jttp_input_fields.png" alt="Input fields" />
             </div>
             <hr class="featurette-divider">
 
@@ -159,7 +162,7 @@
                 <h2>Edit Worklogs</h2>
                 <p>Worklogs belonging to a particular day can be edited. To do so, in the worklog table, the Edit button after the worklog needs to be pressed. After pressing the button the worklog data are displayed in the input field where they can be modified. The changes can be saved by pressing the Save button replacing the Submit button. The input field values are obliged to the same criteria as in the case of worklog creation. If one of the fields does not meet the requirements, an error message is sent and the changes do not take effect. Editing can be cancelled by pressing the Cancel button.
                 </p>
-                <img class="img-responsive img-thumbnail" src="/images/jttp_edit.png" alt="Edit worklog" />
+                <img class="img-responsive img-thumbnail" src="images/jttp_edit.png" alt="Edit worklog" />
 
                 <h3 id="edit_all">Edit All function</h3>
                 <p>The Edit All button can be found below the worklog table, and it can be used to edit all the worklogs assigned to a particular day. In this case, only the date of the worklogs can be changed. After selecting the desired date, one may save the worklogs by clicking the Save button. At this time, the worklogs will no longer be assigned to the previous date. The edit procedure can be cancelled by pressing the Cancel button.</p>
@@ -191,13 +194,13 @@
                         <li><b>Last Unfilled Date</b> - Returns the oldest blank day of the past week by default. if each and every day is logged appropriately, then the current day is returned. When determining the oldest blank day, the plugin considers the list of exclude and include dates.</li>
                     </ul>The calendar highlights function can be turned on and off.
                     <h4>Input fields settings</h4> This part of the settings the StartTime field and the EndTime field Now button rounding function can be configured. In both cases the rounding rate can be a predetermined value. The acceptable values are 5, 10, 15, 20, 30 minutes.</p>
-                <img class="img-responsive img-thumbnail" src="/images/jttp_user_settings.png" alt="User settings" />
+                <img class="img-responsive img-thumbnail" src="images/jttp_user_settings.png" alt="User settings" />
 
                 <h3 id="global_settings">Global settings</h3>
                 <p>The global settings are administrator settings and they manipulate how the plugin works.</p>
                 <p>
                     <h4>Accessing the global settings</h4> Global settings may be accessed only by the system administrators. The administrator can find the Global settings menu item on the Administrator page under the Plugins menu in the Timetracker submenu.</p>
-                <img class="img-responsive img-thumbnail" src="/images/jttp_global_settigns_access.png" alt="Global settings access" />
+                <img class="img-responsive img-thumbnail" src="images/jttp_global_settigns_access.png" alt="Global settings access" />
                 <p>
                     <h4>Non-Working issues</h4> The administrator can define a list that may contain issue keys and regular expressions. This list will be the list of non-working issues. The issues listed here are ignored when creating the Real Work Summary. By default, the Non-Working issues list is empty.
                     <h4>Non-Estimated issues</h4> The administrator can define a list that may contain issue keys and regular expressions. This list will be the list of Non-Estimated issues. The issues listed here do not trigger the appearance of the red exclamation mark and they are ignored when sending notification e-mails too. All the issues are non-estimated by default. This can be achieved by setting upf a .* regular expression. Example: To set up all the issues of MYPROJECT to be Non-estimated, the following regular expression needs to be used: “MYPROJECT-.*”.
@@ -210,7 +213,7 @@
                     <ul>
                         <li><b>First day of the week</b> - Sets the first day of the week for the shown Calendars in the Timetracker plugin.</li>
                     </ul>The settings can be saved by pressing the Save button. The Reset button can restore the foregoing settings. By selecting the Cancel button, the user is redirected to the Administrator screen without making any changes.</p>
-                <img class="img-responsive img-thumbnail" src="/images/jttp_global_settings.png" alt="Global settings" />
+                <img class="img-responsive img-thumbnail" src="images/jttp_global_settings.png" alt="Global settings" />
 
             </div>
             <hr class="featurette-divider">
@@ -221,7 +224,7 @@
                 <p>On the report page, the start and end date of the query can be chosen. The query is executed after pressing the Search button. The date in the From field is considered from 00:00, whereas the date in the To field is considered till 23:59-ig. By default, the value of the From field is a date being a month earlier than the current date, while the value of the To field is the current date.</p>
                 <p>The report lists the days where the worklogs spent time is less than 8 hours. This report is available if the first checkbox is checked. An other options in this case if the query not exclude the non-working issues, for this type of query the second checkbox have to be checked. The second checkbox is blocked if the first one is not activated.
                 </p>
-                <img class="img-responsive img-thumbnail" src="/images/jttp_missing_days.png" alt="Missing days report" />
+                <img class="img-responsive img-thumbnail" src="images/jttp_missing_days.png" alt="Missing days report" />
             </div>
             <hr class="featurette-divider">
 
@@ -231,7 +234,7 @@
                 <p>On the report page, the start and end date of the query can be chosen. Also you can select which users worklogs are you interested in. The query is executed after pressing the Search button. The date in the From field is considered from 00:00, whereas the date in the To field is considered till 23:59-ig. By default, the value of the From field is a date being a week earlier than the current date, while the value of the To field is the current date.</p>
                 <p>The chart shows how many work hours are logged sorted by projects. If you do not have permission to browse a project, the chart will not count the related worklogs.
                 </p>
-                <img class="img-responsive img-thumbnail" src="/images/jttp_chart_report.png" alt="Chart report" />
+                <img class="img-responsive img-thumbnail" src="images/jttp_chart_report.png" alt="Chart report" />
             </div>
             <hr class="featurette-divider">
 
@@ -271,7 +274,7 @@
                             </ul>
                         </li>
                 </p>
-                <img class="img-responsive img-thumbnail" src="/images/jttp_error_message.png" alt="Error message" />
+                <img class="img-responsive img-thumbnail" src="images/jttp_error_message.png" alt="Error message" />
             </div>
             <hr class="featurette-divider">
 
@@ -329,7 +332,7 @@
                     <li>Timetracker released.</li>
                 </ul>
 
-                <img class="img-responsive img-thumbnail" src="/images/jttp_error_message.png" alt="Error message" />
+                <img class="img-responsive img-thumbnail" src="images/jttp_error_message.png" alt="Error message" />
             </div>
         </div>
 
@@ -402,9 +405,9 @@
     <!-- Bootstrap core JavaScript
 ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="../js/jquery-2.1.1.min.js"></script>
-    <script src="../js/bootstrap.min.js"></script>
-    <script src="../js/everit.js "></script>
+    <script src="js/jquery-2.1.1.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/everit.js "></script>
     <script type="text/javascript">
         (function () {
             var ga = document.createElement('script');
