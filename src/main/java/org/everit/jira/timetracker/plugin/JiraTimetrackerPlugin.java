@@ -40,7 +40,7 @@ public interface JiraTimetrackerPlugin {
 
     /**
      * Create a worklog whit the given parameters.
-     *
+     * 
      * @param issueId
      *            The ID of the Issue.
      * @param comment
@@ -58,7 +58,7 @@ public interface JiraTimetrackerPlugin {
 
     /**
      * Delete the worklog whit the given worklog ID.
-     *
+     * 
      * @param worklogId
      *            The ID of the worklog.
      * @return {@link ActionResult} Success if the worklog deleted and Fail if not.
@@ -67,7 +67,7 @@ public interface JiraTimetrackerPlugin {
 
     /**
      * Edit an existing worklog whit the given parameters.
-     *
+     * 
      * @param worklogId
      *            The ID of the worklog.
      * @param issueId
@@ -88,12 +88,14 @@ public interface JiraTimetrackerPlugin {
     /**
      * Give back the date of the first day where missing worklogs. Use the properties files includes and excludes date
      * settings.
-     *
+     * 
+     * @param selectedUser
+     *            The selected User.
      * @return The Date representation of the day.
      * @throws GenericEntityException
      *             GenericEntityException
      */
-    Date firstMissingWorklogsDate() throws GenericEntityException;
+    Date firstMissingWorklogsDate(String selectedUser) throws GenericEntityException;
 
     /**
      * Give back the collector issue patterns. If the list will be null, then give back the propeties file default
@@ -105,7 +107,9 @@ public interface JiraTimetrackerPlugin {
      * Create a query and give back the list of dates where are no worklogs. The query examine the days between the user
      * creation date and the current date. The method not examine the weekends and the properties file exclude dates but
      * check the properties file include dates.
-     *
+     * 
+     * @param selectedUser
+     *            The selected User.
      * @param from
      *            The query from parameter.
      * @param to
@@ -114,17 +118,17 @@ public interface JiraTimetrackerPlugin {
      *            The report have to check the spent time or not.
      * @param nonWorking
      *            Exclude or not the non-working issues.
-     *
+     * 
      * @return The list of the dates.
      * @throws GenericEntityException
      *             If GenericEntity Exception.
      */
-    List<Date> getDates(Date from, Date to, boolean workingHours,
+    List<Date> getDates(String selectedUser, Date from, Date to, boolean workingHours,
             boolean nonWorking) throws GenericEntityException;
 
     /**
      * The method find the exclude date of the given date month.
-     *
+     * 
      * @param date
      *            The date.
      * @return The list of the days in String format. (Eg. ["12","15"])
@@ -133,7 +137,7 @@ public interface JiraTimetrackerPlugin {
 
     /**
      * Give back the Issues.
-     *
+     * 
      * @return Whit the Issues.
      * @throws GenericEntityException
      *             GenericEntityException.
@@ -142,17 +146,19 @@ public interface JiraTimetrackerPlugin {
 
     /**
      * The method find the logged days of the given date month.
-     *
+     * 
+     * @param selectedUser
+     *            The selected User.
      * @param date
      *            The date.
      * @return The list of the days in String format. (Eg. ["12","15"])
      */
-    List<String> getLoggedDaysOfTheMonth(Date date)
+    List<String> getLoggedDaysOfTheMonth(String selectedUser, Date date)
             throws GenericEntityException;
 
     /**
      * Give back the Projects.
-     *
+     * 
      * @return whit Projects.
      * @throws GenericEntityException
      *             GenericEntityException.
@@ -161,7 +167,7 @@ public interface JiraTimetrackerPlugin {
 
     /**
      * Give back the Worklog by ID.
-     *
+     * 
      * @param worklogId
      *            The ID of the worklog.
      * @return The result {@link EveritWorklog}.
@@ -171,22 +177,8 @@ public interface JiraTimetrackerPlugin {
     EveritWorklog getWorklog(Long worklogId) throws ParseException;
 
     /**
-     * Give back all worklog of the given day.
-     *
-     * @param date
-     *            The date.
-     * @return The list of the date all worklogs.
-     * @throws GenericEntityException
-     *             GenericEntityException .
-     * @throws ParseException
-     *             When can't parse the worklog date.
-     */
-    List<EveritWorklog> getWorklogs(Date date) throws GenericEntityException,
-    ParseException;
-
-    /**
      * Give back all worklog of the given day with the specified user.
-     *
+     * 
      * @param date
      *            The date.
      * @param userEmail
@@ -198,11 +190,28 @@ public interface JiraTimetrackerPlugin {
      *             When can't parse the worklog date.
      */
     List<EveritWorklog> getWorklogs(Date date, String userEmail) throws GenericEntityException,
-    ParseException;
+            ParseException;
+
+    /**
+     * Give back the days all worklog of the selectedUser. If selectedUser null or empty the actual logged in user will
+     * used.
+     * 
+     * @param date
+     *            The date.
+     * @param selectedUser
+     *            The selected User.
+     * @return The list of the date all worklogs.
+     * @throws GenericEntityException
+     *             GenericEntityException .
+     * @throws ParseException
+     *             When can't parse the worklog date.
+     */
+    List<EveritWorklog> getWorklogs(String selectedUser, Date date) throws GenericEntityException,
+            ParseException;
 
     /**
      * Give back the biggest end time of the date after worklogs method. Or give back 08:00.
-     *
+     * 
      * @param worklogs
      *            The worklogs.
      * @return The last end time.
@@ -213,14 +222,14 @@ public interface JiraTimetrackerPlugin {
 
     /**
      * Give back the plugin settings values.
-     *
+     * 
      * @return {@link PluginSettingsValues} object what contains the settings.
      */
     PluginSettingsValues loadPluginSettings();
 
     /**
      * Set the plugin settings and save them.
-     *
+     * 
      * @param pluginSettingsParameter
      *            The plugin settings parameters.
      * @return {@link ActionResult} if the plugin settings was saved successful SUCCESS else FAIL.
@@ -229,7 +238,9 @@ public interface JiraTimetrackerPlugin {
 
     /**
      * Give back the all worklogs spent time between the two date.
-     *
+     * 
+     * @param selectedUser
+     *            The seleced User.
      * @param startSummary
      *            The start date.
      * @param finishSummary
@@ -240,12 +251,12 @@ public interface JiraTimetrackerPlugin {
      * @throws GenericEntityException
      *             GenericEntityException.
      */
-    String summary(Date startSummary, Date finishSummary, List<Pattern> issueIds)
+    String summary(String selectedUser, Date startSummary, Date finishSummary, List<Pattern> issueIds)
             throws GenericEntityException;
 
     /**
      * Validate the start and end time changer buttons values. The acceptable values: 1, 5, 10, 15, 20, 30.
-     *
+     * 
      * @param changeValue
      *            The new value.
      * @return True if the value acceptable else false.
@@ -254,4 +265,5 @@ public interface JiraTimetrackerPlugin {
      */
     boolean validateTimeChange(final String changeValue)
             throws NumberFormatException;
+
 }

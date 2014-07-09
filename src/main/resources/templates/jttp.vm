@@ -162,6 +162,29 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 		  	</div>
 		  	<table style="width: 100%; padding-right: 5px;">
 		  		<tr>
+		  			<td style="width: 60%">
+				  		<div class="field-group" >
+						 	<label for="selectedUser" style="margin-right: 10px;">$i18n.getText('plugin.user.picker.label')</label>
+							<select  id="selectedUser" class="js-default-user-picker single-user-picker" name="selectedUser">
+							 #if(!(!$userPickerObject))
+								<option selected="selected"
+								  		data-field-text="$userPickerObject.getDisplayName()"
+								  		style="background-image:url('$avatarURL')" 
+								  		value="$userPickerObject.getName()">
+								  	$userPickerObject.getDisplayName()
+								 </option>
+							 #end
+							</select>
+							<input type="submit" id="selectUserSubmit"  name="selectUserSubmit" value="$i18n.getText('plugin.search')"  class="button" style="margin-left: 10px;"/>
+							<script>
+								AJS.$('.field-group').attr("style","display: inline-flex; width: 500px; height: 30px");
+								AJS.$('.aui-ss-editing').attr("style","width: 250px;");
+ 								AJS.$('.aui-ss.aui-ss-editing .aui-ss-field').attr("style","width: 250px;");
+							</script>
+						</div>
+					</td>
+				</tr>
+		  		<tr>
 		  			<td rowspan="2" style="width: 40%">
 					  	<input type="text" id="date" name="date" style="display: none" onchange="this.form.datesubmit.click()" />
 						<input type="submit" id="datesubmit" name="datesubmit" class="spaced" style="display: none"/>
@@ -189,13 +212,12 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 								useISO8601WeekNumbers : false,
 								ifFormat : '%Y-%m-%d'
 							});
-							
 							</script>
 						#end
 						</div>
 					</td>
 					<td align="right"  style="width: 15%">
-						$i18n.getText("plugin.summary")   
+						$i18n.getText("plugin.summary")
 					</td>
 					<td align="right" style="width: 5%">
 						 $i18n.getText("plugin.day")
@@ -217,30 +239,30 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 					</td>
 				</tr>
 				<tr>
-					<td align="right" style="width: 15%" >	
+					<td align="right" style="width: 15%" >
 						#if($issuesRegex.size() != 0)
-									$i18n.getText("plugin.real.work") $i18n.getText("plugin.summary") 
+									$i18n.getText("plugin.real.work") $i18n.getText("plugin.summary")
 								</td>
 								<td align="right" style="width: 5%">
-									$i18n.getText("plugin.day") 
+									$i18n.getText("plugin.day")
 								</td>
 								<td align="left" style="width: 80px;">
-									($dayFilteredSummary) 
+									($dayFilteredSummary)
 								</td>
 								<td align="right" style="width: 5%">
-									$i18n.getText("plugin.week") 
+									$i18n.getText("plugin.week")
 								</td>
 								<td align="left" style="width: 85px;">
-									($weekFilteredSummary) 
+									($weekFilteredSummary)
 								</td>
 								<td align="right" style="width: 5%">
-									$i18n.getText("plugin.month") 
+									$i18n.getText("plugin.month")
 								</td>
 								<td align="left" style="width: 85px;">
 									($monthFilteredSummary)
 						#end
 					</td>
-				</tr>		
+				</tr>
 			</table>
 		    #parse("templates/list.vm")
 	   		</br>
@@ -263,21 +285,21 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 						                		<td style="width: 110px;">
 							                		<div style="width: 110px;" >
 						                				<input id="radioEnd" type="radio" name="endOrDuration" value="end" style="margin-right: 10px" checked="true" onclick="this.form.durationTime.readOnly=true;this.form.durationTime.disabled=true;this.form.endTime.readOnly=false;this.form.endTime.disabled=false;"> $i18n.getText("plugin.end.time")
-						                			</div>	
+						                			</div>
 						                		</td>
 						                		<td>
 						                		</td>
 						                		<td style="width: 120px">
 						                			<div style="width: 120px;" >
 						                				<input id="radioDuration" type="radio" name="endOrDuration" value="duration" style="margin-right: 10px" onclick="this.form.endTime.readOnly=true;this.form.endTime.disabled=true;this.form.durationTime.readOnly=false;this.form.durationTime.disabled=false;" > $i18n.getText("plugin.duration.time")
-						                			</div>	
+						                			</div>
 						                		</td>
 						                	 	<td width="auto">
 						                    	</td>
 						                	</tr>
 						                    <tr>
 						                        <td  style="width: 110px;">
-						                           <input id="startTime"  type="text" name="startTime" onkeydown="return checkStartTimeEnter(event);" value="$startTime" tabindex="1" style="margin-right: 5px; width: 100px;"/> 
+						                           <input id="startTime"  type="text" name="startTime" onkeydown="return checkStartTimeEnter(event);" value="$startTime" tabindex="1" style="margin-right: 5px; width: 100px;"/>
 						                           <script>
 						                           function checkStartTimeEnter(event){
 													    if (event.keyCode == 13) {
@@ -298,7 +320,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 					                   						 	setStartInc();
 					                   						}else if(startState == 2){
 					                   							setStartDecTemporary();
-					                   						}	
+					                   						}
 					               						});
 					               						function setStartNow(){
 					               							var currentTime = new Date();
@@ -308,7 +330,6 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 															var now = calculateTimeForInputfileds(hour,minute);
 															AJS.$("#startTime").val(now);
 					               						}
-					               						
 					               						function setStartDecTemporary(){
 					               							setStartNow();
 					               							var startTimeValParts = AJS.$("#startTime").val().split(':');
@@ -326,8 +347,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 					               								startState = 0;
 					               							}
 					               							var time = calculateTimeForInputfileds(hour,min);
-															AJS.$("#startTime").val(time);	
-					               							
+															AJS.$("#startTime").val(time);
 					               						}
 					               						function setStartInc(){
 					               							setStartNow();
@@ -340,7 +360,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 					               								hour = hour + 1;
 					               								if(hour > 23){
 					               									hour = 0;
-					               								} 
+					               								}
 					               							}
 					               							var minString = min.toString();
 					               							var minSubInt;
@@ -357,7 +377,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 					               							startState = 2;
 															var time = calculateTimeForInputfileds(hour,min);
 															AJS.$("#startTime").val(time);
-					               						}  
+					               						}
 													</script>
 						                        </td>
 												<td  style="width: 110px">
@@ -626,6 +646,8 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 			setExcludeDaysToWeekend();
 			setLoggedDaysDesign();
  			document.getElementById("startTime").focus();
+ 			AJS.$('.aui-ss-editing').attr("style","width: 250px;");
+ 			AJS.$('.aui-ss.aui-ss-editing .aui-ss-field').attr("style","width: 250px;");
 		 };
 		 
 		 AJS.$('.table-endtime').click(function(){

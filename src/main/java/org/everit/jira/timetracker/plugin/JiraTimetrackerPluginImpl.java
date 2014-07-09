@@ -83,7 +83,7 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
  * The implementation of the {@link JiraTimetrackerPlugin}.
  */
 public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
-Serializable, InitializingBean, DisposableBean {
+        Serializable, InitializingBean, DisposableBean {
 
     /**
      * Serial version UID.
@@ -250,24 +250,20 @@ Serializable, InitializingBean, DisposableBean {
         return initialDelay;
     }
 
-    private List<EntityExpr> createIssuesConditions()
+    private List<EntityExpr> createConditionsOfIssuesWithPermission(final User user)
             throws GenericEntityException {
-
-        JiraAuthenticationContext authenticationContext = ComponentManager
-                .getInstance().getJiraAuthenticationContext();
-        User user = authenticationContext.getLoggedInUser();
 
         List<Project> projects = (List<Project>) ComponentManager.getInstance().getPermissionManager()
                 .getProjectObjects(
                         Permissions.BROWSE,
                         user);
-
         // Issues query
         List<EntityExpr> issuesProjectExpr = new ArrayList<EntityExpr>();
         EntityExpr projectExpr;
         for (Project project : projects) {
             projectExpr = new EntityExpr("project", EntityOperator.EQUALS, project.getId());
             issuesProjectExpr.add(projectExpr);
+
         }
         List<EntityExpr> issuesConditions = new ArrayList<EntityExpr>();
         if (!issuesProjectExpr.isEmpty()) {
@@ -333,9 +329,17 @@ Serializable, InitializingBean, DisposableBean {
                 "plugin.worklog.create.success");
     }
 
-    private List<EntityExpr> createWorklogQueryExprList(final User user,
+    private List<EntityExpr> createWorklogQueryExprList(final String selectedUser, final User user,
             final Date startDate, final Date endDate) throws GenericEntityException {
-        String userKey = UserCompatibilityHelper.getKeyForUser(user);
+        String userKey = "";
+        if ((selectedUser == null) || selectedUser.equals("")) {
+            userKey = UserCompatibilityHelper.getKeyForUser(user);
+        } else {
+            userKey = selectedUser;
+        }
+        // TODO userKey is okey. check auth user permissions!
+        List<EntityExpr> issuesConditions = createConditionsOfIssuesWithPermission(user);
+        EntityCondition issueCond = new EntityConditionList(issuesConditions, EntityOperator.OR);
 
         EntityExpr startExpr = new EntityExpr("startdate",
                 EntityOperator.GREATER_THAN_EQUAL_TO, new Timestamp(
@@ -348,15 +352,15 @@ Serializable, InitializingBean, DisposableBean {
                 + " end date:" + endDate.toString());
 
         List<EntityExpr> exprList = new ArrayList<EntityExpr>();
-        exprList.add(userExpr);
+        EntityExpr userAndIssueExpr = new EntityExpr(userExpr, EntityOperator.AND, issueCond);
+        // TODO this is conflict! we use almost the same expr diffrent name an place.... not realy cool
+        exprList.add(userAndIssueExpr);
         if (startExpr != null) {
             exprList.add(startExpr);
         }
         if (endExpr != null) {
             exprList.add(endExpr);
         }
-        List<EntityExpr> issuesConditions = createIssuesConditions();
-        EntityCondition issueCond = new EntityConditionList(issuesConditions, EntityOperator.OR);
         EntityCondition dateAndUserCond = new EntityConditionList(exprList, EntityOperator.AND);
         EntityExpr finalExpression = new EntityExpr(dateAndUserCond, EntityOperator.AND, issueCond);
 
@@ -466,12 +470,12 @@ Serializable, InitializingBean, DisposableBean {
     }
 
     @Override
-    public Date firstMissingWorklogsDate() throws GenericEntityException {
+    public Date firstMissingWorklogsDate(final String selectedUser) throws GenericEntityException {
         Calendar scannedDate = Calendar.getInstance();
         // one week
         scannedDate.set(Calendar.DAY_OF_YEAR,
                 scannedDate.get(Calendar.DAY_OF_YEAR)
-                - DateTimeConverterUtil.DAYS_PER_WEEK);
+                        - DateTimeConverterUtil.DAYS_PER_WEEK);
         for (int i = 0; i < DateTimeConverterUtil.DAYS_PER_WEEK; i++) {
             // convert date to String
             Date scanedDateDate = scannedDate.getTime();
@@ -494,7 +498,7 @@ Serializable, InitializingBean, DisposableBean {
                 }
             }
             // check worklog. if no worklog set result else ++ scanedDate
-            boolean isDateContainsWorklog = isContainsWorklog(scanedDateDate);
+            boolean isDateContainsWorklog = isContainsWorklog(selectedUser, scanedDateDate);
             if (!isDateContainsWorklog) {
                 return scanedDateDate;
             } else {
@@ -515,9 +519,9 @@ Serializable, InitializingBean, DisposableBean {
     }
 
     @Override
-    public List<Date> getDates(final Date from, final Date to,
+    public List<Date> getDates(final String selectedUser, final Date from, final Date to,
             final boolean workingHour, final boolean checkNonWorking)
-                    throws GenericEntityException {
+            throws GenericEntityException {
         JiraAuthenticationContext authenticationContext = ComponentManager
                 .getInstance().getJiraAuthenticationContext();
         User user = authenticationContext.getLoggedInUser();
@@ -542,10 +546,10 @@ Serializable, InitializingBean, DisposableBean {
             // check worklog. if no worklog set result else ++ scanedDate
             boolean isDateContainsWorklog;
             if (workingHour) {
-                isDateContainsWorklog = isContainsEnoughWorklog(to,
+                isDateContainsWorklog = isContainsEnoughWorklog(selectedUser, to,
                         checkNonWorking);
             } else {
-                isDateContainsWorklog = isContainsWorklog(to);
+                isDateContainsWorklog = isContainsWorklog(selectedUser, to);
             }
             if (!isDateContainsWorklog) {
                 datesWhereNoWorklog.add((Date) to.clone());
@@ -564,7 +568,7 @@ Serializable, InitializingBean, DisposableBean {
             // not? .... think about it.
             if (exludeDate.startsWith(date.substring(0, 7))) {
                 resultexcludeDays
-                .add(exludeDate.substring(exludeDate.length() - 2));
+                        .add(exludeDate.substring(exludeDate.length() - 2));
             }
         }
 
@@ -584,7 +588,7 @@ Serializable, InitializingBean, DisposableBean {
     }
 
     @Override
-    public List<String> getLoggedDaysOfTheMonth(final Date date)
+    public List<String> getLoggedDaysOfTheMonth(final String selectedUser, final Date date)
             throws GenericEntityException {
         List<String> resultDays = new ArrayList<String>();
         int dayOfMonth = 1;
@@ -596,7 +600,7 @@ Serializable, InitializingBean, DisposableBean {
         Date start = startCalendar.getTime();
 
         while (dayOfMonth <= DateTimeConverterUtil.LAST_DAY_OF_MONTH) {
-            if (isContainsWorklog(start)) {
+            if (isContainsWorklog(selectedUser, start)) {
                 resultDays.add(Integer.toString(dayOfMonth));
             }
             startCalendar.set(Calendar.DAY_OF_MONTH, ++dayOfMonth);
@@ -626,9 +630,59 @@ Serializable, InitializingBean, DisposableBean {
     }
 
     @Override
-    public List<EveritWorklog> getWorklogs(final Date date)
+    public List<EveritWorklog> getWorklogs(final Date date, final String userEmail)
             throws GenericEntityException, ParseException {
 
+        User selectedUser = UserUtils.getUserByEmail(userEmail);
+        log.warn("JTTP LOG: getWorklogs user display: "
+                + selectedUser.getDisplayName()
+                + " user name: " + selectedUser.getName());
+        String selectedUserKey = UserCompatibilityHelper.getKeyForUser(selectedUser);
+        JiraAuthenticationContext authenticationContext = ComponentManager
+                .getInstance().getJiraAuthenticationContext();
+        User user = authenticationContext.getLoggedInUser();
+
+        Calendar startDate = Calendar.getInstance();
+        startDate.setTime(date);
+        startDate.set(Calendar.HOUR_OF_DAY, 0);
+        startDate.set(Calendar.MINUTE, 0);
+        startDate.set(Calendar.SECOND, 0);
+        startDate.set(Calendar.MILLISECOND, 0);
+
+        Calendar endDate = (Calendar) startDate.clone();
+        endDate.set(Calendar.HOUR_OF_DAY,
+                DateTimeConverterUtil.LAST_HOUR_OF_DAY);
+        endDate.set(Calendar.MINUTE,
+                DateTimeConverterUtil.LAST_MINUTE_OF_HOUR);
+        endDate.set(Calendar.SECOND,
+                DateTimeConverterUtil.LAST_SECOND_OF_MINUTE);
+        endDate.set(Calendar.MILLISECOND,
+                DateTimeConverterUtil.LAST_MILLISECOND_OF_SECOND);
+
+        List<EntityExpr> exprList = createWorklogQueryExprList(selectedUserKey, user, startDate.getTime(),
+                endDate.getTime());
+        log.warn("JTTP LOG: getWorklogs expr list size: " + exprList.size());
+        List<GenericValue> worklogGVList = CoreFactory.getGenericDelegator()
+                .findByAnd("Worklog", exprList);
+        log.warn("JTTP LOG: getWorklogs worklog GV list size: "
+                + worklogGVList.size());
+
+        List<EveritWorklog> worklogs = new ArrayList<EveritWorklog>();
+        for (GenericValue worklogGv : worklogGVList) {
+            EveritWorklog worklog = new EveritWorklog(worklogGv,
+                    collectorIssuePatterns);
+            worklogs.add(worklog);
+        }
+
+        Collections.sort(worklogs, new EveritWorklogComparator());
+        log.warn("JTTP LOG: getWorklogs worklog GV list size: "
+                + worklogs.size());
+        return worklogs;
+    }
+
+    @Override
+    public List<EveritWorklog> getWorklogs(final String selectedUser, final Date date)
+            throws GenericEntityException, ParseException {
         JiraAuthenticationContext authenticationContext = ComponentManager
                 .getInstance().getJiraAuthenticationContext();
         User user = authenticationContext.getLoggedInUser();
@@ -652,54 +706,7 @@ Serializable, InitializingBean, DisposableBean {
         endDate.set(Calendar.MILLISECOND,
                 DateTimeConverterUtil.LAST_MILLISECOND_OF_SECOND);
 
-        List<EntityExpr> exprList = createWorklogQueryExprList(user, startDate.getTime(),
-                endDate.getTime());
-        log.warn("JTTP LOG: getWorklogs expr list size: " + exprList.size());
-        List<GenericValue> worklogGVList = CoreFactory.getGenericDelegator()
-                .findByAnd("Worklog", exprList);
-        log.warn("JTTP LOG: getWorklogs worklog GV list size: "
-                + worklogGVList.size());
-
-        List<EveritWorklog> worklogs = new ArrayList<EveritWorklog>();
-        for (GenericValue worklogGv : worklogGVList) {
-            EveritWorklog worklog = new EveritWorklog(worklogGv,
-                    collectorIssuePatterns);
-            worklogs.add(worklog);
-        }
-
-        Collections.sort(worklogs, new EveritWorklogComparator());
-        log.warn("JTTP LOG: getWorklogs worklog GV list size: "
-                + worklogs.size());
-        return worklogs;
-    }
-
-    @Override
-    public List<EveritWorklog> getWorklogs(final Date date, final String userEmail)
-            throws GenericEntityException, ParseException {
-
-        User user = UserUtils.getUserByEmail(userEmail);
-        log.warn("JTTP LOG: getWorklogs user display: "
-                + user.getDisplayName()
-                + " user name: " + user.getName());
-
-        Calendar startDate = Calendar.getInstance();
-        startDate.setTime(date);
-        startDate.set(Calendar.HOUR_OF_DAY, 0);
-        startDate.set(Calendar.MINUTE, 0);
-        startDate.set(Calendar.SECOND, 0);
-        startDate.set(Calendar.MILLISECOND, 0);
-
-        Calendar endDate = (Calendar) startDate.clone();
-        endDate.set(Calendar.HOUR_OF_DAY,
-                DateTimeConverterUtil.LAST_HOUR_OF_DAY);
-        endDate.set(Calendar.MINUTE,
-                DateTimeConverterUtil.LAST_MINUTE_OF_HOUR);
-        endDate.set(Calendar.SECOND,
-                DateTimeConverterUtil.LAST_SECOND_OF_MINUTE);
-        endDate.set(Calendar.MILLISECOND,
-                DateTimeConverterUtil.LAST_MILLISECOND_OF_SECOND);
-
-        List<EntityExpr> exprList = createWorklogQueryExprList(user, startDate.getTime(),
+        List<EntityExpr> exprList = createWorklogQueryExprList(selectedUser, user, startDate.getTime(),
                 endDate.getTime());
         log.warn("JTTP LOG: getWorklogs expr list size: " + exprList.size());
         List<GenericValue> worklogGVList = CoreFactory.getGenericDelegator()
@@ -723,7 +730,7 @@ Serializable, InitializingBean, DisposableBean {
     /**
      * Check the given date is containt enough worklog. The worklog spent time have to be equlase or greater then 8
      * hours.
-     *
+     * 
      * @param date
      *            The date what have to check.
      * @param checkNonWorking
@@ -732,7 +739,7 @@ Serializable, InitializingBean, DisposableBean {
      * @throws GenericEntityException
      *             If GenericEntity Exception.
      */
-    private boolean isContainsEnoughWorklog(final Date date,
+    private boolean isContainsEnoughWorklog(final String selectedUser, final Date date,
             final boolean checkNonWorking) throws GenericEntityException {
         JiraAuthenticationContext authenticationContext = ComponentManager
                 .getInstance().getJiraAuthenticationContext();
@@ -747,7 +754,7 @@ Serializable, InitializingBean, DisposableBean {
         endDate.setMinutes(DateTimeConverterUtil.LAST_MINUTE_OF_HOUR);
         endDate.setSeconds(DateTimeConverterUtil.LAST_SECOND_OF_MINUTE);
 
-        List<EntityExpr> exprList = createWorklogQueryExprList(user, startDate,
+        List<EntityExpr> exprList = createWorklogQueryExprList(selectedUser, user, startDate,
                 endDate);
 
         List<GenericValue> worklogGVList = CoreFactory.getGenericDelegator()
@@ -796,14 +803,14 @@ Serializable, InitializingBean, DisposableBean {
 
     /**
      * Check the given date, the user have worklogs or not.
-     *
+     * 
      * @param date
      *            The date what have to check.
      * @return If The user have worklogs the given date then true, esle false.
      * @throws GenericEntityException
      *             GenericEntity Exception.
      */
-    private boolean isContainsWorklog(final Date date)
+    private boolean isContainsWorklog(final String selectedUser, final Date date)
             throws GenericEntityException {
         JiraAuthenticationContext authenticationContext = ComponentManager
                 .getInstance().getJiraAuthenticationContext();
@@ -818,7 +825,7 @@ Serializable, InitializingBean, DisposableBean {
         endDate.setMinutes(DateTimeConverterUtil.LAST_MINUTE_OF_HOUR);
         endDate.setSeconds(DateTimeConverterUtil.LAST_SECOND_OF_MINUTE);
 
-        List<EntityExpr> exprList = createWorklogQueryExprList(user, startDate,
+        List<EntityExpr> exprList = createWorklogQueryExprList(selectedUser, user, startDate,
                 endDate);
 
         List<GenericValue> worklogGVList = CoreFactory.getGenericDelegator()
@@ -1013,8 +1020,8 @@ Serializable, InitializingBean, DisposableBean {
         pluginSettingsValues = new PluginSettingsValues(
                 new CalendarSettingsValues(isPopup, isActualDate,
                         excludeDatesString, includeDatesString, isColoring, fdow),
-                        summaryFilteredIssuePatterns, collectorIssuePatterns,
-                        startTimeChange, endTimeChange);
+                summaryFilteredIssuePatterns, collectorIssuePatterns,
+                startTimeChange, endTimeChange);
         return pluginSettingsValues;
     }
 
@@ -1036,9 +1043,9 @@ Serializable, InitializingBean, DisposableBean {
         pluginSettings.put(JTTP_PLUGIN_SETTINGS_IS_COLORIG,
                 pluginSettingsParameters.isColoring().toString());
         pluginSettings
-        .put(JTTP_PLUGIN_SETTINGS_START_TIME_CHANGE,
-                Integer.toString(pluginSettingsParameters
-                        .getStartTimeChange()));
+                .put(JTTP_PLUGIN_SETTINGS_START_TIME_CHANGE,
+                        Integer.toString(pluginSettingsParameters
+                                .getStartTimeChange()));
         pluginSettings.put(JTTP_PLUGIN_SETTINGS_END_TIME_CHANGE,
                 Integer.toString(pluginSettingsParameters.getEndTimeChange()));
 
@@ -1059,7 +1066,7 @@ Serializable, InitializingBean, DisposableBean {
 
     /**
      * Set the default values of the important variables.
-     *
+     * 
      * @throws MailException
      */
     private void setDefaultVariablesValue() throws MailException {
@@ -1074,7 +1081,7 @@ Serializable, InitializingBean, DisposableBean {
     }
 
     @Override
-    public String summary(final Date startSummary, final Date finishSummary,
+    public String summary(final String selectedUser, final Date startSummary, final Date finishSummary,
             final List<Pattern> issuePatterns) throws GenericEntityException {
         JiraAuthenticationContext authenticationContext = ComponentManager
                 .getInstance().getJiraAuthenticationContext();
@@ -1082,7 +1089,7 @@ Serializable, InitializingBean, DisposableBean {
         startSummary.setSeconds(0);
         finishSummary.setSeconds(0);
 
-        List<EntityExpr> exprList = createWorklogQueryExprList(user,
+        List<EntityExpr> exprList = createWorklogQueryExprList(selectedUser, user,
                 startSummary, finishSummary);
 
         List<GenericValue> worklogs;
@@ -1142,4 +1149,5 @@ Serializable, InitializingBean, DisposableBean {
         }
 
     }
+
 }
