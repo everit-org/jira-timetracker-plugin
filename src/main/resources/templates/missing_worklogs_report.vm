@@ -1,3 +1,6 @@
+<html>
+<head>
+<title>Timetracker</title>
 ## Style Declaration
 <style type="text/css">
 .grid td {
@@ -62,6 +65,8 @@
 	margin: 0;
 }
 </style>
+</head>
+<body>
 $webResourceManager.requireResource("jira.webresources:global-static")
 $webResourceManager.requireResource("jira.webresources:calendar")
 $webResourceManager.requireResource("jira.webresources:calendar-en")
@@ -225,3 +230,5 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 	  </div>
 	</div>
 </form>
+</body>
+</html>

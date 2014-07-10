@@ -1,3 +1,6 @@
+<html>
+<head>
+<title>Timetracker</title>
 ## Style Declaration
 <style type="text/css">
 	. grid td {
@@ -71,6 +74,8 @@
 		margin: 0;
 	}
 </style>
+</head>
+<body>
 <script>
 	
 	function calculateTimeForInputfileds(hour,min){
@@ -699,3 +704,5 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 		 
 	</script>	
 </form>
+</body>
+</html>

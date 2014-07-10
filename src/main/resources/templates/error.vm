@@ -1,2 +1,9 @@
+<html>
+<head>
+<title>Timetracker</title>
+</head>
+<body>
 <p>This is the Jira Timetracker Plugin Error Page.</p>
 <p>More information about the error in the atlassian-jira.log file.</p>
+</body>
+</html>

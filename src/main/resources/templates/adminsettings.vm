@@ -1,3 +1,6 @@
+<html>
+<head>
+<title>Timetracker</title>
 <style type="text/css">
 	.rowHeader {
         background-color:#E2E2E2;
@@ -48,6 +51,8 @@
 	}
     
 </style>
+</head>
+<body>
 <form name="adminSettingForm"  method="post" action="JiraTimetrackerAdminSettingsWebAction.jspa"/>   
 	<div id="plugin_head" class="item-header" style="width:980px;">
  			<div style="float: right;">
@@ -241,6 +246,6 @@
 			
 		</div>
 	</div>
-	
-	
 </form>
+</body>
+</html>
