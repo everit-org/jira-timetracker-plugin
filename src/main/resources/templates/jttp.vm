@@ -608,6 +608,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 													-moz-box-shadow: 0px 0px 0px #666;
 													-webkit-box-shadow: 0px 0px 0px #666;
 													box-shadow: 0px 0px 0px #666;
+													z-index: inherit;
 												}
 											</style>
 										#end

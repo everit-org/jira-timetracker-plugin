@@ -38,6 +38,8 @@ import org.ofbiz.core.entity.GenericEntityException;
 
 import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jira.ComponentManager;
+import com.atlassian.jira.avatar.Avatar;
+import com.atlassian.jira.avatar.AvatarService;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.user.UserUtils;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
@@ -89,7 +91,15 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
     private List<User> allUsers;
 
-    private String currentUserEmail = "";
+    private String currentUser = "";
+
+    private String avatarURL = "";
+    /**
+     * Jira Componentmanager instance.
+     */
+    private ComponentManager componentManager = ComponentManager.getInstance();
+
+    private User userPickerObject;
 
     /**
      * Simple constructor.
@@ -107,7 +117,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
      */
     private void dateFromDefaultInit() {
         Calendar calendarFrom = Calendar.getInstance();
-        calendarFrom.set(Calendar.WEEK_OF_MONTH, calendarFrom.get(Calendar.WEEK_OF_MONTH) - 1);
+        calendarFrom.add(Calendar.WEEK_OF_MONTH, -1);
         dateFrom = calendarFrom.getTime();
         dateFromFormated = DateTimeConverterUtil.dateToString(dateFrom);
     }
@@ -143,9 +153,9 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
         allUsers = new ArrayList<User>(UserUtils.getAllUsers());
         Collections.sort(allUsers);
 
-        JiraAuthenticationContext authenticationContext = ComponentManager
-                .getInstance().getJiraAuthenticationContext();
-        currentUserEmail = authenticationContext.getLoggedInUser().getEmailAddress();
+        JiraAuthenticationContext authenticationContext = componentManager.getJiraAuthenticationContext();
+        currentUser = authenticationContext.getLoggedInUser().getName();
+        setUserPickerObjectBasedOnSelectedUser();
 
         return INPUT;
     }
@@ -164,7 +174,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
         allUsers = new ArrayList<User>(UserUtils.getAllUsers());
         Collections.sort(allUsers);
 
-        currentUserEmail = request.getParameterValues("userPicker")[0];
+        currentUser = request.getParameterValues("userPicker")[0];
 
         if (dateFromFormated.equals("")) {
             dateFromDefaultInit();
@@ -172,11 +182,11 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
         if (dateToFormated.equals("")) {
             dateToDefaultInit();
         }
-        if (currentUserEmail.equals("")) {
-            JiraAuthenticationContext authenticationContext = ComponentManager
-                    .getInstance().getJiraAuthenticationContext();
-            currentUserEmail = authenticationContext.getLoggedInUser().getEmailAddress();
+        if ((currentUser == null) || currentUser.equals("")) {
+            JiraAuthenticationContext authenticationContext = componentManager.getJiraAuthenticationContext();
+            currentUser = authenticationContext.getLoggedInUser().getName();
         }
+        setUserPickerObjectBasedOnSelectedUser();
 
         String dateFrom = request.getParameterValues("dateFrom")[0];
         if ((dateFrom != null) && !dateFrom.equals("")) {
@@ -205,20 +215,16 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
         Calendar lastDate = (Calendar) startDate.clone();
         lastDate.setTime(DateTimeConverterUtil.stringToDate(dateTo));
-
-        lastDate.set(Calendar.HOUR_OF_DAY,
-                DateTimeConverterUtil.LAST_HOUR_OF_DAY);
-        lastDate.set(Calendar.MINUTE,
-                DateTimeConverterUtil.LAST_MINUTE_OF_HOUR);
-        lastDate.set(Calendar.SECOND,
-                DateTimeConverterUtil.LAST_SECOND_OF_MINUTE);
-        lastDate.set(Calendar.MILLISECOND,
-                DateTimeConverterUtil.LAST_MILLISECOND_OF_SECOND);
+        lastDate.set(Calendar.HOUR_OF_DAY, 0);
+        lastDate.set(Calendar.MINUTE, 0);
+        lastDate.set(Calendar.SECOND, 0);
+        lastDate.set(Calendar.MILLISECOND, 0);
+        lastDate.add(Calendar.DAY_OF_MONTH, 1);
 
         List<EveritWorklog> worklogs = new ArrayList<EveritWorklog>();
         while (startDate.before(lastDate)) {
             try {
-                worklogs.addAll(jiraTimetrackerPlugin.getWorklogs(startDate.getTime(), currentUserEmail));
+                worklogs.addAll(jiraTimetrackerPlugin.getWorklogs(currentUser, startDate.getTime()));
             } catch (GenericEntityException e) {
                 LOGGER.error("Error when trying to get worklogs.", e);
                 return ERROR;
@@ -248,6 +254,10 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
         return allUsers;
     }
 
+    public String getAvatarURL() {
+        return avatarURL;
+    }
+
     public List<ChartData> getChartDataList() {
         return chartDataList;
     }
@@ -257,7 +267,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     }
 
     public String getCurrentUserEmail() {
-        return currentUserEmail;
+        return currentUser;
     }
 
     public String getDateFromFormated() {
@@ -274,6 +284,10 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
     public String getMessage() {
         return message;
+    }
+
+    public User getUserPickerObject() {
+        return userPickerObject;
     }
 
     private void loadPluginSettingAndParseResult() {
@@ -295,6 +309,10 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
         this.allUsers = allUsers;
     }
 
+    public void setAvatarURL(final String avatarURL) {
+        this.avatarURL = avatarURL;
+    }
+
     public void setChartDataList(final List<ChartData> chartDataList) {
         this.chartDataList = chartDataList;
     }
@@ -304,7 +322,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     }
 
     public void setCurrentUser(final String currentUserEmail) {
-        this.currentUserEmail = currentUserEmail;
+        currentUser = currentUserEmail;
     }
 
     public void setDateFromFormated(final String dateFromFormated) {
@@ -321,5 +339,20 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
     public void setMessage(final String message) {
         this.message = message;
+    }
+
+    public void setUserPickerObject(final User userPickerObject) {
+        this.userPickerObject = userPickerObject;
+    }
+
+    private void setUserPickerObjectBasedOnSelectedUser() {
+        if ((currentUser != null) && !currentUser.equals("")) {
+            userPickerObject = componentManager.getUserUtil().getUserObject(currentUser);
+            AvatarService avatarService = ComponentManager
+                    .getComponentInstanceOfType(AvatarService.class);
+            setAvatarURL(avatarService.getAvatarURL(userPickerObject, currentUser, Avatar.Size.SMALL).toString());
+        } else {
+            userPickerObject = null;
+        }
     }
 }

@@ -67,7 +67,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 			<div id="message" style="color: red; padding-bottom: 5px;">
 		 			$i18n.getText($message)
 		  	</div>
-			<div id="calendar_div" style="text-align: left; vertical-align: inherit; padding:5px;">
+			<div id="form_div" style="text-align: left; vertical-align: inherit; padding:5px;">
 				<table>
 					<tbody>
 						<tr>
@@ -139,11 +139,21 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 								$i18n.getText("plugin.user"): 
 							</td>
 							<td>
-								<select name="userPicker">
-									#foreach ($user in $allUsers)
-										<option value="$user.getEmailAddress()" #if($user.getEmailAddress().equals($currentUserEmail)) selected #end >$user.getEmailAddress()</option>
-									#end
-								</select>
+								<div style="width:300px;">
+									<select  id="userPicker" class="js-default-user-picker single-user-picker" name="userPicker">
+								 	#if($userPickerObject)
+										<option selected="selected"
+									  		data-field-text="$userPickerObject.getDisplayName()"
+									  		style="background-image:url('$avatarURL')" 
+									  		value="$userPickerObject.getName()">
+									  	$userPickerObject.getDisplayName()
+									 	</option>
+									 #end
+									</select>
+									<script>
+	 									AJS.$('.aui-ss, .aui-ss-editing, .aui-ss-field').attr("style","width: 300px;");
+									</script>
+								</div>
 							</td>
 						</tr>
 						<tr>
@@ -171,6 +181,10 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 
 <script type="text/javascript">
+	window.onload = function() {
+ 			AJS.$('.aui-ss, .aui-ss-editing, .aui-ss-field').attr("style","width: 300px;");
+		 };
+		 
       google.load("visualization", "1", {packages:["corechart"]});
       google.setOnLoadCallback(drawChart);
       function drawChart() {
