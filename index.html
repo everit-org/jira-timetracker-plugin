@@ -226,7 +226,7 @@
             <div class="bs-docs-featurette cookbook" id="missing_days_report">
                 <h2>Missing Days Report</h2>
                 <p>By the help of the Missing Days Report tab, all the days without assigned worklogs are returned between the given dates. The list displays 20 dates simultaneously. Further results can be viewed by the help of the paging buttons in the bottom. Clicking on a date in the list, one may navigate to the Timetracker interface of the plugin.</p>
-                <p>On the report page, the start and end date of the query can be chosen. The query is executed after pressing the Search button. The date in the From field is considered from 00:00, whereas the date in the To field is considered till 23:59-ig. By default, the value of the From field is a date being a month earlier than the current date, while the value of the To field is the current date.</p>
+                <p>On the report page, the start and end date of the query can be chosen. The query is executed after pressing the Search button. The date in the From field is considered from 00:00, whereas the date in the To field is considered till 23:59. By default, the value of the From field is a date being a month earlier than the current date, while the value of the To field is the current date.</p>
                 <p>The report lists the days where the worklogs spent time is less than 8 hours. This report is available if the first checkbox is checked. An other options in this case if the query not exclude the non-working issues, for this type of query the second checkbox have to be checked. The second checkbox is blocked if the first one is not activated.
                 </p>
                 <img class="img-responsive img-thumbnail" src="images/jttp_missing_days.png" alt="Missing days report" />
@@ -236,9 +236,8 @@
             <div class="bs-docs-featurette cookbook" id="chart_report">
                 <h2>Chart report</h2>
                 <p>By the help of the Chart Report tab, a pie chart is returned showing the logged work hours by projects between the given dates for the given user.</p>
-                <p>On the report page, the start and end date of the query can be chosen. Also you can select which users worklogs are you interested in. The query is executed after pressing the Search button. The date in the From field is considered from 00:00, whereas the date in the To field is considered till 23:59-ig. By default, the value of the From field is a date being a week earlier than the current date, while the value of the To field is the current date.</p>
-                <p>The chart shows how many work hours are logged sorted by projects. If you do not have permission to browse a project, the chart will not count the related worklogs.
-                </p>
+                <p>On the report page, the start and end date of the query can be chosen. Also you can select which users worklogs are you interested in. The query is executed after pressing the Search button. The date in the From field is considered from 00:00, whereas the date in the To field is considered till 23:59. By default, the value of the From field is a date being a week earlier than the current date, while the value of the To field is the current date. The default user is the currently logged in user. You can search for other users by typing in the starting characters of their username, full name or email address.</p>
+                <p>There is a permission check in the query, so you will only see those projects in the chart which you have permisson to browse.</p>
                 <img class="img-responsive img-thumbnail" src="images/jttp_chart_report.png" alt="Chart report" />
             </div>
             <hr class="featurette-divider">
@@ -285,6 +284,23 @@
 
             <div class="bs-docs-featurette cookbook" id="release_notes">
                 <h2>Release notes</h2>
+                <h3>Timetracker version 1.3.0</h3>
+                <h4 style="margin-left:15px;">Bugfix</h4>
+                <ul>
+                    <li>The inline calendar will no longer stay at the top of every screen.</li>
+                </ul>
+                <h4 style="margin-left:15px;">Improvements</h4>
+                <ul>
+                    <li>The default Jira snytax (2h 30m) is now supported in the duration field. (<a href="https://github.com/everit-org/jira-timetracker-plugin/issues/32">#32</a>).</li>
+                    <li>Added global setting to set the first day of the week in the calendar. (<a href="https://github.com/everit-org/jira-timetracker-plugin/issues/22">#22</a>).</li>
+                    <li>The fields now remember their values when changing date or when form submission fails. (<a href="https://github.com/everit-org/jira-timetracker-plugin/issues/13">#13</a>).</li>
+                </ul>
+                <h4 style="margin-left:15px;">New features</h4>
+                <ul>
+                    <li>Copy button to the worklog table to quickly select recently used issues with a single the click of a button (<a href="https://github.com/everit-org/jira-timetracker-plugin/issues/17">#17</a>).</li>
+                    <li>Copy function to the worklog table by clicking the appropriate cell.</li>
+                    <li>Chart report page to return a pie chart showing the logged work hours by projects.</li>
+                </ul>
                 <h3>Timetracker version 1.2.1</h3>
                 <h4 style="margin-left:15px;">Bugfix</h4>
                 <ul>
@@ -364,7 +380,7 @@
                     </li>
                     <li><a href="#edit_worklogs">Edit worklogs</a>
                         <ul class="nav nav-pills nav-stacked">
-                            <li><a href="#edit_all">Edita all function</a>
+                            <li><a href="#edit_all">Edit all function</a>
                             </li>
                         </ul>
                     </li>
