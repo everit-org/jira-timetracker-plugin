@@ -166,8 +166,9 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 		 			$i18n.getText($message) $messageParameter
 		  	</div>
 		  	<table style="width: 100%; padding-right: 5px;">
+		  		<!--
 		  		<tr>
-		  			<td style="width: 60%">
+		  			<td colspan="6" style="width: 60%">
 				  		<div class="field-group" >
 						 	<label for="selectedUser" style="margin-right: 10px;">$i18n.getText('plugin.user.picker.label')</label>
 							<select  id="selectedUser" class="js-default-user-picker single-user-picker" name="selectedUser">
@@ -189,8 +190,9 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 						</div>
 					</td>
 				</tr>
+				-->
 		  		<tr>
-		  			<td rowspan="2" style="width: 40%">
+		  			<td rowspan="2" style="width: 35%">
 					  	<input type="text" id="date" name="date" style="display: none" onchange="this.form.datesubmit.click()" />
 						<input type="submit" id="datesubmit" name="datesubmit" class="spaced" style="display: none"/>
 						<div id="calendar_div" style="text-align: left; vertical-align: inherit; float: left; padding:5px;">
@@ -221,7 +223,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 						#end
 						</div>
 					</td>
-					<td align="right"  style="width: 15%">
+					<td align="right"  style="width: 20%">
 						$i18n.getText("plugin.summary")
 					</td>
 					<td align="right" style="width: 5%">

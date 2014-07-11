@@ -27,6 +27,7 @@
     <description>Timetracker</description>
     <application-version min="4.4" />
     <vendor name="EverIT Kft." url="https://www.everit.biz" />
+    <param name="atlassian-data-center-compatible">true</param>
   </plugin-info>
 
   <component-import key="pluginSettingFactroy" interface="com.atlassian.sal.api.pluginsettings.PluginSettingsFactory" />

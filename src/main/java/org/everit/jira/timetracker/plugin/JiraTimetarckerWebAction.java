@@ -257,7 +257,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 
     /**
      * Simple constructor.
-     * 
+     *
      * @param jiraTimetrackerPlugin
      *            The {@link JiraTimetrackerPlugin}.
      */
@@ -268,7 +268,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 
     /**
      * Put the worklogs id into a array.
-     * 
+     *
      * @param worklogs
      *            The worklogs.
      * @return The array of the ids.
@@ -285,7 +285,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 
     /**
      * Handle the date change.
-     * 
+     *
      * @throws ParseException
      *             When can't parse date.
      */
@@ -377,6 +377,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         jiraMainVersion = Integer.parseInt(versionSplit[0]);
 
         loadPluginSettingAndParseResult();
+        fdow = jiraTimetrackerPlugin.getFdow();
 
         // Just the here have to use the plugin actualDateOrLastWorklogDate
         // setting
@@ -453,6 +454,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         jiraMainVersion = Integer.parseInt(versionSplit[0]);
 
         loadPluginSettingAndParseResult();
+        fdow = jiraTimetrackerPlugin.getFdow();
 
         message = "";
         messageParameter = "";
@@ -543,7 +545,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 
     /**
      * Edit the worklog and handle the problems.
-     * 
+     *
      * @return String witch will be passed to the WebAction.
      */
     public String editAction() {
@@ -571,7 +573,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
     /**
      * The edit all function save action. Save the worklogs in the given date. The worklogs come form the editAllIds,
      * the date from the dateFormated.
-     * 
+     *
      * @return SUCCESS if the save was success else FAIL.
      * @throws ParseException
      *             If cannot parse date or time.
@@ -776,7 +778,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
     /**
      * Handle the editAllIds and the editedWorklogIds variable values. If the values different from the default, then
      * make the necessary settings.
-     * 
+     *
      * @throws ParseException
      *             If can't parse the editWorklog date.
      */
@@ -818,19 +820,18 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         startTimeChange = pluginSettingsValues.getStartTimeChange();
         endTimeChange = pluginSettingsValues.getEndTimeChange();
         isColoring = pluginSettingsValues.isColoring();
-        fdow = pluginSettingsValues.getFdow();
     }
 
     /**
      * Set worklogs list, the worklogsIds list and make Summary.
-     * 
+     *
      * @throws GenericEntityException
      *             If GenericEntity Exception.
      * @throws ParseException
      *             If getWorklogs can't parse date.
      */
     private void loadWorklogsAndMakeSummary() throws GenericEntityException,
-            ParseException {
+    ParseException {
         try {
             loggedDays = jiraTimetrackerPlugin
                     .getLoggedDaysOfTheMonth(selectedUser, date);
@@ -851,7 +852,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 
     /**
      * Make summary today, this week and this month.
-     * 
+     *
      * @throws GenericEntityException
      *             GenericEntityException.
      */
@@ -892,9 +893,9 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 
         startCalendar = (Calendar) originalStartcalendar.clone();
         startCalendar
-                .set(Calendar.DAY_OF_MONTH,
-                        (date.getDate() - (date.getDay() == 0 ? 6 : date
-                                .getDay() - 1)));
+        .set(Calendar.DAY_OF_MONTH,
+                (date.getDate() - (date.getDay() == 0 ? 6 : date
+                        .getDay() - 1)));
         start = startCalendar.getTime();
 
         endCalendar = (Calendar) originalEndCcalendar.clone();
@@ -936,7 +937,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 
     /**
      * The readObject method for the transient variable.
-     * 
+     *
      * @param in
      *            The ObjectInputStream.
      * @throws IOException
@@ -945,7 +946,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
      *             ClassNotFoundException.
      */
     private void readObject(final ObjectInputStream in) throws IOException,
-            ClassNotFoundException {
+    ClassNotFoundException {
         in.defaultReadObject();
         issues = new ArrayList<Issue>();
     }
@@ -1167,7 +1168,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
 
     /**
      * Check the startTime, endTime or durationTime fields values.
-     * 
+     *
      * @return If the values valid the return SUCCESS else return ERROR.
      */
     public String validateInputFields() {

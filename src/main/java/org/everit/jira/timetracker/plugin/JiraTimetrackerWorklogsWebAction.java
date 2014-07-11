@@ -94,6 +94,8 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
      */
     private int actualPage;
 
+    private int fdow;
+
     private String contextPath;
 
     /**
@@ -108,7 +110,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
     /**
      * Simple constructor.
-     * 
+     *
      * @param jiraTimetrackerPlugin
      *            The {@link JiraTimetrackerPlugin}.
      */
@@ -119,7 +121,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
     /**
      * Count how much page need to show the dates.
-     * 
+     *
      * @return Number of pages.
      */
     private int countNumberOfPages() {
@@ -143,7 +145,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
     /**
      * Handle the date change.
-     * 
+     *
      * @throws ParseException
      *             When can't parse the date.
      */
@@ -198,6 +200,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
         normalizeContextPath();
 
+        fdow = jiraTimetrackerPlugin.getFdow();
         if (dateToFormated.equals("")) {
             dateToDefaultInit();
         }
@@ -240,6 +243,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
         normalizeContextPath();
 
+        fdow = jiraTimetrackerPlugin.getFdow();
         message = "";
         messageParameter = "";
         statisticsMessageParameter = "0";
@@ -318,6 +322,10 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
         return dateToFormated;
     }
 
+    public int getFdow() {
+        return fdow;
+    }
+
     public String getMessage() {
         return message;
     }
@@ -390,6 +398,10 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
         this.dateToFormated = dateToFormated;
     }
 
+    public void setFdow(final int fdow) {
+        this.fdow = fdow;
+    }
+
     public void setMessage(final String message) {
         this.message = message;
     }
@@ -404,7 +416,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
     /**
      * Set the showDatesWhereNoWorklog by the actual page.
-     * 
+     *
      * @param actualPage
      *            The sub list of allDatesWhereNoWorklog.
      */

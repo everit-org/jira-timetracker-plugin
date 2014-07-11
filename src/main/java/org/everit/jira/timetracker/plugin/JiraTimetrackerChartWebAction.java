@@ -33,7 +33,6 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.everit.jira.timetracker.plugin.dto.ChartData;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
-import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
 import org.ofbiz.core.entity.GenericEntityException;
 
 import com.atlassian.crowd.embedded.api.User;
@@ -140,7 +139,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
         }
 
         normalizeContextPath();
-        loadPluginSettingAndParseResult();
+        fdow = jiraTimetrackerPlugin.getFdow();
 
         if (dateFromFormated.equals("")) {
             dateFromDefaultInit();
@@ -169,7 +168,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
         }
 
         normalizeContextPath();
-        loadPluginSettingAndParseResult();
+        fdow = jiraTimetrackerPlugin.getFdow();
 
         allUsers = new ArrayList<User>(UserUtils.getAllUsers());
         Collections.sort(allUsers);
@@ -288,12 +287,6 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
     public User getUserPickerObject() {
         return userPickerObject;
-    }
-
-    private void loadPluginSettingAndParseResult() {
-        PluginSettingsValues pluginSettingsValues = jiraTimetrackerPlugin
-                .loadPluginSettings();
-        fdow = pluginSettingsValues.getFdow();
     }
 
     private void normalizeContextPath() {

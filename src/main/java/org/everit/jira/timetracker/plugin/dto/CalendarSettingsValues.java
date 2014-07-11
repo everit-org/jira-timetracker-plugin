@@ -62,8 +62,4 @@ public class CalendarSettingsValues {
     public boolean isColoring() {
         return isColoring;
     }
-
-    public void setFdow(final int fdow) {
-        this.fdow = fdow;
-    }
 }

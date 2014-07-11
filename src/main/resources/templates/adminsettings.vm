@@ -1,6 +1,6 @@
 <html>
 <head>
-<title>Timetracker</title>
+<title>Timetracker Global Settings</title>
 <style type="text/css">
 	.rowHeader {
         background-color:#E2E2E2;
@@ -238,7 +238,7 @@
 						<td colspan="2">
 							<input id="savesettings"  type="submit" name="savesettings" value="$i18n.getText('plugin.save')" class="button"/>
 							<input id="resetButton"  type="button" name="reset" value="$i18n.getText('plugin.reset')" onclick="location.href='JiraTimetrackerAdminSettingsWebAction.jspa'" class="button"/>
-							<input id="cancelButton"  type="button" name="cancel" value="$i18n.getText('plugin.cancel')" onclick="location.href='/secure/AdminSummary.jspa'" class="button"/>
+							<input id="cancelButton"  type="button" name="cancel" value="$i18n.getText('plugin.cancel')" onclick="location.href='JiraTimetrackerAdminSettingsWebAction.jspa'" class="button"/>
 						</td>
 					</tr>
 				</tbody>

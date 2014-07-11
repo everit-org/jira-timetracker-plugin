@@ -1,6 +1,6 @@
 <html>
 <head>
-<title>Timetracker</title>
+<title>Timetracker Missing Days Report</title>
 ## Style Declaration
 <style type="text/css">
 .grid td {
@@ -113,7 +113,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 					<script>
 						var cal = Calendar
 								.setup({
-									firstDay : 0,
+									firstDay : $fdow,
 									inputField : 'dateFrom',
 									button : 'date_trigger_from',
 									date : '$dateFromFormated',
@@ -140,7 +140,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 	              <script>
 							var cal = Calendar
 									.setup({
-										firstDay : 0,
+										firstDay : $fdow,
 										inputField : 'dateTo',
 										button : 'date_trigger_to',
 										date : '$dateToFormated',

@@ -178,6 +178,8 @@ Serializable, InitializingBean, DisposableBean {
      * The parsed include dates.
      */
     private Set<String> includeDatesSet = new HashSet<String>();
+
+    private Integer fdow;
     /**
      * The summary filter issues ids.
      */
@@ -576,6 +578,11 @@ Serializable, InitializingBean, DisposableBean {
     }
 
     @Override
+    public Integer getFdow() {
+        return fdow;
+    }
+
+    @Override
     public List<Issue> getIssues() throws GenericEntityException {
         List<GenericValue> issuesGV = null;
         issuesGV = CoreFactory.getGenericDelegator().findAll("Issue");
@@ -913,6 +920,19 @@ Serializable, InitializingBean, DisposableBean {
             includeDatesSet = new HashSet<String>();
             includeDatesString = "";
         }
+        if (globalSettings.get(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+                + JTTP_PLUGIN_SETTINGS_FDOW) != null) {
+            try {
+                fdow = Integer.valueOf(globalSettings.get(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+                        + JTTP_PLUGIN_SETTINGS_FDOW).toString());
+            } catch (NumberFormatException e) {
+                // the default fdow is sunday in the calendar
+                fdow = JiraTimetrackerUtil.SUNDAY_CALENDAR_FDOW;
+            }
+        } else {
+            // the default is the popup calendar
+            fdow = JiraTimetrackerUtil.SUNDAY_CALENDAR_FDOW;
+        }
 
         pluginSettings = settingsFactory
                 .createSettingsForKey(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
@@ -933,22 +953,18 @@ Serializable, InitializingBean, DisposableBean {
             // the default is the popup calendar
             isPopup = JiraTimetrackerUtil.POPUP_CALENDAR_CODE;
         }
-        Integer fdow = null;
-        if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_FDOW) != null) {
-            try {
-                fdow = Integer.valueOf(pluginSettings.get(
-                        JTTP_PLUGIN_SETTINGS_FDOW).toString());
-            } catch (NumberFormatException e) {
-                // the default fdow is sunday in the calendar
-                LOGGER.error(
-                        "Wrong formated calender type. Set the default value (popup).",
-                        e);
-                fdow = JiraTimetrackerUtil.SUNDAY_CALENDAR_FDOW;
-            }
-        } else {
-            // the default is the popup calendar
-            fdow = JiraTimetrackerUtil.SUNDAY_CALENDAR_FDOW;
-        }
+        // if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_FDOW) != null) {
+        // try {
+        // fdow = Integer.valueOf(pluginSettings.get(
+        // JTTP_PLUGIN_SETTINGS_FDOW).toString());
+        // } catch (NumberFormatException e) {
+        // // the default fdow is sunday in the calendar
+        // fdow = JiraTimetrackerUtil.SUNDAY_CALENDAR_FDOW;
+        // }
+        // } else {
+        // // the default is the popup calendar
+        // fdow = JiraTimetrackerUtil.SUNDAY_CALENDAR_FDOW;
+        // }
         Boolean isActualDate = null;
         if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_IS_ACTUAL_DATE) != null) {
             if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_IS_ACTUAL_DATE).equals(
@@ -1055,6 +1071,9 @@ Serializable, InitializingBean, DisposableBean {
         globalSettings.put(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
                 + JTTP_PLUGIN_SETTINGS_INCLUDE_DATES,
                 pluginSettingsParameters.getIncludeDates());
+        globalSettings.put(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+                + JTTP_PLUGIN_SETTINGS_FDOW,
+                Integer.toString(pluginSettingsParameters.getFdow()));
     }
 
     /**
