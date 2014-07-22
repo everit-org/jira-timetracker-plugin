@@ -139,6 +139,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
         }
 
         normalizeContextPath();
+        jiraTimetrackerPlugin.loadPluginSettings();
         fdow = jiraTimetrackerPlugin.getFdow();
 
         if (dateFromFormated.equals("")) {

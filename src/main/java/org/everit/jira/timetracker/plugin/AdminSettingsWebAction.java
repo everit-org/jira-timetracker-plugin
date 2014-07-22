@@ -170,7 +170,7 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
             }
             savePluginSettings();
             // setReturnUrl("/secure/AdminSummary.jspa");
-            setReturnUrl("/secure/JiraTimetarckerWebAction!default.jspa");
+            setReturnUrl("/secure/JiraTimetrackerWebAction!default.jspa");
             return getRedirect(INPUT);
         }
 
@@ -354,7 +354,7 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
         PluginSettingsValues pluginSettingValues = new PluginSettingsValues(
                 new CalendarSettingsValues(isPopup, isActualDate, excludeDates, includeDates,
                         isColoring, fdow), issuesPatterns, collectorIssuePatterns, startTime,
-                endTime);
+                        endTime);
         jiraTimetrackerPlugin.savePluginSettings(pluginSettingValues);
     }
 

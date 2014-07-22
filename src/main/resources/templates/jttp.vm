@@ -73,6 +73,14 @@
 		line-height: 1.167;
 		margin: 0;
 	}
+	
+	#issueSelect-textarea, #issueSelect-multi-select{
+		width: 610px;
+	}
+	.jira-multi-select>.icon.drop-menu{
+		bottom: 6px;
+		right: 6px;
+	}
 </style>
 </head>
 <body>
@@ -131,9 +139,9 @@ $webResourceManager.requireResource("jira.webresources:global-static")
 $webResourceManager.requireResource("jira.webresources:calendar")
 $webResourceManager.requireResource("jira.webresources:calendar-en")
 <form name="jttpForm"  method="post"
-					#if($isEdit) action="JiraTimetarckerWebAction.jspa?editedWorklogId=$editedWorklogId&dateFormated=$dateFormated" 
-					#elseif($isEditAll) action="JiraTimetarckerWebAction.jspa?editAllIds=$editAllIds&dateFormated=$dateFormated" 
-					#else action="JiraTimetarckerWebAction.jspa?dateFormated=$dateFormated" #end/>   
+					#if($isEdit) action="JiraTimetrackerWebAction.jspa?editedWorklogId=$editedWorklogId&dateFormated=$dateFormated" 
+					#elseif($isEditAll) action="JiraTimetrackerWebAction.jspa?editAllIds=$editAllIds&dateFormated=$dateFormated" 
+					#else action="JiraTimetrackerWebAction.jspa?dateFormated=$dateFormated" #end/>   
 	#set($rendererType = "atlassian-wiki-renderer")
 	<div id="plugin_head" class="item-header" style="width:980px;">
 			<div style="float: right;">
@@ -149,7 +157,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 			<div class="tabwrap tabs2" id="tabs-jttp">
 	    		<ul class="tabs horizontal">
 	        		<li class="active">
-	            		<a href="JiraTimetarckerWebAction!default.jspa"><strong>Timetracker</strong></a>
+	            		<a href="JiraTimetrackerWebAction!default.jspa"><strong>Timetracker</strong></a>
 	        		</li>
 	        		<li>
 	            		<a href="JiraTimetrackerWorklogsWebAction!default.jspa"><strong>Missing Days Report</strong></a>
@@ -277,7 +285,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 	   		<table  width="100%">
 	   			<tbody>
 	   				<tr>
-	   					<input id="editAll" type="button" name="editall" value="$i18n.getText('plugin.edit.all')" onclick="location.href='JiraTimetarckerWebAction!default.jspa?editAllIds=$worklogsIds&dateFormated=$dateFormated'" class="button" />
+	   					<input id="editAll" type="button" name="editall" value="$i18n.getText('plugin.edit.all')" onclick="location.href='JiraTimetrackerWebAction!default.jspa?editAllIds=$worklogsIds&dateFormated=$dateFormated'" class="button" />
 	   					<td>
 							<table>
 						                <tbody>
@@ -504,7 +512,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 						                    <tr>
 						                    	<td colspan="6">
 						                           Issue: <img src="$contextPath/images/required.png" width="16" height="16" border="0"/>
-					  							   <div id="issueSelect_container" class="ajax_autocomplete atlassian-autocomplete" >
+											 	<div id="issueSelect_container" class="ajax_autocomplete atlassian-autocomplete" >
 										    		<select class="hidden"
 										    			multiple="none" 
 										    			name="issueSelect" 
@@ -519,9 +527,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 										    			data-ajax-options.data.current-issue-key=""
 										    			data-ajax-options.data.show-sub-tasks="true" 
 												    	data-ajax-options.data.show-sub-task-parent="true"
-														#if (${action.currentJQL})
-															data-ajax-options.data.current_jql=${action.currentJQL}
-														#end>
+														data-ajax-options.data.current_jql="resolution = Unresolved ORDER BY issuetype ASC, priority DESC">
 													</select> 
 										    		<script>
 														var ip = new AJS.IssuePicker({
@@ -531,9 +537,9 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 												  		singleSelectOnly: true,
 												   		currentProjectId: $projectsId,
 														});
-														AJS.$('.drop-menu').attr("style","height: 26px; margin-top: 1px;");
-														AJS.$('.issue-picker-popup').attr("style","margin-bottom: 15px;");
-													
+														//AJS.$('.drop-menu').attr("style","margin-top: 1px;");
+														AJS.$('.issue-picker-popup').attr("style","margin-bottom: 16px;");
+
 														#if($isPopup != 1)
 															#if($jiraMainVersion < 6)
 																AJS.$("#issueSelect-multi-select").attr("style","width: 630px;");
@@ -541,7 +547,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 															#else
 																AJS.$("#issueSelect-textarea").attr("style","width: 605px; height: 30px");
 															#end
-															
+
 														#else
 															#if($jiraMainVersion < 6)
 																AJS.$("#issueSelect-multi-select").attr("style","width: 930px;");
@@ -549,12 +555,12 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 															#else
 																AJS.$("#issueSelect-textarea").attr("style","width: 905px; height: 30px");
 															#end
-															
+
 														#end	
 														//Set the issue key		
 														AJS.$("#issueSelect-textarea").append("$issueKey");
 														AJS.$("#issueSelect-textarea").attr("tabindex","3");
-														
+
 														ip.handleFreeInput();
 													</script>
 											 	</div>
@@ -644,7 +650,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 				<input id="Submit"  type="submit" name="submit" value="$i18n.getText('plugin.submit')" class="button" tabindex="5"/>
 			#end
 			<input id="setting"  type="button" name="setting" onclick="location.href='JiraTimetrackerSettingsWebAction!default.jspa'" value="$i18n.getText('plugin.settings')" class="button" style="display: inline; float: right;"/>
-			<input id="cancelButton"  type="button" name="Cancel" value="$i18n.getText('plugin.cancel')" onclick="location.href='JiraTimetarckerWebAction!default.jspa?dateFormated=$dateFormated'" class="button"/>
+			<input id="cancelButton"  type="button" name="Cancel" value="$i18n.getText('plugin.cancel')" onclick="location.href='JiraTimetrackerWebAction!default.jspa?dateFormated=$dateFormated'" class="button"/>
 			</div>
 		</div>	
 	</div>

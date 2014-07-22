@@ -39,7 +39,7 @@
 
   <web-item key="jttp_link" name="JTTP Link" section="system.top.navigation.bar" weight="47">
     <label>Timetracker</label>
-    <link linkId="my_jttp_link"><![CDATA[/secure/JiraTimetarckerWebAction!default.jspa]]></link>
+    <link linkId="my_jttp_link"><![CDATA[/secure/JiraTimetrackerWebAction!default.jspa]]></link>
     <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserLoggedInCondition" />
   </web-item>
 
@@ -52,7 +52,7 @@
   <webwork1 key="jttp-webaction" name="JTTP Webwork actions" class="java.lang.Object">
     <resource type="i18n" name="i18n-jttp-vm" location="i18n/jttp" />
     <actions>
-      <action name="org.everit.jira.timetracker.plugin.JiraTimetarckerWebAction" alias="JiraTimetarckerWebAction">
+      <action name="org.everit.jira.timetracker.plugin.JiraTimetrackerWebAction" alias="JiraTimetrackerWebAction">
         <view name="success">/templates/jttp.vm</view>
         <view name="input">/templates/jttp.vm</view>
         <view name="error">/templates/jttp.vm</view>

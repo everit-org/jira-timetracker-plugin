@@ -50,7 +50,7 @@ import com.atlassian.jira.web.action.JiraWebActionSupport;
 /**
  * The timetracker web action support class.
  */
-public class JiraTimetarckerWebAction extends JiraWebActionSupport {
+public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
     /**
      * Serial version UID.
@@ -66,7 +66,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
      * Logger.
      */
     private static final Logger LOGGER = Logger
-            .getLogger(JiraTimetarckerWebAction.class);
+            .getLogger(JiraTimetrackerWebAction.class);
     /**
      * The {@link JiraTimetrackerPlugin}.
      */
@@ -237,9 +237,9 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
     private List<Pattern> issuesRegex;
 
     /**
-     * The JiraTimetarckerWebAction logger.
+     * The JiraTimetrackerWebAction logger.
      */
-    private Logger log = Logger.getLogger(JiraTimetarckerWebAction.class);
+    private Logger log = Logger.getLogger(JiraTimetrackerWebAction.class);
     /**
      * The jira main version.
      */
@@ -261,7 +261,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
      * @param jiraTimetrackerPlugin
      *            The {@link JiraTimetrackerPlugin}.
      */
-    public JiraTimetarckerWebAction(
+    public JiraTimetrackerWebAction(
             final JiraTimetrackerPlugin jiraTimetrackerPlugin) {
         this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
     }

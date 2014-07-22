@@ -33,6 +33,7 @@
 		line-height: 1.167;
 		margin: 0;
 	}
+	
 </style>
 </head>
 $webResourceManager.requireResource("jira.webresources:global-static")
@@ -57,7 +58,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 			<div class="tabwrap tabs2" id="tabs-jttp">
 	    		<ul class="tabs horizontal">
 	        		<li>
-	            		<a href="JiraTimetarckerWebAction!default.jspa"><strong>Timetracker</strong></a>
+	            		<a href="JiraTimetrackerWebAction!default.jspa"><strong>Timetracker</strong></a>
 	        		</li>
 	        		<li>
 	            		<a href="JiraTimetrackerWorklogsWebAction!default.jspa"><strong>Missing Days Report</strong></a>

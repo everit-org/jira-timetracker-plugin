@@ -151,7 +151,7 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
                 return parseResult;
             }
             savePluginSettings();
-            setReturnUrl("/secure/JiraTimetarckerWebAction!default.jspa");
+            setReturnUrl("/secure/JiraTimetrackerWebAction!default.jspa");
             return getRedirect(INPUT);
         }
 

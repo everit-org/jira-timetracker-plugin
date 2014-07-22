@@ -88,7 +88,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 	    ##TAB START
 	    <div class="tabwrap tabs2" id="tabs-jttp">
 	      <ul class="tabs horizontal">
-	        <li><a href="JiraTimetarckerWebAction!default.jspa"><strong>Timetracker</strong></a></li>
+	        <li><a href="JiraTimetrackerWebAction!default.jspa"><strong>Timetracker</strong></a></li>
 	        <li class="active"><a href="JiraTimetrackerWorklogsWebAction!default.jspa"><strong>Missing Days Report</strong></a></li>
 	        <li><a href="JiraTimetrackerChartWebAction!default.jspa"><strong>Chart Report</strong></a></li>
 	      </ul>
@@ -213,7 +213,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 	        <tbody>
 	          #foreach ($date in $showDatesWhereNoWorklog)
 	          <tr #if($rowCount % 2 !=0) class="rowAlter" #end>
-	            <td><a href="JiraTimetarckerWebAction.jspa?dateFormated=$date">$date</a></td>
+	            <td><a href="JiraTimetrackerWebAction.jspa?dateFormated=$date">$date</a></td>
 	          </tr>
 	          #set($rowCount = $rowCount + 1) #end
 	        </tbody>
