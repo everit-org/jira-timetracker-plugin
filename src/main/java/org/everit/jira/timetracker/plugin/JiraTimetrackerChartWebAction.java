@@ -169,6 +169,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
         }
 
         normalizeContextPath();
+        jiraTimetrackerPlugin.loadPluginSettings();
         fdow = jiraTimetrackerPlugin.getFdow();
 
         allUsers = new ArrayList<User>(UserUtils.getAllUsers());

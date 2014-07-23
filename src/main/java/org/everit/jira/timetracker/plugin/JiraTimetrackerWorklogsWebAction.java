@@ -199,8 +199,9 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
         }
 
         normalizeContextPath();
-
+        jiraTimetrackerPlugin.loadPluginSettings();
         fdow = jiraTimetrackerPlugin.getFdow();
+
         if (dateToFormated.equals("")) {
             dateToDefaultInit();
         }
@@ -242,7 +243,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
         }
 
         normalizeContextPath();
-
+        jiraTimetrackerPlugin.loadPluginSettings();
         fdow = jiraTimetrackerPlugin.getFdow();
         message = "";
         messageParameter = "";
