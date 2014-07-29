@@ -94,6 +94,8 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
      */
     private int actualPage;
 
+    private int fdow;
+
     private String contextPath;
 
     /**
@@ -197,6 +199,8 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
         }
 
         normalizeContextPath();
+        jiraTimetrackerPlugin.loadPluginSettings();
+        fdow = jiraTimetrackerPlugin.getFdow();
 
         if (dateToFormated.equals("")) {
             dateToDefaultInit();
@@ -207,9 +211,10 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
         }
         dateFrom = DateTimeConverterUtil.stringToDate(dateFromFormated);
         try {
+            // TODO not simple "" for selectedUser. Use user picker
             // Default check box parameter false, false
             List<Date> dateswhereNoWorklogDate = jiraTimetrackerPlugin
-                    .getDates(dateFrom, dateTo, checkHours,
+                    .getDates("", dateFrom, dateTo, checkHours,
                             checkNonWorkingIssues);
             allDatesWhereNoWorklog = new ArrayList<String>();
             for (Date date : dateswhereNoWorklogDate) {
@@ -238,7 +243,8 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
         }
 
         normalizeContextPath();
-
+        jiraTimetrackerPlugin.loadPluginSettings();
+        fdow = jiraTimetrackerPlugin.getFdow();
         message = "";
         messageParameter = "";
         statisticsMessageParameter = "0";
@@ -268,8 +274,9 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
             dateTo = DateTimeConverterUtil.stringToDate(dateToFormated);
         }
         try {
+            // TODO not simple "" for selectedUser. Use user picker
             List<Date> dateswhereNoWorklogDate = jiraTimetrackerPlugin
-                    .getDates(dateFrom, dateTo, checkHours,
+                    .getDates("", dateFrom, dateTo, checkHours,
                             checkNonWorkingIssues);
             for (Date date : dateswhereNoWorklogDate) {
                 allDatesWhereNoWorklog.add(DateTimeConverterUtil
@@ -314,6 +321,10 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
     public String getDateToFormated() {
         return dateToFormated;
+    }
+
+    public int getFdow() {
+        return fdow;
     }
 
     public String getMessage() {
@@ -386,6 +397,10 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
     public void setDateToFormated(final String dateToFormated) {
         this.dateToFormated = dateToFormated;
+    }
+
+    public void setFdow(final int fdow) {
+        this.fdow = fdow;
     }
 
     public void setMessage(final String message) {

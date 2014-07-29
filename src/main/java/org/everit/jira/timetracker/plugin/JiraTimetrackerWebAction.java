@@ -38,7 +38,10 @@ import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
 import org.ofbiz.core.entity.GenericEntityException;
 
+import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jira.ComponentManager;
+import com.atlassian.jira.avatar.Avatar;
+import com.atlassian.jira.avatar.AvatarService;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.util.BuildUtilsInfo;
@@ -47,7 +50,7 @@ import com.atlassian.jira.web.action.JiraWebActionSupport;
 /**
  * The timetracker web action support class.
  */
-public class JiraTimetarckerWebAction extends JiraWebActionSupport {
+public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
     /**
      * Serial version UID.
@@ -63,7 +66,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
      * Logger.
      */
     private static final Logger LOGGER = Logger
-            .getLogger(JiraTimetarckerWebAction.class);
+            .getLogger(JiraTimetrackerWebAction.class);
     /**
      * The {@link JiraTimetrackerPlugin}.
      */
@@ -199,6 +202,10 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
      */
     private String messageParameter = "";
     /**
+     * The selected User for get Worklogs.
+     */
+    private String selectedUser = "";
+    /**
      *
      */
     // private Date datePCalendar = new Date();
@@ -206,10 +213,12 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
      * The startTime input field changer buttons value.
      */
     private int startTimeChange;
+
     /**
      * The endTime input field changer buttons value.
      */
     private int endTimeChange;
+
     /**
      * The calendar isPopup.
      */
@@ -218,7 +227,6 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
      * The calendar show actual Date Or Last Worklog Date.
      */
     private boolean isActualDate;
-
     /**
      * The calendar highlights coloring function is active or not.
      */
@@ -227,20 +235,25 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
      * The filtered Issues id.
      */
     private List<Pattern> issuesRegex;
+
     /**
-     * The JiraTimetarckerWebAction logger.
+     * The JiraTimetrackerWebAction logger.
      */
-    private Logger log = Logger.getLogger(JiraTimetarckerWebAction.class);
+    private Logger log = Logger.getLogger(JiraTimetrackerWebAction.class);
     /**
      * The jira main version.
      */
     private int jiraMainVersion;
-
     private int fdow;
-
     private String contextPath;
 
+    private String avatarURL = "";
+    /**
+     * Jira Componentmanager instance.
+     */
     private ComponentManager componentManager = ComponentManager.getInstance();
+
+    private User userPickerObject;
 
     /**
      * Simple constructor.
@@ -248,7 +261,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
      * @param jiraTimetrackerPlugin
      *            The {@link JiraTimetrackerPlugin}.
      */
-    public JiraTimetarckerWebAction(
+    public JiraTimetrackerWebAction(
             final JiraTimetrackerPlugin jiraTimetrackerPlugin) {
         this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
     }
@@ -364,6 +377,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         jiraMainVersion = Integer.parseInt(versionSplit[0]);
 
         loadPluginSettingAndParseResult();
+        fdow = jiraTimetrackerPlugin.getFdow();
 
         // Just the here have to use the plugin actualDateOrLastWorklogDate
         // setting
@@ -373,7 +387,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
                 dateFormated = DateTimeConverterUtil.dateToString(date);
             } else {
                 try {
-                    date = jiraTimetrackerPlugin.firstMissingWorklogsDate();
+                    date = jiraTimetrackerPlugin.firstMissingWorklogsDate(selectedUser);
                     dateFormated = DateTimeConverterUtil.dateToString(date);
                 } catch (Exception e) {
                     LOGGER.error("Error when try set the plugin date.", e);
@@ -385,7 +399,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         excludeDays = jiraTimetrackerPlugin
                 .getExluceDaysOfTheMonth(dateFormated);
         try {
-            loggedDays = jiraTimetrackerPlugin.getLoggedDaysOfTheMonth(date);
+            loggedDays = jiraTimetrackerPlugin.getLoggedDaysOfTheMonth(selectedUser, date);
         } catch (GenericEntityException e1) {
             // Not return whit error. Log the error and set a message to inform
             // the user. The calendar fill will missing.
@@ -440,6 +454,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         jiraMainVersion = Integer.parseInt(versionSplit[0]);
 
         loadPluginSettingAndParseResult();
+        fdow = jiraTimetrackerPlugin.getFdow();
 
         message = "";
         messageParameter = "";
@@ -449,22 +464,20 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         String[] startTimeValue = request.getParameterValues("startTime");
         // String[] endTimeValue = request.getParameterValues("endTime");
 
+        String[] selectedUserValue = request.getParameterValues("selectedUser");
+        if (selectedUserValue != null) {
+            selectedUser = selectedUserValue[0];
+            log.info("We set selectedUSer " + selectedUser);
+        } else {
+            log.info("We set selectedUSer to empty");
+            selectedUser = "";
+        }
+        LOGGER.info("The selectedUser value: " + selectedUser);
         dateSwitcherAction();
 
         try {
             excludeDays = jiraTimetrackerPlugin
                     .getExluceDaysOfTheMonth(dateFormated);
-            try {
-                loggedDays = jiraTimetrackerPlugin
-                        .getLoggedDaysOfTheMonth(date);
-            } catch (GenericEntityException e1) {
-                // Not return whit error. Log the error and set a message to
-                // inform the user. The calendar fill will missing.
-                LOGGER.error(
-                        "Error while try to collect the logged days for the calendar color fulling",
-                        e1);
-                message = "plugin.calendar.logged.coloring.fail";
-            }
             loadWorklogsAndMakeSummary();
 
             projectsId = jiraTimetrackerPlugin.getProjectsId();
@@ -485,9 +498,12 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
                 LOGGER.error("Error when try parse the worklog.", e);
                 return ERROR;
             }
+            setUserPickerObjectBasedOnSelectedUser();
             return SUCCESS;
         }
-
+        selectedUser = "";
+        userPickerObject = null;
+        // componentManager.getJiraAuthenticationContext().getLoggedInUser();
         // edit all save before the input fields validate
         if (request.getParameter("editallsave") != null) {
             return editAllAction();
@@ -596,6 +612,10 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         }
         editAllIds = "";
         return SUCCESS;
+    }
+
+    public String getAvatarURL() {
+        return avatarURL;
     }
 
     public String getComment() {
@@ -723,12 +743,20 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         return projectsId;
     }
 
+    public String getSelectedeUser() {
+        return selectedUser;
+    }
+
     public String getStartTime() {
         return startTime;
     }
 
     public int getStartTimeChange() {
         return startTimeChange;
+    }
+
+    public User getUserPickerObject() {
+        return userPickerObject;
     }
 
     public String getWeekFilteredSummary() {
@@ -792,7 +820,6 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         startTimeChange = pluginSettingsValues.getStartTimeChange();
         endTimeChange = pluginSettingsValues.getEndTimeChange();
         isColoring = pluginSettingsValues.isColoring();
-        fdow = pluginSettingsValues.getFdow();
     }
 
     /**
@@ -804,8 +831,19 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
      *             If getWorklogs can't parse date.
      */
     private void loadWorklogsAndMakeSummary() throws GenericEntityException,
-            ParseException {
-        worklogs = jiraTimetrackerPlugin.getWorklogs(date);
+    ParseException {
+        try {
+            loggedDays = jiraTimetrackerPlugin
+                    .getLoggedDaysOfTheMonth(selectedUser, date);
+        } catch (GenericEntityException e1) {
+            // Not return whit error. Log the error and set a message to
+            // inform the user. The calendar fill will missing.
+            LOGGER.error(
+                    "Error while try to collect the logged days for the calendar color fulling",
+                    e1);
+            message = "plugin.calendar.logged.coloring.fail";
+        }
+        worklogs = jiraTimetrackerPlugin.getWorklogs(selectedUser, date);
         log.warn("JTWA log: loadWorklogsAndMakeSummary: worklogs size: "
                 + worklogs.size());
         worklogsIds = copyWorklogIdsToArray(worklogs);
@@ -847,17 +885,17 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         Calendar originalEndCcalendar = (Calendar) endCalendar.clone();
         Date end = endCalendar.getTime();
 
-        daySummary = jiraTimetrackerPlugin.summary(start, end, null);
+        daySummary = jiraTimetrackerPlugin.summary(selectedUser, start, end, null);
         if ((issuesRegex != null) && !issuesRegex.isEmpty()) {
-            dayFilteredSummary = jiraTimetrackerPlugin.summary(start, end,
+            dayFilteredSummary = jiraTimetrackerPlugin.summary(selectedUser, start, end,
                     issuesRegex);
         }
 
         startCalendar = (Calendar) originalStartcalendar.clone();
         startCalendar
-                .set(Calendar.DAY_OF_MONTH,
-                        (date.getDate() - (date.getDay() == 0 ? 6 : date
-                                .getDay() - 1)));
+        .set(Calendar.DAY_OF_MONTH,
+                (date.getDate() - (date.getDay() == 0 ? 6 : date
+                        .getDay() - 1)));
         start = startCalendar.getTime();
 
         endCalendar = (Calendar) originalEndCcalendar.clone();
@@ -866,9 +904,9 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
                         .getDay() == 0 ? 7 : date.getDay()))));
         end = endCalendar.getTime();
 
-        weekSummary = jiraTimetrackerPlugin.summary(start, end, null);
+        weekSummary = jiraTimetrackerPlugin.summary(selectedUser, start, end, null);
         if ((issuesRegex != null) && !issuesRegex.isEmpty()) {
-            weekFilteredSummary = jiraTimetrackerPlugin.summary(start, end,
+            weekFilteredSummary = jiraTimetrackerPlugin.summary(selectedUser, start, end,
                     issuesRegex);
         }
 
@@ -881,9 +919,9 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
                 endCalendar.getActualMaximum(Calendar.DAY_OF_MONTH));
         end = endCalendar.getTime();
 
-        monthSummary = jiraTimetrackerPlugin.summary(start, end, null);
+        monthSummary = jiraTimetrackerPlugin.summary(selectedUser, start, end, null);
         if ((issuesRegex != null) && !issuesRegex.isEmpty()) {
-            monthFilteredSummary = jiraTimetrackerPlugin.summary(start, end,
+            monthFilteredSummary = jiraTimetrackerPlugin.summary(selectedUser, start, end,
                     issuesRegex);
         }
     }
@@ -908,9 +946,13 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
      *             ClassNotFoundException.
      */
     private void readObject(final ObjectInputStream in) throws IOException,
-            ClassNotFoundException {
+    ClassNotFoundException {
         in.defaultReadObject();
         issues = new ArrayList<Issue>();
+    }
+
+    public void setAvatarURL(final String avatarURL) {
+        this.avatarURL = avatarURL;
     }
 
     public void setColoring(final boolean isColoring) {
@@ -1001,6 +1043,7 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         if (issueSelectValue != null) {
             issueKey = issueSelectValue[0];
         }
+
         try {
             startTime = jiraTimetrackerPlugin.lastEndTime(worklogs);
         } catch (ParseException e) {
@@ -1079,12 +1122,32 @@ public class JiraTimetarckerWebAction extends JiraWebActionSupport {
         this.projectsId = projectsId;
     }
 
+    public void setSelectedeUser(final String selectedeUser) {
+        selectedUser = selectedeUser;
+    }
+
     public void setStartTime(final String startTime) {
         this.startTime = startTime;
     }
 
     public void setStartTimeChange(final int startTimeChange) {
         this.startTimeChange = startTimeChange;
+    }
+
+    public void setUserPickerObject(final User userPickerObject) {
+        this.userPickerObject = userPickerObject;
+    }
+
+    private void setUserPickerObjectBasedOnSelectedUser() {
+
+        if ((selectedUser != null) && !selectedUser.equals("")) {
+            userPickerObject = componentManager.getUserUtil().getUserObject(selectedUser);
+            AvatarService avatarService = ComponentManager
+                    .getComponentInstanceOfType(AvatarService.class);
+            avatarURL = avatarService.getAvatarURL(userPickerObject, selectedUser, Avatar.Size.SMALL).toString();
+        } else {
+            userPickerObject = null;
+        }
     }
 
     public void setWeekFilteredSummary(final String weekFilteredSummary) {

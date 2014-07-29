@@ -89,10 +89,10 @@ cursor:pointer;
 	            					</script>
 		                    	 	<td style="vertical-align: middle;">
 		                    	 		<input id="hiddenWorklogId" type="hidden" value="$worklog.worklogId" >
-		                    	 		<input id="edit" type="button" name="edit" value="$i18n.getText('plugin.edit')" onclick="location.href='JiraTimetarckerWebAction.jspa?editedWorklogId=$worklog.worklogId&dateFormated=$dateFormated'" class="button" />
+		                    	 		<input id="edit" type="button" name="edit" value="$i18n.getText('plugin.edit')" onclick="location.href='JiraTimetrackerWebAction.jspa?editedWorklogId=$worklog.worklogId&dateFormated=$dateFormated'" class="button" />
 		                    	 	</td>
 		                    	 	<td style="vertical-align: middle;">
-		                    	 		<input id="delete" type="button" name="delete" value="$i18n.getText('plugin.delete')" onclick="location.href='JiraTimetarckerWebAction!default.jspa?deletedWorklogId=$worklog.worklogId&dateFormated=$dateFormated'" class="button"/>
+		                    	 		<input id="delete" type="button" name="delete" value="$i18n.getText('plugin.delete')" onclick="location.href='JiraTimetrackerWebAction!default.jspa?deletedWorklogId=$worklog.worklogId&dateFormated=$dateFormated'" class="button"/>
 		                    	 	</td>
 		                    	 	<td style="vertical-align: middle;">
 		                    	 		<input id="copy" type="button" name="copy" value="$i18n.getText('plugin.copy')" class="copy button"/>
