@@ -21,6 +21,7 @@ package org.everit.jira.timetracker.plugin;
  * MA 02110-1301  USA
  */
 
+import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -33,12 +34,12 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.everit.jira.timetracker.plugin.dto.ChartData;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
-import org.ofbiz.core.entity.GenericEntityException;
 
 import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jira.ComponentManager;
 import com.atlassian.jira.avatar.Avatar;
 import com.atlassian.jira.avatar.AvatarService;
+import com.atlassian.jira.exception.DataAccessException;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.user.UserUtils;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
@@ -216,21 +217,16 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
         Calendar lastDate = (Calendar) startDate.clone();
         lastDate.setTime(DateTimeConverterUtil.stringToDate(dateTo));
-        lastDate.set(Calendar.HOUR_OF_DAY, 0);
-        lastDate.set(Calendar.MINUTE, 0);
-        lastDate.set(Calendar.SECOND, 0);
-        lastDate.set(Calendar.MILLISECOND, 0);
-        lastDate.add(Calendar.DAY_OF_MONTH, 1);
 
         List<EveritWorklog> worklogs = new ArrayList<EveritWorklog>();
-        while (startDate.before(lastDate)) {
-            try {
-                worklogs.addAll(jiraTimetrackerPlugin.getWorklogs(currentUser, startDate.getTime()));
-            } catch (GenericEntityException e) {
-                LOGGER.error("Error when trying to get worklogs.", e);
-                return ERROR;
-            }
-            startDate.add(Calendar.DATE, 1);
+        try {
+            worklogs.addAll(jiraTimetrackerPlugin.getWorklogs(currentUser, startDate.getTime(), lastDate.getTime()));
+        } catch (DataAccessException e) {
+            LOGGER.error("Error when trying to get worklogs.", e);
+            return ERROR;
+        } catch (SQLException e) {
+            LOGGER.error("Error when trying to get worklogs.", e);
+            return ERROR;
         }
 
         Map<String, Long> map = new HashMap<String, Long>();

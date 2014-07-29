@@ -23,6 +23,7 @@ package org.everit.jira.timetracker.plugin;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -43,6 +44,7 @@ import com.atlassian.jira.ComponentManager;
 import com.atlassian.jira.avatar.Avatar;
 import com.atlassian.jira.avatar.AvatarService;
 import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.exception.DataAccessException;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.util.BuildUtilsInfo;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
@@ -401,7 +403,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
         try {
             loggedDays = jiraTimetrackerPlugin.getLoggedDaysOfTheMonth(selectedUser, date);
         } catch (GenericEntityException e1) {
-            // Not return whit error. Log the error and set a message to inform
+            // Not return with error. Log the error and set a message to inform
             // the user. The calendar fill will missing.
             LOGGER.error(
                     "Error while try to collect the logged days for the calendar color fulling",
@@ -829,9 +831,11 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
      *             If GenericEntity Exception.
      * @throws ParseException
      *             If getWorklogs can't parse date.
+     * @throws SQLException
+     * @throws DataAccessException
      */
     private void loadWorklogsAndMakeSummary() throws GenericEntityException,
-    ParseException {
+            ParseException, DataAccessException, SQLException {
         try {
             loggedDays = jiraTimetrackerPlugin
                     .getLoggedDaysOfTheMonth(selectedUser, date);
@@ -843,7 +847,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
                     e1);
             message = "plugin.calendar.logged.coloring.fail";
         }
-        worklogs = jiraTimetrackerPlugin.getWorklogs(selectedUser, date);
+        worklogs = jiraTimetrackerPlugin.getWorklogs(selectedUser, date, null);
         log.warn("JTWA log: loadWorklogsAndMakeSummary: worklogs size: "
                 + worklogs.size());
         worklogsIds = copyWorklogIdsToArray(worklogs);
@@ -893,9 +897,9 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
         startCalendar = (Calendar) originalStartcalendar.clone();
         startCalendar
-        .set(Calendar.DAY_OF_MONTH,
-                (date.getDate() - (date.getDay() == 0 ? 6 : date
-                        .getDay() - 1)));
+                .set(Calendar.DAY_OF_MONTH,
+                        (date.getDate() - (date.getDay() == 0 ? 6 : date
+                                .getDay() - 1)));
         start = startCalendar.getTime();
 
         endCalendar = (Calendar) originalEndCcalendar.clone();
@@ -946,7 +950,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
      *             ClassNotFoundException.
      */
     private void readObject(final ObjectInputStream in) throws IOException,
-    ClassNotFoundException {
+            ClassNotFoundException {
         in.defaultReadObject();
         issues = new ArrayList<Issue>();
     }

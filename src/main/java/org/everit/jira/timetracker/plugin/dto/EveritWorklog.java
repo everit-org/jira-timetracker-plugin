@@ -22,6 +22,8 @@ package org.everit.jira.timetracker.plugin.dto;
  */
 
 import java.io.Serializable;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -132,6 +134,41 @@ public class EveritWorklog implements Serializable {
             body = "";
         }
         long timeSpentInSec = worklogGv.getLong("timeworked").longValue();
+        milliseconds = timeSpentInSec
+                * DateTimeConverterUtil.MILLISECONDS_PER_SECOND;
+        duration = DateTimeConverterUtil.secondConvertToString(timeSpentInSec);
+        endTime = DateTimeConverterUtil.countEndTime(startTime, milliseconds);
+
+    }
+
+    public EveritWorklog(final ResultSet rs,
+            final List<Pattern> collectorIssuePatterns) throws ParseException, SQLException {
+        worklogId = rs.getLong("id");
+        startTime = rs.getString("startdate");
+        startTime = DateTimeConverterUtil.stringDateToStringTime(startTime);
+        issueId = rs.getLong("issueid");
+        IssueManager issueManager = ComponentManager.getInstance()
+                .getIssueManager();
+        MutableIssue issueObject = issueManager.getIssueObject(issueId);
+        issue = issueObject.getKey();
+        issueSummary = issueObject.getSummary();
+
+        if (issueObject.getParentObject() != null) {
+            issueParent = issueObject.getParentObject().getKey();
+        } else {
+            issueParent = "";
+        }
+        isMoreEstimatedTime = JiraTimetrackerUtil.checkIssueEstimatedTime(
+                issueObject, collectorIssuePatterns);
+        body = rs.getString("worklogbody");
+        if (body != null) {
+            body = body.replace("\"", "\\\"");
+            body = body.replace("\r", "\\r");
+            body = body.replace("\n", "\\n");
+        } else {
+            body = "";
+        }
+        long timeSpentInSec = rs.getLong("timeworked");
         milliseconds = timeSpentInSec
                 * DateTimeConverterUtil.MILLISECONDS_PER_SECOND;
         duration = DateTimeConverterUtil.secondConvertToString(timeSpentInSec);

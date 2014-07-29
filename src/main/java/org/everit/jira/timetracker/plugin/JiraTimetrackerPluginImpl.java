@@ -22,6 +22,10 @@ package org.everit.jira.timetracker.plugin;
  */
 
 import java.io.Serializable;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -63,17 +67,18 @@ import com.atlassian.jira.bc.issue.worklog.WorklogInputParametersImpl;
 import com.atlassian.jira.bc.issue.worklog.WorklogNewEstimateInputParameters;
 import com.atlassian.jira.bc.issue.worklog.WorklogResult;
 import com.atlassian.jira.bc.issue.worklog.WorklogService;
+import com.atlassian.jira.exception.DataAccessException;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.IssueImpl;
 import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.worklog.Worklog;
 import com.atlassian.jira.issue.worklog.WorklogManager;
+import com.atlassian.jira.ofbiz.DefaultOfBizConnectionFactory;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.PermissionManager;
 import com.atlassian.jira.security.Permissions;
-import com.atlassian.jira.user.UserUtils;
 import com.atlassian.jira.usercompatibility.UserCompatibilityHelper;
 import com.atlassian.mail.MailException;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
@@ -83,7 +88,7 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
  * The implementation of the {@link JiraTimetrackerPlugin}.
  */
 public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
-        Serializable, InitializingBean, DisposableBean {
+Serializable, InitializingBean, DisposableBean {
 
     /**
      * Serial version UID.
@@ -275,6 +280,20 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
             }
         }
         return issuesConditions;
+    }
+
+    private List<String> createProjects(final User loggedInUser) {
+
+        List<Project> projects = (List<Project>) ComponentManager.getInstance().getPermissionManager()
+                .getProjectObjects(
+                        Permissions.BROWSE,
+                        loggedInUser);
+
+        List<String> projectList = new ArrayList<String>();
+        for (Project project : projects) {
+            projectList.add(project.getKey());
+        }
+        return projectList;
     }
 
     @Override
@@ -477,7 +496,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
         // one week
         scannedDate.set(Calendar.DAY_OF_YEAR,
                 scannedDate.get(Calendar.DAY_OF_YEAR)
-                        - DateTimeConverterUtil.DAYS_PER_WEEK);
+                - DateTimeConverterUtil.DAYS_PER_WEEK);
         for (int i = 0; i < DateTimeConverterUtil.DAYS_PER_WEEK; i++) {
             // convert date to String
             Date scanedDateDate = scannedDate.getTime();
@@ -523,7 +542,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
     @Override
     public List<Date> getDates(final String selectedUser, final Date from, final Date to,
             final boolean workingHour, final boolean checkNonWorking)
-            throws GenericEntityException {
+                    throws GenericEntityException {
         JiraAuthenticationContext authenticationContext = ComponentManager
                 .getInstance().getJiraAuthenticationContext();
         User user = authenticationContext.getLoggedInUser();
@@ -570,7 +589,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
             // not? .... think about it.
             if (exludeDate.startsWith(date.substring(0, 7))) {
                 resultexcludeDays
-                        .add(exludeDate.substring(exludeDate.length() - 2));
+                .add(exludeDate.substring(exludeDate.length() - 2));
             }
         }
 
@@ -637,88 +656,78 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
     }
 
     @Override
-    public List<EveritWorklog> getWorklogs(final Date date, final String userEmail)
-            throws GenericEntityException, ParseException {
-
-        User selectedUser = UserUtils.getUserByEmail(userEmail);
-        log.warn("JTTP LOG: getWorklogs user display: "
-                + selectedUser.getDisplayName()
-                + " user name: " + selectedUser.getName());
-        String selectedUserKey = UserCompatibilityHelper.getKeyForUser(selectedUser);
-        JiraAuthenticationContext authenticationContext = ComponentManager
-                .getInstance().getJiraAuthenticationContext();
-        User user = authenticationContext.getLoggedInUser();
-
+    public List<EveritWorklog> getWorklogs(final String selectedUser, final Date date, final Date finalDate)
+            throws ParseException,
+            DataAccessException, SQLException {
         Calendar startDate = Calendar.getInstance();
         startDate.setTime(date);
         startDate.set(Calendar.HOUR_OF_DAY, 0);
         startDate.set(Calendar.MINUTE, 0);
         startDate.set(Calendar.SECOND, 0);
         startDate.set(Calendar.MILLISECOND, 0);
-
         Calendar endDate = (Calendar) startDate.clone();
-        endDate.set(Calendar.HOUR_OF_DAY,
-                DateTimeConverterUtil.LAST_HOUR_OF_DAY);
-        endDate.set(Calendar.MINUTE,
-                DateTimeConverterUtil.LAST_MINUTE_OF_HOUR);
-        endDate.set(Calendar.SECOND,
-                DateTimeConverterUtil.LAST_SECOND_OF_MINUTE);
-        endDate.set(Calendar.MILLISECOND,
-                DateTimeConverterUtil.LAST_MILLISECOND_OF_SECOND);
-
-        List<EntityExpr> exprList = createWorklogQueryExprList(selectedUserKey, user, startDate.getTime(),
-                endDate.getTime());
-        log.warn("JTTP LOG: getWorklogs expr list size: " + exprList.size());
-        List<GenericValue> worklogGVList = CoreFactory.getGenericDelegator()
-                .findByAnd("Worklog", exprList);
-        log.warn("JTTP LOG: getWorklogs worklog GV list size: "
-                + worklogGVList.size());
-
-        List<EveritWorklog> worklogs = new ArrayList<EveritWorklog>();
-        for (GenericValue worklogGv : worklogGVList) {
-            EveritWorklog worklog = new EveritWorklog(worklogGv,
-                    collectorIssuePatterns);
-            worklogs.add(worklog);
+        if (finalDate == null) {
+            endDate.add(Calendar.DAY_OF_MONTH, 1);
+        } else {
+            endDate.setTime(finalDate);
+            endDate.add(Calendar.DAY_OF_MONTH, 1);
+            endDate.set(Calendar.HOUR_OF_DAY, 0);
+            endDate.set(Calendar.MINUTE, 0);
+            endDate.set(Calendar.SECOND, 0);
+            endDate.set(Calendar.MILLISECOND, 0);
         }
 
-        Collections.sort(worklogs, new EveritWorklogComparator());
-        log.warn("JTTP LOG: getWorklogs worklog GV list size: "
-                + worklogs.size());
-        return worklogs;
-    }
-
-    @Override
-    public List<EveritWorklog> getWorklogs(final String selectedUser, final Date date)
-            throws GenericEntityException, ParseException {
-        JiraAuthenticationContext authenticationContext = ComponentManager
-                .getInstance().getJiraAuthenticationContext();
-        User user = authenticationContext.getLoggedInUser();
-        log.warn("JTTP LOG: getWorklogs user display: " + user.getDisplayName()
-                + " user name: " + user.getName());
-
-        Calendar startDate = Calendar.getInstance();
-        startDate.setTime(date);
-        startDate.set(Calendar.HOUR_OF_DAY, 0);
-        startDate.set(Calendar.MINUTE, 0);
-        startDate.set(Calendar.SECOND, 0);
-        startDate.set(Calendar.MILLISECOND, 0);
-
-        Calendar endDate = (Calendar) startDate.clone();
-        endDate.add(Calendar.DAY_OF_MONTH, 1);
-
-        List<EntityExpr> exprList = createWorklogQueryExprList(selectedUser, user, startDate.getTime(),
-                endDate.getTime());
-        log.warn("JTTP LOG: getWorklogs expr list size: " + exprList.size());
-        List<GenericValue> worklogGVList = CoreFactory.getGenericDelegator()
-                .findByAnd("Worklog", exprList);
-        log.warn("JTTP LOG: getWorklogs worklog GV list size: "
-                + worklogGVList.size());
-
         List<EveritWorklog> worklogs = new ArrayList<EveritWorklog>();
-        for (GenericValue worklogGv : worklogGVList) {
-            EveritWorklog worklog = new EveritWorklog(worklogGv,
-                    collectorIssuePatterns);
-            worklogs.add(worklog);
+
+        JiraAuthenticationContext authenticationContext = ComponentManager.getInstance().getJiraAuthenticationContext();
+        User loggedInUser = authenticationContext.getLoggedInUser();
+
+        List<String> projects = createProjects(loggedInUser);
+        String userKey = "";
+        if ((selectedUser == null) || selectedUser.equals("")) {
+            userKey = UserCompatibilityHelper.getKeyForUser(loggedInUser);
+        } else {
+            userKey = selectedUser;
+        }
+
+        if (!projects.isEmpty()) {
+
+            StringBuilder projectsPreparedParams = new StringBuilder();
+            for (String project : projects) {
+                projectsPreparedParams.append("?,");
+            }
+            if (projectsPreparedParams.length() > 0) {
+                projectsPreparedParams.deleteCharAt(projectsPreparedParams.length() - 1);
+            }
+
+            String query = "SELECT worklog.id, worklog.startdate, worklog.issueid, worklog.timeworked, worklog.worklogbody"
+                    + " FROM project, worklog, jiraissue"
+                    + " WHERE jiraissue.project=project.id AND worklog.issueid=jiraissue.id"
+                    + " AND worklog.startdate>=? AND worklog.startdate<?"
+                    + " AND worklog.author=?"
+                    + " AND project.pkey IN ("
+                    + projectsPreparedParams.toString() + ")";
+
+            Connection conn = new DefaultOfBizConnectionFactory().getConnection();
+            PreparedStatement ps = null;
+            ps = conn.prepareStatement(query);
+            int preparedIndex = 1;
+            ps.setTimestamp(preparedIndex++, new Timestamp(startDate.getTimeInMillis()));
+            ps.setTimestamp(preparedIndex++, new Timestamp(endDate.getTimeInMillis()));
+            ps.setString(preparedIndex++, userKey);
+            for (String project : projects) {
+                ps.setString(preparedIndex++, project);
+            }
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next())
+            {
+                EveritWorklog worklog = new EveritWorklog(rs, collectorIssuePatterns);
+                worklogs.add(worklog);
+            }
+            rs.close();
+            ps.close();
+            conn.close();
         }
 
         Collections.sort(worklogs, new EveritWorklogComparator());
@@ -1029,8 +1038,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
         pluginSettingsValues = new PluginSettingsValues(
                 new CalendarSettingsValues(isPopup, isActualDate,
                         excludeDatesString, includeDatesString, isColoring, fdow),
-                summaryFilteredIssuePatterns, collectorIssuePatterns,
-                startTimeChange, endTimeChange);
+                        summaryFilteredIssuePatterns, collectorIssuePatterns,
+                        startTimeChange, endTimeChange);
         return pluginSettingsValues;
     }
 
@@ -1052,9 +1061,9 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
         pluginSettings.put(JTTP_PLUGIN_SETTINGS_IS_COLORIG,
                 pluginSettingsParameters.isColoring().toString());
         pluginSettings
-                .put(JTTP_PLUGIN_SETTINGS_START_TIME_CHANGE,
-                        Integer.toString(pluginSettingsParameters
-                                .getStartTimeChange()));
+        .put(JTTP_PLUGIN_SETTINGS_START_TIME_CHANGE,
+                Integer.toString(pluginSettingsParameters
+                        .getStartTimeChange()));
         pluginSettings.put(JTTP_PLUGIN_SETTINGS_END_TIME_CHANGE,
                 Integer.toString(pluginSettingsParameters.getEndTimeChange()));
 

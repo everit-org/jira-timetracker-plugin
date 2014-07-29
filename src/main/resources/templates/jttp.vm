@@ -545,7 +545,8 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 																AJS.$("#issueSelect-multi-select").attr("style","width: 630px;");
 																AJS.$("#issueSelect-textarea").attr("style","width: 605px; height: 20px");
 															#else
-																AJS.$("#issueSelect-textarea").attr("style","width: 605px; height: 30px");
+																AJS.$("#issueSelect-multi-select").attr("style","width: 630px;");
+																AJS.$("#issueSelect-textarea").attr("style","width: 625px; height: 30px");
 															#end
 
 														#else
@@ -553,6 +554,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 																AJS.$("#issueSelect-multi-select").attr("style","width: 930px;");
 																AJS.$("#issueSelect-textarea").attr("style","width: 905px; height: 20px");
 															#else
+																AJS.$("#issueSelect-multi-select").attr("style","width: 910px;");
 																AJS.$("#issueSelect-textarea").attr("style","width: 905px; height: 30px");
 															#end
 
