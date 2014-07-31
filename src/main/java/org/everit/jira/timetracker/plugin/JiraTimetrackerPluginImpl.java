@@ -80,7 +80,7 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
  * The implementation of the {@link JiraTimetrackerPlugin}.
  */
 public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
-        Serializable, InitializingBean, DisposableBean {
+Serializable, InitializingBean, DisposableBean {
 
     /**
      * Serial version UID.
@@ -317,14 +317,14 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
     }
 
     private List<EntityExpr> createWorklogQueryExprList(final User user,
-            final Date startDate, final Date endDate) {
+            final Calendar startDate, final Calendar endDate) {
         String userKey = UserCompatibilityHelper.getKeyForUser(user);
 
         EntityExpr startExpr = new EntityExpr("startdate",
                 EntityOperator.GREATER_THAN_EQUAL_TO, new Timestamp(
-                        startDate.getTime()));
+                        startDate.getTimeInMillis()));
         EntityExpr endExpr = new EntityExpr("startdate",
-                EntityOperator.LESS_THAN, new Timestamp(endDate.getTime()));
+                EntityOperator.LESS_THAN, new Timestamp(endDate.getTimeInMillis()));
         EntityExpr userExpr = new EntityExpr("author", EntityOperator.EQUALS,
                 userKey);
         log.info("JTTP LOG: getWorklogs start date: " + startDate.toString()
@@ -343,7 +343,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
 
     private List<EntityExpr> createWorklogQueryExprListWithPermissionCheck(final String selectedUser,
             final User loggedInUser,
-            final Date startDate, final Date endDate) throws GenericEntityException {
+            final Calendar startDate, final Calendar endDate) throws GenericEntityException {
         String userKey = "";
         if ((selectedUser == null) || selectedUser.equals("")) {
             userKey = UserCompatibilityHelper.getKeyForUser(loggedInUser);
@@ -355,9 +355,9 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
 
         EntityExpr startExpr = new EntityExpr("startdate",
                 EntityOperator.GREATER_THAN_EQUAL_TO, new Timestamp(
-                        startDate.getTime()));
+                        startDate.getTimeInMillis()));
         EntityExpr endExpr = new EntityExpr("startdate",
-                EntityOperator.LESS_THAN, new Timestamp(endDate.getTime()));
+                EntityOperator.LESS_THAN, new Timestamp(endDate.getTimeInMillis()));
         EntityExpr userExpr = new EntityExpr("author", EntityOperator.EQUALS,
                 userKey);
         EntityExpr projectExpr = new EntityExpr("project", EntityOperator.IN, projects);
@@ -482,7 +482,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
         // one week
         scannedDate.set(Calendar.DAY_OF_YEAR,
                 scannedDate.get(Calendar.DAY_OF_YEAR)
-                        - DateTimeConverterUtil.DAYS_PER_WEEK);
+                - DateTimeConverterUtil.DAYS_PER_WEEK);
         for (int i = 0; i < DateTimeConverterUtil.DAYS_PER_WEEK; i++) {
             // convert date to String
             Date scanedDateDate = scannedDate.getTime();
@@ -528,7 +528,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
     @Override
     public List<Date> getDates(final String selectedUser, final Date from, final Date to,
             final boolean workingHour, final boolean checkNonWorking)
-            throws GenericEntityException {
+                    throws GenericEntityException {
         List<Date> datesWhereNoWorklog = new ArrayList<Date>();
         while (!from.equals(to)) {
             String scanedDateString = DateTimeConverterUtil.dateToString(to);
@@ -572,7 +572,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
             // not? .... think about it.
             if (exludeDate.startsWith(date.substring(0, 7))) {
                 resultexcludeDays
-                        .add(exludeDate.substring(exludeDate.length() - 2));
+                .add(exludeDate.substring(exludeDate.length() - 2));
             }
         }
 
@@ -603,6 +603,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
         int dayOfMonth = 1;
         Calendar startCalendar = Calendar.getInstance();
         startCalendar.setTime(date);
+        startCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
         Date start = startCalendar.getTime();
 
         while (dayOfMonth <= DateTimeConverterUtil.LAST_DAY_OF_MONTH) {
@@ -638,22 +639,13 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
     @Override
     public List<EveritWorklog> getWorklogs(final String selectedUser, final Date date, final Date finalDate)
             throws ParseException, GenericEntityException {
-        Calendar startDate = Calendar.getInstance();
-        startDate.setTime(date);
-        startDate.set(Calendar.HOUR_OF_DAY, 0);
-        startDate.set(Calendar.MINUTE, 0);
-        startDate.set(Calendar.SECOND, 0);
-        startDate.set(Calendar.MILLISECOND, 0);
+        Calendar startDate = DateTimeConverterUtil.setDateToDayStart(date);
         Calendar endDate = (Calendar) startDate.clone();
         if (finalDate == null) {
             endDate.add(Calendar.DAY_OF_MONTH, 1);
         } else {
-            endDate.setTime(finalDate);
+            endDate = DateTimeConverterUtil.setDateToDayStart(finalDate);
             endDate.add(Calendar.DAY_OF_MONTH, 1);
-            endDate.set(Calendar.HOUR_OF_DAY, 0);
-            endDate.set(Calendar.MINUTE, 0);
-            endDate.set(Calendar.SECOND, 0);
-            endDate.set(Calendar.MILLISECOND, 0);
         }
 
         List<EveritWorklog> worklogs = new ArrayList<EveritWorklog>();
@@ -669,7 +661,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
         }
 
         List<EntityExpr> exprList = createWorklogQueryExprListWithPermissionCheck(userKey, loggedInUser,
-                startDate.getTime(), endDate.getTime());
+                startDate, endDate);
 
         List<GenericValue> worklogGVList = CoreFactory.getGenericDelegator().findByAnd("IssueWorklogView", exprList);
         log.warn("JTTP LOG: getWorklogs worklog GV list size: " + worklogGVList.size());
@@ -703,19 +695,11 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
                 .getInstance().getJiraAuthenticationContext();
         User user = authenticationContext.getLoggedInUser();
 
-        Calendar startDate = Calendar.getInstance();
-        startDate.setTime(date);
-        startDate.set(Calendar.HOUR_OF_DAY, 0);
-        startDate.set(Calendar.MINUTE, 0);
-        startDate.set(Calendar.SECOND, 0);
-        startDate.set(Calendar.MILLISECOND, 0);
+        Calendar startDate = DateTimeConverterUtil.setDateToDayStart(date);
         Calendar endDate = (Calendar) startDate.clone();
         endDate.add(Calendar.DAY_OF_MONTH, 1);
 
-        // List<EntityExpr> exprList = createWorklogQueryExprList(selectedUser, user, startDate,
-        // endDate);
-        List<EntityExpr> exprList = createWorklogQueryExprList(user, startDate.getTime(),
-                endDate.getTime());
+        List<EntityExpr> exprList = createWorklogQueryExprList(user, startDate, endDate);
 
         List<GenericValue> worklogGVList = CoreFactory.getGenericDelegator()
                 .findByAnd("Worklog", exprList);
@@ -776,19 +760,12 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
                 .getInstance().getJiraAuthenticationContext();
         User user = authenticationContext.getLoggedInUser();
 
-        Calendar startDate = Calendar.getInstance();
-        startDate.setTime(date);
-        startDate.set(Calendar.HOUR_OF_DAY, 0);
-        startDate.set(Calendar.MINUTE, 0);
-        startDate.set(Calendar.SECOND, 0);
-        startDate.set(Calendar.MILLISECOND, 0);
+        Calendar startDate = DateTimeConverterUtil.setDateToDayStart(date);
         Calendar endDate = (Calendar) startDate.clone();
         endDate.add(Calendar.DAY_OF_MONTH, 1);
 
-        // List<EntityExpr> exprList = createWorklogQueryExprList(selectedUser, user, startDate,
-        // endDate);
-        List<EntityExpr> exprList = createWorklogQueryExprList(user, startDate.getTime(),
-                endDate.getTime());
+        List<EntityExpr> exprList = createWorklogQueryExprList(user, startDate,
+                endDate);
 
         List<GenericValue> worklogGVList = CoreFactory.getGenericDelegator()
                 .findByAnd("Worklog", exprList);
@@ -978,8 +955,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
         pluginSettingsValues = new PluginSettingsValues(
                 new CalendarSettingsValues(isPopup, isActualDate,
                         excludeDatesString, includeDatesString, isColoring, fdow),
-                summaryFilteredIssuePatterns, collectorIssuePatterns,
-                startTimeChange, endTimeChange);
+                        summaryFilteredIssuePatterns, collectorIssuePatterns,
+                        startTimeChange, endTimeChange);
         return pluginSettingsValues;
     }
 
@@ -1001,9 +978,9 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
         pluginSettings.put(JTTP_PLUGIN_SETTINGS_IS_COLORIG,
                 pluginSettingsParameters.isColoring().toString());
         pluginSettings
-                .put(JTTP_PLUGIN_SETTINGS_START_TIME_CHANGE,
-                        Integer.toString(pluginSettingsParameters
-                                .getStartTimeChange()));
+        .put(JTTP_PLUGIN_SETTINGS_START_TIME_CHANGE,
+                Integer.toString(pluginSettingsParameters
+                        .getStartTimeChange()));
         pluginSettings.put(JTTP_PLUGIN_SETTINGS_END_TIME_CHANGE,
                 Integer.toString(pluginSettingsParameters.getEndTimeChange()));
 
@@ -1047,13 +1024,16 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
         JiraAuthenticationContext authenticationContext = ComponentManager
                 .getInstance().getJiraAuthenticationContext();
         User user = authenticationContext.getLoggedInUser();
-        startSummary.setSeconds(0);
-        finishSummary.setSeconds(0);
+
+        Calendar start = Calendar.getInstance();
+        start.setTime(startSummary);
+        Calendar finish = Calendar.getInstance();
+        finish.setTime(finishSummary);
 
         // List<EntityExpr> exprList = createWorklogQueryExprList(selectedUser, user,
         // startSummary, finishSummary);
         List<EntityExpr> exprList = createWorklogQueryExprList(user,
-                startSummary, finishSummary);
+                start, finish);
 
         List<GenericValue> worklogs;
         // worklog query
