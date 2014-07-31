@@ -39,13 +39,12 @@ import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
 import org.ofbiz.core.entity.GenericEntityException;
 
-import com.atlassian.crowd.embedded.api.User;
-import com.atlassian.jira.ComponentManager;
 import com.atlassian.jira.avatar.Avatar;
 import com.atlassian.jira.avatar.AvatarService;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.exception.DataAccessException;
 import com.atlassian.jira.issue.Issue;
+import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.util.BuildUtilsInfo;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
 
@@ -250,12 +249,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     private String contextPath;
 
     private String avatarURL = "";
-    /**
-     * Jira Componentmanager instance.
-     */
-    private ComponentManager componentManager = ComponentManager.getInstance();
 
-    private User userPickerObject;
+    private ApplicationUser userPickerObject;
 
     /**
      * Simple constructor.
@@ -292,12 +287,12 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
      *             When can't parse date.
      */
     public void dateSwitcherAction() throws ParseException {
-        String[] dayBackValue = request.getParameterValues("dayBack");
-        String[] dayNextValue = request.getParameterValues("dayNext");
-        String[] weekBackValue = request.getParameterValues("weekBack");
-        String[] weekNextValue = request.getParameterValues("weekNext");
-        String[] monthBackValue = request.getParameterValues("monthBack");
-        String[] monthNextVaule = request.getParameterValues("monthNext");
+        String[] dayBackValue = getHttpRequest().getParameterValues("dayBack");
+        String[] dayNextValue = getHttpRequest().getParameterValues("dayNext");
+        String[] weekBackValue = getHttpRequest().getParameterValues("weekBack");
+        String[] weekNextValue = getHttpRequest().getParameterValues("weekNext");
+        String[] monthBackValue = getHttpRequest().getParameterValues("monthBack");
+        String[] monthNextVaule = getHttpRequest().getParameterValues("monthNext");
 
         Calendar cal = Calendar.getInstance();
         if (dayNextValue != null) {
@@ -343,9 +338,9 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
             // date.setDate(date.getDate() + PREV_WEEK);
             dateFormated = DateTimeConverterUtil.dateToString(date);
         } else {
-            String[] requestDateArray = request.getParameterValues("date");
+            String[] requestDateArray = getHttpRequest().getParameterValues("date");
             if (requestDateArray != null) {
-                String requestDate = request.getParameterValues("date")[0];
+                String requestDate = getHttpRequest().getParameterValues("date")[0];
                 if (!requestDate.equals("")) {
                     dateFormated = requestDate;
                 }
@@ -459,12 +454,12 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
         message = "";
         messageParameter = "";
 
-        String[] issueSelectValue = request.getParameterValues("issueSelect");
-        // String[] commentsValue = request.getParameterValues("comments");
-        String[] startTimeValue = request.getParameterValues("startTime");
-        // String[] endTimeValue = request.getParameterValues("endTime");
+        String[] issueSelectValue = getHttpRequest().getParameterValues("issueSelect");
+        // String[] commentsValue = getHttpRequest().getParameterValues("comments");
+        String[] startTimeValue = getHttpRequest().getParameterValues("startTime");
+        // String[] endTimeValue = getHttpRequest().getParameterValues("endTime");
 
-        String[] selectedUserValue = request.getParameterValues("selectedUser");
+        String[] selectedUserValue = getHttpRequest().getParameterValues("selectedUser");
         if (selectedUserValue != null) {
             selectedUser = selectedUserValue[0];
             log.info("We set selectedUSer " + selectedUser);
@@ -489,9 +484,9 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
         setFieldsValue();
         // if not edit and not submit than just a simple date change
-        if ((request.getParameter("edit") == null)
-                && (request.getParameter("submit") == null)
-                && (request.getParameter("editallsave") == null)) {
+        if ((getHttpRequest().getParameter("edit") == null)
+                && (getHttpRequest().getParameter("submit") == null)
+                && (getHttpRequest().getParameter("editallsave") == null)) {
             try {
                 handleEditAllIdsAndEditedWorklogId();
             } catch (ParseException e) {
@@ -505,7 +500,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
         userPickerObject = null;
         // componentManager.getJiraAuthenticationContext().getLoggedInUser();
         // edit all save before the input fields validate
-        if (request.getParameter("editallsave") != null) {
+        if (getHttpRequest().getParameter("editallsave") != null) {
             return editAllAction();
         }
 
@@ -519,7 +514,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
             return SUCCESS;
         }
 
-        if (request.getParameter("edit") != null) {
+        if (getHttpRequest().getParameter("edit") != null) {
             return editAction();
         }
 
@@ -549,7 +544,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
      * @return String witch will be passed to the WebAction.
      */
     public String editAction() {
-        String[] startTimeValue = request.getParameterValues("startTime");
+        String[] startTimeValue = getHttpRequest().getParameterValues("startTime");
         ActionResult updateResult = jiraTimetrackerPlugin.editWorklog(
                 editedWorklogId, issueKey, commentForActions, dateFormated,
                 startTimeValue[0], timeSpent);
@@ -591,11 +586,12 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
         }
         // edit the worklogs!
         // TODO what if result is a fail?????? what if just one fail?
-        ActionResult editResult;
+        // ActionResult editResult;
         for (Long editWorklogId : editWorklogIds) {
             EveritWorklog editWorklog = jiraTimetrackerPlugin
                     .getWorklog(editWorklogId);
-            editResult = jiraTimetrackerPlugin.editWorklog(editWorklog
+            // editResult =
+            jiraTimetrackerPlugin.editWorklog(editWorklog
                     .getWorklogId(), editWorklog.getIssue(), editWorklog
                     .getBody(), dateFormated, editWorklog.getStartTime(),
                     DateTimeConverterUtil.stringTimeToString(editWorklog
@@ -620,11 +616,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
     public String getComment() {
         return comment;
-    }
-
-    @Override
-    public ComponentManager getComponentManager() {
-        return componentManager;
     }
 
     public String getContextPath() {
@@ -755,7 +746,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
         return startTimeChange;
     }
 
-    public User getUserPickerObject() {
+    public ApplicationUser getUserPickerObject() {
         return userPickerObject;
     }
 
@@ -833,7 +824,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
      * @throws DataAccessException
      */
     private void loadWorklogsAndMakeSummary() throws GenericEntityException,
-            ParseException, DataAccessException, SQLException {
+    ParseException, DataAccessException, SQLException {
         try {
             loggedDays = jiraTimetrackerPlugin
                     .getLoggedDaysOfTheMonth(selectedUser, date);
@@ -882,9 +873,9 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
         startCalendar = (Calendar) originalStartcalendar.clone();
         startCalendar
-                .set(Calendar.DAY_OF_MONTH,
-                        (date.getDate() - (date.getDay() == 0 ? 6 : date
-                                .getDay() - 1)));
+        .set(Calendar.DAY_OF_MONTH,
+                (date.getDate() - (date.getDay() == 0 ? 6 : date
+                        .getDay() - 1)));
         start = startCalendar.getTime();
 
         endCalendar = (Calendar) originalEndCcalendar.clone();
@@ -916,7 +907,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     }
 
     private void normalizeContextPath() {
-        String path = request.getContextPath();
+        String path = getHttpRequest().getContextPath();
         if ((path.length() > 0) && path.substring(path.length() - 1).equals("/")) {
             contextPath = path.substring(0, path.length() - 1);
         } else {
@@ -935,7 +926,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
      *             ClassNotFoundException.
      */
     private void readObject(final ObjectInputStream in) throws IOException,
-            ClassNotFoundException {
+    ClassNotFoundException {
         in.defaultReadObject();
         issues = new ArrayList<Issue>();
     }
@@ -950,10 +941,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
     public void setComment(final String comment) {
         this.comment = comment;
-    }
-
-    public void setComponentManager(final ComponentManager componentManager) {
-        this.componentManager = componentManager;
     }
 
     public void setContextPath(final String contextPath) {
@@ -1024,11 +1011,11 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
      * Set the read values to the input fields back.
      */
     private String setFieldsValue() {
-        String[] issueSelectValue = request.getParameterValues("issueSelect");
-        String[] endTimeValue = request.getParameterValues("endTime");
-        String[] durationTimeValue = request.getParameterValues("durationTime");
-        String[] startTimeValue = request.getParameterValues("startTime");
-        String[] commentsValue = request.getParameterValues("comments");
+        String[] issueSelectValue = getHttpRequest().getParameterValues("issueSelect");
+        String[] endTimeValue = getHttpRequest().getParameterValues("endTime");
+        String[] durationTimeValue = getHttpRequest().getParameterValues("durationTime");
+        // String[] startTimeValue = getHttpRequest().getParameterValues("startTime");
+        String[] commentsValue = getHttpRequest().getParameterValues("comments");
         if (issueSelectValue != null) {
             issueKey = issueSelectValue[0];
         }
@@ -1123,17 +1110,17 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
         this.startTimeChange = startTimeChange;
     }
 
-    public void setUserPickerObject(final User userPickerObject) {
+    public void setUserPickerObject(final ApplicationUser userPickerObject) {
         this.userPickerObject = userPickerObject;
     }
 
     private void setUserPickerObjectBasedOnSelectedUser() {
 
         if ((selectedUser != null) && !selectedUser.equals("")) {
-            userPickerObject = componentManager.getUserUtil().getUserObject(selectedUser);
-            AvatarService avatarService = ComponentManager
-                    .getComponentInstanceOfType(AvatarService.class);
-            avatarURL = avatarService.getAvatarURL(userPickerObject, selectedUser, Avatar.Size.SMALL).toString();
+            userPickerObject = ComponentAccessor.getUserUtil().getUserByName(selectedUser);
+            AvatarService avatarService = ComponentAccessor.getComponent(AvatarService.class);
+            setAvatarURL(avatarService.getAvatarURL(ComponentAccessor.getJiraAuthenticationContext().getUser(),
+                    userPickerObject, Avatar.Size.SMALL).toString());
         } else {
             userPickerObject = null;
         }
@@ -1161,10 +1148,9 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
      * @return If the values valid the return SUCCESS else return ERROR.
      */
     public String validateInputFields() {
-        String[] startTimeValue = request.getParameterValues("startTime");
-        String[] endOrDurationValue = request
-                .getParameterValues("endOrDuration");
-        String[] commentsValue = request.getParameterValues("comments");
+        String[] startTimeValue = getHttpRequest().getParameterValues("startTime");
+        String[] endOrDurationValue = getHttpRequest().getParameterValues("endOrDuration");
+        String[] commentsValue = getHttpRequest().getParameterValues("comments");
 
         if (commentsValue[0] == null) {
             return ERROR;
@@ -1175,8 +1161,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
             return ERROR;
         }
         if (endOrDurationValue[0].equals("duration")) {
-            String[] durationTimeValue = request
-                    .getParameterValues("durationTime");
+            String[] durationTimeValue = getHttpRequest().getParameterValues("durationTime");
             Date startDateTime;
             try {
                 startDateTime = DateTimeConverterUtil
@@ -1221,7 +1206,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
                 }
             }
         } else {
-            String[] endTimeValue = request.getParameterValues("endTime");
+            String[] endTimeValue = getHttpRequest().getParameterValues("endTime");
             if (!DateTimeConverterUtil.isValidTime(endTimeValue[0])) {
                 message = "plugin.invalid_endTime";
                 return ERROR;

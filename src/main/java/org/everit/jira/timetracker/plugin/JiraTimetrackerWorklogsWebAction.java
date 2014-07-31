@@ -151,9 +151,9 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
      */
     public void dateSwitcherAction() throws ParseException {
 
-        String[] requestDateFromArray = request.getParameterValues("dateFrom");
+        String[] requestDateFromArray = getHttpRequest().getParameterValues("dateFrom");
         if (requestDateFromArray != null) {
-            String requestDate = request.getParameterValues("dateFrom")[0];
+            String requestDate = getHttpRequest().getParameterValues("dateFrom")[0];
             if (!requestDate.equals("")) {
                 dateFromFormated = requestDate;
             }
@@ -164,9 +164,9 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
             dateFrom = DateTimeConverterUtil.stringToDate(dateFromFormated);
         }
 
-        String[] requestDateToArray = request.getParameterValues("dateTo");
+        String[] requestDateToArray = getHttpRequest().getParameterValues("dateTo");
         if (requestDateToArray != null) {
-            String requestDate = request.getParameterValues("dateTo")[0];
+            String requestDate = getHttpRequest().getParameterValues("dateTo")[0];
             if (!requestDate.equals("")) {
                 dateToFormated = requestDate;
             }
@@ -250,7 +250,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
         statisticsMessageParameter = "0";
         allDatesWhereNoWorklog = new ArrayList<String>();
         showDatesWhereNoWorklog = new ArrayList<String>();
-        String[] searchValue = request.getParameterValues("search");
+        String[] searchValue = getHttpRequest().getParameterValues("search");
         // if not null then we have to change the dates and make a new query
         if (searchValue != null) {
             // set actual page default! we start the new query with the first
@@ -261,8 +261,8 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
                 message = "plugin.wrong.dates";
                 return SUCCESS;
             }
-            String[] hourValue = request.getParameterValues("hour");
-            String[] nonworkingValue = request.getParameterValues("nonworking");
+            String[] hourValue = getHttpRequest().getParameterValues("hour");
+            String[] nonworkingValue = getHttpRequest().getParameterValues("nonworking");
             if (hourValue != null) {
                 checkHours = true;
             }
@@ -348,7 +348,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     }
 
     private void normalizeContextPath() {
-        String path = request.getContextPath();
+        String path = getHttpRequest().getContextPath();
         if ((path.length() > 0) && path.substring(path.length() - 1).equals("/")) {
             contextPath = path.substring(0, path.length() - 1);
         } else {
@@ -360,8 +360,8 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
      * Handle the page changer action.
      */
     public void pageChangeAction() {
-        String[] dayBackValue = request.getParameterValues("pageBack");
-        String[] dayNextValue = request.getParameterValues("pageNext");
+        String[] dayBackValue = getHttpRequest().getParameterValues("pageBack");
+        String[] dayNextValue = getHttpRequest().getParameterValues("pageNext");
         if ((dayBackValue != null) && (actualPage > 1)) {
             actualPage--;
         }

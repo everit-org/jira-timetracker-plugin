@@ -44,6 +44,7 @@ import org.everit.jira.timetracker.plugin.dto.CalendarSettingsValues;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklogComparator;
 import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
+import org.ofbiz.core.entity.EntityCondition;
 import org.ofbiz.core.entity.EntityExpr;
 import org.ofbiz.core.entity.EntityOperator;
 import org.ofbiz.core.entity.GenericEntityException;
@@ -51,9 +52,6 @@ import org.ofbiz.core.entity.GenericValue;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
-import com.atlassian.core.ofbiz.CoreFactory;
-import com.atlassian.crowd.embedded.api.User;
-import com.atlassian.jira.ComponentManager;
 import com.atlassian.jira.bc.JiraServiceContext;
 import com.atlassian.jira.bc.JiraServiceContextImpl;
 import com.atlassian.jira.bc.issue.worklog.WorklogInputParameters;
@@ -61,8 +59,8 @@ import com.atlassian.jira.bc.issue.worklog.WorklogInputParametersImpl;
 import com.atlassian.jira.bc.issue.worklog.WorklogNewEstimateInputParameters;
 import com.atlassian.jira.bc.issue.worklog.WorklogResult;
 import com.atlassian.jira.bc.issue.worklog.WorklogService;
+import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.issue.Issue;
-import com.atlassian.jira.issue.IssueImpl;
 import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.worklog.Worklog;
@@ -71,7 +69,7 @@ import com.atlassian.jira.project.Project;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.PermissionManager;
 import com.atlassian.jira.security.Permissions;
-import com.atlassian.jira.usercompatibility.UserCompatibilityHelper;
+import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.mail.MailException;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
@@ -249,11 +247,9 @@ Serializable, InitializingBean, DisposableBean {
         return initialDelay;
     }
 
-    private List<Long> createProjects(final User loggedInUser) {
-        List<Project> projects = (List<Project>) ComponentManager.getInstance().getPermissionManager()
-                .getProjectObjects(
-                        Permissions.BROWSE,
-                        loggedInUser);
+    private List<Long> createProjects(final ApplicationUser loggedInUser) {
+        List<Project> projects = (List<Project>) ComponentAccessor.getPermissionManager()
+                .getProjects(Permissions.BROWSE, loggedInUser);
 
         List<Long> projectList = new ArrayList<Long>();
         for (Project project : projects) {
@@ -266,24 +262,21 @@ Serializable, InitializingBean, DisposableBean {
     public ActionResult createWorklog(final String issueId,
             final String comment, final String dateFormated,
             final String startTime, final String timeSpent) {
-        JiraAuthenticationContext authenticationContext = ComponentManager
-                .getInstance().getJiraAuthenticationContext();
-        User user = authenticationContext.getLoggedInUser();
+        JiraAuthenticationContext authenticationContext = ComponentAccessor.getJiraAuthenticationContext();
+        ApplicationUser user = authenticationContext.getUser();
         log.warn("JTTP createWorklog: user: " + user.getDisplayName() + " "
                 + user.getName() + " " + user.getEmailAddress());
         JiraServiceContext serviceContext = new JiraServiceContextImpl(user);
         log.warn("JTTP createWorklog: serviceContext User: "
-                + serviceContext.getLoggedInUser().getName() + " "
-                + serviceContext.getLoggedInUser().getEmailAddress());
-        IssueManager issueManager = ComponentManager.getInstance()
-                .getIssueManager();
+                + user.getName() + " "
+                + user.getEmailAddress());
+        IssueManager issueManager = ComponentAccessor.getIssueManager();
         MutableIssue issue = issueManager.getIssueObject(issueId);
         if (issue == null) {
             return new ActionResult(ActionResultStatus.FAIL,
                     "plugin.invalid_issue", issueId);
         }
-        PermissionManager permissionManager = ComponentManager.getInstance()
-                .getPermissionManager();
+        PermissionManager permissionManager = ComponentAccessor.getPermissionManager();
         if (!permissionManager.hasPermission(Permissions.WORK_ISSUE, issue,
                 user)) {
             return new ActionResult(ActionResultStatus.FAIL,
@@ -301,8 +294,7 @@ Serializable, InitializingBean, DisposableBean {
         WorklogNewEstimateInputParameters params = WorklogInputParametersImpl
                 .issue(issue).startDate(date).timeSpent(timeSpent)
                 .comment(comment).buildNewEstimate();
-        WorklogService worklogService = ComponentManager
-                .getComponentInstanceOfType(WorklogService.class);
+        WorklogService worklogService = ComponentAccessor.getComponent(WorklogService.class);
         WorklogResult worklogResult = worklogService.validateCreate(
                 serviceContext, params);
         if (worklogResult == null) {
@@ -316,9 +308,10 @@ Serializable, InitializingBean, DisposableBean {
                 "plugin.worklog.create.success");
     }
 
-    private List<EntityExpr> createWorklogQueryExprList(final User user,
+    private List<EntityCondition> createWorklogQueryExprList(final ApplicationUser user,
             final Calendar startDate, final Calendar endDate) {
-        String userKey = UserCompatibilityHelper.getKeyForUser(user);
+
+        String userKey = user.getKey();
 
         EntityExpr startExpr = new EntityExpr("startdate",
                 EntityOperator.GREATER_THAN_EQUAL_TO, new Timestamp(
@@ -330,7 +323,7 @@ Serializable, InitializingBean, DisposableBean {
         log.info("JTTP LOG: getWorklogs start date: " + startDate.toString()
                 + " end date:" + endDate.toString());
 
-        List<EntityExpr> exprList = new ArrayList<EntityExpr>();
+        List<EntityCondition> exprList = new ArrayList<EntityCondition>();
         exprList.add(userExpr);
         if (startExpr != null) {
             exprList.add(startExpr);
@@ -341,12 +334,12 @@ Serializable, InitializingBean, DisposableBean {
         return exprList;
     }
 
-    private List<EntityExpr> createWorklogQueryExprListWithPermissionCheck(final String selectedUser,
-            final User loggedInUser,
+    private List<EntityCondition> createWorklogQueryExprListWithPermissionCheck(final String selectedUser,
+            final ApplicationUser loggedInUser,
             final Calendar startDate, final Calendar endDate) throws GenericEntityException {
         String userKey = "";
         if ((selectedUser == null) || selectedUser.equals("")) {
-            userKey = UserCompatibilityHelper.getKeyForUser(loggedInUser);
+            userKey = loggedInUser.getKey();
         } else {
             userKey = selectedUser;
         }
@@ -364,7 +357,7 @@ Serializable, InitializingBean, DisposableBean {
         log.info("JTTP LOG: getWorklogs start date: " + startDate.toString()
                 + " end date:" + endDate.toString());
 
-        List<EntityExpr> exprList = new ArrayList<EntityExpr>();
+        List<EntityCondition> exprList = new ArrayList<EntityCondition>();
         exprList.add(userExpr);
         if (startExpr != null) {
             exprList.add(startExpr);
@@ -378,12 +371,10 @@ Serializable, InitializingBean, DisposableBean {
 
     @Override
     public ActionResult deleteWorklog(final Long id) {
-        JiraAuthenticationContext authenticationContext = ComponentManager
-                .getInstance().getJiraAuthenticationContext();
-        User user = authenticationContext.getLoggedInUser();
+        JiraAuthenticationContext authenticationContext = ComponentAccessor.getJiraAuthenticationContext();
+        ApplicationUser user = authenticationContext.getUser();
         JiraServiceContext serviceContext = new JiraServiceContextImpl(user);
-        WorklogService worklogService = ComponentManager
-                .getComponentInstanceOfType(WorklogService.class);
+        WorklogService worklogService = ComponentAccessor.getComponent(WorklogService.class);
         WorklogResult deleteWorklogResult = worklogService.validateDelete(
                 serviceContext, id);
         if (deleteWorklogResult == null) {
@@ -407,24 +398,20 @@ Serializable, InitializingBean, DisposableBean {
     public ActionResult editWorklog(final Long id, final String issueId,
             final String comment, final String dateFormated, final String time,
             final String timeSpent) {
-        JiraAuthenticationContext authenticationContext = ComponentManager
-                .getInstance().getJiraAuthenticationContext();
-        User user = authenticationContext.getLoggedInUser();
+        JiraAuthenticationContext authenticationContext = ComponentAccessor.getJiraAuthenticationContext();
+        ApplicationUser user = authenticationContext.getUser();
         JiraServiceContext serviceContext = new JiraServiceContextImpl(user);
 
-        WorklogManager worklogManager = ComponentManager.getInstance()
-                .getWorklogManager();
+        WorklogManager worklogManager = ComponentAccessor.getWorklogManager();
         Worklog worklog = worklogManager.getById(id);
-        IssueManager issueManager = ComponentManager.getInstance()
-                .getIssueManager();
+        IssueManager issueManager = ComponentAccessor.getIssueManager();
         MutableIssue issue = issueManager.getIssueObject(issueId);
         if (issue == null) {
             return new ActionResult(ActionResultStatus.FAIL,
                     "plugin.invalide_issue", issueId);
         }
         if (!worklog.getIssue().getKey().equals(issueId)) {
-            PermissionManager permissionManager = ComponentManager
-                    .getInstance().getPermissionManager();
+            PermissionManager permissionManager = ComponentAccessor.getPermissionManager();
             if (!permissionManager.hasPermission(Permissions.WORK_ISSUE, issue,
                     user)) {
                 return new ActionResult(ActionResultStatus.FAIL,
@@ -458,8 +445,7 @@ Serializable, InitializingBean, DisposableBean {
             WorklogInputParameters params = WorklogInputParametersImpl
                     .issue(issue).startDate(dateCreate).timeSpent(timeSpent)
                     .comment(comment).worklogId(id).issue(issue).build();
-            WorklogService worklogService = ComponentManager
-                    .getComponentInstanceOfType(WorklogService.class);
+            WorklogService worklogService = ComponentAccessor.getComponent(WorklogService.class);
             WorklogResult worklogResult = worklogService.validateUpdate(
                     serviceContext, params);
             if (worklogResult == null) {
@@ -586,14 +572,13 @@ Serializable, InitializingBean, DisposableBean {
 
     @Override
     public List<Issue> getIssues() throws GenericEntityException {
-        List<GenericValue> issuesGV = null;
-        issuesGV = CoreFactory.getGenericDelegator().findAll("Issue");
+        // List<GenericValue> issuesGV = null;
+        // issuesGV = ComponentAccessor.getOfBizDelegator().findAll("Issue");
         List<Issue> issues = new ArrayList<Issue>();
-        for (GenericValue issueGV : issuesGV) {
-            issues.add(IssueImpl.getIssueObject(issueGV));
-        }
+        // for (GenericValue issueGV : issuesGV) {
+        // issues.add(IssueImpl.getIssueObject(issueGV));
+        // }
         return issues;
-
     }
 
     @Override
@@ -620,8 +605,7 @@ Serializable, InitializingBean, DisposableBean {
     @Override
     public List<String> getProjectsId() throws GenericEntityException {
         List<String> projectsId = new ArrayList<String>();
-        List<GenericValue> projectsGV = CoreFactory.getGenericDelegator()
-                .findAll("Project");
+        List<GenericValue> projectsGV = ComponentAccessor.getOfBizDelegator().findAll("Project");
         for (GenericValue project : projectsGV) {
             projectsId.add(project.getString("id"));
         }
@@ -630,8 +614,7 @@ Serializable, InitializingBean, DisposableBean {
 
     @Override
     public EveritWorklog getWorklog(final Long worklogId) throws ParseException {
-        WorklogManager worklogManager = ComponentManager.getInstance()
-                .getWorklogManager();
+        WorklogManager worklogManager = ComponentAccessor.getWorklogManager();
         Worklog worklog = worklogManager.getById(worklogId);
         return new EveritWorklog(worklog);
     }
@@ -650,20 +633,21 @@ Serializable, InitializingBean, DisposableBean {
 
         List<EveritWorklog> worklogs = new ArrayList<EveritWorklog>();
 
-        JiraAuthenticationContext authenticationContext = ComponentManager.getInstance().getJiraAuthenticationContext();
-        User loggedInUser = authenticationContext.getLoggedInUser();
+        JiraAuthenticationContext authenticationContext = ComponentAccessor.getJiraAuthenticationContext();
+        ApplicationUser loggedInUser = authenticationContext.getUser();
 
         String userKey = "";
         if ((selectedUser == null) || selectedUser.equals("")) {
-            userKey = UserCompatibilityHelper.getKeyForUser(loggedInUser);
+            userKey = loggedInUser.getKey();
         } else {
             userKey = selectedUser;
         }
 
-        List<EntityExpr> exprList = createWorklogQueryExprListWithPermissionCheck(userKey, loggedInUser,
+        List<EntityCondition> exprList = createWorklogQueryExprListWithPermissionCheck(userKey, loggedInUser,
                 startDate, endDate);
 
-        List<GenericValue> worklogGVList = CoreFactory.getGenericDelegator().findByAnd("IssueWorklogView", exprList);
+        List<GenericValue> worklogGVList = ComponentAccessor.getOfBizDelegator()
+                .findByAnd("IssueWorklogView", exprList);
         log.warn("JTTP LOG: getWorklogs worklog GV list size: " + worklogGVList.size());
 
         for (GenericValue worklogGv : worklogGVList) {
@@ -691,18 +675,16 @@ Serializable, InitializingBean, DisposableBean {
      */
     private boolean isContainsEnoughWorklog(final String selectedUser, final Date date,
             final boolean checkNonWorking) throws GenericEntityException {
-        JiraAuthenticationContext authenticationContext = ComponentManager
-                .getInstance().getJiraAuthenticationContext();
-        User user = authenticationContext.getLoggedInUser();
+        JiraAuthenticationContext authenticationContext = ComponentAccessor.getJiraAuthenticationContext();
+        ApplicationUser user = authenticationContext.getUser();
 
         Calendar startDate = DateTimeConverterUtil.setDateToDayStart(date);
         Calendar endDate = (Calendar) startDate.clone();
         endDate.add(Calendar.DAY_OF_MONTH, 1);
 
-        List<EntityExpr> exprList = createWorklogQueryExprList(user, startDate, endDate);
+        List<EntityCondition> exprList = createWorklogQueryExprList(user, startDate, endDate);
 
-        List<GenericValue> worklogGVList = CoreFactory.getGenericDelegator()
-                .findByAnd("Worklog", exprList);
+        List<GenericValue> worklogGVList = ComponentAccessor.getOfBizDelegator().findByAnd("Worklog", exprList);
         if ((worklogGVList == null) || worklogGVList.isEmpty()) {
             return false;
         } else {
@@ -716,8 +698,7 @@ Serializable, InitializingBean, DisposableBean {
                 if ((summaryFilteredIssuePatterns != null)
                         && !summaryFilteredIssuePatterns.isEmpty()) {
                     for (GenericValue worklog : worklogsCopy) {
-                        IssueManager issueManager = ComponentManager
-                                .getInstance().getIssueManager();
+                        IssueManager issueManager = ComponentAccessor.getIssueManager();
                         Long issueId = worklog.getLong("issue");
                         MutableIssue issue = issueManager
                                 .getIssueObject(issueId);
@@ -756,19 +737,17 @@ Serializable, InitializingBean, DisposableBean {
      */
     private boolean isContainsWorklog(final String selectedUser, final Date date)
             throws GenericEntityException {
-        JiraAuthenticationContext authenticationContext = ComponentManager
-                .getInstance().getJiraAuthenticationContext();
-        User user = authenticationContext.getLoggedInUser();
+        JiraAuthenticationContext authenticationContext = ComponentAccessor.getJiraAuthenticationContext();
+        ApplicationUser user = authenticationContext.getUser();
 
         Calendar startDate = DateTimeConverterUtil.setDateToDayStart(date);
         Calendar endDate = (Calendar) startDate.clone();
         endDate.add(Calendar.DAY_OF_MONTH, 1);
 
-        List<EntityExpr> exprList = createWorklogQueryExprList(user, startDate,
+        List<EntityCondition> exprList = createWorklogQueryExprList(user, startDate,
                 endDate);
 
-        List<GenericValue> worklogGVList = CoreFactory.getGenericDelegator()
-                .findByAnd("Worklog", exprList);
+        List<GenericValue> worklogGVList = ComponentAccessor.getOfBizDelegator().findByAnd("Worklog", exprList);
         if ((worklogGVList == null) || worklogGVList.isEmpty()) {
             return false;
         } else {
@@ -799,9 +778,8 @@ Serializable, InitializingBean, DisposableBean {
 
     @Override
     public PluginSettingsValues loadPluginSettings() {
-        JiraAuthenticationContext authenticationContext = ComponentManager
-                .getInstance().getJiraAuthenticationContext();
-        User user = authenticationContext.getLoggedInUser();
+        JiraAuthenticationContext authenticationContext = ComponentAccessor.getJiraAuthenticationContext();
+        ApplicationUser user = authenticationContext.getUser();
 
         globalSettings = settingsFactory.createGlobalSettings();
         List<String> tempIssuePatternList = (List<String>) globalSettings
@@ -963,9 +941,8 @@ Serializable, InitializingBean, DisposableBean {
     @Override
     public void savePluginSettings(
             final PluginSettingsValues pluginSettingsParameters) {
-        JiraAuthenticationContext authenticationContext = ComponentManager
-                .getInstance().getJiraAuthenticationContext();
-        User user = authenticationContext.getLoggedInUser();
+        JiraAuthenticationContext authenticationContext = ComponentAccessor.getJiraAuthenticationContext();
+        ApplicationUser user = authenticationContext.getUser();
         pluginSettings = settingsFactory
                 .createSettingsForKey(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
                         + user.getName());
@@ -1021,9 +998,8 @@ Serializable, InitializingBean, DisposableBean {
     @Override
     public String summary(final String selectedUser, final Date startSummary, final Date finishSummary,
             final List<Pattern> issuePatterns) throws GenericEntityException {
-        JiraAuthenticationContext authenticationContext = ComponentManager
-                .getInstance().getJiraAuthenticationContext();
-        User user = authenticationContext.getLoggedInUser();
+        JiraAuthenticationContext authenticationContext = ComponentAccessor.getJiraAuthenticationContext();
+        ApplicationUser user = authenticationContext.getUser();
 
         Calendar start = Calendar.getInstance();
         start.setTime(startSummary);
@@ -1032,20 +1008,19 @@ Serializable, InitializingBean, DisposableBean {
 
         // List<EntityExpr> exprList = createWorklogQueryExprList(selectedUser, user,
         // startSummary, finishSummary);
-        List<EntityExpr> exprList = createWorklogQueryExprList(user,
+        List<EntityCondition> exprList = createWorklogQueryExprList(user,
                 start, finish);
 
         List<GenericValue> worklogs;
         // worklog query
-        worklogs = CoreFactory.getGenericDelegator().findByAnd("Worklog",
+        worklogs = ComponentAccessor.getOfBizDelegator().findByAnd("Worklog",
                 exprList);
         List<GenericValue> worklogsCopy = new ArrayList<GenericValue>();
         worklogsCopy.addAll(worklogs);
         // if we have non-estimated issues
         if ((issuePatterns != null) && !issuePatterns.isEmpty()) {
             for (GenericValue worklog : worklogsCopy) {
-                IssueManager issueManager = ComponentManager.getInstance()
-                        .getIssueManager();
+                IssueManager issueManager = ComponentAccessor.getIssueManager();
                 Long issueId = worklog.getLong("issue");
                 MutableIssue issue = issueManager.getIssueObject(issueId);
                 for (Pattern issuePattern : issuePatterns) {
