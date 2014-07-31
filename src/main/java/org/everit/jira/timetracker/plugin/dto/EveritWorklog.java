@@ -32,7 +32,7 @@ import org.everit.jira.timetracker.plugin.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerUtil;
 import org.ofbiz.core.entity.GenericValue;
 
-import com.atlassian.jira.ComponentManager;
+import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.worklog.Worklog;
@@ -112,8 +112,7 @@ public class EveritWorklog implements Serializable {
         startTime = worklogGv.getString("startdate");
         startTime = DateTimeConverterUtil.stringDateToStringTime(startTime);
         issueId = new Long(worklogGv.getString("issue"));
-        IssueManager issueManager = ComponentManager.getInstance()
-                .getIssueManager();
+        IssueManager issueManager = ComponentAccessor.getIssueManager();
         MutableIssue issueObject = issueManager.getIssueObject(issueId);
         issue = issueObject.getKey();
         issueSummary = issueObject.getSummary();
@@ -147,8 +146,7 @@ public class EveritWorklog implements Serializable {
         startTime = rs.getString("startdate");
         startTime = DateTimeConverterUtil.stringDateToStringTime(startTime);
         issueId = rs.getLong("issueid");
-        IssueManager issueManager = ComponentManager.getInstance()
-                .getIssueManager();
+        IssueManager issueManager = ComponentAccessor.getIssueManager();
         MutableIssue issueObject = issueManager.getIssueObject(issueId);
         issue = issueObject.getKey();
         issueSummary = issueObject.getSummary();
