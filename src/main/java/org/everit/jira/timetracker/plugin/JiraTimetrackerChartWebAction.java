@@ -34,6 +34,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.everit.jira.timetracker.plugin.dto.ChartData;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
+import org.ofbiz.core.entity.GenericEntityException;
 
 import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jira.ComponentManager;
@@ -162,7 +163,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     }
 
     @Override
-    public String doExecute() throws ParseException {
+    public String doExecute() throws ParseException, GenericEntityException {
         boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
         if (!isUserLogged) {
             setReturnUrl("/secure/Dashboard.jspa");

@@ -195,8 +195,8 @@ public interface JiraTimetrackerPlugin {
      *             When can't parse the worklog date.
      */
     List<EveritWorklog> getWorklogs(String selectedUser, Date startDate, Date endDate) throws DataAccessException,
-            SQLException,
-            ParseException;
+    SQLException,
+    ParseException, GenericEntityException;
 
     /**
      * Give back the biggest end time of the date after worklogs method. Or give back 08:00.

@@ -367,7 +367,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
             setReturnUrl("/secure/Dashboard.jspa");
             return getRedirect(NONE);
         }
-
         normalizeContextPath();
 
         BuildUtilsInfo component = ComponentAccessor
@@ -380,7 +379,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
         loadPluginSettingAndParseResult();
         fdow = jiraTimetrackerPlugin.getFdow();
-
         // Just the here have to use the plugin actualDateOrLastWorklogDate
         // setting
         if (dateFormated.equals("")) {
@@ -533,10 +531,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
             messageParameter = createResult.getMessageParameter();
             return SUCCESS;
         }
-        // endTime = DateTimeConverterUtil.dateTimeToString(new Date());
         try {
             loadWorklogsAndMakeSummary();
             startTime = jiraTimetrackerPlugin.lastEndTime(worklogs);
+            endTime = DateTimeConverterUtil.dateTimeToString(new Date());
             comment = "";
         } catch (Exception e) {
             LOGGER.error("Error when try set the plugin variables.", e);
@@ -862,10 +860,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
      */
     public void makeSummary() throws GenericEntityException {
         Calendar startCalendar = Calendar.getInstance();
-        startCalendar.set(Calendar.YEAR, date.getYear()
-                + DateTimeConverterUtil.BEGIN_OF_YEAR);
-        startCalendar.set(Calendar.MONTH, date.getMonth());
-        startCalendar.set(Calendar.DAY_OF_MONTH, date.getDate());
+        startCalendar.setTime(date);
         startCalendar.set(Calendar.HOUR_OF_DAY, 0);
         startCalendar.set(Calendar.MINUTE, 0);
         startCalendar.set(Calendar.SECOND, 0);
@@ -873,19 +868,9 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
         Calendar originalStartcalendar = (Calendar) startCalendar.clone();
         Date start = startCalendar.getTime();
 
-        Calendar endCalendar = Calendar.getInstance();
-        endCalendar.set(Calendar.YEAR, date.getYear()
-                + DateTimeConverterUtil.BEGIN_OF_YEAR);
-        endCalendar.set(Calendar.MONTH, date.getMonth());
-        endCalendar.set(Calendar.DAY_OF_MONTH, date.getDate());
-        endCalendar.set(Calendar.HOUR_OF_DAY,
-                DateTimeConverterUtil.LAST_HOUR_OF_DAY);
-        endCalendar.set(Calendar.MINUTE,
-                DateTimeConverterUtil.LAST_MINUTE_OF_HOUR);
-        endCalendar.set(Calendar.SECOND,
-                DateTimeConverterUtil.LAST_SECOND_OF_MINUTE);
-        startCalendar.set(Calendar.MILLISECOND,
-                DateTimeConverterUtil.LAST_MILLISECOND_OF_SECOND);
+        Calendar endCalendar = (Calendar) startCalendar.clone();
+        endCalendar.add(Calendar.DAY_OF_MONTH, 1);
+
         Calendar originalEndCcalendar = (Calendar) endCalendar.clone();
         Date end = endCalendar.getTime();
 
