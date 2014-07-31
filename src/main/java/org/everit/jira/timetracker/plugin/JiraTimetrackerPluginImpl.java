@@ -22,6 +22,10 @@ package org.everit.jira.timetracker.plugin;
  */
 
 import java.io.Serializable;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -61,12 +65,15 @@ import com.atlassian.jira.bc.issue.worklog.WorklogInputParametersImpl;
 import com.atlassian.jira.bc.issue.worklog.WorklogNewEstimateInputParameters;
 import com.atlassian.jira.bc.issue.worklog.WorklogResult;
 import com.atlassian.jira.bc.issue.worklog.WorklogService;
+import com.atlassian.jira.exception.DataAccessException;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.IssueImpl;
 import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.worklog.Worklog;
 import com.atlassian.jira.issue.worklog.WorklogManager;
+import com.atlassian.jira.ofbiz.DefaultOfBizConnectionFactory;
+import com.atlassian.jira.project.Project;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.PermissionManager;
 import com.atlassian.jira.security.Permissions;
@@ -79,952 +86,1060 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
  * The implementation of the {@link JiraTimetrackerPlugin}.
  */
 public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
-		Serializable, InitializingBean, DisposableBean {
-
-	/**
-	 * Serial version UID.
-	 */
-	private static final long serialVersionUID = 1L;
-	/**
-	 * Logger.
-	 */
-	private static final Logger LOGGER = Logger
-			.getLogger(JiraTimetrackerPluginImpl.class);
-
-	/**
-	 * The plugin settings key prefix.
-	 */
-	private static final String JTTP_PLUGIN_SETTINGS_KEY_PREFIX = "jttp";
-	/**
-	 * The plugin setting Summary Filters key.
-	 */
-	private static final String JTTP_PLUGIN_SETTINGS_SUMMARY_FILTERS = "SummaryFilters";
-	/**
-	 * The plugin setting Summary Filters key.
-	 */
-	private static final String JTTP_PLUGIN_SETTINGS_NON_ESTIMATED_ISSUES = "NonEstimated";
-	/**
-	 * The plugin setting Exclude dates key.
-	 */
-	private static final String JTTP_PLUGIN_SETTINGS_EXCLUDE_DATES = "ExcludeDates";
-	/**
-	 * The plugin setting Include dates key.
-	 */
-	private static final String JTTP_PLUGIN_SETTINGS_INCLUDE_DATES = "IncludeDates";
-	/**
-	 * The plugin setting is calendar popup key.
-	 */
-	private static final String JTTP_PLUGIN_SETTINGS_IS_CALENDAR_POPUP = "isCalendarPopup";
-	/**
-	 * The plugin setting is calendar popup key.
-	 */
-	private static final String JTTP_PLUGIN_SETTINGS_START_TIME_CHANGE = "startTimeChange";
-	/**
-	 * The plugin setting is calendar popup key.
-	 */
-	private static final String JTTP_PLUGIN_SETTINGS_END_TIME_CHANGE = "endTimechange";
-	/**
-	 * The plugin setting is actual date key.
-	 */
-	private static final String JTTP_PLUGIN_SETTINGS_IS_ACTUAL_DATE = "isActualDate";
-	/**
-	 * The plugin setting is actual date key.
-	 */
-	private static final String JTTP_PLUGIN_SETTINGS_IS_COLORIG = "isColoring";
-	/**
-	 * A day in minutes.
-	 */
-	private static final int ONE_DAY_IN_MINUTES = 1440;
-
-	/**
-	 * The PluginSettingsFactory.
-	 */
-	private final PluginSettingsFactory settingsFactory;
-	/**
-	 * The plugin setting form the settingsFactory.
-	 */
-	private PluginSettings pluginSettings;
-	/**
-	 * The plugin global setting form the settingsFactory.
-	 */
-	private PluginSettings globalSettings;
-	/**
-	 * The plugin setting values.
-	 */
-	private PluginSettingsValues pluginSettingsValues;
-	/**
-	 * The issue check time in minutes.
-	 */
-	private long issueCheckTimeInMinutes;
-	/**
-	 * The exclude dates from the properties file.
-	 */
-	private String excludeDatesString;
-	/**
-	 * The include dates from the properties file.
-	 */
-	private String includeDatesString;
-	/**
-	 * The parsed exclude dates.
-	 */
-	private Set<String> excludeDatesSet = new HashSet<String>();
-	/**
-	 * The parsed include dates.
-	 */
-	private Set<String> includeDatesSet = new HashSet<String>();
-	/**
-	 * The summary filter issues ids.
-	 */
-	private List<Pattern> summaryFilteredIssuePatterns;
-	/**
-	 * The collector issues ids.
-	 */
-	private List<Pattern> collectorIssuePatterns;
-	/**
-	 * The summary filter issues ids.
-	 */
-	private List<Pattern> defaultNonWorkingIssueIds = new ArrayList<Pattern>();
-	/**
-	 * The collector issues ids.
-	 */
-	private List<Pattern> defaultNonEstimedIssuePatterns = new ArrayList<Pattern>();
-	/**
-	 * The plugin Scheduled Executor Service.
-	 */
-	private final ScheduledExecutorService scheduledExecutorService = Executors
-			.newScheduledThreadPool(1);
-	/**
-	 * The issues Estimated Time Checker Future.
-	 */
-	private ScheduledFuture<?> issueEstimatedTimeCheckerFuture;
-	/**
-	 * The JiraTimetarckerPluginImpl logger.
-	 */
-	private Logger log = Logger.getLogger(JiraTimetrackerPluginImpl.class);
-
-	/**
-	 * Default constructor.
-	 */
-	public JiraTimetrackerPluginImpl(final PluginSettingsFactory settingFactory) {
-		settingsFactory = settingFactory;
-	}
-
-	@Override
-	public void afterPropertiesSet() throws Exception {
-
-		setDefaultVairablesValue();
-
-		final Runnable issueEstimatedTimeChecker = new IssueEstimatedTimeChecker(
-				this);
-
-		// //TEST SETTINGS
-		// Calendar now = Calendar.getInstance();
-		// Long nowPlusTWOMin = (long) ((now.get(Calendar.HOUR_OF_DAY) * 60) +
-		// now.get(Calendar.MINUTE) + 1);
-		// issueEstimatedTimeCheckerFuture =
-		// scheduledExecutorService.scheduleAtFixedRate(issueEstimatedTimeChecker,
-		// calculateInitialDelay(nowPlusTWOMin), // FIXME fix the time
-		// // calculateInitialDelay(issueCheckTimeInMinutes),
-		// 5, TimeUnit.MINUTES);
-
-		issueEstimatedTimeCheckerFuture = scheduledExecutorService
-				.scheduleAtFixedRate(issueEstimatedTimeChecker,
-						calculateInitialDelay(issueCheckTimeInMinutes),
-						ONE_DAY_IN_MINUTES, TimeUnit.MINUTES);
-	}
-
-	private long calculateInitialDelay(final long time) {
-		Calendar now = Calendar.getInstance();
-		long hours = now.get(Calendar.HOUR_OF_DAY);
-		long minutes = now.get(Calendar.MINUTE);
-		long initialDelay = time - ((hours * 60) + minutes);
-		if (initialDelay < 0) {
-			initialDelay = initialDelay + ONE_DAY_IN_MINUTES;
-		}
-		return initialDelay;
-	}
-
-	@Override
-	public ActionResult createWorklog(final String issueId,
-			final String comment, final String dateFormated,
-			final String startTime, final String timeSpent) {
-		JiraAuthenticationContext authenticationContext = ComponentManager
-				.getInstance().getJiraAuthenticationContext();
-		User user = authenticationContext.getLoggedInUser();
-		log.warn("JTTP createWorklog: user: " + user.getDisplayName() + " "
-				+ user.getName() + " " + user.getEmailAddress());
-		JiraServiceContext serviceContext = new JiraServiceContextImpl(user);
-		log.warn("JTTP createWorklog: serviceContext User: "
-				+ serviceContext.getLoggedInUser().getName() + " "
-				+ serviceContext.getLoggedInUser().getEmailAddress());
-		IssueManager issueManager = ComponentManager.getInstance()
-				.getIssueManager();
-		MutableIssue issue = issueManager.getIssueObject(issueId);
-		if (issue == null) {
-			return new ActionResult(ActionResultStatus.FAIL,
-					"plugin.invalid_issue", issueId);
-		}
-		PermissionManager permissionManager = ComponentManager.getInstance()
-				.getPermissionManager();
-		if (!permissionManager.hasPermission(Permissions.WORK_ISSUE, issue,
-				user)) {
-			return new ActionResult(ActionResultStatus.FAIL,
-					"plugin.nopermission_issue", issueId);
-		}
-		String dateAndTime = dateFormated + " " + startTime;
-		Date date;
-		try {
-			date = DateTimeConverterUtil.stringToDateAndTime(dateAndTime);
-		} catch (ParseException e) {
-			return new ActionResult(ActionResultStatus.FAIL,
-					"plugin.date_parse", dateAndTime);
-		}
-
-		WorklogNewEstimateInputParameters params = WorklogInputParametersImpl
-				.issue(issue).startDate(date).timeSpent(timeSpent)
-				.comment(comment).buildNewEstimate();
-		WorklogService worklogService = ComponentManager
-				.getComponentInstanceOfType(WorklogService.class);
-		WorklogResult worklogResult = worklogService.validateCreate(
-				serviceContext, params);
-		if (worklogResult == null) {
-			return new ActionResult(ActionResultStatus.FAIL,
-					"plugin.worklog.create.fail");
-		}
-		worklogService.createAndAutoAdjustRemainingEstimate(serviceContext,
-				worklogResult, true);
-
-		return new ActionResult(ActionResultStatus.SUCCESS,
-				"plugin.worklog.create.success");
-	}
-
-	private List<EntityExpr> createWorklogQueryExprList(final User user,
-			final Date startDate, final Date endDate) {
-		String userKey = UserCompatibilityHelper.getKeyForUser(user);
-
-		EntityExpr startExpr = new EntityExpr("startdate",
-				EntityOperator.GREATER_THAN_EQUAL_TO, new Timestamp(
-						startDate.getTime()));
-		EntityExpr endExpr = new EntityExpr("startdate",
-				EntityOperator.LESS_THAN, new Timestamp(endDate.getTime()));
-		EntityExpr userExpr = new EntityExpr("author", EntityOperator.EQUALS,
-				userKey);
-		log.warn("JTTP LOG: getWorklogs start date: " + startDate.toString()
-				+ " end date:" + endDate.toString());
-
-		List<EntityExpr> exprList = new ArrayList<EntityExpr>();
-		exprList.add(userExpr);
-		if (startExpr != null) {
-			exprList.add(startExpr);
-		}
-		if (endExpr != null) {
-			exprList.add(endExpr);
-		}
-		return exprList;
-	}
-
-	@Override
-	public ActionResult deleteWorklog(final Long id) {
-		JiraAuthenticationContext authenticationContext = ComponentManager
-				.getInstance().getJiraAuthenticationContext();
-		User user = authenticationContext.getLoggedInUser();
-		JiraServiceContext serviceContext = new JiraServiceContextImpl(user);
-		WorklogService worklogService = ComponentManager
-				.getComponentInstanceOfType(WorklogService.class);
-		WorklogResult deleteWorklogResult = worklogService.validateDelete(
-				serviceContext, id);
-		if (deleteWorklogResult == null) {
-			return new ActionResult(ActionResultStatus.FAIL,
-					"plugin.worklog.delete.fail", id.toString());
-		}
-		worklogService.deleteAndAutoAdjustRemainingEstimate(serviceContext,
-				deleteWorklogResult, false);
-		return new ActionResult(ActionResultStatus.SUCCESS,
-				"plugin.worklog.delete.success", id.toString());
-	}
-
-	@Override
-	public void destroy() throws Exception {
-		scheduledExecutorService.shutdown();
-		issueEstimatedTimeCheckerFuture.cancel(true);
-		LOGGER.info("JiraTimetrackerPluginImpl destroyed");
-	}
-
-	@Override
-	public ActionResult editWorklog(final Long id, final String issueId,
-			final String comment, final String dateFormated, final String time,
-			final String timeSpent) {
-		JiraAuthenticationContext authenticationContext = ComponentManager
-				.getInstance().getJiraAuthenticationContext();
-		User user = authenticationContext.getLoggedInUser();
-		JiraServiceContext serviceContext = new JiraServiceContextImpl(user);
-
-		WorklogManager worklogManager = ComponentManager.getInstance()
-				.getWorklogManager();
-		Worklog worklog = worklogManager.getById(id);
-		IssueManager issueManager = ComponentManager.getInstance()
-				.getIssueManager();
-		MutableIssue issue = issueManager.getIssueObject(issueId);
-		if (issue == null) {
-			return new ActionResult(ActionResultStatus.FAIL,
-					"plugin.invalide_issue", issueId);
-		}
-		if (!worklog.getIssue().getKey().equals(issueId)) {
-			PermissionManager permissionManager = ComponentManager
-					.getInstance().getPermissionManager();
-			if (!permissionManager.hasPermission(Permissions.WORK_ISSUE, issue,
-					user)) {
-				return new ActionResult(ActionResultStatus.FAIL,
-						"plugin.nopermission_issue", issueId);
-			}
-			ActionResult deleteResult = deleteWorklog(id);
-			if (deleteResult.getStatus() == ActionResultStatus.FAIL) {
-				return deleteResult;
-			}
-			// String dateCreate =
-			// DateTimeConverterUtil.dateToString(worklog.getStartDate());
-			// String dateCreate = date;
-			ActionResult createResult = createWorklog(issueId, comment,
-					dateFormated, time, timeSpent);
-			if (createResult.getStatus() == ActionResultStatus.FAIL) {
-				return createResult;
-			}
-		} else {
-			// String dateFormated =
-			// DateTimeConverterUtil.dateToString(worklog.getStartDate());
-			// String dateFormated = date;
-			String dateAndTime = dateFormated + " " + time;
-			Date dateCreate;
-			try {
-				dateCreate = DateTimeConverterUtil
-						.stringToDateAndTime(dateAndTime);
-			} catch (ParseException e) {
-				return new ActionResult(ActionResultStatus.FAIL,
-						"plugin.date_parse" + dateAndTime);
-			}
-			WorklogInputParameters params = WorklogInputParametersImpl
-					.issue(issue).startDate(dateCreate).timeSpent(timeSpent)
-					.comment(comment).worklogId(id).issue(issue).build();
-			WorklogService worklogService = ComponentManager
-					.getComponentInstanceOfType(WorklogService.class);
-			WorklogResult worklogResult = worklogService.validateUpdate(
-					serviceContext, params);
-			if (worklogResult == null) {
-				return new ActionResult(ActionResultStatus.FAIL,
-						"plugin.worklog.update.fail");
-			}
-
-			worklogService.updateAndAutoAdjustRemainingEstimate(serviceContext,
-					worklogResult, true);
-
-		}
-		return new ActionResult(ActionResultStatus.SUCCESS,
-				"plugin.worklog.update.success");
-
-	}
-
-	@Override
-	public Date firstMissingWorklogsDate() throws GenericEntityException {
-		Calendar scannedDate = Calendar.getInstance();
-		// one week
-		scannedDate.set(Calendar.DAY_OF_YEAR,
-				scannedDate.get(Calendar.DAY_OF_YEAR)
-						- DateTimeConverterUtil.DAYS_PER_WEEK);
-		for (int i = 0; i < DateTimeConverterUtil.DAYS_PER_WEEK; i++) {
-			// convert date to String
-			Date scanedDateDate = scannedDate.getTime();
-			String scanedDateString = DateTimeConverterUtil
-					.dateToString(scanedDateDate);
-			// check excludse - pass
-			if (excludeDatesSet.contains(scanedDateString)) {
-				scannedDate.set(Calendar.DAY_OF_YEAR,
-						scannedDate.get(Calendar.DAY_OF_YEAR) + 1);
-				continue;
-			}
-			// check includes - not check weekend
-			if (!includeDatesSet.contains(scanedDateString)) {
-				// check weekend - pass
-				if ((scannedDate.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY)
-						|| (scannedDate.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY)) {
-					scannedDate.set(Calendar.DAY_OF_YEAR,
-							scannedDate.get(Calendar.DAY_OF_YEAR) + 1);
-					continue;
-				}
-			}
-			// check worklog. if no worklog set result else ++ scanedDate
-			boolean isDateContainsWorklog = isContainsWorklog(scanedDateDate);
-			if (!isDateContainsWorklog) {
-				return scanedDateDate;
-			} else {
-				scannedDate.set(Calendar.DAY_OF_YEAR,
-						scannedDate.get(Calendar.DAY_OF_YEAR) + 1);
-			}
-		}
-		// if we find everything all right then return with the current date
-		return scannedDate.getTime();
-	}
-
-	@Override
-	public List<Pattern> getCollectorIssuePatterns() {
-		if (collectorIssuePatterns == null) {
-			collectorIssuePatterns = defaultNonEstimedIssuePatterns;
-		}
-		return collectorIssuePatterns;
-	}
-
-	@Override
-	public List<Date> getDates(final Date from, final Date to,
-			final boolean workingHour, final boolean checkNonWorking)
-			throws GenericEntityException {
-		JiraAuthenticationContext authenticationContext = ComponentManager
-				.getInstance().getJiraAuthenticationContext();
-		User user = authenticationContext.getLoggedInUser();
-		List<Date> datesWhereNoWorklog = new ArrayList<Date>();
-		while (!from.equals(to)) {
-			String scanedDateString = DateTimeConverterUtil.dateToString(to);
-			if (excludeDatesSet.contains(scanedDateString)) {
-				to.setDate(to.getDate() - 1);
-				continue;
-			}
-			// check includes - not check weekend
-			if (!includeDatesSet.contains(scanedDateString)) {
-				Calendar toDate = Calendar.getInstance();
-				toDate.setTime(to);
-				// check weekend - pass
-				if ((toDate.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY)
-						|| (toDate.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY)) {
-					to.setDate(to.getDate() - 1);
-					continue;
-				}
-			}
-			// check worklog. if no worklog set result else ++ scanedDate
-			boolean isDateContainsWorklog;
-			if (workingHour) {
-				isDateContainsWorklog = isContainsEnoughWorklog(to,
-						checkNonWorking);
-			} else {
-				isDateContainsWorklog = isContainsWorklog(to);
-			}
-			if (!isDateContainsWorklog) {
-				datesWhereNoWorklog.add((Date) to.clone());
-			}
-			to.setDate(to.getDate() - 1);
-
-		}
-		return datesWhereNoWorklog;
-	}
-
-	@Override
-	public List<String> getExluceDaysOfTheMonth(final String date) {
-		List<String> resultexcludeDays = new ArrayList<String>();
-		for (String exludeDate : excludeDatesSet) {
-			// TODO this if not handle the 2013-4-04 date..... this is wrong or
-			// not? .... think about it.
-			if (exludeDate.startsWith(date.substring(0, 7))) {
-				resultexcludeDays
-						.add(exludeDate.substring(exludeDate.length() - 2));
-			}
-		}
-
-		return resultexcludeDays;
-	}
-
-	@Override
-	public List<Issue> getIssues() throws GenericEntityException {
-		List<GenericValue> issuesGV = null;
-		issuesGV = CoreFactory.getGenericDelegator().findAll("Issue");
-		List<Issue> issues = new ArrayList<Issue>();
-		for (GenericValue issueGV : issuesGV) {
-			issues.add(IssueImpl.getIssueObject(issueGV));
-		}
-		return issues;
-
-	}
-
-	@Override
-	public List<String> getLoggedDaysOfTheMonth(final Date date)
-			throws GenericEntityException {
-		List<String> resultDays = new ArrayList<String>();
-		int dayOfMonth = 1;
-		Calendar startCalendar = Calendar.getInstance();
-		startCalendar.set(Calendar.YEAR, date.getYear()
-				+ DateTimeConverterUtil.BEGIN_OF_YEAR);
-		startCalendar.set(Calendar.MONTH, date.getMonth());
-		startCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-		Date start = startCalendar.getTime();
-
-		while (dayOfMonth <= DateTimeConverterUtil.LAST_DAY_OF_MONTH) {
-			if (isContainsWorklog(start)) {
-				resultDays.add(Integer.toString(dayOfMonth));
-			}
-			startCalendar.set(Calendar.DAY_OF_MONTH, ++dayOfMonth);
-			start = startCalendar.getTime();
-		}
-
-		return resultDays;
-	}
-
-	@Override
-	public List<String> getProjectsId() throws GenericEntityException {
-		List<String> projectsId = new ArrayList<String>();
-		List<GenericValue> projectsGV = CoreFactory.getGenericDelegator()
-				.findAll("Project");
-		for (GenericValue project : projectsGV) {
-			projectsId.add(project.getString("id"));
-		}
-		return projectsId;
-	}
-
-	@Override
-	public EveritWorklog getWorklog(final Long worklogId) throws ParseException {
-		WorklogManager worklogManager = ComponentManager.getInstance()
-				.getWorklogManager();
-		Worklog worklog = worklogManager.getById(worklogId);
-		return new EveritWorklog(worklog);
-	}
-
-	@Override
-	public List<EveritWorklog> getWorklogs(final Date date)
-			throws GenericEntityException, ParseException {
-
-		JiraAuthenticationContext authenticationContext = ComponentManager
-				.getInstance().getJiraAuthenticationContext();
-		User user = authenticationContext.getLoggedInUser();
-		log.warn("JTTP LOG: getWorklogs user display: " + user.getDisplayName()
-				+ " user name: " + user.getName());
-		Date startDate = (Date) date.clone();
-		startDate.setHours(0);
-		startDate.setMinutes(0);
-		startDate.setSeconds(0);
-		Date endDate = (Date) date.clone();
-		endDate.setHours(DateTimeConverterUtil.LAST_HOUR_OF_DAY);
-		endDate.setMinutes(DateTimeConverterUtil.LAST_MINUTE_OF_HOUR);
-		endDate.setSeconds(DateTimeConverterUtil.LAST_SECOND_OF_MINUTE);
-
-		List<EntityExpr> exprList = createWorklogQueryExprList(user, startDate,
-				endDate);
-		log.warn("JTTP LOG: getWorklogs expr list size: " + exprList.size());
-		List<GenericValue> worklogGVList = CoreFactory.getGenericDelegator()
-				.findByAnd("Worklog", exprList);
-		log.warn("JTTP LOG: getWorklogs worklog GV list size: "
-				+ worklogGVList.size());
-
-		List<EveritWorklog> worklogs = new ArrayList<EveritWorklog>();
-		for (GenericValue worklogGv : worklogGVList) {
-			EveritWorklog worklog = new EveritWorklog(worklogGv,
-					collectorIssuePatterns);
-			worklogs.add(worklog);
-		}
-
-		Collections.sort(worklogs, new EveritWorklogComparator());
-		log.warn("JTTP LOG: getWorklogs worklog GV list size: "
-				+ worklogs.size());
-		return worklogs;
-	}
-
-	/**
-	 * Check the given date is containt enough worklog. The worklog spent time
-	 * have to be equlase or greater then 8 hours.
-	 * 
-	 * @param date
-	 *            The date what have to check.
-	 * @param checkNonWorking
-	 *            Exclude or not the non-working issues.
-	 * @return True if the day contains enough worklog or weeked or exclude
-	 *         date.
-	 * @throws GenericEntityException
-	 *             If GenericEntity Exception.
-	 */
-	private boolean isContainsEnoughWorklog(final Date date,
-			final boolean checkNonWorking) throws GenericEntityException {
-		JiraAuthenticationContext authenticationContext = ComponentManager
-				.getInstance().getJiraAuthenticationContext();
-		User user = authenticationContext.getLoggedInUser();
-
-		Date startDate = (Date) date.clone();
-		startDate.setHours(0);
-		startDate.setMinutes(0);
-		startDate.setSeconds(0);
-		Date endDate = (Date) date.clone();
-		endDate.setHours(DateTimeConverterUtil.LAST_HOUR_OF_DAY);
-		endDate.setMinutes(DateTimeConverterUtil.LAST_MINUTE_OF_HOUR);
-		endDate.setSeconds(DateTimeConverterUtil.LAST_SECOND_OF_MINUTE);
-
-		List<EntityExpr> exprList = createWorklogQueryExprList(user, startDate,
-				endDate);
-
-		List<GenericValue> worklogGVList = CoreFactory.getGenericDelegator()
-				.findByAnd("Worklog", exprList);
-		if ((worklogGVList == null) || worklogGVList.isEmpty()) {
-			return false;
-		} else {
-			if (checkNonWorking) {
-				List<GenericValue> worklogsCopy = new ArrayList<GenericValue>();
-				worklogsCopy.addAll(worklogGVList);
-				// if we have non-estimated issues
-
-				// TODO FIXME summaryFilteredIssuePatterns rename nonworking
-				// pattern
-				if ((summaryFilteredIssuePatterns != null)
-						&& !summaryFilteredIssuePatterns.isEmpty()) {
-					for (GenericValue worklog : worklogsCopy) {
-						IssueManager issueManager = ComponentManager
-								.getInstance().getIssueManager();
-						Long issueId = worklog.getLong("issue");
-						MutableIssue issue = issueManager
-								.getIssueObject(issueId);
-						for (Pattern issuePattern : summaryFilteredIssuePatterns) {
-							boolean issueMatches = issuePattern.matcher(
-									issue.getKey()).matches();
-							// if match not count in summary
-							if (issueMatches) {
-								worklogGVList.remove(worklog);
-								break;
-							}
-						}
-					}
-				}
-			}
-			long timeSpent = 0;
-			for (GenericValue worklog : worklogGVList) {
-				timeSpent += worklog.getLong("timeworked").longValue();
-			}
-			if (timeSpent < DateTimeConverterUtil.EIGHT_HOUR_IN_SECONDS) {
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	/**
-	 * Check the given date, the user have worklogs or not.
-	 * 
-	 * @param date
-	 *            The date what have to check.
-	 * @return If The user have worklogs the given date then true, esle false.
-	 * @throws GenericEntityException
-	 *             GenericEntity Exception.
-	 */
-	private boolean isContainsWorklog(final Date date)
-			throws GenericEntityException {
-		JiraAuthenticationContext authenticationContext = ComponentManager
-				.getInstance().getJiraAuthenticationContext();
-		User user = authenticationContext.getLoggedInUser();
-
-		Date startDate = (Date) date.clone();
-		startDate.setHours(0);
-		startDate.setMinutes(0);
-		startDate.setSeconds(0);
-		Date endDate = (Date) date.clone();
-		endDate.setHours(DateTimeConverterUtil.LAST_HOUR_OF_DAY);
-		endDate.setMinutes(DateTimeConverterUtil.LAST_MINUTE_OF_HOUR);
-		endDate.setSeconds(DateTimeConverterUtil.LAST_SECOND_OF_MINUTE);
-
-		List<EntityExpr> exprList = createWorklogQueryExprList(user, startDate,
-				endDate);
-
-		List<GenericValue> worklogGVList = CoreFactory.getGenericDelegator()
-				.findByAnd("Worklog", exprList);
-		if ((worklogGVList == null) || worklogGVList.isEmpty()) {
-			return false;
-		} else {
-			return true;
-		}
-	}
-
-	@Override
-	public String lastEndTime(final List<EveritWorklog> worklogs)
-			throws ParseException {
-		if ((worklogs == null) || (worklogs.size() == 0)) {
-			return "08:00";
-		}
-		String endTime = worklogs.get(0).getEndTime();
-		for (int i = 1; i < worklogs.size(); i++) {
-			Date first = DateTimeConverterUtil.stringTimeToDateTime(worklogs
-					.get(i - 1).getEndTime());
-			Date second = DateTimeConverterUtil.stringTimeToDateTime(worklogs
-					.get(i).getEndTime());
-			if (first.compareTo(second) == 1) {
-				endTime = worklogs.get(i - 1).getEndTime();
-			} else {
-				endTime = worklogs.get(i).getEndTime();
-			}
-		}
-		return endTime;
-	}
-
-	@Override
-	public PluginSettingsValues loadPluginSettings() {
-		JiraAuthenticationContext authenticationContext = ComponentManager
-				.getInstance().getJiraAuthenticationContext();
-		User user = authenticationContext.getLoggedInUser();
-
-		globalSettings = settingsFactory.createGlobalSettings();
-		List<String> tempIssuePatternList = (List<String>) globalSettings
-				.get(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
-						+ JTTP_PLUGIN_SETTINGS_SUMMARY_FILTERS);
-		if (tempIssuePatternList != null) {
-			// add non working issues
-			summaryFilteredIssuePatterns = new ArrayList<Pattern>();
-			for (String tempIssuePattern : tempIssuePatternList) {
-				summaryFilteredIssuePatterns.add(Pattern
-						.compile(tempIssuePattern));
-			}
-		} else {
-			// default! from properties load default issues!!
-			summaryFilteredIssuePatterns = defaultNonWorkingIssueIds;
-
-		}
-		tempIssuePatternList = (List<String>) globalSettings
-				.get(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
-						+ JTTP_PLUGIN_SETTINGS_NON_ESTIMATED_ISSUES);
-		if (tempIssuePatternList != null) {
-			// add collector issues
-			collectorIssuePatterns = new ArrayList<Pattern>();
-			for (String tempIssuePattern : tempIssuePatternList) {
-				collectorIssuePatterns.add(Pattern.compile(tempIssuePattern));
-			}
-		} else {
-			collectorIssuePatterns = defaultNonEstimedIssuePatterns;
-		}
-		String tempSpecialDates = (String) globalSettings
-				.get(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
-						+ JTTP_PLUGIN_SETTINGS_EXCLUDE_DATES);
-		if (tempSpecialDates != null) {
-			excludeDatesString = tempSpecialDates;
-			excludeDatesSet = new HashSet<String>();
-			for (String excludeDate : excludeDatesString.split(",")) {
-				excludeDatesSet.add(excludeDate);
-			}
-		} else {
-			// Default Empty
-			excludeDatesSet = new HashSet<String>();
-			excludeDatesString = "";
-		}
-		tempSpecialDates = (String) globalSettings
-				.get(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
-						+ JTTP_PLUGIN_SETTINGS_INCLUDE_DATES);
-		if (tempSpecialDates != null) {
-			includeDatesString = tempSpecialDates;
-			includeDatesSet = new HashSet<String>();
-			for (String includeDate : includeDatesString.split(",")) {
-				includeDatesSet.add(includeDate);
-			}
-		} else {
-			// Default Empty
-			includeDatesSet = new HashSet<String>();
-			includeDatesString = "";
-		}
-
-		pluginSettings = settingsFactory
-				.createSettingsForKey(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
-						+ user.getName());
-		Integer isPopup = null;
-		if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_IS_CALENDAR_POPUP) != null) {
-			try {
-				isPopup = Integer.valueOf(pluginSettings.get(
-						JTTP_PLUGIN_SETTINGS_IS_CALENDAR_POPUP).toString());
-			} catch (NumberFormatException e) {
-				// the default is the popup calendar
-				LOGGER.error(
-						"Wrong formated calender type. Set the default value (popup).",
-						e);
-				isPopup = JiraTimetrackerUtil.POPUP_CALENDAR_CODE;
-			}
-		} else {
-			// the default is the popup calendar
-			isPopup = JiraTimetrackerUtil.POPUP_CALENDAR_CODE;
-		}
-		Boolean isActualDate = null;
-		if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_IS_ACTUAL_DATE) != null) {
-			if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_IS_ACTUAL_DATE).equals(
-					"true")) {
-				isActualDate = true;
-			} else if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_IS_ACTUAL_DATE)
-					.equals("false")) {
-				isActualDate = false;
-			}
-		} else {
-			// the default is the Actual Date
-			isActualDate = true;
-		}
-		Boolean isColoring = null;
-		if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_IS_COLORIG) != null) {
-			if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_IS_COLORIG).equals(
-					"true")) {
-				isColoring = true;
-			} else if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_IS_COLORIG)
-					.equals("false")) {
-				isColoring = false;
-			}
-
-		} else {
-			// the default coloring is TRUE
-			isColoring = true;
-		}
-
-		// SET startTime Change the default value is 5
-		int startTimeChange = 5;
-
-		if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_START_TIME_CHANGE) != null) {
-			try {
-				startTimeChange = Integer.valueOf(pluginSettings.get(
-						JTTP_PLUGIN_SETTINGS_START_TIME_CHANGE).toString());
-				if (!validateTimeChange(Integer.toString(startTimeChange))) {
-					startTimeChange = 5;
-				}
-			} catch (NumberFormatException e) {
-				LOGGER.error(
-						"Wrong formated startTime change value. Set the default value (1).",
-						e);
-			}
-		}
-		// SET endtTime Change the defaulte value is 5
-		int endTimeChange = 5;
-
-		if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_END_TIME_CHANGE) != null) {
-			try {
-				endTimeChange = Integer.valueOf(pluginSettings.get(
-						JTTP_PLUGIN_SETTINGS_END_TIME_CHANGE).toString());
-				if (!validateTimeChange(Integer.toString(endTimeChange))) {
-					endTimeChange = 5;
-				}
-			} catch (NumberFormatException e) {
-				LOGGER.error(
-						"Wrong formated startTime change value. Set the default value (1).",
-						e);
-			}
-		}
-		// Here set the other values
-		pluginSettingsValues = new PluginSettingsValues(
-				new CalendarSettingsValues(isPopup, isActualDate,
-						excludeDatesString, includeDatesString, isColoring),
-				summaryFilteredIssuePatterns, collectorIssuePatterns,
-				startTimeChange, endTimeChange);
-		return pluginSettingsValues;
-	}
-
-	@Override
-	public void savePluginSettings(
-			final PluginSettingsValues pluginSettingsParameters) {
-		JiraAuthenticationContext authenticationContext = ComponentManager
-				.getInstance().getJiraAuthenticationContext();
-		User user = authenticationContext.getLoggedInUser();
-		pluginSettings = settingsFactory
-				.createSettingsForKey(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
-						+ user.getName());
-		pluginSettings.put(JTTP_PLUGIN_SETTINGS_IS_CALENDAR_POPUP,
-				Integer.toString(pluginSettingsParameters.isCalendarPopup()));
-		pluginSettings.put(JTTP_PLUGIN_SETTINGS_IS_ACTUAL_DATE,
-				pluginSettingsParameters.isActualDate().toString());
-		pluginSettings.put(JTTP_PLUGIN_SETTINGS_IS_COLORIG,
-				pluginSettingsParameters.isColoring().toString());
-		pluginSettings
-				.put(JTTP_PLUGIN_SETTINGS_START_TIME_CHANGE,
-						Integer.toString(pluginSettingsParameters
-								.getStartTimeChange()));
-		pluginSettings.put(JTTP_PLUGIN_SETTINGS_END_TIME_CHANGE,
-				Integer.toString(pluginSettingsParameters.getEndTimeChange()));
-
-		globalSettings = settingsFactory.createGlobalSettings();
-		globalSettings.put(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
-				+ JTTP_PLUGIN_SETTINGS_SUMMARY_FILTERS,
-				pluginSettingsParameters.getFilteredSummaryIssues());
-		globalSettings.put(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
-				+ JTTP_PLUGIN_SETTINGS_NON_ESTIMATED_ISSUES,
-				pluginSettingsParameters.getCollectorIssues());
-		globalSettings.put(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
-				+ JTTP_PLUGIN_SETTINGS_EXCLUDE_DATES,
-				pluginSettingsParameters.getExcludeDates());
-		globalSettings.put(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
-				+ JTTP_PLUGIN_SETTINGS_INCLUDE_DATES,
-				pluginSettingsParameters.getIncludeDates());
-	}
-
-	/**
-	 * Set the default values of the important variables.
-	 * 
-	 * @throws MailException
-	 */
-	private void setDefaultVairablesValue() throws MailException {
-		// DEFAULT 20:00
-		issueCheckTimeInMinutes = 1200;
-		// Default exclude and include dates set are empty. No DATA!!
-		// Default: no non working issue. we simple use the empty list
-		// defaultNonWorkingIssueIds = new ArrayList<Long>();
-		// The default non estimted issues regex. All issue non estimeted.
-		defaultNonEstimedIssuePatterns = new ArrayList<Pattern>();
-		defaultNonEstimedIssuePatterns.add(Pattern.compile(".*"));
-	}
-
-	@Override
-	public String summary(final Date startSummary, final Date finishSummary,
-			final List<Pattern> issuePatterns) throws GenericEntityException {
-		JiraAuthenticationContext authenticationContext = ComponentManager
-				.getInstance().getJiraAuthenticationContext();
-		User user = authenticationContext.getLoggedInUser();
-		startSummary.setSeconds(0);
-		finishSummary.setSeconds(0);
-
-		List<EntityExpr> exprList = createWorklogQueryExprList(user,
-				startSummary, finishSummary);
-
-		List<GenericValue> worklogs;
-		// worklog query
-		worklogs = CoreFactory.getGenericDelegator().findByAnd("Worklog",
-				exprList);
-		List<GenericValue> worklogsCopy = new ArrayList<GenericValue>();
-		worklogsCopy.addAll(worklogs);
-		// if we have non-estimated issues
-		if ((issuePatterns != null) && !issuePatterns.isEmpty()) {
-			for (GenericValue worklog : worklogsCopy) {
-				IssueManager issueManager = ComponentManager.getInstance()
-						.getIssueManager();
-				Long issueId = worklog.getLong("issue");
-				MutableIssue issue = issueManager.getIssueObject(issueId);
-				for (Pattern issuePattern : issuePatterns) {
-					boolean issueMatches = issuePattern.matcher(issue.getKey())
-							.matches();
-					// if match not count in summary
-					if (issueMatches) {
-						worklogs.remove(worklog);
-						break;
-					}
-				}
-			}
-		}
-		long timeSpent = 0;
-		// Iterator<GenericValue> worklogsIterator = worklogs.iterator();
-		// while (worklogsIterator.hasNext()) {
-		// GenericValue worklog = worklogsIterator.next();
-		// timeSpent = timeSpent + worklog.getLong("timeworked").longValue();
-		// }
-		for (GenericValue worklog : worklogs) {
-			timeSpent += worklog.getLong("timeworked").longValue();
-		}
-		return DateTimeConverterUtil.secondConvertToString(timeSpent);
-	}
-
-	@Override
-	public boolean validateTimeChange(final String changeValue)
-			throws NumberFormatException {
-		int changeValueInt = Integer.valueOf(changeValue);
-
-		switch (changeValueInt) {
-		case 5:
-			return true;
-		case 10:
-			return true;
-		case 15:
-			return true;
-		case 20:
-			return true;
-		case 30:
-			return true;
-		default:
-			return false;
-		}
-
-	}
+Serializable, InitializingBean, DisposableBean {
+
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 1L;
+    /**
+     * Logger.
+     */
+    private static final Logger LOGGER = Logger
+            .getLogger(JiraTimetrackerPluginImpl.class);
+
+    /**
+     * The plugin settings key prefix.
+     */
+    private static final String JTTP_PLUGIN_SETTINGS_KEY_PREFIX = "jttp";
+    /**
+     * The plugin setting Summary Filters key.
+     */
+    private static final String JTTP_PLUGIN_SETTINGS_SUMMARY_FILTERS = "SummaryFilters";
+    /**
+     * The plugin setting Summary Filters key.
+     */
+    private static final String JTTP_PLUGIN_SETTINGS_NON_ESTIMATED_ISSUES = "NonEstimated";
+    /**
+     * The plugin setting Exclude dates key.
+     */
+    private static final String JTTP_PLUGIN_SETTINGS_EXCLUDE_DATES = "ExcludeDates";
+    /**
+     * The plugin setting Include dates key.
+     */
+    private static final String JTTP_PLUGIN_SETTINGS_INCLUDE_DATES = "IncludeDates";
+    /**
+     * The plugin setting is calendar popup key.
+     */
+    private static final String JTTP_PLUGIN_SETTINGS_IS_CALENDAR_POPUP = "isCalendarPopup";
+    /**
+     * The plugin setting is calendar popup key.
+     */
+    private static final String JTTP_PLUGIN_SETTINGS_START_TIME_CHANGE = "startTimeChange";
+    /**
+     * The plugin setting is calendar popup key.
+     */
+    private static final String JTTP_PLUGIN_SETTINGS_END_TIME_CHANGE = "endTimechange";
+    /**
+     * The plugin setting is actual date key.
+     */
+    private static final String JTTP_PLUGIN_SETTINGS_IS_ACTUAL_DATE = "isActualDate";
+    /**
+     * The plugin setting is actual date key.
+     */
+    private static final String JTTP_PLUGIN_SETTINGS_IS_COLORIG = "isColoring";
+
+    private static final String JTTP_PLUGIN_SETTINGS_FDOW = "fdow";
+    /**
+     * A day in minutes.
+     */
+    private static final int ONE_DAY_IN_MINUTES = 1440;
+
+    /**
+     * The PluginSettingsFactory.
+     */
+    private final PluginSettingsFactory settingsFactory;
+    /**
+     * The plugin setting form the settingsFactory.
+     */
+    private PluginSettings pluginSettings;
+    /**
+     * The plugin global setting form the settingsFactory.
+     */
+    private PluginSettings globalSettings;
+    /**
+     * The plugin setting values.
+     */
+    private PluginSettingsValues pluginSettingsValues;
+    /**
+     * The issue check time in minutes.
+     */
+    private long issueCheckTimeInMinutes;
+    /**
+     * The exclude dates from the properties file.
+     */
+    private String excludeDatesString;
+    /**
+     * The include dates from the properties file.
+     */
+    private String includeDatesString;
+    /**
+     * The parsed exclude dates.
+     */
+    private Set<String> excludeDatesSet = new HashSet<String>();
+    /**
+     * The parsed include dates.
+     */
+    private Set<String> includeDatesSet = new HashSet<String>();
+
+    private Integer fdow;
+    /**
+     * The summary filter issues ids.
+     */
+    private List<Pattern> summaryFilteredIssuePatterns;
+    /**
+     * The collector issues ids.
+     */
+    private List<Pattern> collectorIssuePatterns;
+    /**
+     * The summary filter issues ids.
+     */
+    private List<Pattern> defaultNonWorkingIssueIds = new ArrayList<Pattern>();
+    /**
+     * The collector issues ids.
+     */
+    private List<Pattern> defaultNonEstimedIssuePatterns = new ArrayList<Pattern>();
+    /**
+     * The plugin Scheduled Executor Service.
+     */
+    private final ScheduledExecutorService scheduledExecutorService = Executors
+            .newScheduledThreadPool(1);
+    /**
+     * The issues Estimated Time Checker Future.
+     */
+    private ScheduledFuture<?> issueEstimatedTimeCheckerFuture;
+    /**
+     * The JiraTimetrackerPluginImpl logger.
+     */
+    private Logger log = Logger.getLogger(JiraTimetrackerPluginImpl.class);
+
+    /**
+     * Default constructor.
+     */
+    public JiraTimetrackerPluginImpl(final PluginSettingsFactory settingFactory) {
+        settingsFactory = settingFactory;
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+
+        setDefaultVariablesValue();
+
+        final Runnable issueEstimatedTimeChecker = new IssueEstimatedTimeChecker(
+                this);
+
+        // //TEST SETTINGS
+        // Calendar now = Calendar.getInstance();
+        // Long nowPlusTWOMin = (long) ((now.get(Calendar.HOUR_OF_DAY) * 60) +
+        // now.get(Calendar.MINUTE) + 1);
+        // issueEstimatedTimeCheckerFuture =
+        // scheduledExecutorService.scheduleAtFixedRate(issueEstimatedTimeChecker,
+        // calculateInitialDelay(nowPlusTWOMin), // FIXME fix the time
+        // // calculateInitialDelay(issueCheckTimeInMinutes),
+        // 5, TimeUnit.MINUTES);
+
+        issueEstimatedTimeCheckerFuture = scheduledExecutorService
+                .scheduleAtFixedRate(issueEstimatedTimeChecker,
+                        calculateInitialDelay(issueCheckTimeInMinutes),
+                        ONE_DAY_IN_MINUTES, TimeUnit.MINUTES);
+    }
+
+    private long calculateInitialDelay(final long time) {
+        Calendar now = Calendar.getInstance();
+        long hours = now.get(Calendar.HOUR_OF_DAY);
+        long minutes = now.get(Calendar.MINUTE);
+        long initialDelay = time - ((hours * 60) + minutes);
+        if (initialDelay < 0) {
+            initialDelay = initialDelay + ONE_DAY_IN_MINUTES;
+        }
+        return initialDelay;
+    }
+
+    private List<EntityExpr> createConditionsOfIssuesWithPermission(final User user)
+            throws GenericEntityException {
+
+        List<Project> projects = (List<Project>) ComponentManager.getInstance().getPermissionManager()
+                .getProjectObjects(
+                        Permissions.BROWSE,
+                        user);
+        // Issues query
+        List<EntityExpr> issuesProjectExpr = new ArrayList<EntityExpr>();
+        EntityExpr projectExpr;
+        for (Project project : projects) {
+            projectExpr = new EntityExpr("project", EntityOperator.EQUALS, project.getId());
+            issuesProjectExpr.add(projectExpr);
+
+        }
+        List<EntityExpr> issuesConditions = new ArrayList<EntityExpr>();
+        if (!issuesProjectExpr.isEmpty()) {
+            List<GenericValue> issueGvList = CoreFactory.getGenericDelegator().findByOr("Issue", issuesProjectExpr);
+            for (GenericValue issue : issueGvList) {
+                issuesConditions.add(new EntityExpr("issue", EntityOperator.EQUALS, issue.getLong("id")));
+            }
+        }
+        return issuesConditions;
+    }
+
+    private List<Long> createProjects(final User loggedInUser) {
+        List<Project> projects = (List<Project>) ComponentManager.getInstance().getPermissionManager()
+                .getProjectObjects(
+                        Permissions.BROWSE,
+                        loggedInUser);
+
+        List<Long> projectList = new ArrayList<Long>();
+        for (Project project : projects) {
+            projectList.add(project.getId());
+        }
+        return projectList;
+    }
+
+    @Override
+    public ActionResult createWorklog(final String issueId,
+            final String comment, final String dateFormated,
+            final String startTime, final String timeSpent) {
+        JiraAuthenticationContext authenticationContext = ComponentManager
+                .getInstance().getJiraAuthenticationContext();
+        User user = authenticationContext.getLoggedInUser();
+        log.info("JTTP createWorklog: user: " + user.getDisplayName() + " "
+                + user.getName() + " " + user.getEmailAddress());
+        JiraServiceContext serviceContext = new JiraServiceContextImpl(user);
+        log.info("JTTP createWorklog: serviceContext User: "
+                + serviceContext.getLoggedInUser().getName() + " "
+                + serviceContext.getLoggedInUser().getEmailAddress());
+        IssueManager issueManager = ComponentManager.getInstance()
+                .getIssueManager();
+        MutableIssue issue = issueManager.getIssueObject(issueId);
+        if (issue == null) {
+            return new ActionResult(ActionResultStatus.FAIL,
+                    "plugin.invalid_issue", issueId);
+        }
+        PermissionManager permissionManager = ComponentManager.getInstance()
+                .getPermissionManager();
+        if (!permissionManager.hasPermission(Permissions.WORK_ISSUE, issue,
+                user)) {
+            return new ActionResult(ActionResultStatus.FAIL,
+                    "plugin.nopermission_issue", issueId);
+        }
+        String dateAndTime = dateFormated + " " + startTime;
+        Date date;
+        try {
+            date = DateTimeConverterUtil.stringToDateAndTime(dateAndTime);
+        } catch (ParseException e) {
+            return new ActionResult(ActionResultStatus.FAIL,
+                    "plugin.date_parse", dateAndTime);
+        }
+
+        WorklogNewEstimateInputParameters params = WorklogInputParametersImpl
+                .issue(issue).startDate(date).timeSpent(timeSpent)
+                .comment(comment).buildNewEstimate();
+        WorklogService worklogService = ComponentManager
+                .getComponentInstanceOfType(WorklogService.class);
+        WorklogResult worklogResult = worklogService.validateCreate(
+                serviceContext, params);
+        if (worklogResult == null) {
+            return new ActionResult(ActionResultStatus.FAIL,
+                    "plugin.worklog.create.fail");
+        }
+        worklogService.createAndAutoAdjustRemainingEstimate(serviceContext,
+                worklogResult, true);
+
+        return new ActionResult(ActionResultStatus.SUCCESS,
+                "plugin.worklog.create.success");
+    }
+
+    private List<EntityExpr> createWorklogQueryExprList(final User user,
+            final Calendar startDate, final Calendar endDate) {
+        String userKey = UserCompatibilityHelper.getKeyForUser(user);
+
+        EntityExpr startExpr = new EntityExpr("startdate",
+                EntityOperator.GREATER_THAN_EQUAL_TO, new Timestamp(
+                        startDate.getTimeInMillis()));
+        EntityExpr endExpr = new EntityExpr("startdate",
+                EntityOperator.LESS_THAN, new Timestamp(endDate.getTimeInMillis()));
+        EntityExpr userExpr = new EntityExpr("author", EntityOperator.EQUALS,
+                userKey);
+        log.info("JTTP LOG: getWorklogs start date: " + startDate.toString()
+                + " end date:" + endDate.toString());
+
+        List<EntityExpr> exprList = new ArrayList<EntityExpr>();
+        exprList.add(userExpr);
+        if (startExpr != null) {
+            exprList.add(startExpr);
+        }
+        if (endExpr != null) {
+            exprList.add(endExpr);
+        }
+        return exprList;
+    }
+
+    @Override
+    public ActionResult deleteWorklog(final Long id) {
+        JiraAuthenticationContext authenticationContext = ComponentManager
+                .getInstance().getJiraAuthenticationContext();
+        User user = authenticationContext.getLoggedInUser();
+        JiraServiceContext serviceContext = new JiraServiceContextImpl(user);
+        WorklogService worklogService = ComponentManager
+                .getComponentInstanceOfType(WorklogService.class);
+        WorklogResult deleteWorklogResult = worklogService.validateDelete(
+                serviceContext, id);
+        if (deleteWorklogResult == null) {
+            return new ActionResult(ActionResultStatus.FAIL,
+                    "plugin.worklog.delete.fail", id.toString());
+        }
+        worklogService.deleteAndAutoAdjustRemainingEstimate(serviceContext,
+                deleteWorklogResult, false);
+        return new ActionResult(ActionResultStatus.SUCCESS,
+                "plugin.worklog.delete.success", id.toString());
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        scheduledExecutorService.shutdown();
+        issueEstimatedTimeCheckerFuture.cancel(true);
+        LOGGER.info("JiraTimetrackerPluginImpl destroyed");
+    }
+
+    @Override
+    public ActionResult editWorklog(final Long id, final String issueId,
+            final String comment, final String dateFormated, final String time,
+            final String timeSpent) {
+        JiraAuthenticationContext authenticationContext = ComponentManager
+                .getInstance().getJiraAuthenticationContext();
+        User user = authenticationContext.getLoggedInUser();
+        JiraServiceContext serviceContext = new JiraServiceContextImpl(user);
+
+        WorklogManager worklogManager = ComponentManager.getInstance()
+                .getWorklogManager();
+        Worklog worklog = worklogManager.getById(id);
+        IssueManager issueManager = ComponentManager.getInstance()
+                .getIssueManager();
+        MutableIssue issue = issueManager.getIssueObject(issueId);
+        if (issue == null) {
+            return new ActionResult(ActionResultStatus.FAIL,
+                    "plugin.invalide_issue", issueId);
+        }
+        if (!worklog.getIssue().getKey().equals(issueId)) {
+            PermissionManager permissionManager = ComponentManager
+                    .getInstance().getPermissionManager();
+            if (!permissionManager.hasPermission(Permissions.WORK_ISSUE, issue,
+                    user)) {
+                return new ActionResult(ActionResultStatus.FAIL,
+                        "plugin.nopermission_issue", issueId);
+            }
+            ActionResult deleteResult = deleteWorklog(id);
+            if (deleteResult.getStatus() == ActionResultStatus.FAIL) {
+                return deleteResult;
+            }
+            // String dateCreate =
+            // DateTimeConverterUtil.dateToString(worklog.getStartDate());
+            // String dateCreate = date;
+            ActionResult createResult = createWorklog(issueId, comment,
+                    dateFormated, time, timeSpent);
+            if (createResult.getStatus() == ActionResultStatus.FAIL) {
+                return createResult;
+            }
+        } else {
+            // String dateFormated =
+            // DateTimeConverterUtil.dateToString(worklog.getStartDate());
+            // String dateFormated = date;
+            String dateAndTime = dateFormated + " " + time;
+            Date dateCreate;
+            try {
+                dateCreate = DateTimeConverterUtil
+                        .stringToDateAndTime(dateAndTime);
+            } catch (ParseException e) {
+                return new ActionResult(ActionResultStatus.FAIL,
+                        "plugin.date_parse" + dateAndTime);
+            }
+            WorklogInputParameters params = WorklogInputParametersImpl
+                    .issue(issue).startDate(dateCreate).timeSpent(timeSpent)
+                    .comment(comment).worklogId(id).issue(issue).build();
+            WorklogService worklogService = ComponentManager
+                    .getComponentInstanceOfType(WorklogService.class);
+            WorklogResult worklogResult = worklogService.validateUpdate(
+                    serviceContext, params);
+            if (worklogResult == null) {
+                return new ActionResult(ActionResultStatus.FAIL,
+                        "plugin.worklog.update.fail");
+            }
+
+            worklogService.updateAndAutoAdjustRemainingEstimate(serviceContext,
+                    worklogResult, true);
+
+        }
+        return new ActionResult(ActionResultStatus.SUCCESS,
+                "plugin.worklog.update.success");
+
+    }
+
+    @Override
+    public Date firstMissingWorklogsDate(final String selectedUser) throws GenericEntityException {
+        Calendar scannedDate = Calendar.getInstance();
+        // one week
+        scannedDate.set(Calendar.DAY_OF_YEAR,
+                scannedDate.get(Calendar.DAY_OF_YEAR)
+                - DateTimeConverterUtil.DAYS_PER_WEEK);
+        for (int i = 0; i < DateTimeConverterUtil.DAYS_PER_WEEK; i++) {
+            // convert date to String
+            Date scanedDateDate = scannedDate.getTime();
+            String scanedDateString = DateTimeConverterUtil
+                    .dateToString(scanedDateDate);
+            // check excludse - pass
+            if (excludeDatesSet.contains(scanedDateString)) {
+                scannedDate.set(Calendar.DAY_OF_YEAR,
+                        scannedDate.get(Calendar.DAY_OF_YEAR) + 1);
+                continue;
+            }
+            // check includes - not check weekend
+            if (!includeDatesSet.contains(scanedDateString)) {
+                // check weekend - pass
+                if ((scannedDate.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY)
+                        || (scannedDate.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY)) {
+                    scannedDate.set(Calendar.DAY_OF_YEAR,
+                            scannedDate.get(Calendar.DAY_OF_YEAR) + 1);
+                    continue;
+                }
+            }
+            // check worklog. if no worklog set result else ++ scanedDate
+            boolean isDateContainsWorklog = isContainsWorklog(selectedUser, scanedDateDate);
+            if (!isDateContainsWorklog) {
+                return scanedDateDate;
+            } else {
+                scannedDate.set(Calendar.DAY_OF_YEAR,
+                        scannedDate.get(Calendar.DAY_OF_YEAR) + 1);
+            }
+        }
+        // if we find everything all right then return with the current date
+        return scannedDate.getTime();
+    }
+
+    @Override
+    public List<Pattern> getCollectorIssuePatterns() {
+        if (collectorIssuePatterns == null) {
+            collectorIssuePatterns = defaultNonEstimedIssuePatterns;
+        }
+        return collectorIssuePatterns;
+    }
+
+    @Override
+    public List<Date> getDates(final String selectedUser, final Date from, final Date to,
+            final boolean workingHour, final boolean checkNonWorking)
+                    throws GenericEntityException {
+        List<Date> datesWhereNoWorklog = new ArrayList<Date>();
+        while (!from.equals(to)) {
+            String scanedDateString = DateTimeConverterUtil.dateToString(to);
+            if (excludeDatesSet.contains(scanedDateString)) {
+                to.setDate(to.getDate() - 1);
+                continue;
+            }
+            // check includes - not check weekend
+            if (!includeDatesSet.contains(scanedDateString)) {
+                Calendar toDate = Calendar.getInstance();
+                toDate.setTime(to);
+                // check weekend - pass
+                if ((toDate.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY)
+                        || (toDate.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY)) {
+                    to.setDate(to.getDate() - 1);
+                    continue;
+                }
+            }
+            // check worklog. if no worklog set result else ++ scanedDate
+            boolean isDateContainsWorklog;
+            if (workingHour) {
+                isDateContainsWorklog = isContainsEnoughWorklog(selectedUser, to,
+                        checkNonWorking);
+            } else {
+                isDateContainsWorklog = isContainsWorklog(selectedUser, to);
+            }
+            if (!isDateContainsWorklog) {
+                datesWhereNoWorklog.add((Date) to.clone());
+            }
+            to.setDate(to.getDate() - 1);
+
+        }
+        return datesWhereNoWorklog;
+    }
+
+    @Override
+    public List<String> getExluceDaysOfTheMonth(final String date) {
+        List<String> resultexcludeDays = new ArrayList<String>();
+        for (String exludeDate : excludeDatesSet) {
+            // TODO this if not handle the 2013-4-04 date..... this is wrong or
+            // not? .... think about it.
+            if (exludeDate.startsWith(date.substring(0, 7))) {
+                resultexcludeDays
+                .add(exludeDate.substring(exludeDate.length() - 2));
+            }
+        }
+
+        return resultexcludeDays;
+    }
+
+    @Override
+    public Integer getFdow() {
+        return fdow;
+    }
+
+    @Override
+    public List<Issue> getIssues() throws GenericEntityException {
+        List<GenericValue> issuesGV = null;
+        issuesGV = CoreFactory.getGenericDelegator().findAll("Issue");
+        List<Issue> issues = new ArrayList<Issue>();
+        for (GenericValue issueGV : issuesGV) {
+            issues.add(IssueImpl.getIssueObject(issueGV));
+        }
+        return issues;
+
+    }
+
+    @Override
+    public List<String> getLoggedDaysOfTheMonth(final String selectedUser, final Date date)
+            throws GenericEntityException {
+        List<String> resultDays = new ArrayList<String>();
+        int dayOfMonth = 1;
+        Calendar startCalendar = Calendar.getInstance();
+        startCalendar.setTime(date);
+        startCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+        Date start = startCalendar.getTime();
+
+        while (dayOfMonth <= DateTimeConverterUtil.LAST_DAY_OF_MONTH) {
+            if (isContainsWorklog(selectedUser, start)) {
+                resultDays.add(Integer.toString(dayOfMonth));
+            }
+            startCalendar.set(Calendar.DAY_OF_MONTH, ++dayOfMonth);
+            start = startCalendar.getTime();
+        }
+
+        return resultDays;
+    }
+
+    @Override
+    public List<String> getProjectsId() throws GenericEntityException {
+        List<String> projectsId = new ArrayList<String>();
+        List<GenericValue> projectsGV = CoreFactory.getGenericDelegator()
+                .findAll("Project");
+        for (GenericValue project : projectsGV) {
+            projectsId.add(project.getString("id"));
+        }
+        return projectsId;
+    }
+
+    @Override
+    public EveritWorklog getWorklog(final Long worklogId) throws ParseException {
+        WorklogManager worklogManager = ComponentManager.getInstance()
+                .getWorklogManager();
+        Worklog worklog = worklogManager.getById(worklogId);
+        return new EveritWorklog(worklog);
+    }
+
+    @Override
+    public List<EveritWorklog> getWorklogs(final String selectedUser, final Date date, final Date finalDate)
+            throws ParseException, DataAccessException, SQLException {
+        Calendar startDate = DateTimeConverterUtil.setDateToDayStart(date);
+        Calendar endDate = (Calendar) startDate.clone();
+        if (finalDate == null) {
+            endDate.add(Calendar.DAY_OF_MONTH, 1);
+        } else {
+            endDate = DateTimeConverterUtil.setDateToDayStart(finalDate);
+            endDate.add(Calendar.DAY_OF_MONTH, 1);
+        }
+
+        boolean needPermissionCheck = false;
+
+        String schemaName = new DefaultOfBizConnectionFactory().getDatasourceInfo().getSchemaName();
+
+        List<EveritWorklog> worklogs = new ArrayList<EveritWorklog>();
+
+        JiraAuthenticationContext authenticationContext = ComponentManager.getInstance().getJiraAuthenticationContext();
+        User loggedInUser = authenticationContext.getLoggedInUser();
+
+        String userKey = "";
+        if ((selectedUser == null) || selectedUser.equals("")) {
+            userKey = UserCompatibilityHelper.getKeyForUser(loggedInUser);
+        } else {
+            log.error("soooo " + selectedUser + " and " + UserCompatibilityHelper.getKeyForUser(loggedInUser) + " is "
+                    + selectedUser.equals(UserCompatibilityHelper.getKeyForUser(loggedInUser)));
+            if (!selectedUser.equals(UserCompatibilityHelper.getKeyForUser(loggedInUser))) {
+                needPermissionCheck = true;
+            }
+            userKey = selectedUser;
+        }
+
+        String query = "SELECT worklog.id, worklog.startdate, worklog.issueid, worklog.timeworked, worklog.worklogbody"
+                + " FROM " + schemaName + ".project, " + schemaName + ".worklog, " + schemaName + ".jiraissue"
+                + " WHERE jiraissue.project=project.id AND worklog.issueid=jiraissue.id"
+                + " AND worklog.startdate>=? AND worklog.startdate<?"
+                + " AND worklog.author=?";
+
+        List<Long> projects = new ArrayList<Long>();
+        if (needPermissionCheck) {
+            projects = createProjects(loggedInUser);
+
+            StringBuilder projectsPreparedParams = new StringBuilder();
+            for (Long project : projects) {
+                projectsPreparedParams.append("?,");
+            }
+            if (projectsPreparedParams.length() > 0) {
+                projectsPreparedParams.deleteCharAt(projectsPreparedParams.length() - 1);
+            }
+
+            query += " AND project.ID IN (" + projectsPreparedParams.toString() + ")";
+        }
+
+        Connection conn = new DefaultOfBizConnectionFactory().getConnection();
+        PreparedStatement ps = null;
+        ps = conn.prepareStatement(query);
+        int preparedIndex = 1;
+        ps.setTimestamp(preparedIndex++, new Timestamp(startDate.getTimeInMillis()));
+        ps.setTimestamp(preparedIndex++, new Timestamp(endDate.getTimeInMillis()));
+        ps.setString(preparedIndex++, userKey);
+        if (!projects.isEmpty()) {
+            for (Long project : projects) {
+                ps.setLong(preparedIndex++, project);
+            }
+        }
+
+        ResultSet rs = ps.executeQuery();
+        while (rs.next())
+        {
+            EveritWorklog worklog = new EveritWorklog(rs, collectorIssuePatterns);
+            worklogs.add(worklog);
+        }
+        rs.close();
+        ps.close();
+        conn.close();
+
+        Collections.sort(worklogs, new EveritWorklogComparator());
+        log.info("JTTP LOG: getWorklogs worklog GV list size: "
+                + worklogs.size());
+        return worklogs;
+    }
+
+    /**
+     * Check the given date is containt enough worklog. The worklog spent time have to be equlase or greater then 8
+     * hours.
+     *
+     * @param date
+     *            The date what have to check.
+     * @param checkNonWorking
+     *            Exclude or not the non-working issues.
+     * @return True if the day contains enough worklog or weeked or exclude date.
+     * @throws GenericEntityException
+     *             If GenericEntity Exception.
+     */
+    private boolean isContainsEnoughWorklog(final String selectedUser, final Date date,
+            final boolean checkNonWorking) throws GenericEntityException {
+        JiraAuthenticationContext authenticationContext = ComponentManager
+                .getInstance().getJiraAuthenticationContext();
+        User user = authenticationContext.getLoggedInUser();
+
+        Calendar startDate = DateTimeConverterUtil.setDateToDayStart(date);
+        Calendar endDate = (Calendar) startDate.clone();
+        endDate.add(Calendar.DAY_OF_MONTH, 1);
+
+        List<EntityExpr> exprList = createWorklogQueryExprList(user, startDate,
+                endDate);
+
+        List<GenericValue> worklogGVList = CoreFactory.getGenericDelegator()
+                .findByAnd("Worklog", exprList);
+        if ((worklogGVList == null) || worklogGVList.isEmpty()) {
+            return false;
+        } else {
+            if (checkNonWorking) {
+                List<GenericValue> worklogsCopy = new ArrayList<GenericValue>();
+                worklogsCopy.addAll(worklogGVList);
+                // if we have non-estimated issues
+
+                // TODO FIXME summaryFilteredIssuePatterns rename nonworking
+                // pattern
+                if ((summaryFilteredIssuePatterns != null)
+                        && !summaryFilteredIssuePatterns.isEmpty()) {
+                    for (GenericValue worklog : worklogsCopy) {
+                        IssueManager issueManager = ComponentManager
+                                .getInstance().getIssueManager();
+                        Long issueId = worklog.getLong("issue");
+                        MutableIssue issue = issueManager
+                                .getIssueObject(issueId);
+                        for (Pattern issuePattern : summaryFilteredIssuePatterns) {
+                            boolean issueMatches = issuePattern.matcher(
+                                    issue.getKey()).matches();
+                            // if match not count in summary
+                            if (issueMatches) {
+                                worklogGVList.remove(worklog);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            long timeSpent = 0;
+            for (GenericValue worklog : worklogGVList) {
+                timeSpent += worklog.getLong("timeworked").longValue();
+            }
+            if (timeSpent < DateTimeConverterUtil.EIGHT_HOUR_IN_SECONDS) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Check the given date, the user have worklogs or not.
+     *
+     * @param date
+     *            The date what have to check.
+     * @return If The user have worklogs the given date then true, esle false.
+     * @throws GenericEntityException
+     *             GenericEntity Exception.
+     */
+    private boolean isContainsWorklog(final String selectedUser, final Date date)
+            throws GenericEntityException {
+        JiraAuthenticationContext authenticationContext = ComponentManager
+                .getInstance().getJiraAuthenticationContext();
+        User user = authenticationContext.getLoggedInUser();
+
+        Calendar startDate = DateTimeConverterUtil.setDateToDayStart(date);
+        Calendar endDate = (Calendar) startDate.clone();
+        endDate.add(Calendar.DAY_OF_MONTH, 1);
+
+        List<EntityExpr> exprList = createWorklogQueryExprList(user, startDate,
+                endDate);
+
+        List<GenericValue> worklogGVList = CoreFactory.getGenericDelegator()
+                .findByAnd("Worklog", exprList);
+        if ((worklogGVList == null) || worklogGVList.isEmpty()) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    @Override
+    public String lastEndTime(final List<EveritWorklog> worklogs)
+            throws ParseException {
+        if ((worklogs == null) || (worklogs.size() == 0)) {
+            return "08:00";
+        }
+        String endTime = worklogs.get(0).getEndTime();
+        for (int i = 1; i < worklogs.size(); i++) {
+            Date first = DateTimeConverterUtil.stringTimeToDateTime(worklogs
+                    .get(i - 1).getEndTime());
+            Date second = DateTimeConverterUtil.stringTimeToDateTime(worklogs
+                    .get(i).getEndTime());
+            if (first.compareTo(second) == 1) {
+                endTime = worklogs.get(i - 1).getEndTime();
+            } else {
+                endTime = worklogs.get(i).getEndTime();
+            }
+        }
+        return endTime;
+    }
+
+    @Override
+    public PluginSettingsValues loadPluginSettings() {
+        JiraAuthenticationContext authenticationContext = ComponentManager
+                .getInstance().getJiraAuthenticationContext();
+        User user = authenticationContext.getLoggedInUser();
+
+        globalSettings = settingsFactory.createGlobalSettings();
+        List<String> tempIssuePatternList = (List<String>) globalSettings
+                .get(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+                        + JTTP_PLUGIN_SETTINGS_SUMMARY_FILTERS);
+        if (tempIssuePatternList != null) {
+            // add non working issues
+            summaryFilteredIssuePatterns = new ArrayList<Pattern>();
+            for (String tempIssuePattern : tempIssuePatternList) {
+                summaryFilteredIssuePatterns.add(Pattern
+                        .compile(tempIssuePattern));
+            }
+        } else {
+            // default! from properties load default issues!!
+            summaryFilteredIssuePatterns = defaultNonWorkingIssueIds;
+
+        }
+        tempIssuePatternList = (List<String>) globalSettings
+                .get(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+                        + JTTP_PLUGIN_SETTINGS_NON_ESTIMATED_ISSUES);
+        if (tempIssuePatternList != null) {
+            // add collector issues
+            collectorIssuePatterns = new ArrayList<Pattern>();
+            for (String tempIssuePattern : tempIssuePatternList) {
+                collectorIssuePatterns.add(Pattern.compile(tempIssuePattern));
+            }
+        } else {
+            collectorIssuePatterns = defaultNonEstimedIssuePatterns;
+        }
+        String tempSpecialDates = (String) globalSettings
+                .get(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+                        + JTTP_PLUGIN_SETTINGS_EXCLUDE_DATES);
+        if (tempSpecialDates != null) {
+            excludeDatesString = tempSpecialDates;
+            excludeDatesSet = new HashSet<String>();
+            for (String excludeDate : excludeDatesString.split(",")) {
+                excludeDatesSet.add(excludeDate);
+            }
+        } else {
+            // Default Empty
+            excludeDatesSet = new HashSet<String>();
+            excludeDatesString = "";
+        }
+        tempSpecialDates = (String) globalSettings
+                .get(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+                        + JTTP_PLUGIN_SETTINGS_INCLUDE_DATES);
+        if (tempSpecialDates != null) {
+            includeDatesString = tempSpecialDates;
+            includeDatesSet = new HashSet<String>();
+            for (String includeDate : includeDatesString.split(",")) {
+                includeDatesSet.add(includeDate);
+            }
+        } else {
+            // Default Empty
+            includeDatesSet = new HashSet<String>();
+            includeDatesString = "";
+        }
+        if (globalSettings.get(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+                + JTTP_PLUGIN_SETTINGS_FDOW) != null) {
+            try {
+                fdow = Integer.valueOf(globalSettings.get(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+                        + JTTP_PLUGIN_SETTINGS_FDOW).toString());
+            } catch (NumberFormatException e) {
+                // the default fdow is sunday in the calendar
+                fdow = JiraTimetrackerUtil.SUNDAY_CALENDAR_FDOW;
+            }
+        } else {
+            // the default is the popup calendar
+            fdow = JiraTimetrackerUtil.SUNDAY_CALENDAR_FDOW;
+        }
+
+        pluginSettings = settingsFactory
+                .createSettingsForKey(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+                        + user.getName());
+        Integer isPopup = null;
+        if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_IS_CALENDAR_POPUP) != null) {
+            try {
+                isPopup = Integer.valueOf(pluginSettings.get(
+                        JTTP_PLUGIN_SETTINGS_IS_CALENDAR_POPUP).toString());
+            } catch (NumberFormatException e) {
+                // the default is the popup calendar
+                LOGGER.error(
+                        "Wrong formated calender type. Set the default value (popup).",
+                        e);
+                isPopup = JiraTimetrackerUtil.POPUP_CALENDAR_CODE;
+            }
+        } else {
+            // the default is the popup calendar
+            isPopup = JiraTimetrackerUtil.POPUP_CALENDAR_CODE;
+        }
+        // if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_FDOW) != null) {
+        // try {
+        // fdow = Integer.valueOf(pluginSettings.get(
+        // JTTP_PLUGIN_SETTINGS_FDOW).toString());
+        // } catch (NumberFormatException e) {
+        // // the default fdow is sunday in the calendar
+        // fdow = JiraTimetrackerUtil.SUNDAY_CALENDAR_FDOW;
+        // }
+        // } else {
+        // // the default is the popup calendar
+        // fdow = JiraTimetrackerUtil.SUNDAY_CALENDAR_FDOW;
+        // }
+        Boolean isActualDate = null;
+        if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_IS_ACTUAL_DATE) != null) {
+            if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_IS_ACTUAL_DATE).equals(
+                    "true")) {
+                isActualDate = true;
+            } else if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_IS_ACTUAL_DATE)
+                    .equals("false")) {
+                isActualDate = false;
+            }
+        } else {
+            // the default is the Actual Date
+            isActualDate = true;
+        }
+        Boolean isColoring = null;
+        if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_IS_COLORIG) != null) {
+            if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_IS_COLORIG).equals(
+                    "true")) {
+                isColoring = true;
+            } else if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_IS_COLORIG)
+                    .equals("false")) {
+                isColoring = false;
+            }
+
+        } else {
+            // the default coloring is TRUE
+            isColoring = true;
+        }
+
+        // SET startTime Change the default value is 5
+        int startTimeChange = 5;
+
+        if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_START_TIME_CHANGE) != null) {
+            try {
+                startTimeChange = Integer.valueOf(pluginSettings.get(
+                        JTTP_PLUGIN_SETTINGS_START_TIME_CHANGE).toString());
+                if (!validateTimeChange(Integer.toString(startTimeChange))) {
+                    startTimeChange = 5;
+                }
+            } catch (NumberFormatException e) {
+                LOGGER.error(
+                        "Wrong formated startTime change value. Set the default value (1).",
+                        e);
+            }
+        }
+        // SET endtTime Change the defaulte value is 5
+        int endTimeChange = 5;
+
+        if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_END_TIME_CHANGE) != null) {
+            try {
+                endTimeChange = Integer.valueOf(pluginSettings.get(
+                        JTTP_PLUGIN_SETTINGS_END_TIME_CHANGE).toString());
+                if (!validateTimeChange(Integer.toString(endTimeChange))) {
+                    endTimeChange = 5;
+                }
+            } catch (NumberFormatException e) {
+                LOGGER.error(
+                        "Wrong formated startTime change value. Set the default value (1).",
+                        e);
+            }
+        }
+        // Here set the other values
+        pluginSettingsValues = new PluginSettingsValues(
+                new CalendarSettingsValues(isPopup, isActualDate,
+                        excludeDatesString, includeDatesString, isColoring, fdow),
+                        summaryFilteredIssuePatterns, collectorIssuePatterns,
+                        startTimeChange, endTimeChange);
+        return pluginSettingsValues;
+    }
+
+    @Override
+    public void savePluginSettings(
+            final PluginSettingsValues pluginSettingsParameters) {
+        JiraAuthenticationContext authenticationContext = ComponentManager
+                .getInstance().getJiraAuthenticationContext();
+        User user = authenticationContext.getLoggedInUser();
+        pluginSettings = settingsFactory
+                .createSettingsForKey(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+                        + user.getName());
+        pluginSettings.put(JTTP_PLUGIN_SETTINGS_IS_CALENDAR_POPUP,
+                Integer.toString(pluginSettingsParameters.isCalendarPopup()));
+        pluginSettings.put(JTTP_PLUGIN_SETTINGS_FDOW,
+                Integer.toString(pluginSettingsParameters.getFdow()));
+        pluginSettings.put(JTTP_PLUGIN_SETTINGS_IS_ACTUAL_DATE,
+                pluginSettingsParameters.isActualDate().toString());
+        pluginSettings.put(JTTP_PLUGIN_SETTINGS_IS_COLORIG,
+                pluginSettingsParameters.isColoring().toString());
+        pluginSettings
+        .put(JTTP_PLUGIN_SETTINGS_START_TIME_CHANGE,
+                Integer.toString(pluginSettingsParameters
+                        .getStartTimeChange()));
+        pluginSettings.put(JTTP_PLUGIN_SETTINGS_END_TIME_CHANGE,
+                Integer.toString(pluginSettingsParameters.getEndTimeChange()));
+
+        globalSettings = settingsFactory.createGlobalSettings();
+        globalSettings.put(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+                + JTTP_PLUGIN_SETTINGS_SUMMARY_FILTERS,
+                pluginSettingsParameters.getFilteredSummaryIssues());
+        globalSettings.put(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+                + JTTP_PLUGIN_SETTINGS_NON_ESTIMATED_ISSUES,
+                pluginSettingsParameters.getCollectorIssues());
+        globalSettings.put(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+                + JTTP_PLUGIN_SETTINGS_EXCLUDE_DATES,
+                pluginSettingsParameters.getExcludeDates());
+        globalSettings.put(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+                + JTTP_PLUGIN_SETTINGS_INCLUDE_DATES,
+                pluginSettingsParameters.getIncludeDates());
+        globalSettings.put(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+                + JTTP_PLUGIN_SETTINGS_FDOW,
+                Integer.toString(pluginSettingsParameters.getFdow()));
+    }
+
+    /**
+     * Set the default values of the important variables.
+     *
+     * @throws MailException
+     */
+    private void setDefaultVariablesValue() throws MailException {
+        // DEFAULT 20:00
+        issueCheckTimeInMinutes = 1200;
+        // Default exclude and include dates set are empty. No DATA!!
+        // Default: no non working issue. we simple use the empty list
+        // defaultNonWorkingIssueIds = new ArrayList<Long>();
+        // The default non estimted issues regex. All issue non estimeted.
+        defaultNonEstimedIssuePatterns = new ArrayList<Pattern>();
+        defaultNonEstimedIssuePatterns.add(Pattern.compile(".*"));
+    }
+
+    @Override
+    public String summary(final String selectedUser, final Date startSummary, final Date finishSummary,
+            final List<Pattern> issuePatterns) throws GenericEntityException {
+        JiraAuthenticationContext authenticationContext = ComponentManager
+                .getInstance().getJiraAuthenticationContext();
+        User user = authenticationContext.getLoggedInUser();
+
+        Calendar start = DateTimeConverterUtil.setDateToDayStart(startSummary);
+        start.set(Calendar.SECOND, 0);
+        Calendar finish = DateTimeConverterUtil.setDateToDayStart(finishSummary);
+        finish.set(Calendar.SECOND, 0);
+
+        List<EntityExpr> exprList = createWorklogQueryExprList(user, start, finish);
+
+        List<GenericValue> worklogs;
+        // worklog query
+        worklogs = CoreFactory.getGenericDelegator().findByAnd("Worklog",
+                exprList);
+        List<GenericValue> worklogsCopy = new ArrayList<GenericValue>();
+        worklogsCopy.addAll(worklogs);
+        // if we have non-estimated issues
+        if ((issuePatterns != null) && !issuePatterns.isEmpty()) {
+            for (GenericValue worklog : worklogsCopy) {
+                IssueManager issueManager = ComponentManager.getInstance()
+                        .getIssueManager();
+                Long issueId = worklog.getLong("issue");
+                MutableIssue issue = issueManager.getIssueObject(issueId);
+                for (Pattern issuePattern : issuePatterns) {
+                    boolean issueMatches = issuePattern.matcher(issue.getKey())
+                            .matches();
+                    // if match not count in summary
+                    if (issueMatches) {
+                        worklogs.remove(worklog);
+                        break;
+                    }
+                }
+            }
+        }
+        long timeSpent = 0;
+        // Iterator<GenericValue> worklogsIterator = worklogs.iterator();
+        // while (worklogsIterator.hasNext()) {
+        // GenericValue worklog = worklogsIterator.next();
+        // timeSpent = timeSpent + worklog.getLong("timeworked").longValue();
+        // }
+        for (GenericValue worklog : worklogs) {
+            timeSpent += worklog.getLong("timeworked").longValue();
+        }
+        return DateTimeConverterUtil.secondConvertToString(timeSpent);
+    }
+
+    @Override
+    public boolean validateTimeChange(final String changeValue)
+            throws NumberFormatException {
+        int changeValueInt = Integer.valueOf(changeValue);
+
+        switch (changeValueInt) {
+        case 5:
+            return true;
+        case 10:
+            return true;
+        case 15:
+            return true;
+        case 20:
+            return true;
+        case 30:
+            return true;
+        default:
+            return false;
+        }
+
+    }
+
 }

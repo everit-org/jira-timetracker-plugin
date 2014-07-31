@@ -22,38 +22,44 @@ package org.everit.jira.timetracker.plugin.dto;
  */
 
 public class CalendarSettingsValues {
-	private int isCalendarPopup;
-	private boolean isActualDate;
-	private String excludeDates;
-	private String includeDates;
-	private boolean isColoring;
+    private int isCalendarPopup;
+    private boolean isActualDate;
+    private String excludeDates;
+    private String includeDates;
+    private boolean isColoring;
+    private int fdow;
 
-	public CalendarSettingsValues(int isCalendarPopup, boolean isActualDate,
-			String excludeDates, String includeDates, boolean isColoring) {
-		this.isCalendarPopup = isCalendarPopup;
-		this.isActualDate = isActualDate;
-		this.excludeDates = excludeDates;
-		this.includeDates = includeDates;
-		this.isColoring = isColoring;
-	}
+    public CalendarSettingsValues(final int isCalendarPopup, final boolean isActualDate,
+            final String excludeDates, final String includeDates, final boolean isColoring, final int fdow) {
+        this.isCalendarPopup = isCalendarPopup;
+        this.isActualDate = isActualDate;
+        this.excludeDates = excludeDates;
+        this.includeDates = includeDates;
+        this.isColoring = isColoring;
+        this.fdow = fdow;
+    }
 
-	public int getIsCalendarPopup() {
-		return isCalendarPopup;
-	}
+    public String getExcludeDates() {
+        return excludeDates;
+    }
 
-	public boolean isActualDate() {
-		return isActualDate;
-	}
+    public int getFdow() {
+        return fdow;
+    }
 
-	public String getExcludeDates() {
-		return excludeDates;
-	}
+    public String getIncludeDates() {
+        return includeDates;
+    }
 
-	public String getIncludeDates() {
-		return includeDates;
-	}
+    public int getIsCalendarPopup() {
+        return isCalendarPopup;
+    }
 
-	public boolean isColoring() {
-		return isColoring;
-	}
+    public boolean isActualDate() {
+        return isActualDate;
+    }
+
+    public boolean isColoring() {
+        return isColoring;
+    }
 }

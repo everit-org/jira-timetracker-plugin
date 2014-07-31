@@ -24,14 +24,257 @@ package org.everit.jira.timetracker.plugin;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
  * The utility class of date and time conversions.
  */
 public final class DateTimeConverterUtil {
+
+    /**
+     * Count the worklog end time.
+     *
+     * @param start
+     *            When start the worklog.
+     * @param spentMilliseconds
+     *            The spent time in milliseconds.
+     * @return The string format of the end time.
+     * @throws ParseException
+     *             When can't parse the time.
+     */
+    public static String countEndTime(final String start, final long spentMilliseconds) throws ParseException {
+        long startMillisecond = DateTimeConverterUtil.stringTimeToDateTimeGMT(start).getTime();
+        long endMillisecond = startMillisecond + spentMilliseconds;
+        return DateTimeConverterUtil.millisecondConvertToStringTime(endMillisecond);
+    }
+
+    /**
+     * Convert date to string ({@value #DATE_TIME_FORMAT}).
+     *
+     * @param dateAndTime
+     *            The date to convert.
+     * @return The result String.
+     */
+    public static String dateAndTimeToString(final Date dateAndTime) {
+        DateFormat formatterDateAndTime = new SimpleDateFormat(DATE_TIME_FORMAT);
+        String stringDateAndTime = formatterDateAndTime.format(dateAndTime);
+        return stringDateAndTime;
+    }
+
+    /**
+     * Convert the date time to string ({@value #TIME_FORMAT}).
+     *
+     * @param date
+     *            The time to convert.
+     * @return The result string.
+     */
+    public static String dateTimeToString(final Date date) {
+        DateFormat formatterTime = new SimpleDateFormat(TIME_FORMAT);
+        String timeString = formatterTime.format(date);
+        return timeString;
+    }
+
+    /**
+     * Convert the date to String ({@value #DATE_FORMAT}).
+     *
+     * @param date
+     *            The Date to convert.
+     * @return The result time.
+     */
+    public static String dateToString(final Date date) {
+        DateFormat formatterDate = new SimpleDateFormat(DATE_FORMAT);
+        String dateString = formatterDate.format(date);
+        return dateString;
+    }
+
+    /**
+     * Check the Time is valid to the {@value #JIRA_DURATION_PATTERN} pattern.
+     *
+     * @param time
+     *            The time to validate.
+     * @return If valid then true else false.
+     */
+    public static boolean isValidJiraTime(final String time) {
+        return Pattern.matches(JIRA_DURATION_PATTERN, time);
+    }
+
+    /**
+     * Check the Time is valid to the {@value #TIME24HOURS_PATTERN} pattern.
+     *
+     * @param time
+     *            The time to validate.
+     * @return If valid then true else false.
+     */
+    public static boolean isValidTime(final String time) {
+        return Pattern.matches(TIME24HOURS_PATTERN, time);
+    }
+
+    public static int jiraDurationToSeconds(final String duration) {
+        Pattern durPatt = Pattern.compile(DateTimeConverterUtil.JIRA_DURATION_PATTERN);
+        Matcher m = durPatt.matcher(duration);
+        int seconds = 0;
+        if (m.matches()) {
+            if (m.group(8) != null) {
+                seconds = Integer.parseInt(m.group(8)) * DateTimeConverterUtil.MINUTES_PER_HOUR
+                        * DateTimeConverterUtil.SECONDS_PER_MINUTE;
+            }
+            else if (m.group(6) != null) {
+                seconds = Integer.parseInt(m.group(6)) * DateTimeConverterUtil.SECONDS_PER_MINUTE;
+            }
+            else if ((m.group(2) != null) && (m.group(4) != null)) {
+                seconds = Integer.parseInt(m.group(2)) * DateTimeConverterUtil.MINUTES_PER_HOUR
+                        * DateTimeConverterUtil.SECONDS_PER_MINUTE;
+                seconds += Integer.parseInt(m.group(4)) * DateTimeConverterUtil.SECONDS_PER_MINUTE;
+            }
+        }
+        return seconds;
+    }
+
+    /**
+     * Convert the millisecond to String time.
+     *
+     * @param milliseconds
+     *            The time in milliseconds.
+     * @return The result String.
+     */
+    public static String millisecondConvertToStringTime(final long milliseconds) {
+        DateFormat formatterTimeGMT = new SimpleDateFormat(TIME_FORMAT);
+        formatterTimeGMT.setTimeZone(TimeZone.getTimeZone(TIME_ZONE_GMT));
+        Date date = new Date();
+        date.setTime(milliseconds);
+        String timeString = formatterTimeGMT.format(date);
+        return timeString;
+    }
+
+    /**
+     * Convert the seconds to jira format (1h 30m) String.
+     *
+     * @param spentSeconds
+     *            The spent seconds.
+     * @return The result String.
+     */
+    public static String secondConvertToString(final long spentSeconds) {
+        String summaryString = "";
+        long spentMin = spentSeconds / SECONDS_PER_MINUTE;
+        long spentHour = spentMin / MINUTES_PER_HOUR;
+        long days = spentHour / WORK_HOURS_PER_DAY;
+        long hours = spentHour % WORK_HOURS_PER_DAY;
+        long mins = spentMin % MINUTES_PER_HOUR;
+        if (days != 0) {
+            summaryString = days + "d " + hours + "h " + mins + "m";
+        } else if (hours != 0) {
+            summaryString = hours + "h " + mins + "m";
+        } else {
+            summaryString = mins + "m";
+        }
+        return summaryString;
+    }
+
+    public static Calendar setDateToDayStart(final Date date) {
+        Calendar startDate = Calendar.getInstance();
+        startDate.setTime(date);
+        startDate.set(Calendar.HOUR_OF_DAY, 0);
+        startDate.set(Calendar.MINUTE, 0);
+        startDate.set(Calendar.SECOND, 0);
+        startDate.set(Calendar.MILLISECOND, 0);
+        return startDate;
+    }
+
+    /**
+     * Convert String Date to String Time.
+     *
+     * @param dateString
+     *            The String date.
+     * @return The String Time.
+     * @throws ParseException
+     *             If can't parse the date.
+     */
+    public static String stringDateToStringTime(final String dateString) throws ParseException {
+        Date date = DateTimeConverterUtil.stringToDateAndTime(dateString);
+        String time = DateTimeConverterUtil.dateTimeToString(date);
+        return time;
+    }
+
+    /**
+     * Convert String ({@value #TIME_FORMAT}) to Time.
+     *
+     * @param time
+     *            The String time.
+     * @return The result date.
+     * @throws ParseException
+     *             If can't parse the date.
+     */
+    public static Date stringTimeToDateTime(final String time) throws ParseException {
+        DateFormat formatterTime = new SimpleDateFormat(TIME_FORMAT);
+        Date dateTime = formatterTime.parse(time);
+        return dateTime;
+    }
+
+    /**
+     * Convert String ({@value #TIME_FORMAT}) to ({@value #TIME_ZONE_GMT}) Time.
+     *
+     * @param time
+     *            The Sting date and time.
+     * @return The result Date.
+     * @throws ParseException
+     *             If can't parse the date.
+     */
+    public static Date stringTimeToDateTimeGMT(final String time) throws ParseException {
+        DateFormat formatterTime = new SimpleDateFormat(TIME_FORMAT);
+        formatterTime.setTimeZone(TimeZone.getTimeZone(TIME_ZONE_GMT));
+        Date dateTime = formatterTime.parse(time);
+        return dateTime;
+    }
+
+    /**
+     * Covert String time (hh:mm) to jira format (1h 30m) String. Use the {@link DateTimeConverterUtil} methods.
+     *
+     * @param time
+     *            The time.
+     * @return The new formated String.
+     * @throws ParseException
+     *             If can't parse the date.
+     */
+    public static String stringTimeToString(final String time) throws ParseException {
+        long seconds = DateTimeConverterUtil.stringTimeToDateTimeGMT(
+                time).getTime() / 1000;
+        String result = DateTimeConverterUtil.secondConvertToString(seconds);
+        return result;
+    }
+
+    /**
+     * Convert String ({@value #DATE_FORMAT}) to Date.
+     *
+     * @param dateString
+     *            The String date to convert.
+     * @return The result Date.
+     * @throws ParseException
+     *             If can't parse the date.
+     */
+    public static Date stringToDate(final String dateString) throws ParseException {
+        DateFormat formatterDate = new SimpleDateFormat(DATE_FORMAT);
+        Date date = formatterDate.parse(dateString);
+        return date;
+    }
+
+    /**
+     * Convert String ({@value #DATE_TIME_FORMAT}) to date and time.
+     *
+     * @param dateAndTimeString
+     *            The date time string to convert.
+     * @return The result Date.
+     * @throws ParseException
+     *             if can't parse the date.
+     */
+    public static Date stringToDateAndTime(final String dateAndTimeString) throws ParseException {
+        DateFormat formatterDateAndTime = new SimpleDateFormat(DATE_TIME_FORMAT);
+        Date date = formatterDateAndTime.parse(dateAndTimeString);
+        return date;
+    }
 
     /**
      * The GMT time zone.
@@ -77,12 +320,12 @@ public final class DateTimeConverterUtil {
      * The number of seconds per minute.
      */
     public static final int SECONDS_PER_MINUTE = 60;
-    
+
     /**
-     * The number of seconds in 8 hour. 
+     * The number of seconds in 8 hour.
      */
     public static final int EIGHT_HOUR_IN_SECONDS = 8 * 60 * 60;
-    
+
     /**
      * The number of milliseconds per seconds.
      */
@@ -119,203 +362,9 @@ public final class DateTimeConverterUtil {
     public static final String TIME24HOURS_PATTERN = "([01]?[0-9]|2[0-3]):[0-5][0-9]";
 
     /**
-     * Count the worklog end time.
-     * 
-     * @param start
-     *            When start the worklog.
-     * @param spentMilliseconds
-     *            The spent time in milliseconds.
-     * @return The string format of the end time.
-     * @throws ParseException
-     *             When can't parse the time.
+     * The JIRA duration pattern.
      */
-    public static String countEndTime(final String start, final long spentMilliseconds) throws ParseException {
-        long startMillisecond = DateTimeConverterUtil.stringTimeToDateTimeGMT(start).getTime();
-        long endMillisecond = startMillisecond + spentMilliseconds;
-        return DateTimeConverterUtil.millisecondConvertToStringTime(endMillisecond);
-    }
-
-    /**
-     * Convert date to string ({@value #DATE_TIME_FORMAT}).
-     * 
-     * @param dateAndTime
-     *            The date to convert.
-     * @return The result String.
-     */
-    public static String dateAndTimeToString(final Date dateAndTime) {
-        DateFormat formatterDateAndTime = new SimpleDateFormat(DATE_TIME_FORMAT);
-        String stringDateAndTime = formatterDateAndTime.format(dateAndTime);
-        return stringDateAndTime;
-    }
-
-    /**
-     * Convert the date time to string ({@value #TIME_FORMAT}).
-     * 
-     * @param date
-     *            The time to convert.
-     * @return The result string.
-     */
-    public static String dateTimeToString(final Date date) {
-        DateFormat formatterTime = new SimpleDateFormat(TIME_FORMAT);
-        String timeString = formatterTime.format(date);
-        return timeString;
-    }
-
-    /**
-     * Convert the date to String ({@value #DATE_FORMAT}).
-     * 
-     * @param date
-     *            The Date to convert.
-     * @return The result time.
-     */
-    public static String dateToString(final Date date) {
-        DateFormat formatterDate = new SimpleDateFormat(DATE_FORMAT);
-        String dateString = formatterDate.format(date);
-        return dateString;
-    }
-
-    /**
-     * Check the Time is valid to the {@value #TIME24HOURS_PATTERN} pattern.
-     * 
-     * @param time
-     *            The time to validate.
-     * @return If valid then true else false.
-     */
-    public static boolean isValidTime(final String time) {
-        return Pattern.matches(TIME24HOURS_PATTERN, time);
-    }
-
-    /**
-     * Convert the millisecond to String time.
-     * 
-     * @param milliseconds
-     *            The time in milliseconds.
-     * @return The result String.
-     */
-    public static String millisecondConvertToStringTime(final long milliseconds) {
-        DateFormat formatterTimeGMT = new SimpleDateFormat(TIME_FORMAT);
-        formatterTimeGMT.setTimeZone(TimeZone.getTimeZone(TIME_ZONE_GMT));
-        Date date = new Date();
-        date.setTime(milliseconds);
-        String timeString = formatterTimeGMT.format(date);
-        return timeString;
-    }
-
-    /**
-     * Convert the seconds to jira format (1h 30m) String.
-     * 
-     * @param spentSeconds
-     *            The spent seconds.
-     * @return The result String.
-     */
-    public static String secondConvertToString(final long spentSeconds) {
-        String summaryString = "";
-        long spentMin = spentSeconds / SECONDS_PER_MINUTE;
-        long spentHour = spentMin / MINUTES_PER_HOUR;
-        long days = spentHour / WORK_HOURS_PER_DAY;
-        long hours = spentHour % WORK_HOURS_PER_DAY;
-        long mins = spentMin % MINUTES_PER_HOUR;
-        if (days != 0) {
-            summaryString = days + "d " + hours + "h " + mins + "m";
-        } else if (hours != 0) {
-            summaryString = hours + "h " + mins + "m";
-        } else {
-            summaryString = mins + "m";
-        }
-        return summaryString;
-    }
-
-    /**
-     * Convert String Date to String Time.
-     * 
-     * @param dateString
-     *            The String date.
-     * @return The String Time.
-     * @throws ParseException
-     *             If can't parse the date.
-     */
-    public static String stringDateToStringTime(final String dateString) throws ParseException {
-        Date date = DateTimeConverterUtil.stringToDateAndTime(dateString);
-        String time = DateTimeConverterUtil.dateTimeToString(date);
-        return time;
-    }
-
-    /**
-     * Convert String ({@value #TIME_FORMAT}) to Time.
-     * 
-     * @param time
-     *            The String time.
-     * @return The result date.
-     * @throws ParseException
-     *             If can't parse the date.
-     */
-    public static Date stringTimeToDateTime(final String time) throws ParseException {
-        DateFormat formatterTime = new SimpleDateFormat(TIME_FORMAT);
-        Date dateTime = formatterTime.parse(time);
-        return dateTime;
-    }
-
-    /**
-     * Convert String ({@value #TIME_FORMAT}) to ({@value #TIME_ZONE_GMT}) Time.
-     * 
-     * @param time
-     *            The Sting date and time.
-     * @return The result Date.
-     * @throws ParseException
-     *             If can't parse the date.
-     */
-    public static Date stringTimeToDateTimeGMT(final String time) throws ParseException {
-        DateFormat formatterTime = new SimpleDateFormat(TIME_FORMAT);
-        formatterTime.setTimeZone(TimeZone.getTimeZone(TIME_ZONE_GMT));
-        Date dateTime = formatterTime.parse(time);
-        return dateTime;
-    }
-
-    /**
-     * Covert String time (hh:mm) to jira format (1h 30m) String. Use the {@link DateTimeConverterUtil} methods.
-     * 
-     * @param time
-     *            The time.
-     * @return The new formated String.
-     * @throws ParseException
-     *             If can't parse the date.
-     */
-    public static String stringTimeToString(final String time) throws ParseException {
-        long seconds = DateTimeConverterUtil.stringTimeToDateTimeGMT(
-                time).getTime() / 1000;
-        String result = DateTimeConverterUtil.secondConvertToString(seconds);
-        return result;
-    }
-
-    /**
-     * Convert String ({@value #DATE_FORMAT}) to Date.
-     * 
-     * @param dateString
-     *            The String date to convert.
-     * @return The result Date.
-     * @throws ParseException
-     *             If can't parse the date.
-     */
-    public static Date stringToDate(final String dateString) throws ParseException {
-        DateFormat formatterDate = new SimpleDateFormat(DATE_FORMAT);
-        Date date = formatterDate.parse(dateString);
-        return date;
-    }
-
-    /**
-     * Convert String ({@value #DATE_TIME_FORMAT}) to date and time.
-     * 
-     * @param dateAndTimeString
-     *            The date time string to convert.
-     * @return The result Date.
-     * @throws ParseException
-     *             if can't parse the date.
-     */
-    public static Date stringToDateAndTime(final String dateAndTimeString) throws ParseException {
-        DateFormat formatterDateAndTime = new SimpleDateFormat(DATE_TIME_FORMAT);
-        Date date = formatterDateAndTime.parse(dateAndTimeString);
-        return date;
-    }
+    public static final String JIRA_DURATION_PATTERN = "(([01]?[0-9]|2[0-3])[h]*[\\s]+(([0-5]?[0-9])[m])*)|(([0-5]?[0-9])[m])+|(([01]?[0-9]|2[0-3])[h])+";
 
     /**
      * Private constructor.
