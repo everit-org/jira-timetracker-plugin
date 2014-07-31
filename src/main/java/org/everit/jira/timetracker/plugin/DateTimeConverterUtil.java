@@ -24,6 +24,7 @@ package org.everit.jira.timetracker.plugin;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
@@ -33,96 +34,6 @@ import java.util.regex.Pattern;
  * The utility class of date and time conversions.
  */
 public final class DateTimeConverterUtil {
-
-    /**
-     * The GMT time zone.
-     */
-    public static final String TIME_ZONE_GMT = "GMT";
-
-    /**
-     * The time format.
-     */
-    public static final String TIME_FORMAT = "HH:mm";
-
-    /**
-     * The date format.
-     */
-    public static final String DATE_FORMAT = "yyyy-MM-dd";
-
-    /**
-     * The date time format.
-     */
-    public static final String DATE_TIME_FORMAT = "yyyy-MM-dd kk:mm";
-
-    /**
-     * The begin of year.
-     */
-    public static final int BEGIN_OF_YEAR = 1900;
-
-    /**
-     * The number of days per week.
-     */
-    public static final int DAYS_PER_WEEK = 7;
-
-    /**
-     * The number of work hours per day.
-     */
-    public static final int WORK_HOURS_PER_DAY = 8;
-
-    /**
-     * The number of minutes per hour.
-     */
-    public static final int MINUTES_PER_HOUR = 60;
-
-    /**
-     * The number of seconds per minute.
-     */
-    public static final int SECONDS_PER_MINUTE = 60;
-
-    /**
-     * The number of seconds in 8 hour.
-     */
-    public static final int EIGHT_HOUR_IN_SECONDS = 8 * 60 * 60;
-
-    /**
-     * The number of milliseconds per seconds.
-     */
-    public static final int MILLISECONDS_PER_SECOND = 1000;
-
-    /**
-     * The last day of a month.
-     */
-    public static final int LAST_DAY_OF_MONTH = 31;
-
-    /**
-     * The last hour of a day.
-     */
-    public static final int LAST_HOUR_OF_DAY = 23;
-
-    /**
-     * The last minute of an hour.
-     */
-    public static final int LAST_MINUTE_OF_HOUR = 59;
-
-    /**
-     * The last second of a minute.
-     */
-    public static final int LAST_SECOND_OF_MINUTE = 59;
-
-    /**
-     * The last millisecond of a second.
-     */
-    public static final int LAST_MILLISECOND_OF_SECOND = 0;
-
-    /**
-     * The 24 hours pattern.
-     */
-    public static final String TIME24HOURS_PATTERN = "([01]?[0-9]|2[0-3]):[0-5][0-9]";
-
-    /**
-     * The JIRA duration pattern.
-     */
-    public static final String JIRA_DURATION_PATTERN = "(([01]?[0-9]|2[0-3])[h]*[\\s]+(([0-5]?[0-9])[m])*)|(([0-5]?[0-9])[m])+|(([01]?[0-9]|2[0-3])[h])+";
 
     /**
      * Count the worklog end time.
@@ -263,6 +174,16 @@ public final class DateTimeConverterUtil {
         return summaryString;
     }
 
+    public static Calendar setDateToDayStart(final Date date) {
+        Calendar startDate = Calendar.getInstance();
+        startDate.setTime(date);
+        startDate.set(Calendar.HOUR_OF_DAY, 0);
+        startDate.set(Calendar.MINUTE, 0);
+        startDate.set(Calendar.SECOND, 0);
+        startDate.set(Calendar.MILLISECOND, 0);
+        return startDate;
+    }
+
     /**
      * Convert String Date to String Time.
      *
@@ -354,6 +275,96 @@ public final class DateTimeConverterUtil {
         Date date = formatterDateAndTime.parse(dateAndTimeString);
         return date;
     }
+
+    /**
+     * The GMT time zone.
+     */
+    public static final String TIME_ZONE_GMT = "GMT";
+
+    /**
+     * The time format.
+     */
+    public static final String TIME_FORMAT = "HH:mm";
+
+    /**
+     * The date format.
+     */
+    public static final String DATE_FORMAT = "yyyy-MM-dd";
+
+    /**
+     * The date time format.
+     */
+    public static final String DATE_TIME_FORMAT = "yyyy-MM-dd kk:mm";
+
+    /**
+     * The begin of year.
+     */
+    public static final int BEGIN_OF_YEAR = 1900;
+
+    /**
+     * The number of days per week.
+     */
+    public static final int DAYS_PER_WEEK = 7;
+
+    /**
+     * The number of work hours per day.
+     */
+    public static final int WORK_HOURS_PER_DAY = 8;
+
+    /**
+     * The number of minutes per hour.
+     */
+    public static final int MINUTES_PER_HOUR = 60;
+
+    /**
+     * The number of seconds per minute.
+     */
+    public static final int SECONDS_PER_MINUTE = 60;
+
+    /**
+     * The number of seconds in 8 hour.
+     */
+    public static final int EIGHT_HOUR_IN_SECONDS = 8 * 60 * 60;
+
+    /**
+     * The number of milliseconds per seconds.
+     */
+    public static final int MILLISECONDS_PER_SECOND = 1000;
+
+    /**
+     * The last day of a month.
+     */
+    public static final int LAST_DAY_OF_MONTH = 31;
+
+    /**
+     * The last hour of a day.
+     */
+    public static final int LAST_HOUR_OF_DAY = 23;
+
+    /**
+     * The last minute of an hour.
+     */
+    public static final int LAST_MINUTE_OF_HOUR = 59;
+
+    /**
+     * The last second of a minute.
+     */
+    public static final int LAST_SECOND_OF_MINUTE = 59;
+
+    /**
+     * The last millisecond of a second.
+     */
+    public static final int LAST_MILLISECOND_OF_SECOND = 0;
+
+    /**
+     * The 24 hours pattern.
+     */
+    public static final String TIME24HOURS_PATTERN = "([01]?[0-9]|2[0-3]):[0-5][0-9]";
+
+    /**
+     * The JIRA duration pattern.
+     */
+    public static final String JIRA_DURATION_PATTERN = "(([01]?[0-9]|2[0-3])[h]*[\\s]+(([0-5]?[0-9])[m])*)|(([0-5]?[0-9])[m])+|(([01]?[0-9]|2[0-3])[h])+";
 
     /**
      * Private constructor.

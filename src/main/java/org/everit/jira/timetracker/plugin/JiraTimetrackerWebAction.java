@@ -481,7 +481,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
             excludeDays = jiraTimetrackerPlugin
                     .getExluceDaysOfTheMonth(dateFormated);
             loadWorklogsAndMakeSummary();
-
             projectsId = jiraTimetrackerPlugin.getProjectsId();
 
         } catch (Exception e) {
@@ -533,7 +532,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
             messageParameter = createResult.getMessageParameter();
             return SUCCESS;
         }
-        // endTime = DateTimeConverterUtil.dateTimeToString(new Date());
+        endTime = DateTimeConverterUtil.dateTimeToString(new Date());
         try {
             loadWorklogsAndMakeSummary();
             startTime = jiraTimetrackerPlugin.lastEndTime(worklogs);
@@ -593,11 +592,12 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
         }
         // edit the worklogs!
         // TODO what if result is a fail?????? what if just one fail?
-        ActionResult editResult;
+        // ActionResult editResult;
         for (Long editWorklogId : editWorklogIds) {
             EveritWorklog editWorklog = jiraTimetrackerPlugin
                     .getWorklog(editWorklogId);
-            editResult = jiraTimetrackerPlugin.editWorklog(editWorklog
+            // editResult =
+            jiraTimetrackerPlugin.editWorklog(editWorklog
                     .getWorklogId(), editWorklog.getIssue(), editWorklog
                     .getBody(), dateFormated, editWorklog.getStartTime(),
                     DateTimeConverterUtil.stringTimeToString(editWorklog
@@ -835,7 +835,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
      * @throws DataAccessException
      */
     private void loadWorklogsAndMakeSummary() throws GenericEntityException,
-            ParseException, DataAccessException, SQLException {
+    ParseException, DataAccessException, SQLException {
         try {
             loggedDays = jiraTimetrackerPlugin
                     .getLoggedDaysOfTheMonth(selectedUser, date);
@@ -861,32 +861,14 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
      *             GenericEntityException.
      */
     public void makeSummary() throws GenericEntityException {
-        Calendar startCalendar = Calendar.getInstance();
-        startCalendar.set(Calendar.YEAR, date.getYear()
-                + DateTimeConverterUtil.BEGIN_OF_YEAR);
-        startCalendar.set(Calendar.MONTH, date.getMonth());
-        startCalendar.set(Calendar.DAY_OF_MONTH, date.getDate());
-        startCalendar.set(Calendar.HOUR_OF_DAY, 0);
-        startCalendar.set(Calendar.MINUTE, 0);
-        startCalendar.set(Calendar.SECOND, 0);
-        startCalendar.set(Calendar.MILLISECOND, 0);
+        Calendar startCalendar = DateTimeConverterUtil.setDateToDayStart(date);
         Calendar originalStartcalendar = (Calendar) startCalendar.clone();
         Date start = startCalendar.getTime();
 
-        Calendar endCalendar = Calendar.getInstance();
-        endCalendar.set(Calendar.YEAR, date.getYear()
-                + DateTimeConverterUtil.BEGIN_OF_YEAR);
-        endCalendar.set(Calendar.MONTH, date.getMonth());
-        endCalendar.set(Calendar.DAY_OF_MONTH, date.getDate());
-        endCalendar.set(Calendar.HOUR_OF_DAY,
-                DateTimeConverterUtil.LAST_HOUR_OF_DAY);
-        endCalendar.set(Calendar.MINUTE,
-                DateTimeConverterUtil.LAST_MINUTE_OF_HOUR);
-        endCalendar.set(Calendar.SECOND,
-                DateTimeConverterUtil.LAST_SECOND_OF_MINUTE);
-        startCalendar.set(Calendar.MILLISECOND,
-                DateTimeConverterUtil.LAST_MILLISECOND_OF_SECOND);
-        Calendar originalEndCcalendar = (Calendar) endCalendar.clone();
+        Calendar endCalendar = (Calendar) startCalendar.clone();
+        endCalendar.add(Calendar.DAY_OF_MONTH, 1);
+
+        Calendar originalEndCalendar = (Calendar) endCalendar.clone();
         Date end = endCalendar.getTime();
 
         daySummary = jiraTimetrackerPlugin.summary(selectedUser, start, end, null);
@@ -897,12 +879,12 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
         startCalendar = (Calendar) originalStartcalendar.clone();
         startCalendar
-                .set(Calendar.DAY_OF_MONTH,
-                        (date.getDate() - (date.getDay() == 0 ? 6 : date
-                                .getDay() - 1)));
+        .set(Calendar.DAY_OF_MONTH,
+                (date.getDate() - (date.getDay() == 0 ? 6 : date
+                        .getDay() - 1)));
         start = startCalendar.getTime();
 
-        endCalendar = (Calendar) originalEndCcalendar.clone();
+        endCalendar = (Calendar) originalEndCalendar.clone();
         endCalendar.set(Calendar.DAY_OF_MONTH,
                 (date.getDate() + (DateTimeConverterUtil.DAYS_PER_WEEK - (date
                         .getDay() == 0 ? 7 : date.getDay()))));
@@ -918,7 +900,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
         startCalendar.set(Calendar.DAY_OF_MONTH, 1);
         start = startCalendar.getTime();
 
-        endCalendar = (Calendar) originalEndCcalendar.clone();
+        endCalendar = (Calendar) originalEndCalendar.clone();
         endCalendar.set(Calendar.DAY_OF_MONTH,
                 endCalendar.getActualMaximum(Calendar.DAY_OF_MONTH));
         end = endCalendar.getTime();
@@ -950,7 +932,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
      *             ClassNotFoundException.
      */
     private void readObject(final ObjectInputStream in) throws IOException,
-            ClassNotFoundException {
+    ClassNotFoundException {
         in.defaultReadObject();
         issues = new ArrayList<Issue>();
     }
@@ -1042,7 +1024,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
         String[] issueSelectValue = request.getParameterValues("issueSelect");
         String[] endTimeValue = request.getParameterValues("endTime");
         String[] durationTimeValue = request.getParameterValues("durationTime");
-        String[] startTimeValue = request.getParameterValues("startTime");
+        // String[] startTimeValue = request.getParameterValues("startTime");
         String[] commentsValue = request.getParameterValues("comments");
         if (issueSelectValue != null) {
             issueKey = issueSelectValue[0];
