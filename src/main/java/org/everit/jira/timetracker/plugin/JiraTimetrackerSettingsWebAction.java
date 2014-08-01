@@ -145,8 +145,8 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
             return ERROR;
         }
 
-        if (request.getParameter("savesettings") != null) {
-            String parseResult = parseSaveSettings(request);
+        if (getHttpRequest().getParameter("savesettings") != null) {
+            String parseResult = parseSaveSettings(getHttpRequest());
             if (parseResult != null) {
                 return parseResult;
             }
@@ -217,7 +217,7 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     }
 
     private void normalizeContextPath() {
-        String path = request.getContextPath();
+        String path = getHttpRequest().getContextPath();
         if ((path.length() > 0) && path.substring(path.length() - 1).equals("/")) {
             contextPath = path.substring(0, path.length() - 1);
         } else {
@@ -290,8 +290,8 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
         PluginSettingsValues pluginSettingValues = new PluginSettingsValues(
                 new CalendarSettingsValues(isPopup, isActualDate, excludeDates,
                         includeDates, isColoring, fdow), issuesPatterns,
-                        collectorIssuePatterns, Integer.valueOf(startTime),
-                        Integer.valueOf(endTime));
+                collectorIssuePatterns, Integer.valueOf(startTime),
+                Integer.valueOf(endTime));
         jiraTimetrackerPlugin.savePluginSettings(pluginSettingValues);
     }
 

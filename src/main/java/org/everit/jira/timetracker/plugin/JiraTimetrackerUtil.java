@@ -24,43 +24,16 @@ package org.everit.jira.timetracker.plugin;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import com.atlassian.crowd.embedded.api.User;
-import com.atlassian.jira.ComponentManager;
+import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.status.Status;
 import com.atlassian.jira.security.JiraAuthenticationContext;
+import com.atlassian.jira.user.ApplicationUser;
 
 /**
  * The Jira Timetracker plugin utils class.
  */
 public final class JiraTimetrackerUtil {
-    /**
-     * The plugin calendar popup code.
-     */
-    public static final int POPUP_CALENDAR_CODE = 1;
-    /**
-     * The plugin calendar inline code.
-     */
-    public static final int INLINE_CALENDAR_CODE = 2;
-    /**
-     * The plugin calendar both type code.
-     */
-    public static final int BOTH_TYPE_CALENDAR_CODE = 3;
-
-    /**
-     * Sunday first day of the week.
-     */
-    public static final int SUNDAY_CALENDAR_FDOW = 0;
-
-    /**
-     * Monday first day of the week.
-     */
-    public static final int MONDAY_CALENDAR_FDOW = 1;
-
-    public static final int DAY_INTERVAL = 0;
-    public static final int WEEK_INTERVAL = 1;
-    public static final int MONTH_INTERVAL = 2;
-
     /**
      * Check the issue original estimated time. If null then the original estimated time wasn't specified, else compare
      * the spent time whit the original estimated time.
@@ -96,13 +69,42 @@ public final class JiraTimetrackerUtil {
      * @return True if we have logged user else false.
      */
     public static boolean isUserLogged() {
-        JiraAuthenticationContext authenticationContext = ComponentManager.getInstance()
+        JiraAuthenticationContext authenticationContext = ComponentAccessor
                 .getJiraAuthenticationContext();
-        User user = authenticationContext.getLoggedInUser();
+        ApplicationUser user = authenticationContext.getUser();
         if (user == null) {
             return false;
         }
         return true;
     }
+
+    /**
+     * The plugin calendar popup code.
+     */
+    public static final int POPUP_CALENDAR_CODE = 1;
+
+    /**
+     * The plugin calendar inline code.
+     */
+    public static final int INLINE_CALENDAR_CODE = 2;
+
+    /**
+     * The plugin calendar both type code.
+     */
+    public static final int BOTH_TYPE_CALENDAR_CODE = 3;
+
+    /**
+     * Sunday first day of the week.
+     */
+    public static final int SUNDAY_CALENDAR_FDOW = 0;
+    /**
+     * Monday first day of the week.
+     */
+    public static final int MONDAY_CALENDAR_FDOW = 1;
+    public static final int DAY_INTERVAL = 0;
+
+    public static final int WEEK_INTERVAL = 1;
+
+    public static final int MONTH_INTERVAL = 2;
 
 }

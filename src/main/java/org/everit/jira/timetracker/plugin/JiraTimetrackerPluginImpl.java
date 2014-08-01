@@ -45,7 +45,6 @@ import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklogComparator;
 import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
 import org.ofbiz.core.entity.EntityCondition;
-import org.ofbiz.core.entity.EntityConditionList;
 import org.ofbiz.core.entity.EntityExpr;
 import org.ofbiz.core.entity.EntityOperator;
 import org.ofbiz.core.entity.GenericEntityException;
@@ -53,9 +52,6 @@ import org.ofbiz.core.entity.GenericValue;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
-import com.atlassian.core.ofbiz.CoreFactory;
-import com.atlassian.crowd.embedded.api.User;
-import com.atlassian.jira.ComponentManager;
 import com.atlassian.jira.bc.JiraServiceContext;
 import com.atlassian.jira.bc.JiraServiceContextImpl;
 import com.atlassian.jira.bc.issue.worklog.WorklogInputParameters;
@@ -63,8 +59,8 @@ import com.atlassian.jira.bc.issue.worklog.WorklogInputParametersImpl;
 import com.atlassian.jira.bc.issue.worklog.WorklogNewEstimateInputParameters;
 import com.atlassian.jira.bc.issue.worklog.WorklogResult;
 import com.atlassian.jira.bc.issue.worklog.WorklogService;
+import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.issue.Issue;
-import com.atlassian.jira.issue.IssueImpl;
 import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.worklog.Worklog;
@@ -73,8 +69,7 @@ import com.atlassian.jira.project.Project;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.PermissionManager;
 import com.atlassian.jira.security.Permissions;
-import com.atlassian.jira.user.UserUtils;
-import com.atlassian.jira.usercompatibility.UserCompatibilityHelper;
+import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.mail.MailException;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
@@ -83,7 +78,7 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
  * The implementation of the {@link JiraTimetrackerPlugin}.
  */
 public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
-        Serializable, InitializingBean, DisposableBean {
+Serializable, InitializingBean, DisposableBean {
 
     /**
      * Serial version UID.
@@ -252,53 +247,36 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
         return initialDelay;
     }
 
-    private List<EntityExpr> createConditionsOfIssuesWithPermission(final User user)
-            throws GenericEntityException {
+    private List<Long> createProjects(final ApplicationUser loggedInUser) {
+        List<Project> projects = (List<Project>) ComponentAccessor.getPermissionManager()
+                .getProjects(Permissions.BROWSE, loggedInUser);
 
-        List<Project> projects = (List<Project>) ComponentManager.getInstance().getPermissionManager()
-                .getProjectObjects(
-                        Permissions.BROWSE,
-                        user);
-        // Issues query
-        List<EntityExpr> issuesProjectExpr = new ArrayList<EntityExpr>();
-        EntityExpr projectExpr;
+        List<Long> projectList = new ArrayList<Long>();
         for (Project project : projects) {
-            projectExpr = new EntityExpr("project", EntityOperator.EQUALS, project.getId());
-            issuesProjectExpr.add(projectExpr);
-
+            projectList.add(project.getId());
         }
-        List<EntityExpr> issuesConditions = new ArrayList<EntityExpr>();
-        if (!issuesProjectExpr.isEmpty()) {
-            List<GenericValue> issueGvList = CoreFactory.getGenericDelegator().findByOr("Issue", issuesProjectExpr);
-            for (GenericValue issue : issueGvList) {
-                issuesConditions.add(new EntityExpr("issue", EntityOperator.EQUALS, issue.getLong("id")));
-            }
-        }
-        return issuesConditions;
+        return projectList;
     }
 
     @Override
     public ActionResult createWorklog(final String issueId,
             final String comment, final String dateFormated,
             final String startTime, final String timeSpent) {
-        JiraAuthenticationContext authenticationContext = ComponentManager
-                .getInstance().getJiraAuthenticationContext();
-        User user = authenticationContext.getLoggedInUser();
+        JiraAuthenticationContext authenticationContext = ComponentAccessor.getJiraAuthenticationContext();
+        ApplicationUser user = authenticationContext.getUser();
         log.warn("JTTP createWorklog: user: " + user.getDisplayName() + " "
                 + user.getName() + " " + user.getEmailAddress());
         JiraServiceContext serviceContext = new JiraServiceContextImpl(user);
         log.warn("JTTP createWorklog: serviceContext User: "
-                + serviceContext.getLoggedInUser().getName() + " "
-                + serviceContext.getLoggedInUser().getEmailAddress());
-        IssueManager issueManager = ComponentManager.getInstance()
-                .getIssueManager();
+                + user.getName() + " "
+                + user.getEmailAddress());
+        IssueManager issueManager = ComponentAccessor.getIssueManager();
         MutableIssue issue = issueManager.getIssueObject(issueId);
         if (issue == null) {
             return new ActionResult(ActionResultStatus.FAIL,
                     "plugin.invalid_issue", issueId);
         }
-        PermissionManager permissionManager = ComponentManager.getInstance()
-                .getPermissionManager();
+        PermissionManager permissionManager = ComponentAccessor.getPermissionManager();
         if (!permissionManager.hasPermission(Permissions.WORK_ISSUE, issue,
                 user)) {
             return new ActionResult(ActionResultStatus.FAIL,
@@ -316,8 +294,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
         WorklogNewEstimateInputParameters params = WorklogInputParametersImpl
                 .issue(issue).startDate(date).timeSpent(timeSpent)
                 .comment(comment).buildNewEstimate();
-        WorklogService worklogService = ComponentManager
-                .getComponentInstanceOfType(WorklogService.class);
+        WorklogService worklogService = ComponentAccessor.getComponent(WorklogService.class);
         WorklogResult worklogResult = worklogService.validateCreate(
                 serviceContext, params);
         if (worklogResult == null) {
@@ -331,54 +308,73 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
                 "plugin.worklog.create.success");
     }
 
-    private List<EntityExpr> createWorklogQueryExprList(final String selectedUser, final User user,
-            final Date startDate, final Date endDate) throws GenericEntityException {
-        String userKey = "";
-        if ((selectedUser == null) || selectedUser.equals("")) {
-            userKey = UserCompatibilityHelper.getKeyForUser(user);
-        } else {
-            userKey = selectedUser;
-        }
-        // TODO userKey is okey. check auth user permissions!
-        List<EntityExpr> issuesConditions = createConditionsOfIssuesWithPermission(user);
-        EntityCondition issueCond = new EntityConditionList(issuesConditions, EntityOperator.OR);
+    private List<EntityCondition> createWorklogQueryExprList(final ApplicationUser user,
+            final Calendar startDate, final Calendar endDate) {
+
+        String userKey = user.getKey();
 
         EntityExpr startExpr = new EntityExpr("startdate",
                 EntityOperator.GREATER_THAN_EQUAL_TO, new Timestamp(
-                        startDate.getTime()));
+                        startDate.getTimeInMillis()));
         EntityExpr endExpr = new EntityExpr("startdate",
-                EntityOperator.LESS_THAN, new Timestamp(endDate.getTime()));
+                EntityOperator.LESS_THAN, new Timestamp(endDate.getTimeInMillis()));
         EntityExpr userExpr = new EntityExpr("author", EntityOperator.EQUALS,
                 userKey);
-        log.warn("JTTP LOG: getWorklogs start date: " + startDate.toString()
+        log.info("JTTP LOG: getWorklogs start date: " + startDate.toString()
                 + " end date:" + endDate.toString());
 
-        List<EntityExpr> exprList = new ArrayList<EntityExpr>();
-        EntityExpr userAndIssueExpr = new EntityExpr(userExpr, EntityOperator.AND, issueCond);
-        // TODO this is conflict! we use almost the same expr diffrent name an place.... not realy cool
-        exprList.add(userAndIssueExpr);
+        List<EntityCondition> exprList = new ArrayList<EntityCondition>();
+        exprList.add(userExpr);
         if (startExpr != null) {
             exprList.add(startExpr);
         }
         if (endExpr != null) {
             exprList.add(endExpr);
         }
-        EntityCondition dateAndUserCond = new EntityConditionList(exprList, EntityOperator.AND);
-        EntityExpr finalExpression = new EntityExpr(dateAndUserCond, EntityOperator.AND, issueCond);
+        return exprList;
+    }
 
-        List<EntityExpr> finalExprList = new ArrayList<EntityExpr>();
-        finalExprList.add(finalExpression);
-        return finalExprList;
+    private List<EntityCondition> createWorklogQueryExprListWithPermissionCheck(final String selectedUser,
+            final ApplicationUser loggedInUser,
+            final Calendar startDate, final Calendar endDate) throws GenericEntityException {
+        String userKey = "";
+        if ((selectedUser == null) || selectedUser.equals("")) {
+            userKey = loggedInUser.getKey();
+        } else {
+            userKey = selectedUser;
+        }
+
+        List<Long> projects = createProjects(loggedInUser);
+
+        EntityExpr startExpr = new EntityExpr("startdate",
+                EntityOperator.GREATER_THAN_EQUAL_TO, new Timestamp(
+                        startDate.getTimeInMillis()));
+        EntityExpr endExpr = new EntityExpr("startdate",
+                EntityOperator.LESS_THAN, new Timestamp(endDate.getTimeInMillis()));
+        EntityExpr userExpr = new EntityExpr("author", EntityOperator.EQUALS,
+                userKey);
+        EntityExpr projectExpr = new EntityExpr("project", EntityOperator.IN, projects);
+        log.info("JTTP LOG: getWorklogs start date: " + startDate.toString()
+                + " end date:" + endDate.toString());
+
+        List<EntityCondition> exprList = new ArrayList<EntityCondition>();
+        exprList.add(userExpr);
+        if (startExpr != null) {
+            exprList.add(startExpr);
+        }
+        if (endExpr != null) {
+            exprList.add(endExpr);
+        }
+        exprList.add(projectExpr);
+        return exprList;
     }
 
     @Override
     public ActionResult deleteWorklog(final Long id) {
-        JiraAuthenticationContext authenticationContext = ComponentManager
-                .getInstance().getJiraAuthenticationContext();
-        User user = authenticationContext.getLoggedInUser();
+        JiraAuthenticationContext authenticationContext = ComponentAccessor.getJiraAuthenticationContext();
+        ApplicationUser user = authenticationContext.getUser();
         JiraServiceContext serviceContext = new JiraServiceContextImpl(user);
-        WorklogService worklogService = ComponentManager
-                .getComponentInstanceOfType(WorklogService.class);
+        WorklogService worklogService = ComponentAccessor.getComponent(WorklogService.class);
         WorklogResult deleteWorklogResult = worklogService.validateDelete(
                 serviceContext, id);
         if (deleteWorklogResult == null) {
@@ -402,24 +398,20 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
     public ActionResult editWorklog(final Long id, final String issueId,
             final String comment, final String dateFormated, final String time,
             final String timeSpent) {
-        JiraAuthenticationContext authenticationContext = ComponentManager
-                .getInstance().getJiraAuthenticationContext();
-        User user = authenticationContext.getLoggedInUser();
+        JiraAuthenticationContext authenticationContext = ComponentAccessor.getJiraAuthenticationContext();
+        ApplicationUser user = authenticationContext.getUser();
         JiraServiceContext serviceContext = new JiraServiceContextImpl(user);
 
-        WorklogManager worklogManager = ComponentManager.getInstance()
-                .getWorklogManager();
+        WorklogManager worklogManager = ComponentAccessor.getWorklogManager();
         Worklog worklog = worklogManager.getById(id);
-        IssueManager issueManager = ComponentManager.getInstance()
-                .getIssueManager();
+        IssueManager issueManager = ComponentAccessor.getIssueManager();
         MutableIssue issue = issueManager.getIssueObject(issueId);
         if (issue == null) {
             return new ActionResult(ActionResultStatus.FAIL,
                     "plugin.invalide_issue", issueId);
         }
         if (!worklog.getIssue().getKey().equals(issueId)) {
-            PermissionManager permissionManager = ComponentManager
-                    .getInstance().getPermissionManager();
+            PermissionManager permissionManager = ComponentAccessor.getPermissionManager();
             if (!permissionManager.hasPermission(Permissions.WORK_ISSUE, issue,
                     user)) {
                 return new ActionResult(ActionResultStatus.FAIL,
@@ -453,8 +445,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
             WorklogInputParameters params = WorklogInputParametersImpl
                     .issue(issue).startDate(dateCreate).timeSpent(timeSpent)
                     .comment(comment).worklogId(id).issue(issue).build();
-            WorklogService worklogService = ComponentManager
-                    .getComponentInstanceOfType(WorklogService.class);
+            WorklogService worklogService = ComponentAccessor.getComponent(WorklogService.class);
             WorklogResult worklogResult = worklogService.validateUpdate(
                     serviceContext, params);
             if (worklogResult == null) {
@@ -477,7 +468,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
         // one week
         scannedDate.set(Calendar.DAY_OF_YEAR,
                 scannedDate.get(Calendar.DAY_OF_YEAR)
-                        - DateTimeConverterUtil.DAYS_PER_WEEK);
+                - DateTimeConverterUtil.DAYS_PER_WEEK);
         for (int i = 0; i < DateTimeConverterUtil.DAYS_PER_WEEK; i++) {
             // convert date to String
             Date scanedDateDate = scannedDate.getTime();
@@ -523,10 +514,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
     @Override
     public List<Date> getDates(final String selectedUser, final Date from, final Date to,
             final boolean workingHour, final boolean checkNonWorking)
-            throws GenericEntityException {
-        JiraAuthenticationContext authenticationContext = ComponentManager
-                .getInstance().getJiraAuthenticationContext();
-        User user = authenticationContext.getLoggedInUser();
+                    throws GenericEntityException {
         List<Date> datesWhereNoWorklog = new ArrayList<Date>();
         while (!from.equals(to)) {
             String scanedDateString = DateTimeConverterUtil.dateToString(to);
@@ -570,7 +558,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
             // not? .... think about it.
             if (exludeDate.startsWith(date.substring(0, 7))) {
                 resultexcludeDays
-                        .add(exludeDate.substring(exludeDate.length() - 2));
+                .add(exludeDate.substring(exludeDate.length() - 2));
             }
         }
 
@@ -584,14 +572,13 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
 
     @Override
     public List<Issue> getIssues() throws GenericEntityException {
-        List<GenericValue> issuesGV = null;
-        issuesGV = CoreFactory.getGenericDelegator().findAll("Issue");
+        // List<GenericValue> issuesGV = null;
+        // issuesGV = ComponentAccessor.getOfBizDelegator().findAll("Issue");
         List<Issue> issues = new ArrayList<Issue>();
-        for (GenericValue issueGV : issuesGV) {
-            issues.add(IssueImpl.getIssueObject(issueGV));
-        }
+        // for (GenericValue issueGV : issuesGV) {
+        // issues.add(IssueImpl.getIssueObject(issueGV));
+        // }
         return issues;
-
     }
 
     @Override
@@ -600,9 +587,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
         List<String> resultDays = new ArrayList<String>();
         int dayOfMonth = 1;
         Calendar startCalendar = Calendar.getInstance();
-        startCalendar.set(Calendar.YEAR, date.getYear()
-                + DateTimeConverterUtil.BEGIN_OF_YEAR);
-        startCalendar.set(Calendar.MONTH, date.getMonth());
+        startCalendar.setTime(date);
         startCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
         Date start = startCalendar.getTime();
 
@@ -620,8 +605,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
     @Override
     public List<String> getProjectsId() throws GenericEntityException {
         List<String> projectsId = new ArrayList<String>();
-        List<GenericValue> projectsGV = CoreFactory.getGenericDelegator()
-                .findAll("Project");
+        List<GenericValue> projectsGV = ComponentAccessor.getOfBizDelegator().findAll("Project");
         for (GenericValue project : projectsGV) {
             projectsId.add(project.getString("id"));
         }
@@ -630,94 +614,44 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
 
     @Override
     public EveritWorklog getWorklog(final Long worklogId) throws ParseException {
-        WorklogManager worklogManager = ComponentManager.getInstance()
-                .getWorklogManager();
+        WorklogManager worklogManager = ComponentAccessor.getWorklogManager();
         Worklog worklog = worklogManager.getById(worklogId);
         return new EveritWorklog(worklog);
     }
 
     @Override
-    public List<EveritWorklog> getWorklogs(final Date date, final String userEmail)
-            throws GenericEntityException, ParseException {
-
-        User selectedUser = UserUtils.getUserByEmail(userEmail);
-        log.warn("JTTP LOG: getWorklogs user display: "
-                + selectedUser.getDisplayName()
-                + " user name: " + selectedUser.getName());
-        String selectedUserKey = UserCompatibilityHelper.getKeyForUser(selectedUser);
-        JiraAuthenticationContext authenticationContext = ComponentManager
-                .getInstance().getJiraAuthenticationContext();
-        User user = authenticationContext.getLoggedInUser();
-
-        Calendar startDate = Calendar.getInstance();
-        startDate.setTime(date);
-        startDate.set(Calendar.HOUR_OF_DAY, 0);
-        startDate.set(Calendar.MINUTE, 0);
-        startDate.set(Calendar.SECOND, 0);
-        startDate.set(Calendar.MILLISECOND, 0);
-
+    public List<EveritWorklog> getWorklogs(final String selectedUser, final Date date, final Date finalDate)
+            throws ParseException, GenericEntityException {
+        Calendar startDate = DateTimeConverterUtil.setDateToDayStart(date);
         Calendar endDate = (Calendar) startDate.clone();
-        endDate.set(Calendar.HOUR_OF_DAY,
-                DateTimeConverterUtil.LAST_HOUR_OF_DAY);
-        endDate.set(Calendar.MINUTE,
-                DateTimeConverterUtil.LAST_MINUTE_OF_HOUR);
-        endDate.set(Calendar.SECOND,
-                DateTimeConverterUtil.LAST_SECOND_OF_MINUTE);
-        endDate.set(Calendar.MILLISECOND,
-                DateTimeConverterUtil.LAST_MILLISECOND_OF_SECOND);
-
-        List<EntityExpr> exprList = createWorklogQueryExprList(selectedUserKey, user, startDate.getTime(),
-                endDate.getTime());
-        log.warn("JTTP LOG: getWorklogs expr list size: " + exprList.size());
-        List<GenericValue> worklogGVList = CoreFactory.getGenericDelegator()
-                .findByAnd("Worklog", exprList);
-        log.warn("JTTP LOG: getWorklogs worklog GV list size: "
-                + worklogGVList.size());
-
-        List<EveritWorklog> worklogs = new ArrayList<EveritWorklog>();
-        for (GenericValue worklogGv : worklogGVList) {
-            EveritWorklog worklog = new EveritWorklog(worklogGv,
-                    collectorIssuePatterns);
-            worklogs.add(worklog);
+        if (finalDate == null) {
+            endDate.add(Calendar.DAY_OF_MONTH, 1);
+        } else {
+            endDate = DateTimeConverterUtil.setDateToDayStart(finalDate);
+            endDate.add(Calendar.DAY_OF_MONTH, 1);
         }
 
-        Collections.sort(worklogs, new EveritWorklogComparator());
-        log.warn("JTTP LOG: getWorklogs worklog GV list size: "
-                + worklogs.size());
-        return worklogs;
-    }
-
-    @Override
-    public List<EveritWorklog> getWorklogs(final String selectedUser, final Date date)
-            throws GenericEntityException, ParseException {
-        JiraAuthenticationContext authenticationContext = ComponentManager
-                .getInstance().getJiraAuthenticationContext();
-        User user = authenticationContext.getLoggedInUser();
-        log.warn("JTTP LOG: getWorklogs user display: " + user.getDisplayName()
-                + " user name: " + user.getName());
-
-        Calendar startDate = Calendar.getInstance();
-        startDate.setTime(date);
-        startDate.set(Calendar.HOUR_OF_DAY, 0);
-        startDate.set(Calendar.MINUTE, 0);
-        startDate.set(Calendar.SECOND, 0);
-        startDate.set(Calendar.MILLISECOND, 0);
-
-        Calendar endDate = (Calendar) startDate.clone();
-        endDate.add(Calendar.DAY_OF_MONTH, 1);
-
-        List<EntityExpr> exprList = createWorklogQueryExprList(selectedUser, user, startDate.getTime(),
-                endDate.getTime());
-        log.warn("JTTP LOG: getWorklogs expr list size: " + exprList.size());
-        List<GenericValue> worklogGVList = CoreFactory.getGenericDelegator()
-                .findByAnd("Worklog", exprList);
-        log.warn("JTTP LOG: getWorklogs worklog GV list size: "
-                + worklogGVList.size());
-
         List<EveritWorklog> worklogs = new ArrayList<EveritWorklog>();
+
+        JiraAuthenticationContext authenticationContext = ComponentAccessor.getJiraAuthenticationContext();
+        ApplicationUser loggedInUser = authenticationContext.getUser();
+
+        String userKey = "";
+        if ((selectedUser == null) || selectedUser.equals("")) {
+            userKey = loggedInUser.getKey();
+        } else {
+            userKey = selectedUser;
+        }
+
+        List<EntityCondition> exprList = createWorklogQueryExprListWithPermissionCheck(userKey, loggedInUser,
+                startDate, endDate);
+
+        List<GenericValue> worklogGVList = ComponentAccessor.getOfBizDelegator()
+                .findByAnd("IssueWorklogView", exprList);
+        log.warn("JTTP LOG: getWorklogs worklog GV list size: " + worklogGVList.size());
+
         for (GenericValue worklogGv : worklogGVList) {
-            EveritWorklog worklog = new EveritWorklog(worklogGv,
-                    collectorIssuePatterns);
+            EveritWorklog worklog = new EveritWorklog(worklogGv, collectorIssuePatterns);
             worklogs.add(worklog);
         }
 
@@ -741,24 +675,16 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
      */
     private boolean isContainsEnoughWorklog(final String selectedUser, final Date date,
             final boolean checkNonWorking) throws GenericEntityException {
-        JiraAuthenticationContext authenticationContext = ComponentManager
-                .getInstance().getJiraAuthenticationContext();
-        User user = authenticationContext.getLoggedInUser();
+        JiraAuthenticationContext authenticationContext = ComponentAccessor.getJiraAuthenticationContext();
+        ApplicationUser user = authenticationContext.getUser();
 
-        Date startDate = (Date) date.clone();
-        startDate.setHours(0);
-        startDate.setMinutes(0);
-        startDate.setSeconds(0);
-        Date endDate = (Date) date.clone();
-        endDate.setHours(DateTimeConverterUtil.LAST_HOUR_OF_DAY);
-        endDate.setMinutes(DateTimeConverterUtil.LAST_MINUTE_OF_HOUR);
-        endDate.setSeconds(DateTimeConverterUtil.LAST_SECOND_OF_MINUTE);
+        Calendar startDate = DateTimeConverterUtil.setDateToDayStart(date);
+        Calendar endDate = (Calendar) startDate.clone();
+        endDate.add(Calendar.DAY_OF_MONTH, 1);
 
-        List<EntityExpr> exprList = createWorklogQueryExprList(selectedUser, user, startDate,
-                endDate);
+        List<EntityCondition> exprList = createWorklogQueryExprList(user, startDate, endDate);
 
-        List<GenericValue> worklogGVList = CoreFactory.getGenericDelegator()
-                .findByAnd("Worklog", exprList);
+        List<GenericValue> worklogGVList = ComponentAccessor.getOfBizDelegator().findByAnd("Worklog", exprList);
         if ((worklogGVList == null) || worklogGVList.isEmpty()) {
             return false;
         } else {
@@ -772,8 +698,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
                 if ((summaryFilteredIssuePatterns != null)
                         && !summaryFilteredIssuePatterns.isEmpty()) {
                     for (GenericValue worklog : worklogsCopy) {
-                        IssueManager issueManager = ComponentManager
-                                .getInstance().getIssueManager();
+                        IssueManager issueManager = ComponentAccessor.getIssueManager();
                         Long issueId = worklog.getLong("issue");
                         MutableIssue issue = issueManager
                                 .getIssueObject(issueId);
@@ -812,24 +737,17 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
      */
     private boolean isContainsWorklog(final String selectedUser, final Date date)
             throws GenericEntityException {
-        JiraAuthenticationContext authenticationContext = ComponentManager
-                .getInstance().getJiraAuthenticationContext();
-        User user = authenticationContext.getLoggedInUser();
+        JiraAuthenticationContext authenticationContext = ComponentAccessor.getJiraAuthenticationContext();
+        ApplicationUser user = authenticationContext.getUser();
 
-        Date startDate = (Date) date.clone();
-        startDate.setHours(0);
-        startDate.setMinutes(0);
-        startDate.setSeconds(0);
-        Date endDate = (Date) date.clone();
-        endDate.setHours(DateTimeConverterUtil.LAST_HOUR_OF_DAY);
-        endDate.setMinutes(DateTimeConverterUtil.LAST_MINUTE_OF_HOUR);
-        endDate.setSeconds(DateTimeConverterUtil.LAST_SECOND_OF_MINUTE);
+        Calendar startDate = DateTimeConverterUtil.setDateToDayStart(date);
+        Calendar endDate = (Calendar) startDate.clone();
+        endDate.add(Calendar.DAY_OF_MONTH, 1);
 
-        List<EntityExpr> exprList = createWorklogQueryExprList(selectedUser, user, startDate,
+        List<EntityCondition> exprList = createWorklogQueryExprList(user, startDate,
                 endDate);
 
-        List<GenericValue> worklogGVList = CoreFactory.getGenericDelegator()
-                .findByAnd("Worklog", exprList);
+        List<GenericValue> worklogGVList = ComponentAccessor.getOfBizDelegator().findByAnd("Worklog", exprList);
         if ((worklogGVList == null) || worklogGVList.isEmpty()) {
             return false;
         } else {
@@ -860,9 +778,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
 
     @Override
     public PluginSettingsValues loadPluginSettings() {
-        JiraAuthenticationContext authenticationContext = ComponentManager
-                .getInstance().getJiraAuthenticationContext();
-        User user = authenticationContext.getLoggedInUser();
+        JiraAuthenticationContext authenticationContext = ComponentAccessor.getJiraAuthenticationContext();
+        ApplicationUser user = authenticationContext.getUser();
 
         globalSettings = settingsFactory.createGlobalSettings();
         List<String> tempIssuePatternList = (List<String>) globalSettings
@@ -953,18 +870,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
             // the default is the popup calendar
             isPopup = JiraTimetrackerUtil.POPUP_CALENDAR_CODE;
         }
-        // if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_FDOW) != null) {
-        // try {
-        // fdow = Integer.valueOf(pluginSettings.get(
-        // JTTP_PLUGIN_SETTINGS_FDOW).toString());
-        // } catch (NumberFormatException e) {
-        // // the default fdow is sunday in the calendar
-        // fdow = JiraTimetrackerUtil.SUNDAY_CALENDAR_FDOW;
-        // }
-        // } else {
-        // // the default is the popup calendar
-        // fdow = JiraTimetrackerUtil.SUNDAY_CALENDAR_FDOW;
-        // }
         Boolean isActualDate = null;
         if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_IS_ACTUAL_DATE) != null) {
             if (pluginSettings.get(JTTP_PLUGIN_SETTINGS_IS_ACTUAL_DATE).equals(
@@ -987,7 +892,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
                     .equals("false")) {
                 isColoring = false;
             }
-
         } else {
             // the default coloring is TRUE
             isColoring = true;
@@ -1029,17 +933,16 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
         pluginSettingsValues = new PluginSettingsValues(
                 new CalendarSettingsValues(isPopup, isActualDate,
                         excludeDatesString, includeDatesString, isColoring, fdow),
-                summaryFilteredIssuePatterns, collectorIssuePatterns,
-                startTimeChange, endTimeChange);
+                        summaryFilteredIssuePatterns, collectorIssuePatterns,
+                        startTimeChange, endTimeChange);
         return pluginSettingsValues;
     }
 
     @Override
     public void savePluginSettings(
             final PluginSettingsValues pluginSettingsParameters) {
-        JiraAuthenticationContext authenticationContext = ComponentManager
-                .getInstance().getJiraAuthenticationContext();
-        User user = authenticationContext.getLoggedInUser();
+        JiraAuthenticationContext authenticationContext = ComponentAccessor.getJiraAuthenticationContext();
+        ApplicationUser user = authenticationContext.getUser();
         pluginSettings = settingsFactory
                 .createSettingsForKey(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
                         + user.getName());
@@ -1052,9 +955,9 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
         pluginSettings.put(JTTP_PLUGIN_SETTINGS_IS_COLORIG,
                 pluginSettingsParameters.isColoring().toString());
         pluginSettings
-                .put(JTTP_PLUGIN_SETTINGS_START_TIME_CHANGE,
-                        Integer.toString(pluginSettingsParameters
-                                .getStartTimeChange()));
+        .put(JTTP_PLUGIN_SETTINGS_START_TIME_CHANGE,
+                Integer.toString(pluginSettingsParameters
+                        .getStartTimeChange()));
         pluginSettings.put(JTTP_PLUGIN_SETTINGS_END_TIME_CHANGE,
                 Integer.toString(pluginSettingsParameters.getEndTimeChange()));
 
@@ -1095,26 +998,29 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
     @Override
     public String summary(final String selectedUser, final Date startSummary, final Date finishSummary,
             final List<Pattern> issuePatterns) throws GenericEntityException {
-        JiraAuthenticationContext authenticationContext = ComponentManager
-                .getInstance().getJiraAuthenticationContext();
-        User user = authenticationContext.getLoggedInUser();
-        startSummary.setSeconds(0);
-        finishSummary.setSeconds(0);
+        JiraAuthenticationContext authenticationContext = ComponentAccessor.getJiraAuthenticationContext();
+        ApplicationUser user = authenticationContext.getUser();
 
-        List<EntityExpr> exprList = createWorklogQueryExprList(selectedUser, user,
-                startSummary, finishSummary);
+        Calendar start = Calendar.getInstance();
+        start.setTime(startSummary);
+        Calendar finish = Calendar.getInstance();
+        finish.setTime(finishSummary);
+
+        // List<EntityExpr> exprList = createWorklogQueryExprList(selectedUser, user,
+        // startSummary, finishSummary);
+        List<EntityCondition> exprList = createWorklogQueryExprList(user,
+                start, finish);
 
         List<GenericValue> worklogs;
         // worklog query
-        worklogs = CoreFactory.getGenericDelegator().findByAnd("Worklog",
+        worklogs = ComponentAccessor.getOfBizDelegator().findByAnd("Worklog",
                 exprList);
         List<GenericValue> worklogsCopy = new ArrayList<GenericValue>();
         worklogsCopy.addAll(worklogs);
         // if we have non-estimated issues
         if ((issuePatterns != null) && !issuePatterns.isEmpty()) {
             for (GenericValue worklog : worklogsCopy) {
-                IssueManager issueManager = ComponentManager.getInstance()
-                        .getIssueManager();
+                IssueManager issueManager = ComponentAccessor.getIssueManager();
                 Long issueId = worklog.getLong("issue");
                 MutableIssue issue = issueManager.getIssueObject(issueId);
                 for (Pattern issuePattern : issuePatterns) {

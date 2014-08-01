@@ -21,6 +21,7 @@ package org.everit.jira.timetracker.plugin;
  * MA 02110-1301  USA
  */
 
+import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -36,10 +37,12 @@ import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.ofbiz.core.entity.GenericEntityException;
 
 import com.atlassian.crowd.embedded.api.User;
-import com.atlassian.jira.ComponentManager;
 import com.atlassian.jira.avatar.Avatar;
 import com.atlassian.jira.avatar.AvatarService;
+import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.exception.DataAccessException;
 import com.atlassian.jira.security.JiraAuthenticationContext;
+import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.user.UserUtils;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
 
@@ -93,12 +96,8 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     private String currentUser = "";
 
     private String avatarURL = "";
-    /**
-     * Jira Componentmanager instance.
-     */
-    private ComponentManager componentManager = ComponentManager.getInstance();
 
-    private User userPickerObject;
+    private ApplicationUser userPickerObject;
 
     /**
      * Simple constructor.
@@ -153,15 +152,15 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
         allUsers = new ArrayList<User>(UserUtils.getAllUsers());
         Collections.sort(allUsers);
 
-        JiraAuthenticationContext authenticationContext = componentManager.getJiraAuthenticationContext();
-        currentUser = authenticationContext.getLoggedInUser().getName();
+        JiraAuthenticationContext authenticationContext = ComponentAccessor.getJiraAuthenticationContext();
+        currentUser = authenticationContext.getUser().getName();
         setUserPickerObjectBasedOnSelectedUser();
 
         return INPUT;
     }
 
     @Override
-    public String doExecute() throws ParseException {
+    public String doExecute() throws ParseException, GenericEntityException {
         boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
         if (!isUserLogged) {
             setReturnUrl("/secure/Dashboard.jspa");
@@ -175,7 +174,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
         allUsers = new ArrayList<User>(UserUtils.getAllUsers());
         Collections.sort(allUsers);
 
-        currentUser = request.getParameterValues("userPicker")[0];
+        currentUser = getHttpRequest().getParameterValues("userPicker")[0];
 
         if (dateFromFormated.equals("")) {
             dateFromDefaultInit();
@@ -184,12 +183,12 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
             dateToDefaultInit();
         }
         if ((currentUser == null) || currentUser.equals("")) {
-            JiraAuthenticationContext authenticationContext = componentManager.getJiraAuthenticationContext();
-            currentUser = authenticationContext.getLoggedInUser().getName();
+            JiraAuthenticationContext authenticationContext = ComponentAccessor.getJiraAuthenticationContext();
+            currentUser = authenticationContext.getUser().getName();
         }
         setUserPickerObjectBasedOnSelectedUser();
 
-        String dateFrom = request.getParameterValues("dateFrom")[0];
+        String dateFrom = getHttpRequest().getParameterValues("dateFrom")[0];
         if ((dateFrom != null) && !dateFrom.equals("")) {
             dateFromFormated = dateFrom;
         }
@@ -200,7 +199,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
         Calendar startDate = Calendar.getInstance();
         startDate.setTime(DateTimeConverterUtil.stringToDate(dateFrom));
 
-        String dateTo = request.getParameterValues("dateTo")[0];
+        String dateTo = getHttpRequest().getParameterValues("dateTo")[0];
         if ((dateTo != null) && !dateTo.equals("")) {
             dateToFormated = dateTo;
         }
@@ -216,21 +215,16 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
         Calendar lastDate = (Calendar) startDate.clone();
         lastDate.setTime(DateTimeConverterUtil.stringToDate(dateTo));
-        lastDate.set(Calendar.HOUR_OF_DAY, 0);
-        lastDate.set(Calendar.MINUTE, 0);
-        lastDate.set(Calendar.SECOND, 0);
-        lastDate.set(Calendar.MILLISECOND, 0);
-        lastDate.add(Calendar.DAY_OF_MONTH, 1);
 
         List<EveritWorklog> worklogs = new ArrayList<EveritWorklog>();
-        while (startDate.before(lastDate)) {
-            try {
-                worklogs.addAll(jiraTimetrackerPlugin.getWorklogs(currentUser, startDate.getTime()));
-            } catch (GenericEntityException e) {
-                LOGGER.error("Error when trying to get worklogs.", e);
-                return ERROR;
-            }
-            startDate.add(Calendar.DATE, 1);
+        try {
+            worklogs.addAll(jiraTimetrackerPlugin.getWorklogs(currentUser, startDate.getTime(), lastDate.getTime()));
+        } catch (DataAccessException e) {
+            LOGGER.error("Error when trying to get worklogs.", e);
+            return ERROR;
+        } catch (SQLException e) {
+            LOGGER.error("Error when trying to get worklogs.", e);
+            return ERROR;
         }
 
         Map<String, Long> map = new HashMap<String, Long>();
@@ -287,12 +281,12 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
         return message;
     }
 
-    public User getUserPickerObject() {
+    public ApplicationUser getUserPickerObject() {
         return userPickerObject;
     }
 
     private void normalizeContextPath() {
-        String path = request.getContextPath();
+        String path = getHttpRequest().getContextPath();
         if ((path.length() > 0) && path.substring(path.length() - 1).equals("/")) {
             contextPath = path.substring(0, path.length() - 1);
         } else {
@@ -336,16 +330,16 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
         this.message = message;
     }
 
-    public void setUserPickerObject(final User userPickerObject) {
+    public void setUserPickerObject(final ApplicationUser userPickerObject) {
         this.userPickerObject = userPickerObject;
     }
 
     private void setUserPickerObjectBasedOnSelectedUser() {
         if ((currentUser != null) && !currentUser.equals("")) {
-            userPickerObject = componentManager.getUserUtil().getUserObject(currentUser);
-            AvatarService avatarService = ComponentManager
-                    .getComponentInstanceOfType(AvatarService.class);
-            setAvatarURL(avatarService.getAvatarURL(userPickerObject, currentUser, Avatar.Size.SMALL).toString());
+            userPickerObject = ComponentAccessor.getUserUtil().getUserByName(currentUser);
+            AvatarService avatarService = ComponentAccessor.getComponent(AvatarService.class);
+            setAvatarURL(avatarService.getAvatarURL(ComponentAccessor.getJiraAuthenticationContext().getUser(),
+                    userPickerObject, Avatar.Size.SMALL).toString());
         } else {
             userPickerObject = null;
         }

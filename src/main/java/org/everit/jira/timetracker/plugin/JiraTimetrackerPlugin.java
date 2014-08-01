@@ -21,6 +21,7 @@ package org.everit.jira.timetracker.plugin;
  * MA 02110-1301  USA
  */
 
+import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
@@ -31,6 +32,7 @@ import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
 import org.ofbiz.core.entity.GenericEntityException;
 
+import com.atlassian.jira.exception.DataAccessException;
 import com.atlassian.jira.issue.Issue;
 
 /**
@@ -179,22 +181,6 @@ public interface JiraTimetrackerPlugin {
     EveritWorklog getWorklog(Long worklogId) throws ParseException;
 
     /**
-     * Give back all worklog of the given day with the specified user.
-     *
-     * @param date
-     *            The date.
-     * @param userEmail
-     *            The email address of the user.
-     * @return The list of the date all worklogs.
-     * @throws GenericEntityException
-     *             GenericEntityException .
-     * @throws ParseException
-     *             When can't parse the worklog date.
-     */
-    List<EveritWorklog> getWorklogs(Date date, String userEmail) throws GenericEntityException,
-    ParseException;
-
-    /**
      * Give back the days all worklog of the selectedUser. If selectedUser null or empty the actual logged in user will
      * used.
      *
@@ -208,8 +194,9 @@ public interface JiraTimetrackerPlugin {
      * @throws ParseException
      *             When can't parse the worklog date.
      */
-    List<EveritWorklog> getWorklogs(String selectedUser, Date date) throws GenericEntityException,
-    ParseException;
+    List<EveritWorklog> getWorklogs(String selectedUser, Date startDate, Date endDate) throws DataAccessException,
+    SQLException,
+    ParseException, GenericEntityException;
 
     /**
      * Give back the biggest end time of the date after worklogs method. Or give back 08:00.
