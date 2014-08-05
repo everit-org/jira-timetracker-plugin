@@ -86,7 +86,7 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
  * The implementation of the {@link JiraTimetrackerPlugin}.
  */
 public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
-Serializable, InitializingBean, DisposableBean {
+        Serializable, InitializingBean, DisposableBean {
 
     /**
      * Serial version UID.
@@ -478,13 +478,13 @@ Serializable, InitializingBean, DisposableBean {
         // one week
         scannedDate.set(Calendar.DAY_OF_YEAR,
                 scannedDate.get(Calendar.DAY_OF_YEAR)
-                - DateTimeConverterUtil.DAYS_PER_WEEK);
+                        - DateTimeConverterUtil.DAYS_PER_WEEK);
         for (int i = 0; i < DateTimeConverterUtil.DAYS_PER_WEEK; i++) {
             // convert date to String
             Date scanedDateDate = scannedDate.getTime();
             String scanedDateString = DateTimeConverterUtil
                     .dateToString(scanedDateDate);
-            // check excludse - pass
+            // check exclude - pass
             if (excludeDatesSet.contains(scanedDateString)) {
                 scannedDate.set(Calendar.DAY_OF_YEAR,
                         scannedDate.get(Calendar.DAY_OF_YEAR) + 1);
@@ -524,7 +524,7 @@ Serializable, InitializingBean, DisposableBean {
     @Override
     public List<Date> getDates(final String selectedUser, final Date from, final Date to,
             final boolean workingHour, final boolean checkNonWorking)
-                    throws GenericEntityException {
+            throws GenericEntityException {
         List<Date> datesWhereNoWorklog = new ArrayList<Date>();
         while (!from.equals(to)) {
             String scanedDateString = DateTimeConverterUtil.dateToString(to);
@@ -568,7 +568,7 @@ Serializable, InitializingBean, DisposableBean {
             // not? .... think about it.
             if (exludeDate.startsWith(date.substring(0, 7))) {
                 resultexcludeDays
-                .add(exludeDate.substring(exludeDate.length() - 2));
+                        .add(exludeDate.substring(exludeDate.length() - 2));
             }
         }
 
@@ -616,8 +616,7 @@ Serializable, InitializingBean, DisposableBean {
     @Override
     public List<String> getProjectsId() throws GenericEntityException {
         List<String> projectsId = new ArrayList<String>();
-        List<GenericValue> projectsGV = CoreFactory.getGenericDelegator()
-                .findAll("Project");
+        List<GenericValue> projectsGV = CoreFactory.getGenericDelegator().findAll("Project");
         for (GenericValue project : projectsGV) {
             projectsId.add(project.getString("id"));
         }
@@ -657,8 +656,6 @@ Serializable, InitializingBean, DisposableBean {
         if ((selectedUser == null) || selectedUser.equals("")) {
             userKey = UserCompatibilityHelper.getKeyForUser(loggedInUser);
         } else {
-            log.error("soooo " + selectedUser + " and " + UserCompatibilityHelper.getKeyForUser(loggedInUser) + " is "
-                    + selectedUser.equals(UserCompatibilityHelper.getKeyForUser(loggedInUser)));
             if (!selectedUser.equals(UserCompatibilityHelper.getKeyForUser(loggedInUser))) {
                 needPermissionCheck = true;
             }
@@ -676,7 +673,7 @@ Serializable, InitializingBean, DisposableBean {
             projects = createProjects(loggedInUser);
 
             StringBuilder projectsPreparedParams = new StringBuilder();
-            for (Long project : projects) {
+            for (int i = 0; i < projects.size(); i++) {
                 projectsPreparedParams.append("?,");
             }
             if (projectsPreparedParams.length() > 0) {
@@ -740,8 +737,7 @@ Serializable, InitializingBean, DisposableBean {
         List<EntityExpr> exprList = createWorklogQueryExprList(user, startDate,
                 endDate);
 
-        List<GenericValue> worklogGVList = CoreFactory.getGenericDelegator()
-                .findByAnd("Worklog", exprList);
+        List<GenericValue> worklogGVList = CoreFactory.getGenericDelegator().findByAnd("Worklog", exprList);
         if ((worklogGVList == null) || worklogGVList.isEmpty()) {
             return false;
         } else {
@@ -806,8 +802,7 @@ Serializable, InitializingBean, DisposableBean {
         List<EntityExpr> exprList = createWorklogQueryExprList(user, startDate,
                 endDate);
 
-        List<GenericValue> worklogGVList = CoreFactory.getGenericDelegator()
-                .findByAnd("Worklog", exprList);
+        List<GenericValue> worklogGVList = CoreFactory.getGenericDelegator().findByAnd("Worklog", exprList);
         if ((worklogGVList == null) || worklogGVList.isEmpty()) {
             return false;
         } else {
@@ -1007,8 +1002,8 @@ Serializable, InitializingBean, DisposableBean {
         pluginSettingsValues = new PluginSettingsValues(
                 new CalendarSettingsValues(isPopup, isActualDate,
                         excludeDatesString, includeDatesString, isColoring, fdow),
-                        summaryFilteredIssuePatterns, collectorIssuePatterns,
-                        startTimeChange, endTimeChange);
+                summaryFilteredIssuePatterns, collectorIssuePatterns,
+                startTimeChange, endTimeChange);
         return pluginSettingsValues;
     }
 
@@ -1030,9 +1025,9 @@ Serializable, InitializingBean, DisposableBean {
         pluginSettings.put(JTTP_PLUGIN_SETTINGS_IS_COLORIG,
                 pluginSettingsParameters.isColoring().toString());
         pluginSettings
-        .put(JTTP_PLUGIN_SETTINGS_START_TIME_CHANGE,
-                Integer.toString(pluginSettingsParameters
-                        .getStartTimeChange()));
+                .put(JTTP_PLUGIN_SETTINGS_START_TIME_CHANGE,
+                        Integer.toString(pluginSettingsParameters
+                                .getStartTimeChange()));
         pluginSettings.put(JTTP_PLUGIN_SETTINGS_END_TIME_CHANGE,
                 Integer.toString(pluginSettingsParameters.getEndTimeChange()));
 
@@ -1086,8 +1081,7 @@ Serializable, InitializingBean, DisposableBean {
 
         List<GenericValue> worklogs;
         // worklog query
-        worklogs = CoreFactory.getGenericDelegator().findByAnd("Worklog",
-                exprList);
+        worklogs = CoreFactory.getGenericDelegator().findByAnd("Worklog", exprList);
         List<GenericValue> worklogsCopy = new ArrayList<GenericValue>();
         worklogsCopy.addAll(worklogs);
         // if we have non-estimated issues
