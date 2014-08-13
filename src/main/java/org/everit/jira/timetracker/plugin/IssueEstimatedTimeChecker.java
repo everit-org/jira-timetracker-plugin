@@ -30,13 +30,11 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.ofbiz.core.entity.EntityCondition;
 import org.ofbiz.core.entity.EntityExpr;
 import org.ofbiz.core.entity.EntityOperator;
-import org.ofbiz.core.entity.GenericEntityException;
 import org.ofbiz.core.entity.GenericValue;
 
-import com.atlassian.core.ofbiz.CoreFactory;
-import com.atlassian.jira.ComponentManager;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.config.properties.APKeys;
 import com.atlassian.jira.issue.IssueManager;
@@ -66,7 +64,7 @@ public class IssueEstimatedTimeChecker implements Runnable {
 
     /**
      * Simple constructor.
-     * 
+     *
      * @param emailSender
      *            TThe email address of the sender, come from the plugin properties file.
      */
@@ -76,13 +74,13 @@ public class IssueEstimatedTimeChecker implements Runnable {
 
     /**
      * Create the mail body String.
-     * 
+     *
      * @param issue
      *            The issue object.
      * @return The email body.
      */
     private String createBodyString(final MutableIssue issue) {
-        String baseURL = ComponentManager.getInstance().getApplicationProperties().getString(APKeys.JIRA_BASEURL);
+        String baseURL = ComponentAccessor.getApplicationProperties().getString(APKeys.JIRA_BASEURL);
         String bodyString = "Work was logged on issue " + issue.getKey() + " without remaining time."
                 + "\n"
                 + "\n" + "The issue summary: " + issue.getSummary()
@@ -115,7 +113,7 @@ public class IssueEstimatedTimeChecker implements Runnable {
         EntityExpr endExpr =
                 new EntityExpr("updated", EntityOperator.LESS_THAN, new Timestamp(end.getTime()));
 
-        List<EntityExpr> exprList = new ArrayList<EntityExpr>();
+        List<EntityCondition> exprList = new ArrayList<EntityCondition>();
         if (startExpr != null) {
             exprList.add(startExpr);
         }
@@ -123,25 +121,21 @@ public class IssueEstimatedTimeChecker implements Runnable {
             exprList.add(endExpr);
         }
         Set<Long> issueIdSet = null;
-        try {
-            List<GenericValue> worklogGVList = CoreFactory.getGenericDelegator().findByAnd("Worklog", exprList);
-            issueIdSet = new HashSet<Long>();
-            for (GenericValue worklogGv : worklogGVList) {
-                Long issueId = new Long(worklogGv.getString("issue"));
-                issueIdSet.add(issueId);
-            }
-        } catch (GenericEntityException e) {
-            LOGGER.info("Error when try to make a worklog query. ", e);
+        List<GenericValue> worklogGVList = ComponentAccessor.getOfBizDelegator().findByAnd("Worklog", exprList);
+        issueIdSet = new HashSet<Long>();
+        for (GenericValue worklogGv : worklogGVList) {
+            Long issueId = new Long(worklogGv.getString("issue"));
+            issueIdSet.add(issueId);
         }
 
-        IssueManager issueManager = ComponentManager.getInstance().getIssueManager();
+        IssueManager issueManager = ComponentAccessor.getIssueManager();
         for (Long issueId : issueIdSet) {
             MutableIssue issueObject = issueManager.getIssueObject(issueId);
             if (!JiraTimetrackerUtil.checkIssueEstimatedTime(issueObject,
                     jiraTimetrackerPlugin.getCollectorIssuePatterns())) {
                 // send mail
                 sendNotificationEmail(issueObject.getReporterUser().getEmailAddress(), issueObject.getProjectObject()
-                        .getLeadUser().getEmailAddress(), issueObject);
+                        .getProjectLead().getEmailAddress(), issueObject);
             }
         }
 
@@ -149,7 +143,7 @@ public class IssueEstimatedTimeChecker implements Runnable {
 
     /**
      * Create and send a notification mail.
-     * 
+     *
      * @param issueReporter
      *            The mail address where have to send the notification.
      * @param issue

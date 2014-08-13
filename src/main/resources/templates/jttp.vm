@@ -184,7 +184,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 								<option selected="selected"
 								  		data-field-text="$userPickerObject.getDisplayName()"
 								  		style="background-image:url('$avatarURL')" 
-								  		value="$userPickerObject.getName()">
+								  		value="$userPickerObject.getKey()">
 								  	$userPickerObject.getDisplayName()
 								 </option>
 							 #end

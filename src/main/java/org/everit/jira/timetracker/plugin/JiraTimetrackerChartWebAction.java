@@ -153,7 +153,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
         Collections.sort(allUsers);
 
         JiraAuthenticationContext authenticationContext = ComponentAccessor.getJiraAuthenticationContext();
-        currentUser = authenticationContext.getUser().getName();
+        currentUser = authenticationContext.getUser().getKey();
         setUserPickerObjectBasedOnSelectedUser();
 
         return INPUT;
@@ -184,7 +184,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
         }
         if ((currentUser == null) || currentUser.equals("")) {
             JiraAuthenticationContext authenticationContext = ComponentAccessor.getJiraAuthenticationContext();
-            currentUser = authenticationContext.getUser().getName();
+            currentUser = authenticationContext.getUser().getKey();
         }
         setUserPickerObjectBasedOnSelectedUser();
 
@@ -336,7 +336,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
     private void setUserPickerObjectBasedOnSelectedUser() {
         if ((currentUser != null) && !currentUser.equals("")) {
-            userPickerObject = ComponentAccessor.getUserUtil().getUserByName(currentUser);
+            userPickerObject = ComponentAccessor.getUserUtil().getUserByKey(currentUser);
             AvatarService avatarService = ComponentAccessor.getComponent(AvatarService.class);
             setAvatarURL(avatarService.getAvatarURL(ComponentAccessor.getJiraAuthenticationContext().getUser(),
                     userPickerObject, Avatar.Size.SMALL).toString());
