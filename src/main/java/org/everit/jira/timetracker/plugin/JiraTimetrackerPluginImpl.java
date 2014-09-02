@@ -255,31 +255,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
         return initialDelay;
     }
 
-    private List<EntityExpr> createConditionsOfIssuesWithPermission(final User user)
-            throws GenericEntityException {
-
-        List<Project> projects = (List<Project>) ComponentManager.getInstance().getPermissionManager()
-                .getProjectObjects(
-                        Permissions.BROWSE,
-                        user);
-        // Issues query
-        List<EntityExpr> issuesProjectExpr = new ArrayList<EntityExpr>();
-        EntityExpr projectExpr;
-        for (Project project : projects) {
-            projectExpr = new EntityExpr("project", EntityOperator.EQUALS, project.getId());
-            issuesProjectExpr.add(projectExpr);
-
-        }
-        List<EntityExpr> issuesConditions = new ArrayList<EntityExpr>();
-        if (!issuesProjectExpr.isEmpty()) {
-            List<GenericValue> issueGvList = CoreFactory.getGenericDelegator().findByOr("Issue", issuesProjectExpr);
-            for (GenericValue issue : issueGvList) {
-                issuesConditions.add(new EntityExpr("issue", EntityOperator.EQUALS, issue.getLong("id")));
-            }
-        }
-        return issuesConditions;
-    }
-
     private List<Long> createProjects(final User loggedInUser) {
         List<Project> projects = (List<Project>) ComponentManager.getInstance().getPermissionManager()
                 .getProjectObjects(
@@ -645,8 +620,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
 
         boolean needPermissionCheck = false;
 
-        String schemaName = new DefaultOfBizConnectionFactory().getDatasourceInfo().getSchemaName();
-
         List<EveritWorklog> worklogs = new ArrayList<EveritWorklog>();
 
         JiraAuthenticationContext authenticationContext = ComponentManager.getInstance().getJiraAuthenticationContext();
@@ -662,9 +635,20 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
             userKey = selectedUser;
         }
 
+        String schemaName = new DefaultOfBizConnectionFactory().getDatasourceInfo().getSchemaName();
+        String worklogTablename = "";
+        String issueTablename = "";
+        if ((schemaName != null) && !schemaName.equals("")) {
+            worklogTablename = schemaName + ".worklog";
+            issueTablename = schemaName + ".jiraissue";
+        } else {
+            worklogTablename = "worklog";
+            issueTablename = "jiraissue";
+        }
+
         String query = "SELECT worklog.id, worklog.startdate, worklog.issueid, worklog.timeworked, worklog.worklogbody"
-                + " FROM " + schemaName + ".project, " + schemaName + ".worklog, " + schemaName + ".jiraissue"
-                + " WHERE jiraissue.project=project.id AND worklog.issueid=jiraissue.id"
+                + " FROM " + worklogTablename + ", " + issueTablename
+                + " WHERE worklog.issueid=jiraissue.id"
                 + " AND worklog.startdate>=? AND worklog.startdate<?"
                 + " AND worklog.author=?";
 
@@ -680,7 +664,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
                 projectsPreparedParams.deleteCharAt(projectsPreparedParams.length() - 1);
             }
 
-            query += " AND project.ID IN (" + projectsPreparedParams.toString() + ")";
+            query += " AND jiraissue.project IN (" + projectsPreparedParams.toString() + ")";
         }
 
         Connection conn = new DefaultOfBizConnectionFactory().getConnection();

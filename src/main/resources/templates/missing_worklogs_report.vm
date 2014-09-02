@@ -47,7 +47,7 @@
 }
 
 .item-header {
-	margin: 12px 12px 0 12px;
+padding: 12px 12px 0 16px !important;
 	min-height: 48px;
 	position: relative;
 	padding-left: 5px;
