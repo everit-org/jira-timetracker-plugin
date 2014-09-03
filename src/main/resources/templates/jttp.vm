@@ -13,6 +13,9 @@
     .rowAlter {
         background-color:#F2F2F2;
     }
+    .rowEdit {
+        background-color:#FFEAAE;
+    }
     .button {
         padding: 2px;
     }
@@ -632,7 +635,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 		    	</tbody>
 		    </table>
 			#if($isEdit)
-				<input id="Edit"  type="submit" name="edit" value="$i18n.getText('plugin.save')" class="button" tabindex="5"/>
+				<input id="Edit"  type="submit" name="edit" value="$i18n.getText('plugin.save')" class="button" tabindex="5" />
 			#elseif($isEditAll)
 				<input id="editallsave"  type="submit" name="editallsave" value="$i18n.getText('plugin.save')" class="button" />	
 				##set input fields disable
@@ -692,6 +695,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 		 	var temp = new String(AJS.$(this).find('a').html());
 		 	AJS.$('#issueSelect-textarea').val(temp.trim());
 		 	AJS.$('#issueSelect-textarea').focus();
+		 	AJS.$('#Edit').focus();
 		 	AJS.$('#Submit').focus();
 		 });
 		 

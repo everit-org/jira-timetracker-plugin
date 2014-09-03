@@ -440,8 +440,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
         normalizeContextPath();
 
-        BuildUtilsInfo component = ComponentAccessor
-                .getComponent(BuildUtilsInfo.class);
+        BuildUtilsInfo component = ComponentAccessor.getComponent(BuildUtilsInfo.class);
         String version = component.getVersion();
 
         String[] versionSplit = version.split("\\.");
@@ -504,11 +503,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
             return editAllAction();
         }
 
-        String validateInputFieldsResult = validateInputFields();
-        if (validateInputFieldsResult.equals(ERROR)) {
-            return SUCCESS;
-        }
-
         if (issueSelectValue == null) {
             message = "plugin.missing_issue";
             return SUCCESS;
@@ -516,6 +510,11 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
         if (getHttpRequest().getParameter("edit") != null) {
             return editAction();
+        }
+
+        String validateInputFieldsResult = validateInputFields();
+        if (validateInputFieldsResult.equals(ERROR)) {
+            return SUCCESS;
         }
 
         ActionResult createResult = jiraTimetrackerPlugin.createWorklog(
@@ -541,15 +540,22 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     /**
      * Edit the worklog and handle the problems.
      *
-     * @return String witch will be passed to the WebAction.
+     * @return String which will be passed to the WebAction.
      */
     public String editAction() {
         String[] startTimeValue = getHttpRequest().getParameterValues("startTime");
+        startTime = startTimeValue[0];
+        String validateInputFieldsResult = validateInputFields();
+        if (validateInputFieldsResult.equals(ERROR)) {
+            isEdit = true;
+            return SUCCESS;
+        }
         ActionResult updateResult = jiraTimetrackerPlugin.editWorklog(
                 editedWorklogId, issueKey, commentForActions, dateFormated,
                 startTimeValue[0], timeSpent);
         if (updateResult.getStatus() == ActionResultStatus.FAIL) {
             message = updateResult.getMessage();
+            isEdit = true;
             return SUCCESS;
         }
         try {
@@ -824,7 +830,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
      * @throws DataAccessException
      */
     private void loadWorklogsAndMakeSummary() throws GenericEntityException,
-            ParseException, DataAccessException, SQLException {
+    ParseException, DataAccessException, SQLException {
         try {
             loggedDays = jiraTimetrackerPlugin
                     .getLoggedDaysOfTheMonth(selectedUser, date);
@@ -873,9 +879,9 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
         startCalendar = (Calendar) originalStartcalendar.clone();
         startCalendar
-                .set(Calendar.DAY_OF_MONTH,
-                        (date.getDate() - (date.getDay() == 0 ? 6 : date
-                                .getDay() - 1)));
+        .set(Calendar.DAY_OF_MONTH,
+                (date.getDate() - (date.getDay() == 0 ? 6 : date
+                        .getDay() - 1)));
         start = startCalendar.getTime();
 
         endCalendar = (Calendar) originalEndCcalendar.clone();
@@ -926,7 +932,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
      *             ClassNotFoundException.
      */
     private void readObject(final ObjectInputStream in) throws IOException,
-            ClassNotFoundException {
+    ClassNotFoundException {
         in.defaultReadObject();
         issues = new ArrayList<Issue>();
     }
