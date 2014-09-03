@@ -510,11 +510,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
             return editAllAction();
         }
 
-        String validateInputFieldsResult = validateInputFields();
-        if (validateInputFieldsResult.equals(ERROR)) {
-            return SUCCESS;
-        }
-
         if (issueSelectValue == null) {
             message = "plugin.missing_issue";
             return SUCCESS;
@@ -522,6 +517,11 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
         if (request.getParameter("edit") != null) {
             return editAction();
+        }
+
+        String validateInputFieldsResult = validateInputFields();
+        if (validateInputFieldsResult.equals(ERROR)) {
+            return SUCCESS;
         }
 
         ActionResult createResult = jiraTimetrackerPlugin.createWorklog(
@@ -551,11 +551,18 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
      */
     public String editAction() {
         String[] startTimeValue = request.getParameterValues("startTime");
+        startTime = startTimeValue[0];
+        String validateInputFieldsResult = validateInputFields();
+        if (validateInputFieldsResult.equals(ERROR)) {
+            isEdit = true;
+            return SUCCESS;
+        }
         ActionResult updateResult = jiraTimetrackerPlugin.editWorklog(
                 editedWorklogId, issueKey, commentForActions, dateFormated,
                 startTimeValue[0], timeSpent);
         if (updateResult.getStatus() == ActionResultStatus.FAIL) {
             message = updateResult.getMessage();
+            isEdit = true;
             return SUCCESS;
         }
         try {
@@ -835,7 +842,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
      * @throws DataAccessException
      */
     private void loadWorklogsAndMakeSummary() throws GenericEntityException,
-    ParseException, DataAccessException, SQLException {
+            ParseException, DataAccessException, SQLException {
         try {
             loggedDays = jiraTimetrackerPlugin
                     .getLoggedDaysOfTheMonth(selectedUser, date);
@@ -879,9 +886,9 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
         startCalendar = (Calendar) originalStartcalendar.clone();
         startCalendar
-        .set(Calendar.DAY_OF_MONTH,
-                (date.getDate() - (date.getDay() == 0 ? 6 : date
-                        .getDay() - 1)));
+                .set(Calendar.DAY_OF_MONTH,
+                        (date.getDate() - (date.getDay() == 0 ? 6 : date
+                                .getDay() - 1)));
         start = startCalendar.getTime();
 
         endCalendar = (Calendar) originalEndCalendar.clone();
@@ -932,7 +939,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
      *             ClassNotFoundException.
      */
     private void readObject(final ObjectInputStream in) throws IOException,
-    ClassNotFoundException {
+            ClassNotFoundException {
         in.defaultReadObject();
         issues = new ArrayList<Issue>();
     }

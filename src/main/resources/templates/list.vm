@@ -48,7 +48,7 @@ cursor:pointer;
                     #else
                     	<tbody id="issueTable">
 		                   	#foreach ($worklog in $worklogs)
-		                    	<tr #if($rowCount % 2 != 0) class="rowAlter" #end>
+		                    	<tr #if($worklog.worklogId == $editedWorklogId) class="rowEdit" #end #if($rowCount % 2 != 0) class="rowAlter" #end>
 		                    	 	<td class="table-issue" style="vertical-align: middle;">
 		                    	 		<a href="/browse/$worklog.issue" class="issue-link" title="#if($worklog.issueParent != '') $i18n.getText('plugin.parent.issue') $worklog.issueParent &#13 $worklog.issueSummary #else $worklog.issueSummary #end">$worklog.issue</a>
 		                    	 		
