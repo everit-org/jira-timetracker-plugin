@@ -252,6 +252,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
     private ApplicationUser userPickerObject;
 
+    private boolean isDurationSelected = false;
+
     /**
      * Simple constructor.
      *
@@ -497,7 +499,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
         }
         selectedUser = "";
         userPickerObject = null;
-        // componentManager.getJiraAuthenticationContext().getLoggedInUser();
         // edit all save before the input fields validate
         if (getHttpRequest().getParameter("editallsave") != null) {
             return editAllAction();
@@ -505,7 +506,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
         if (issueSelectValue == null) {
             message = "plugin.missing_issue";
-            return SUCCESS;
+            return ERROR;
         }
 
         if (getHttpRequest().getParameter("edit") != null) {
@@ -514,7 +515,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
         String validateInputFieldsResult = validateInputFields();
         if (validateInputFieldsResult.equals(ERROR)) {
-            return SUCCESS;
+            return ERROR;
         }
 
         ActionResult createResult = jiraTimetrackerPlugin.createWorklog(
@@ -523,13 +524,14 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
         if (createResult.getStatus() == ActionResultStatus.FAIL) {
             message = createResult.getMessage();
             messageParameter = createResult.getMessageParameter();
-            return SUCCESS;
+            return ERROR;
         }
         try {
             loadWorklogsAndMakeSummary();
             startTime = jiraTimetrackerPlugin.lastEndTime(worklogs);
             endTime = DateTimeConverterUtil.dateTimeToString(new Date());
             comment = "";
+            isDurationSelected = false;
         } catch (Exception e) {
             LOGGER.error("Error when try set the plugin variables.", e);
             return ERROR;
@@ -568,6 +570,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
             return ERROR;
         }
         editedWorklogId = DEFAULT_WORKLOG_ID;
+        isDurationSelected = false;
         return SUCCESS;
     }
 
@@ -682,6 +685,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
     public boolean getIsColoring() {
         return isColoring;
+    }
+
+    public boolean getIsDurationSelected() {
+        return isDurationSelected;
     }
 
     public boolean getIsEdit() {
@@ -1022,6 +1029,12 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
         String[] durationTimeValue = getHttpRequest().getParameterValues("durationTime");
         // String[] startTimeValue = getHttpRequest().getParameterValues("startTime");
         String[] commentsValue = getHttpRequest().getParameterValues("comments");
+        String[] endOrDurationValue = getHttpRequest().getParameterValues("endOrDuration");
+
+        if ((endOrDurationValue != null) && "duration".equals(endOrDurationValue[0])) {
+            isDurationSelected = true;
+        }
+
         if (issueSelectValue != null) {
             issueKey = issueSelectValue[0];
         }
@@ -1054,6 +1067,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
             }
         }
         return null;
+    }
+
+    public void setIsDurationSelected(final boolean isDurationSelected) {
+        this.isDurationSelected = isDurationSelected;
     }
 
     public void setIssueKey(final String issueKey) {
