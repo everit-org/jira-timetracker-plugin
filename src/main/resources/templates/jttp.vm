@@ -33,7 +33,8 @@
     
     input[type="text"]:disabled
 	{
-		background:#D3D3D3;
+		background:#D3D3D3!important;
+		background-color:#D3D3D3!important;
 	}
    
     .calendar tbody td.logged{
@@ -302,14 +303,16 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 						                		</td>
 						                		<td style="width: 110px;">
 							                		<div style="width: 110px;" >
-						                				<input id="radioEnd" type="radio" name="endOrDuration" value="end" style="margin-right: 10px" checked="true" onclick="this.form.durationTime.readOnly=true;this.form.durationTime.disabled=true;this.form.endTime.readOnly=false;this.form.endTime.disabled=false;"> $i18n.getText("plugin.end.time")
+														<input id="radioEnd" type="radio" name="endOrDuration" value="end" checked="true" style="display: none;"> 
+						                				$i18n.getText("plugin.end.time")
 						                			</div>
 						                		</td>
 						                		<td>
 						                		</td>
 						                		<td style="width: 120px">
 						                			<div style="width: 120px;" >
-						                				<input id="radioDuration" type="radio" name="endOrDuration" value="duration" style="margin-right: 10px" onclick="this.form.endTime.readOnly=true;this.form.endTime.disabled=true;this.form.durationTime.readOnly=false;this.form.durationTime.disabled=false;" > $i18n.getText("plugin.duration.time")
+														<input id="radioDuration" type="radio" name="endOrDuration" value="duration" style="display: none;">
+						                				$i18n.getText("plugin.duration.time")
 						                			</div>
 						                		</td>
 						                	 	<td width="auto">
@@ -399,8 +402,19 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 													</script>
 						                        </td>
 												<td  style="width: 110px">
-						                    	 	<input id="endTime"  type="text" name="endTime" value="$endTime" tabindex="2" onkeydown="return checkSEndTimeEnter(event);" style="margin-right: 5px; width: 100px"/> 
-						                    	 	<script>
+													<span style="position:relative;">
+						                    	 		<input id="endTime"  type="text" name="endTime" value="$endTime" tabindex="2" onkeydown="return checkSEndTimeEnter(event);" style="margin-right: 5px; width: 100px"/> 
+						                    	 		<div id="endTimeInput" style="position:absolute; left:0; right:0; top:0; bottom:0; cursor: pointer;" ></div>
+						                    	  	</span>						                    	 	
+						                    	  	<script>
+						                    	  	  AJS.$("#endTimeInput").click(function (evt) {
+						                    	 	      #if(!$isEditAll)
+														    AJS.$(this).hide().prev().removeAttr("disabled").focus();
+														    AJS.$("#durationTimeInput").show().prev("input").attr("disabled", "disabled");
+														    AJS.$("#radioEnd").attr("checked", true);
+														  #end
+														});
+
 							                           function checkSEndTimeEnter(event){
 														    if (event.keyCode == 13) {
 														      AJS.$("#issueSelect-textarea").focus();
@@ -499,8 +513,25 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 													</script>
 						                    	 </td>
 						                    	 <td  style="width: 120px" >
-						                    	 	<input id="durationTime"  type="text" name="durationTime" tabindex="2" disabled value="$durationTime" onkeydown="return checkDurationTimeEnter(event);" style="width: 100px"/>
-						                    		<script>
+													<span style="position:relative;">
+ 						                    	 		<input id="durationTime"  type="text" name="durationTime" tabindex="2" disabled value="$durationTime" onkeydown="return checkDurationTimeEnter(event);" style="width: 100px"/>
+						                    			<div id="durationTimeInput" style="position:absolute; left:0; right:0; top:0; bottom:0; cursor: pointer;" ></div>
+						                    	  	</span>
+						                    	  <script>
+						                    	  		#if($isDurationSelected)
+															AJS.$("#durationTimeInput").hide().prev("input[disabled]").removeAttr("disabled").focus();
+															AJS.$("#endTimeInput").show().prev("input").attr("disabled", "disabled");
+															AJS.$("#radioDuration").attr("checked", true);
+														#end
+														
+										                AJS.$("#durationTimeInput").click(function (evt) {
+										                	#if(!$isEditAll)
+														    	AJS.$(this).hide().prev("input[disabled]").removeAttr("disabled").focus();
+														    	AJS.$("#endTimeInput").show().prev("input").attr("disabled", "disabled");
+														    	AJS.$("#radioDuration").attr("checked", true);
+															#end
+														});
+
 							                           function checkDurationTimeEnter(event){
 														    if (event.keyCode == 13) {
 														      AJS.$("#issueSelect-textarea").focus();
@@ -642,10 +673,8 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 				<script>
 				document.getElementById("startTime").disabled= true;
 				document.getElementById("startNow").disabled= true;
-				document.getElementById("radioEnd").disabled= true;
 				document.getElementById("endTime").disabled= true;
 				document.getElementById("endNow").disabled= true;
-				document.getElementById("radioDuration").disabled= true;
 				document.getElementById("durationTime").disabled= true;
 				document.getElementById("issueSelect-textarea").disabled= true;
 				document.getElementById("issueSelect-textarea").disabled= true;
