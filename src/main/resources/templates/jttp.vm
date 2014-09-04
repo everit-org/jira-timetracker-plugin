@@ -409,9 +409,9 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 						                    	  	<script>
 						                    	  	  AJS.$("#endTimeInput").click(function (evt) {
 						                    	 	      #if(!$isEditAll)
-														    AJS.$(this).hide().prev().prop("disabled", false).focus();
-														    AJS.$("#durationTimeInput").show().prev("input").prop("disabled", true);
-														    AJS.$("#radioEnd").prop("checked", true);
+														    AJS.$(this).hide().prev().removeAttr("disabled").focus();
+														    AJS.$("#durationTimeInput").show().prev("input").attr("disabled", "disabled");
+														    AJS.$("#radioEnd").attr("checked", true);
 														  #end
 														});
 
@@ -519,16 +519,16 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 						                    	  	</span>
 						                    	  <script>
 						                    	  		#if($isDurationSelected)
-															AJS.$("#durationTimeInput").hide().prev("input[disabled]").prop("disabled", false).focus();
-															AJS.$("#endTimeInput").show().prev("input").prop("disabled", true);
-															AJS.$("#radioDuration").prop("checked", true);
+															AJS.$("#durationTimeInput").hide().prev("input[disabled]").removeAttr("disabled").focus();
+															AJS.$("#endTimeInput").show().prev("input").attr("disabled", "disabled");
+															AJS.$("#radioDuration").attr("checked", true);
 														#end
 														
 										                AJS.$("#durationTimeInput").click(function (evt) {
 										                	#if(!$isEditAll)
-														    	AJS.$(this).hide().prev("input[disabled]").prop("disabled", false).focus();
-														    	AJS.$("#endTimeInput").show().prev("input").prop("disabled", true);
-														    	AJS.$("#radioDuration").prop("checked", true);
+														    	AJS.$(this).hide().prev("input[disabled]").removeAttr("disabled").focus();
+														    	AJS.$("#endTimeInput").show().prev("input").attr("disabled", "disabled");
+														    	AJS.$("#radioDuration").attr("checked", true);
 															#end
 														});
 
