@@ -404,14 +404,14 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 						                        </td>
 												<td  style="width: 110px">
 													<span style="position:relative;">
-						                    	 		<input id="endTime"  type="text" name="endTime" value="$endTime" tabindex="2" onkeydown="return checkSEndTimeEnter(event);" style="margin-right: 5px; width: 100px"/> 
-						                    	 		<div id="endTimeInput" style="position:absolute; left:0; right:0; top:0; bottom:0; cursor: pointer;" ></div>
+						                    	 		<input id="endTime"  type="text" name="endTime" value="$endTime" tabindex="2" onkeydown="return checkSEndTimeEnter(event);" style="margin-right: 5px; width: 100px;"/> 
+						                    	 		<div id="endTimeInput" style="position:absolute; left:0; right:0; top:0; bottom:0;" ></div>
 						                    	  	</span>
 						                    	 	<script>
 						                    	 	   AJS.$("#endTimeInput").click(function (evt) {
 						                    	 	      #if(!$isEditAll)
-														    AJS.$(this).hide().prev().prop("disabled", false).focus();
-														    AJS.$("#durationTimeInput").show().prev("input").prop("disabled", true);
+														    AJS.$(this).css("cursor","text").hide().prev().prop("disabled", false).css("cursor","text").focus();
+														    AJS.$("#durationTimeInput").css("cursor","pointer").show().prev("input").prop("disabled", true).css("cursor","pointer");
 														    AJS.$("#radioEnd").prop("checked", true);
 														  #end
 														});
@@ -516,19 +516,22 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 						                    	 <td  style="width: 120px" >
 						                    	  <span style="position:relative;">
 						                    	 	<input id="durationTime"  type="text" name="durationTime" tabindex="2" disabled value="$durationTime" onkeydown="return checkDurationTimeEnter(event);" style="width: 100px"/>
-						                    		<div id="durationTimeInput" style="position:absolute; left:0; right:0; top:0; bottom:0; cursor: pointer;" ></div>
+						                    		<div id="durationTimeInput" style="position:absolute; left:0; right:0; top:0; bottom:0;" ></div>
 						                    	  </span>
 						                    		<script>
 							                    		#if($isDurationSelected)
-															AJS.$("#durationTimeInput").hide().prev("input[disabled]").prop("disabled", false).focus();
-															AJS.$("#endTimeInput").show().prev("input").prop("disabled", true);
+															AJS.$("#durationTimeInput").css("cursor","text").hide().prev("input[disabled]").prop("disabled", false).css("cursor","text").focus();
+															AJS.$("#endTimeInput").css("cursor","pointer").show().prev("input").prop("disabled", true).css("cursor","pointer");
 															AJS.$("#radioDuration").prop("checked", true);
+														#else
+															AJS.$("#endTimeInput").css("cursor","text");
+															AJS.$("#durationTimeInput").css("cursor","pointer");
 														#end
 														
 										                AJS.$("#durationTimeInput").click(function (evt) {
 										                 #if(!$isEditAll)
-														    AJS.$(this).hide().prev("input[disabled]").prop("disabled", false).focus();
-														    AJS.$("#endTimeInput").show().prev("input").prop("disabled", true);
+														    AJS.$(this).css("cursor","text").hide().prev("input[disabled]").prop("disabled", false).css("cursor","text").focus();
+														    AJS.$("#endTimeInput").css("cursor","pointer").show().prev("input").prop("disabled", true).css("cursor","pointer");
 														    AJS.$("#radioDuration").prop("checked", true);
 														 #end
 														});
@@ -665,6 +668,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 						            </div>
 		            			</td>
 		    	</tbody>
+		    	#datePopup(${field} "${field}_trigger_c" $dateTimeFormat $dateFormat $timeFormat $dateTimePicker $currentMillis )
 		    </table>
 			#if($isEdit)
 				<input id="Edit"  type="submit" name="edit" value="$i18n.getText('plugin.save')" class="button" tabindex="5" />
