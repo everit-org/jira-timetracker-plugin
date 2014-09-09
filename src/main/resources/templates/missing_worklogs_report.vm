@@ -116,12 +116,12 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 									firstDay : $currentCalendar.firstDayOfWeek -1,
 									inputField : 'dateFrom',
 									button : 'date_trigger_from',
-									date : '$dateFromFormated',
+									date : '$dateFormated',
 									align : 'Br',
-									electric : false,
+									electric: false,
 									singleClick : true,
-									showOthers : true,
-									useISO8601WeekNumbers : false,
+									showOthers: true,
+									useISO8601WeekNumbers : $currentCalendar.useISO8601,
 									ifFormat : '%Y-%m-%d'
 								});
 					</script>
@@ -148,7 +148,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 										electric : false,
 										singleClick : true,
 										showOthers : true,
-										useISO8601WeekNumbers : false,
+										useISO8601WeekNumbers : $currentCalendar.useISO8601,
 										ifFormat : '%Y-%m-%d'
 									});
 					</script>

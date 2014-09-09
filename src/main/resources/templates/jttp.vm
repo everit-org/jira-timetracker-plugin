@@ -148,6 +148,11 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 					#elseif($isEditAll) action="JiraTimetrackerWebAction.jspa?editAllIds=$editAllIds&dateFormated=$dateFormated" 
 					#else action="JiraTimetrackerWebAction.jspa?dateFormated=$dateFormated" #end/>   
 	#set($rendererType = "atlassian-wiki-renderer")
+	#if($currentCalendar.useISO8601 == true)
+		#set ($firstDay = 1)
+	#else
+		#set ($firstDay = 0)
+	#end
 	<div id="plugin_head" class="item-header" style="width:980px;">
 			<div style="float: right;">
 				<a href="http://www.everit.org/jira-timetracker-plugin/" target="_blank">
@@ -634,15 +639,14 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 						            		<script>
 											##This is the not popup calendar. Works but not nice
 											Calendar.setup({
-												firstDay : $currentCalendar.firstDayOfWeek -1,
-												align : 'Br',
-												electric: true,
+												firstDay : $firstDay,
 												date : '$dateFormated',
+												align : 'Br',
 												singleClick : true,
 												showOthers: true,
-												useISO8601WeekNumbers : $currentCalendar.useISO8601,
 												flat: 'not_popup_calendar',
 												flatCallback: dateChanged,
+												useISO8601WeekNumbers : $currentCalendar.useISO8601,
 												ifFormat : '%Y-%m-%d'
 											});
 											function dateChanged(calendar)

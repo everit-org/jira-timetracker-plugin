@@ -101,7 +101,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 									electric: false,
 									singleClick : true,
 									showOthers: true,
-									useISO8601WeekNumbers : false,
+									useISO8601WeekNumbers : $currentCalendar.useISO8601,
 									ifFormat : '%Y-%m-%d'
 								});
 								</script>
@@ -133,7 +133,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 									electric: false,
 									singleClick : true,
 									showOthers: true,
-									useISO8601WeekNumbers : false,
+									useISO8601WeekNumbers : $currentCalendar.useISO8601,
 									ifFormat : '%Y-%m-%d'
 								});
 								</script>
