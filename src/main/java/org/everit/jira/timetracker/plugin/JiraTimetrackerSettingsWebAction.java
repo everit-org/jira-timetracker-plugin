@@ -213,7 +213,6 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
         startTime = Integer.toString(pluginSettingsValues.getStartTimeChange());
         endTime = Integer.toString(pluginSettingsValues.getEndTimeChange());
         isColoring = pluginSettingsValues.isColoring();
-        fdow = pluginSettingsValues.getFdow();
     }
 
     private void normalizeContextPath() {
@@ -289,9 +288,9 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     public void savePluginSettings() {
         PluginSettingsValues pluginSettingValues = new PluginSettingsValues(
                 new CalendarSettingsValues(isPopup, isActualDate, excludeDates,
-                        includeDates, isColoring, fdow), issuesPatterns,
-                collectorIssuePatterns, Integer.valueOf(startTime),
-                Integer.valueOf(endTime));
+                        includeDates, isColoring), issuesPatterns,
+                        collectorIssuePatterns, Integer.valueOf(startTime),
+                        Integer.valueOf(endTime));
         jiraTimetrackerPlugin.savePluginSettings(pluginSettingValues);
     }
 

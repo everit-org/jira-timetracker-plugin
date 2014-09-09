@@ -49,6 +49,11 @@
 		line-height: 1.167;
 		margin: 0;
 	}
+	
+	.jira-multi-select>.icon.drop-menu{
+		bottom: 6px;
+		right: 3px;
+	}
     
 </style>
 </head>
@@ -195,43 +200,6 @@
 									$i18n.getText("plugin.setting.include.dates.help")
 							</div>
 						</td>		
-					</tr>
-					<tr>
-						<td style="text-align: right; vertical-align: top;" width="15%">
-							<div style="margin-bottom: 10px; margin-top: 20px;">
-								<h3>$i18n.getText("plugin.setting.calendar")</h3>
-							</div>	
-						</td>
-						<td>
-							<div class="description" style="margin-top: 20px;">
-										$i18n.getText("plugin.setting.calendar.settings.help")
-							</div>
-						</td>	
-					</tr>
-					<tr>
-						<td style="text-align: right;  vertical-align: top;" width="15%">
-							<strong>$i18n.getText("plugin.setting.fdow")</strong>
-						</td>
-						<td width="40%">
-							#if($fdow == 0)
-                         		<input id="radioSunday" type="radio" name="sundayOrMonday" value="sunday" style="margin-right: 10px" checked="true"> 
-                         	#else
-                         		<input id="radioSunday" type="radio" name="sundayOrMonday" value="sunday" style="margin-right: 10px"> 
-                      		#end
-                      		$i18n.getText("plugin.setting.fdow.sunday")
-						</td>
-					</tr>
-					<tr>
-						<td width="10%">
-						</td>
-						<td width="40%">
-							#if($fdow == 1)
-                         		<input id="radioMonday" type="radio" name="sundayOrMonday" value="monday" style="margin-right: 10px" checked="true"> 
-                         	#else
-                         		<input id="radioMonday" type="radio" name="sundayOrMonday" value="monday" style="margin-right: 10px"> 
-                      		#end
-                      		$i18n.getText("plugin.setting.fdow.monday")
-						</td>
 					</tr>	
 					</tr>
 					<tr class="buttons-container">

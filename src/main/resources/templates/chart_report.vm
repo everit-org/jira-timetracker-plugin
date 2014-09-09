@@ -93,7 +93,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 									alt="Pick a date"/>
 								<script>
 								var cal= Calendar.setup({
-									firstDay : $fdow,
+									firstDay : $currentCalendar.firstDayOfWeek -1,
 									inputField : 'dateFrom',
 									button : 'date_trigger_from',
 									date : '$dateFromFormated',
@@ -125,7 +125,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 									alt="Pick a date"/>
 								<script>
 								var cal= Calendar.setup({
-									firstDay : $fdow,
+									firstDay : $currentCalendar.firstDayOfWeek -1,
 									inputField : 'dateTo',
 									button : 'date_trigger_to',
 									date : '$dateToFormated',

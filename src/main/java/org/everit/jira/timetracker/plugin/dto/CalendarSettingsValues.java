@@ -27,24 +27,18 @@ public class CalendarSettingsValues {
     private String excludeDates;
     private String includeDates;
     private boolean isColoring;
-    private int fdow;
 
     public CalendarSettingsValues(final int isCalendarPopup, final boolean isActualDate,
-            final String excludeDates, final String includeDates, final boolean isColoring, final int fdow) {
+            final String excludeDates, final String includeDates, final boolean isColoring) {
         this.isCalendarPopup = isCalendarPopup;
         this.isActualDate = isActualDate;
         this.excludeDates = excludeDates;
         this.includeDates = includeDates;
         this.isColoring = isColoring;
-        this.fdow = fdow;
     }
 
     public String getExcludeDates() {
         return excludeDates;
-    }
-
-    public int getFdow() {
-        return fdow;
     }
 
     public String getIncludeDates() {

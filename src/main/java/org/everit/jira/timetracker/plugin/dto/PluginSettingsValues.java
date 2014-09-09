@@ -61,8 +61,6 @@ public class PluginSettingsValues {
 
     private Boolean isColoring;
 
-    private int fdow;
-
     public PluginSettingsValues() {
 
     }
@@ -81,7 +79,6 @@ public class PluginSettingsValues {
         this.startTimeChange = startTimeChange;
         this.endTimeChange = endTimeChange;
         isColoring = calendarSettingValues.isColoring();
-        fdow = calendarSettingValues.getFdow();
     }
 
     public List<Pattern> getCollectorIssues() {
@@ -94,10 +91,6 @@ public class PluginSettingsValues {
 
     public String getExcludeDates() {
         return excludeDates;
-    }
-
-    public int getFdow() {
-        return fdow;
     }
 
     public List<Pattern> getFilteredSummaryIssues() {
@@ -150,10 +143,6 @@ public class PluginSettingsValues {
 
     public void setExcludeDates(final String excludeDates) {
         this.excludeDates = excludeDates;
-    }
-
-    public void setFdow(final int fdow) {
-        this.fdow = fdow;
     }
 
     public void setFilteredSummaryIssues(

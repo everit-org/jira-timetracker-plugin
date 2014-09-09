@@ -221,7 +221,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 							<input type="submit" id="monthNext"  name="monthNext" value=">>>" class="button" />
 							<script>
 							var cal= Calendar.setup({
-								firstDay : $fdow,
+								firstDay : $currentCalendar.firstDayOfWeek -1,
 								inputField : 'date',
 								button : 'date_trigger',
 								date : '$dateFormated',
@@ -229,7 +229,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 								electric: false,
 								singleClick : true,
 								showOthers: true,
-								useISO8601WeekNumbers : false,
+								useISO8601WeekNumbers : $currentCalendar.useISO8601,
 								ifFormat : '%Y-%m-%d'
 							});
 							</script>
@@ -628,21 +628,19 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 						                  </tbody>
 						            </table>     
 		            			</td>
-		            			##<td width="246px">
-						        ##    <div id="not_popup_calendar" width="246px" padding-left="30px">
 						        <td>
 						            <div id="not_popup_calendar" style="float: right;">
 						            	#if($isPopup != 1)
 						            		<script>
 											##This is the not popup calendar. Works but not nice
 											Calendar.setup({
-												firstDay : $fdow,
+												firstDay : $currentCalendar.firstDayOfWeek -1,
 												align : 'Br',
 												electric: true,
 												date : '$dateFormated',
 												singleClick : true,
 												showOthers: true,
-												useISO8601WeekNumbers : false,
+												useISO8601WeekNumbers : $currentCalendar.useISO8601,
 												flat: 'not_popup_calendar',
 												flatCallback: dateChanged,
 												ifFormat : '%Y-%m-%d'
@@ -657,7 +655,6 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 											##Turn off the calendar shadow
 											<style type="text/css">
 												div.calendar {
-													width: 246px;
 													-moz-box-shadow: 0px 0px 0px #666;
 													-webkit-box-shadow: 0px 0px 0px #666;
 													box-shadow: 0px 0px 0px #666;
@@ -668,7 +665,6 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 						            </div>
 		            			</td>
 		    	</tbody>
-		    	#datePopup(${field} "${field}_trigger_c" $dateTimeFormat $dateFormat $timeFormat $dateTimePicker $currentMillis )
 		    </table>
 			#if($isEdit)
 				<input id="Edit"  type="submit" name="edit" value="$i18n.getText('plugin.save')" class="button" tabindex="5" />
