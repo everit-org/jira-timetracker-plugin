@@ -215,18 +215,18 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 						<input type="submit" id="datesubmit" name="datesubmit" class="spaced" style="display: none"/>
 						<div id="calendar_div" style="text-align: left; vertical-align: inherit; float: left; padding:5px;">
 						#if($isPopup != 2)
-							<input type="submit" id="monthBack"  name="monthBack" value="<<<" class="button" />
-							<input type="submit" id="weekBack"  name="weekBack" value="<<" class="button"  />
-							<input type="submit" id="dayBack"  name="dayBack" value="<" class="button"  />
+							<input type="submit" id="monthBack"  name="monthBack" value="<<<" class="button" title="Previous month"/>
+							<input type="submit" id="weekBack"  name="weekBack" value="<<" class="button"  title="Previous week"/>
+							<input type="submit" id="dayBack"  name="dayBack" value="<" class="button"  title="Previous day"/>
 							 $dateFormated
 							<img id="date_trigger" src="$contextPath/images/icons/cal.gif" width="16" height="16" border="0"
-								alt="Pick a date"/>
-							<input type="submit" id="dayNext"  name="dayNext" value=">"  class="button"/>
-							<input type="submit" id="weekNext"  name="weekNext" value=">>"  class="button"/>
-							<input type="submit" id="monthNext"  name="monthNext" value=">>>" class="button" />
+								alt="Pick a date" style="vertical-align: sub;" title="Choose a date"/>
+							<input type="submit" id="dayNext"  name="dayNext" value=">"  class="button" title="Next day"/>
+							<input type="submit" id="weekNext"  name="weekNext" value=">>"  class="button" title="Next week"/>
+							<input type="submit" id="monthNext"  name="monthNext" value=">>>" class="button" title="Next month"/>
 							<script>
 							var cal= Calendar.setup({
-								firstDay : $currentCalendar.firstDayOfWeek -1,
+								firstDay : $firstDay,
 								inputField : 'date',
 								button : 'date_trigger',
 								date : '$dateFormated',
