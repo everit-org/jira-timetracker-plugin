@@ -131,7 +131,7 @@
                                 </li>
                                 <li><b>Issue</b> - The issue to which the worklog will belong. Required! The field can be filled in in two ways:
                                     <ul>
-                                        <li>Typing the issue code in the field. The autocomplete function of the issue field will display the issues the user viewed already based on the typed text.</li>
+                                        <li>Typing the issue code or summary in the field. The autocomplete function will display the issues matching the typed text.</li>
                                         <li>By clicking on the cross beside the issue field, the users can select one of the issues they viewed most frequently.</li>
                                     </ul>In the issue field there are more issues listed but it is always the first one that is selected. Issues can be removed from the input field by clicking on the X next to them.</li>
                                 <li><b>End Time</b> - End time of the worklog. It is optional, but either the End time or the Duration field has to be filled in. Its format: hh:mm. Its value is the current time by default. The value of the end time cannot be smaller than the start time.
@@ -192,7 +192,10 @@
                     <ul>
                         <li><b>Current Date</b> - The current date will be set up as the default value.</li>
                         <li><b>Last Unfilled Date</b> - Returns the oldest blank day of the past week by default. if each and every day is logged appropriately, then the current day is returned. When determining the oldest blank day, the plugin considers the list of exclude and include dates.</li>
-                    </ul>The calendar highlights function can be turned on and off.
+                    </ul>
+					<p>The calendar highlights function can be turned on and off.<br>
+					There is a system setting to change the calendars first day of the week, located in: <br>
+					&nbsp;&nbsp;&nbsp;&nbsp;"system admin->look and feel->Use ISO8601 standard in Date Picker"</p>
                     <h4>Input fields settings</h4> 
                     <p>This part of the settings the StartTime field and the EndTime field Now button rounding function can be configured. In both cases the rounding rate can be a predetermined value. The acceptable values are 5, 10, 15, 20, 30 minutes.</p>
                     <img class="img-responsive img-thumbnail" src="images/jttp_user_settings.png" alt="User settings" />
@@ -212,10 +215,6 @@
                             <ul>
                                 <li><b>Exclude date</b> - List of those days that are working days by default, but they are not counted as such (e.g.: National Holidays).</li>
                                 <li><b>Include date</b> - List of those days that are non-working days by default, but they are counted as working days.</li>
-                            </ul>
-                            <h4>Calendar</h4> Unified calendar settings for all of the JIRA users.
-                            <ul>
-                                <li><b>First day of the week</b> - Sets the first day of the week for the shown Calendars in the Timetracker plugin.</li>
                             </ul>
                             <p>The settings can be saved by pressing the Save button. The Reset button can restore the foregoing settings. By selecting the Cancel button, the user is redirected to the Administrator screen without making any changes.</p>
                             <img class="img-responsive img-thumbnail" src="images/jttp_global_settings.png" alt="Global settings" />
