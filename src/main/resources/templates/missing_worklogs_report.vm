@@ -64,6 +64,14 @@
 	line-height: 1.167;
 	margin: 0;
 }
+#error_message{
+		color: white;
+		text-align: center;
+		border: 1px solid;
+		border-color: #d04437;
+		border-radius: 3px;
+		background-color: #d04437;
+	}
 </style>
 </head>
 <body>
@@ -99,8 +107,12 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 	      </ul>
 	    </div>
 	    ##TAB END
-	    <div id="message" style="color: red; padding-bottom: 5px;">$i18n.getText($message) $messageParameter</div>
-	    <div id="calendar_div" style="text-align: left; vertical-align: inherit; float: left; padding: 5px;">
+			#if(!$message.isEmpty())
+			  	<div id="error_message">
+			 			$i18n.getText($message) $messageParameter
+			  	</div>
+		  	#end	    
+		  	<div id="calendar_div" style="text-align: left; vertical-align: inherit; float: left; padding: 5px;">
 	      <table>
 	        <tbody>
 	          <tr>

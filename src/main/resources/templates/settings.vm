@@ -50,6 +50,14 @@
 		line-height: 1.167;
 		margin: 0;
 	}
+	#error_message{
+		color: white;
+		text-align: center;
+		border: 1px solid;
+		border-color: #d04437;
+		border-radius: 3px;
+		background-color: #d04437;
+	}
     
 </style>
 </head>
@@ -65,9 +73,11 @@
   	</div>
   	<div id="main-content" class="content rounded" style="width:970px;">
 		<div style="margin:10px; width:970px;">
-			<div id="message" style="color: red; ">
-		 			$i18n.getText($message) $messageParameter
-		  	</div>
+			#if(!$message.isEmpty())
+			  	<div id="error_message">
+			 			$i18n.getText($message) $messageParameter
+			  	</div>
+		  	#end
 			<table  width="100%" padding:"5px" >
 				<tbody>
 					<tr>

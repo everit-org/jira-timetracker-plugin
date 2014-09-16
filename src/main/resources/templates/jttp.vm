@@ -85,6 +85,14 @@
 		bottom: 6px;
 		right: 6px;
 	}
+	#error_message{
+		color: white;
+		text-align: center;
+		border: 1px solid;
+		border-color: #d04437;
+		border-radius: 3px;
+		background-color: #d04437;
+	}
 	
 </style>
 </head>
@@ -180,9 +188,11 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 	    		</ul>
 	    	</div>
 			##TAB END
-			<div id="message" style="color: red; ">
-		 			$i18n.getText($message) $messageParameter
-		  	</div>
+		  	#if(!$message.isEmpty())
+			  	<div id="error_message">
+			 			$i18n.getText($message) $messageParameter
+			  	</div>
+		  	#end
 		  	<table style="width: 100%; padding-right: 5px;">
 		  		<!--
 		  		<tr>
