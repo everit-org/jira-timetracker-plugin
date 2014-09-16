@@ -148,6 +148,11 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 					#elseif($isEditAll) action="JiraTimetrackerWebAction.jspa?editAllIds=$editAllIds&dateFormated=$dateFormated" 
 					#else action="JiraTimetrackerWebAction.jspa?dateFormated=$dateFormated" #end/>   
 	#set($rendererType = "atlassian-wiki-renderer")
+	#if($currentCalendar.useISO8601 == true)
+		#set ($firstDay = 1)
+	#else
+		#set ($firstDay = 0)
+	#end
 	<div id="plugin_head" class="item-header" style="width:980px;">
 			<div style="float: right;">
 				<a href="http://www.everit.org/jira-timetracker-plugin/" target="_blank">
@@ -210,18 +215,18 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 						<input type="submit" id="datesubmit" name="datesubmit" class="spaced" style="display: none"/>
 						<div id="calendar_div" style="text-align: left; vertical-align: inherit; float: left; padding:5px;">
 						#if($isPopup != 2)
-							<input type="submit" id="monthBack"  name="monthBack" value="<<<" class="button" />
-							<input type="submit" id="weekBack"  name="weekBack" value="<<" class="button"  />
-							<input type="submit" id="dayBack"  name="dayBack" value="<" class="button"  />
+							<input type="submit" id="monthBack"  name="monthBack" value="<<<" class="button" title="$i18n.getText('plugin.prev.month')"/>
+							<input type="submit" id="weekBack"  name="weekBack" value="<<" class="button"  title="$i18n.getText('plugin.prev.week')"/>
+							<input type="submit" id="dayBack"  name="dayBack" value="<" class="button"  title="$i18n.getText('plugin.prev.day')"/>
 							 $dateFormated
 							<img id="date_trigger" src="$contextPath/images/icons/cal.gif" width="16" height="16" border="0"
-								alt="Pick a date"/>
-							<input type="submit" id="dayNext"  name="dayNext" value=">"  class="button"/>
-							<input type="submit" id="weekNext"  name="weekNext" value=">>"  class="button"/>
-							<input type="submit" id="monthNext"  name="monthNext" value=">>>" class="button" />
+								alt="Pick a date" style="vertical-align: sub;" title="$i18n.getText('plugin.choose.date')"/>
+							<input type="submit" id="dayNext"  name="dayNext" value=">"  class="button" title="$i18n.getText('plugin.next.day')"/>
+							<input type="submit" id="weekNext"  name="weekNext" value=">>"  class="button" title="$i18n.getText('plugin.next.week')"/>
+							<input type="submit" id="monthNext"  name="monthNext" value=">>>" class="button" title="$i18n.getText('plugin.next.month')"/>
 							<script>
 							var cal= Calendar.setup({
-								firstDay : $fdow,
+								firstDay : $firstDay,
 								inputField : 'date',
 								button : 'date_trigger',
 								date : '$dateFormated',
@@ -229,7 +234,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 								electric: false,
 								singleClick : true,
 								showOthers: true,
-								useISO8601WeekNumbers : false,
+								useISO8601WeekNumbers : $currentCalendar.useISO8601,
 								ifFormat : '%Y-%m-%d'
 							});
 							</script>
@@ -404,14 +409,14 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 						                        </td>
 												<td  style="width: 110px">
 													<span style="position:relative;">
-						                    	 		<input id="endTime"  type="text" name="endTime" value="$endTime" tabindex="2" onkeydown="return checkSEndTimeEnter(event);" style="margin-right: 5px; width: 100px"/> 
-						                    	 		<div id="endTimeInput" style="position:absolute; left:0; right:0; top:0; bottom:0; cursor: pointer;" ></div>
+						                    	 		<input id="endTime"  type="text" name="endTime" value="$endTime" tabindex="2" onkeydown="return checkSEndTimeEnter(event);" style="margin-right: 5px; width: 100px;"/> 
+						                    	 		<div id="endTimeInput" style="position:absolute; left:0; right:0; top:0; bottom:0;" ></div>
 						                    	  	</span>
 						                    	 	<script>
 						                    	 	   AJS.$("#endTimeInput").click(function (evt) {
 						                    	 	      #if(!$isEditAll)
-														    AJS.$(this).hide().prev().prop("disabled", false).focus();
-														    AJS.$("#durationTimeInput").show().prev("input").prop("disabled", true);
+														    AJS.$(this).css("cursor","text").hide().prev().prop("disabled", false).css("cursor","text").focus();
+														    AJS.$("#durationTimeInput").css("cursor","pointer").show().prev("input").prop("disabled", true).css("cursor","pointer");
 														    AJS.$("#radioEnd").prop("checked", true);
 														  #end
 														});
@@ -516,19 +521,22 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 						                    	 <td  style="width: 120px" >
 						                    	  <span style="position:relative;">
 						                    	 	<input id="durationTime"  type="text" name="durationTime" tabindex="2" disabled value="$durationTime" onkeydown="return checkDurationTimeEnter(event);" style="width: 100px"/>
-						                    		<div id="durationTimeInput" style="position:absolute; left:0; right:0; top:0; bottom:0; cursor: pointer;" ></div>
+						                    		<div id="durationTimeInput" style="position:absolute; left:0; right:0; top:0; bottom:0;" ></div>
 						                    	  </span>
 						                    		<script>
 							                    		#if($isDurationSelected)
-															AJS.$("#durationTimeInput").hide().prev("input[disabled]").prop("disabled", false).focus();
-															AJS.$("#endTimeInput").show().prev("input").prop("disabled", true);
+															AJS.$("#durationTimeInput").css("cursor","text").hide().prev("input[disabled]").prop("disabled", false).css("cursor","text").focus();
+															AJS.$("#endTimeInput").css("cursor","pointer").show().prev("input").prop("disabled", true).css("cursor","pointer");
 															AJS.$("#radioDuration").prop("checked", true);
+														#else
+															AJS.$("#endTimeInput").css("cursor","text");
+															AJS.$("#durationTimeInput").css("cursor","pointer");
 														#end
 														
 										                AJS.$("#durationTimeInput").click(function (evt) {
 										                 #if(!$isEditAll)
-														    AJS.$(this).hide().prev("input[disabled]").prop("disabled", false).focus();
-														    AJS.$("#endTimeInput").show().prev("input").prop("disabled", true);
+														    AJS.$(this).css("cursor","text").hide().prev("input[disabled]").prop("disabled", false).css("cursor","text").focus();
+														    AJS.$("#endTimeInput").css("cursor","pointer").show().prev("input").prop("disabled", true).css("cursor","pointer");
 														    AJS.$("#radioDuration").prop("checked", true);
 														 #end
 														});
@@ -625,23 +633,20 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 						                  </tbody>
 						            </table>     
 		            			</td>
-		            			##<td width="246px">
-						        ##    <div id="not_popup_calendar" width="246px" padding-left="30px">
 						        <td>
 						            <div id="not_popup_calendar" style="float: right;">
 						            	#if($isPopup != 1)
 						            		<script>
 											##This is the not popup calendar. Works but not nice
 											Calendar.setup({
-												firstDay : $fdow,
-												align : 'Br',
-												electric: true,
+												firstDay : $firstDay,
 												date : '$dateFormated',
+												align : 'Br',
 												singleClick : true,
 												showOthers: true,
-												useISO8601WeekNumbers : false,
 												flat: 'not_popup_calendar',
 												flatCallback: dateChanged,
+												useISO8601WeekNumbers : $currentCalendar.useISO8601,
 												ifFormat : '%Y-%m-%d'
 											});
 											function dateChanged(calendar)
@@ -654,7 +659,6 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 											##Turn off the calendar shadow
 											<style type="text/css">
 												div.calendar {
-													width: 246px;
 													-moz-box-shadow: 0px 0px 0px #666;
 													-webkit-box-shadow: 0px 0px 0px #666;
 													box-shadow: 0px 0px 0px #666;

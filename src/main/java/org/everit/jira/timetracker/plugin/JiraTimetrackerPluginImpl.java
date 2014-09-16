@@ -130,8 +130,6 @@ Serializable, InitializingBean, DisposableBean {
      * The plugin setting is actual date key.
      */
     private static final String JTTP_PLUGIN_SETTINGS_IS_COLORIG = "isColoring";
-
-    private static final String JTTP_PLUGIN_SETTINGS_FDOW = "fdow";
     /**
      * A day in minutes.
      */
@@ -173,8 +171,6 @@ Serializable, InitializingBean, DisposableBean {
      * The parsed include dates.
      */
     private Set<String> includeDatesSet = new HashSet<String>();
-
-    private Integer fdow;
     /**
      * The summary filter issues ids.
      */
@@ -566,11 +562,6 @@ Serializable, InitializingBean, DisposableBean {
     }
 
     @Override
-    public Integer getFdow() {
-        return fdow;
-    }
-
-    @Override
     public List<Issue> getIssues() throws GenericEntityException {
         // List<GenericValue> issuesGV = null;
         // issuesGV = ComponentAccessor.getOfBizDelegator().findAll("Issue");
@@ -837,19 +828,6 @@ Serializable, InitializingBean, DisposableBean {
             includeDatesSet = new HashSet<String>();
             includeDatesString = "";
         }
-        if (globalSettings.get(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
-                + JTTP_PLUGIN_SETTINGS_FDOW) != null) {
-            try {
-                fdow = Integer.valueOf(globalSettings.get(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
-                        + JTTP_PLUGIN_SETTINGS_FDOW).toString());
-            } catch (NumberFormatException e) {
-                // the default fdow is sunday in the calendar
-                fdow = JiraTimetrackerUtil.SUNDAY_CALENDAR_FDOW;
-            }
-        } else {
-            // the default is the popup calendar
-            fdow = JiraTimetrackerUtil.SUNDAY_CALENDAR_FDOW;
-        }
 
         pluginSettings = settingsFactory
                 .createSettingsForKey(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
@@ -932,7 +910,7 @@ Serializable, InitializingBean, DisposableBean {
         // Here set the other values
         pluginSettingsValues = new PluginSettingsValues(
                 new CalendarSettingsValues(isPopup, isActualDate,
-                        excludeDatesString, includeDatesString, isColoring, fdow),
+                        excludeDatesString, includeDatesString, isColoring),
                         summaryFilteredIssuePatterns, collectorIssuePatterns,
                         startTimeChange, endTimeChange);
         return pluginSettingsValues;
@@ -948,8 +926,6 @@ Serializable, InitializingBean, DisposableBean {
                         + user.getName());
         pluginSettings.put(JTTP_PLUGIN_SETTINGS_IS_CALENDAR_POPUP,
                 Integer.toString(pluginSettingsParameters.isCalendarPopup()));
-        pluginSettings.put(JTTP_PLUGIN_SETTINGS_FDOW,
-                Integer.toString(pluginSettingsParameters.getFdow()));
         pluginSettings.put(JTTP_PLUGIN_SETTINGS_IS_ACTUAL_DATE,
                 pluginSettingsParameters.isActualDate().toString());
         pluginSettings.put(JTTP_PLUGIN_SETTINGS_IS_COLORIG,
@@ -974,9 +950,6 @@ Serializable, InitializingBean, DisposableBean {
         globalSettings.put(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
                 + JTTP_PLUGIN_SETTINGS_INCLUDE_DATES,
                 pluginSettingsParameters.getIncludeDates());
-        globalSettings.put(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
-                + JTTP_PLUGIN_SETTINGS_FDOW,
-                Integer.toString(pluginSettingsParameters.getFdow()));
     }
 
     /**

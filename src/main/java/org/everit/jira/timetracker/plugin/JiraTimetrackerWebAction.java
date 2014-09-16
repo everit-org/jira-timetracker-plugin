@@ -245,7 +245,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
      * The jira main version.
      */
     private int jiraMainVersion;
-    private int fdow;
     private String contextPath;
 
     private String avatarURL = "";
@@ -375,7 +374,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
         jiraMainVersion = Integer.parseInt(versionSplit[0]);
 
         loadPluginSettingAndParseResult();
-        fdow = jiraTimetrackerPlugin.getFdow();
         // Just the here have to use the plugin actualDateOrLastWorklogDate
         // setting
         if (dateFormated.equals("")) {
@@ -450,7 +448,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
         jiraMainVersion = Integer.parseInt(versionSplit[0]);
 
         loadPluginSettingAndParseResult();
-        fdow = jiraTimetrackerPlugin.getFdow();
 
         message = "";
         messageParameter = "";
@@ -679,10 +676,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
         return excludeDays;
     }
 
-    public int getFdow() {
-        return fdow;
-    }
-
     public boolean getIsColoring() {
         return isColoring;
     }
@@ -837,7 +830,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
      * @throws DataAccessException
      */
     private void loadWorklogsAndMakeSummary() throws GenericEntityException,
-            ParseException, DataAccessException, SQLException {
+    ParseException, DataAccessException, SQLException {
         try {
             loggedDays = jiraTimetrackerPlugin
                     .getLoggedDaysOfTheMonth(selectedUser, date);
@@ -886,9 +879,9 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
         startCalendar = (Calendar) originalStartcalendar.clone();
         startCalendar
-                .set(Calendar.DAY_OF_MONTH,
-                        (date.getDate() - (date.getDay() == 0 ? 6 : date
-                                .getDay() - 1)));
+        .set(Calendar.DAY_OF_MONTH,
+                (date.getDate() - (date.getDay() == 0 ? 6 : date
+                        .getDay() - 1)));
         start = startCalendar.getTime();
 
         endCalendar = (Calendar) originalEndCcalendar.clone();
@@ -939,7 +932,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
      *             ClassNotFoundException.
      */
     private void readObject(final ObjectInputStream in) throws IOException,
-            ClassNotFoundException {
+    ClassNotFoundException {
         in.defaultReadObject();
         issues = new ArrayList<Issue>();
     }
@@ -1014,10 +1007,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
     public void setExcludeDays(final List<String> excludeDays) {
         this.excludeDays = excludeDays;
-    }
-
-    public void setFdow(final int fdow) {
-        this.fdow = fdow;
     }
 
     /**

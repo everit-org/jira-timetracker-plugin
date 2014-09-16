@@ -44,6 +44,11 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 <body>
 <form name="chartReportForm"  method="get" action="JiraTimetrackerChartWebAction.jspa" />   
 	#set($rendererType = "atlassian-wiki-renderer")
+	#if($currentCalendar.useISO8601 == true)
+		#set ($firstDay = 1)
+	#else
+		#set ($firstDay = 0)
+	#end
 	<div id="plugin_head" class="item-header" style="width:980px;">
 			<div style="float: right;">
 				<a href="http://www.everit.org/jira-timetracker-plugin/" target="_blank">
@@ -90,10 +95,10 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 									}
 						          </script>
 								<img id="date_trigger_from" src="$contextPath/images/icons/cal.gif" width="16" height="16" border="0"
-									alt="Pick a date"/>
+									alt="Pick a date" style="vertical-align: sub;" title="$i18n.getText('plugin.choose.date')"/>
 								<script>
 								var cal= Calendar.setup({
-									firstDay : $fdow,
+									firstDay : $firstDay,
 									inputField : 'dateFrom',
 									button : 'date_trigger_from',
 									date : '$dateFromFormated',
@@ -101,7 +106,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 									electric: false,
 									singleClick : true,
 									showOthers: true,
-									useISO8601WeekNumbers : false,
+									useISO8601WeekNumbers : $currentCalendar.useISO8601,
 									ifFormat : '%Y-%m-%d'
 								});
 								</script>
@@ -122,10 +127,10 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 									}
 						          </script>
 								<img id="date_trigger_to" src="$contextPath/images/icons/cal.gif" width="16" height="16" border="0"
-									alt="Pick a date"/>
+									alt="Pick a date" style="vertical-align: sub;" title="$i18n.getText('plugin.choose.date')"/>
 								<script>
 								var cal= Calendar.setup({
-									firstDay : $fdow,
+									firstDay : $firstDay,
 									inputField : 'dateTo',
 									button : 'date_trigger_to',
 									date : '$dateToFormated',
@@ -133,7 +138,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 									electric: false,
 									singleClick : true,
 									showOthers: true,
-									useISO8601WeekNumbers : false,
+									useISO8601WeekNumbers : $currentCalendar.useISO8601,
 									ifFormat : '%Y-%m-%d'
 								});
 								</script>

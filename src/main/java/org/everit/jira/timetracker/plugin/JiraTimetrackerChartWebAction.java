@@ -84,11 +84,6 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
     private String contextPath;
 
-    /**
-     * The first day of the week
-     */
-    private int fdow;
-
     private List<ChartData> chartDataList;
 
     private List<User> allUsers;
@@ -139,7 +134,6 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
         normalizeContextPath();
         jiraTimetrackerPlugin.loadPluginSettings();
-        fdow = jiraTimetrackerPlugin.getFdow();
 
         if (dateFromFormated.equals("")) {
             dateFromDefaultInit();
@@ -169,7 +163,6 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
         normalizeContextPath();
         jiraTimetrackerPlugin.loadPluginSettings();
-        fdow = jiraTimetrackerPlugin.getFdow();
 
         allUsers = new ArrayList<User>(UserUtils.getAllUsers());
         Collections.sort(allUsers);
@@ -273,10 +266,6 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
         return dateToFormated;
     }
 
-    public int getFdow() {
-        return fdow;
-    }
-
     public String getMessage() {
         return message;
     }
@@ -320,10 +309,6 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
     public void setDateToFormated(final String dateToFormated) {
         this.dateToFormated = dateToFormated;
-    }
-
-    public void setFdow(final int fdow) {
-        this.fdow = fdow;
     }
 
     public void setMessage(final String message) {

@@ -94,8 +94,6 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
      */
     private int actualPage;
 
-    private int fdow;
-
     private String contextPath;
 
     /**
@@ -200,7 +198,6 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
         normalizeContextPath();
         jiraTimetrackerPlugin.loadPluginSettings();
-        fdow = jiraTimetrackerPlugin.getFdow();
 
         if (dateToFormated.equals("")) {
             dateToDefaultInit();
@@ -244,7 +241,6 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
         normalizeContextPath();
         jiraTimetrackerPlugin.loadPluginSettings();
-        fdow = jiraTimetrackerPlugin.getFdow();
         message = "";
         messageParameter = "";
         statisticsMessageParameter = "0";
@@ -323,10 +319,6 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
         return dateToFormated;
     }
 
-    public int getFdow() {
-        return fdow;
-    }
-
     public String getMessage() {
         return message;
     }
@@ -397,10 +389,6 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
     public void setDateToFormated(final String dateToFormated) {
         this.dateToFormated = dateToFormated;
-    }
-
-    public void setFdow(final int fdow) {
-        this.fdow = fdow;
     }
 
     public void setMessage(final String message) {

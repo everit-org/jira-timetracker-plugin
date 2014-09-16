@@ -119,8 +119,6 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     /**
      * The first day of the week.
      */
-    private int fdow;
-
     private String contextPath;
 
     public AdminSettingsWebAction(
@@ -189,10 +187,6 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
         return excludeDates;
     }
 
-    public int getFdow() {
-        return fdow;
-    }
-
     public String getIncludeDates() {
         return includeDates;
     }
@@ -232,8 +226,6 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
         startTime = pluginSettingsValues.getStartTimeChange();
         endTime = pluginSettingsValues.getEndTimeChange();
         isColoring = pluginSettingsValues.isColoring();
-        fdow = pluginSettingsValues.getFdow();
-
         issuesPatterns = pluginSettingsValues.getFilteredSummaryIssues();
         for (Pattern issueId : issuesPatterns) {
             issueKey += issueId.toString() + " ";
@@ -267,13 +259,6 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
                 .getParameterValues("issueSelect_collector");
         String[] excludeDatesValue = request.getParameterValues("excludedates");
         String[] includeDatesValue = request.getParameterValues("includedates");
-        String[] sundayOrMondayValue = request.getParameterValues("sundayOrMonday");
-
-        if (sundayOrMondayValue[0].equals("sunday")) {
-            fdow = JiraTimetrackerUtil.SUNDAY_CALENDAR_FDOW;
-        } else if (sundayOrMondayValue[0].equals("monday")) {
-            fdow = JiraTimetrackerUtil.MONDAY_CALENDAR_FDOW;
-        }
 
         if (issueSelectValue == null) {
             issuesPatterns = new ArrayList<Pattern>();
@@ -353,7 +338,7 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     public void savePluginSettings() {
         PluginSettingsValues pluginSettingValues = new PluginSettingsValues(
                 new CalendarSettingsValues(isPopup, isActualDate, excludeDates, includeDates,
-                        isColoring, fdow), issuesPatterns, collectorIssuePatterns, startTime,
+                        isColoring), issuesPatterns, collectorIssuePatterns, startTime,
                 endTime);
         jiraTimetrackerPlugin.savePluginSettings(pluginSettingValues);
     }
@@ -368,10 +353,6 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
 
     public void setExcludeDates(final String excludeDates) {
         this.excludeDates = excludeDates;
-    }
-
-    public void setFdow(final int fdow) {
-        this.fdow = fdow;
     }
 
     public void setIncludeDates(final String includeDates) {
