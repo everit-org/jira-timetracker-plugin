@@ -78,7 +78,7 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
  * The implementation of the {@link JiraTimetrackerPlugin}.
  */
 public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
-Serializable, InitializingBean, DisposableBean {
+        Serializable, InitializingBean, DisposableBean {
 
     /**
      * Serial version UID.
@@ -463,8 +463,7 @@ Serializable, InitializingBean, DisposableBean {
         Calendar scannedDate = Calendar.getInstance();
         // one week
         scannedDate.set(Calendar.DAY_OF_YEAR,
-                scannedDate.get(Calendar.DAY_OF_YEAR)
-                - DateTimeConverterUtil.DAYS_PER_WEEK);
+                scannedDate.get(Calendar.DAY_OF_YEAR) - DateTimeConverterUtil.DAYS_PER_WEEK);
         for (int i = 0; i < DateTimeConverterUtil.DAYS_PER_WEEK; i++) {
             // convert date to String
             Date scanedDateDate = scannedDate.getTime();
@@ -510,39 +509,42 @@ Serializable, InitializingBean, DisposableBean {
     @Override
     public List<Date> getDates(final String selectedUser, final Date from, final Date to,
             final boolean workingHour, final boolean checkNonWorking)
-                    throws GenericEntityException {
+            throws GenericEntityException {
         List<Date> datesWhereNoWorklog = new ArrayList<Date>();
-        while (!from.equals(to)) {
-            String scanedDateString = DateTimeConverterUtil.dateToString(to);
-            if (excludeDatesSet.contains(scanedDateString)) {
-                to.setDate(to.getDate() - 1);
+        Calendar fromDate = Calendar.getInstance();
+        fromDate.setTime(from);
+        Calendar toDate = Calendar.getInstance();
+        toDate.setTime(to);
+        while (!fromDate.after(toDate)) {
+            String currentDateString = DateTimeConverterUtil.dateToString(fromDate.getTime());
+            if (excludeDatesSet.contains(currentDateString)) {
+                fromDate.add(Calendar.DATE, 1);
                 continue;
             }
             // check includes - not check weekend
-            if (!includeDatesSet.contains(scanedDateString)) {
-                Calendar toDate = Calendar.getInstance();
-                toDate.setTime(to);
+            if (!includeDatesSet.contains(currentDateString)) {
                 // check weekend - pass
-                if ((toDate.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY)
-                        || (toDate.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY)) {
-                    to.setDate(to.getDate() - 1);
+                if ((fromDate.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY)
+                        || (fromDate.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY)) {
+                    fromDate.add(Calendar.DATE, 1);
                     continue;
                 }
             }
             // check worklog. if no worklog set result else ++ scanedDate
             boolean isDateContainsWorklog;
             if (workingHour) {
-                isDateContainsWorklog = isContainsEnoughWorklog(selectedUser, to,
+                isDateContainsWorklog = isContainsEnoughWorklog(selectedUser, fromDate.getTime(),
                         checkNonWorking);
             } else {
-                isDateContainsWorklog = isContainsWorklog(selectedUser, to);
+                isDateContainsWorklog = isContainsWorklog(selectedUser, fromDate.getTime());
             }
             if (!isDateContainsWorklog) {
-                datesWhereNoWorklog.add((Date) to.clone());
+                datesWhereNoWorklog.add((Date) fromDate.getTime().clone());
             }
-            to.setDate(to.getDate() - 1);
+            fromDate.add(Calendar.DATE, 1);
 
         }
+        Collections.reverse(datesWhereNoWorklog);
         return datesWhereNoWorklog;
     }
 
@@ -554,7 +556,7 @@ Serializable, InitializingBean, DisposableBean {
             // not? .... think about it.
             if (exludeDate.startsWith(date.substring(0, 7))) {
                 resultexcludeDays
-                .add(exludeDate.substring(exludeDate.length() - 2));
+                        .add(exludeDate.substring(exludeDate.length() - 2));
             }
         }
 
@@ -911,8 +913,8 @@ Serializable, InitializingBean, DisposableBean {
         pluginSettingsValues = new PluginSettingsValues(
                 new CalendarSettingsValues(isPopup, isActualDate,
                         excludeDatesString, includeDatesString, isColoring),
-                        summaryFilteredIssuePatterns, collectorIssuePatterns,
-                        startTimeChange, endTimeChange);
+                summaryFilteredIssuePatterns, collectorIssuePatterns,
+                startTimeChange, endTimeChange);
         return pluginSettingsValues;
     }
 
@@ -931,9 +933,9 @@ Serializable, InitializingBean, DisposableBean {
         pluginSettings.put(JTTP_PLUGIN_SETTINGS_IS_COLORIG,
                 pluginSettingsParameters.isColoring().toString());
         pluginSettings
-        .put(JTTP_PLUGIN_SETTINGS_START_TIME_CHANGE,
-                Integer.toString(pluginSettingsParameters
-                        .getStartTimeChange()));
+                .put(JTTP_PLUGIN_SETTINGS_START_TIME_CHANGE,
+                        Integer.toString(pluginSettingsParameters
+                                .getStartTimeChange()));
         pluginSettings.put(JTTP_PLUGIN_SETTINGS_END_TIME_CHANGE,
                 Integer.toString(pluginSettingsParameters.getEndTimeChange()));
 
