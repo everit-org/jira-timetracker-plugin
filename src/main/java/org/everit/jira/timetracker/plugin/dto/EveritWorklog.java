@@ -25,6 +25,8 @@ import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -32,7 +34,7 @@ import org.everit.jira.timetracker.plugin.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerUtil;
 import org.ofbiz.core.entity.GenericValue;
 
-import com.atlassian.jira.ComponentManager;
+import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.worklog.Worklog;
@@ -55,13 +57,23 @@ public class EveritWorklog implements Serializable {
      */
     private String startTime;
     /**
+     * The start Date.
+     */
+    private String startDate;
+    private int monthNo;
+    private int weekNo;
+    private int dayNo;
+    private Date date;
+    /**
      * The worklog Issue key.
      */
     private String issue;
+
     /**
      * The worklog Issue Summary.
      */
     private String issueSummary;
+
     /**
      * The worklog Issue epic.
      */
@@ -70,12 +82,10 @@ public class EveritWorklog implements Serializable {
      * The worklog issue ID.
      */
     private Long issueId;
-
     /**
      * The milliseconds between the start time and the end time.
      */
     private long milliseconds;
-
     /**
      * The spent time.
      */
@@ -110,10 +120,16 @@ public class EveritWorklog implements Serializable {
             final List<Pattern> collectorIssuePatterns) throws ParseException {
         worklogId = worklogGv.getLong("id");
         startTime = worklogGv.getString("startdate");
-        startTime = DateTimeConverterUtil.stringDateToStringTime(startTime);
+        date = DateTimeConverterUtil.stringToDateAndTime(startTime);
+        startTime = DateTimeConverterUtil.dateTimeToString(date);
+        startDate = DateTimeConverterUtil.dateToString(date);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        weekNo = calendar.get(Calendar.WEEK_OF_YEAR);
+        monthNo = calendar.get(Calendar.MONTH) + 1;
+        dayNo = calendar.get(Calendar.DAY_OF_YEAR);
         issueId = new Long(worklogGv.getString("issue"));
-        IssueManager issueManager = ComponentManager.getInstance()
-                .getIssueManager();
+        IssueManager issueManager = ComponentAccessor.getIssueManager();
         MutableIssue issueObject = issueManager.getIssueObject(issueId);
         issue = issueObject.getKey();
         issueSummary = issueObject.getSummary();
@@ -145,10 +161,16 @@ public class EveritWorklog implements Serializable {
             final List<Pattern> collectorIssuePatterns) throws ParseException, SQLException {
         worklogId = rs.getLong("id");
         startTime = rs.getString("startdate");
-        startTime = DateTimeConverterUtil.stringDateToStringTime(startTime);
+        date = DateTimeConverterUtil.stringToDateAndTime(startTime);
+        startTime = DateTimeConverterUtil.dateTimeToString(date);
+        startDate = DateTimeConverterUtil.dateToString(date);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        weekNo = calendar.get(Calendar.WEEK_OF_YEAR);
+        monthNo = calendar.get(Calendar.MONTH) + 1;
+        dayNo = calendar.get(Calendar.DAY_OF_YEAR);
         issueId = rs.getLong("issueid");
-        IssueManager issueManager = ComponentManager.getInstance()
-                .getIssueManager();
+        IssueManager issueManager = ComponentAccessor.getIssueManager();
         MutableIssue issueObject = issueManager.getIssueObject(issueId);
         issue = issueObject.getKey();
         issueSummary = issueObject.getSummary();
@@ -186,8 +208,14 @@ public class EveritWorklog implements Serializable {
      */
     public EveritWorklog(final Worklog worklog) throws ParseException {
         worklogId = worklog.getId();
-        startTime = DateTimeConverterUtil.dateTimeToString(worklog
-                .getStartDate());
+        date = worklog.getStartDate();
+        startTime = DateTimeConverterUtil.dateTimeToString(date);
+        startDate = DateTimeConverterUtil.dateToString(date);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        weekNo = calendar.get(Calendar.WEEK_OF_YEAR);
+        monthNo = calendar.get(Calendar.MONTH) + 1;
+        dayNo = calendar.get(Calendar.DAY_OF_YEAR);
         issue = worklog.getIssue().getKey();
         issueSummary = worklog.getIssue().getSummary();
         body = worklog.getComment();
@@ -208,6 +236,14 @@ public class EveritWorklog implements Serializable {
 
     public String getBody() {
         return body;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public int getDayNo() {
+        return dayNo;
     }
 
     public String getDuration() {
@@ -238,8 +274,20 @@ public class EveritWorklog implements Serializable {
         return milliseconds;
     }
 
+    public int getMonthNo() {
+        return monthNo;
+    }
+
+    public String getStartDate() {
+        return startDate;
+    }
+
     public String getStartTime() {
         return startTime;
+    }
+
+    public int getWeekNo() {
+        return weekNo;
     }
 
     public Long getWorklogId() {
@@ -248,6 +296,14 @@ public class EveritWorklog implements Serializable {
 
     public void setBody(final String body) {
         this.body = body;
+    }
+
+    public void setDate(final Date date) {
+        this.date = date;
+    }
+
+    public void setDayNo(final int dayNo) {
+        this.dayNo = dayNo;
     }
 
     public void setDuration(final String duration) {
@@ -274,12 +330,24 @@ public class EveritWorklog implements Serializable {
         this.milliseconds = milliseconds;
     }
 
+    public void setMonthNo(final int monthNo) {
+        this.monthNo = monthNo;
+    }
+
     public void setMoreEstimatedTime(final boolean isMoreEstimatedTime) {
         this.isMoreEstimatedTime = isMoreEstimatedTime;
     }
 
+    public void setStartDate(final String startDate) {
+        this.startDate = startDate;
+    }
+
     public void setStartTime(final String startTime) {
         this.startTime = startTime;
+    }
+
+    public void setWeekNo(final int weekNo) {
+        this.weekNo = weekNo;
     }
 
     public void setWorklogId(final Long worklogId) {

@@ -1,0 +1,183 @@
+$webResourceManager.requireResource("jira.webresources:dwr", null)   
+$webResourceManager.requireResource("jira.webresources:ajax-preview", null)
+<style type="text/css">
+{
+margin-bottom: 0em;
+}
+	.grid td {
+		text-align: center;
+		vertical-align: inherit;
+	}
+	.rowHeader {
+        background-color:#E2E2E2;
+    }
+    .rowAlter {
+        background-color:#F2F2F2;
+    }
+    .rowDay {
+        background-color:#A9D0F5;
+    }
+    .rowWeek {
+        background-color:#81BEF7;
+    }
+    .rowMonth {
+        background-color:#58ACFA;
+    }
+    .rowEdit {
+        background-color:#FFEAAE;
+    }
+    .button {
+        padding: 2px;
+    }
+    .grid {
+        font-family:Arial,Helvetica,sans-serif;
+        font-size:12px;
+        background-color:#FCFCFC;
+        border:1px solid #D2D2D2;
+        border-collapse:collapse;
+    }
+    .grid th, .grid td {
+        border:1px solid #D2D2D2;   
+        padding:4px;
+    }
+    
+    input[type="text"]:disabled
+	{
+		background:#D3D3D3!important;
+		background-color:#D3D3D3!important;
+	}
+</style>
+#set($rowCount = 0)
+<div class="results-wrap">
+		    <div>
+		     <table class="grid" border="0" cellpadding="2" cellspacing="0" width="100%">
+		     	<thead>
+			     	<tr class="rowHeader">
+		                   		<td width="80px" style="text-align: center;">
+		                           $i18n.getText("plugin.date")
+		                        </td>
+		                       	<td width="80px" style="text-align: center;">
+		                           Issue
+		                        </td>
+		                        <td width="50px" style="text-align: center;">
+		                           $i18n.getText("plugin.start")
+		                        </td>
+		                        <td width="50px" style="text-align: center;">
+		                           $i18n.getText("plugin.end")
+		                        </td>
+		                        <td width="70px" style="text-align: center;"> 
+		                          $i18n.getText("plugin.duration")
+		                        </td>
+		                        <td colspan="3" style="text-align: center;">
+		                          $i18n.getText("plugin.note")
+		                        </td>
+		             </tr>
+	             </thead>
+	             #if($worklogs.size() == 0)
+            			</table>
+            			<div id="message" style="text-align: center; padding: 3px; font-size: 14px;">
+				 			$i18n.getText("plugin.no.worklogs")
+					  	</div>
+                 #else
+                 #set($endSign = false)
+		           #foreach ($worklog in $worklogs)	
+		           		#set($currentDay = $worklog.dayNo)
+			     		#set($currentWeek = $worklog.weekNo)
+			     		#set($currentMonth = $worklog.monthNo)
+			                    <tr class="rowAlter">
+		                    	 	<td class="table-starttime" style="vertical-align: middle;">
+			                    	 		$worklog.startDate
+		                    	 	</td>
+		                    	 	<td class="table-issue" style="vertical-align: middle;">
+		                    	 		<a href="/browse/$worklog.issue" class="issue-link" title="#if($worklog.issueParent != '') $i18n.getText('plugin.parent.issue') $worklog.issueParent &#13 $worklog.issueSummary #else $worklog.issueSummary #end">$worklog.issue</a>
+		                    	 		
+		                    	 		#if(!$worklog.isMoreEstimatedTime)
+		                    	 			<img id="no_estimated" src="$contextPath/images/icons/priority_blocker.gif" width="16" height="16" border="0"
+															alt="$i18n.getText('plugin.exclamation.mark.message')" style="vertical-align: text-bottom;" title="$i18n.getText('plugin.exclamation.mark.message')"/>
+										#end
+		                    	 	</td>
+		                    	 	<td class="table-starttime" style="vertical-align: middle;">
+		                    	 		$worklog.startTime
+		                    	 	</td>
+		                    	 	<td class="table-endtime" style="vertical-align: middle;">
+		                    	 		$worklog.endTime
+		                    	 	</td>
+		                    	 	<td style="vertical-align: middle;">
+		                    	 		$worklog.duration
+		                    	 	</td>
+		                    	 	<td id="commentRow_$rowCount" colspan="3" name="commentRow_$rowCount" class="table-comment wiki-edit-content" style="vertical-align: middle;">
+		                    	 		<input id="hiddenWorklogBody" type="hidden" value="$worklog.body">
+		                    	 	</td>
+		                    	 	<script>
+				                    	 		jQuery.ajax({
+				                    	 			url:  "${req.contextPath}/rest/api/1.0/render",
+	                								contentType: "application/json",
+	                								type:'POST',
+	                								data: JSON.stringify({
+	                    								rendererType: "atlassian-wiki-renderer",
+	                    								unrenderedMarkup: "$worklog.body"
+	                								}),
+	                								dataType: "text",
+	                								success: function(data){
+	                								data = data.replace('<p>','');
+	                								data = data.replace('</p>','');
+			                    	 				AJS.$("#commentRow_$rowCount").append(data);
+			                    	 				AJS.$("#commentRow_$rowCount").attr("style","vertical-align: middle;text-align: left;padding: 4px 10px 4px 10px;");
+			                    	 			}
+	            								});
+	            					</script>
+		                    	</tr>
+		              #if($velocityCount < $worklogs.size())
+		              	#set($nextWorklog = $worklogs.get($velocityCount))
+		              #else
+		              	#set($endSign = true)
+		              #end
+		              #if($worklog.dayNo != $nextWorklog.dayNo || $endSign)
+			           	<tr>
+			           		<td colspan="5"></td>
+			           		<td class="rowHeader">
+			           			<b>$i18n.getText("plugin.daily") $i18n.getText("plugin.summary")</b>
+			           		</td>
+			           		<td class="rowHeader" style="text-align: left;">
+			           			$i18n.getText("plugin.work"): $daySum.get($currentDay).get(1)
+			           		</td>
+			           		<td class="rowHeader" style="text-align: left;">
+			           			$i18n.getText("plugin.real.work"): $realDaySum.get($currentDay).get(1)
+			           		</td>
+			           	</tr>
+			           #end		           
+			           #if($worklog.weekNo != $nextWorklog.weekNo || $endSign)
+			           	<tr>
+			           		<td colspan="5"></td>
+			           		<td class="rowHeader">
+			           			<b>$i18n.getText("plugin.weekly") $i18n.getText("plugin.summary")</b>
+			           		</td>
+			           		<td class="rowHeader" style="text-align: left;">
+			           			$i18n.getText("plugin.work"): $weekSum.get($currentWeek).get(1)
+			           		</td>
+			           		<td class="rowHeader" style="text-align: left;">
+			           			$i18n.getText("plugin.real.work"): $realWeekSum.get($currentWeek).get(1)
+			           		</td>
+			           	</tr>
+			           #end
+			           #if($worklog.monthNo != $nextWorklog.monthNo || $endSign)
+			           	<tr>
+			           		<td colspan="5"></td>
+			           		<td class="rowHeader">
+			           			<b>$i18n.getText("plugin.monthly") $i18n.getText("plugin.summary")</b>
+			           		</td>
+			           		<td class="rowHeader" style="text-align: left;">
+			           			$i18n.getText("plugin.work"): $monthSum.get($currentMonth).get(1)
+			           		</td>
+			           		<td class="rowHeader" style="text-align: left;">
+			           			$i18n.getText("plugin.real.work"): $realMonthSum.get($currentMonth).get(1)
+			           		</td>
+			           	</tr>
+			           #end
+		                #set($rowCount = $rowCount + 1)
+		            #end
+		            </table>
+		         #end
+		    </div>
+		    </div>
+		    

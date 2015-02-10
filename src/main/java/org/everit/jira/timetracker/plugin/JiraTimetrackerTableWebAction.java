@@ -26,14 +26,17 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 import org.everit.jira.timetracker.plugin.dto.ChartData;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
+import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
+import org.ofbiz.core.entity.GenericEntityException;
 
 import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jira.ComponentManager;
@@ -44,7 +47,7 @@ import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.user.UserUtils;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
 
-public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
+public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
     /**
      * Serial version UID.
@@ -89,12 +92,24 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     private String currentUser = "";
 
     private String avatarURL = "";
+
+    private User userPickerObject;
+
+    private List<EveritWorklog> worklogs;
+
+    private HashMap<Integer, List<Object>> monthSum = new HashMap<Integer, List<Object>>();
+    private HashMap<Integer, List<Object>> weekSum = new HashMap<Integer, List<Object>>();
+    private HashMap<Integer, List<Object>> daySum = new HashMap<Integer, List<Object>>();
+    private HashMap<Integer, List<Object>> realMonthSum = new HashMap<Integer, List<Object>>();
+    private HashMap<Integer, List<Object>> realWeekSum = new HashMap<Integer, List<Object>>();
+    private HashMap<Integer, List<Object>> realDaySum = new HashMap<Integer, List<Object>>();
+
+    private List<Pattern> issuesRegex;
+
     /**
      * Jira Componentmanager instance.
      */
     private ComponentManager componentManager = ComponentManager.getInstance();
-
-    private User userPickerObject;
 
     /**
      * Simple constructor.
@@ -102,7 +117,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
      * @param jiraTimetrackerPlugin
      *            The {@link JiraTimetrackerPlugin}.
      */
-    public JiraTimetrackerChartWebAction(
+    public JiraTimetrackerTableWebAction(
             final JiraTimetrackerPlugin jiraTimetrackerPlugin) {
         this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
     }
@@ -156,7 +171,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     }
 
     @Override
-    public String doExecute() throws ParseException {
+    public String doExecute() throws ParseException, GenericEntityException {
         boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
         if (!isUserLogged) {
             setReturnUrl("/secure/Dashboard.jspa");
@@ -164,7 +179,8 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
         }
 
         normalizeContextPath();
-        jiraTimetrackerPlugin.loadPluginSettings();
+        PluginSettingsValues pluginSettings = jiraTimetrackerPlugin.loadPluginSettings();
+        setIssuesRegex(pluginSettings.getFilteredSummaryIssues());
 
         allUsers = new ArrayList<User>(UserUtils.getAllUsers());
         Collections.sort(allUsers);
@@ -212,12 +228,6 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
             message = "plugin.invalid_endTime";
             return SUCCESS;
         }
-
-        if (dateFrom.compareTo(dateTo) > 0) {
-            message = "plugin.wrong.dates";
-            return SUCCESS;
-        }
-
         Calendar lastDate = (Calendar) startDate.clone();
         try {
             lastDate.setTime(DateTimeConverterUtil.stringToDate(dateTo));
@@ -226,7 +236,19 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
             return SUCCESS;
         }
 
-        List<EveritWorklog> worklogs = new ArrayList<EveritWorklog>();
+        if (startDate.after(lastDate)) {
+            message = "plugin.wrong.dates";
+            return SUCCESS;
+        }
+
+        Calendar yearCheckCal = (Calendar) lastDate.clone();
+        yearCheckCal.add(Calendar.YEAR, -1);
+        if (startDate.before(yearCheckCal)) {
+            message += "plugin.exceeded.year";
+            return SUCCESS;
+        }
+
+        worklogs = new ArrayList<EveritWorklog>();
         try {
             worklogs.addAll(jiraTimetrackerPlugin.getWorklogs(currentUser, startDate.getTime(), lastDate.getTime()));
         } catch (DataAccessException e) {
@@ -237,21 +259,79 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
             return ERROR;
         }
 
-        Map<String, Long> map = new HashMap<String, Long>();
-        for (EveritWorklog worklog : worklogs) {
-            String projectName = worklog.getIssue().split("-")[0];
-            Long newValue = worklog.getMilliseconds();
-            Long oldValue = map.get(projectName);
-            if (oldValue == null) {
-                map.put(projectName, newValue);
-            } else {
-                map.put(projectName, oldValue + newValue);
+        Collections.sort(worklogs, new Comparator<EveritWorklog>() {
+            @Override
+            public int compare(final EveritWorklog wl1, final EveritWorklog wl2) {
+                return wl1.getDate().compareTo(wl2.getDate());
             }
+        });
+
+        for (EveritWorklog worklog : worklogs) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(worklog.getDate());
+
+            boolean isRealWorklog = true;
+            for (Pattern issuePattern : issuesRegex) {
+                boolean issueMatches = issuePattern.matcher(worklog.getIssue()).matches();
+                // if match not count in summary
+                if (issueMatches) {
+                    isRealWorklog = false;
+                    break;
+                }
+            }
+
+            int monthNo = worklog.getMonthNo();
+            ArrayList<Object> list = new ArrayList<Object>();
+            Long prevMonthSum = monthSum.get(monthNo) == null ? 0L : (Long) monthSum.get(monthNo).get(0);
+            Long sumSec = prevMonthSum + (worklog.getMilliseconds() / 1000);
+            list.add(sumSec);
+            list.add(DateTimeConverterUtil.secondConvertToString(sumSec));
+            monthSum.put(monthNo, list);
+            ArrayList<Object> realList = new ArrayList<Object>();
+            Long prevRealMonthSum = realMonthSum.get(monthNo) == null ? 0L : (Long) realMonthSum.get(monthNo).get(0);
+            Long realSumSec = prevRealMonthSum;
+            if (isRealWorklog) {
+                realSumSec += (worklog.getMilliseconds() / 1000);
+            }
+            realList.add(realSumSec);
+            realList.add(DateTimeConverterUtil.secondConvertToString(realSumSec));
+            realMonthSum.put(monthNo, realList);
+
+            int weekNo = worklog.getWeekNo();
+            list = new ArrayList<Object>();
+            Long prevWeekSum = weekSum.get(weekNo) == null ? 0L : (Long) weekSum.get(weekNo).get(0);
+            sumSec = prevWeekSum + (worklog.getMilliseconds() / 1000);
+            list.add(sumSec);
+            list.add(DateTimeConverterUtil.secondConvertToString(sumSec));
+            weekSum.put(weekNo, list);
+            Long prevRealWeekSum = realWeekSum.get(weekNo) == null ? 0L : (Long) realWeekSum.get(weekNo).get(0);
+            realList = new ArrayList<Object>();
+            realSumSec = prevRealWeekSum;
+            if (isRealWorklog) {
+                realSumSec += (worklog.getMilliseconds() / 1000);
+            }
+            realList.add(realSumSec);
+            realList.add(DateTimeConverterUtil.secondConvertToString(realSumSec));
+            realWeekSum.put(weekNo, realList);
+
+            int dayNo = worklog.getDayNo();
+            list = new ArrayList<Object>();
+            Long prevDaySum = daySum.get(dayNo) == null ? 0L : (Long) daySum.get(dayNo).get(0);
+            sumSec = prevDaySum + (worklog.getMilliseconds() / 1000);
+            list.add(sumSec);
+            list.add(DateTimeConverterUtil.secondConvertToString(sumSec));
+            daySum.put(dayNo, list);
+            Long prevRealDaySum = realDaySum.get(dayNo) == null ? 0L : (Long) realDaySum.get(dayNo).get(0);
+            realList = new ArrayList<Object>();
+            realSumSec = prevRealDaySum;
+            if (isRealWorklog) {
+                realSumSec += (worklog.getMilliseconds() / 1000);
+            }
+            realList.add(realSumSec);
+            realList.add(DateTimeConverterUtil.secondConvertToString(realSumSec));
+            realDaySum.put(dayNo, realList);
         }
-        chartDataList = new ArrayList<ChartData>();
-        for (String key : map.keySet()) {
-            chartDataList.add(new ChartData(key, map.get(key)));
-        }
+
         return SUCCESS;
     }
 
@@ -283,12 +363,44 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
         return dateToFormated;
     }
 
+    public HashMap<Integer, List<Object>> getDaySum() {
+        return daySum;
+    }
+
+    public List<Pattern> getIssuesRegex() {
+        return issuesRegex;
+    }
+
     public String getMessage() {
         return message;
     }
 
+    public HashMap<Integer, List<Object>> getMonthSum() {
+        return monthSum;
+    }
+
+    public HashMap<Integer, List<Object>> getRealDaySum() {
+        return realDaySum;
+    }
+
+    public HashMap<Integer, List<Object>> getRealMonthSum() {
+        return realMonthSum;
+    }
+
+    public HashMap<Integer, List<Object>> getRealWeekSum() {
+        return realWeekSum;
+    }
+
     public User getUserPickerObject() {
         return userPickerObject;
+    }
+
+    public HashMap<Integer, List<Object>> getWeekSum() {
+        return weekSum;
+    }
+
+    public List<EveritWorklog> getWorklogs() {
+        return worklogs;
     }
 
     private void normalizeContextPath() {
@@ -328,8 +440,20 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
         this.dateToFormated = dateToFormated;
     }
 
+    public void setDaySum(final HashMap<Integer, List<Object>> daySum) {
+        this.daySum = daySum;
+    }
+
+    public void setIssuesRegex(final List<Pattern> issuesRegex) {
+        this.issuesRegex = issuesRegex;
+    }
+
     public void setMessage(final String message) {
         this.message = message;
+    }
+
+    public void setMonthSum(final HashMap<Integer, List<Object>> monthSum) {
+        this.monthSum = monthSum;
     }
 
     public void setUserPickerObject(final User userPickerObject) {
@@ -345,5 +469,13 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
         } else {
             userPickerObject = null;
         }
+    }
+
+    public void setWeekSum(final HashMap<Integer, List<Object>> weekSum) {
+        this.weekSum = weekSum;
+    }
+
+    public void setWorklogs(final List<EveritWorklog> worklogs) {
+        this.worklogs = worklogs;
     }
 }
