@@ -364,7 +364,7 @@ public final class DateTimeConverterUtil {
     /**
      * The JIRA duration pattern.
      */
-    public static final String JIRA_DURATION_PATTERN = "(([01]?[0-9]|2[0-3])[h]*[\\s]+(([0-5]?[0-9])[m])*)|(([0-5]?[0-9])[m])+|(([01]?[0-9]|2[0-3])[h])+";
+    public static final String JIRA_DURATION_PATTERN = "(([01]?[0-9]|2[0-3])[h]*[\\s]+(([0-9]{1,3}|1[0-3][0-9]{2}|14[0-3][0-9])[m])*)|(([0-9]{1,3}|1[0-3][0-9]{2}|14[0-3][0-9])[m])+|(([01]?[0-9]|2[0-3])[h])+";
 
     /**
      * Private constructor.

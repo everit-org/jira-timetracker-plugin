@@ -82,11 +82,6 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
     private String contextPath;
 
-    /**
-     * The first day of the week
-     */
-    private int fdow;
-
     private List<ChartData> chartDataList;
 
     private List<User> allUsers;
@@ -141,7 +136,6 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
         normalizeContextPath();
         jiraTimetrackerPlugin.loadPluginSettings();
-        fdow = jiraTimetrackerPlugin.getFdow();
 
         if (dateFromFormated.equals("")) {
             dateFromDefaultInit();
@@ -171,18 +165,22 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
         normalizeContextPath();
         jiraTimetrackerPlugin.loadPluginSettings();
-        fdow = jiraTimetrackerPlugin.getFdow();
 
         allUsers = new ArrayList<User>(UserUtils.getAllUsers());
         Collections.sort(allUsers);
-
-        currentUser = request.getParameterValues("userPicker")[0];
 
         if (dateFromFormated.equals("")) {
             dateFromDefaultInit();
         }
         if (dateToFormated.equals("")) {
             dateToDefaultInit();
+        }
+
+        if (request.getParameterValues("userPicker") != null) {
+            currentUser = request.getParameterValues("userPicker")[0];
+        } else {
+            message += "plugin.user.picker.label";
+            return SUCCESS;
         }
         if ((currentUser == null) || currentUser.equals("")) {
             JiraAuthenticationContext authenticationContext = componentManager.getJiraAuthenticationContext();
@@ -199,7 +197,12 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
             return SUCCESS;
         }
         Calendar startDate = Calendar.getInstance();
-        startDate.setTime(DateTimeConverterUtil.stringToDate(dateFrom));
+        try {
+            startDate.setTime(DateTimeConverterUtil.stringToDate(dateFrom));
+        } catch (ParseException e) {
+            message = "plugin.invalid_startTime";
+            return SUCCESS;
+        }
 
         String dateTo = request.getParameterValues("dateTo")[0];
         if ((dateTo != null) && !dateTo.equals("")) {
@@ -216,7 +219,12 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
         }
 
         Calendar lastDate = (Calendar) startDate.clone();
-        lastDate.setTime(DateTimeConverterUtil.stringToDate(dateTo));
+        try {
+            lastDate.setTime(DateTimeConverterUtil.stringToDate(dateTo));
+        } catch (ParseException e) {
+            message = "plugin.invalid_endTime";
+            return SUCCESS;
+        }
 
         List<EveritWorklog> worklogs = new ArrayList<EveritWorklog>();
         try {
@@ -275,10 +283,6 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
         return dateToFormated;
     }
 
-    public int getFdow() {
-        return fdow;
-    }
-
     public String getMessage() {
         return message;
     }
@@ -322,10 +326,6 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
     public void setDateToFormated(final String dateToFormated) {
         this.dateToFormated = dateToFormated;
-    }
-
-    public void setFdow(final int fdow) {
-        this.fdow = fdow;
     }
 
     public void setMessage(final String message) {

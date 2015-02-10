@@ -62,12 +62,12 @@
 		border-radius: .4em;
 	}
     .item-header {
-    padding: 12px 12px 0 16px !important;
+    	margin: 12px 12px 0 12px;
 		min-height: 48px;
 		position: relative;
-		padding-left: 5px;
-		padding-right: 5px;
-		padding-top: 0px;
+		padding-left: 5px !important;
+		padding-right: 5px !important;
+		padding-top: 0px !important;
 	}
 	#main-content {
 		min-width: 990px;
@@ -128,6 +128,11 @@
 	 		}
 	 	}
 	}
+	
+	function submitForm(){
+			AJS.$('#Submitbutton').attr("disabled", true);
+			return true;
+	}
 
 	var original = Calendar.prototype.show;
 	
@@ -142,11 +147,18 @@
 $webResourceManager.requireResource("jira.webresources:global-static")
 $webResourceManager.requireResource("jira.webresources:calendar")
 $webResourceManager.requireResource("jira.webresources:calendar-en")
-<form name="jttpForm"  method="post"
+<form name="jttpForm"  method="post" onsubmit="submitForm();"
 					#if($isEdit) action="JiraTimetrackerWebAction.jspa?editedWorklogId=$editedWorklogId&dateFormated=$dateFormated" 
 					#elseif($isEditAll) action="JiraTimetrackerWebAction.jspa?editAllIds=$editAllIds&dateFormated=$dateFormated" 
 					#else action="JiraTimetrackerWebAction.jspa?dateFormated=$dateFormated" #end/>   
 	#set($rendererType = "atlassian-wiki-renderer")
+	#if($currentCalendar.useISO8061 == true || $currentCalendar.useISO8601 == true)
+		#set ($firstDay = 1)
+		#set ($currentISO = true)
+	#else
+		#set ($firstDay = 0)
+		#set ($currentISO = false)
+	#end
 	<div id="plugin_head" class="item-header" style="width:980px;">
 			<div style="float: right;">
 				<a href="http://www.everit.org/jira-timetracker-plugin/" target="_blank">
@@ -163,13 +175,9 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 	        		<li class="active">
 	            		<a href="JiraTimetrackerWebAction!default.jspa"><strong>Timetracker</strong></a>
 	        		</li>
-	        		<li>
-	            		<a href="JiraTimetrackerWorklogsWebAction!default.jspa"><strong>Missing Days Report</strong></a>
-	        		</li>
-
-	        		<li>
-	            		<a href="JiraTimetrackerChartWebAction!default.jspa"><strong>Chart Report</strong></a>
-	        		</li>
+	        		<li><a href="JiraTimetrackerWorklogsWebAction!default.jspa"><strong>Missing Days Report</strong></a></li>
+	        		<li><a href="JiraTimetrackerChartWebAction!default.jspa"><strong>Chart Report</strong></a></li>
+	        		<li><a href="JiraTimetrackerTableWebAction!default.jspa"><strong>Table Report</strong></a></li>
 
 	    		</ul>
 	    	</div>
@@ -220,7 +228,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 							<input type="submit" id="monthNext"  name="monthNext" value=">>>" class="button" />
 							<script>
 							var cal= Calendar.setup({
-								firstDay : $fdow,
+								firstDay : $firstDay,
 								inputField : 'date',
 								button : 'date_trigger',
 								date : '$dateFormated',
@@ -228,7 +236,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 								electric: false,
 								singleClick : true,
 								showOthers: true,
-								useISO8601WeekNumbers : false,
+								useISO8601WeekNumbers : $currentISO,
 								ifFormat : '%Y-%m-%d'
 							});
 							</script>
@@ -632,13 +640,13 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 						            		<script>
 											##This is the not popup calendar. Works but not nice
 											Calendar.setup({
-												firstDay : $fdow,
+												firstDay : $firstDay,
 												align : 'Br',
 												electric: true,
 												date : '$dateFormated',
 												singleClick : true,
 												showOthers: true,
-												useISO8601WeekNumbers : false,
+												useISO8601WeekNumbers : $currentISO,
 												flat: 'not_popup_calendar',
 												flatCallback: dateChanged,
 												ifFormat : '%Y-%m-%d'
@@ -681,7 +689,8 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 				document.getElementById("comments").disabled= true;
 				</script>
 			#else
-				<input id="Submit"  type="submit" name="submit" value="$i18n.getText('plugin.submit')" class="button" tabindex="5"/>
+				<input type="hidden" id="Submit" name="submit" disabled/>
+				<input id="Submitbutton" type="submit" name="submitbutton" value="$i18n.getText('plugin.submit')" class="button" tabindex="5" onclick="AJS.$('#Submit').val('true');AJS.$('#Submit').attr('disabled', false);"/>
 			#end
 			<input id="setting"  type="button" name="setting" onclick="location.href='JiraTimetrackerSettingsWebAction!default.jspa'" value="$i18n.getText('plugin.settings')" class="button" style="display: inline; float: right;"/>
 			<input id="cancelButton"  type="button" name="Cancel" value="$i18n.getText('plugin.cancel')" onclick="location.href='JiraTimetrackerWebAction!default.jspa?dateFormated=$dateFormated'" class="button"/>

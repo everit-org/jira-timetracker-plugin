@@ -47,12 +47,12 @@
 }
 
 .item-header {
-padding: 12px 12px 0 16px !important;
+	margin: 12px 12px 0 12px;
 	min-height: 48px;
 	position: relative;
-	padding-left: 5px;
-	padding-right: 5px;
-	padding-top: 0px;
+		padding-left: 5px !important;
+		padding-right: 5px !important;
+		padding-top: 0px !important;
 }
 
 #main-content {
@@ -64,6 +64,14 @@ padding: 12px 12px 0 16px !important;
 	line-height: 1.167;
 	margin: 0;
 }
+#error_message{
+		color: white;
+		text-align: center;
+		border: 1px solid;
+		border-color: #d04437;
+		border-radius: 3px;
+		background-color: #d04437;
+	}
 </style>
 </head>
 <body>
@@ -75,6 +83,13 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 
 <form name="myForm" method="post"action="JiraTimetrackerWorklogsWebAction.jspa?dateFromFormated=$dateFromFormated&dateToFormated=$dateToFormated&actualPage=$actualPage" />
 	#set($rendererType = "atlassian-wiki-renderer")
+	#if($currentCalendar.useISO8061 == true || $currentCalendar.useISO8601 == true)
+		#set ($firstDay = 1)
+		#set ($currentISO = true)
+	#else
+		#set ($firstDay = 0)
+		#set ($currentISO = false)
+	#end
 	<div id="plugin_head" class="item-header" style="width: 980px;">
 	  <div style="float: right;">
 	    <a href="http://www.everit.org/jira-timetracker-plugin/" target="_blank"> <img
@@ -91,11 +106,16 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 	        <li><a href="JiraTimetrackerWebAction!default.jspa"><strong>Timetracker</strong></a></li>
 	        <li class="active"><a href="JiraTimetrackerWorklogsWebAction!default.jspa"><strong>Missing Days Report</strong></a></li>
 	        <li><a href="JiraTimetrackerChartWebAction!default.jspa"><strong>Chart Report</strong></a></li>
+	        <li><a href="JiraTimetrackerTableWebAction!default.jspa"><strong>Table Report</strong></a></li>
 	      </ul>
 	    </div>
 	    ##TAB END
-	    <div id="message" style="color: red; padding-bottom: 5px;">$i18n.getText($message) $messageParameter</div>
-	    <div id="calendar_div" style="text-align: left; vertical-align: inherit; float: left; padding: 5px;">
+			#if(!$message.isEmpty())
+			  	<div id="error_message">
+			 			$i18n.getText($message) $messageParameter
+			  	</div>
+		  	#end	    
+		  	<div id="calendar_div" style="text-align: left; vertical-align: inherit; float: left; padding: 5px;">
 	      <table>
 	        <tbody>
 	          <tr>
@@ -109,19 +129,19 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 						}
 					}
 					</script> 
-					<img id="date_trigger_from" src="$contextPath/images/icons/cal.gif" width="16" height="16" border="0" alt="Pick a date" /> 
+					<img id="date_trigger_from" src="$contextPath/images/icons/cal.gif" width="16" height="16" border="0" alt="Pick a date" style="vertical-align: sub;" title="$i18n.getText('plugin.choose.date')"/> 
 					<script>
 						var cal = Calendar
 								.setup({
-									firstDay : $fdow,
+									firstDay : $firstDay,
 									inputField : 'dateFrom',
 									button : 'date_trigger_from',
-									date : '$dateFromFormated',
+									date : '$dateFormated',
 									align : 'Br',
-									electric : false,
+									electric: false,
 									singleClick : true,
-									showOthers : true,
-									useISO8601WeekNumbers : false,
+									showOthers: true,
+									useISO8601WeekNumbers : $currentISO,
 									ifFormat : '%Y-%m-%d'
 								});
 					</script>
@@ -136,11 +156,11 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 							}
 						}
 				</script> 
-				<img id="date_trigger_to" src="$contextPath/images/icons/cal.gif" width="16" height="16" border="0" alt="Pick a date" /> 
+				<img id="date_trigger_to" src="$contextPath/images/icons/cal.gif" width="16" height="16" border="0" alt="Pick a date" style="vertical-align: sub;" title="$i18n.getText('plugin.choose.date')"/> 
 	              <script>
 							var cal = Calendar
 									.setup({
-										firstDay : $fdow,
+										firstDay : $firstDay,
 										inputField : 'dateTo',
 										button : 'date_trigger_to',
 										date : '$dateToFormated',
@@ -148,7 +168,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 										electric : false,
 										singleClick : true,
 										showOthers : true,
-										useISO8601WeekNumbers : false,
+										useISO8601WeekNumbers : $currentISO,
 										ifFormat : '%Y-%m-%d'
 									});
 					</script>

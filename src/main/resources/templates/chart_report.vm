@@ -18,12 +18,12 @@
 		border-radius: .4em;
 	}
     .item-header {
-    	padding: 12px 12px 0 16px !important;
+		margin: 12px 12px 0 12px;
 		min-height: 48px;
 		position: relative;
-		padding-left: 5px;
-		padding-right: 5px;
-		padding-top: 0px;
+		padding-left: 5px !important;
+		padding-right: 5px !important;
+		padding-top: 0px !important;
 	}
 	#main-content {
 		min-width: 990px;
@@ -32,6 +32,14 @@
 		font-size: 2em;
 		line-height: 1.167;
 		margin: 0;
+	}
+	#error_message{
+		color: white;
+		text-align: center;
+		border: 1px solid;
+		border-color: #d04437;
+		border-radius: 3px;
+		background-color: #d04437;
 	}
 	
 </style>
@@ -44,6 +52,13 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 <body>
 <form name="chartReportForm"  method="get" action="JiraTimetrackerChartWebAction.jspa" />   
 	#set($rendererType = "atlassian-wiki-renderer")
+	#if($currentCalendar.useISO8061 == true || $currentCalendar.useISO8601 == true)
+		#set ($firstDay = 1)
+		#set ($currentISO = true)
+	#else
+		#set ($firstDay = 0)
+		#set ($currentISO = false)
+	#end
 	<div id="plugin_head" class="item-header" style="width:980px;">
 			<div style="float: right;">
 				<a href="http://www.everit.org/jira-timetracker-plugin/" target="_blank">
@@ -57,21 +72,21 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 			##TAB START
 			<div class="tabwrap tabs2" id="tabs-jttp">
 	    		<ul class="tabs horizontal">
-	        		<li>
-	            		<a href="JiraTimetrackerWebAction!default.jspa"><strong>Timetracker</strong></a>
-	        		</li>
-	        		<li>
-	            		<a href="JiraTimetrackerWorklogsWebAction!default.jspa"><strong>Missing Days Report</strong></a>
-	        		</li>
+	        		<li><a href="JiraTimetrackerWebAction!default.jspa"><strong>Timetracker</strong></a></li>
+	        		<li><a href="JiraTimetrackerWorklogsWebAction!default.jspa"><strong>Missing Days Report</strong></a></li>
 	        		<li class="active">
 	            		<a href="JiraTimetrackerChartWebAction!default.jspa"><strong>Chart Report</strong></a>
 	        		</li>
+					<li><a href="JiraTimetrackerTableWebAction!default.jspa"><strong>Table Report</strong></a></li>
+	      </ul>
 	    		</ul>
 	    	</div>
 			##TAB END
-			<div id="message" style="color: red; padding-bottom: 5px;">
-		 			$i18n.getText($message)
-		  	</div>
+		  	#if(!$message.isEmpty())
+			  	<div id="error_message">
+			 			$i18n.getText($message)
+			  	</div>
+		  	#end
 			<div id="form_div" style="text-align: left; vertical-align: inherit; padding:5px;">
 				<table>
 					<tbody>
@@ -90,10 +105,10 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 									}
 						          </script>
 								<img id="date_trigger_from" src="$contextPath/images/icons/cal.gif" width="16" height="16" border="0"
-									alt="Pick a date"/>
+									alt="Pick a date" style="vertical-align: sub;" title="$i18n.getText('plugin.choose.date')"/>
 								<script>
 								var cal= Calendar.setup({
-									firstDay : $fdow,
+									firstDay : $firstDay,
 									inputField : 'dateFrom',
 									button : 'date_trigger_from',
 									date : '$dateFromFormated',
@@ -101,7 +116,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 									electric: false,
 									singleClick : true,
 									showOthers: true,
-									useISO8601WeekNumbers : false,
+									useISO8601WeekNumbers : $currentISO,
 									ifFormat : '%Y-%m-%d'
 								});
 								</script>
@@ -122,10 +137,10 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 									}
 						          </script>
 								<img id="date_trigger_to" src="$contextPath/images/icons/cal.gif" width="16" height="16" border="0"
-									alt="Pick a date"/>
+									alt="Pick a date" style="vertical-align: sub;" title="$i18n.getText('plugin.choose.date')"/>
 								<script>
 								var cal= Calendar.setup({
-									firstDay : $fdow,
+									firstDay : $firstDay,
 									inputField : 'dateTo',
 									button : 'date_trigger_to',
 									date : '$dateToFormated',
@@ -133,7 +148,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 									electric: false,
 									singleClick : true,
 									showOthers: true,
-									useISO8601WeekNumbers : false,
+									useISO8601WeekNumbers : $currentISO,
 									ifFormat : '%Y-%m-%d'
 								});
 								</script>
@@ -145,18 +160,77 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 							</td>
 							<td>
 								<div style="width:300px;">
-									<select  id="userPicker" class="js-default-user-picker single-user-picker" name="userPicker">
+									<select  id="userPicker" class="js-default-user-picker2 single-user-picker" name="userPicker" >
 								 	#if($userPickerObject)
-										<option selected="selected"
+										<option selected="selected" 
+											value="$userPickerObject.getName()"
 									  		data-field-text="$userPickerObject.getDisplayName()"
-									  		style="background-image:url('$avatarURL')" 
-									  		value="$userPickerObject.getName()">
+									  		style="background-image:url('$avatarURL')" >
 									  	$userPickerObject.getDisplayName()
 									 	</option>
 									 #end
 									</select>
 									<script>
 	 									AJS.$('.aui-ss, .aui-ss-editing, .aui-ss-field').attr("style","width: 300px;");
+	 									(function ($) {
+										    function createSingleUserPickers(ctx) {
+										
+										        var restPath = "/rest/api/2/user/picker";
+										
+										        $(".js-default-user-picker2", ctx).each(function () {
+										            var $this = $(this);
+										            if ($this.data("aui-ss")) return;
+										            var data = {showAvatar: true},
+										                inputText = $this.data('inputValue');
+										            new AJS.SingleSelect({
+										                element: $this,
+										                submitInputVal: true,
+										                showDropdownButton: !!$this.data('show-dropdown-button'),
+										                errorMessage: AJS.I18n.getText("user.picker.invalid.user", "'{0}'"),
+										                ajaxOptions: {
+										                    url: contextPath + restPath,
+										                    query: true, // keep going back to the sever for each keystroke
+										                    data: data,
+										                    formatResponse: JIRA.UserPickerUtil.formatResponse2
+										                },
+										                inputText: inputText
+										            });
+										        });
+										    }
+										
+										    JIRA.bind(JIRA.Events.NEW_CONTENT_ADDED, function (e, context, reason) {
+										        if (reason !== JIRA.CONTENT_ADDED_REASON.panelRefreshed) {
+										            createSingleUserPickers(context);
+										        }
+										    });
+										
+										})(AJS.$);
+										(function ($) {
+										    JIRA.UserPickerUtil = {
+										        formatResponse2: function (data) {
+										            var ret = [];
+										            $(data).each(function(i, suggestions) {
+										                var groupDescriptor = new AJS.GroupDescriptor({
+										                    weight: i, // order or groups in suggestions dropdown
+										                    label: suggestions.footer
+										                });
+										                $(suggestions.users).each(function(){
+										                    groupDescriptor.addItem(new AJS.ItemDescriptor({
+										                        value: this.key, // value of item added to select
+										                        text: this.key,
+										                        label: this.displayName, // title of lozenge
+										                        html: this.html,
+										                        icon: this.avatarUrl,
+										                        allowDuplicate: false,
+										                        highlighted: true
+										                    }));
+										                });
+										                ret.push(groupDescriptor);
+										            });
+										            return ret;
+										        }		
+										    };						
+										})(AJS.$);
 									</script>
 								</div>
 							</td>
@@ -177,7 +251,20 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 							 			$i18n.getText("plugin.worklog.permission.warning")
 				</div>
 			#elseif($chartDataList)
-				<div id="piechart" style="width: 100%; height: 500px; display: inline-block;"></div>
+				<div id="dashboard">
+					<table>
+						<tbody>
+							<tr>
+								<td>
+						    	<div id="control_div"></div>
+						    	</td>
+						    	<td>
+						    	<div id="chart_div"></div>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
 			#end
 		</div>
 	</div>
@@ -190,30 +277,57 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
  			AJS.$('.aui-ss, .aui-ss-editing, .aui-ss-field').attr("style","width: 300px;");
 		 };
 		 
-      google.load("visualization", "1", {packages:["corechart"]});
-      google.setOnLoadCallback(drawChart);
+      //google.load("visualization", "1", {packages:["corechart"]});
+      //google.setOnLoadCallback(drawChart);
       function drawChart() {
       	 var dataArray = new Array();
 		 dataArray.push(['id','duration']);
-		 
+		 var initState= {selectedValues: []};
 		 #foreach ($chartData in $chartDataList)
 		 	var projectId = new String('$chartData.projectId');
 		 	var duration = new Number('$chartData.duration');
 		 	duration = duration/(1000*60*60);
 		 	duration = +duration.toFixed(2);
 		 	dataArray.push([projectId.toString(),duration]);
+		 	initState.selectedValues.push(projectId.toString());
 		 #end
 		 
-		 var data = google.visualization.arrayToDataTable(dataArray);
-        var options = {
-        	backgroundColor: 'transparent',
-        	pieSliceText: 'value',
-        	title: 'Hours worked by projects'
-        };
-
-        var chart = new google.visualization.PieChart(document.getElementById('piechart'));
-        chart.draw(data, options);
+		var data = google.visualization.arrayToDataTable(dataArray);
+        
+        var control = new google.visualization.ControlWrapper({
+        containerId: 'control_div',
+        controlType: 'CategoryFilter',
+        options: {
+	            filterColumnIndex: 0,
+	            ui: {
+	            	'label' : '',
+	                'selectedValuesLayout' : 'belowStacked'
+	            }
+	    	},
+	    state : initState
+	    });
+    
+	    var chart = new google.visualization.ChartWrapper({
+	        containerId: 'chart_div',
+	        chartType: 'PieChart',
+	        options: {
+	            height: 500,
+	            width: 700,
+	            backgroundColor: 'transparent',
+        		pieSliceText: 'value',
+        		title: 'Hours worked by projects',
+        		legend: {position: 'right', alignment: 'center'}
+	        },
+	        view: {
+	            columns: [0, 1]
+	        }
+	    });
+	    
+	    var dashboard = new google.visualization.Dashboard(document.querySelector('#dashboard'));
+	    dashboard.bind([control], [chart]);
+	    dashboard.draw(data);
       }
+      google.load('visualization', '1', {packages:['controls'], callback: drawChart});
 </script>
 </body>
 </html>
