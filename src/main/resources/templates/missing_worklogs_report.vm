@@ -104,6 +104,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 	        <li><a href="JiraTimetrackerWebAction!default.jspa"><strong>Timetracker</strong></a></li>
 	        <li class="active"><a href="JiraTimetrackerWorklogsWebAction!default.jspa"><strong>Missing Days Report</strong></a></li>
 	        <li><a href="JiraTimetrackerChartWebAction!default.jspa"><strong>Chart Report</strong></a></li>
+	        <li><a href="JiraTimetrackerTableWebAction!default.jspa"><strong>Table Report</strong></a></li>
 	      </ul>
 	    </div>
 	    ##TAB END

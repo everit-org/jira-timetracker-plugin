@@ -78,7 +78,7 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
  * The implementation of the {@link JiraTimetrackerPlugin}.
  */
 public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
-        Serializable, InitializingBean, DisposableBean {
+Serializable, InitializingBean, DisposableBean {
 
     /**
      * Serial version UID.
@@ -297,8 +297,12 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
             return new ActionResult(ActionResultStatus.FAIL,
                     "plugin.worklog.create.fail");
         }
-        worklogService.createAndAutoAdjustRemainingEstimate(serviceContext,
+        Worklog createdWorklog = worklogService.createAndAutoAdjustRemainingEstimate(serviceContext,
                 worklogResult, true);
+        if (createdWorklog == null) {
+            return new ActionResult(ActionResultStatus.FAIL,
+                    "plugin.worklog.create.fail");
+        }
 
         return new ActionResult(ActionResultStatus.SUCCESS,
                 "plugin.worklog.create.success");
@@ -413,6 +417,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
                 return new ActionResult(ActionResultStatus.FAIL,
                         "plugin.nopermission_issue", issueId);
             }
+            // ProjectPermissions.WORK_ON_ISSUES;
             ActionResult deleteResult = deleteWorklog(id);
             if (deleteResult.getStatus() == ActionResultStatus.FAIL) {
                 return deleteResult;
@@ -509,7 +514,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
     @Override
     public List<Date> getDates(final String selectedUser, final Date from, final Date to,
             final boolean workingHour, final boolean checkNonWorking)
-            throws GenericEntityException {
+                    throws GenericEntityException {
         List<Date> datesWhereNoWorklog = new ArrayList<Date>();
         Calendar fromDate = Calendar.getInstance();
         fromDate.setTime(from);
@@ -556,7 +561,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
             // not? .... think about it.
             if (exludeDate.startsWith(date.substring(0, 7))) {
                 resultexcludeDays
-                        .add(exludeDate.substring(exludeDate.length() - 2));
+                .add(exludeDate.substring(exludeDate.length() - 2));
             }
         }
 
@@ -913,8 +918,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
         pluginSettingsValues = new PluginSettingsValues(
                 new CalendarSettingsValues(isPopup, isActualDate,
                         excludeDatesString, includeDatesString, isColoring),
-                summaryFilteredIssuePatterns, collectorIssuePatterns,
-                startTimeChange, endTimeChange);
+                        summaryFilteredIssuePatterns, collectorIssuePatterns,
+                        startTimeChange, endTimeChange);
         return pluginSettingsValues;
     }
 
@@ -933,9 +938,9 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
         pluginSettings.put(JTTP_PLUGIN_SETTINGS_IS_COLORIG,
                 pluginSettingsParameters.isColoring().toString());
         pluginSettings
-                .put(JTTP_PLUGIN_SETTINGS_START_TIME_CHANGE,
-                        Integer.toString(pluginSettingsParameters
-                                .getStartTimeChange()));
+        .put(JTTP_PLUGIN_SETTINGS_START_TIME_CHANGE,
+                Integer.toString(pluginSettingsParameters
+                        .getStartTimeChange()));
         pluginSettings.put(JTTP_PLUGIN_SETTINGS_END_TIME_CHANGE,
                 Integer.toString(pluginSettingsParameters.getEndTimeChange()));
 

@@ -838,7 +838,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
      * @throws DataAccessException
      */
     private void loadWorklogsAndMakeSummary() throws GenericEntityException,
-    ParseException, DataAccessException, SQLException {
+            ParseException, DataAccessException, SQLException {
         try {
             loggedDays = jiraTimetrackerPlugin
                     .getLoggedDaysOfTheMonth(selectedUser, date);
@@ -865,10 +865,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
      */
     public void makeSummary() throws GenericEntityException {
         ApplicationProperties applicationProperties = ComponentAccessor.getApplicationProperties();
-        boolean useISO8604 = applicationProperties.getOption(APKeys.JIRA_DATE_TIME_PICKER_USE_ISO8601);
+        boolean useISO8601 = applicationProperties.getOption(APKeys.JIRA_DATE_TIME_PICKER_USE_ISO8601);
 
         Calendar startCalendar = Calendar.getInstance();
-        if (useISO8604) {
+        if (useISO8601) {
             startCalendar.setFirstDayOfWeek(Calendar.MONDAY);
         }
         startCalendar.setTime(date);
@@ -910,6 +910,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
         endCalendar = (Calendar) originalStartcalendar.clone();
         endCalendar.set(Calendar.DAY_OF_MONTH,
                 endCalendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+        endCalendar.add(Calendar.DAY_OF_MONTH, 1);
         end = endCalendar.getTime();
 
         monthSummary = jiraTimetrackerPlugin.summary(selectedUser, start, end, null);
@@ -939,7 +940,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
      *             ClassNotFoundException.
      */
     private void readObject(final ObjectInputStream in) throws IOException,
-    ClassNotFoundException {
+            ClassNotFoundException {
         in.defaultReadObject();
         issues = new ArrayList<Issue>();
     }
