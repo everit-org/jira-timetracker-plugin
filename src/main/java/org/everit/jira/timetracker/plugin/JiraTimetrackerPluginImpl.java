@@ -297,8 +297,12 @@ Serializable, InitializingBean, DisposableBean {
             return new ActionResult(ActionResultStatus.FAIL,
                     "plugin.worklog.create.fail");
         }
-        worklogService.createAndAutoAdjustRemainingEstimate(serviceContext,
+        Worklog createdWorklog = worklogService.createAndAutoAdjustRemainingEstimate(serviceContext,
                 worklogResult, true);
+        if (createdWorklog == null) {
+            return new ActionResult(ActionResultStatus.FAIL,
+                    "plugin.worklog.create.fail");
+        }
 
         return new ActionResult(ActionResultStatus.SUCCESS,
                 "plugin.worklog.create.success");
@@ -413,6 +417,7 @@ Serializable, InitializingBean, DisposableBean {
                 return new ActionResult(ActionResultStatus.FAIL,
                         "plugin.nopermission_issue", issueId);
             }
+            // ProjectPermissions.WORK_ON_ISSUES;
             ActionResult deleteResult = deleteWorklog(id);
             if (deleteResult.getStatus() == ActionResultStatus.FAIL) {
                 return deleteResult;
