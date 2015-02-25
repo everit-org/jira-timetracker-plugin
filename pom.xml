@@ -161,52 +161,16 @@
       <artifactId>jira-core</artifactId>
       <version>${jira.version}</version>
       <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>jndi</groupId>
+          <artifactId>jndi</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
   </dependencies>
 
   <repositories>
-    <repository>
-      <id>everit.groups.public</id>
-      <name>Everit Public Repository Group</name>
-      <url>http://repository.everit.biz/nexus/content/groups/public</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </repository>
-    <repository>
-      <id>everit.groups.proxy</id>
-      <name>Everit Proxy Repository Group</name>
-      <url>http://repository.everit.biz/nexus/content/groups/proxy</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </repository>
-    <repository>
-      <id>atlassian</id>
-      <url>http://repository.atlassian.com/maven2/</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </repository>
-    <repository>
-      <id>3dparty</id>
-      <url>https://maven.atlassian.com/3rdparty</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
     <repository>
       <id>atlassian-public</id>
       <url>https://maven.atlassian.com/repository/public</url>
@@ -221,30 +185,5 @@
       </releases>
     </repository>
   </repositories>
-
-  <pluginRepositories>
-    <pluginRepository>
-      <id>everit.groups.public</id>
-      <name>Everit Public Repository Group</name>
-      <url>http://repository.everit.biz/nexus/content/groups/public</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </pluginRepository>
-    <pluginRepository>
-      <id>everit.groups.proxy</id>
-      <name>Everit Proxy Repository Group</name>
-      <url>http://repository.everit.biz/nexus/content/groups/proxy</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </pluginRepository>
-  </pluginRepositories>
 
 </project>
