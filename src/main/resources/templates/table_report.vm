@@ -160,10 +160,10 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 									<select  id="userPicker" class="js-default-user-picker2 single-user-picker" name="userPicker" >
 								 	#if($userPickerObject)
 										<option selected="selected" 
-											value="$userPickerObject.getName()"
-									  		data-field-text="$userPickerObject.getDisplayName()"
+											value="$userPickerObject.getKey()"
+									  		data-field-text="$userPickerObject.getUser().getDisplayName()"
 									  		style="background-image:url('$avatarURL')" >
-									  	$userPickerObject.getDisplayName()
+									  	$userPickerObject.getUser().getDisplayName()
 									 	</option>
 									 #end
 									</select>

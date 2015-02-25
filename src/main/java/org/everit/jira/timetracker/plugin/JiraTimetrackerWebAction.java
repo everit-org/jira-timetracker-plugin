@@ -44,6 +44,8 @@ import com.atlassian.jira.ComponentManager;
 import com.atlassian.jira.avatar.Avatar;
 import com.atlassian.jira.avatar.AvatarService;
 import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.config.properties.APKeys;
+import com.atlassian.jira.config.properties.ApplicationProperties;
 import com.atlassian.jira.exception.DataAccessException;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.util.BuildUtilsInfo;
@@ -842,7 +844,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
      * @throws DataAccessException
      */
     private void loadWorklogsAndMakeSummary() throws GenericEntityException,
-    ParseException, DataAccessException, SQLException {
+            ParseException, DataAccessException, SQLException {
         try {
             loggedDays = jiraTimetrackerPlugin
                     .getLoggedDaysOfTheMonth(selectedUser, date);
@@ -868,16 +870,25 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
      *             GenericEntityException.
      */
     public void makeSummary() throws GenericEntityException {
-        Calendar startCalendar = DateTimeConverterUtil.setDateToDayStart(date);
+        ApplicationProperties applicationProperties = ComponentAccessor.getApplicationProperties();
+        boolean useISO8601 = applicationProperties.getOption(APKeys.JIRA_DATE_TIME_PICKER_USE_ISO8061);
+
+        Calendar startCalendar = Calendar.getInstance();
+        if (useISO8601) {
+            startCalendar.setFirstDayOfWeek(Calendar.MONDAY);
+        }
+        startCalendar.setTime(date);
+        startCalendar.set(Calendar.HOUR_OF_DAY, 0);
+        startCalendar.set(Calendar.MINUTE, 0);
+        startCalendar.set(Calendar.SECOND, 0);
+        startCalendar.set(Calendar.MILLISECOND, 0);
         Calendar originalStartcalendar = (Calendar) startCalendar.clone();
         Date start = startCalendar.getTime();
 
         Calendar endCalendar = (Calendar) startCalendar.clone();
         endCalendar.add(Calendar.DAY_OF_MONTH, 1);
 
-        Calendar originalEndCalendar = (Calendar) endCalendar.clone();
         Date end = endCalendar.getTime();
-
         daySummary = jiraTimetrackerPlugin.summary(selectedUser, start, end, null);
         if ((issuesRegex != null) && !issuesRegex.isEmpty()) {
             dayFilteredSummary = jiraTimetrackerPlugin.summary(selectedUser, start, end,
@@ -885,18 +896,13 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
         }
 
         startCalendar = (Calendar) originalStartcalendar.clone();
-        startCalendar
-        .set(Calendar.DAY_OF_MONTH,
-                (date.getDate() - (date.getDay() == 0 ? 6 : date
-                        .getDay() - 1)));
+        while (startCalendar.get(Calendar.DAY_OF_WEEK) != startCalendar.getFirstDayOfWeek()) {
+            startCalendar.add(Calendar.DATE, -1); // Substract 1 day until first day of week.
+        }
         start = startCalendar.getTime();
-
-        endCalendar = (Calendar) originalEndCalendar.clone();
-        endCalendar.set(Calendar.DAY_OF_MONTH,
-                (date.getDate() + (DateTimeConverterUtil.DAYS_PER_WEEK - (date
-                        .getDay() == 0 ? 7 : date.getDay()))));
+        endCalendar = (Calendar) startCalendar.clone();
+        endCalendar.add(Calendar.DATE, DateTimeConverterUtil.DAYS_PER_WEEK);
         end = endCalendar.getTime();
-
         weekSummary = jiraTimetrackerPlugin.summary(selectedUser, start, end, null);
         if ((issuesRegex != null) && !issuesRegex.isEmpty()) {
             weekFilteredSummary = jiraTimetrackerPlugin.summary(selectedUser, start, end,
@@ -907,9 +913,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
         startCalendar.set(Calendar.DAY_OF_MONTH, 1);
         start = startCalendar.getTime();
 
-        endCalendar = (Calendar) originalEndCalendar.clone();
+        endCalendar = (Calendar) originalStartcalendar.clone();
         endCalendar.set(Calendar.DAY_OF_MONTH,
                 endCalendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+        endCalendar.add(Calendar.DAY_OF_MONTH, 1);
         end = endCalendar.getTime();
 
         monthSummary = jiraTimetrackerPlugin.summary(selectedUser, start, end, null);
@@ -939,7 +946,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
      *             ClassNotFoundException.
      */
     private void readObject(final ObjectInputStream in) throws IOException,
-    ClassNotFoundException {
+            ClassNotFoundException {
         in.defaultReadObject();
         issues = new ArrayList<Issue>();
     }

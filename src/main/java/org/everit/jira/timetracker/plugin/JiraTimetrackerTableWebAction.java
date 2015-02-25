@@ -45,6 +45,8 @@ import com.atlassian.jira.avatar.AvatarService;
 import com.atlassian.jira.exception.DataAccessException;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.user.UserUtils;
+import com.atlassian.jira.usercompatibility.UserCompatibilityHelper;
+import com.atlassian.jira.usercompatibility.UserWithKey;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
 
 public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
@@ -89,11 +91,11 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
     private List<User> allUsers;
 
-    private String currentUser = "";
+    private String currentUserKey = "";
 
     private String avatarURL = "";
 
-    private User userPickerObject;
+    private UserWithKey userPickerObject;
 
     private List<EveritWorklog> worklogs;
 
@@ -164,7 +166,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
         Collections.sort(allUsers);
 
         JiraAuthenticationContext authenticationContext = componentManager.getJiraAuthenticationContext();
-        currentUser = authenticationContext.getLoggedInUser().getName();
+        currentUserKey = UserCompatibilityHelper.getKeyForUser(authenticationContext.getLoggedInUser());
         setUserPickerObjectBasedOnSelectedUser();
 
         return INPUT;
@@ -193,15 +195,17 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
         }
 
         if (request.getParameterValues("userPicker") != null) {
-            currentUser = request.getParameterValues("userPicker")[0];
+            User user = UserCompatibilityHelper.getUserForKey((request.getParameterValues("userPicker")[0]));
+            currentUserKey = UserCompatibilityHelper.getKeyForUser(user);
         } else {
             message += "plugin.user.picker.label";
             return SUCCESS;
         }
-        if ((currentUser == null) || currentUser.equals("")) {
-            JiraAuthenticationContext authenticationContext = componentManager.getJiraAuthenticationContext();
-            currentUser = authenticationContext.getLoggedInUser().getName();
+        if (currentUserKey == null) {
+            message += "plugin.user.picker.wrong";
+            return SUCCESS;
         }
+
         setUserPickerObjectBasedOnSelectedUser();
 
         String dateFrom = request.getParameterValues("dateFrom")[0];
@@ -250,7 +254,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
         worklogs = new ArrayList<EveritWorklog>();
         try {
-            worklogs.addAll(jiraTimetrackerPlugin.getWorklogs(currentUser, startDate.getTime(), lastDate.getTime()));
+            worklogs.addAll(jiraTimetrackerPlugin.getWorklogs(currentUserKey, startDate.getTime(), lastDate.getTime()));
         } catch (DataAccessException e) {
             LOGGER.error("Error when trying to get worklogs.", e);
             return ERROR;
@@ -352,7 +356,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     }
 
     public String getCurrentUserEmail() {
-        return currentUser;
+        return currentUserKey;
     }
 
     public String getDateFromFormated() {
@@ -391,7 +395,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
         return realWeekSum;
     }
 
-    public User getUserPickerObject() {
+    public UserWithKey getUserPickerObject() {
         return userPickerObject;
     }
 
@@ -429,7 +433,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     }
 
     public void setCurrentUser(final String currentUserEmail) {
-        currentUser = currentUserEmail;
+        currentUserKey = currentUserEmail;
     }
 
     public void setDateFromFormated(final String dateFromFormated) {
@@ -456,16 +460,19 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
         this.monthSum = monthSum;
     }
 
-    public void setUserPickerObject(final User userPickerObject) {
+    public void setUserPickerObject(final UserWithKey userPickerObject) {
         this.userPickerObject = userPickerObject;
     }
 
     private void setUserPickerObjectBasedOnSelectedUser() {
-        if ((currentUser != null) && !currentUser.equals("")) {
-            userPickerObject = componentManager.getUserUtil().getUserObject(currentUser);
+        if ((currentUserKey != null) && !currentUserKey.equals("")) {
+            User user = UserCompatibilityHelper.getUserForKey(currentUserKey);
+            userPickerObject = UserCompatibilityHelper.convertUserObject(user);
+            User loggedInUser = componentManager.getJiraAuthenticationContext().getLoggedInUser();
             AvatarService avatarService = ComponentManager
                     .getComponentInstanceOfType(AvatarService.class);
-            setAvatarURL(avatarService.getAvatarURL(userPickerObject, currentUser, Avatar.Size.SMALL).toString());
+            setAvatarURL(avatarService.getAvatarURL(loggedInUser, currentUserKey, Avatar.Size.SMALL)
+                    .toString());
         } else {
             userPickerObject = null;
         }
