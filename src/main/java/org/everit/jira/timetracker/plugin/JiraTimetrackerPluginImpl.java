@@ -86,7 +86,7 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
  * The implementation of the {@link JiraTimetrackerPlugin}.
  */
 public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
-        Serializable, InitializingBean, DisposableBean {
+Serializable, InitializingBean, DisposableBean {
 
     /**
      * Serial version UID.
@@ -182,7 +182,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
      */
     private Set<String> includeDatesSet = new HashSet<String>();
 
-    private Integer fdow;
     /**
      * The summary filter issues ids.
      */
@@ -453,7 +452,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
         // one week
         scannedDate.set(Calendar.DAY_OF_YEAR,
                 scannedDate.get(Calendar.DAY_OF_YEAR)
-                        - DateTimeConverterUtil.DAYS_PER_WEEK);
+                - DateTimeConverterUtil.DAYS_PER_WEEK);
         for (int i = 0; i < DateTimeConverterUtil.DAYS_PER_WEEK; i++) {
             // convert date to String
             Date scanedDateDate = scannedDate.getTime();
@@ -501,37 +500,40 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
             final boolean workingHour, final boolean checkNonWorking)
             throws GenericEntityException {
         List<Date> datesWhereNoWorklog = new ArrayList<Date>();
-        while (!from.equals(to)) {
-            String scanedDateString = DateTimeConverterUtil.dateToString(to);
-            if (excludeDatesSet.contains(scanedDateString)) {
-                to.setDate(to.getDate() - 1);
+        Calendar fromDate = Calendar.getInstance();
+        fromDate.setTime(from);
+        Calendar toDate = Calendar.getInstance();
+        toDate.setTime(to);
+        while (!fromDate.after(toDate)) {
+            String currentDateString = DateTimeConverterUtil.dateToString(fromDate.getTime());
+            if (excludeDatesSet.contains(currentDateString)) {
+                fromDate.add(Calendar.DATE, 1);
                 continue;
             }
             // check includes - not check weekend
-            if (!includeDatesSet.contains(scanedDateString)) {
-                Calendar toDate = Calendar.getInstance();
-                toDate.setTime(to);
+            if (!includeDatesSet.contains(currentDateString)) {
                 // check weekend - pass
-                if ((toDate.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY)
-                        || (toDate.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY)) {
-                    to.setDate(to.getDate() - 1);
+                if ((fromDate.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY)
+                        || (fromDate.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY)) {
+                    fromDate.add(Calendar.DATE, 1);
                     continue;
                 }
             }
             // check worklog. if no worklog set result else ++ scanedDate
             boolean isDateContainsWorklog;
             if (workingHour) {
-                isDateContainsWorklog = isContainsEnoughWorklog(selectedUser, to,
+                isDateContainsWorklog = isContainsEnoughWorklog(selectedUser, fromDate.getTime(),
                         checkNonWorking);
             } else {
-                isDateContainsWorklog = isContainsWorklog(selectedUser, to);
+                isDateContainsWorklog = isContainsWorklog(selectedUser, fromDate.getTime());
             }
             if (!isDateContainsWorklog) {
-                datesWhereNoWorklog.add((Date) to.clone());
+                datesWhereNoWorklog.add((Date) fromDate.getTime().clone());
             }
-            to.setDate(to.getDate() - 1);
+            fromDate.add(Calendar.DATE, 1);
 
         }
+        Collections.reverse(datesWhereNoWorklog);
         return datesWhereNoWorklog;
     }
 
@@ -543,16 +545,11 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
             // not? .... think about it.
             if (exludeDate.startsWith(date.substring(0, 7))) {
                 resultexcludeDays
-                        .add(exludeDate.substring(exludeDate.length() - 2));
+                .add(exludeDate.substring(exludeDate.length() - 2));
             }
         }
 
         return resultexcludeDays;
-    }
-
-    @Override
-    public Integer getFdow() {
-        return fdow;
     }
 
     @Override
@@ -877,19 +874,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
             includeDatesSet = new HashSet<String>();
             includeDatesString = "";
         }
-        if (globalSettings.get(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
-                + JTTP_PLUGIN_SETTINGS_FDOW) != null) {
-            try {
-                fdow = Integer.valueOf(globalSettings.get(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
-                        + JTTP_PLUGIN_SETTINGS_FDOW).toString());
-            } catch (NumberFormatException e) {
-                // the default fdow is sunday in the calendar
-                fdow = JiraTimetrackerUtil.SUNDAY_CALENDAR_FDOW;
-            }
-        } else {
-            // the default is the popup calendar
-            fdow = JiraTimetrackerUtil.SUNDAY_CALENDAR_FDOW;
-        }
 
         pluginSettings = settingsFactory
                 .createSettingsForKey(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
@@ -985,9 +969,9 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
         // Here set the other values
         pluginSettingsValues = new PluginSettingsValues(
                 new CalendarSettingsValues(isPopup, isActualDate,
-                        excludeDatesString, includeDatesString, isColoring, fdow),
-                summaryFilteredIssuePatterns, collectorIssuePatterns,
-                startTimeChange, endTimeChange);
+                        excludeDatesString, includeDatesString, isColoring),
+                        summaryFilteredIssuePatterns, collectorIssuePatterns,
+                        startTimeChange, endTimeChange);
         return pluginSettingsValues;
     }
 
@@ -1009,9 +993,9 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin,
         pluginSettings.put(JTTP_PLUGIN_SETTINGS_IS_COLORIG,
                 pluginSettingsParameters.isColoring().toString());
         pluginSettings
-                .put(JTTP_PLUGIN_SETTINGS_START_TIME_CHANGE,
-                        Integer.toString(pluginSettingsParameters
-                                .getStartTimeChange()));
+        .put(JTTP_PLUGIN_SETTINGS_START_TIME_CHANGE,
+                Integer.toString(pluginSettingsParameters
+                        .getStartTimeChange()));
         pluginSettings.put(JTTP_PLUGIN_SETTINGS_END_TIME_CHANGE,
                 Integer.toString(pluginSettingsParameters.getEndTimeChange()));
 

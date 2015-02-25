@@ -34,7 +34,8 @@
 
   <groupId>org.everit.jira.timetracker</groupId>
   <artifactId>org.everit.jira.timetracker.plugin</artifactId>
-  <version>1.3.0</version>
+
+  <version>1.4.0-SNAPSHOT</version>
 
   <packaging>bundle</packaging>
 
@@ -152,14 +153,15 @@
     </dependency>
     <dependency>
       <groupId>com.atlassian.jira</groupId>
-      <artifactId>atlassian-jira</artifactId>
+      <artifactId>jira-api</artifactId>
       <version>4.4</version>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.atlassian.jira</groupId>
+      <artifactId>jira-core</artifactId>
+      <version>4.4</version>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
 

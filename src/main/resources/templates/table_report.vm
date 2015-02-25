@@ -1,6 +1,6 @@
 <html>
 <head>
-<title>Timetracker Chart Report</title>
+<title>Timetracker Table Report</title>
 ## Style Declaration
 <style type="text/css">
 .button {
@@ -50,7 +50,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 $webResourceManager.requireResource("jira.webresources:dwr", null)   
 $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 <body>
-<form name="chartReportForm"  method="get" action="JiraTimetrackerChartWebAction.jspa" />   
+<form name="chartReportForm"  method="get" action="JiraTimetrackerTableWebAction.jspa" />   
 	#set($rendererType = "atlassian-wiki-renderer")
 	#if($currentCalendar.useISO8061 == true || $currentCalendar.useISO8601 == true)
 		#set ($firstDay = 1)
@@ -74,11 +74,8 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 	    		<ul class="tabs horizontal">
 	        		<li><a href="JiraTimetrackerWebAction!default.jspa"><strong>Timetracker</strong></a></li>
 	        		<li><a href="JiraTimetrackerWorklogsWebAction!default.jspa"><strong>Missing Days Report</strong></a></li>
-	        		<li class="active">
-	            		<a href="JiraTimetrackerChartWebAction!default.jspa"><strong>Chart Report</strong></a>
-	        		</li>
-					<li><a href="JiraTimetrackerTableWebAction!default.jspa"><strong>Table Report</strong></a></li>
-	      </ul>
+	        		<li><a href="JiraTimetrackerChartWebAction!default.jspa"><strong>Chart Report</strong></a></li>
+	        		<li class="active"><a href="JiraTimetrackerTableWebAction!default.jspa"><strong>Table Report</strong></a></li>
 	    		</ul>
 	    	</div>
 			##TAB END
@@ -156,7 +153,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 						</tr>
 						<tr>
 							<td>
-								$i18n.getText("plugin.user"):
+								$i18n.getText("plugin.user"): 
 							</td>
 							<td>
 								<div style="width:300px;">
@@ -243,91 +240,9 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 					</tbody>
 				</table>
 			</div>
-			#if($chartDataList && $chartDataList.size() == 0)
-				<div id="message" style="text-align: center; padding: 3px; font-size: 14px; width: 35%;" >
-							 			$i18n.getText("plugin.no.worklogs")
-				</div>
-				<div id="warn_message" style="text-align: center; padding: 3px; font-size: 11px; width: 35%; color: #3c78b5; font-style:italic;" >
-							 			$i18n.getText("plugin.worklog.permission.warning")
-				</div>
-			#elseif($chartDataList)
-				<div id="dashboard">
-					<table>
-						<tbody>
-							<tr>
-								<td>
-						    	<div id="control_div"></div>
-						    	</td>
-						    	<td>
-						    	<div id="chart_div"></div>
-								</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-			#end
+			#parse("templates/table_report_list.vm")
 		</div>
 	</div>
 </form>
-
-<script type="text/javascript" src="https://www.google.com/jsapi"></script>
-
-<script type="text/javascript">
-	window.onload = function() {
- 			AJS.$('.aui-ss, .aui-ss-editing, .aui-ss-field').attr("style","width: 300px;");
-		 };
-		 
-      //google.load("visualization", "1", {packages:["corechart"]});
-      //google.setOnLoadCallback(drawChart);
-      function drawChart() {
-      	 var dataArray = new Array();
-		 dataArray.push(['id','duration']);
-		 var initState= {selectedValues: []};
-		 #foreach ($chartData in $chartDataList)
-		 	var projectId = new String('$chartData.projectId');
-		 	var duration = new Number('$chartData.duration');
-		 	duration = duration/(1000*60*60);
-		 	duration = +duration.toFixed(2);
-		 	dataArray.push([projectId.toString(),duration]);
-		 	initState.selectedValues.push(projectId.toString());
-		 #end
-		 
-		var data = google.visualization.arrayToDataTable(dataArray);
-        
-        var control = new google.visualization.ControlWrapper({
-        containerId: 'control_div',
-        controlType: 'CategoryFilter',
-        options: {
-	            filterColumnIndex: 0,
-	            ui: {
-	            	'label' : '',
-	                'selectedValuesLayout' : 'belowStacked'
-	            }
-	    	},
-	    state : initState
-	    });
-    
-	    var chart = new google.visualization.ChartWrapper({
-	        containerId: 'chart_div',
-	        chartType: 'PieChart',
-	        options: {
-	            height: 500,
-	            width: 700,
-	            backgroundColor: 'transparent',
-        		pieSliceText: 'value',
-        		title: 'Hours worked by projects',
-        		legend: {position: 'right', alignment: 'center'}
-	        },
-	        view: {
-	            columns: [0, 1]
-	        }
-	    });
-	    
-	    var dashboard = new google.visualization.Dashboard(document.querySelector('#dashboard'));
-	    dashboard.bind([control], [chart]);
-	    dashboard.draw(data);
-      }
-      google.load('visualization', '1', {packages:['controls'], callback: drawChart});
-</script>
 </body>
 </html>

@@ -23,7 +23,7 @@
 <atlassian-plugin key="org.everit.jira.timetracker.plugin" name="Timetracker" plugins-version="2">
 
   <plugin-info>
-    <version>1.3.0</version>
+    <version>1.4.0-SNAPSHOT</version> 
     <description>Timetracker</description>
     <application-version min="4.4" />
     <vendor name="EverIT Kft." url="https://www.everit.biz" />
@@ -77,6 +77,11 @@
       <action name="org.everit.jira.timetracker.plugin.AdminSettingsWebAction" alias="JiraTimetrackerAdminSettingsWebAction">
         <view name="success">/templates/adminsettings.vm</view>
         <view name="input">/templates/adminsettings.vm</view>
+        <view name="error">/templates/error.vm</view>
+      </action>
+      <action name="org.everit.jira.timetracker.plugin.JiraTimetrackerTableWebAction" alias="JiraTimetrackerTableWebAction">
+        <view name="success">/templates/table_report.vm</view>
+        <view name="input">/templates/table_report.vm</view>
         <view name="error">/templates/error.vm</view>
       </action>
     </actions>

@@ -99,11 +99,6 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
      */
     private List<Pattern> collectorIssuePatterns;
 
-    /**
-     * The first day of the week.
-     */
-    private int fdow;
-
     private String contextPath;
 
     public JiraTimetrackerSettingsWebAction(
@@ -166,10 +161,6 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
         return endTime;
     }
 
-    public int getFdow() {
-        return fdow;
-    }
-
     public boolean getIsActualDate() {
         return isActualDate;
     }
@@ -213,7 +204,6 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
         startTime = Integer.toString(pluginSettingsValues.getStartTimeChange());
         endTime = Integer.toString(pluginSettingsValues.getEndTimeChange());
         isColoring = pluginSettingsValues.isColoring();
-        fdow = pluginSettingsValues.getFdow();
     }
 
     private void normalizeContextPath() {
@@ -289,9 +279,9 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     public void savePluginSettings() {
         PluginSettingsValues pluginSettingValues = new PluginSettingsValues(
                 new CalendarSettingsValues(isPopup, isActualDate, excludeDates,
-                        includeDates, isColoring, fdow), issuesPatterns,
-                        collectorIssuePatterns, Integer.valueOf(startTime),
-                        Integer.valueOf(endTime));
+                        includeDates, isColoring), issuesPatterns,
+                collectorIssuePatterns, Integer.valueOf(startTime),
+                Integer.valueOf(endTime));
         jiraTimetrackerPlugin.savePluginSettings(pluginSettingValues);
     }
 
@@ -305,10 +295,6 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 
     public void setEndTime(final String endTime) {
         this.endTime = endTime;
-    }
-
-    public void setFdow(final int fdow) {
-        this.fdow = fdow;
     }
 
     public void setIsActualDate(final boolean actualDateOrLastWorklogDate) {
