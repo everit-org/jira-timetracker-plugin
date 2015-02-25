@@ -42,6 +42,8 @@ import org.ofbiz.core.entity.GenericEntityException;
 import com.atlassian.jira.avatar.Avatar;
 import com.atlassian.jira.avatar.AvatarService;
 import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.config.properties.APKeys;
+import com.atlassian.jira.config.properties.ApplicationProperties;
 import com.atlassian.jira.exception.DataAccessException;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.user.ApplicationUser;
@@ -252,6 +254,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     private ApplicationUser userPickerObject;
 
     private boolean isDurationSelected = false;
+
+    private String debugMessage = "";
 
     /**
      * Simple constructor.
@@ -648,6 +652,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
         return daySummary;
     }
 
+    public String getDebugMessage() {
+        return debugMessage;
+    }
+
     public Long getDeletedWorklogId() {
         return deletedWorklogId;
     }
@@ -856,7 +864,13 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
      *             GenericEntityException.
      */
     public void makeSummary() throws GenericEntityException {
+        ApplicationProperties applicationProperties = ComponentAccessor.getApplicationProperties();
+        boolean useISO8604 = applicationProperties.getOption(APKeys.JIRA_DATE_TIME_PICKER_USE_ISO8601);
+
         Calendar startCalendar = Calendar.getInstance();
+        if (useISO8604) {
+            startCalendar.setFirstDayOfWeek(Calendar.MONDAY);
+        }
         startCalendar.setTime(date);
         startCalendar.set(Calendar.HOUR_OF_DAY, 0);
         startCalendar.set(Calendar.MINUTE, 0);
@@ -868,9 +882,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
         Calendar endCalendar = (Calendar) startCalendar.clone();
         endCalendar.add(Calendar.DAY_OF_MONTH, 1);
 
-        Calendar originalEndCcalendar = (Calendar) endCalendar.clone();
         Date end = endCalendar.getTime();
-
         daySummary = jiraTimetrackerPlugin.summary(selectedUser, start, end, null);
         if ((issuesRegex != null) && !issuesRegex.isEmpty()) {
             dayFilteredSummary = jiraTimetrackerPlugin.summary(selectedUser, start, end,
@@ -878,18 +890,13 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
         }
 
         startCalendar = (Calendar) originalStartcalendar.clone();
-        startCalendar
-        .set(Calendar.DAY_OF_MONTH,
-                (date.getDate() - (date.getDay() == 0 ? 6 : date
-                        .getDay() - 1)));
+        while (startCalendar.get(Calendar.DAY_OF_WEEK) != startCalendar.getFirstDayOfWeek()) {
+            startCalendar.add(Calendar.DATE, -1); // Substract 1 day until first day of week.
+        }
         start = startCalendar.getTime();
-
-        endCalendar = (Calendar) originalEndCcalendar.clone();
-        endCalendar.set(Calendar.DAY_OF_MONTH,
-                (date.getDate() + (DateTimeConverterUtil.DAYS_PER_WEEK - (date
-                        .getDay() == 0 ? 7 : date.getDay()))));
+        endCalendar = (Calendar) startCalendar.clone();
+        endCalendar.add(Calendar.DATE, DateTimeConverterUtil.DAYS_PER_WEEK);
         end = endCalendar.getTime();
-
         weekSummary = jiraTimetrackerPlugin.summary(selectedUser, start, end, null);
         if ((issuesRegex != null) && !issuesRegex.isEmpty()) {
             weekFilteredSummary = jiraTimetrackerPlugin.summary(selectedUser, start, end,
@@ -900,7 +907,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
         startCalendar.set(Calendar.DAY_OF_MONTH, 1);
         start = startCalendar.getTime();
 
-        endCalendar = (Calendar) originalEndCcalendar.clone();
+        endCalendar = (Calendar) originalStartcalendar.clone();
         endCalendar.set(Calendar.DAY_OF_MONTH,
                 endCalendar.getActualMaximum(Calendar.DAY_OF_MONTH));
         end = endCalendar.getTime();
@@ -971,6 +978,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
     public void setDaySummary(final String daySummary) {
         this.daySummary = daySummary;
+    }
+
+    public void setDebugMessage(final String debugMessage) {
+        this.debugMessage = debugMessage;
     }
 
     public void setDeletedWorklogId(final Long deletedWorklogId) {

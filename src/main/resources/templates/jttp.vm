@@ -85,6 +85,14 @@
 		bottom: 6px;
 		right: 6px;
 	}
+	#error_message{
+		color: white;
+		text-align: center;
+		border: 1px solid;
+		border-color: #d04437;
+		border-radius: 3px;
+		background-color: #d04437;
+	}
 	
 </style>
 </head>
@@ -129,6 +137,11 @@
 	 		}
 	 	}
 	}
+	
+	function submitForm(){
+			AJS.$('#Submitbutton').attr("disabled", true);
+			return true;
+	}
 
 	var original = Calendar.prototype.show;
 	
@@ -143,7 +156,12 @@
 $webResourceManager.requireResource("jira.webresources:global-static")
 $webResourceManager.requireResource("jira.webresources:calendar")
 $webResourceManager.requireResource("jira.webresources:calendar-en")
-<form name="jttpForm"  method="post"
+#if(!$debugMessage.isEmpty())
+			  	<div id="error_message">
+			 			$debugMessage
+			  	</div>
+#end
+<form name="jttpForm" id="jttpForm"  method="post" onsubmit="submitForm();"
 					#if($isEdit) action="JiraTimetrackerWebAction.jspa?editedWorklogId=$editedWorklogId&dateFormated=$dateFormated" 
 					#elseif($isEditAll) action="JiraTimetrackerWebAction.jspa?editAllIds=$editAllIds&dateFormated=$dateFormated" 
 					#else action="JiraTimetrackerWebAction.jspa?dateFormated=$dateFormated" #end/>   
@@ -180,9 +198,11 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 	    		</ul>
 	    	</div>
 			##TAB END
-			<div id="message" style="color: red; ">
-		 			$i18n.getText($message) $messageParameter
-		  	</div>
+		  	#if(!$message.isEmpty())
+			  	<div id="error_message">
+			 			$i18n.getText($message) $messageParameter
+			  	</div>
+		  	#end
 		  	<table style="width: 100%; padding-right: 5px;">
 		  		<!--
 		  		<tr>
@@ -686,7 +706,8 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 				document.getElementById("comments").disabled= true;
 				</script>
 			#else
-				<input id="Submit"  type="submit" name="submit" value="$i18n.getText('plugin.submit')" class="button" tabindex="5"/>
+				<input type="hidden" id="Submit" name="submit" disabled/>
+				<input id="Submitbutton" type="submit" name="submitbutton" value="$i18n.getText('plugin.submit')" class="button" tabindex="5" onclick="AJS.$('#Submit').val('true');AJS.$('#Submit').attr('disabled', false);"/>
 			#end
 			<input id="setting"  type="button" name="setting" onclick="location.href='JiraTimetrackerSettingsWebAction!default.jspa'" value="$i18n.getText('plugin.settings')" class="button" style="display: inline; float: right;"/>
 			<input id="cancelButton"  type="button" name="Cancel" value="$i18n.getText('plugin.cancel')" onclick="location.href='JiraTimetrackerWebAction!default.jspa?dateFormated=$dateFormated'" class="button"/>
@@ -749,7 +770,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 		 	AJS.$('#issueSelect-textarea').focus();
 		 	AJS.$('#Submit').focus();
 		 });
-		 
+		 	 
 	</script>	
 </form>
 </body>

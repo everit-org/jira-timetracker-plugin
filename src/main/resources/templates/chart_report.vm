@@ -33,6 +33,14 @@
 		line-height: 1.167;
 		margin: 0;
 	}
+	#error_message{
+		color: white;
+		text-align: center;
+		border: 1px solid;
+		border-color: #d04437;
+		border-radius: 3px;
+		background-color: #d04437;
+	}
 	
 </style>
 </head>
@@ -74,9 +82,11 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 	    		</ul>
 	    	</div>
 			##TAB END
-			<div id="message" style="color: red; padding-bottom: 5px;">
-		 			$i18n.getText($message)
-		  	</div>
+		  	#if(!$message.isEmpty())
+			  	<div id="error_message">
+			 			$i18n.getText($message)
+			  	</div>
+		  	#end
 			<div id="form_div" style="text-align: left; vertical-align: inherit; padding:5px;">
 				<table>
 					<tbody>
@@ -241,7 +251,20 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 							 			$i18n.getText("plugin.worklog.permission.warning")
 				</div>
 			#elseif($chartDataList)
-				<div id="piechart" style="width: 100%; height: 500px; display: inline-block;"></div>
+				<div id="dashboard">
+					<table>
+						<tbody>
+							<tr>
+								<td>
+						    	<div id="control_div"></div>
+						    	</td>
+						    	<td>
+						    	<div id="chart_div"></div>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
 			#end
 		</div>
 	</div>
@@ -254,30 +277,57 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
  			AJS.$('.aui-ss, .aui-ss-editing, .aui-ss-field').attr("style","width: 300px;");
 		 };
 		 
-      google.load("visualization", "1", {packages:["corechart"]});
-      google.setOnLoadCallback(drawChart);
+      //google.load("visualization", "1", {packages:["corechart"]});
+      //google.setOnLoadCallback(drawChart);
       function drawChart() {
       	 var dataArray = new Array();
 		 dataArray.push(['id','duration']);
-		 
+		 var initState= {selectedValues: []};
 		 #foreach ($chartData in $chartDataList)
 		 	var projectId = new String('$chartData.projectId');
 		 	var duration = new Number('$chartData.duration');
 		 	duration = duration/(1000*60*60);
 		 	duration = +duration.toFixed(2);
 		 	dataArray.push([projectId.toString(),duration]);
+		 	initState.selectedValues.push(projectId.toString());
 		 #end
 		 
-		 var data = google.visualization.arrayToDataTable(dataArray);
-        var options = {
-        	backgroundColor: 'transparent',
-        	pieSliceText: 'value',
-        	title: 'Hours worked by projects'
-        };
-
-        var chart = new google.visualization.PieChart(document.getElementById('piechart'));
-        chart.draw(data, options);
+		var data = google.visualization.arrayToDataTable(dataArray);
+        
+        var control = new google.visualization.ControlWrapper({
+        containerId: 'control_div',
+        controlType: 'CategoryFilter',
+        options: {
+	            filterColumnIndex: 0,
+	            ui: {
+	            	'label' : '',
+	                'selectedValuesLayout' : 'belowStacked'
+	            }
+	    	},
+	    state : initState
+	    });
+    
+	    var chart = new google.visualization.ChartWrapper({
+	        containerId: 'chart_div',
+	        chartType: 'PieChart',
+	        options: {
+	            height: 500,
+	            width: 700,
+	            backgroundColor: 'transparent',
+        		pieSliceText: 'value',
+        		title: 'Hours worked by projects',
+        		legend: {position: 'right', alignment: 'center'}
+	        },
+	        view: {
+	            columns: [0, 1]
+	        }
+	    });
+	    
+	    var dashboard = new google.visualization.Dashboard(document.querySelector('#dashboard'));
+	    dashboard.bind([control], [chart]);
+	    dashboard.draw(data);
       }
+      google.load('visualization', '1', {packages:['controls'], callback: drawChart});
 </script>
 </body>
 </html>
