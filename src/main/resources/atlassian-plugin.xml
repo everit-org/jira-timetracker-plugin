@@ -23,7 +23,7 @@
 <atlassian-plugin key="org.everit.jira.timetracker.plugin" name="Timetracker" plugins-version="2">
 
   <plugin-info>
-    <version>1.4.0-SNAPSHOT</version> 
+    <version>1.4.0</version> 
     <description>Timetracker</description>
     <application-version min="4.4" />
     <vendor name="EverIT Kft." url="https://www.everit.biz" />
