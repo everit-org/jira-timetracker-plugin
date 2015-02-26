@@ -42,7 +42,7 @@
         <div class="container">
             <div class="navbar-header">
                 <button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".bs-navbar-collapse">
-                    <span class="sr-only">Toggle navigation</span>  <span class="icon-bar"></span>  <span class="icon-bar"></span>  <span class="icon-bar"></span>
+                    <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
                 </button>
                 <a href="#" class="navbar-brand">Index</a>
             </div>
@@ -193,23 +193,23 @@
                         <li><b>Current Date</b> - The current date will be set up as the default value.</li>
                         <li><b>Last Unfilled Date</b> - Returns the oldest blank day of the past week by default. if each and every day is logged appropriately, then the current day is returned. When determining the oldest blank day, the plugin considers the list of exclude and include dates.</li>
                     </ul>
-					<p>The calendar highlights function can be turned on and off.<br>
-					There is a system setting to change the calendars first day of the week, located in: <br>
-					&nbsp;&nbsp;&nbsp;&nbsp;"system admin->look and feel->Use ISO8601 standard in Date Picker"</p>
-                    <h4>Input fields settings</h4> 
+                    <p>The calendar highlights function can be turned on and off.
+                        <br> There is a system setting to change the calendars first day of the week, located in:
+                        <br> &nbsp;&nbsp;&nbsp;&nbsp;"system admin->look and feel->Use ISO8601 standard in Date Picker"</p>
+                    <h4>Input fields settings</h4>
                     <p>This part of the settings the StartTime field and the EndTime field Now button rounding function can be configured. In both cases the rounding rate can be a predetermined value. The acceptable values are 5, 10, 15, 20, 30 minutes.</p>
                     <img class="img-responsive img-thumbnail" src="images/jttp_user_settings.png" alt="User settings" />
 
                     <h3 id="global_settings">Global settings</h3>
                     <p>The global settings are administrator settings and they manipulate how the plugin works.</p>
                     <p>
-                        <h4>Accessing the global settings</h4> 
+                        <h4>Accessing the global settings</h4>
                         <p>Global settings may be accessed only by the system administrators. The administrator can find the Global settings menu item on the Administrator page under the Plugins or Add-ons menu in the Timetracker submenu.</p>
                         <img class="img-responsive img-thumbnail" src="images/jttp_global_settings_access.png" alt="Global settings access" />
                         <img class="img-responsive img-thumbnail" src="images/jttp_global_settings_access_v6.png" alt="Global settings access" />
 
                         <p>
-                            <h4>Non-Working issues</h4> The administrator can define a list that may contain issue keys and regular expressions. This list will be the list of non-working issues. The issues listed here are ignored when creating the Real Work Summary. By default, the Non-Working issues list is empty.
+                            <h4 id="non_working_setting">Non-Working issues</h4> The administrator can define a list that may contain issue keys and regular expressions. This list will be the list of non-working issues. The issues listed here are ignored when creating the Real Work Summary. By default, the Non-Working issues list is empty.
                             <h4>Non-Estimated issues</h4> The administrator can define a list that may contain issue keys and regular expressions. This list will be the list of Non-Estimated issues. The issues listed here do not trigger the appearance of the red exclamation mark and they are ignored when sending notification e-mails too. All the issues are non-estimated by default. This can be achieved by setting upf a .* regular expression. Example: To set up all the issues of MYPROJECT to be Non-estimated, the following regular expression needs to be used: “MYPROJECT-.*”.
                             <h4>Working days</h4> By default, weekdays are working days and weekends are non-working days. The administrator can define the list of days that are exceptions to the rule; these lists are empty by default. The format of the dates is yyyy-MM-dd (e.g.: 2013-01-01), the separator character is “,”.
                             <ul>
@@ -236,8 +236,23 @@
                 <h2>Chart report</h2>
                 <p>By the help of the Chart Report tab, a pie chart is returned showing the logged work hours by projects between the given dates for the given user.</p>
                 <p>On the report page, the start and end date of the query can be chosen. Also you can select which users worklogs are you interested in. The query is executed after pressing the Search button. The date in the From field is considered from 00:00, whereas the date in the To field is considered till 23:59. By default, the value of the From field is a date being a week earlier than the current date, while the value of the To field is the current date. The default user is the currently logged in user. You can search for other users by typing in the starting characters of their username, full name or email address.</p>
+                <p>You can filter out any unwanted project with the dashboard appearing on the left of the chart, the results will update immediately.</p>
                 <p>There is a permission check in the query, so you will only see those projects in the chart which you have permisson to browse.</p>
                 <img class="img-responsive img-thumbnail" src="images/jttp_chart_report.png" alt="Chart report" />
+            </div>
+            <hr class="featurette-divider">
+
+            <div class="bs-docs-featurette cookbook" id="table_report">
+                <h2>Table report</h2>
+                <p>With the help of the Table Report tab, a table is returned showing the saved worklogs between the given dates for the given user.</p>
+                <p>
+                    The displayed table contains the following data of the worklogs: Date, Issue key, Start time, End time, Duration, Worklog note.
+                    <br> After each day/week/month there are a summary row which shows the total of the worklogs for the interval.
+                    <br> The "Real work" field does not count the projects defined at the <a href="#non_working_setting">Non-Working issues</a> setting.
+                </p>
+                <p>On the report page, the start and end date of the query can be chosen. Also you can select which users worklogs are you interested in. The query is executed after pressing the Search button. The date in the From field is considered from 00:00, whereas the date in the To field is considered till 23:59. By default, the value of the From field is a date being a week earlier than the current date, while the value of the To field is the current date. The default user is the currently logged in user. You can search for other users by typing in the starting characters of their username, full name or email address.</p>
+                <p>There is a permission check in the query, so you will only see those projects in the chart which you have permisson to browse.</p>
+                <img class="img-responsive img-thumbnail" src="images/jttp_table_report.png" alt="Chart report" />
             </div>
             <hr class="featurette-divider">
 
@@ -283,29 +298,42 @@
 
             <div class="bs-docs-featurette cookbook" id="release_notes">
                 <h2>Release notes</h2>
-				<h3>Timetracker version 2.0.0</h3>
+                <h3>Timetracker version 2.1.0 and 1.4.0</h3>
+                <h4 style="margin-left:20px;">New features</h4>
+                <ul>
+                    <li>Table report page to show the worklogs in a table in the given time interval.</li>
+                    <li>Added project filtering capability to the chart report.</li>
+                </ul>
+                <h4 style="margin-left:20px;">Bugfix</h4>
+                <ul>
+                    <li>Duration field accepts inputs like "90m". (<a href="https://github.com/everit-org/jira-timetracker-plugin/issues/51">#51</a>).</li>
+                    <li>Prevented multiple form submit. (<a href="https://github.com/everit-org/jira-timetracker-plugin/issues/52">#52</a>).</li>
+                    <li>Correct handling of users with changed email address (v1.4.0).</li>
+                </ul>
+
+                <h3>Timetracker version 2.0.0</h3>
                 <h4 style="margin-left:20px;">Changes</h4>
                 <ul>
                     <li>In this version we changed the way of querying the worklogs from native sql to API calls. To do this with a satisfying speed we need a new view in the entity model called "IssueWorklogView" which is introduced in JIRA 6.2.5.</li>
-					<li>Therefore this version is only available with JIRA versions above 6.2.5.</li>
-					<li>From now on we will only develop the 2.x.x version of the plugin and no new features will be introduced in the 1.x branch</li>
+                    <li>Therefore this version is only available with JIRA versions above 6.2.5.</li>
+                    <li>From now on we will only develop the 2.x.x version of the plugin and no new features will be introduced in the 1.x branch</li>
                 </ul>
                 <h3>Timetracker version 1.3.0</h3>
                 <h4 style="margin-left:20px;">Bugfix</h4>
                 <ul>
                     <li>The inline calendar will no longer stay at the top of every screen.</li>
-					<li>When you edited a worklog and made an invalid save action, the plugin changed to "Add worklog" mode, now it stays in "Edit".</li>
+                    <li>When you edited a worklog and made an invalid save action, the plugin changed to "Add worklog" mode, now it stays in "Edit".</li>
                 </ul>
                 <h4 style="margin-left:20px;">Improvements</h4>
                 <ul>
                     <li>The default Jira snytax (2h 30m) is now supported in the duration field. (<a href="https://github.com/everit-org/jira-timetracker-plugin/issues/32">#32</a>).</li>
                     <li>Added global setting to set the first day of the week in the calendar. (<a href="https://github.com/everit-org/jira-timetracker-plugin/issues/22">#22</a>).</li>
                     <li>The fields now remember their values when changing date or when form submission fails. (<a href="https://github.com/everit-org/jira-timetracker-plugin/issues/13">#13</a>).</li>
-					<li>So far the issue picker only offered cached issues but now it searches between all of the issues.</li>
-					<li>The worklog currently being edited is now highlighted in the worklog table.</li>
-					<li>The plugin now remembers which one of the EndTime/Duration fields was filled in before an invalid submit.</li>
-					<li>Removed radio buttons from End Time and Duration fields, now you can select between them by clicking into the appropriate field.</li>
-				</ul>
+                    <li>So far the issue picker only offered cached issues but now it searches between all of the issues.</li>
+                    <li>The worklog currently being edited is now highlighted in the worklog table.</li>
+                    <li>The plugin now remembers which one of the EndTime/Duration fields was filled in before an invalid submit.</li>
+                    <li>Removed radio buttons from End Time and Duration fields, now you can select between them by clicking into the appropriate field.</li>
+                </ul>
                 <h4 style="margin-left:20px;">New features</h4>
                 <ul>
                     <li>Copy button to the worklog table to quickly select recently used issues with a single the click of a button (<a href="https://github.com/everit-org/jira-timetracker-plugin/issues/17">#17</a>).</li>
@@ -406,6 +434,8 @@
                     <li><a href="#missing_days_report">Missing days report</a>
                     </li>
                     <li><a href="#chart_report">Chart report</a>
+                    </li>
+                    <li><a href="#table_report">Table report</a>
                     </li>
                     <li><a href="#notification_email">Notification Email</a>
                     </li>
