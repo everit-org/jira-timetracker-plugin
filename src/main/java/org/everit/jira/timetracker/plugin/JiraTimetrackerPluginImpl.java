@@ -361,7 +361,7 @@ Serializable, InitializingBean, DisposableBean {
                     "plugin.worklog.delete.fail", id.toString());
         }
         worklogService.deleteAndAutoAdjustRemainingEstimate(serviceContext,
-                deleteWorklogResult, false);
+                deleteWorklogResult, true);
         return new ActionResult(ActionResultStatus.SUCCESS,
                 "plugin.worklog.delete.success", id.toString());
     }
