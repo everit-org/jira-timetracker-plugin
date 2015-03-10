@@ -1,0 +1,5 @@
+language: java
+jdk:
+  - openjdk6
+script: mvn integration-test
+install: true
