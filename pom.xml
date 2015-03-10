@@ -27,9 +27,9 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.everit</groupId>
-    <artifactId>oss</artifactId>
-    <version>4</version>
+    <groupId>org.everit.config</groupId>
+    <artifactId>org.everit.config.oss</artifactId>
+    <version>5.0.2</version>
   </parent>
 
   <groupId>org.everit.jira.timetracker</groupId>
