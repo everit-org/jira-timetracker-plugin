@@ -27,9 +27,9 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.everit</groupId>
-    <artifactId>oss</artifactId>
-    <version>4</version>
+    <groupId>org.everit.config</groupId>
+    <artifactId>org.everit.config.oss</artifactId>
+    <version>5.0.2</version>
   </parent>
 
   <groupId>org.everit.jira.timetracker</groupId>
@@ -42,7 +42,10 @@
   <properties>
     <jira.version>4.0.1</jira.version>
     <jira.data.version>4.0</jira.data.version>
+    <license.skip>true</license.skip>
     <projectpath>jira-timetracker-plugin</projectpath>
+    <maven.compiler.source>1.6</maven.compiler.source>
+    <maven.compiler.target>1.6</maven.compiler.target>
   </properties>
 
   <scm>
@@ -98,6 +101,20 @@
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
       <version>1.2.15</version>
+      <exclusions>
+      	<exclusion>
+      		<artifactId>jms</artifactId>
+      		<groupId>javax.jms</groupId>
+      	</exclusion>
+      	<exclusion>
+      		<artifactId>jmxtools</artifactId>
+      		<groupId>com.sun.jdmk</groupId>
+      	</exclusion>
+      	<exclusion>
+      		<artifactId>jmxri</artifactId>
+      		<groupId>com.sun.jmx</groupId>
+      	</exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>
@@ -113,6 +130,12 @@
       <groupId>com.atlassian.ofbiz</groupId>
       <artifactId>entityengine</artifactId>
       <version>1.0.3</version>
+      <exclusions>
+      	<exclusion>
+      		<artifactId>jta</artifactId>
+      		<groupId>jta</groupId>
+      	</exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>opensymphony</groupId>
@@ -166,6 +189,10 @@
         <exclusion>
           <groupId>jndi</groupId>
           <artifactId>jndi</artifactId>
+        </exclusion>
+        <exclusion>
+        	<artifactId>jta</artifactId>
+        	<groupId>jta</groupId>
         </exclusion>
       </exclusions>
     </dependency>
