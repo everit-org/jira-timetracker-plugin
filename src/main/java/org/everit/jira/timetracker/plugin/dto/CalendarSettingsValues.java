@@ -20,40 +20,60 @@ package org.everit.jira.timetracker.plugin.dto;
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-
+/**
+ * Settings of the shown calendars.
+ */
 public class CalendarSettingsValues {
-    private int isCalendarPopup;
-    private boolean isActualDate;
-    private String excludeDates;
-    private String includeDates;
-    private boolean isColoring;
+  private int isCalendarPopup;
 
-    public CalendarSettingsValues(final int isCalendarPopup, final boolean isActualDate,
-            final String excludeDates, final String includeDates, final boolean isColoring) {
-        this.isCalendarPopup = isCalendarPopup;
-        this.isActualDate = isActualDate;
-        this.excludeDates = excludeDates;
-        this.includeDates = includeDates;
-        this.isColoring = isColoring;
-    }
+  private boolean isActualDate;
 
-    public String getExcludeDates() {
-        return excludeDates;
-    }
+  private String excludeDates;
 
-    public String getIncludeDates() {
-        return includeDates;
-    }
+  private String includeDates;
 
-    public int getIsCalendarPopup() {
-        return isCalendarPopup;
-    }
+  private boolean isColoring;
 
-    public boolean isActualDate() {
-        return isActualDate;
-    }
+  /**
+   * Constructor for the calendar settings.
+   *
+   * @param isCalendarPopup
+   *          isCalendarPopup
+   * @param isActualDate
+   *          isActualDate
+   * @param excludeDates
+   *          excludeDates
+   * @param includeDates
+   *          includeDates
+   * @param isColoring
+   *          isColoring
+   */
+  public CalendarSettingsValues(final int isCalendarPopup, final boolean isActualDate,
+      final String excludeDates, final String includeDates, final boolean isColoring) {
+    this.isCalendarPopup = isCalendarPopup;
+    this.isActualDate = isActualDate;
+    this.excludeDates = excludeDates;
+    this.includeDates = includeDates;
+    this.isColoring = isColoring;
+  }
 
-    public boolean isColoring() {
-        return isColoring;
-    }
+  public String getExcludeDates() {
+    return excludeDates;
+  }
+
+  public String getIncludeDates() {
+    return includeDates;
+  }
+
+  public int getIsCalendarPopup() {
+    return isCalendarPopup;
+  }
+
+  public boolean isActualDate() {
+    return isActualDate;
+  }
+
+  public boolean isColoring() {
+    return isColoring;
+  }
 }

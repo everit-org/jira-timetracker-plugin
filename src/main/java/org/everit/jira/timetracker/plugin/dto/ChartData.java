@@ -1,5 +1,7 @@
 package org.everit.jira.timetracker.plugin.dto;
 
+import java.io.Serializable;
+
 /*
  * Copyright (c) 2011, Everit Kft.
  *
@@ -20,33 +22,45 @@ package org.everit.jira.timetracker.plugin.dto;
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
+/**
+ * Data holder for a chart.
+ */
+public class ChartData implements Serializable {
 
-public class ChartData {
+  private static final long serialVersionUID = 21551301923003314L;
 
-    private String projectId;
+  private String projectId;
 
-    private Long duration;
+  private Long duration;
 
-    public ChartData(final String projectId, final Long duration) {
-        super();
-        this.projectId = projectId;
-        this.duration = duration;
-    }
+  /**
+   * Constructor for a chart data.
+   *
+   * @param projectId
+   *          Id of the current project
+   * @param duration
+   *          Duration
+   */
+  public ChartData(final String projectId, final Long duration) {
+    super();
+    this.projectId = projectId;
+    this.duration = duration;
+  }
 
-    public Long getDuration() {
-        return duration;
-    }
+  public Long getDuration() {
+    return duration;
+  }
 
-    public String getProjectId() {
-        return projectId;
-    }
+  public String getProjectId() {
+    return projectId;
+  }
 
-    public void setDuration(final Long duration) {
-        this.duration = duration;
-    }
+  public void setDuration(final Long duration) {
+    this.duration = duration;
+  }
 
-    public void setProjectId(final String projectId) {
-        this.projectId = projectId;
-    }
+  public void setProjectId(final String projectId) {
+    this.projectId = projectId;
+  }
 
 }
