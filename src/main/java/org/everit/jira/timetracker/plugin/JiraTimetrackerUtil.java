@@ -34,77 +34,83 @@ import com.atlassian.jira.user.ApplicationUser;
  * The Jira Timetracker plugin utils class.
  */
 public final class JiraTimetrackerUtil {
-    /**
-     * Check the issue original estimated time. If null then the original estimated time wasn't specified, else compare
-     * the spent time whit the original estimated time.
-     *
-     * @param issue
-     *            The issue.
-     * @return True if not specified, bigger or equals whit spent time else false.
-     */
-    public static boolean checkIssueEstimatedTime(final MutableIssue issue,
-            final List<Pattern> collectorIssueIds) {
-        String issueKey = issue.getKey();
-        if (collectorIssueIds != null) {
-            for (Pattern issuePattern : collectorIssueIds) {
-                // check matches
-                boolean isCollectorIssue = issuePattern.matcher(issueKey).matches();
-                if (isCollectorIssue) {
-                    return true;
-                }
-            }
+
+  /**
+   * Check the issue original estimated time. If null then the original estimated time wasn't
+   * specified, else compare the spent time with the original estimated time.
+   *
+   * @param issue
+   *          The issue.
+   * @return True if not specified, bigger or equals whit spent time else false.
+   */
+  public static boolean checkIssueEstimatedTime(final MutableIssue issue,
+      final List<Pattern> collectorIssueIds) {
+    String issueKey = issue.getKey();
+    if (collectorIssueIds != null) {
+      for (Pattern issuePattern : collectorIssueIds) {
+        // check matches
+        boolean isCollectorIssue = issuePattern.matcher(issueKey).matches();
+        if (isCollectorIssue) {
+          return true;
         }
-        Long estimated = issue.getEstimate();
-        Status issueStatus = issue.getStatusObject();
-        String issueStatusId = issueStatus.getId();
-        if (((estimated == null) || (estimated == 0)) && !issueStatusId.equals("6")) {
-            return false;
-        }
-        return true;
+      }
     }
-
-    /**
-     * Check the user is logged or not.
-     *
-     * @return True if we have logged user else false.
-     */
-    public static boolean isUserLogged() {
-        JiraAuthenticationContext authenticationContext = ComponentAccessor
-                .getJiraAuthenticationContext();
-        ApplicationUser user = authenticationContext.getUser();
-        if (user == null) {
-            return false;
-        }
-        return true;
+    Long estimated = issue.getEstimate();
+    Status issueStatus = issue.getStatusObject();
+    String issueStatusId = issueStatus.getId();
+    if (((estimated == null) || (estimated == 0)) && !"6".equals(issueStatusId)) {
+      return false;
     }
+    return true;
+  }
 
-    /**
-     * The plugin calendar popup code.
-     */
-    public static final int POPUP_CALENDAR_CODE = 1;
+  /**
+   * Check the user is logged or not.
+   *
+   * @return True if we have logged user else false.
+   */
+  public static boolean isUserLogged() {
+    JiraAuthenticationContext authenticationContext = ComponentAccessor
+        .getJiraAuthenticationContext();
+    ApplicationUser user = authenticationContext.getUser();
+    if (user == null) {
+      return false;
+    }
+    return true;
+  }
 
-    /**
-     * The plugin calendar inline code.
-     */
-    public static final int INLINE_CALENDAR_CODE = 2;
+  /**
+   * The plugin calendar popup code.
+   */
+  public static final int POPUP_CALENDAR_CODE = 1;
 
-    /**
-     * The plugin calendar both type code.
-     */
-    public static final int BOTH_TYPE_CALENDAR_CODE = 3;
+  /**
+   * The plugin calendar inline code.
+   */
+  public static final int INLINE_CALENDAR_CODE = 2;
 
-    /**
-     * Sunday first day of the week.
-     */
-    public static final int SUNDAY_CALENDAR_FDOW = 0;
-    /**
-     * Monday first day of the week.
-     */
-    public static final int MONDAY_CALENDAR_FDOW = 1;
-    public static final int DAY_INTERVAL = 0;
+  /**
+   * The plugin calendar both type code.
+   */
+  public static final int BOTH_TYPE_CALENDAR_CODE = 3;
 
-    public static final int WEEK_INTERVAL = 1;
+  /**
+   * Sunday first day of the week.
+   */
+  public static final int SUNDAY_CALENDAR_FDOW = 0;
 
-    public static final int MONTH_INTERVAL = 2;
+  /**
+   * Monday first day of the week.
+   */
+  public static final int MONDAY_CALENDAR_FDOW = 1;
+
+  public static final int DAY_INTERVAL = 0;
+
+  public static final int WEEK_INTERVAL = 1;
+
+  public static final int MONTH_INTERVAL = 2;
+
+  private JiraTimetrackerUtil() {
+  }
 
 }

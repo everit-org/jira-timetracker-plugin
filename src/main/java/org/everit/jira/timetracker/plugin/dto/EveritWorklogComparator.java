@@ -33,34 +33,37 @@ import org.everit.jira.timetracker.plugin.DateTimeConverterUtil;
  */
 public class EveritWorklogComparator implements Comparator<EveritWorklog>, Serializable {
 
-    /**
-     * Serial version UID.
-     */
-    private static final long serialVersionUID = -4563970131275373338L;
+  /**
+   * Serial version UID.
+   */
+  private static final long serialVersionUID = -4563970131275373338L;
 
-    @Override
-    public int compare(final EveritWorklog o1, final EveritWorklog o2) {
-        Date o1StartDate = null;
-        Date o2StartDate = null;
-        try {
-            o1StartDate = DateTimeConverterUtil.stringTimeToDateTime(o1.getStartTime());
-            o2StartDate = DateTimeConverterUtil.stringTimeToDateTime(o2.getStartTime());
-        } catch (ParseException e) {
-            throw new IllegalArgumentException("Faild to convert startDate to Date", e);
-        }
-        int result = o1StartDate.compareTo(o2StartDate);
-        if (result != 0) {
-            return result;
-        }
-        Date o1EndDate = null;
-        Date o2EndDate = null;
-        try {
-            o1EndDate = DateTimeConverterUtil.stringTimeToDateTime(o1.getEndTime());
-            o2EndDate = DateTimeConverterUtil.stringTimeToDateTime(o2.getEndTime());
-        } catch (ParseException e) {
-            throw new IllegalArgumentException("Faild to convert endDate to Date", e);
-        }
-        return o1EndDate.compareTo(o2EndDate);
+  /**
+   * Compare by start and end Date.
+   */
+  @Override
+  public int compare(final EveritWorklog o1, final EveritWorklog o2) {
+    Date o1StartDate = null;
+    Date o2StartDate = null;
+    try {
+      o1StartDate = DateTimeConverterUtil.stringTimeToDateTime(o1.getStartTime());
+      o2StartDate = DateTimeConverterUtil.stringTimeToDateTime(o2.getStartTime());
+    } catch (ParseException e) {
+      throw new IllegalArgumentException("Faild to convert startDate to Date", e);
     }
+    int result = o1StartDate.compareTo(o2StartDate);
+    if (result != 0) {
+      return result;
+    }
+    Date o1EndDate = null;
+    Date o2EndDate = null;
+    try {
+      o1EndDate = DateTimeConverterUtil.stringTimeToDateTime(o1.getEndTime());
+      o2EndDate = DateTimeConverterUtil.stringTimeToDateTime(o2.getEndTime());
+    } catch (ParseException e) {
+      throw new IllegalArgumentException("Faild to convert endDate to Date", e);
+    }
+    return o1EndDate.compareTo(o2EndDate);
+  }
 
 }
