@@ -1,25 +1,19 @@
-package org.everit.jira.timetracker.plugin.dto;
-
 /*
- * Copyright (c) 2011, Everit Kft.
+ * Copyright (C) 2011 Everit Kft. (http://www.everit.org)
  *
- * All rights reserved.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- * MA 02110-1301  USA
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+package org.everit.jira.timetracker.plugin.dto;
 
 import java.io.Serializable;
 import java.sql.ResultSet;
@@ -44,314 +38,330 @@ import com.atlassian.jira.issue.worklog.Worklog;
  */
 public class EveritWorklog implements Serializable {
 
-    /**
-     * Serial version UID.
-     */
-    private static final long serialVersionUID = 1L;
-    /**
-     * The worklog ID.
-     */
-    private Long worklogId;
-    /**
-     * The start Time.
-     */
-    private String startTime;
-    /**
-     * The start Date.
-     */
-    private String startDate;
-    private int monthNo;
-    private int weekNo;
-    private int dayNo;
-    private Date date;
-    /**
-     * The worklog Issue key.
-     */
-    private String issue;
+  /**
+   * Serial version UID.
+   */
+  private static final long serialVersionUID = 1L;
+  /**
+   * The worklog ID.
+   */
+  private Long worklogId;
+  /**
+   * The start Time.
+   */
+  private String startTime;
+  /**
+   * The start Date.
+   */
+  private String startDate;
 
-    /**
-     * The worklog Issue Summary.
-     */
-    private String issueSummary;
+  private int monthNo;
 
-    /**
-     * The worklog Issue epic.
-     */
-    private String issueParent;
-    /**
-     * The worklog issue ID.
-     */
-    private Long issueId;
-    /**
-     * The milliseconds between the start time and the end time.
-     */
-    private long milliseconds;
-    /**
-     * The spent time.
-     */
-    private String duration;
+  private int weekNo;
 
-    /**
-     * The calculated end time.
-     */
-    private String endTime;
+  private int dayNo;
 
-    /**
-     * The worklog note.
-     */
-    private String body;
+  private Date date;
+  /**
+   * The worklog Issue key.
+   */
+  private String issue;
 
-    /**
-     * The issue estimated time is 0 or not.
-     */
-    private boolean isMoreEstimatedTime;
+  /**
+   * The worklog Issue Summary.
+   */
+  private String issueSummary;
 
-    /**
-     * Simple constructor whit GenericValue.
-     *
-     * @param worklogGv
-     *            GenericValue worklog.
-     * @param collectorIssuePatterns
-     *            The collector Issues Pattern list.
-     * @throws ParseException
-     *             If can't parse the date.
-     */
-    public EveritWorklog(final GenericValue worklogGv,
-            final List<Pattern> collectorIssuePatterns) throws ParseException {
-        worklogId = worklogGv.getLong("id");
-        startTime = worklogGv.getString("startdate");
-        date = DateTimeConverterUtil.stringToDateAndTime(startTime);
-        startTime = DateTimeConverterUtil.dateTimeToString(date);
-        startDate = DateTimeConverterUtil.dateToString(date);
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        weekNo = calendar.get(Calendar.WEEK_OF_YEAR);
-        monthNo = calendar.get(Calendar.MONTH) + 1;
-        dayNo = calendar.get(Calendar.DAY_OF_YEAR);
-        issueId = new Long(worklogGv.getString("issue"));
-        IssueManager issueManager = ComponentAccessor.getIssueManager();
-        MutableIssue issueObject = issueManager.getIssueObject(issueId);
-        issue = issueObject.getKey();
-        issueSummary = issueObject.getSummary();
+  /**
+   * The worklog Issue epic.
+   */
+  private String issueParent;
+  /**
+   * The worklog issue ID.
+   */
+  private Long issueId;
+  /**
+   * The milliseconds between the start time and the end time.
+   */
+  private long milliseconds;
+  /**
+   * The spent time.
+   */
+  private String duration;
 
-        if (issueObject.getParentObject() != null) {
-            issueParent = issueObject.getParentObject().getKey();
-        } else {
-            issueParent = "";
-        }
-        isMoreEstimatedTime = JiraTimetrackerUtil.checkIssueEstimatedTime(
-                issueObject, collectorIssuePatterns);
-        body = worklogGv.getString("body");
-        if (body != null) {
-            body = body.replace("\"", "\\\"");
-            body = body.replace("\r", "\\r");
-            body = body.replace("\n", "\\n");
-        } else {
-            body = "";
-        }
-        long timeSpentInSec = worklogGv.getLong("timeworked").longValue();
-        milliseconds = timeSpentInSec
-                * DateTimeConverterUtil.MILLISECONDS_PER_SECOND;
-        duration = DateTimeConverterUtil.secondConvertToString(timeSpentInSec);
-        endTime = DateTimeConverterUtil.countEndTime(startTime, milliseconds);
+  /**
+   * The calculated end time.
+   */
+  private String endTime;
 
+  /**
+   * The worklog note.
+   */
+  private String body;
+
+  /**
+   * The issue estimated time is 0 or not.
+   */
+  private boolean isMoreEstimatedTime;
+
+  /**
+   * Simple constructor whit GenericValue.
+   *
+   * @param worklogGv
+   *          GenericValue worklog.
+   * @param collectorIssuePatterns
+   *          The collector Issues Pattern list.
+   * @throws ParseException
+   *           If can't parse the date.
+   */
+  public EveritWorklog(final GenericValue worklogGv,
+      final List<Pattern> collectorIssuePatterns) throws ParseException {
+    worklogId = worklogGv.getLong("id");
+    startTime = worklogGv.getString("startdate");
+    date = DateTimeConverterUtil.stringToDateAndTime(startTime);
+    startTime = DateTimeConverterUtil.dateTimeToString(date);
+    startDate = DateTimeConverterUtil.dateToString(date);
+    Calendar calendar = Calendar.getInstance();
+    calendar.setTime(date);
+    weekNo = calendar.get(Calendar.WEEK_OF_YEAR);
+    monthNo = calendar.get(Calendar.MONTH) + 1;
+    dayNo = calendar.get(Calendar.DAY_OF_YEAR);
+    issueId = Long.valueOf(worklogGv.getString("issue"));
+    IssueManager issueManager = ComponentAccessor.getIssueManager();
+    MutableIssue issueObject = issueManager.getIssueObject(issueId);
+    issue = issueObject.getKey();
+    issueSummary = issueObject.getSummary();
+
+    if (issueObject.getParentObject() != null) {
+      issueParent = issueObject.getParentObject().getKey();
+    } else {
+      issueParent = "";
     }
-
-    public EveritWorklog(final ResultSet rs,
-            final List<Pattern> collectorIssuePatterns) throws ParseException, SQLException {
-        worklogId = rs.getLong("id");
-        startTime = rs.getString("startdate");
-        date = DateTimeConverterUtil.stringToDateAndTime(startTime);
-        startTime = DateTimeConverterUtil.dateTimeToString(date);
-        startDate = DateTimeConverterUtil.dateToString(date);
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        weekNo = calendar.get(Calendar.WEEK_OF_YEAR);
-        monthNo = calendar.get(Calendar.MONTH) + 1;
-        dayNo = calendar.get(Calendar.DAY_OF_YEAR);
-        issueId = rs.getLong("issueid");
-        IssueManager issueManager = ComponentAccessor.getIssueManager();
-        MutableIssue issueObject = issueManager.getIssueObject(issueId);
-        issue = issueObject.getKey();
-        issueSummary = issueObject.getSummary();
-
-        if (issueObject.getParentObject() != null) {
-            issueParent = issueObject.getParentObject().getKey();
-        } else {
-            issueParent = "";
-        }
-        isMoreEstimatedTime = JiraTimetrackerUtil.checkIssueEstimatedTime(
-                issueObject, collectorIssuePatterns);
-        body = rs.getString("worklogbody");
-        if (body != null) {
-            body = body.replace("\"", "\\\"");
-            body = body.replace("\r", "\\r");
-            body = body.replace("\n", "\\n");
-        } else {
-            body = "";
-        }
-        long timeSpentInSec = rs.getLong("timeworked");
-        milliseconds = timeSpentInSec
-                * DateTimeConverterUtil.MILLISECONDS_PER_SECOND;
-        duration = DateTimeConverterUtil.secondConvertToString(timeSpentInSec);
-        endTime = DateTimeConverterUtil.countEndTime(startTime, milliseconds);
-
+    isMoreEstimatedTime = JiraTimetrackerUtil.checkIssueEstimatedTime(
+        issueObject, collectorIssuePatterns);
+    body = worklogGv.getString("body");
+    if (body != null) {
+      body = body.replace("\"", "\\\"");
+      body = body.replace("\r", "\\r");
+      body = body.replace("\n", "\\n");
+    } else {
+      body = "";
     }
+    long timeSpentInSec = worklogGv.getLong("timeworked").longValue();
+    milliseconds = timeSpentInSec
+        * DateTimeConverterUtil.MILLISECONDS_PER_SECOND;
+    duration = DateTimeConverterUtil.secondConvertToString(timeSpentInSec);
+    endTime = DateTimeConverterUtil.countEndTime(startTime, milliseconds);
 
-    /**
-     * Simple constructor whit Worklog.
-     *
-     * @param worklog
-     *            The worklog.
-     * @throws ParseException
-     *             If can't parse the date.
-     */
-    public EveritWorklog(final Worklog worklog) throws ParseException {
-        worklogId = worklog.getId();
-        date = worklog.getStartDate();
-        startTime = DateTimeConverterUtil.dateTimeToString(date);
-        startDate = DateTimeConverterUtil.dateToString(date);
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        weekNo = calendar.get(Calendar.WEEK_OF_YEAR);
-        monthNo = calendar.get(Calendar.MONTH) + 1;
-        dayNo = calendar.get(Calendar.DAY_OF_YEAR);
-        issue = worklog.getIssue().getKey();
-        issueSummary = worklog.getIssue().getSummary();
-        body = worklog.getComment();
-        if (body != null) {
-            body = body.replace("\"", "\\\"");
-            body = body.replace("\r", "\\r");
-            body = body.replace("\n", "\\n");
-        } else {
-            body = "";
-        }
-        long timeSpentInSec = worklog.getTimeSpent().longValue();
-        milliseconds = timeSpentInSec
-                * DateTimeConverterUtil.MILLISECONDS_PER_SECOND;
-        duration = DateTimeConverterUtil
-                .millisecondConvertToStringTime(milliseconds);
-        endTime = DateTimeConverterUtil.countEndTime(startTime, milliseconds);
-    }
+  }
 
-    public String getBody() {
-        return body;
-    }
+  /**
+   * Simple constructor with ResultSet.
+   *
+   * @param rs
+   *          ResultSet
+   * @param collectorIssuePatterns
+   *          The collector Issues Pattern list.
+   * @throws ParseException
+   *           Cannot parse date time
+   * @throws SQLException
+   *           Cannot access resultSet fields
+   */
+  public EveritWorklog(final ResultSet rs,
+      final List<Pattern> collectorIssuePatterns) throws ParseException, SQLException {
+    worklogId = rs.getLong("id");
+    startTime = rs.getString("startdate");
+    date = DateTimeConverterUtil.stringToDateAndTime(startTime);
+    startTime = DateTimeConverterUtil.dateTimeToString(date);
+    startDate = DateTimeConverterUtil.dateToString(date);
+    Calendar calendar = Calendar.getInstance();
+    calendar.setTime(date);
+    weekNo = calendar.get(Calendar.WEEK_OF_YEAR);
+    monthNo = calendar.get(Calendar.MONTH) + 1;
+    dayNo = calendar.get(Calendar.DAY_OF_YEAR);
+    issueId = rs.getLong("issueid");
+    IssueManager issueManager = ComponentAccessor.getIssueManager();
+    MutableIssue issueObject = issueManager.getIssueObject(issueId);
+    issue = issueObject.getKey();
+    issueSummary = issueObject.getSummary();
 
-    public Date getDate() {
-        return date;
+    if (issueObject.getParentObject() != null) {
+      issueParent = issueObject.getParentObject().getKey();
+    } else {
+      issueParent = "";
     }
+    isMoreEstimatedTime = JiraTimetrackerUtil.checkIssueEstimatedTime(
+        issueObject, collectorIssuePatterns);
+    body = rs.getString("worklogbody");
+    if (body != null) {
+      body = body.replace("\"", "\\\"");
+      body = body.replace("\r", "\\r");
+      body = body.replace("\n", "\\n");
+    } else {
+      body = "";
+    }
+    long timeSpentInSec = rs.getLong("timeworked");
+    milliseconds = timeSpentInSec
+        * DateTimeConverterUtil.MILLISECONDS_PER_SECOND;
+    duration = DateTimeConverterUtil.secondConvertToString(timeSpentInSec);
+    endTime = DateTimeConverterUtil.countEndTime(startTime, milliseconds);
 
-    public int getDayNo() {
-        return dayNo;
-    }
+  }
 
-    public String getDuration() {
-        return duration;
+  /**
+   * Simple constructor whit Worklog.
+   *
+   * @param worklog
+   *          The worklog.
+   * @throws ParseException
+   *           If can't parse the date.
+   */
+  public EveritWorklog(final Worklog worklog) throws ParseException {
+    worklogId = worklog.getId();
+    date = worklog.getStartDate();
+    startTime = DateTimeConverterUtil.dateTimeToString(date);
+    startDate = DateTimeConverterUtil.dateToString(date);
+    Calendar calendar = Calendar.getInstance();
+    calendar.setTime(date);
+    weekNo = calendar.get(Calendar.WEEK_OF_YEAR);
+    monthNo = calendar.get(Calendar.MONTH) + 1;
+    dayNo = calendar.get(Calendar.DAY_OF_YEAR);
+    issue = worklog.getIssue().getKey();
+    issueSummary = worklog.getIssue().getSummary();
+    body = worklog.getComment();
+    if (body != null) {
+      body = body.replace("\"", "\\\"");
+      body = body.replace("\r", "\\r");
+      body = body.replace("\n", "\\n");
+    } else {
+      body = "";
     }
+    long timeSpentInSec = worklog.getTimeSpent().longValue();
+    milliseconds = timeSpentInSec
+        * DateTimeConverterUtil.MILLISECONDS_PER_SECOND;
+    duration = DateTimeConverterUtil
+        .millisecondConvertToStringTime(milliseconds);
+    endTime = DateTimeConverterUtil.countEndTime(startTime, milliseconds);
+  }
 
-    public String getEndTime() {
-        return endTime;
-    }
+  public String getBody() {
+    return body;
+  }
 
-    public boolean getIsMoreEstimatedTime() {
-        return isMoreEstimatedTime;
-    }
+  public Date getDate() {
+    return (Date) date.clone();
+  }
 
-    public String getIssue() {
-        return issue;
-    }
+  public int getDayNo() {
+    return dayNo;
+  }
 
-    public String getIssueParent() {
-        return issueParent;
-    }
+  public String getDuration() {
+    return duration;
+  }
 
-    public String getIssueSummary() {
-        return issueSummary;
-    }
+  public String getEndTime() {
+    return endTime;
+  }
 
-    public long getMilliseconds() {
-        return milliseconds;
-    }
+  public boolean getIsMoreEstimatedTime() {
+    return isMoreEstimatedTime;
+  }
 
-    public int getMonthNo() {
-        return monthNo;
-    }
+  public String getIssue() {
+    return issue;
+  }
 
-    public String getStartDate() {
-        return startDate;
-    }
+  public String getIssueParent() {
+    return issueParent;
+  }
 
-    public String getStartTime() {
-        return startTime;
-    }
+  public String getIssueSummary() {
+    return issueSummary;
+  }
 
-    public int getWeekNo() {
-        return weekNo;
-    }
+  public long getMilliseconds() {
+    return milliseconds;
+  }
 
-    public Long getWorklogId() {
-        return worklogId;
-    }
+  public int getMonthNo() {
+    return monthNo;
+  }
 
-    public void setBody(final String body) {
-        this.body = body;
-    }
+  public String getStartDate() {
+    return startDate;
+  }
 
-    public void setDate(final Date date) {
-        this.date = date;
-    }
+  public String getStartTime() {
+    return startTime;
+  }
 
-    public void setDayNo(final int dayNo) {
-        this.dayNo = dayNo;
-    }
+  public int getWeekNo() {
+    return weekNo;
+  }
 
-    public void setDuration(final String duration) {
-        this.duration = duration;
-    }
+  public Long getWorklogId() {
+    return worklogId;
+  }
 
-    public void setEndTime(final String endTime) {
-        this.endTime = endTime;
-    }
+  public void setBody(final String body) {
+    this.body = body;
+  }
 
-    public void setIssue(final String issue) {
-        this.issue = issue;
-    }
+  public void setDate(final Date date) {
+    this.date = (Date) date.clone();
+  }
 
-    public void setIssueParent(final String issueParent) {
-        this.issueParent = issueParent;
-    }
+  public void setDayNo(final int dayNo) {
+    this.dayNo = dayNo;
+  }
 
-    public void setIssueSummary(final String issueSummary) {
-        this.issueSummary = issueSummary;
-    }
+  public void setDuration(final String duration) {
+    this.duration = duration;
+  }
 
-    public void setMilliseconds(final long milliseconds) {
-        this.milliseconds = milliseconds;
-    }
+  public void setEndTime(final String endTime) {
+    this.endTime = endTime;
+  }
 
-    public void setMonthNo(final int monthNo) {
-        this.monthNo = monthNo;
-    }
+  public void setIssue(final String issue) {
+    this.issue = issue;
+  }
 
-    public void setMoreEstimatedTime(final boolean isMoreEstimatedTime) {
-        this.isMoreEstimatedTime = isMoreEstimatedTime;
-    }
+  public void setIssueParent(final String issueParent) {
+    this.issueParent = issueParent;
+  }
 
-    public void setStartDate(final String startDate) {
-        this.startDate = startDate;
-    }
+  public void setIssueSummary(final String issueSummary) {
+    this.issueSummary = issueSummary;
+  }
 
-    public void setStartTime(final String startTime) {
-        this.startTime = startTime;
-    }
+  public void setMilliseconds(final long milliseconds) {
+    this.milliseconds = milliseconds;
+  }
 
-    public void setWeekNo(final int weekNo) {
-        this.weekNo = weekNo;
-    }
+  public void setMonthNo(final int monthNo) {
+    this.monthNo = monthNo;
+  }
 
-    public void setWorklogId(final Long worklogId) {
-        this.worklogId = worklogId;
-    }
+  public void setMoreEstimatedTime(final boolean isMoreEstimatedTime) {
+    this.isMoreEstimatedTime = isMoreEstimatedTime;
+  }
+
+  public void setStartDate(final String startDate) {
+    this.startDate = startDate;
+  }
+
+  public void setStartTime(final String startTime) {
+    this.startTime = startTime;
+  }
+
+  public void setWeekNo(final int weekNo) {
+    this.weekNo = weekNo;
+  }
+
+  public void setWorklogId(final Long worklogId) {
+    this.worklogId = worklogId;
+  }
 
 }
