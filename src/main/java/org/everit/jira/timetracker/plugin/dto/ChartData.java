@@ -1,52 +1,61 @@
+/*
+ * Copyright (C) 2011 Everit Kft. (http://www.everit.org)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.everit.jira.timetracker.plugin.dto;
 
-/*
- * Copyright (c) 2011, Everit Kft.
- *
- * All rights reserved.
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- * MA 02110-1301  USA
+import java.io.Serializable;
+
+/**
+ * Data holder for a chart.
  */
+public class ChartData implements Serializable {
 
-public class ChartData {
+  private static final long serialVersionUID = 21551301923003314L;
 
-    private String projectId;
+  private String projectId;
 
-    private Long duration;
+  private Long duration;
 
-    public ChartData(final String projectId, final Long duration) {
-        super();
-        this.projectId = projectId;
-        this.duration = duration;
-    }
+  /**
+   * Constructor for a chart data.
+   *
+   * @param projectId
+   *          Id of the current project
+   * @param duration
+   *          Duration
+   */
+  public ChartData(final String projectId, final Long duration) {
+    super();
+    this.projectId = projectId;
+    this.duration = duration;
+  }
 
-    public Long getDuration() {
-        return duration;
-    }
+  public Long getDuration() {
+    return duration;
+  }
 
-    public String getProjectId() {
-        return projectId;
-    }
+  public String getProjectId() {
+    return projectId;
+  }
 
-    public void setDuration(final Long duration) {
-        this.duration = duration;
-    }
+  public void setDuration(final Long duration) {
+    this.duration = duration;
+  }
 
-    public void setProjectId(final String projectId) {
-        this.projectId = projectId;
-    }
+  public void setProjectId(final String projectId) {
+    this.projectId = projectId;
+  }
 
 }
