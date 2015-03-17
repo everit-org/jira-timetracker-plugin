@@ -205,9 +205,11 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
           lastDate.getTime()));
     } catch (DataAccessException e) {
       LOGGER.error(GET_WORKLOGS_ERROR_MESSAGE, e);
+      message = GET_WORKLOGS_ERROR_MESSAGE;
       return ERROR;
     } catch (SQLException e) {
       LOGGER.error(GET_WORKLOGS_ERROR_MESSAGE, e);
+      message = GET_WORKLOGS_ERROR_MESSAGE;
       return ERROR;
     }
 

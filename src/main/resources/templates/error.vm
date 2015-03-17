@@ -20,5 +20,8 @@
 <body>
 <p>This is the Jira Timetracker Plugin Error Page.</p>
 <p>More information about the error in the atlassian-jira.log file.</p>
+<div id="message" style="color: red; ">
+$i18n.getText($message)
+</div>
 </body>
 </html>
