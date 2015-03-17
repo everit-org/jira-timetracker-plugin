@@ -1,25 +1,19 @@
-package org.everit.jira.timetracker.plugin;
-
 /*
- * Copyright (c) 2011, Everit Kft.
+ * Copyright (C) 2011 Everit Kft. (http://www.everit.org)
  *
- * All rights reserved.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- * MA 02110-1301  USA
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+package org.everit.jira.timetracker.plugin;
 
 import java.sql.SQLException;
 import java.text.ParseException;
@@ -30,6 +24,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 import org.everit.jira.timetracker.plugin.dto.ChartData;
@@ -46,313 +41,344 @@ import com.atlassian.jira.usercompatibility.UserCompatibilityHelper;
 import com.atlassian.jira.usercompatibility.UserWithKey;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
 
+/**
+ * The Timetracker chart report action support class.
+ */
 public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
-    /**
-     * Serial version UID.
-     */
-    private static final long serialVersionUID = 1L;
-    /**
-     * Logger.
-     */
-    private static final Logger LOGGER = Logger
-            .getLogger(JiraTimetrackerChartWebAction.class);
-    /**
-     * The {@link JiraTimetrackerPlugin}.
-     */
-    private JiraTimetrackerPlugin jiraTimetrackerPlugin;
-    /**
-     * The date.
-     */
-    private Date dateFrom = null;
-    /**
-     * The formated date.
-     */
-    private String dateFromFormated = "";
-    /**
-     * The date.
-     */
-    private Date dateTo = null;
-    /**
-     * The formated date.
-     */
-    private String dateToFormated = "";
-    /**
-     * The message.
-     */
-    private String message = "";
+  private static final String WRONG_DATES = "plugin.wrong.dates";
 
-    private String contextPath;
+  private static final String GET_WORKLOGS_ERROR_MESSAGE = "Error when trying to get worklogs.";
 
-    private List<ChartData> chartDataList;
+  private static final String INVALID_END_TIME = "plugin.invalid_endTime";
 
-    private List<User> allUsers;
+  private static final String INVALID_START_TIME = "plugin.invalid_startTime";
 
-    private String currentUserKey = "";
+  private static final String INVALID_USER_PICKER = "plugin.user.picker.label";
 
-    private String avatarURL = "";
-    /**
-     * Jira Componentmanager instance.
-     */
-    private ComponentManager componentManager = ComponentManager.getInstance();
+  private static final String PARAM_DATETO = "dateTo";
 
-    private UserWithKey userPickerObject;
+  private static final String PARAM_DATEFROM = "dateFrom";
 
-    /**
-     * Simple constructor.
-     *
-     * @param jiraTimetrackerPlugin
-     *            The {@link JiraTimetrackerPlugin}.
-     */
-    public JiraTimetrackerChartWebAction(
-            final JiraTimetrackerPlugin jiraTimetrackerPlugin) {
-        this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
+  private static final String PARAM_USERPICKER = "userPicker";
+
+  private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
+  /**
+   * Serial version UID.
+   */
+  private static final long serialVersionUID = 1L;
+  /**
+   * Logger.
+   */
+  private static final Logger LOGGER = Logger
+      .getLogger(JiraTimetrackerChartWebAction.class);
+  /**
+   * The {@link JiraTimetrackerPlugin}.
+   */
+  private JiraTimetrackerPlugin jiraTimetrackerPlugin;
+  /**
+   * The date.
+   */
+  private Date dateFrom = null;
+  /**
+   * The formated date.
+   */
+  private String dateFromFormated = "";
+  /**
+   * The date.
+   */
+  private Date dateTo = null;
+  /**
+   * The formated date.
+   */
+  private String dateToFormated = "";
+  /**
+   * The message.
+   */
+  private String message = "";
+
+  private String contextPath;
+
+  private List<ChartData> chartDataList;
+
+  private List<User> allUsers;
+
+  private String currentUserKey = "";
+
+  private String avatarURL = "";
+
+  private transient UserWithKey userPickerObject;
+
+  /**
+   * Simple constructor.
+   *
+   * @param jiraTimetrackerPlugin
+   *          The {@link JiraTimetrackerPlugin}.
+   */
+  public JiraTimetrackerChartWebAction(
+      final JiraTimetrackerPlugin jiraTimetrackerPlugin) {
+    this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
+  }
+
+  /**
+   * Set dateFrom and dateFromFormated default value.
+   */
+  private void dateFromDefaultInit() {
+    Calendar calendarFrom = Calendar.getInstance();
+    calendarFrom.add(Calendar.WEEK_OF_MONTH, -1);
+    dateFrom = calendarFrom.getTime();
+    dateFromFormated = DateTimeConverterUtil.dateToString(dateFrom);
+  }
+
+  /**
+   * Set dateTo and dateToFormated default value.
+   */
+  private void dateToDefaultInit() {
+    Calendar calendarTo = Calendar.getInstance();
+    dateTo = calendarTo.getTime();
+    dateToFormated = DateTimeConverterUtil.dateToString(dateTo);
+  }
+
+  @Override
+  public String doDefault() throws ParseException {
+    boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
+    if (!isUserLogged) {
+      setReturnUrl(JIRA_HOME_URL);
+      return getRedirect(NONE);
     }
 
-    /**
-     * Set dateFrom and dateFromFormated default value.
-     */
-    private void dateFromDefaultInit() {
-        Calendar calendarFrom = Calendar.getInstance();
-        calendarFrom.add(Calendar.WEEK_OF_MONTH, -1);
-        dateFrom = calendarFrom.getTime();
-        dateFromFormated = DateTimeConverterUtil.dateToString(dateFrom);
+    normalizeContextPath();
+    jiraTimetrackerPlugin.loadPluginSettings();
+
+    if ("".equals(dateFromFormated)) {
+      dateFromDefaultInit();
+    }
+    if ("".equals(dateToFormated)) {
+      dateToDefaultInit();
+    }
+    chartDataList = null;
+
+    allUsers = new ArrayList<User>(UserUtils.getAllUsers());
+    Collections.sort(allUsers);
+
+    JiraAuthenticationContext authenticationContext = ComponentManager.getInstance()
+        .getJiraAuthenticationContext();
+    currentUserKey = UserCompatibilityHelper.getKeyForUser(authenticationContext.getLoggedInUser());
+    setUserPickerObjectBasedOnCurrentUser();
+
+    return INPUT;
+  }
+
+  @Override
+  public String doExecute() throws ParseException {
+    boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
+    if (!isUserLogged) {
+      setReturnUrl(JIRA_HOME_URL);
+      return getRedirect(NONE);
     }
 
-    /**
-     * Set dateTo and dateToFormated default value.
-     */
-    private void dateToDefaultInit() {
-        Calendar calendarTo = Calendar.getInstance();
-        dateTo = calendarTo.getTime();
-        dateToFormated = DateTimeConverterUtil.dateToString(dateTo);
+    normalizeContextPath();
+    jiraTimetrackerPlugin.loadPluginSettings();
+
+    setDefaultDates();
+
+    Calendar startDate = null;
+    Calendar lastDate = null;
+    try {
+      setCurrentUserFromParam();
+      setUserPickerObjectBasedOnCurrentUser();
+      startDate = getStartDate();
+      lastDate = getLastDate();
+    } catch (IllegalArgumentException e) {
+      message = e.getMessage();
+      return INPUT;
     }
 
-    @Override
-    public String doDefault() throws ParseException {
-        boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
-        if (!isUserLogged) {
-            setReturnUrl("/secure/Dashboard.jspa");
-            return getRedirect(NONE);
-        }
-
-        normalizeContextPath();
-        jiraTimetrackerPlugin.loadPluginSettings();
-
-        if (dateFromFormated.equals("")) {
-            dateFromDefaultInit();
-        }
-        if (dateToFormated.equals("")) {
-            dateToDefaultInit();
-        }
-        chartDataList = null;
-
-        allUsers = new ArrayList<User>(UserUtils.getAllUsers());
-        Collections.sort(allUsers);
-
-        JiraAuthenticationContext authenticationContext = componentManager.getJiraAuthenticationContext();
-        currentUserKey = UserCompatibilityHelper.getKeyForUser(authenticationContext.getLoggedInUser());
-        setUserPickerObjectBasedOnSelectedUser();
-
-        return INPUT;
+    if (startDate.after(lastDate)) {
+      message = WRONG_DATES;
+      return INPUT;
     }
 
-    @Override
-    public String doExecute() throws ParseException {
-        boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
-        if (!isUserLogged) {
-            setReturnUrl("/secure/Dashboard.jspa");
-            return getRedirect(NONE);
-        }
-
-        normalizeContextPath();
-        jiraTimetrackerPlugin.loadPluginSettings();
-
-        allUsers = new ArrayList<User>(UserUtils.getAllUsers());
-        Collections.sort(allUsers);
-
-        if (dateFromFormated.equals("")) {
-            dateFromDefaultInit();
-        }
-        if (dateToFormated.equals("")) {
-            dateToDefaultInit();
-        }
-
-        if (request.getParameterValues("userPicker") != null) {
-            User user = UserCompatibilityHelper.getUserForKey((request.getParameterValues("userPicker")[0]));
-            currentUserKey = UserCompatibilityHelper.getKeyForUser(user);
-            // userPickerObject.get
-            // currentUser = request.getParameterValues("userPicker")[0];
-        } else {
-            message += "plugin.user.picker.label";
-            return SUCCESS;
-        }
-        if (currentUserKey == null) {
-            message += "plugin.user.picker.wrong";
-            return SUCCESS;
-        }
-
-        setUserPickerObjectBasedOnSelectedUser();
-
-        String dateFrom = request.getParameterValues("dateFrom")[0];
-        if ((dateFrom != null) && !dateFrom.equals("")) {
-            dateFromFormated = dateFrom;
-        }
-        else {
-            message = "plugin.invalid_startTime";
-            return SUCCESS;
-        }
-        Calendar startDate = Calendar.getInstance();
-        try {
-            startDate.setTime(DateTimeConverterUtil.stringToDate(dateFrom));
-        } catch (ParseException e) {
-            message = "plugin.invalid_startTime";
-            return SUCCESS;
-        }
-
-        String dateTo = request.getParameterValues("dateTo")[0];
-        if ((dateTo != null) && !dateTo.equals("")) {
-            dateToFormated = dateTo;
-        }
-        else {
-            message = "plugin.invalid_endTime";
-            return SUCCESS;
-        }
-
-        if (dateFrom.compareTo(dateTo) > 0) {
-            message = "plugin.wrong.dates";
-            return SUCCESS;
-        }
-
-        Calendar lastDate = (Calendar) startDate.clone();
-        try {
-            lastDate.setTime(DateTimeConverterUtil.stringToDate(dateTo));
-        } catch (ParseException e) {
-            message = "plugin.invalid_endTime";
-            return SUCCESS;
-        }
-
-        List<EveritWorklog> worklogs = new ArrayList<EveritWorklog>();
-        try {
-            worklogs.addAll(jiraTimetrackerPlugin.getWorklogs(currentUserKey, startDate.getTime(), lastDate.getTime()));
-        } catch (DataAccessException e) {
-            LOGGER.error("Error when trying to get worklogs.", e);
-            return ERROR;
-        } catch (SQLException e) {
-            LOGGER.error("Error when trying to get worklogs.", e);
-            return ERROR;
-        }
-
-        Map<String, Long> map = new HashMap<String, Long>();
-        for (EveritWorklog worklog : worklogs) {
-            String projectName = worklog.getIssue().split("-")[0];
-            Long newValue = worklog.getMilliseconds();
-            Long oldValue = map.get(projectName);
-            if (oldValue == null) {
-                map.put(projectName, newValue);
-            } else {
-                map.put(projectName, oldValue + newValue);
-            }
-        }
-        chartDataList = new ArrayList<ChartData>();
-        for (String key : map.keySet()) {
-            chartDataList.add(new ChartData(key, map.get(key)));
-        }
-        return SUCCESS;
+    List<EveritWorklog> worklogs = new ArrayList<EveritWorklog>();
+    try {
+      worklogs.addAll(jiraTimetrackerPlugin.getWorklogs(currentUserKey, startDate.getTime(),
+          lastDate.getTime()));
+    } catch (DataAccessException e) {
+      LOGGER.error(GET_WORKLOGS_ERROR_MESSAGE, e);
+      return ERROR;
+    } catch (SQLException e) {
+      LOGGER.error(GET_WORKLOGS_ERROR_MESSAGE, e);
+      return ERROR;
     }
 
-    public List<User> getAllUsers() {
-        return allUsers;
+    Map<String, Long> map = new HashMap<String, Long>();
+    for (EveritWorklog worklog : worklogs) {
+      String projectName = worklog.getIssue().split("-")[0];
+      Long newValue = worklog.getMilliseconds();
+      Long oldValue = map.get(projectName);
+      if (oldValue == null) {
+        map.put(projectName, newValue);
+      } else {
+        map.put(projectName, oldValue + newValue);
+      }
     }
+    chartDataList = new ArrayList<ChartData>();
+    for (Entry<String, Long> entry : map.entrySet()) {
+      chartDataList.add(new ChartData(entry.getKey(), entry.getValue()));
+    }
+    return SUCCESS;
+  }
 
-    public String getAvatarURL() {
-        return avatarURL;
-    }
+  public List<User> getAllUsers() {
+    return allUsers;
+  }
 
-    public List<ChartData> getChartDataList() {
-        return chartDataList;
-    }
+  public String getAvatarURL() {
+    return avatarURL;
+  }
 
-    public String getContextPath() {
-        return contextPath;
-    }
+  public List<ChartData> getChartDataList() {
+    return chartDataList;
+  }
 
-    public String getCurrentUserEmail() {
-        return currentUserKey;
-    }
+  public String getContextPath() {
+    return contextPath;
+  }
 
-    public String getDateFromFormated() {
-        return dateFromFormated;
-    }
+  public String getCurrentUserEmail() {
+    return currentUserKey;
+  }
 
-    public String getDateToFormated() {
-        return dateToFormated;
-    }
+  public String getDateFromFormated() {
+    return dateFromFormated;
+  }
 
-    public String getMessage() {
-        return message;
-    }
+  public String getDateToFormated() {
+    return dateToFormated;
+  }
 
-    public UserWithKey getUserPickerObject() {
-        return userPickerObject;
+  private Calendar getLastDate() throws IllegalArgumentException {
+    String dateToParam = request.getParameterValues(PARAM_DATETO)[0];
+    if (!"".equals(dateToParam)) {
+      dateToFormated = dateToParam;
+    } else {
+      throw new IllegalArgumentException(INVALID_END_TIME);
     }
+    Calendar lastDate = Calendar.getInstance();
+    try {
+      lastDate.setTime(DateTimeConverterUtil.stringToDate(dateToParam));
+    } catch (ParseException e) {
+      throw new IllegalArgumentException(INVALID_END_TIME);
+    }
+    return lastDate;
+  }
 
-    private void normalizeContextPath() {
-        String path = request.getContextPath();
-        if ((path.length() > 0) && path.substring(path.length() - 1).equals("/")) {
-            contextPath = path.substring(0, path.length() - 1);
-        } else {
-            contextPath = path;
-        }
-    }
+  public String getMessage() {
+    return message;
+  }
 
-    public void setAllUsers(final List<User> allUsers) {
-        this.allUsers = allUsers;
+  private Calendar getStartDate() throws IllegalArgumentException {
+    String dateFromParam = request.getParameterValues(PARAM_DATEFROM)[0];
+    if (!"".equals(dateFromParam)) {
+      dateFromFormated = dateFromParam;
+    } else {
+      throw new IllegalArgumentException(INVALID_START_TIME);
     }
+    Calendar startDate = Calendar.getInstance();
+    try {
+      startDate.setTime(DateTimeConverterUtil.stringToDate(dateFromParam));
+    } catch (ParseException e) {
+      throw new IllegalArgumentException(INVALID_START_TIME);
+    }
+    return startDate;
+  }
 
-    public void setAvatarURL(final String avatarURL) {
-        this.avatarURL = avatarURL;
-    }
+  public UserWithKey getUserPickerObject() {
+    return userPickerObject;
+  }
 
-    public void setChartDataList(final List<ChartData> chartDataList) {
-        this.chartDataList = chartDataList;
+  private void normalizeContextPath() {
+    String path = request.getContextPath();
+    if ((path.length() > 0) && "/".equals(path.substring(path.length() - 1))) {
+      contextPath = path.substring(0, path.length() - 1);
+    } else {
+      contextPath = path;
     }
+  }
 
-    public void setContextPath(final String contextPath) {
-        this.contextPath = contextPath;
-    }
+  public void setAllUsers(final List<User> allUsers) {
+    this.allUsers = allUsers;
+  }
 
-    public void setCurrentUser(final String currentUserEmail) {
-        currentUserKey = currentUserEmail;
-    }
+  public void setAvatarURL(final String avatarURL) {
+    this.avatarURL = avatarURL;
+  }
 
-    public void setDateFromFormated(final String dateFromFormated) {
-        this.dateFromFormated = dateFromFormated;
-    }
+  public void setChartDataList(final List<ChartData> chartDataList) {
+    this.chartDataList = chartDataList;
+  }
 
-    public void setDateToFormated(final String dateToFormated) {
-        this.dateToFormated = dateToFormated;
-    }
+  public void setContextPath(final String contextPath) {
+    this.contextPath = contextPath;
+  }
 
-    public void setMessage(final String message) {
-        this.message = message;
-    }
+  public void setCurrentUser(final String currentUserEmail) {
+    currentUserKey = currentUserEmail;
+  }
 
-    public void setUserPickerObject(final UserWithKey userPickerObject) {
-        this.userPickerObject = userPickerObject;
+  private void setCurrentUserFromParam() throws IllegalArgumentException {
+    if (request.getParameterValues(PARAM_USERPICKER) != null) {
+      User user = UserCompatibilityHelper.getUserForKey((request
+          .getParameterValues(PARAM_USERPICKER)[0]));
+      currentUserKey = UserCompatibilityHelper.getKeyForUser(user);
+    } else {
+      throw new IllegalArgumentException(INVALID_USER_PICKER);
     }
+    if ((currentUserKey == null) || "".equals(currentUserKey)) {
+      JiraAuthenticationContext authenticationContext = ComponentManager.getInstance()
+          .getJiraAuthenticationContext();
+      currentUserKey = UserCompatibilityHelper.getKeyForUser(authenticationContext
+          .getLoggedInUser());
+    }
+  }
 
-    private void setUserPickerObjectBasedOnSelectedUser() {
-        if ((currentUserKey != null) && !currentUserKey.equals("")) {
-            User user = UserCompatibilityHelper.getUserForKey(currentUserKey);
-            userPickerObject = UserCompatibilityHelper.convertUserObject(user);
-            User loggedInUser = componentManager.getJiraAuthenticationContext().getLoggedInUser();
-            AvatarService avatarService = ComponentManager
-                    .getComponentInstanceOfType(AvatarService.class);
-            setAvatarURL(avatarService.getAvatarURL(loggedInUser, currentUserKey, Avatar.Size.SMALL)
-                    .toString());
-        } else {
-            userPickerObject = null;
-        }
+  public void setDateFromFormated(final String dateFromFormated) {
+    this.dateFromFormated = dateFromFormated;
+  }
+
+  public void setDateToFormated(final String dateToFormated) {
+    this.dateToFormated = dateToFormated;
+  }
+
+  private void setDefaultDates() {
+    if ("".equals(dateFromFormated)) {
+      dateFromDefaultInit();
     }
+    if ("".equals(dateToFormated)) {
+      dateToDefaultInit();
+    }
+  }
+
+  public void setMessage(final String message) {
+    this.message = message;
+  }
+
+  public void setUserPickerObject(final UserWithKey userPickerObject) {
+    this.userPickerObject = userPickerObject;
+  }
+
+  private void setUserPickerObjectBasedOnCurrentUser() {
+    if (!"".equals(currentUserKey)) {
+      User user = UserCompatibilityHelper.getUserForKey(currentUserKey);
+      userPickerObject = UserCompatibilityHelper.convertUserObject(user);
+      User loggedInUser = ComponentManager.getInstance().
+          getJiraAuthenticationContext().getLoggedInUser();
+      AvatarService avatarService = ComponentManager
+          .getComponentInstanceOfType(AvatarService.class);
+      setAvatarURL(avatarService.getAvatarURL(loggedInUser, currentUserKey, Avatar.Size.SMALL)
+          .toString());
+    } else {
+      userPickerObject = null;
+    }
+  }
 }

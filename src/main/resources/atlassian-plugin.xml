@@ -23,7 +23,7 @@
 <atlassian-plugin key="org.everit.jira.timetracker.plugin" name="Timetracker" plugins-version="2">
 
   <plugin-info>
-    <version>1.4.1</version> 
+    <version>1.4.1</version>
     <description>Timetracker</description>
     <application-version min="4.4" />
     <vendor name="EverIT Kft." url="https://www.everit.biz" />
@@ -48,7 +48,7 @@
       <param name="content-type" value="image/png" />
     </resource>
   </web-resource>
-  
+
   <webwork1 key="jttp-webaction" name="JTTP Webwork actions" class="java.lang.Object">
     <resource type="i18n" name="i18n-jttp-vm" location="i18n/jttp" />
     <actions>
@@ -86,7 +86,7 @@
       </action>
     </actions>
   </webwork1>
-	
+
 <!--     Admin settings -->
 
   <web-section key="jttp_section" location="admin_plugins_menu">
