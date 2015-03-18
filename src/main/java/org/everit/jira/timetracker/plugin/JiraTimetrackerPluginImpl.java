@@ -269,15 +269,20 @@ DisposableBean, Serializable {
     return initialDelay;
   }
 
-  private Collection<Long> createProjects(final User loggedInUser) {
-    Collection<Project> projects = ComponentManager.getInstance().getPermissionManager()
-        .getProjectObjects(Permissions.BROWSE, loggedInUser);
+  private Collection<Long> createProjects(final boolean needPermissionCheck,
+      final User loggedInUser) {
+    if (needPermissionCheck) {
+      Collection<Project> projects = ComponentManager.getInstance().getPermissionManager()
+          .getProjectObjects(Permissions.BROWSE, loggedInUser);
 
-    Collection<Long> projectList = new ArrayList<Long>();
-    for (Project project : projects) {
-      projectList.add(project.getId());
+      Collection<Long> projectList = new ArrayList<Long>();
+      for (Project project : projects) {
+        projectList.add(project.getId());
+      }
+      return projectList;
+    } else {
+      return new ArrayList<Long>();
     }
-    return projectList;
   }
 
   @Override
@@ -692,7 +697,7 @@ DisposableBean, Serializable {
     stringBuilder.append(" AND worklog.author=?");
     String query = stringBuilder.toString();
 
-    Collection<Long> projects = createProjects(loggedInUser);
+    Collection<Long> projects = createProjects(needPermissionCheck, loggedInUser);
     query = handlePermissionCheck(needPermissionCheck, projects, query);
 
     List<EveritWorklog> worklogs = getWorklogsFromJira(startDate, endDate, userKey,
@@ -705,11 +710,15 @@ DisposableBean, Serializable {
 
   private List<EveritWorklog> getWorklogsFromJira(final Calendar startDate, final Calendar endDate,
       final String userKey, final String query, final Collection<Long> projects)
-      throws DataAccessException, SQLException, ParseException {
+          throws DataAccessException, SQLException, ParseException {
 
     List<EveritWorklog> worklogs = new ArrayList<EveritWorklog>();
-    try (Connection conn = new DefaultOfBizConnectionFactory().getConnection();
-        PreparedStatement ps = conn.prepareStatement(query)) {
+    Connection conn = null;
+    PreparedStatement ps = null;
+    ResultSet rs = null;
+    try {
+      conn = new DefaultOfBizConnectionFactory().getConnection();
+      ps = conn.prepareStatement(query);
       int preparedIndex = 1;
       ps.setTimestamp(preparedIndex++, new Timestamp(startDate.getTimeInMillis()));
       ps.setTimestamp(preparedIndex++, new Timestamp(endDate.getTimeInMillis()));
@@ -719,12 +728,34 @@ DisposableBean, Serializable {
           ps.setLong(preparedIndex++, project);
         }
       }
-      ResultSet rs = ps.executeQuery();
+      rs = ps.executeQuery();
       while (rs.next()) {
         EveritWorklog worklog = new EveritWorklog(rs, collectorIssuePatterns);
         worklogs.add(worklog);
       }
       rs.close();
+    } finally {
+      if (rs != null) {
+        try {
+          rs.close();
+        } catch (SQLException e) {
+          LOGGER.error("Cannot close ResultSet");
+        }
+      }
+      if (ps != null) {
+        try {
+          ps.close();
+        } catch (SQLException e) {
+          LOGGER.error("Cannot close Statement");
+        }
+      }
+      if (conn != null) {
+        try {
+          conn.close();
+        } catch (SQLException e) {
+          LOGGER.error("Cannot close Connection");
+        }
+      }
     }
     return worklogs;
   }

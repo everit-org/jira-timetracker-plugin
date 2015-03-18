@@ -426,7 +426,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       excludeDays = jiraTimetrackerPlugin.getExluceDaysOfTheMonth(dateFormated);
       loadWorklogsAndMakeSummary();
       projectsId = jiraTimetrackerPlugin.getProjectsId();
-    } catch (SQLException | DataAccessException | ParseException | GenericEntityException e) {
+    } catch (GenericEntityException e) {
       LOGGER.error("Error when try set the plugin variables.", e);
       return ERROR;
     }
@@ -467,7 +467,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       endTime = DateTimeConverterUtil.dateTimeToString(new Date());
       comment = "";
       isDurationSelected = false;
-    } catch (SQLException | DataAccessException | GenericEntityException e) {
+    } catch (GenericEntityException e) {
       LOGGER.error("Error when try set the plugin variables.", e);
       return ERROR;
     }
@@ -500,7 +500,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       startTime = jiraTimetrackerPlugin.lastEndTime(worklogs);
       endTime = DateTimeConverterUtil.dateTimeToString(new Date());
       comment = "";
-    } catch (SQLException | DataAccessException | ParseException | GenericEntityException e) {
+    } catch (GenericEntityException e) {
+      LOGGER.error("Error when try set the plugin variables.", e);
+      return ERROR;
+    } catch (ParseException e) {
       LOGGER.error("Error when try set the plugin variables.", e);
       return ERROR;
     }
@@ -546,7 +549,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       loadWorklogsAndMakeSummary();
       startTime = jiraTimetrackerPlugin.lastEndTime(worklogs);
       endTime = DateTimeConverterUtil.dateTimeToString(new Date());
-    } catch (SQLException | DataAccessException | ParseException | GenericEntityException e) {
+    } catch (GenericEntityException e) {
       LOGGER.error("Error when try set the plugin variables.", e);
       return ERROR;
     }
@@ -875,8 +878,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * @throws DataAccessException
    *           Cannot get the worklogs
    */
-  private void loadWorklogsAndMakeSummary() throws GenericEntityException,
-  ParseException, DataAccessException, SQLException {
+  private void loadWorklogsAndMakeSummary() throws GenericEntityException {
     try {
       loggedDays = jiraTimetrackerPlugin
           .getLoggedDaysOfTheMonth(selectedUser, date);
@@ -888,11 +890,21 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
           e1);
       message = "plugin.calendar.logged.coloring.fail";
     }
-    worklogs = jiraTimetrackerPlugin.getWorklogs(selectedUser, date, null);
-    log.warn("JTWA log: loadWorklogsAndMakeSummary: worklogs size: "
-        + worklogs.size());
-    worklogsIds = copyWorklogIdsToArray(worklogs);
-    makeSummary();
+    try {
+      worklogs = jiraTimetrackerPlugin.getWorklogs(selectedUser, date, null);
+      log.warn("JTWA log: loadWorklogsAndMakeSummary: worklogs size: "
+          + worklogs.size());
+      worklogsIds = copyWorklogIdsToArray(worklogs);
+      makeSummary();
+    } catch (SQLException e) {
+      throw new GenericEntityException("Error when try set the plugin variables.");
+    } catch (DataAccessException e) {
+      throw new GenericEntityException("Error when try set the plugin variables.");
+    } catch (ParseException e) {
+      throw new GenericEntityException("Error when try set the plugin variables.");
+    } catch (GenericEntityException e) {
+      throw new GenericEntityException("Error when try set the plugin variables.");
+    }
   }
 
   /**
@@ -994,7 +1006,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    *           ClassNotFoundException.
    */
   private void readObject(final ObjectInputStream in) throws IOException,
-  ClassNotFoundException {
+      ClassNotFoundException {
     in.defaultReadObject();
     issues = new ArrayList<Issue>();
   }
