@@ -113,7 +113,6 @@
 </head>
 <body>
 <script>
-	
 	function calculateTimeForInputfileds(hour,min){
 		if (hour < 10){
 			hour = "0" + hour
@@ -153,9 +152,14 @@
 	 	}
 	}
 	
-	function submitForm(){
-			AJS.$('#Submitbutton').attr("disabled", true);
-			return true;
+	function handleEnterKey(e, setFocusTo){
+		if ((e.keyCode == 10 || e.keyCode == 13) && e.ctrlKey){
+		 AJS.$('#Submitbutton, #Edit').click();
+        } else if(e.keyCode == 13) { 
+         AJS.$(setFocusTo).focus();
+         e.preventDefault ? e.preventDefault() : event.returnValue = false;
+         return false;
+       }
 	}
 
 	var original = Calendar.prototype.show;
@@ -176,7 +180,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 			 			$debugMessage
 			  	</div>
 #end
-<form name="jttpForm" id="jttpForm"  method="post" onsubmit="submitForm();"
+<form name="jttpForm" id="jttpForm" method="post"
 					#if($isEdit) action="JiraTimetrackerWebAction.jspa?editedWorklogId=$editedWorklogId&dateFormated=$dateFormated" 
 					#elseif($isEditAll) action="JiraTimetrackerWebAction.jspa?editAllIds=$editAllIds&dateFormated=$dateFormated" 
 					#else action="JiraTimetrackerWebAction.jspa?dateFormated=$dateFormated" #end/>   
@@ -356,15 +360,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 						                	</tr>
 						                    <tr>
 						                        <td  style="width: 110px;">
-						                           <input id="startTime"  type="text" name="startTime" onkeydown="return checkStartTimeEnter(event);" value="$startTime" tabindex="1" style="margin-right: 5px; width: 100px;"/>
-						                           <script>
-						                           function checkStartTimeEnter(event){
-													    if (event.keyCode == 13) {
-													      AJS.$("#endTime").focus();
-													      return false;
-													    }
-													}
-						                           </script>
+						                           <input id="startTime"  type="text" name="startTime" value="$startTime" onkeypress="handleEnterKey(event, '#endTime');" tabindex="1" style="margin-right: 5px; width: 100px;"/>
 						                        </td>
 						                        <td style="width: 110px;">
 						                           <input id="startNow"  type="button" name="startNow" value="$i18n.getText('plugin.now')" class="button" width: 40px;"/>
@@ -439,7 +435,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 						                        </td>
 												<td  style="width: 110px">
 													<span style="position:relative;">
-						                    	 		<input id="endTime"  type="text" name="endTime" value="$endTime" tabindex="2" onkeydown="return checkSEndTimeEnter(event);" style="margin-right: 5px; width: 100px;"/> 
+						                    	 		<input id="endTime"  type="text" name="endTime" value="$endTime" onkeypress="handleEnterKey(event, '#issueSelect-textarea');" tabindex="2" style="margin-right: 5px; width: 100px;"/> 
 						                    	 		<div id="endTimeInput" style="position:absolute; left:0; right:0; top:0; bottom:0;" ></div>
 						                    	  	</span>
 						                    	 	<script>
@@ -450,13 +446,6 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 														    AJS.$("#radioEnd").prop("checked", true);
 														  #end
 														});
-														
-							                           function checkSEndTimeEnter(event){
-														    if (event.keyCode == 13) {
-														      AJS.$("#issueSelect-textarea").focus();
-												                return false;
-														    }
-														}
 							                           </script>
 						                    	 </td>
 						                    	 <td style="width: 85px;">
@@ -550,7 +539,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 						                    	 </td>
 						                    	 <td  style="width: 120px" >
 						                    	  <span style="position:relative;">
-						                    	 	<input id="durationTime"  type="text" name="durationTime" tabindex="2" disabled value="$durationTime" onkeydown="return checkDurationTimeEnter(event);" style="width: 100px"/>
+						                    	 	<input id="durationTime"  type="text" name="durationTime" onkeypress="handleEnterKey(event, '#issueSelect-textarea');" tabindex="2" disabled value="$durationTime" style="width: 100px"/>
 						                    		<div id="durationTimeInput" style="position:absolute; left:0; right:0; top:0; bottom:0;" ></div>
 						                    	  </span>
 						                    		<script>
@@ -570,13 +559,6 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 														    AJS.$("#radioDuration").prop("checked", true);
 														 #end
 														});
-														
-							                           function checkDurationTimeEnter(event){
-														    if (event.keyCode == 13) {
-														      AJS.$("#issueSelect-textarea").focus();
-												                return false;
-														    }
-														}
 							                           </script>
 						                    	 </td>
 						                    	<td width="auto">
@@ -717,7 +699,8 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 				</script>
 			#else
 				<input type="hidden" id="Submit" name="submit" disabled/>
-				<input id="Submitbutton" type="submit" name="submitbutton" value="$i18n.getText('plugin.submit')" class="button" tabindex="5" onclick="AJS.$('#Submit').val('true');AJS.$('#Submit').attr('disabled', false);"/>
+				<input id="Submitbutton" type="submit" name="submitbutton" value="$i18n.getText('plugin.submit')" class="button" tabindex="5"
+					onclick="AJS.$('#Submit').val('true');AJS.$('#Submit').attr('disabled', false);"/>
 			#end
 			<input id="setting"  type="button" name="setting" onclick="location.href='JiraTimetrackerSettingsWebAction!default.jspa'" value="$i18n.getText('plugin.settings')" class="button" style="display: inline; float: right;"/>
 			<input id="cancelButton"  type="button" name="Cancel" value="$i18n.getText('plugin.cancel')" onclick="location.href='JiraTimetrackerWebAction!default.jspa?dateFormated=$dateFormated'" class="button"/>
@@ -744,14 +727,13 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 		 });
 		 
 		 AJS.$('.table-comment').click(function(){
-		 
-		 var temp = AJS.$(this).find('#hiddenWorklogBody').val();
-		
-		 var temp2 = temp.replace(/(\\r\\n|\\n|\\r)/gm, "&#013;");
-		 var temp3 = temp.replace(/(\\r\\n|\\n|\\r)/gm, "\n");
-     
-     	 AJS.$("#comments").html(temp2);
-     	 AJS.$("#comments").val(temp3);
+			 var temp = AJS.$(this).find('#hiddenWorklogBody').val();
+			
+			 var temp2 = temp.replace(/(\\r\\n|\\n|\\r)/gm, "&#013;");
+			 var temp3 = temp.replace(/(\\r\\n|\\n|\\r)/gm, "\n");
+	     
+	     	 AJS.$("#comments").html(temp2);
+	     	 AJS.$("#comments").val(temp3);
 		 });
 		 
 		 AJS.$('.table-issue').click(function(){
@@ -761,7 +743,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 		 	AJS.$('#issueSelect-textarea').val(temp.trim());
 		 	AJS.$('#issueSelect-textarea').focus();
 		 	AJS.$('#Edit').focus();
-		 	AJS.$('#Submit').focus();
+		 	AJS.$('#Submitbutton').focus();
 		 });
 		 
 		 AJS.$('.copy').click(function(){
@@ -778,8 +760,23 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 		 	AJS.$("#comments").val(temp3);
 		 	
 		 	AJS.$('#issueSelect-textarea').focus();
-		 	AJS.$('#Submit').focus();
+		 	AJS.$('#Submitbutton').focus();
 		 });
+		 
+		 AJS.$('#issueSelect-textarea').keydown(function(e){
+		 	return handleEnterKey(e, '#comments');
+	     });
+	     
+	     AJS.$('#comments').keydown(function(e){
+	       if ((e.keyCode == 10 || e.keyCode == 13) && e.ctrlKey){
+		     AJS.$('#Submitbutton, #Edit').click();
+           }
+	     });
+	     
+	     AJS.$('#jttpForm').submit(function () {
+	        AJS.$('#Submitbutton').prop("disabled", true);
+	        return true;
+	     });
 		 	 
 	</script>	
 </form>
