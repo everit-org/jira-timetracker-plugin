@@ -59,7 +59,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   private static final String EXCEEDED_A_YEAR = "plugin.exceeded.year";
 
-  private static final String WRONG_DATES = "plugin.wrong.dates";
+  private static final String GET_WORKLOGS_ERROR_MESSAGE = "Error when trying to get worklogs.";
 
   private static final String INVALID_END_TIME = "plugin.invalid_endTime";
 
@@ -67,29 +67,32 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   private static final String INVALID_USER_PICKER = "plugin.user.picker.label";
 
-  private static final String PARAM_DATETO = "dateTo";
-
-  private static final String PARAM_DATEFROM = "dateFrom";
-
-  private static final String PARAM_USERPICKER = "userPicker";
-
-  private static final String GET_WORKLOGS_ERROR_MESSAGE = "Error when trying to get worklogs.";
-
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
 
-  private static final int MILLISEC_IN_SEC = 1000;
-  /**
-   * Serial version UID.
-   */
-  private static final long serialVersionUID = 1L;
   /**
    * Logger.
    */
   private static final Logger LOGGER = Logger.getLogger(JiraTimetrackerChartWebAction.class);
+
+  private static final int MILLISEC_IN_SEC = 1000;
+
+  private static final String PARAM_DATEFROM = "dateFrom";
+
+  private static final String PARAM_DATETO = "dateTo";
+
+  private static final String PARAM_USERPICKER = "userPicker";
   /**
-   * The {@link JiraTimetrackerPlugin}.
+   * Serial version UID.
    */
-  private JiraTimetrackerPlugin jiraTimetrackerPlugin;
+  private static final long serialVersionUID = 1L;
+
+  private static final String WRONG_DATES = "plugin.wrong.dates";
+
+  private String avatarURL = "";
+
+  private String contextPath;
+
+  private String currentUser = "";
   /**
    * The date.
    */
@@ -102,38 +105,39 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
    * The date.
    */
   private Date dateTo = null;
+
   /**
    * The formated date.
    */
   private String dateToFormated = "";
+
+  private HashMap<Integer, List<Object>> daySum = new HashMap<Integer, List<Object>>();
+
+  private List<Pattern> issuesRegex;
+
+  /**
+   * The {@link JiraTimetrackerPlugin}.
+   */
+  private JiraTimetrackerPlugin jiraTimetrackerPlugin;
+
   /**
    * The message.
    */
   private String message = "";
 
-  private String contextPath;
-
-  private String currentUser = "";
-
-  private String avatarURL = "";
-
-  private transient ApplicationUser userPickerObject;
-
-  private List<EveritWorklog> worklogs;
-
   private HashMap<Integer, List<Object>> monthSum = new HashMap<Integer, List<Object>>();
 
-  private HashMap<Integer, List<Object>> weekSum = new HashMap<Integer, List<Object>>();
-
-  private HashMap<Integer, List<Object>> daySum = new HashMap<Integer, List<Object>>();
+  private HashMap<Integer, List<Object>> realDaySum = new HashMap<Integer, List<Object>>();
 
   private HashMap<Integer, List<Object>> realMonthSum = new HashMap<Integer, List<Object>>();
 
   private HashMap<Integer, List<Object>> realWeekSum = new HashMap<Integer, List<Object>>();
 
-  private HashMap<Integer, List<Object>> realDaySum = new HashMap<Integer, List<Object>>();
+  private transient ApplicationUser userPickerObject;
 
-  private List<Pattern> issuesRegex;
+  private HashMap<Integer, List<Object>> weekSum = new HashMap<Integer, List<Object>>();
+
+  private List<EveritWorklog> worklogs;
 
   /**
    * Simple constructor.
