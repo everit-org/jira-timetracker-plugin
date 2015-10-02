@@ -22,6 +22,10 @@ margin-bottom: 0em;
 .table-endtime:hover, .table-starttime:hover, .table-issue:hover, .table-comment:hover{
 cursor:pointer;
 }
+span{
+padding: 3px;
+cursor:pointer;
+}
 </style>
 #set($rowCount = 0)
 <div class="results-wrap">
