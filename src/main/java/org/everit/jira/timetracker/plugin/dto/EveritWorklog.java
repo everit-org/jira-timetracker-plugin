@@ -21,11 +21,8 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
-import java.util.regex.Pattern;
 
 import org.everit.jira.timetracker.plugin.DateTimeConverterUtil;
-import org.everit.jira.timetracker.plugin.JiraTimetrackerUtil;
 import org.ofbiz.core.entity.GenericValue;
 
 import com.atlassian.jira.component.ComponentAccessor;
@@ -43,47 +40,14 @@ public class EveritWorklog implements Serializable {
    */
   private static final long serialVersionUID = 1L;
   /**
-   * The worklog ID.
+   * The worklog note.
    */
-  private Long worklogId;
-  /**
-   * The start Time.
-   */
-  private String startTime;
-  /**
-   * The start Date.
-   */
-  private String startDate;
+  private String body;
 
-  private int monthNo;
-
-  private int weekNo;
+  private Date date;
 
   private int dayNo;
 
-  private Date date;
-  /**
-   * The worklog Issue key.
-   */
-  private String issue;
-
-  /**
-   * The worklog Issue Summary.
-   */
-  private String issueSummary;
-
-  /**
-   * The worklog Issue epic.
-   */
-  private String issueParent;
-  /**
-   * The worklog issue ID.
-   */
-  private Long issueId;
-  /**
-   * The milliseconds between the start time and the end time.
-   */
-  private long milliseconds;
   /**
    * The spent time.
    */
@@ -95,27 +59,65 @@ public class EveritWorklog implements Serializable {
   private String endTime;
 
   /**
-   * The worklog note.
-   */
-  private String body;
-
-  /**
    * The issue estimated time is 0 or not.
    */
   private boolean isMoreEstimatedTime;
+
+  /**
+   * The worklog Issue key.
+   */
+  private String issue;
+
+  /**
+   * The worklog issue ID.
+   */
+  private Long issueId;
+  /**
+   * The worklog Issue epic.
+   */
+  private String issueParent;
+
+  /**
+   * The worklog Issue Summary.
+   */
+  private String issueSummary;
+
+  /**
+   * The milliseconds between the start time and the end time.
+   */
+  private long milliseconds;
+
+  private int monthNo;
+  /**
+   * Remaining time on the issue.
+   */
+  private String remaining;
+  /**
+   * The start Date.
+   */
+  private String startDate;
+
+  /**
+   * The start Time.
+   */
+  private String startTime;
+
+  private int weekNo;
+
+  /**
+   * The worklog ID.
+   */
+  private Long worklogId;
 
   /**
    * Simple constructor with GenericValue.
    *
    * @param worklogGv
    *          GenericValue worklog.
-   * @param collectorIssuePatterns
-   *          The collector Issues Pattern list.
    * @throws ParseException
    *           If can't parse the date.
    */
-  public EveritWorklog(final GenericValue worklogGv,
-      final List<Pattern> collectorIssuePatterns) throws ParseException {
+  public EveritWorklog(final GenericValue worklogGv) throws ParseException {
     worklogId = worklogGv.getLong("id");
     startTime = worklogGv.getString("startdate");
     date = DateTimeConverterUtil.stringToDateAndTime(startTime);
@@ -137,8 +139,7 @@ public class EveritWorklog implements Serializable {
     } else {
       issueParent = "";
     }
-    isMoreEstimatedTime = JiraTimetrackerUtil.checkIssueEstimatedTime(
-        issueObject, collectorIssuePatterns);
+    isMoreEstimatedTime = issueObject.getEstimate() == 0 ? false : true;
     body = worklogGv.getString("body");
     if (body != null) {
       body = body.replace("\"", "\\\"");
@@ -153,6 +154,7 @@ public class EveritWorklog implements Serializable {
     duration = DateTimeConverterUtil.secondConvertToString(timeSpentInSec);
     endTime = DateTimeConverterUtil.countEndTime(startTime, milliseconds);
 
+    remaining = DateTimeConverterUtil.secondConvertToString(issueObject.getEstimate());
   }
 
   /**
@@ -160,14 +162,12 @@ public class EveritWorklog implements Serializable {
    *
    * @param rs
    *          ResultSet
-   * @param collectorIssuePatterns
-   *          The collector Issues Pattern list.
    * @throws ParseException
    *           Cannot parse date time
    * @throws SQLException
    *           Cannot access resultSet fields
    */
-  public EveritWorklog(final ResultSet rs, final List<Pattern> collectorIssuePatterns)
+  public EveritWorklog(final ResultSet rs)
       throws ParseException, SQLException {
     worklogId = rs.getLong("id");
     startTime = rs.getString("startdate");
@@ -190,8 +190,7 @@ public class EveritWorklog implements Serializable {
     } else {
       issueParent = "";
     }
-    isMoreEstimatedTime = JiraTimetrackerUtil.checkIssueEstimatedTime(
-        issueObject, collectorIssuePatterns);
+    isMoreEstimatedTime = issueObject.getEstimate() == 0 ? false : true;
     body = rs.getString("worklogbody");
     if (body != null) {
       body = body.replace("\"", "\\\"");
@@ -206,6 +205,7 @@ public class EveritWorklog implements Serializable {
     duration = DateTimeConverterUtil.secondConvertToString(timeSpentInSec);
     endTime = DateTimeConverterUtil.countEndTime(startTime, milliseconds);
 
+    remaining = DateTimeConverterUtil.secondConvertToString(issueObject.getEstimate());
   }
 
   /**
@@ -288,6 +288,10 @@ public class EveritWorklog implements Serializable {
     return monthNo;
   }
 
+  public String getRemaining() {
+    return remaining;
+  }
+
   public String getStartDate() {
     return startDate;
   }
@@ -346,6 +350,10 @@ public class EveritWorklog implements Serializable {
 
   public void setMoreEstimatedTime(final boolean isMoreEstimatedTime) {
     this.isMoreEstimatedTime = isMoreEstimatedTime;
+  }
+
+  public void setRemaining(final String remaining) {
+    this.remaining = remaining;
   }
 
   public void setStartDate(final String startDate) {
