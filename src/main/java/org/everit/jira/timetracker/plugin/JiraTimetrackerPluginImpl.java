@@ -357,25 +357,25 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     String userKey = ((selectedUser == null) || "".equals(selectedUser))
         ? loggedInUser.getKey() : selectedUser;
 
-    List<Long> projects = createProjects(loggedInUser);
+        List<Long> projects = createProjects(loggedInUser);
 
-    EntityExpr startExpr = new EntityExpr("startdate",
-        EntityOperator.GREATER_THAN_EQUAL_TO, new Timestamp(
-            startDate.getTimeInMillis()));
-    EntityExpr endExpr = new EntityExpr("startdate",
-        EntityOperator.LESS_THAN, new Timestamp(endDate.getTimeInMillis()));
-    EntityExpr userExpr = new EntityExpr("author", EntityOperator.EQUALS,
-        userKey);
-    EntityExpr projectExpr = new EntityExpr("project", EntityOperator.IN, projects);
-    LOGGER.info("JTTP LOG: getWorklogs start date: " + startDate.toString()
-        + " end date:" + endDate.toString());
+        EntityExpr startExpr = new EntityExpr("startdate",
+            EntityOperator.GREATER_THAN_EQUAL_TO, new Timestamp(
+                startDate.getTimeInMillis()));
+        EntityExpr endExpr = new EntityExpr("startdate",
+            EntityOperator.LESS_THAN, new Timestamp(endDate.getTimeInMillis()));
+        EntityExpr userExpr = new EntityExpr("author", EntityOperator.EQUALS,
+            userKey);
+        EntityExpr projectExpr = new EntityExpr("project", EntityOperator.IN, projects);
+        LOGGER.info("JTTP LOG: getWorklogs start date: " + startDate.toString()
+            + " end date:" + endDate.toString());
 
-    List<EntityCondition> exprList = new ArrayList<EntityCondition>();
-    exprList.add(userExpr);
-    exprList.add(startExpr);
-    exprList.add(endExpr);
-    exprList.add(projectExpr);
-    return exprList;
+        List<EntityCondition> exprList = new ArrayList<EntityCondition>();
+        exprList.add(userExpr);
+        exprList.add(startExpr);
+        exprList.add(endExpr);
+        exprList.add(projectExpr);
+        return exprList;
   }
 
   @Override
@@ -538,7 +538,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
       // check weekend - pass
       if (!includeDatesSet.contains(currentDateString)
           && ((fromDate.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY)
-          || (fromDate.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY))) {
+              || (fromDate.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY))) {
         fromDate.add(Calendar.DATE, 1);
         continue;
       }

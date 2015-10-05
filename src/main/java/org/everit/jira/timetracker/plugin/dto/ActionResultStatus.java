@@ -40,12 +40,12 @@ package org.everit.jira.timetracker.plugin.dto;
  * The {@link ActionResult} status.
  */
 public enum ActionResultStatus {
-    /**
-     * Success.
-     */
-    SUCCESS,
-    /**
-     * Fail.
-     */
-    FAIL
+  /**
+   * Fail.
+   */
+  FAIL,
+  /**
+   * Success.
+   */
+  SUCCESS
 }

@@ -72,6 +72,7 @@ public class EveritWorklog implements Serializable {
    * The worklog issue ID.
    */
   private Long issueId;
+
   /**
    * The worklog Issue epic.
    */
@@ -88,10 +89,12 @@ public class EveritWorklog implements Serializable {
   private long milliseconds;
 
   private int monthNo;
+
   /**
    * Remaining time on the issue.
    */
   private String remaining;
+
   /**
    * The start Date.
    */
