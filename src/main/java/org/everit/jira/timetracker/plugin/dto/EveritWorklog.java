@@ -43,47 +43,14 @@ public class EveritWorklog implements Serializable {
    */
   private static final long serialVersionUID = 1L;
   /**
-   * The worklog ID.
+   * The worklog note.
    */
-  private Long worklogId;
-  /**
-   * The start Time.
-   */
-  private String startTime;
-  /**
-   * The start Date.
-   */
-  private String startDate;
+  private String body;
 
-  private int monthNo;
-
-  private int weekNo;
+  private Date date;
 
   private int dayNo;
 
-  private Date date;
-  /**
-   * The worklog Issue key.
-   */
-  private String issue;
-
-  /**
-   * The worklog Issue Summary.
-   */
-  private String issueSummary;
-
-  /**
-   * The worklog Issue epic.
-   */
-  private String issueParent;
-  /**
-   * The worklog issue ID.
-   */
-  private Long issueId;
-  /**
-   * The milliseconds between the start time and the end time.
-   */
-  private long milliseconds;
   /**
    * The spent time.
    */
@@ -95,14 +62,50 @@ public class EveritWorklog implements Serializable {
   private String endTime;
 
   /**
-   * The worklog note.
-   */
-  private String body;
-
-  /**
    * The issue estimated time is 0 or not.
    */
   private boolean isMoreEstimatedTime;
+
+  /**
+   * The worklog Issue key.
+   */
+  private String issue;
+  /**
+   * The worklog issue ID.
+   */
+  private Long issueId;
+
+  /**
+   * The worklog Issue epic.
+   */
+  private String issueParent;
+
+  /**
+   * The worklog Issue Summary.
+   */
+  private String issueSummary;
+  /**
+   * The milliseconds between the start time and the end time.
+   */
+  private long milliseconds;
+
+  private int monthNo;
+  /**
+   * The start Date.
+   */
+  private String startDate;
+
+  /**
+   * The start Time.
+   */
+  private String startTime;
+
+  private int weekNo;
+
+  /**
+   * The worklog ID.
+   */
+  private Long worklogId;
 
   /**
    * Simple constructor with GenericValue.
