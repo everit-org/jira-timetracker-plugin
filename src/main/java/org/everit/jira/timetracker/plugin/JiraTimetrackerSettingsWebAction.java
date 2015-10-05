@@ -34,75 +34,76 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
   /**
-   * Serial version UID.
-   */
-  private static final long serialVersionUID = 1L;
-  /**
-   * The {@link JiraTimetrackerPlugin}.
-   */
-  private JiraTimetrackerPlugin jiraTimetrackerPlugin;
-  /**
-   * The calendar is popup, inLine or both.
-   */
-  private int isPopup;
-  /**
-   * The calenar show the actualDate or the last unfilled date.
-   */
-  private boolean isActualDate;
-  /**
-   * The IDs of the projects.
-   */
-  private List<String> projectsId;
-  /**
-   * The exclude dates in String format.
-   */
-  private String excludeDates = "";
-  /**
-   * The include dates in String format.
-   */
-  private String includeDates = "";
-  /**
-   * The message.
-   */
-  private String message = "";
-  /**
-   * The message parameter.
-   */
-  private String messageParameter = "";
-  /**
-   * The startTime.
-   */
-  private String startTime;
-  /**
-   * The endTime.
-   */
-  private String endTime;
-  /**
-   * The calendar highlights coloring.
-   */
-  private boolean isColoring;
-  /**
    * Logger.
    */
   private static final Logger LOGGER = Logger
       .getLogger(JiraTimetrackerSettingsWebAction.class);
-
   /**
-   * The filtered Issues id.
+   * Serial version UID.
    */
-  private List<Pattern> issuesPatterns;
-
+  private static final long serialVersionUID = 1L;
   /**
    * The collector issue ids.
    */
   private List<Pattern> collectorIssuePatterns;
 
+  private String contextPath;
+  /**
+   * The endTime.
+   */
+  private String endTime;
+  /**
+   * The exclude dates in String format.
+   */
+  private String excludeDates = "";
   /**
    * The first day of the week.
    */
   private int fdow;
+  /**
+   * The include dates in String format.
+   */
+  private String includeDates = "";
+  /**
+   * The calenar show the actualDate or the last unfilled date.
+   */
+  private boolean isActualDate;
+  /**
+   * The calendar highlights coloring.
+   */
+  private boolean isColoring;
+  /**
+   * The calendar is popup, inLine or both.
+   */
+  private int isPopup;
+  /**
+   * The filtered Issues id.
+   */
+  private List<Pattern> issuesPatterns;
+  /**
+   * The {@link JiraTimetrackerPlugin}.
+   */
+  private JiraTimetrackerPlugin jiraTimetrackerPlugin;
 
-  private String contextPath;
+  /**
+   * The message.
+   */
+  private String message = "";
+
+  /**
+   * The message parameter.
+   */
+  private String messageParameter = "";
+
+  /**
+   * The IDs of the projects.
+   */
+  private List<String> projectsId;
+
+  /**
+   * The startTime.
+   */
+  private String startTime;
 
   public JiraTimetrackerSettingsWebAction(
       final JiraTimetrackerPlugin jiraTimetrackerPlugin) {

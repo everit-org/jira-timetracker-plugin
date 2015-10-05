@@ -43,8 +43,6 @@ import com.atlassian.jira.web.action.JiraWebActionSupport;
  */
 public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
-  private static final String WRONG_DATES = "plugin.wrong.dates";
-
   private static final String GET_WORKLOGS_ERROR_MESSAGE = "Error when trying to get worklogs.";
 
   private static final String INVALID_END_TIME = "plugin.invalid_endTime";
@@ -53,25 +51,32 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
   private static final String INVALID_USER_PICKER = "plugin.user.picker.label";
 
-  private static final String PARAM_DATETO = "dateTo";
-
-  private static final String PARAM_DATEFROM = "dateFrom";
-
-  private static final String PARAM_USERPICKER = "userPicker";
-
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
-  /**
-   * Serial version UID.
-   */
-  private static final long serialVersionUID = 1L;
+
   /**
    * Logger.
    */
   private static final Logger LOGGER = Logger.getLogger(JiraTimetrackerChartWebAction.class);
+
+  private static final String PARAM_DATEFROM = "dateFrom";
+
+  private static final String PARAM_DATETO = "dateTo";
+
+  private static final String PARAM_USERPICKER = "userPicker";
   /**
-   * The {@link JiraTimetrackerPlugin}.
+   * Serial version UID.
    */
-  private JiraTimetrackerPlugin jiraTimetrackerPlugin;
+  private static final long serialVersionUID = 1L;
+
+  private static final String WRONG_DATES = "plugin.wrong.dates";
+
+  private String avatarURL = "";
+
+  private List<ChartData> chartDataList;
+
+  private String contextPath;
+
+  private String currentUser = "";
   /**
    * The date.
    */
@@ -80,26 +85,26 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
    * The formated date.
    */
   private String dateFromFormated = "";
+
   /**
    * The date.
    */
   private Date dateTo = null;
+
   /**
    * The formated date.
    */
   private String dateToFormated = "";
+
+  /**
+   * The {@link JiraTimetrackerPlugin}.
+   */
+  private JiraTimetrackerPlugin jiraTimetrackerPlugin;
+
   /**
    * The message.
    */
   private String message = "";
-
-  private String contextPath;
-
-  private List<ChartData> chartDataList;
-
-  private String currentUser = "";
-
-  private String avatarURL = "";
 
   private transient ApplicationUser userPickerObject;
 

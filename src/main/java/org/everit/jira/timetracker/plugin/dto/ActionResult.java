@@ -43,10 +43,6 @@ package org.everit.jira.timetracker.plugin.dto;
  */
 public class ActionResult {
   /**
-   * The action result.
-   */
-  private final ActionResultStatus status;
-  /**
    * The result message.
    */
   private final String message;
@@ -54,10 +50,14 @@ public class ActionResult {
    * The result message parameter.
    */
   private String messageParameter;
+  /**
+   * The action result.
+   */
+  private final ActionResultStatus status;
 
   /**
    * Simple constructor.
-   * 
+   *
    * @param status
    *          The status.
    * @param message
@@ -71,7 +71,7 @@ public class ActionResult {
 
   /**
    * Simple constructor.
-   * 
+   *
    * @param status
    *          The status.
    * @param message
