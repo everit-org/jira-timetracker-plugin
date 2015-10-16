@@ -22,6 +22,10 @@ margin-bottom: 0em;
 .table-endtime:hover, .table-starttime:hover, .table-issue:hover, .table-comment:hover{
 cursor:pointer;
 }
+span{
+padding: 3px;
+cursor:pointer;
+}
 </style>
 #set($rowCount = 0)
 <div class="results-wrap">
@@ -41,17 +45,11 @@ cursor:pointer;
 	                        <td width="5%" style="text-align: center;"> 
 	                          $i18n.getText("plugin.duration")
 	                        </td>
-	                        <td width="65%" style="text-align: center;">
+	                        <td width="60%" style="text-align: center;">
 	                          $i18n.getText("plugin.note")
 	                        </td>
-	                        <td width="5%" style="text-align: center;">
-	                          $i18n.getText("plugin.edit")
-	                        </td>
-	                        <td width="5%" style="text-align: center;">
-	                          $i18n.getText("plugin.delete")
-	                        </td>
-	                        <td width="5%" style="text-align: center;">
-	                          $i18n.getText('plugin.copy')
+	                        <td width="10%" style="text-align: center;">
+	                          $i18n.getText("plugin.actions")
 	                        </td>
 	                    </tr>
                     </thead>
@@ -102,15 +100,16 @@ cursor:pointer;
 			                    	 			}
 	            								}); 
 	            					</script>
-		                    	 	<td style="vertical-align: middle;">
+		                    	 	<td style="vertical-align: middle; text-align: center;>
 		                    	 		<input id="hiddenWorklogId" type="hidden" value="$worklog.worklogId" >
-		                    	 		<input id="edit" type="button" name="edit" value="$i18n.getText('plugin.edit')" onclick="location.href='JiraTimetrackerWebAction.jspa?editedWorklogId=$worklog.worklogId&dateFormated=$dateFormated'" class="button" />
-		                    	 	</td>
-		                    	 	<td style="vertical-align: middle;">
-		                    	 		<input id="delete" type="button" name="delete" value="$i18n.getText('plugin.delete')" onclick="location.href='JiraTimetrackerWebAction!default.jspa?deletedWorklogId=$worklog.worklogId&dateFormated=$dateFormated'" class="button"/>
-		                    	 	</td>
-		                    	 	<td style="vertical-align: middle;">
-		                    	 		<input id="copy" type="button" name="copy" value="$i18n.getText('plugin.copy')" class="copy button"/>
+		                    	 		<span class="aui-icon aui-icon-small aui-iconfont-edit"
+		                    	 			id="edit" name="edit" title="$i18n.getText('plugin.edit')"
+		                    	 			onclick="location.href='JiraTimetrackerWebAction.jspa?editedWorklogId=$worklog.worklogId&dateFormated=$dateFormated'"></span>
+		                    	 		<span class="aui-icon aui-icon-small aui-iconfont-delete"
+		                    	 			id="delete" name="delete" title="$i18n.getText('plugin.delete')"
+		                    	 			onclick="location.href='JiraTimetrackerWebAction!default.jspa?deletedWorklogId=$worklog.worklogId&dateFormated=$dateFormated'"></span>
+		                    	 		<span class="aui-icon aui-icon-small aui-iconfont-copy-clipboard copy"
+		                    	 			id="copy" name="copy" title="$i18n.getText('plugin.copy')"></span>
 		                    	 	</td>
 		                    	</tr>
 		                    	#set($rowCount = $rowCount + 1)
