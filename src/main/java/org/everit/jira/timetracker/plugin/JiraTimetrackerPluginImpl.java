@@ -691,7 +691,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     LOGGER.warn("JTTP LOG: getWorklogs worklog GV list size: " + worklogGVList.size());
 
     for (GenericValue worklogGv : worklogGVList) {
-      EveritWorklog worklog = new EveritWorklog(worklogGv, collectorIssuePatterns);
+      EveritWorklog worklog = new EveritWorklog(worklogGv);
       worklogs.add(worklog);
     }
 

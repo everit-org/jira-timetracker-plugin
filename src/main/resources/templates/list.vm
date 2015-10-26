@@ -45,7 +45,10 @@ cursor:pointer;
 	                        <td width="5%" style="text-align: center;"> 
 	                          $i18n.getText("plugin.duration")
 	                        </td>
-	                        <td width="60%" style="text-align: center;">
+	                        <td width="5%" style="text-align: center;"> 
+	                          $i18n.getText("plugin.remaining")
+	                        </td>
+	                        <td width="65%" style="text-align: center;">
 	                          $i18n.getText("plugin.note")
 	                        </td>
 	                        <td width="10%" style="text-align: center;">
@@ -64,11 +67,6 @@ cursor:pointer;
 		                    	<tr #if($worklog.worklogId == $editedWorklogId) class="rowEdit" #end #if($rowCount % 2 != 0) class="rowAlter" #end>
 		                    	 	<td class="table-issue" style="vertical-align: middle;">
 		                    	 		<a href="/browse/$worklog.issue" class="issue-link" title="#if($worklog.issueParent != '') $i18n.getText('plugin.parent.issue') $worklog.issueParent &#13 $worklog.issueSummary #else $worklog.issueSummary #end">$worklog.issue</a>
-		                    	 		
-		                    	 		#if(!$worklog.isMoreEstimatedTime)
-		                    	 			<img id="no_estimated" src="$contextPath/images/icons/priority_blocker.gif" width="16" height="16" border="0"
-															alt="$i18n.getText('plugin.exclamation.mark.message')" style="vertical-align: text-bottom;" title="$i18n.getText('plugin.exclamation.mark.message')"/>
-										#end
 		                    	 	</td>
 		                    	 	<td class="table-starttime" style="vertical-align: middle;">
 		                    	 		$worklog.startTime
@@ -78,6 +76,14 @@ cursor:pointer;
 		                    	 	</td>
 		                    	 	<td style="vertical-align: middle;">
 		                    	 		$worklog.duration
+		                    	 	</td>
+		                    	 	<td style="vertical-align: middle;">
+		                    	 		#if(!$worklog.isMoreEstimatedTime)
+		                    	 			<div style="color:red;">$worklog.remaining</div>
+										#else
+											$worklog.remaining
+										#end
+		                    	 		
 		                    	 	</td>
 		                    	 	<td id="commentRow_$rowCount" name="commentRow_$rowCount" class="table-comment wiki-edit-content" style="vertical-align: middle;">
 		                    	 		<input id="hiddenWorklogBody" type="hidden" value="$worklog.body">
