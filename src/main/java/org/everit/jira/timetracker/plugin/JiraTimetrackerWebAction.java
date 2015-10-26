@@ -882,7 +882,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    *           Cannot get the worklogs
    */
   private void loadWorklogsAndMakeSummary() throws GenericEntityException,
-      ParseException, DataAccessException, SQLException {
+  ParseException, DataAccessException, SQLException {
     try {
       loggedDays = jiraTimetrackerPlugin.getLoggedDaysOfTheMonth(selectedUser, date);
     } catch (GenericEntityException e1) {
@@ -999,7 +999,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    *           ClassNotFoundException.
    */
   private void readObject(final ObjectInputStream in) throws IOException,
-      ClassNotFoundException {
+  ClassNotFoundException {
     in.defaultReadObject();
     issues = new ArrayList<Issue>();
   }
@@ -1286,12 +1286,12 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     }
     if ("duration".equals(endOrDurationValue[0])) {
       String result = handleDuration();
-      if (result.equals(SUCCESS)) {
+      if (!result.equals(SUCCESS)) {
         return result;
       }
     } else {
       String result = handleEndTime();
-      if (result.equals(SUCCESS)) {
+      if (!result.equals(SUCCESS)) {
         return result;
       }
     }
