@@ -539,7 +539,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       // editResult =
       jiraTimetrackerPlugin.editWorklog(editWorklog
           .getWorklogId(), editWorklog.getIssue(), editWorklog
-          .getBody(), dateFormated, editWorklog.getStartTime(),
+              .getBody(),
+          dateFormated, editWorklog.getStartTime(),
           DateTimeConverterUtil.stringTimeToString(editWorklog
               .getDuration()));
     }
@@ -882,7 +883,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    *           Cannot get the worklogs
    */
   private void loadWorklogsAndMakeSummary() throws GenericEntityException,
-  ParseException, DataAccessException, SQLException {
+      ParseException, DataAccessException, SQLException {
     try {
       loggedDays = jiraTimetrackerPlugin.getLoggedDaysOfTheMonth(selectedUser, date);
     } catch (GenericEntityException e1) {
@@ -999,7 +1000,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    *           ClassNotFoundException.
    */
   private void readObject(final ObjectInputStream in) throws IOException,
-  ClassNotFoundException {
+      ClassNotFoundException {
     in.defaultReadObject();
     issues = new ArrayList<Issue>();
   }
