@@ -1,5 +1,9 @@
 language: java
 jdk:
-  - openjdk6
-script: mvn integration-test
+  - openjdk7
+script: mvn verify
 install: true
+sudo: false
+cache:
+  directories:
+    - $HOME/.m2
