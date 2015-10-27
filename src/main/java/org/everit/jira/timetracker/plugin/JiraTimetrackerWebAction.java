@@ -539,7 +539,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       // editResult =
       jiraTimetrackerPlugin.editWorklog(editWorklog
           .getWorklogId(), editWorklog.getIssue(), editWorklog
-          .getBody(), dateFormated, editWorklog.getStartTime(),
+              .getBody(),
+          dateFormated, editWorklog.getStartTime(),
           DateTimeConverterUtil.stringTimeToString(editWorklog
               .getDuration()));
     }
@@ -1286,12 +1287,12 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     }
     if ("duration".equals(endOrDurationValue[0])) {
       String result = handleDuration();
-      if (result.equals(SUCCESS)) {
+      if (!result.equals(SUCCESS)) {
         return result;
       }
     } else {
       String result = handleEndTime();
-      if (result.equals(SUCCESS)) {
+      if (!result.equals(SUCCESS)) {
         return result;
       }
     }
