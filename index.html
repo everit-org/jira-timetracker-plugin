@@ -20,493 +20,655 @@
 <html>
 
 <head>
-    <meta charset="utf-8">
-    <title>Everit Timetracker Plugin</title>
-    <link rel="icon" type="image/ico" href="fonts/favicon.ico">
+<meta charset="utf-8">
+<title>Everit Timetracker Plugin</title>
+<link rel="icon" type="image/ico" href="fonts/favicon.ico">
 
-    <!--    <link rel="stylesheet" type="text/css" href="common/css/base.css">-->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/docs.min.css" rel="stylesheet">
-    <link href="css/everit.css" rel="stylesheet">
-    <script type="text/javascript">
-        var _gaq = _gaq || [];
-        _gaq.push(['_setAccount', 'UA-15041869-4']);
-        _gaq.push(['_setDomainName', 'everit.org']);
-        _gaq.push(['_trackPageview']);
-    </script>
+<!--    <link rel="stylesheet" type="text/css" href="common/css/base.css">-->
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<link href="css/docs.min.css" rel="stylesheet">
+<link href="css/everit.css" rel="stylesheet">
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push([ '_setAccount', 'UA-15041869-4' ]);
+  _gaq.push([ '_setDomainName', 'everit.org' ]);
+  _gaq.push([ '_trackPageview' ]);
+</script>
 </head>
 
 <body class="bs-docs-home" data-spy="scroll" data-target="#affix-nav">
-    <a class="sr-only" href="#content">Skip to main content</a>
-    <header class="navbar navbar-static-top bs-docs-nav" id="top" role="banner">
-        <div class="container">
-            <div class="navbar-header">
-                <button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".bs-navbar-collapse">
-                    <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
-                </button>
-                <a href="#" class="navbar-brand">Index</a>
-            </div>
-            <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
-                <ul class="nav navbar-nav">
-                    <li><a href="https://github.com/everit-org/jira-timetracker-plugin" target="_blank">Source</a>
-                    </li>
-                    <li><a href="http://www.everit.org/" target="_blank">Community</a>
-                    </li>
-                </ul>
-                <ul class="nav navbar-nav navbar-right">
-                    <li><a href="http://www.everit.biz" target="_blank">Enterprise</a>
-                    </li>
-                    <li><a href="http://everitorg.wordpress.com/" target="_blank">Blog</a>
-                    </li>
-                </ul>
-            </nav>
-        </div>
-    </header>
-
-    <div class="bs-docs-masthead everit-header" id="content" role="main">
-        <div class="container">
-                <span class="bs-docs-booticon bs-docs-booticon-lg bs-docs-booticon-outline"> <img class="logo"
-        src="fonts/sbz_e.svg" alt="E">
-      </span>
-                <p class="lead">Jira Timetracker Plugin</p>
-        </div>
-    </div>
+  <a class="sr-only" href="#content">Skip to main content</a>
+  <header class="navbar navbar-static-top bs-docs-nav" id="top" role="banner">
     <div class="container">
-        <div class="col-md-10">
-            
-            <div class="bs-docs-featurette cookbook" id="intoduction">
-                <h3 style="text-align:center">JIRA Timetracker Plugin enables its users to log their working hours in a fast and easy manner. The plugin provides users authenticated to JIRA with a simple and easy-to-use interface to manage their worklogs. By means of the plugin, worklogs may be created, modified or deleted.
-                </h3>
-            </div>
-            <hr class="featurette-divider">
+      <div class="navbar-header">
+        <button class="navbar-toggle" type="button" data-toggle="collapse"
+          data-target=".bs-navbar-collapse">
+          <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span
+            class="icon-bar"></span> <span class="icon-bar"></span>
+        </button>
+        <a href="#" class="navbar-brand">Index</a>
+      </div>
+      <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
+        <ul class="nav navbar-nav">
+          <li><a href="https://github.com/everit-org/jira-timetracker-plugin" target="_blank">Source</a>
+          </li>
+          <li><a href="http://www.everit.org/" target="_blank">Community</a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="http://www.everit.biz" target="_blank">Enterprise</a></li>
+          <li><a href="http://everitorg.wordpress.com/" target="_blank">Blog</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
 
-            <div class="bs-docs-featurette cookbook" id="install">
-                <h2>Install</h2>
-                <p>The plugin can be downloaded or installed from <a href="https://marketplace.atlassian.com/plugins/org.everit.jira.timetracker.plugin">Atlassian Marketplace</a>.
-                </p>
-            </div>
-            <hr class="featurette-divider">
+  <div class="bs-docs-masthead everit-header" id="content" role="main">
+    <div class="container">
+      <span class="bs-docs-booticon bs-docs-booticon-lg bs-docs-booticon-outline"> <img
+        class="logo" src="fonts/sbz_e.svg" alt="E">
+      </span>
+      <p class="lead">Jira Timetracker Plugin</p>
+    </div>
+  </div>
+  <div class="container">
+    <div class="text-center text-danger" style="padding-top: 1em;">
+      Do you need Jira and OSGi developers? <strong>Daily rates start from 150 €!</strong> For more
+      information, please <a href="http://www.everit.biz#contact">contact us</a>!
+    </div>
+    <div class="col-md-10">
 
-            <div class="bs-docs-featurette cookbook" id="login">
-                <h2>Login</h2>
-                <p>To use the plugin, it is necessary to log into JIRA. After authentication, the plugin can be found amongst the Jira menu items by the name of Timetracker.
-                </p>
-            </div>
-            <hr class="featurette-divider">
+      <div class="bs-docs-featurette cookbook" id="intoduction">
+        <h3 style="text-align: center">JIRA Timetracker Plugin enables its users to log their
+          working hours in a fast and easy manner. The plugin provides users authenticated to JIRA
+          with a simple and easy-to-use interface to manage their worklogs. By means of the plugin,
+          worklogs may be created, modified or deleted.</h3>
+      </div>
+      <hr class="featurette-divider">
 
-            <div class="bs-docs-featurette cookbook" id="interface">
-                <h2>Timetracker plugin interface and input fields </h2>
-                <p>After clicking on the Timetracker menu item, the plugin interface appears. The interface consists of different parts: the date modification part, the worklog total part, the worklog table part and the input fields.
-                </p>
-                <img class="img-responsive img-thumbnail" src="images/jttp_timetracker.png" alt="Timetracker" />
+      <div class="bs-docs-featurette cookbook" id="install">
+        <h2>Install</h2>
+        <p>
+          The plugin can be downloaded or installed from <a
+            href="https://marketplace.atlassian.com/plugins/org.everit.jira.timetracker.plugin">Atlassian
+            Marketplace</a>.
+        </p>
+      </div>
+      <hr class="featurette-divider">
 
-                <h3 id="date_modification">Date modification</h3>
-                <p>Based on the user settings, there are more options to modify the date. The pop-up calendar and the tools to modify the date can be found in the top left-hand corner. It is possible to increase or decrease the date with units of time (day, week, month). Besides, a date can be chosen from the pop-up calendar also. The inline calendar can be found below the worklog table on the right-hand side of the input fields block. The settings make it possible to use both types of calendars simultaneously.
-                    <h4>The Calendar highlights funtion </h4>
-                    <p>The calendar coloring function has been extended. The exclude dates shows like weekend (colored with red). The other months weekend fonts is colored to pink. The dates that include worklog now appears with yellow background.</p>
-                    <img class="img-responsive img-thumbnail" src="images/jttp_calendar.png" alt="TT calendar" />
-                    <br>
-                    <img class="img-responsive img-thumbnail" src="images/jttp_inline_calendar.png" alt="TT inline calendar" />
+      <div class="bs-docs-featurette cookbook" id="login">
+        <h2>Login</h2>
+        <p>To use the plugin, it is necessary to log into JIRA. After authentication, the plugin
+          can be found amongst the Jira menu items by the name of Timetracker.</p>
+      </div>
+      <hr class="featurette-divider">
 
-                    <h3 id="worklog_total">Worklog total</h3>
-                    <p>The worklog summary can be found in the top right-hand corner and it can be viewed in JIRA format ( d h m) broken down to a given day, week or month. In the case of a given day, the summary is created from 00:00:00 to 23:59:59. In the case of a given week, the summary is created from Monday 00:00:00 to Sunday 23:59:59. A monthly summary is created from the first day of the month 00:00:00 to the last day of the month 23:59:59. The worklogs related to actual work are summarized below the worklog summary. This Real Work Summary contains only the time spent with actual work based on the worklogs that are not related to non-working issues. The Real Work Summary uses Jira format (d h m) to display the daily, weekly and monthly summaries.</p>
-                    <img class="img-responsive img-thumbnail" src="images/jttp_summary.png" alt=Summary />
+      <div class="bs-docs-featurette cookbook" id="interface">
+        <h2>Timetracker plugin interface and input fields</h2>
+        <p>After clicking on the Timetracker menu item, the plugin interface appears. The
+          interface consists of different parts: the date modification part, the worklog total part,
+          the worklog table part and the input fields.</p>
+        <img class="img-responsive img-thumbnail" src="images/jttp_timetracker.png"
+          alt="Timetracker" />
 
-                    <h3 id="worklog_table">Worklog table</h3>
-                    <p>In the worklog table, the worklogs belonging to the given day can be viewed. A row belongs to each worklog. The table has the following columns:
-                        <ul>
-                            <li><b>Issue</b> - Issue code to which the worklog belongs. If the pointer hovered above the isseId, the issue description will appear. By clicking on it, the issue can be viewed. Next to the issue code a red exclamation mark appears if it is not closed and if there is no more estimated time assigned to it. If the issue is amongst the non-estimated ones, then the exclamation mark does not appear.</li>
-                            <li><b>Start</b> - Start date of the worklog. Its format: hh:mm.</li>
-                            <li><b>End</b> - End date of the worklog: Its format: hh:mm.</li>
-                            <li><b>Duration</b> - Duration of the worklog; the time between the start and the end date in JIRA format (d h m).</li>
-                            <li><b>Remaining</b> - Remaining time on the issue in JIRA format (d h m).</li>
-                            <li><b>Note</b> - Description of the worklog.</li>
-                            <li><b>Actions</b> - It contains action buttons: Edit button - After pressing it, the given worklog can be edited. Delete button - After pressing it, the given worklog is deleted. Copy button - After pressing it, the given worklogs Issue and Note field are copied to the <a href="#input_fields">Input fields</a>.</li>
-                        </ul>
-                        <p>
-                            The worklogs are ordered by the start date. If no worklog belongs to the given date, then the “No data to display!” message appears under the table header.
-                        </p>
+        <h3 id="date_modification">Date modification</h3>
+        <p>Based on the user settings, there are more options to modify the date. The pop-up
+          calendar and the tools to modify the date can be found in the top left-hand corner. It is
+          possible to increase or decrease the date with units of time (day, week, month). Besides,
+          a date can be chosen from the pop-up calendar also. The inline calendar can be found below
+          the worklog table on the right-hand side of the input fields block. The settings make it
+          possible to use both types of calendars simultaneously.
+        <h4>The Calendar highlights funtion</h4>
+        <p>The calendar coloring function has been extended. The exclude dates shows like
+          weekend (colored with red). The other months weekend fonts is colored to pink. The dates
+          that include worklog now appears with yellow background.</p>
+        <img class="img-responsive img-thumbnail" src="images/jttp_calendar.png" alt="TT calendar" />
+        <br> <img class="img-responsive img-thumbnail" src="images/jttp_inline_calendar.png"
+          alt="TT inline calendar" />
 
-                        <h3 id="input_fields">Input fields</h3>
-                        <p>The input fields can be seen in the bottom of the page. These fields are used when editing worklogs.
-                            <ul>
-                                <li><b>Edit All</b> - It may be used to edit the worklog of a whole day. By means of this option, all the worklogs assigned to a specific date can be reassigned to another one. You may read more about the Edit All function under the Edit Worklog menu item.</li>
-                                <li><b>Start Time</b> - Start time of the worklog. Required! Its format: hh:mm. Its default value is 08:00, however, if there are worklogs belonging to the given day, then its value equals the end date of the last worklog.
-                                    <ul>
-                                        <li>Pressing the Now button first, the current time can be set as a value. Pressing the Now button second and third times the button rounding function will round the time with the setted values first up then down.</li>
-                                    </ul>
-                                </li>
-                                <li><b>Issue</b> - The issue to which the worklog will belong. Required! The field can be filled in in two ways:
-                                    <ul>
-                                        <li>Typing the issue code or summary in the field. The autocomplete function will display the issues matching the typed text.</li>
-                                        <li>By clicking on the cross beside the issue field, the users can select one of the issues they viewed most frequently.</li>
-                                    </ul>In the issue field there are more issues listed but it is always the first one that is selected. Issues can be removed from the input field by clicking on the X next to them.</li>
-                                <li><b>End Time</b> - End time of the worklog. It is optional, but either the End time or the Duration field has to be filled in. Its format: hh:mm. Its value is the current time by default. The value of the end time cannot be smaller than the start time.
-                                    <ul>
-                                        <li>By pressing the Now button first, the current time can be set as a value.Pressing the Now button second and third times the button rounding function will round the time with the setted values first up then down.</li>
-                                    </ul>
-                                </li>
-                                <li><b>Duration</b> - Duration of the worklog. It is optional, but the End time or the Duration field has to be filled in. Its format: hh:mm or Xh XXm. The value cannot exceed the value of 24:00-Start Time.</li>
-                                <li><b>Note</b> - The worklog description can be given in the note field. By default the default note is “Default worklog description!”. The note input field handles the text formatting annotations.
-                                    <a href="https://jira.atlassian.com/secure/WikiRendererHelpAction.jspa?section=all">Text formatting help</a>
-                                </li>
-                            </ul>
-                            <p>The Issue and Note field can be copied from the <a href="#worklog_table">Worklog table</a> by clicking one of the worklogs appropriate cell. With this technique you can also copy the Start and End time field but in that case the values will be switched. This can be useful when you want to fill a hole between two worklogs.</p>
-                            <img class="img-responsive img-thumbnail" src="images/jttp_input_fields.png" alt="Input fields" />
-                            <img class="img-responsive img-thumbnail" src="images/jttp_autocomplete.png" alt="Autocomplete" />
-            </div>
-            <hr class="featurette-divider">
+        <h3 id="worklog_total">Worklog total</h3>
+        <p>The worklog summary can be found in the top right-hand corner and it can be viewed in
+          JIRA format ( d h m) broken down to a given day, week or month. In the case of a given
+          day, the summary is created from 00:00:00 to 23:59:59. In the case of a given week, the
+          summary is created from Monday 00:00:00 to Sunday 23:59:59. A monthly summary is created
+          from the first day of the month 00:00:00 to the last day of the month 23:59:59. The
+          worklogs related to actual work are summarized below the worklog summary. This Real Work
+          Summary contains only the time spent with actual work based on the worklogs that are not
+          related to non-working issues. The Real Work Summary uses Jira format (d h m) to display
+          the daily, weekly and monthly summaries.</p>
+        <img class="img-responsive img-thumbnail" src="images/jttp_summary.png" alt=Summary />
 
-            <div class="bs-docs-featurette cookbook" id="create_worklogs">
-                <h2>Create Worklogs</h2>
-                <p>A worklog can be created by appropriately filling in the necessary input fields and clicking on the Submit button. Then, the worklog will be displayed in the worklog table.
-                </p>
-                <img class="img-responsive img-thumbnail" src="images/jttp_input_fields.png" alt="Input fields" />
-            </div>
-            <hr class="featurette-divider">
+        <h3 id="worklog_table">Worklog table</h3>
+        <p>In the worklog table, the worklogs belonging to the given day can be viewed. A row
+          belongs to each worklog. The table has the following columns:
+        <ul>
+          <li><b>Issue</b> - Issue code to which the worklog belongs. If the pointer hovered
+            above the isseId, the issue description will appear. By clicking on it, the issue can be
+            viewed. Next to the issue code a red exclamation mark appears if it is not closed and if
+            there is no more estimated time assigned to it. If the issue is amongst the
+            non-estimated ones, then the exclamation mark does not appear.</li>
+          <li><b>Start</b> - Start date of the worklog. Its format: hh:mm.</li>
+          <li><b>End</b> - End date of the worklog: Its format: hh:mm.</li>
+          <li><b>Duration</b> - Duration of the worklog; the time between the start and the end
+            date in JIRA format (d h m).</li>
+          <li><b>Remaining</b> - Remaining time on the issue in JIRA format (d h m).</li>
+          <li><b>Note</b> - Description of the worklog.</li>
+          <li><b>Actions</b> - It contains action buttons: Edit button - After pressing it, the
+            given worklog can be edited. Delete button - After pressing it, the given worklog is
+            deleted. Copy button - After pressing it, the given worklogs Issue and Note field are
+            copied to the <a href="#input_fields">Input fields</a>.</li>
+        </ul>
+        <p>The worklogs are ordered by the start date. If no worklog belongs to the given date,
+          then the “No data to display!” message appears under the table header.</p>
 
-            <div class="bs-docs-featurette cookbook" id="edit_worklogs">
-                <h2>Edit Worklogs</h2>
-                <p>Worklogs belonging to a particular day can be edited. To do so, in the worklog table, the Edit button after the worklog needs to be pressed. After pressing the button the worklog data are displayed in the input field where they can be modified. The changes can be saved by pressing the Save button replacing the Submit button. The input field values are obliged to the same criteria as in the case of worklog creation. If one of the fields does not meet the requirements, an error message is sent and the changes do not take effect. Editing can be cancelled by pressing the Cancel button.
-                </p>
-                <img class="img-responsive img-thumbnail" src="images/jttp_edit.png" alt="Edit worklog" />
+        <h3 id="input_fields">Input fields</h3>
+        <p>The input fields can be seen in the bottom of the page. These fields are used when
+          editing worklogs.
+        <ul>
+          <li><b>Edit All</b> - It may be used to edit the worklog of a whole day. By means of
+            this option, all the worklogs assigned to a specific date can be reassigned to another
+            one. You may read more about the Edit All function under the Edit Worklog menu item.</li>
+          <li><b>Start Time</b> - Start time of the worklog. Required! Its format: hh:mm. Its
+            default value is 08:00, however, if there are worklogs belonging to the given day, then
+            its value equals the end date of the last worklog.
+            <ul>
+              <li>Pressing the Now button first, the current time can be set as a value.
+                Pressing the Now button second and third times the button rounding function will
+                round the time with the setted values first up then down.</li>
+            </ul></li>
+          <li><b>Issue</b> - The issue to which the worklog will belong. Required! The field
+            can be filled in in two ways:
+            <ul>
+              <li>Typing the issue code or summary in the field. The autocomplete function will
+                display the issues matching the typed text.</li>
+              <li>By clicking on the cross beside the issue field, the users can select one of
+                the issues they viewed most frequently.</li>
+            </ul>In the issue field there are more issues listed but it is always the first one that is
+            selected. Issues can be removed from the input field by clicking on the X next to them.</li>
+          <li><b>End Time</b> - End time of the worklog. It is optional, but either the End
+            time or the Duration field has to be filled in. Its format: hh:mm. Its value is the
+            current time by default. The value of the end time cannot be smaller than the start
+            time.
+            <ul>
+              <li>By pressing the Now button first, the current time can be set as a
+                value.Pressing the Now button second and third times the button rounding function
+                will round the time with the setted values first up then down.</li>
+            </ul></li>
+          <li><b>Duration</b> - Duration of the worklog. It is optional, but the End time or
+            the Duration field has to be filled in. Its format: hh:mm or Xh XXm. The value cannot
+            exceed the value of 24:00-Start Time.</li>
+          <li><b>Note</b> - The worklog description can be given in the note field. By default
+            the default note is “Default worklog description!”. The note input field handles the
+            text formatting annotations. <a
+            href="https://jira.atlassian.com/secure/WikiRendererHelpAction.jspa?section=all">Text
+              formatting help</a></li>
+        </ul>
+        <p>
+          The Issue and Note field can be copied from the <a href="#worklog_table">Worklog table</a>
+          by clicking one of the worklogs appropriate cell. With this technique you can also copy
+          the Start and End time field but in that case the values will be switched. This can be
+          useful when you want to fill a hole between two worklogs.
+        </p>
+        <img class="img-responsive img-thumbnail" src="images/jttp_input_fields.png"
+          alt="Input fields" /> <img class="img-responsive img-thumbnail"
+          src="images/jttp_autocomplete.png" alt="Autocomplete" />
+      </div>
+      <hr class="featurette-divider">
 
-                <h3 id="edit_all">Edit All function</h3>
-                <p>The Edit All button can be found below the worklog table, and it can be used to edit all the worklogs assigned to a particular day. In this case, only the date of the worklogs can be changed. After selecting the desired date, one may save the worklogs by clicking the Save button. At this time, the worklogs will no longer be assigned to the previous date. The edit procedure can be cancelled by pressing the Cancel button.</p>
-            </div>
-            <hr class="featurette-divider">
+      <div class="bs-docs-featurette cookbook" id="create_worklogs">
+        <h2>Create Worklogs</h2>
+        <p>A worklog can be created by appropriately filling in the necessary input fields and
+          clicking on the Submit button. Then, the worklog will be displayed in the worklog table.</p>
+        <img class="img-responsive img-thumbnail" src="images/jttp_input_fields.png"
+          alt="Input fields" />
+      </div>
+      <hr class="featurette-divider">
 
-            <div class="bs-docs-featurette cookbook" id="delete_worklogs">
-                <h2>Delete Worklogs</h2>
-                <p>Worklogs belonging to a given day can be deleted. To do so, in the worklog table, after the worklog the Delete button needs to be pressed. Then, the worklog is deleted from the table and the system as well.
-                </p>
-            </div>
-            <hr class="featurette-divider">
+      <div class="bs-docs-featurette cookbook" id="edit_worklogs">
+        <h2>Edit Worklogs</h2>
+        <p>Worklogs belonging to a particular day can be edited. To do so, in the worklog table,
+          the Edit button after the worklog needs to be pressed. After pressing the button the
+          worklog data are displayed in the input field where they can be modified. The changes can
+          be saved by pressing the Save button replacing the Submit button. The input field values
+          are obliged to the same criteria as in the case of worklog creation. If one of the fields
+          does not meet the requirements, an error message is sent and the changes do not take
+          effect. Editing can be cancelled by pressing the Cancel button.</p>
+        <img class="img-responsive img-thumbnail" src="images/jttp_edit.png" alt="Edit worklog" />
 
-            <div class="bs-docs-featurette cookbook" id="settings">
-                <h2>Settings</h2>
-                <p>The plugin customization has multiple levels. Some settings depend upon a particular person (usually appearance related settings). Others affect all the users of the plugin (administrator settings).
-                </p>
+        <h3 id="edit_all">Edit All function</h3>
+        <p>The Edit All button can be found below the worklog table, and it can be used to edit
+          all the worklogs assigned to a particular day. In this case, only the date of the worklogs
+          can be changed. After selecting the desired date, one may save the worklogs by clicking
+          the Save button. At this time, the worklogs will no longer be assigned to the previous
+          date. The edit procedure can be cancelled by pressing the Cancel button.</p>
+      </div>
+      <hr class="featurette-divider">
 
-                <h3 id="user_settings">User settings</h3>
-                <p>The settings may be saved by means of the Save button. By clicking the Reset button, the foregoing settings can be restored. If the user selects the Cancel button, then he is redirected to the Timetracker page. In this case, none of the changes will be saved.
-                    <h4>Calendar appearance</h4> Users may set up the appearance and the start date of the calendar. The appearance types of the calendar are listed below:
-                    <ul>
-                        <li><b>Popup</b> - Popup style calendar placed above the worklog table.</li>
-                        <li><b>Inline</b> - The calendar is placed next to the input fields.</li>
-                        <li><b>Both types of calendars</b> - The calendar appears in both places.</li>
-                    </ul>The start date of the calendar may also be defined. There are two options to do this:
-                    <ul>
-                        <li><b>Current Date</b> - The current date will be set up as the default value.</li>
-                        <li><b>Last Unfilled Date</b> - Returns the oldest blank day of the past week by default. if each and every day is logged appropriately, then the current day is returned. When determining the oldest blank day, the plugin considers the list of exclude and include dates.</li>
-                    </ul>
-                    <p>The calendar highlights function can be turned on and off.
-                        <br> There is a system setting to change the calendars first day of the week, located in:
-                        <br> &nbsp;&nbsp;&nbsp;&nbsp;"system admin->look and feel->Use ISO8601 standard in Date Picker"</p>
-                    <h4>Input fields settings</h4>
-                    <p>This part of the settings the StartTime field and the EndTime field Now button rounding function can be configured. In both cases the rounding rate can be a predetermined value. The acceptable values are 5, 10, 15, 20, 30 minutes.</p>
-                    <img class="img-responsive img-thumbnail" src="images/jttp_user_settings.png" alt="User settings" />
+      <div class="bs-docs-featurette cookbook" id="delete_worklogs">
+        <h2>Delete Worklogs</h2>
+        <p>Worklogs belonging to a given day can be deleted. To do so, in the worklog table,
+          after the worklog the Delete button needs to be pressed. Then, the worklog is deleted from
+          the table and the system as well.</p>
+      </div>
+      <hr class="featurette-divider">
 
-                    <h3 id="global_settings">Global settings</h3>
-                    <p>The global settings are administrator settings and they manipulate how the plugin works.</p>
-                    <p>
-                        <h4>Accessing the global settings</h4>
-                        <p>Global settings may be accessed only by the system administrators. The administrator can find the Global settings menu item on the Administrator page under the Plugins or Add-ons menu in the Timetracker submenu.</p>
-                        <img class="img-responsive img-thumbnail" src="images/jttp_global_settings_access.png" alt="Global settings access" />
-                        <img class="img-responsive img-thumbnail" src="images/jttp_global_settings_access_v6.png" alt="Global settings access" />
+      <div class="bs-docs-featurette cookbook" id="settings">
+        <h2>Settings</h2>
+        <p>The plugin customization has multiple levels. Some settings depend upon a particular
+          person (usually appearance related settings). Others affect all the users of the plugin
+          (administrator settings).</p>
 
-                        <p>
-                            <h4 id="non_working_setting">Non-Working issues</h4> The administrator can define a list that may contain issue keys and regular expressions. This list will be the list of non-working issues. The issues listed here are ignored when creating the Real Work Summary. By default, the Non-Working issues list is empty.
-                            <h4>Non-Estimated issues</h4> The administrator can define a list that may contain issue keys and regular expressions. This list will be the list of Non-Estimated issues. The issues listed here do not trigger the appearance of the red exclamation mark and they are ignored when sending notification e-mails too. All the issues are non-estimated by default. This can be achieved by setting upf a .* regular expression. Example: To set up all the issues of MYPROJECT to be Non-estimated, the following regular expression needs to be used: “MYPROJECT-.*”.
-                            <h4>Working days</h4> By default, weekdays are working days and weekends are non-working days. The administrator can define the list of days that are exceptions to the rule; these lists are empty by default. The format of the dates is yyyy-MM-dd (e.g.: 2013-01-01), the separator character is “,”.
-                            <ul>
-                                <li><b>Exclude date</b> - List of those days that are working days by default, but they are not counted as such (e.g.: National Holidays).</li>
-                                <li><b>Include date</b> - List of those days that are non-working days by default, but they are counted as working days.</li>
-                            </ul>
-                            <p>The settings can be saved by pressing the Save button. The Reset button can restore the foregoing settings. By selecting the Cancel button, the user is redirected to the Administrator screen without making any changes.</p>
-                            <img class="img-responsive img-thumbnail" src="images/jttp_global_settings.png" alt="Global settings" />
+        <h3 id="user_settings">User settings</h3>
+        <p>The settings may be saved by means of the Save button. By clicking the Reset button,
+          the foregoing settings can be restored. If the user selects the Cancel button, then he is
+          redirected to the Timetracker page. In this case, none of the changes will be saved.
+        <h4>Calendar appearance</h4>
+        Users may set up the appearance and the start date of the calendar. The appearance types of
+        the calendar are listed below:
+        <ul>
+          <li><b>Popup</b> - Popup style calendar placed above the worklog table.</li>
+          <li><b>Inline</b> - The calendar is placed next to the input fields.</li>
+          <li><b>Both types of calendars</b> - The calendar appears in both places.</li>
+        </ul>
+        The start date of the calendar may also be defined. There are two options to do this:
+        <ul>
+          <li><b>Current Date</b> - The current date will be set up as the default value.</li>
+          <li><b>Last Unfilled Date</b> - Returns the oldest blank day of the past week by
+            default. if each and every day is logged appropriately, then the current day is
+            returned. When determining the oldest blank day, the plugin considers the list of
+            exclude and include dates.</li>
+        </ul>
+        <p>
+          The calendar highlights function can be turned on and off. <br> There is a system
+          setting to change the calendars first day of the week, located in: <br>
+          &nbsp;&nbsp;&nbsp;&nbsp;"system admin->look and feel->Use ISO8601 standard in Date Picker"
+        </p>
+        <h4>Input fields settings</h4>
+        <p>This part of the settings the StartTime field and the EndTime field Now button
+          rounding function can be configured. In both cases the rounding rate can be a
+          predetermined value. The acceptable values are 5, 10, 15, 20, 30 minutes.</p>
+        <img class="img-responsive img-thumbnail" src="images/jttp_user_settings.png"
+          alt="User settings" />
 
-            </div>
-            <hr class="featurette-divider">
+        <h3 id="global_settings">Global settings</h3>
+        <p>The global settings are administrator settings and they manipulate how the plugin
+          works.</p>
+        <p>
+        <h4>Accessing the global settings</h4>
+        <p>Global settings may be accessed only by the system administrators. The administrator
+          can find the Global settings menu item on the Administrator page under the Plugins or
+          Add-ons menu in the Timetracker submenu.</p>
+        <img class="img-responsive img-thumbnail" src="images/jttp_global_settings_access.png"
+          alt="Global settings access" /> <img class="img-responsive img-thumbnail"
+          src="images/jttp_global_settings_access_v6.png" alt="Global settings access" />
 
-            <div class="bs-docs-featurette cookbook" id="missing_days_report">
-                <h2>Missing Days Report</h2>
-                <p>By the help of the Missing Days Report tab, all the days without assigned worklogs are returned between the given dates. The list displays 20 dates simultaneously. Further results can be viewed by the help of the paging buttons in the bottom. Clicking on a date in the list, one may navigate to the Timetracker interface of the plugin.</p>
-                <p>On the report page, the start and end date of the query can be chosen. The query is executed after pressing the Search button. The date in the From field is considered from 00:00, whereas the date in the To field is considered till 23:59. By default, the value of the From field is a date being a month earlier than the current date, while the value of the To field is the current date.</p>
-                <p>The report lists the days where the worklogs spent time is less than 8 hours. This report is available if the first checkbox is checked. An other options in this case if the query not exclude the non-working issues, for this type of query the second checkbox have to be checked. The second checkbox is blocked if the first one is not activated.
-                </p>
-                <img class="img-responsive img-thumbnail" src="images/jttp_missing_days.png" alt="Missing days report" />
-            </div>
-            <hr class="featurette-divider">
+        <p>
+        <h4 id="non_working_setting">Non-Working issues</h4>
+        The administrator can define a list that may contain issue keys and regular expressions.
+        This list will be the list of non-working issues. The issues listed here are ignored when
+        creating the Real Work Summary. By default, the Non-Working issues list is empty.
+        <h4>Non-Estimated issues</h4>
+        The administrator can define a list that may contain issue keys and regular expressions.
+        This list will be the list of Non-Estimated issues. The issues listed here do not trigger
+        the appearance of the red exclamation mark and they are ignored when sending notification
+        e-mails too. All the issues are non-estimated by default. This can be achieved by setting
+        upf a .* regular expression. Example: To set up all the issues of MYPROJECT to be
+        Non-estimated, the following regular expression needs to be used: “MYPROJECT-.*”.
+        <h4>Working days</h4>
+        By default, weekdays are working days and weekends are non-working days. The administrator
+        can define the list of days that are exceptions to the rule; these lists are empty by
+        default. The format of the dates is yyyy-MM-dd (e.g.: 2013-01-01), the separator character
+        is “,”.
+        <ul>
+          <li><b>Exclude date</b> - List of those days that are working days by default, but
+            they are not counted as such (e.g.: National Holidays).</li>
+          <li><b>Include date</b> - List of those days that are non-working days by default,
+            but they are counted as working days.</li>
+        </ul>
+        <p>The settings can be saved by pressing the Save button. The Reset button can restore
+          the foregoing settings. By selecting the Cancel button, the user is redirected to the
+          Administrator screen without making any changes.</p>
+        <img class="img-responsive img-thumbnail" src="images/jttp_global_settings.png"
+          alt="Global settings" />
 
-            <div class="bs-docs-featurette cookbook" id="chart_report">
-                <h2>Chart report</h2>
-                <p>By the help of the Chart Report tab, a pie chart is returned showing the logged work hours by projects between the given dates for the given user.</p>
-                <p>On the report page, the start and end date of the query can be chosen. Also you can select which users worklogs are you interested in. The query is executed after pressing the Search button. The date in the From field is considered from 00:00, whereas the date in the To field is considered till 23:59. By default, the value of the From field is a date being a week earlier than the current date, while the value of the To field is the current date. The default user is the currently logged in user. You can search for other users by typing in the starting characters of their username, full name or email address.</p>
-                <p>You can filter out any unwanted project with the dashboard appearing on the left of the chart, the results will update immediately.</p>
-                <p>There is a permission check in the query, so you will only see those projects in the chart which you have permisson to browse.</p>
-                <img class="img-responsive img-thumbnail" src="images/jttp_chart_report.png" alt="Chart report" />
-            </div>
-            <hr class="featurette-divider">
+      </div>
+      <hr class="featurette-divider">
 
-            <div class="bs-docs-featurette cookbook" id="table_report">
-                <h2>Table report</h2>
-                <p>With the help of the Table Report tab, a table is returned showing the saved worklogs between the given dates for the given user.</p>
-                <p>
-                    The displayed table contains the following data of the worklogs: Date, Issue key, Start time, End time, Duration, Worklog note.
-                    <br> After each day/week/month there are a summary row which shows the total of the worklogs for the interval.
-                    <br> The "Real work" field does not count the projects defined at the <a href="#non_working_setting">Non-Working issues</a> setting.
-                </p>
-                <p>On the report page, the start and end date of the query can be chosen. Also you can select which users worklogs are you interested in. The query is executed after pressing the Search button. The date in the From field is considered from 00:00, whereas the date in the To field is considered till 23:59. By default, the value of the From field is a date being a week earlier than the current date, while the value of the To field is the current date. The default user is the currently logged in user. You can search for other users by typing in the starting characters of their username, full name or email address.</p>
-                <p>There is a permission check in the query, so you will only see those projects in the chart which you have permisson to browse.</p>
-                <img class="img-responsive img-thumbnail" src="images/jttp_table_report.png" alt="Chart report" />
-            </div>
-            <hr class="featurette-divider">
+      <div class="bs-docs-featurette cookbook" id="missing_days_report">
+        <h2>Missing Days Report</h2>
+        <p>By the help of the Missing Days Report tab, all the days without assigned worklogs
+          are returned between the given dates. The list displays 20 dates simultaneously. Further
+          results can be viewed by the help of the paging buttons in the bottom. Clicking on a date
+          in the list, one may navigate to the Timetracker interface of the plugin.</p>
+        <p>On the report page, the start and end date of the query can be chosen. The query is
+          executed after pressing the Search button. The date in the From field is considered from
+          00:00, whereas the date in the To field is considered till 23:59. By default, the value of
+          the From field is a date being a month earlier than the current date, while the value of
+          the To field is the current date.</p>
+        <p>The report lists the days where the worklogs spent time is less than 8 hours. This
+          report is available if the first checkbox is checked. An other options in this case if the
+          query not exclude the non-working issues, for this type of query the second checkbox have
+          to be checked. The second checkbox is blocked if the first one is not activated.</p>
+        <img class="img-responsive img-thumbnail" src="images/jttp_missing_days.png"
+          alt="Missing days report" />
+      </div>
+      <hr class="featurette-divider">
 
-            <div class="bs-docs-featurette cookbook" id="notification_email">
-                <h2>Notification email</h2>
-                <p>By default, the plugin sends every day at 20:00 a notification email about the issues to which worklogs have been assigned if the estimated time of the issues is over and if the issues have not been closed. The notification email is delivered to the reporter of the issue and to the project manager. If multiple worklogs have been assigned to one issue, they have exceeded the Estimated Time and they have not been closed, then the plugin will send only an email. The plugin does not send emails about issues that are defined as non-estimated in the global settings.
-                </p>
-            </div>
-            <hr class="featurette-divider">
+      <div class="bs-docs-featurette cookbook" id="chart_report">
+        <h2>Chart report</h2>
+        <p>By the help of the Chart Report tab, a pie chart is returned showing the logged work
+          hours by projects between the given dates for the given user.</p>
+        <p>On the report page, the start and end date of the query can be chosen. Also you can
+          select which users worklogs are you interested in. The query is executed after pressing
+          the Search button. The date in the From field is considered from 00:00, whereas the date
+          in the To field is considered till 23:59. By default, the value of the From field is a
+          date being a week earlier than the current date, while the value of the To field is the
+          current date. The default user is the currently logged in user. You can search for other
+          users by typing in the starting characters of their username, full name or email address.</p>
+        <p>You can filter out any unwanted project with the dashboard appearing on the left of
+          the chart, the results will update immediately.</p>
+        <p>There is a permission check in the query, so you will only see those projects in the
+          chart which you have permisson to browse.</p>
+        <img class="img-responsive img-thumbnail" src="images/jttp_chart_report.png"
+          alt="Chart report" />
+      </div>
+      <hr class="featurette-divider">
 
-            <div class="bs-docs-featurette cookbook" id="error_messages">
-                <h2>Error messages</h2>
-                <p>If the input fields are filled in incorrectly, the following error messages will be displayed:</p>
-                <ul>
-                    <li>Time fields filled in erroneously:
-                        <ul>
-                            <li>In case the start time is invalid: Invalid Start Time!</li>
-                            <li>In case the end time is invalid: Invalid End Time!</li>
-                            <li>In case the duration is invalid: Invalid Duration Time!</li>
-                            <li>In case the start and end times are given erroneously: Invalid Time Interval!</li>
-                        </ul>
-                    </li>
-                    <li>Issue input fields and issue errors:
-                        <ul>
-                            <li>In case of a missing parameter: Missing Issue Parameter!</li>
-                            <li>In case an issue key is given erroneously: Wrong Issue: issue-key</li>
-                            <li>In case of lacking permissions: You don't have permission to the issue: issue-key
-                            </li>
-                        </ul>
-                    </li>
-                    <li>Error messages during creating, editing or deleting worklogs:
-                        <ul>
-                            <li>In case of unsuccessful date processing: You can't parse the date: wrong-date</li>
-                            <li>In case of unsuccessful worklog creation: Unsuccessful worklog creation.</li>
-                            <li>In case of unsuccessful worklog update: Unsuccessful worklog update.</li>
-                            <li>In case of unsuccessful worklog deletion: Can't delete worklog with this ID: worklog-id</li>
-                        </ul>
-                    </li>
-                </ul>
-                <img class="img-responsive img-thumbnail" src="images/jttp_error_message.png" alt="Error message" />
-            </div>
-            <hr class="featurette-divider">
+      <div class="bs-docs-featurette cookbook" id="table_report">
+        <h2>Table report</h2>
+        <p>With the help of the Table Report tab, a table is returned showing the saved worklogs
+          between the given dates for the given user.</p>
+        <p>
+          The displayed table contains the following data of the worklogs: Date, Issue key, Start
+          time, End time, Duration, Worklog note. <br> After each day/week/month there are a
+          summary row which shows the total of the worklogs for the interval. <br> The "Real
+          work" field does not count the projects defined at the <a href="#non_working_setting">Non-Working
+            issues</a> setting.
+        </p>
+        <p>On the report page, the start and end date of the query can be chosen. Also you can
+          select which users worklogs are you interested in. The query is executed after pressing
+          the Search button. The date in the From field is considered from 00:00, whereas the date
+          in the To field is considered till 23:59. By default, the value of the From field is a
+          date being a week earlier than the current date, while the value of the To field is the
+          current date. The default user is the currently logged in user. You can search for other
+          users by typing in the starting characters of their username, full name or email address.</p>
+        <p>There is a permission check in the query, so you will only see those projects in the
+          chart which you have permisson to browse.</p>
+        <img class="img-responsive img-thumbnail" src="images/jttp_table_report.png"
+          alt="Chart report" />
+      </div>
+      <hr class="featurette-divider">
 
-            <div class="bs-docs-featurette cookbook" id="release_notes">
-                <h2>Release notes</h2>
-                <h3>Timetracker version 2.1.2</h3>
-                <h4 style="margin-left:20px;">Bugfix</h4>
-                <ul>
-                    <li>Fixed bug when Enter key is pressed at the issueselect area and therefore the save button turned to disabled state.</li>
-                </ul>
-                <h4 style="margin-left:20px;">Improvements</h4>
-                <ul>
-                    <li>Enter key now jumps to the next input field.</li>
-                    <li>Ctrl+Enter on input fields now submits the actual form.</li>
-                </ul>
+      <div class="bs-docs-featurette cookbook" id="notification_email">
+        <h2>Notification email</h2>
+        <p>By default, the plugin sends every day at 20:00 a notification email about the issues
+          to which worklogs have been assigned if the estimated time of the issues is over and if
+          the issues have not been closed. The notification email is delivered to the reporter of
+          the issue and to the project manager. If multiple worklogs have been assigned to one
+          issue, they have exceeded the Estimated Time and they have not been closed, then the
+          plugin will send only an email. The plugin does not send emails about issues that are
+          defined as non-estimated in the global settings.</p>
+      </div>
+      <hr class="featurette-divider">
 
-                <h3>Timetracker version 2.1.1 and 1.4.1</h3>
-                <h4 style="margin-left:20px;">Improvements</h4>
-                <ul>
-                    <li>The code now satisfies the new <a href="https://everitorg.wordpress.com/2015/03/11/new-versions-of-everit-conventions-and-parent-poms/">Everit Conventions</a>. This means code quality improvements.</li>
-                </ul>
-                <h4 style="margin-left:20px;">Changes</h4>
-                <ul>
-                    <li>License changed from LGPL 3.0 to Apache 2.0</li>
-                    <li>From now on the plugin version 2.1.1 requires Java 1.7</li>
-                </ul>
+      <div class="bs-docs-featurette cookbook" id="error_messages">
+        <h2>Error messages</h2>
+        <p>If the input fields are filled in incorrectly, the following error messages will be
+          displayed:</p>
+        <ul>
+          <li>Time fields filled in erroneously:
+            <ul>
+              <li>In case the start time is invalid: Invalid Start Time!</li>
+              <li>In case the end time is invalid: Invalid End Time!</li>
+              <li>In case the duration is invalid: Invalid Duration Time!</li>
+              <li>In case the start and end times are given erroneously: Invalid Time Interval!</li>
+            </ul>
+          </li>
+          <li>Issue input fields and issue errors:
+            <ul>
+              <li>In case of a missing parameter: Missing Issue Parameter!</li>
+              <li>In case an issue key is given erroneously: Wrong Issue: issue-key</li>
+              <li>In case of lacking permissions: You don't have permission to the issue:
+                issue-key</li>
+            </ul>
+          </li>
+          <li>Error messages during creating, editing or deleting worklogs:
+            <ul>
+              <li>In case of unsuccessful date processing: You can't parse the date: wrong-date</li>
+              <li>In case of unsuccessful worklog creation: Unsuccessful worklog creation.</li>
+              <li>In case of unsuccessful worklog update: Unsuccessful worklog update.</li>
+              <li>In case of unsuccessful worklog deletion: Can't delete worklog with this ID:
+                worklog-id</li>
+            </ul>
+          </li>
+        </ul>
+        <img class="img-responsive img-thumbnail" src="images/jttp_error_message.png"
+          alt="Error message" />
+      </div>
+      <hr class="featurette-divider">
 
-                <h3>Timetracker version 2.1.0 and 1.4.0</h3>
-                <h4 style="margin-left:20px;">New features</h4>
-                <ul>
-                    <li>Table report page to show the worklogs in a table in the given time interval.</li>
-                    <li>Added project filtering capability to the chart report.</li>
-                </ul>
-                <h4 style="margin-left:20px;">Bugfix</h4>
-                <ul>
-                    <li>Duration field accepts inputs like "90m". (<a href="https://github.com/everit-org/jira-timetracker-plugin/issues/51">#51</a>).</li>
-                    <li>Prevented multiple form submit. (<a href="https://github.com/everit-org/jira-timetracker-plugin/issues/52">#52</a>).</li>
-                    <li>Correct handling of users with changed email address (v1.4.0).</li>
-                </ul>
+      <div class="bs-docs-featurette cookbook" id="release_notes">
+        <h2>Release notes</h2>
+        <h3>Timetracker version 2.1.2</h3>
+        <h4 style="margin-left: 20px;">Bugfix</h4>
+        <ul>
+          <li>Fixed bug when Enter key is pressed at the issueselect area and therefore the
+            save button turned to disabled state.</li>
+        </ul>
+        <h4 style="margin-left: 20px;">Improvements</h4>
+        <ul>
+          <li>Enter key now jumps to the next input field.</li>
+          <li>Ctrl+Enter on input fields now submits the actual form.</li>
+        </ul>
 
-                <h3>Timetracker version 2.0.0</h3>
-                <h4 style="margin-left:20px;">Changes</h4>
-                <ul>
-                    <li>In this version we changed the way of querying the worklogs from native sql to API calls. To do this with a satisfying speed we need a new view in the entity model called "IssueWorklogView" which is introduced in JIRA 6.2.5.</li>
-                    <li>Therefore this version is only available with JIRA versions above 6.2.5.</li>
-                    <li>From now on we will only develop the 2.x.x version of the plugin and no new features will be introduced in the 1.x branch</li>
-                </ul>
-                <h3>Timetracker version 1.3.0</h3>
-                <h4 style="margin-left:20px;">Bugfix</h4>
-                <ul>
-                    <li>The inline calendar will no longer stay at the top of every screen.</li>
-                    <li>When you edited a worklog and made an invalid save action, the plugin changed to "Add worklog" mode, now it stays in "Edit".</li>
-                </ul>
-                <h4 style="margin-left:20px;">Improvements</h4>
-                <ul>
-                    <li>The default Jira snytax (2h 30m) is now supported in the duration field. (<a href="https://github.com/everit-org/jira-timetracker-plugin/issues/32">#32</a>).</li>
-                    <li>Added global setting to set the first day of the week in the calendar. (<a href="https://github.com/everit-org/jira-timetracker-plugin/issues/22">#22</a>).</li>
-                    <li>The fields now remember their values when changing date or when form submission fails. (<a href="https://github.com/everit-org/jira-timetracker-plugin/issues/13">#13</a>).</li>
-                    <li>So far the issue picker only offered cached issues but now it searches between all of the issues.</li>
-                    <li>The worklog currently being edited is now highlighted in the worklog table.</li>
-                    <li>The plugin now remembers which one of the EndTime/Duration fields was filled in before an invalid submit.</li>
-                    <li>Removed radio buttons from End Time and Duration fields, now you can select between them by clicking into the appropriate field.</li>
-                </ul>
-                <h4 style="margin-left:20px;">New features</h4>
-                <ul>
-                    <li>Copy button to the worklog table to quickly select recently used issues with a single the click of a button (<a href="https://github.com/everit-org/jira-timetracker-plugin/issues/17">#17</a>).</li>
-                    <li>Copy function to the worklog table by clicking the appropriate cell.</li>
-                    <li>Chart report page to return a pie chart showing the logged work hours by projects in the given time interval.</li>
-                </ul>
-                <h3>Timetracker version 1.2.1</h3>
-                <h4 style="margin-left:20px;">Bugfix</h4>
-                <ul>
-                    <li>Fixed unresolved constraint issue (<a href="https://github.com/everit-org/jira-timetracker-plugin/issues/25">#25</a>).</li>
-                    <li>Fixed an issue where 31th days of months with work logs were not highlighted in the calendar.</li>
-                </ul>
-                <h3>Timetracker version 1.2.0</h3>
-                <h4 style="margin-left:20px;">Bugfix</h4>
-                <ul>
-                    <li>The tabindex value of the duration time input field has been fixed.</li>
-                    <li>The information typed in the input fields will no longer get lost when refreshing the browser.</li>
-                    <li>In the worklog notes, the \r\n characters are handled appropriately.</li>
-                    <li>JIRA 6.x compatibility fixed.</li>
-                </ul>
-                <h4 style="margin-left:20px;">Improvements</h4>
-                <ul>
-                    <li>Worklog table issue column shows the issue description when hovering the mouse pointer over the Issue Key.</li>
-                    <li>Calendar highlights function. (Other months, weekend and days with worklogs.)</li>
-                    <li>In the specified interval, Missing Days Report checks day by day the number of working hours logged on working days. (Configurable.)</li>
-                </ul>
-                <h4 style="margin-left:20px;">New features</h4>
-                <ul>
-                    <li>Rounding function on “End Time” and “Start Time Now” buttons.</li>
-                </ul>
-                <h3>Timetracker version 1.1.0</h3>
-                <h4 style="margin-left:20px;">Bugfix</h4>
-                <ul>
-                    <li>More aesthetic Summary layout.</li>
-                </ul>
-                <h4 style="margin-left:20px;">Improvements</h4>
-                <ul>
-                    <li>Real Worklog Summary added to Summary.</li>
-                    <li>Calendar appearance. (popup, inline, both)</li>
-                    <li>Default Calendar date. (Actual day or the oldest blank day of the past week.)</li>
-                    <li>Development of the worklog table. (In case the estimated time is over, a notification icon appears next to the issues.)</li>
-                    <li>Ergonomic layout of the input fields.</li>
-                    <li>Use of tabulators between input fields made easier.</li>
-                    <li>When editing a worklog, it is possible to modify the date.</li>
-                </ul>
-                <h4 style="margin-left:20px;">New features</h4>
-                <ul>
-                    <li>Edit All function added to Timetracker.</li>
-                    <li>The Missing Days report returns the days to which there are no worklogs assigned between two given dates.</li>
-                    <li>By the User Settings, the appearance of the plugin can be customized. (e.g.: Calendar appearance, Calendar default date selection)</li>
-                    <li>By the Global Settings, administrators can configure the plugin. (e.g.: Non-working issue, Non-estimated issue, Exclude date, Include date)</li>
-                    <li>Daily notification email sending. (Based on the worklogs created on a specific day and on the remaining estimated time)</li>
-                </ul>
-                <h3>Timetracker version 1.0.0</h3>
-                <ul>
-                    <li>Timetracker released.</li>
-                </ul>
-            </div>
-        </div>
+        <h3>Timetracker version 2.1.1 and 1.4.1</h3>
+        <h4 style="margin-left: 20px;">Improvements</h4>
+        <ul>
+          <li>The code now satisfies the new <a
+            href="https://everitorg.wordpress.com/2015/03/11/new-versions-of-everit-conventions-and-parent-poms/">Everit
+              Conventions</a>. This means code quality improvements.
+          </li>
+        </ul>
+        <h4 style="margin-left: 20px;">Changes</h4>
+        <ul>
+          <li>License changed from LGPL 3.0 to Apache 2.0</li>
+          <li>From now on the plugin version 2.1.1 requires Java 1.7</li>
+        </ul>
 
-        <!--        Affix-->
-        <div class="col-md-2 col-sm-0 col-xs-0">
-            <nav id="affix-nav">
-                <ul class="nav nav-pills nav-stacked everit-affix" data-spy="affix" data-offset-top="350" data-offset-bottom="140">
-                    <li><a href="#install">Install</a>
-                    </li>
-                    <li class="active"><a href="#login">Login</a>
-                    </li>
-                    <li><a href="#interface">Timetracker plugin interface and input fields</a>
-                        <ul class="nav nav-pills nav-stacked">
-                            <li><a href="#date_modification">Date modification</a>
-                            </li>
-                            <li><a href="#worklog_total">Worklog total</a>
-                            </li>
-                            <li><a href="#worklog_table">Worklog table</a>
-                            </li>
-                            <li><a href="#input_fields">Input fields</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li><a href="#create_worklogs">Create worklogs</a>
-                    </li>
-                    <li><a href="#edit_worklogs">Edit worklogs</a>
-                        <ul class="nav nav-pills nav-stacked">
-                            <li><a href="#edit_all">Edit all function</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li><a href="#delete_worklogs">Delete worklogs</a>
-                    </li>
-                    <li><a href="#settings">Settings</a>
-                        <ul class="nav nav-pills nav-stacked">
-                            <li><a href="#user_settings">User settings</a>
-                            </li>
-                            <li><a href="#global_settings">Global settings</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li><a href="#missing_days_report">Missing days report</a>
-                    </li>
-                    <li><a href="#chart_report">Chart report</a>
-                    </li>
-                    <li><a href="#table_report">Table report</a>
-                    </li>
-                    <li><a href="#notification_email">Notification Email</a>
-                    </li>
-                    <li><a href="#error_messages">Error messages</a>
-                    </li>
-                    <li><a href="#release_notes">Release notes</a>
-                    </li>
-                </ul>
-            </nav>
-        </div>
+        <h3>Timetracker version 2.1.0 and 1.4.0</h3>
+        <h4 style="margin-left: 20px;">New features</h4>
+        <ul>
+          <li>Table report page to show the worklogs in a table in the given time interval.</li>
+          <li>Added project filtering capability to the chart report.</li>
+        </ul>
+        <h4 style="margin-left: 20px;">Bugfix</h4>
+        <ul>
+          <li>Duration field accepts inputs like "90m". (<a
+            href="https://github.com/everit-org/jira-timetracker-plugin/issues/51">#51</a>).
+          </li>
+          <li>Prevented multiple form submit. (<a
+            href="https://github.com/everit-org/jira-timetracker-plugin/issues/52">#52</a>).
+          </li>
+          <li>Correct handling of users with changed email address (v1.4.0).</li>
+        </ul>
+
+        <h3>Timetracker version 2.0.0</h3>
+        <h4 style="margin-left: 20px;">Changes</h4>
+        <ul>
+          <li>In this version we changed the way of querying the worklogs from native sql to
+            API calls. To do this with a satisfying speed we need a new view in the entity model
+            called "IssueWorklogView" which is introduced in JIRA 6.2.5.</li>
+          <li>Therefore this version is only available with JIRA versions above 6.2.5.</li>
+          <li>From now on we will only develop the 2.x.x version of the plugin and no new
+            features will be introduced in the 1.x branch</li>
+        </ul>
+        <h3>Timetracker version 1.3.0</h3>
+        <h4 style="margin-left: 20px;">Bugfix</h4>
+        <ul>
+          <li>The inline calendar will no longer stay at the top of every screen.</li>
+          <li>When you edited a worklog and made an invalid save action, the plugin changed to
+            "Add worklog" mode, now it stays in "Edit".</li>
+        </ul>
+        <h4 style="margin-left: 20px;">Improvements</h4>
+        <ul>
+          <li>The default Jira snytax (2h 30m) is now supported in the duration field. (<a
+            href="https://github.com/everit-org/jira-timetracker-plugin/issues/32">#32</a>).
+          </li>
+          <li>Added global setting to set the first day of the week in the calendar. (<a
+            href="https://github.com/everit-org/jira-timetracker-plugin/issues/22">#22</a>).
+          </li>
+          <li>The fields now remember their values when changing date or when form submission
+            fails. (<a href="https://github.com/everit-org/jira-timetracker-plugin/issues/13">#13</a>).
+          </li>
+          <li>So far the issue picker only offered cached issues but now it searches between
+            all of the issues.</li>
+          <li>The worklog currently being edited is now highlighted in the worklog table.</li>
+          <li>The plugin now remembers which one of the EndTime/Duration fields was filled in
+            before an invalid submit.</li>
+          <li>Removed radio buttons from End Time and Duration fields, now you can select
+            between them by clicking into the appropriate field.</li>
+        </ul>
+        <h4 style="margin-left: 20px;">New features</h4>
+        <ul>
+          <li>Copy button to the worklog table to quickly select recently used issues with a
+            single the click of a button (<a
+            href="https://github.com/everit-org/jira-timetracker-plugin/issues/17">#17</a>).
+          </li>
+          <li>Copy function to the worklog table by clicking the appropriate cell.</li>
+          <li>Chart report page to return a pie chart showing the logged work hours by projects
+            in the given time interval.</li>
+        </ul>
+        <h3>Timetracker version 1.2.1</h3>
+        <h4 style="margin-left: 20px;">Bugfix</h4>
+        <ul>
+          <li>Fixed unresolved constraint issue (<a
+            href="https://github.com/everit-org/jira-timetracker-plugin/issues/25">#25</a>).
+          </li>
+          <li>Fixed an issue where 31th days of months with work logs were not highlighted in
+            the calendar.</li>
+        </ul>
+        <h3>Timetracker version 1.2.0</h3>
+        <h4 style="margin-left: 20px;">Bugfix</h4>
+        <ul>
+          <li>The tabindex value of the duration time input field has been fixed.</li>
+          <li>The information typed in the input fields will no longer get lost when refreshing
+            the browser.</li>
+          <li>In the worklog notes, the \r\n characters are handled appropriately.</li>
+          <li>JIRA 6.x compatibility fixed.</li>
+        </ul>
+        <h4 style="margin-left: 20px;">Improvements</h4>
+        <ul>
+          <li>Worklog table issue column shows the issue description when hovering the mouse
+            pointer over the Issue Key.</li>
+          <li>Calendar highlights function. (Other months, weekend and days with worklogs.)</li>
+          <li>In the specified interval, Missing Days Report checks day by day the number of
+            working hours logged on working days. (Configurable.)</li>
+        </ul>
+        <h4 style="margin-left: 20px;">New features</h4>
+        <ul>
+          <li>Rounding function on “End Time” and “Start Time Now” buttons.</li>
+        </ul>
+        <h3>Timetracker version 1.1.0</h3>
+        <h4 style="margin-left: 20px;">Bugfix</h4>
+        <ul>
+          <li>More aesthetic Summary layout.</li>
+        </ul>
+        <h4 style="margin-left: 20px;">Improvements</h4>
+        <ul>
+          <li>Real Worklog Summary added to Summary.</li>
+          <li>Calendar appearance. (popup, inline, both)</li>
+          <li>Default Calendar date. (Actual day or the oldest blank day of the past week.)</li>
+          <li>Development of the worklog table. (In case the estimated time is over, a
+            notification icon appears next to the issues.)</li>
+          <li>Ergonomic layout of the input fields.</li>
+          <li>Use of tabulators between input fields made easier.</li>
+          <li>When editing a worklog, it is possible to modify the date.</li>
+        </ul>
+        <h4 style="margin-left: 20px;">New features</h4>
+        <ul>
+          <li>Edit All function added to Timetracker.</li>
+          <li>The Missing Days report returns the days to which there are no worklogs assigned
+            between two given dates.</li>
+          <li>By the User Settings, the appearance of the plugin can be customized. (e.g.:
+            Calendar appearance, Calendar default date selection)</li>
+          <li>By the Global Settings, administrators can configure the plugin. (e.g.:
+            Non-working issue, Non-estimated issue, Exclude date, Include date)</li>
+          <li>Daily notification email sending. (Based on the worklogs created on a specific
+            day and on the remaining estimated time)</li>
+        </ul>
+        <h3>Timetracker version 1.0.0</h3>
+        <ul>
+          <li>Timetracker released.</li>
+        </ul>
+      </div>
     </div>
 
-    <div></div>
-    <footer class="bs-docs-footer" role="contentinfo">
-        <div class="container">
-            <div class="bs-docs-social">
-                <ul class="bs-docs-social-buttons">
-                    <li class="follow-btn "><a href="https://twitter.com/EveritOrg" class="twitter-follow-button" data-show-count="true">Follow @EveritOrg</a>
-                    </li>
-                    <li class="tweet-btn"><a href="https://twitter.com/share" class="twitter-share-button" data-url="http://www.everit.org/">Tweet</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </footer>
+    <!--        Affix-->
+    <div class="col-md-2 col-sm-0 col-xs-0">
+      <nav id="affix-nav">
+        <ul class="nav nav-pills nav-stacked everit-affix" data-spy="affix" data-offset-top="350"
+          data-offset-bottom="140">
+          <li><a href="#install">Install</a></li>
+          <li class="active"><a href="#login">Login</a></li>
+          <li><a href="#interface">Timetracker plugin interface and input fields</a>
+            <ul class="nav nav-pills nav-stacked">
+              <li><a href="#date_modification">Date modification</a></li>
+              <li><a href="#worklog_total">Worklog total</a></li>
+              <li><a href="#worklog_table">Worklog table</a></li>
+              <li><a href="#input_fields">Input fields</a></li>
+            </ul></li>
+          <li><a href="#create_worklogs">Create worklogs</a></li>
+          <li><a href="#edit_worklogs">Edit worklogs</a>
+            <ul class="nav nav-pills nav-stacked">
+              <li><a href="#edit_all">Edit all function</a></li>
+            </ul></li>
+          <li><a href="#delete_worklogs">Delete worklogs</a></li>
+          <li><a href="#settings">Settings</a>
+            <ul class="nav nav-pills nav-stacked">
+              <li><a href="#user_settings">User settings</a></li>
+              <li><a href="#global_settings">Global settings</a></li>
+            </ul></li>
+          <li><a href="#missing_days_report">Missing days report</a></li>
+          <li><a href="#chart_report">Chart report</a></li>
+          <li><a href="#table_report">Table report</a></li>
+          <li><a href="#notification_email">Notification Email</a></li>
+          <li><a href="#error_messages">Error messages</a></li>
+          <li><a href="#release_notes">Release notes</a></li>
+        </ul>
+      </nav>
+    </div>
+  </div>
 
-    <!-- Bootstrap core JavaScript
+  <div></div>
+  <footer class="bs-docs-footer" role="contentinfo">
+    <div class="container">
+      <div class="bs-docs-social">
+        <ul class="bs-docs-social-buttons">
+          <li class="follow-btn "><a href="https://twitter.com/EveritOrg"
+            class="twitter-follow-button" data-show-count="true">Follow @EveritOrg</a></li>
+          <li class="tweet-btn"><a href="https://twitter.com/share"
+            class="twitter-share-button" data-url="http://www.everit.org/">Tweet</a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bootstrap core JavaScript
 ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script src="js/jquery-2.1.1.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/everit.js "></script>
-    <script type="text/javascript">
-        (function () {
-            var ga = document.createElement('script');
-            ga.type = 'text/javascript';
-            ga.async = true;
-            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-            var s = document.getElementsByTagName('script')[0];
-            s.parentNode.insertBefore(ga, s);
-        })();
+  <!-- Placed at the end of the document so the pages load faster -->
+  <script src="js/jquery-2.1.1.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/everit.js "></script>
+  <script type="text/javascript">
+      (function() {
+        var ga = document.createElement('script');
+        ga.type = 'text/javascript';
+        ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl'
+            : 'http://www')
+            + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(ga, s);
+      })();
     </script>
 </body>
 
