@@ -630,11 +630,9 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 							                    	#parse("templates/plugins/renderers/wiki/wiki-renderer-edit.vm")
 							 	  					<script>
 							 	  						#if($isPopup != 1)
-							 	  						  AJS.$("#comments-wiki-edit").attr("style","width: 650px;");
 							 	  						  AJS.$("#comments").attr("style","width: 650px");
 							 	  						#else
-							 	  						  AJS.$("#comments-wiki-edit").attr("style","width: 100%;");
-							 	  						  AJS.$("#comments").attr("style","width: 100%");	
+							 	  						  AJS.$("#comments").attr("style","width: 99.5%");	
 							 	  						#end 
 							 	  						AJS.$("#comments").append("$comment");
 							 	  						AJS.$("#comments").attr("tabindex","4");
