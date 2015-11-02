@@ -23,7 +23,6 @@ margin-bottom: 0em;
 cursor:pointer;
 }
 span{
-padding: 3px;
 cursor:pointer;
 }
 </style>
@@ -48,7 +47,7 @@ cursor:pointer;
 	                        <td width="5%" style="text-align: center;"> 
 	                          $i18n.getText("plugin.remaining")
 	                        </td>
-	                        <td width="65%" style="text-align: center;">
+	                        <td width="60%" style="text-align: center;">
 	                          $i18n.getText("plugin.note")
 	                        </td>
 	                        <td width="10%" style="text-align: center;">
