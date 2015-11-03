@@ -778,24 +778,9 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 		 	 
 	</script>	
 </form>
-<!-- Piwik -->
-<script type="text/javascript">    
-  var _paq = _paq || [];
-    _paq.push(['setUserId', '$userId']);
-    _paq.push(['setCustomVariable', 4, 'Version', '$pluginVersion', 'page']);
-    _paq.push(['setCustomVariable', 3, 'baseURL', '$baseUrl', 'page']);
-    _paq.push(['trackPageView']);
-    _paq.push(['enableLinkTracking']);
-  (function() {
-    var u="//127.0.0.1:8090/analytics/piwik/";
-    _paq.push(['setTrackerUrl', u+'piwik.php']);
-    _paq.push(['setSiteId', 1]);
-    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-    g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
-  })();
 
-</script>
-<noscript><p><img src="//127.0.0.1:8090/analytics/piwik/piwik.php?idsite=1" style="border:0;" alt="" /></p></noscript>
-<!-- End Piwik Code -->
+#set($IDSITE = 1);
+#parse("templates/analytics.vm")
+
 </body>
 </html>

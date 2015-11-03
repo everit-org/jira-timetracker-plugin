@@ -25,8 +25,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import javax.servlet.http.HttpSession;
-
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.everit.jira.timetracker.plugin.dto.ActionResult;
@@ -370,10 +368,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     normalizeContextPath();
 
     pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
-
-    baseUrl = setUserSessionBaseUrl();
-
-    userId = setUserSessionUserId();
+    baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(getHttpRequest().getSession());
+    userId = JiraTimetrackerAnalytics.setUserSessionUserId(getHttpRequest().getSession());
 
     getJiraVersionFromBuildUtilsInfo();
 
@@ -429,10 +425,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     normalizeContextPath();
 
     pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
-
-    baseUrl = setUserSessionBaseUrl();
-
-    userId = setUserSessionUserId();
+    baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(getHttpRequest().getSession());
+    userId = JiraTimetrackerAnalytics.setUserSessionUserId(getHttpRequest().getSession());
 
     getJiraVersionFromBuildUtilsInfo();
 
@@ -1298,32 +1292,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     } else {
       userPickerObject = null;
     }
-  }
-
-  private String setUserSessionBaseUrl() {
-    String resultBaseUrl;
-    final HttpSession session = getHttpRequest().getSession();
-    final String hashedBaseUrl = (String) session.getAttribute("BASE_URL");
-    if (hashedBaseUrl == null) {
-      resultBaseUrl = JiraTimetrackerAnalytics.getBaseUrl();
-      session.setAttribute("BASE_URL", resultBaseUrl);
-    } else {
-      resultBaseUrl = hashedBaseUrl;
-    }
-    return resultBaseUrl;
-  }
-
-  private String setUserSessionUserId() {
-    String resultUserId;
-    final HttpSession session = getHttpRequest().getSession();
-    final String hashedUserId = (String) session.getAttribute("USER_ID");
-    if (hashedUserId == null) {
-      resultUserId = JiraTimetrackerAnalytics.getUserId();
-      session.setAttribute("USER_ID", resultUserId);
-    } else {
-      resultUserId = hashedUserId;
-    }
-    return resultUserId;
   }
 
   public void setWeekFilteredSummary(final String weekFilteredSummary) {

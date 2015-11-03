@@ -18,6 +18,8 @@ package org.everit.jira.timetracker.plugin;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 
+import javax.servlet.http.HttpSession;
+
 import org.apache.log4j.Logger;
 
 import com.atlassian.jira.component.ComponentAccessor;
@@ -83,6 +85,44 @@ public final class JiraTimetrackerAnalytics {
       return ERROR_USER_ID_HASH;
     }
     return userId;
+  }
+
+  /**
+   * Set the hashed base URL.
+   *
+   * @param session
+   *          Session.
+   * @return The hashed base URL.
+   */
+  public static String setUserSessionBaseUrl(final HttpSession session) {
+    String resultBaseUrl;
+    final String hashedBaseUrl = (String) session.getAttribute("BASE_URL");
+    if (hashedBaseUrl == null) {
+      resultBaseUrl = JiraTimetrackerAnalytics.getBaseUrl();
+      session.setAttribute("BASE_URL", resultBaseUrl);
+    } else {
+      resultBaseUrl = hashedBaseUrl;
+    }
+    return resultBaseUrl;
+  }
+
+  /**
+   * Set the hashed user ID.
+   *
+   * @param session
+   *          Session
+   * @return The hashed user ID.
+   */
+  public static String setUserSessionUserId(final HttpSession session) {
+    String resultUserId;
+    final String hashedUserId = (String) session.getAttribute("USER_ID");
+    if (hashedUserId == null) {
+      resultUserId = JiraTimetrackerAnalytics.getUserId();
+      session.setAttribute("USER_ID", resultUserId);
+    } else {
+      resultUserId = hashedUserId;
+    }
+    return resultUserId;
   }
 
   private JiraTimetrackerAnalytics() {
