@@ -70,19 +70,19 @@ public final class JiraTimetrackerUtil {
    */
   public static boolean checkIssueEstimatedTime(final MutableIssue issue,
       final List<Pattern> collectorIssueIds) {
-    String issueKey = issue.getKey();
+    final String issueKey = issue.getKey();
     if (collectorIssueIds != null) {
-      for (Pattern issuePattern : collectorIssueIds) {
+      for (final Pattern issuePattern : collectorIssueIds) {
         // check matches
-        boolean isCollectorIssue = issuePattern.matcher(issueKey).matches();
+        final boolean isCollectorIssue = issuePattern.matcher(issueKey).matches();
         if (isCollectorIssue) {
           return true;
         }
       }
     }
-    Long estimated = issue.getEstimate();
-    Status issueStatus = issue.getStatusObject();
-    String issueStatusId = issueStatus.getId();
+    final Long estimated = issue.getEstimate();
+    final Status issueStatus = issue.getStatusObject();
+    final String issueStatusId = issueStatus.getId();
     if (((estimated == null) || (estimated == 0)) && !"6".equals(issueStatusId)) {
       return false;
     }
@@ -95,9 +95,9 @@ public final class JiraTimetrackerUtil {
    * @return True if we have logged user else false.
    */
   public static boolean isUserLogged() {
-    JiraAuthenticationContext authenticationContext = ComponentAccessor
+    final JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
-    ApplicationUser user = authenticationContext.getUser();
+    final ApplicationUser user = authenticationContext.getUser();
     if (user == null) {
       return false;
     }
