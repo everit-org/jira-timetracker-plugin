@@ -38,10 +38,11 @@
     <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserLoggedInCondition" />
   </web-item>
 
-  <web-resource name="Everit TT logo" key="everit_tt_logo">
+  <web-resource name="JTTP Resources" key="jttp-resources">
     <resource type="download" name="everit_tt_logo.png" location="/icons/everit_timetracker_logo.png">
       <param name="content-type" value="image/png" />
     </resource>
+    <resource type="download" name="jttp.css" location="/css/jttp.css"/>
   </web-resource>
 
   <webwork1 key="jttp-webaction" name="JTTP Webwork actions" class="java.lang.Object">
