@@ -30,7 +30,7 @@
     _paq.push(['trackPageView']);
     _paq.push(['enableLinkTracking']);
   (function() {
-    var u="//127.0.0.1:8090/analytics/piwik/";
+    var u="//104.155.68.215/";
     _paq.push(['setTrackerUrl', u+'piwik.php']);
     _paq.push(['setSiteId', $IDSITE]);
     var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
@@ -38,7 +38,7 @@
   })();
 
 </script>
-<noscript><p><img src="//127.0.0.1:8090/analytics/piwik/piwik.php?idsite=$siteId" style="border:0;" alt="" /></p></noscript>
+<noscript><p><img src="//104.155.68.215/piwik.php?idsite=$siteId" style="border:0;" alt="" /></p></noscript>
 <!-- End Piwik Code -->
 </body>
 </html>
