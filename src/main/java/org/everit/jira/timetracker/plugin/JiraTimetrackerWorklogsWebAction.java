@@ -41,24 +41,33 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
   private static final String PARAM_DATETO = "dateTo";
 
   private static final String PARAM_DATEFROM = "dateFrom";
+
   /**
    * Logger.
    */
   private static final Logger LOGGER = Logger
       .getLogger(JiraTimetrackerWorklogsWebAction.class);
-  /**
-   * The {@link JiraTimetrackerPlugin}.
-   */
-  private JiraTimetrackerPlugin jiraTimetrackerPlugin;
 
   /**
    * The number of rows in the dates table.
    */
   private static final int ROW_COUNT = 20;
 
+  private String pluginVersion;
+
+  private String baseUrl;
+
+  private String userId;
+
+  /**
+   * The {@link JiraTimetrackerPlugin}.
+   */
+  private JiraTimetrackerPlugin jiraTimetrackerPlugin;
+
   private List<String> allDatesWhereNoWorklog;
 
   private List<String> showDatesWhereNoWorklog;
+
   /**
    * The date.
    */
@@ -71,14 +80,17 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    * The date.
    */
   private Date dateTo = null;
+
   /**
    * The formated date.
    */
   private String dateToFormated = "";
+
   /**
    * The message.
    */
   private String message = "";
+
   /**
    * The message parameter.
    */
@@ -91,19 +103,16 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    * The number of pages.
    */
   private int numberOfPages;
-
   /**
    * The actual page.
    */
   private int actualPage;
 
   private String contextPath;
-
   /**
    * The report check the worklogs time spent is equal or greater than 8 hours.
    */
   public boolean checkHours = false;
-
   /**
    * If check the worklogs spent time, then exclude the non working issues, or not.
    */
@@ -138,7 +147,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    * Set dateFrom and dateFromFormated default value.
    */
   private void dateFromDefaultInit() {
-    Calendar calendarFrom = Calendar.getInstance();
+    final Calendar calendarFrom = Calendar.getInstance();
     calendarFrom.set(Calendar.MONTH, calendarFrom.get(Calendar.MONTH) - 1);
     dateFrom = calendarFrom.getTime();
     dateFromFormated = DateTimeConverterUtil.dateToString(dateFrom);
@@ -148,14 +157,14 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    * Set dateTo and dateToFormated default values.
    */
   private void dateToDefaultInit() {
-    Calendar calendarTo = Calendar.getInstance();
+    final Calendar calendarTo = Calendar.getInstance();
     dateTo = calendarTo.getTime();
     dateToFormated = DateTimeConverterUtil.dateToString(dateTo);
   }
 
   @Override
   public String doDefault() throws ParseException {
-    boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
+    final boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
     if (!isUserLogged) {
       setReturnUrl(JIRA_HOME_URL);
       return getRedirect(NONE);
@@ -163,6 +172,9 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
     normalizeContextPath();
     jiraTimetrackerPlugin.loadPluginSettings();
+    pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
+    baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(request.getSession());
+    userId = JiraTimetrackerAnalytics.setUserSessionUserId(request.getSession());
 
     if ("".equals(dateToFormated)) {
       dateToDefaultInit();
@@ -175,17 +187,17 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     try {
       // TODO not simple "" for selectedUser. Use user picker
       // Default check box parameter false, false
-      List<Date> dateswhereNoWorklogDate = jiraTimetrackerPlugin
+      final List<Date> dateswhereNoWorklogDate = jiraTimetrackerPlugin
           .getDates("", dateFrom, dateTo, checkHours,
               checkNonWorkingIssues);
       allDatesWhereNoWorklog = new ArrayList<String>();
-      for (Date date : dateswhereNoWorklogDate) {
+      for (final Date date : dateswhereNoWorklogDate) {
         allDatesWhereNoWorklog.add(DateTimeConverterUtil
             .dateToString(date));
       }
       statisticsMessageParameter = Integer
           .toString(allDatesWhereNoWorklog.size());
-    } catch (GenericEntityException e) {
+    } catch (final GenericEntityException e) {
       LOGGER.error("Error when try to run the query.", e);
       return ERROR;
     }
@@ -198,7 +210,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
   @Override
   public String doExecute() throws ParseException {
     // set variables default value back
-    boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
+    final boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
     if (!isUserLogged) {
       setReturnUrl(JIRA_HOME_URL);
       return getRedirect(NONE);
@@ -206,12 +218,15 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
     normalizeContextPath();
     jiraTimetrackerPlugin.loadPluginSettings();
+    pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
+    baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(request.getSession());
+    userId = JiraTimetrackerAnalytics.setUserSessionUserId(request.getSession());
     message = "";
     messageParameter = "";
     statisticsMessageParameter = "0";
     allDatesWhereNoWorklog = new ArrayList<String>();
     showDatesWhereNoWorklog = new ArrayList<String>();
-    String[] searchValue = request.getParameterValues("search");
+    final String[] searchValue = request.getParameterValues("search");
     // if not null then we have to change the dates and make a new query
     if (searchValue != null) {
       // set actual page default! we start the new query with the first
@@ -224,8 +239,8 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
         message = "plugin.wrong.dates";
         return SUCCESS;
       }
-      String[] hourValue = request.getParameterValues("hour");
-      String[] nonworkingValue = request.getParameterValues("nonworking");
+      final String[] hourValue = request.getParameterValues("hour");
+      final String[] nonworkingValue = request.getParameterValues("nonworking");
       if (hourValue != null) {
         checkHours = true;
       }
@@ -238,16 +253,16 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     }
     try {
       // TODO not simple "" for selectedUser. Use user picker
-      List<Date> dateswhereNoWorklogDate = jiraTimetrackerPlugin
+      final List<Date> dateswhereNoWorklogDate = jiraTimetrackerPlugin
           .getDates("", dateFrom, dateTo, checkHours,
               checkNonWorkingIssues);
-      for (Date date : dateswhereNoWorklogDate) {
+      for (final Date date : dateswhereNoWorklogDate) {
         allDatesWhereNoWorklog.add(DateTimeConverterUtil
             .dateToString(date));
       }
       statisticsMessageParameter = Integer
           .toString(allDatesWhereNoWorklog.size());
-    } catch (GenericEntityException e) {
+    } catch (final GenericEntityException e) {
       LOGGER.error("Error when try to run the query.", e);
       return ERROR;
     }
@@ -260,6 +275,10 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
   public int getActualPage() {
     return actualPage;
+  }
+
+  public String getBaseUrl() {
+    return baseUrl;
   }
 
   public boolean getCheckHours() {
@@ -298,6 +317,10 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     return numberOfPages;
   }
 
+  public String getPluginVersion() {
+    return pluginVersion;
+  }
+
   public List<String> getShowDatesWhereNoWorklog() {
     return showDatesWhereNoWorklog;
   }
@@ -306,8 +329,12 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     return statisticsMessageParameter;
   }
 
+  public String getUserId() {
+    return userId;
+  }
+
   private void normalizeContextPath() {
-    String path = request.getContextPath();
+    final String path = request.getContextPath();
     if ((path.length() > 0) && "/".equals(path.substring(path.length() - 1))) {
       contextPath = path.substring(0, path.length() - 1);
     } else {
@@ -319,8 +346,8 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    * Handle the page changer action.
    */
   public void pageChangeAction() {
-    String[] dayBackValue = request.getParameterValues("pageBack");
-    String[] dayNextValue = request.getParameterValues("pageNext");
+    final String[] dayBackValue = request.getParameterValues("pageBack");
+    final String[] dayNextValue = request.getParameterValues("pageNext");
     if ((dayBackValue != null) && (actualPage > 1)) {
       actualPage--;
     }
@@ -332,10 +359,10 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
   private boolean parseDateParams() {
 
-    String[] requestDateFromArray = request.getParameterValues(PARAM_DATEFROM);
+    final String[] requestDateFromArray = request.getParameterValues(PARAM_DATEFROM);
     try {
       if (requestDateFromArray != null) {
-        String requestDate = request.getParameterValues(PARAM_DATEFROM)[0];
+        final String requestDate = request.getParameterValues(PARAM_DATEFROM)[0];
         if (!"".equals(requestDate)) {
           dateFromFormated = requestDate;
         }
@@ -346,9 +373,9 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
         dateFrom = DateTimeConverterUtil.stringToDate(dateFromFormated);
       }
 
-      String[] requestDateToArray = request.getParameterValues(PARAM_DATETO);
+      final String[] requestDateToArray = request.getParameterValues(PARAM_DATETO);
       if (requestDateToArray != null) {
-        String requestDate = request.getParameterValues(PARAM_DATETO)[0];
+        final String requestDate = request.getParameterValues(PARAM_DATETO)[0];
         if (!"".equals(requestDate)) {
           dateToFormated = requestDate;
         }
@@ -358,7 +385,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
       } else {
         dateTo = DateTimeConverterUtil.stringToDate(dateToFormated);
       }
-    } catch (ParseException e) {
+    } catch (final ParseException e) {
       message = "plugin.wrong.dates";
       return false;
     }
@@ -370,6 +397,10 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
   public void setActualPage(final int actualPage) {
     this.actualPage = actualPage;
+  }
+
+  public void setBaseUrl(final String baseUrl) {
+    this.baseUrl = baseUrl;
   }
 
   public void setCheckHours(final boolean checkHours) {
@@ -408,6 +439,10 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     this.numberOfPages = numberOfPages;
   }
 
+  public void setPluginVersion(final String pluginVersion) {
+    this.pluginVersion = pluginVersion;
+  }
+
   /**
    * Set the showDatesWhereNoWorklog by the actual page.
    *
@@ -415,7 +450,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    *          The sub list of allDatesWhereNoWorklog.
    */
   private void setShowDatesListByActualPage(final int actualPage) {
-    int from = (actualPage - 1) * ROW_COUNT;
+    final int from = (actualPage - 1) * ROW_COUNT;
     int to = actualPage * ROW_COUNT;
     if ((actualPage == 1) && (allDatesWhereNoWorklog.size() < ROW_COUNT)) {
       to = allDatesWhereNoWorklog.size();
@@ -435,6 +470,10 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
   public void setStatisticsMessageParameter(
       final String statisticsMessageParameter) {
     this.statisticsMessageParameter = statisticsMessageParameter;
+  }
+
+  public void setUserId(final String userId) {
+    this.userId = userId;
   }
 
 }
