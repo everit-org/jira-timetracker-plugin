@@ -86,6 +86,12 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   private static final String VERSION_SPLITTER = "\\.";
 
+  private String pluginVersion;
+
+  private String baseUrl;
+
+  private String userId;
+
   private String avatarURL = "";
   /**
    * The worklog comment.
@@ -355,10 +361,11 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     }
     normalizeContextPath();
 
-    BuildUtilsInfo component = ComponentAccessor.getComponent(BuildUtilsInfo.class);
-    String version = component.getVersion();
-    String[] versionSplit = version.split(VERSION_SPLITTER);
-    jiraMainVersion = Integer.parseInt(versionSplit[0]);
+    pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
+    baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(getHttpRequest().getSession());
+    userId = JiraTimetrackerAnalytics.setUserSessionUserId(getHttpRequest().getSession());
+
+    getJiraVersionFromBuildUtilsInfo();
 
     loadPluginSettingAndParseResult();
     // Just the here have to use the plugin actualDateOrLastWorklogDate setting
@@ -411,10 +418,11 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
     normalizeContextPath();
 
-    BuildUtilsInfo component = ComponentAccessor.getComponent(BuildUtilsInfo.class);
-    String version = component.getVersion();
-    String[] versionSplit = version.split(VERSION_SPLITTER);
-    jiraMainVersion = Integer.parseInt(versionSplit[0]);
+    pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
+    baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(getHttpRequest().getSession());
+    userId = JiraTimetrackerAnalytics.setUserSessionUserId(getHttpRequest().getSession());
+
+    getJiraVersionFromBuildUtilsInfo();
 
     loadPluginSettingAndParseResult();
 
@@ -561,6 +569,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return avatarURL;
   }
 
+  public String getBaseUrl() {
+    return baseUrl;
+  }
+
   public String getComment() {
     return comment;
   }
@@ -661,6 +673,13 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return jiraTimetrackerPlugin;
   }
 
+  private void getJiraVersionFromBuildUtilsInfo() {
+    BuildUtilsInfo component = ComponentAccessor.getComponent(BuildUtilsInfo.class);
+    String version = component.getVersion();
+    String[] versionSplit = version.split(VERSION_SPLITTER);
+    jiraMainVersion = Integer.parseInt(versionSplit[0]);
+  }
+
   public List<String> getLoggedDays() {
     return loggedDays;
   }
@@ -681,6 +700,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return monthSummary;
   }
 
+  public String getPluginVersion() {
+    return pluginVersion;
+  }
+
   public List<String> getProjectsId() {
     return projectsId;
   }
@@ -695,6 +718,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   public int getStartTimeChange() {
     return startTimeChange;
+  }
+
+  public String getUserId() {
+    return userId;
   }
 
   public ApplicationUser getUserPickerObject() {
@@ -1009,6 +1036,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     this.avatarURL = avatarURL;
   }
 
+  public void setBaseUrl(final String baseUrl) {
+    this.baseUrl = baseUrl;
+  }
+
   public void setColoring(final boolean isColoring) {
     this.isColoring = isColoring;
   }
@@ -1198,6 +1229,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     this.monthSummary = monthSummary;
   }
 
+  public void setPluginVersion(final String pluginVersion) {
+    this.pluginVersion = pluginVersion;
+  }
+
   public void setPopup(final int isPopup) {
     this.isPopup = isPopup;
   }
@@ -1228,6 +1263,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   public void setStartTimeChange(final int startTimeChange) {
     this.startTimeChange = startTimeChange;
+  }
+
+  public void setUserId(final String userId) {
+    this.userId = userId;
   }
 
   public void setUserPickerObject(final ApplicationUser userPickerObject) {
