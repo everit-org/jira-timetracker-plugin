@@ -344,7 +344,8 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     PluginSettingsValues pluginSettingValues = new PluginSettingsValues(
         new CalendarSettingsValues(isPopup, isActualDate, excludeDates, includeDates,
             isColoring),
-        issuesPatterns, collectorIssuePatterns, startTime, endTime);
+        issuesPatterns, collectorIssuePatterns, startTime,
+        endTime);
     jiraTimetrackerPlugin.savePluginSettings(pluginSettingValues);
   }
 

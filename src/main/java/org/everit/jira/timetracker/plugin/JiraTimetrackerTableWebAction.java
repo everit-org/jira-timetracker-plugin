@@ -95,12 +95,10 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   private String contextPath;
 
   private String currentUser = "";
-
   /**
    * The date.
    */
   private Date dateFrom = null;
-
   /**
    * The formated date.
    */
@@ -109,6 +107,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
    * The date.
    */
   private Date dateTo = null;
+
   /**
    * The formated date.
    */
