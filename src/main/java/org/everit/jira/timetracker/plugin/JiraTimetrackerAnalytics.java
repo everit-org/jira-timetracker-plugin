@@ -68,7 +68,7 @@ public final class JiraTimetrackerAnalytics {
    * @return The version.
    */
   public static String getPluginVersion() {
-    final String pluginVersion = ComponentAccessor.getPluginAccessor()
+    String pluginVersion = ComponentAccessor.getPluginAccessor()
         .getPlugin("org.everit.jira.timetracker.plugin")
         .getPluginInformation().getVersion();
     return pluginVersion;
