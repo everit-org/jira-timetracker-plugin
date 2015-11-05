@@ -29,6 +29,10 @@ import com.atlassian.jira.component.ComponentAccessor;
  */
 public final class JiraTimetrackerAnalytics {
 
+  private static final String BASE_URL = "org.everit.jira.timetracker.plugin.base.url.hash";
+
+  private static final String USER_ID = "org.everit.jira.timetracker.plugin.user.id.hash";
+
   /**
    * The JiraTimetrackerAnalytics logger.
    */
@@ -46,7 +50,7 @@ public final class JiraTimetrackerAnalytics {
   public static String getBaseUrl() {
     String baseUrl;
     try {
-      baseUrl = Hash.encryptString(ComponentAccessor
+      baseUrl = HashUtil.encryptString(ComponentAccessor
           .getApplicationProperties()
           .getString("jira.baseurl"));
       return baseUrl;
@@ -78,7 +82,7 @@ public final class JiraTimetrackerAnalytics {
   public static String getUserId() {
     String userId;
     try {
-      userId = Hash.encryptString(ComponentAccessor
+      userId = HashUtil.encryptString(ComponentAccessor
           .getJiraAuthenticationContext().getUser().getKey());
     } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
       log.error("Error when try to hash the user ID.", e);
@@ -96,10 +100,10 @@ public final class JiraTimetrackerAnalytics {
    */
   public static String setUserSessionBaseUrl(final HttpSession session) {
     String resultBaseUrl;
-    final String hashedBaseUrl = (String) session.getAttribute("BASE_URL");
+    final String hashedBaseUrl = (String) session.getAttribute(BASE_URL);
     if (hashedBaseUrl == null) {
       resultBaseUrl = JiraTimetrackerAnalytics.getBaseUrl();
-      session.setAttribute("BASE_URL", resultBaseUrl);
+      session.setAttribute(BASE_URL, resultBaseUrl);
     } else {
       resultBaseUrl = hashedBaseUrl;
     }
@@ -115,10 +119,10 @@ public final class JiraTimetrackerAnalytics {
    */
   public static String setUserSessionUserId(final HttpSession session) {
     String resultUserId;
-    final String hashedUserId = (String) session.getAttribute("USER_ID");
+    final String hashedUserId = (String) session.getAttribute(USER_ID);
     if (hashedUserId == null) {
       resultUserId = JiraTimetrackerAnalytics.getUserId();
-      session.setAttribute("USER_ID", resultUserId);
+      session.setAttribute(USER_ID, resultUserId);
     } else {
       resultUserId = hashedUserId;
     }

@@ -20,9 +20,10 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 /**
- * The hash class.
+ * The hash class. It hashes a string. Include a method converts byte array to hex string and an
+ * encrypt method.
  */
-public final class Hash {
+public final class HashUtil {
 
   private static final int HEX_0X0F = 0x0F;
 
@@ -37,10 +38,10 @@ public final class Hash {
    *          The byte array.
    * @return The hex value in string.
    */
-  public static String bytesToHex(final byte[] bytes) {
-    final char[] hexArray = { '0', '1', '2', '3', '4', '5', '6', '7', '8',
+  private static String bytesToHex(final byte[] bytes) {
+    char[] hexArray = { '0', '1', '2', '3', '4', '5', '6', '7', '8',
         '9', 'A', 'B', 'C', 'D', 'E', 'F' };
-    final char[] hexChars = new char[bytes.length * 2];
+    char[] hexChars = new char[bytes.length * 2];
     int v;
     for (int j = 0; j < bytes.length; j++) {
       v = bytes[j] & HEX_0X_FF;
@@ -51,11 +52,11 @@ public final class Hash {
   }
 
   /**
-   * The encrypt method.
+   * The encrypt method. Encode a string to a hex string with the SHA-1 cryptographic hash function.
    *
    * @param string
    *          The string you would like to encode.
-   * @return The encrypted string.
+   * @return The encrypted hex string.
    * @throws NoSuchAlgorithmException
    *           If no Provider supports a MessageDigestSpi implementation for the specified
    *           algorithm.
@@ -64,14 +65,13 @@ public final class Hash {
    */
   public static String encryptString(final String string)
       throws NoSuchAlgorithmException, UnsupportedEncodingException {
-    String sha1 = "";
-    final MessageDigest crypt = MessageDigest.getInstance("SHA-1");
+    MessageDigest crypt = MessageDigest.getInstance("SHA-1");
     crypt.reset();
     crypt.update(string.getBytes("UTF-8"));
-    sha1 = bytesToHex(crypt.digest());
+    String sha1 = bytesToHex(crypt.digest());
     return sha1;
   }
 
-  private Hash() {
+  private HashUtil() {
   }
 }
