@@ -244,7 +244,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 				</tr>
 				-->
 		  		<tr>
-		  			<td rowspan="2" style="width: 35%">
+		  			<td rowspan="2" style="width: 40%">
 					  	<input type="text" id="date" name="date" style="display: none" onchange="this.form.datesubmit.click()" />
 						<input type="submit" id="datesubmit" name="datesubmit" class="spaced" style="display: none"/>
 						<div id="calendar_div" style="text-align: left; vertical-align: inherit; float: left; padding:5px;">
@@ -632,7 +632,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 							 	  						#if($isPopup != 1)
 							 	  						  AJS.$("#comments").attr("style","width: 650px");
 							 	  						#else
-							 	  						  AJS.$("#comments").attr("style","width: 99.5%");	
+							 	  						  AJS.$("#comments").attr("style","width: 99.4%");	
 							 	  						#end 
 							 	  						AJS.$("#comments").append("$comment");
 							 	  						AJS.$("#comments").attr("tabindex","4");
