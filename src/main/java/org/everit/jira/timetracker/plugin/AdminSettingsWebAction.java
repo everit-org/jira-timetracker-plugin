@@ -309,8 +309,11 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    */
   public String parseSaveSettings(final HttpServletRequest request) {
     String[] issueSelectValue = request.getParameterValues("issueSelect");
+
     String[] collectorIssueSelectValue = request.getParameterValues("issueSelect_collector");
+
     String[] excludeDatesValue = request.getParameterValues("excludedates");
+
     String[] includeDatesValue = request.getParameterValues("includedates");
 
     issuesPatterns = new ArrayList<Pattern>();
@@ -343,8 +346,9 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
   public void savePluginSettings() {
     PluginSettingsValues pluginSettingValues = new PluginSettingsValues(
         new CalendarSettingsValues(isPopup, isActualDate, excludeDates, includeDates,
-            isColoring), issuesPatterns, collectorIssuePatterns, startTime,
-            endTime);
+            isColoring),
+        issuesPatterns, collectorIssuePatterns, startTime,
+        endTime);
     jiraTimetrackerPlugin.savePluginSettings(pluginSettingValues);
   }
 

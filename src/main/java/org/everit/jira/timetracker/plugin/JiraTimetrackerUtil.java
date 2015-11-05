@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.everit.jira.timetracker.plugin;
 
 import java.util.List;
@@ -70,19 +71,19 @@ public final class JiraTimetrackerUtil {
    */
   public static boolean checkIssueEstimatedTime(final MutableIssue issue,
       final List<Pattern> collectorIssueIds) {
-    final String issueKey = issue.getKey();
+    String issueKey = issue.getKey();
     if (collectorIssueIds != null) {
-      for (final Pattern issuePattern : collectorIssueIds) {
+      for (Pattern issuePattern : collectorIssueIds) {
         // check matches
-        final boolean isCollectorIssue = issuePattern.matcher(issueKey).matches();
+        boolean isCollectorIssue = issuePattern.matcher(issueKey).matches();
         if (isCollectorIssue) {
           return true;
         }
       }
     }
-    final Long estimated = issue.getEstimate();
-    final Status issueStatus = issue.getStatusObject();
-    final String issueStatusId = issueStatus.getId();
+    Long estimated = issue.getEstimate();
+    Status issueStatus = issue.getStatusObject();
+    String issueStatusId = issueStatus.getId();
     if (((estimated == null) || (estimated == 0)) && !"6".equals(issueStatusId)) {
       return false;
     }
@@ -95,9 +96,9 @@ public final class JiraTimetrackerUtil {
    * @return True if we have logged user else false.
    */
   public static boolean isUserLogged() {
-    final JiraAuthenticationContext authenticationContext = ComponentAccessor
+    JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
-    final ApplicationUser user = authenticationContext.getUser();
+    ApplicationUser user = authenticationContext.getUser();
     if (user == null) {
       return false;
     }

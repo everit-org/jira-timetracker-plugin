@@ -100,7 +100,7 @@ public final class JiraTimetrackerAnalytics {
    */
   public static String setUserSessionBaseUrl(final HttpSession session) {
     String resultBaseUrl;
-    final String hashedBaseUrl = (String) session.getAttribute(BASE_URL);
+    String hashedBaseUrl = (String) session.getAttribute(BASE_URL);
     if (hashedBaseUrl == null) {
       resultBaseUrl = JiraTimetrackerAnalytics.getBaseUrl();
       session.setAttribute(BASE_URL, resultBaseUrl);
@@ -119,7 +119,7 @@ public final class JiraTimetrackerAnalytics {
    */
   public static String setUserSessionUserId(final HttpSession session) {
     String resultUserId;
-    final String hashedUserId = (String) session.getAttribute(USER_ID);
+    String hashedUserId = (String) session.getAttribute(USER_ID);
     if (hashedUserId == null) {
       resultUserId = JiraTimetrackerAnalytics.getUserId();
       session.setAttribute(USER_ID, resultUserId);

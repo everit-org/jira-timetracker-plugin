@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.everit.jira.timetracker.plugin;
 
 import java.sql.Timestamp;
@@ -104,11 +105,11 @@ public class IssueEstimatedTimeChecker implements Runnable {
     Date start = checkerCalendar.getTime();
 
     // query for all worklogs issues from yesterday. check the worklog update parameter
-    EntityExpr startExpr =
-        new EntityExpr("updated", EntityOperator.GREATER_THAN_EQUAL_TO, new Timestamp(
+    EntityExpr startExpr = new EntityExpr("updated", EntityOperator.GREATER_THAN_EQUAL_TO,
+        new Timestamp(
             start.getTime()));
-    EntityExpr endExpr =
-        new EntityExpr("updated", EntityOperator.LESS_THAN, new Timestamp(end.getTime()));
+    EntityExpr endExpr = new EntityExpr("updated", EntityOperator.LESS_THAN,
+        new Timestamp(end.getTime()));
 
     List<EntityCondition> exprList = new ArrayList<EntityCondition>();
     exprList.add(startExpr);
