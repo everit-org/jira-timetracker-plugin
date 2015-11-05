@@ -109,3 +109,26 @@ item-header {
 .calendar-img{
     vertical-align: sub;
 }
+
+.summaty-table{
+	width: 100%;
+	padding-right: 5px;
+}
+
+.summaty-table-summary-column{
+    width: 20%;
+}
+
+.summaty-table-label-column{
+    width: 5%;
+}
+
+.summaty-table-value-column{
+    width: 85px;
+}
+
+.summary-table-datepicker-column{
+	width: 40%;
+}
+
+

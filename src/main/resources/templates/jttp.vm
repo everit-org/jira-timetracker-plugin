@@ -124,116 +124,11 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
                          $i18n.getText($message) $messageParameter
                   </div>
               #end
-              <table id="summary_table" style="width: 100%; padding-right: 5px;">
-                  <!--
-                  <tr>
-                      <td colspan="6" style="width: 60%">
-                          <div class="field-group" >
-                             <label for="selectedUser" style="margin-right: 10px;">$i18n.getText('plugin.user.picker.label')</label>
-                            <select  id="selectedUser" class="js-default-user-picker single-user-picker" name="selectedUser">
-                             #if(!(!$userPickerObject))
-                                <option selected="selected"
-                                          data-field-text="$userPickerObject.getDisplayName()"
-                                          style="background-image:url('$avatarURL')" 
-                                          value="$userPickerObject.getKey()">
-                                      $userPickerObject.getDisplayName()
-                                 </option>
-                             #end
-                            </select>
-                            <input type="submit" id="selectUserSubmit"  name="selectUserSubmit" value="$i18n.getText('plugin.search')"  class="button" style="margin-left: 10px;"/>
-                            <script>
-                                AJS.$('.field-group').attr("style","display: inline-flex; width: 500px; height: 30px");
-                                AJS.$('.aui-ss-editing').attr("style","width: 250px;");
-                                 AJS.$('.aui-ss.aui-ss-editing .aui-ss-field').attr("style","width: 250px;");
-                            </script>
-                        </div>
-                    </td>
-                </tr>
-                -->
-                  <tr>
-                      <td rowspan="2" style="width: 35%">
-                          <input type="text" id="date" name="date" style="display: none" onchange="this.form.datesubmit.click()" />
-                        <input type="submit" id="datesubmit" name="datesubmit" class="spaced" style="display: none"/>
-                        <div id="calendar_div" class="calendar">
-                        #if($isPopup != 2)
-                            <input type="submit" id="monthBack"  name="monthBack" value="<<<" class="button" title="$i18n.getText('plugin.prev.month')"/>
-                            <input type="submit" id="weekBack"  name="weekBack" value="<<" class="button"  title="$i18n.getText('plugin.prev.week')"/>
-                            <input type="submit" id="dayBack"  name="dayBack" value="<" class="button"  title="$i18n.getText('plugin.prev.day')"/>
-                             $dateFormated
-                            <img id="date_trigger" src="$contextPath/images/icons/cal.gif" width="16" height="16" border="0"
-                                alt="Pick a date" class="calendar-img" title="$i18n.getText('plugin.choose.date')"/>
-                            <input type="submit" id="dayNext"  name="dayNext" value=">"  class="button" title="$i18n.getText('plugin.next.day')"/>
-                            <input type="submit" id="weekNext"  name="weekNext" value=">>"  class="button" title="$i18n.getText('plugin.next.week')"/>
-                            <input type="submit" id="monthNext"  name="monthNext" value=">>>" class="button" title="$i18n.getText('plugin.next.month')"/>
-                            <script>
-                            var cal= Calendar.setup({
-                                firstDay : $firstDay,
-                                inputField : 'date',
-                                button : 'date_trigger',
-                                date : '$dateFormated',
-                                align : 'Br',
-                                electric: false,
-                                singleClick : true,
-                                showOthers: true,
-                                useISO8601WeekNumbers : $currentCalendar.useISO8601,
-                                ifFormat : '%Y-%m-%d'
-                            });
-                            </script>
-                        #end
-                        </div>
-                    </td>
-                    <td align="right"  style="width: 20%">
-                        $i18n.getText("plugin.summary")
-                    </td>
-                    <td align="right" style="width: 5%">
-                         $i18n.getText("plugin.day")
-                    </td>
-                    <td align="left" style="width: 80px;">
-                         ($daySummary)
-                    </td>
-                    <td align="right" style="width: 5%">
-                        $i18n.getText("plugin.week")
-                    </td>
-                    <td align="left" style="width: 85px;">
-                        ($weekSummary)
-                    </td>
-                    <td align="right" style="width: 5%">
-                        $i18n.getText("plugin.month")
-                    </td>
-                    <td align="left" style="width: 85px;">
-                         ($monthSummary)
-                    </td>
-                </tr>
-                <tr>
-                    <td align="right" style="width: 15%" >
-                        #if($issuesRegex.size() != 0)
-                                    $i18n.getText("plugin.real.work") $i18n.getText("plugin.summary")
-                                </td>
-                                <td align="right" style="width: 5%">
-                                    $i18n.getText("plugin.day")
-                                </td>
-                                <td align="left" style="width: 80px;">
-                                    ($dayFilteredSummary)
-                                </td>
-                                <td align="right" style="width: 5%">
-                                    $i18n.getText("plugin.week")
-                                </td>
-                                <td align="left" style="width: 85px;">
-                                    ($weekFilteredSummary)
-                                </td>
-                                <td align="right" style="width: 5%">
-                                    $i18n.getText("plugin.month")
-                                </td>
-                                <td align="left" style="width: 85px;">
-                                    ($monthFilteredSummary)
-                        #end
-                    </td>
-                </tr>
-            </table>
+			#parse("templates/summary.vm")
             #parse("templates/list.vm")
                </br>
                <div id="inputfields" name="inputfields">
-               <table  width="100%">
+               <table id="inputfields-table" width="100%">
                    <tbody>
                        <tr>
                            <input id="editAll" type="button" name="editall" value="$i18n.getText('plugin.edit.all')" onclick="location.href='JiraTimetrackerWebAction!default.jspa?editAllIds=$worklogsIds&dateFormated=$dateFormated'" class="button" />
