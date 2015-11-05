@@ -70,33 +70,29 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
   private static final String WRONG_DATES = "plugin.wrong.dates";
 
-  private String pluginVersion;
+  private String avatarURL = "";
 
   private String baseUrl;
-
-  private String userId;
-
-  private String avatarURL = "";
 
   private List<ChartData> chartDataList;
 
   private String contextPath;
 
   private String currentUser = "";
+
   /**
    * The date.
    */
   private Date dateFrom = null;
+
   /**
    * The formated date.
    */
   private String dateFromFormated = "";
-
   /**
    * The date.
    */
   private Date dateTo = null;
-
   /**
    * The formated date.
    */
@@ -111,6 +107,10 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
    * The message.
    */
   private String message = "";
+
+  private String pluginVersion;
+
+  private String userId;
 
   private transient ApplicationUser userPickerObject;
 
@@ -349,8 +349,8 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
       throw new IllegalArgumentException(INVALID_USER_PICKER);
     }
     if ((currentUser == null) || "".equals(currentUser)) {
-      JiraAuthenticationContext authenticationContext = ComponentAccessor
-          .getJiraAuthenticationContext();
+      JiraAuthenticationContext authenticationContext =
+          ComponentAccessor.getJiraAuthenticationContext();
       currentUser = authenticationContext.getUser().getKey();
     }
   }

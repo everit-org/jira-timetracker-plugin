@@ -88,21 +88,19 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   private static final String WRONG_DATES = "plugin.wrong.dates";
 
-  private String pluginVersion;
+  private String avatarURL = "";
 
   private String baseUrl;
-
-  private String userId;
-
-  private String avatarURL = "";
 
   private String contextPath;
 
   private String currentUser = "";
+
   /**
    * The date.
    */
   private Date dateFrom = null;
+
   /**
    * The formated date.
    */
@@ -111,12 +109,10 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
    * The date.
    */
   private Date dateTo = null;
-
   /**
    * The formated date.
    */
   private String dateToFormated = "";
-
   private HashMap<Integer, List<Object>> daySum = new HashMap<Integer, List<Object>>();
 
   private List<Pattern> issuesRegex;
@@ -133,11 +129,15 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   private HashMap<Integer, List<Object>> monthSum = new HashMap<Integer, List<Object>>();
 
+  private String pluginVersion;
+
   private HashMap<Integer, List<Object>> realDaySum = new HashMap<Integer, List<Object>>();
 
   private HashMap<Integer, List<Object>> realMonthSum = new HashMap<Integer, List<Object>>();
 
   private HashMap<Integer, List<Object>> realWeekSum = new HashMap<Integer, List<Object>>();
+
+  private String userId;
 
   private transient ApplicationUser userPickerObject;
 
@@ -490,8 +490,8 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
       throw new IllegalArgumentException(INVALID_USER_PICKER);
     }
     if ((currentUser == null) || "".equals(currentUser)) {
-      JiraAuthenticationContext authenticationContext = ComponentAccessor
-          .getJiraAuthenticationContext();
+      JiraAuthenticationContext authenticationContext =
+          ComponentAccessor.getJiraAuthenticationContext();
       currentUser = authenticationContext.getUser().getKey();
     }
   }
