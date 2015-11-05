@@ -72,6 +72,8 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
   private String avatarURL = "";
 
+  private String baseUrl;
+
   private List<ChartData> chartDataList;
 
   private String contextPath;
@@ -105,6 +107,10 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
    * The message.
    */
   private String message = "";
+
+  private String pluginVersion;
+
+  private String userId;
 
   private transient ApplicationUser userPickerObject;
 
@@ -149,6 +155,9 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     normalizeContextPath();
     jiraTimetrackerPlugin.loadPluginSettings();
 
+    pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
+    baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(getHttpRequest().getSession());
+    userId = JiraTimetrackerAnalytics.setUserSessionUserId(getHttpRequest().getSession());
     if ("".equals(dateFromFormated)) {
       dateFromDefaultInit();
     }
@@ -176,6 +185,9 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     normalizeContextPath();
     jiraTimetrackerPlugin.loadPluginSettings();
 
+    pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
+    baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(getHttpRequest().getSession());
+    userId = JiraTimetrackerAnalytics.setUserSessionUserId(getHttpRequest().getSession());
     setDefaultDates();
 
     Calendar startDate = null;
@@ -229,6 +241,10 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     return avatarURL;
   }
 
+  public String getBaseUrl() {
+    return baseUrl;
+  }
+
   public List<ChartData> getChartDataList() {
     return chartDataList;
   }
@@ -269,6 +285,10 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     return message;
   }
 
+  public String getPluginVersion() {
+    return pluginVersion;
+  }
+
   private Calendar getStartDate() throws IllegalArgumentException {
     String dateFromParam = getHttpRequest().getParameterValues(PARAM_DATEFROM)[0];
     if (!"".equals(dateFromParam)) {
@@ -283,6 +303,10 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
       throw new IllegalArgumentException(INVALID_START_TIME);
     }
     return startDate;
+  }
+
+  public String getUserId() {
+    return userId;
   }
 
   public ApplicationUser getUserPickerObject() {
@@ -300,6 +324,10 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
   public void setAvatarURL(final String avatarURL) {
     this.avatarURL = avatarURL;
+  }
+
+  public void setBaseUrl(final String baseUrl) {
+    this.baseUrl = baseUrl;
   }
 
   public void setChartDataList(final List<ChartData> chartDataList) {
@@ -346,6 +374,14 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
   public void setMessage(final String message) {
     this.message = message;
+  }
+
+  public void setPluginVersion(final String pluginVersion) {
+    this.pluginVersion = pluginVersion;
+  }
+
+  public void setUserId(final String userId) {
+    this.userId = userId;
   }
 
   public void setUserPickerObject(final ApplicationUser userPickerObject) {

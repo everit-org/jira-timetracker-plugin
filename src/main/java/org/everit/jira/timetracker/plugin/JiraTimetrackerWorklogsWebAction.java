@@ -51,6 +51,11 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    */
   private static final long serialVersionUID = 1L;
 
+  private String pluginVersion;
+
+  private String baseUrl;
+
+  private String userId;
   /**
    * The actual page.
    */
@@ -165,6 +170,9 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     normalizeContextPath();
     jiraTimetrackerPlugin.loadPluginSettings();
 
+    pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
+    baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(getHttpRequest().getSession());
+    userId = JiraTimetrackerAnalytics.setUserSessionUserId(getHttpRequest().getSession());
     if ("".equals(dateToFormated)) {
       dateToDefaultInit();
     }
@@ -207,6 +215,9 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
     normalizeContextPath();
     jiraTimetrackerPlugin.loadPluginSettings();
+    pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
+    baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(getHttpRequest().getSession());
+    userId = JiraTimetrackerAnalytics.setUserSessionUserId(getHttpRequest().getSession());
     message = "";
     messageParameter = "";
     statisticsMessageParameter = "0";
@@ -262,6 +273,10 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     return actualPage;
   }
 
+  public String getBaseUrl() {
+    return baseUrl;
+  }
+
   public boolean getCheckHours() {
     return checkHours;
   }
@@ -298,12 +313,20 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     return numberOfPages;
   }
 
+  public String getPluginVersion() {
+    return pluginVersion;
+  }
+
   public List<String> getShowDatesWhereNoWorklog() {
     return showDatesWhereNoWorklog;
   }
 
   public String getStatisticsMessageParameter() {
     return statisticsMessageParameter;
+  }
+
+  public String getUserId() {
+    return userId;
   }
 
   private void normalizeContextPath() {
@@ -372,6 +395,10 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     this.actualPage = actualPage;
   }
 
+  public void setBaseUrl(final String baseUrl) {
+    this.baseUrl = baseUrl;
+  }
+
   public void setCheckHours(final boolean checkHours) {
     this.checkHours = checkHours;
   }
@@ -408,6 +435,10 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     this.numberOfPages = numberOfPages;
   }
 
+  public void setPluginVersion(final String pluginVersion) {
+    this.pluginVersion = pluginVersion;
+  }
+
   /**
    * Set the showDatesWhereNoWorklog by the actual page.
    *
@@ -435,6 +466,10 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
   public void setStatisticsMessageParameter(
       final String statisticsMessageParameter) {
     this.statisticsMessageParameter = statisticsMessageParameter;
+  }
+
+  public void setUserId(final String userId) {
+    this.userId = userId;
   }
 
 }
