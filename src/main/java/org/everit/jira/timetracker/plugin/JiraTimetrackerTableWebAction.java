@@ -113,6 +113,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
    * The formated date.
    */
   private String dateToFormated = "";
+
   private HashMap<Integer, List<Object>> daySum = new HashMap<Integer, List<Object>>();
 
   private List<Pattern> issuesRegex;
