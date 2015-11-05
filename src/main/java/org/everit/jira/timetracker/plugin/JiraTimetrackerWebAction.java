@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.everit.jira.timetracker.plugin;
 
 import java.io.IOException;
@@ -49,7 +48,6 @@ import com.atlassian.jira.web.action.JiraWebActionSupport;
  * The timetracker web action support class.
  */
 public class JiraTimetrackerWebAction extends JiraWebActionSupport {
-
   /**
    * The default worklog ID.
    */
@@ -60,12 +58,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private static final String INVALID_START_TIME = "plugin.invalid_startTime";
 
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
-
   /**
    * The JiraTimetrackerWebAction logger.
    */
   private static Logger log = Logger.getLogger(JiraTimetrackerWebAction.class);
-
   /**
    * Logger.
    */
@@ -79,7 +75,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private static final String PARAM_ISSUESELECT = "issueSelect";
 
   private static final String PARAM_STARTTIME = "startTime";
-
   /**
    * Serial version UID.
    */
@@ -94,24 +89,20 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private String userId;
 
   private String avatarURL = "";
-
   /**
    * The worklog comment.
    */
   private String comment = "";
-
   /**
    * The worklog comment.
    */
   private String commentForActions = "";
 
   private String contextPath;
-
   /**
    * The copied worklog id.
    */
   private Long copiedWorklogId = DEFAULT_WORKLOG_ID;
-
   /**
    * The date.
    */
@@ -120,12 +111,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The formated date.
    */
   private String dateFormated = "";
-
   /**
    * The summary of day.
    */
   private String dayFilteredSummary = "";
-
   /**
    * The summary of day.
    */
@@ -136,7 +125,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The deleted worklog id.
    */
   private Long deletedWorklogId = DEFAULT_WORKLOG_ID;
-
   /**
    * The worklog duration.
    */
@@ -145,22 +133,18 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The all edit worklogs ids.
    */
   private String editAllIds = "";
-
   /**
    * The edited worklog id.
    */
   private Long editedWorklogId = DEFAULT_WORKLOG_ID;
-
   /**
    * The worklog end time.
    */
   private String endTime = "";
-
   /**
    * The endTime input field changer buttons value.
    */
   private int endTimeChange;
-
   /**
    * List of the exclude days of the date variable current months.
    */
@@ -169,44 +153,36 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The calendar show actual Date Or Last Worklog Date.
    */
   private boolean isActualDate;
-
   /**
    * The calendar highlights coloring function is active or not.
    */
   private boolean isColoring;
 
   private boolean isDurationSelected = false;
-
   /**
    * The WebAction is edit a worklog or not.
    */
   private boolean isEdit = false;
-
   /**
    * The WebAction is edit all worklog or not.
    */
   private boolean isEditAll = false;
-
   /**
    * The calendar isPopup.
    */
   private int isPopup;
-
   /**
    * The issue key.
    */
   private String issueKey = "";
-
   /**
    * The issues.
    */
   private transient List<Issue> issues = new ArrayList<Issue>();
-
   /**
    * The filtered Issues id.
    */
   private List<Pattern> issuesRegex;
-
   /**
    * The jira main version.
    */
@@ -215,7 +191,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The {@link JiraTimetrackerPlugin}.
    */
   private transient JiraTimetrackerPlugin jiraTimetrackerPlugin;
-
   /**
    * List of the logged days of the date variable current months.
    */
@@ -248,7 +223,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The worklog start time.
    */
   private String startTime = "";
-
   /**
    *
    */
@@ -257,7 +231,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The startTime input field changer buttons value.
    */
   private int startTimeChange;
-
   /**
    * The spent time in Jira time format (1h 20m).
    */
@@ -268,17 +241,14 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The summary of week.
    */
   private String weekFilteredSummary = "";
-
   /**
    * The summary of week.
    */
   private String weekSummary = "";
-
   /**
    * The worklogs.
    */
   private List<EveritWorklog> worklogs = new ArrayList<EveritWorklog>();
-
   /**
    * The ids of the woklogs.
    */
@@ -504,7 +474,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       isEdit = true;
       return ERROR;
     }
-    final ActionResult updateResult = jiraTimetrackerPlugin.editWorklog(
+    ActionResult updateResult = jiraTimetrackerPlugin.editWorklog(
         editedWorklogId, issueKey, commentForActions, dateFormated,
         startTimeValue[0], timeSpent);
     if (updateResult.getStatus() == ActionResultStatus.FAIL) {
@@ -548,8 +518,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     // edit the worklogs!
     // TODO what if result is a fail?????? what if just one fail?
     // ActionResult editResult;
-    for (final Long editWorklogId : editWorklogIds) {
-      final EveritWorklog editWorklog = jiraTimetrackerPlugin
+    for (Long editWorklogId : editWorklogIds) {
+      EveritWorklog editWorklog = jiraTimetrackerPlugin
           .getWorklog(editWorklogId);
       // editResult =
       jiraTimetrackerPlugin.editWorklog(editWorklog
@@ -942,10 +912,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    *           GenericEntityException.
    */
   public void makeSummary() throws GenericEntityException {
-    ApplicationProperties applicationProperties = ComponentAccessor
-        .getApplicationProperties();
-    boolean useISO8601 = applicationProperties
-        .getOption(APKeys.JIRA_DATE_TIME_PICKER_USE_ISO8601);
+    ApplicationProperties applicationProperties = ComponentAccessor.getApplicationProperties();
+    boolean useISO8601 = applicationProperties.getOption(APKeys.JIRA_DATE_TIME_PICKER_USE_ISO8601);
 
     Calendar startCalendar = Calendar.getInstance();
     if (useISO8601) {

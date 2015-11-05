@@ -52,7 +52,6 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
   private static final String INVALID_USER_PICKER = "plugin.user.picker.label";
 
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
-
   /**
    * Logger.
    */
@@ -63,7 +62,6 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
   private static final String PARAM_DATETO = "dateTo";
 
   private static final String PARAM_USERPICKER = "userPicker";
-
   /**
    * Serial version UID.
    */
@@ -84,12 +82,10 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
   private String contextPath;
 
   private String currentUser = "";
-
   /**
    * The date.
    */
   private Date dateFrom = null;
-
   /**
    * The formated date.
    */
@@ -98,17 +94,14 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
    * The date.
    */
   private Date dateTo = null;
-
   /**
    * The formated date.
    */
   private String dateToFormated = "";
-
   /**
    * The {@link JiraTimetrackerPlugin}.
    */
   private JiraTimetrackerPlugin jiraTimetrackerPlugin;
-
   /**
    * The message.
    */

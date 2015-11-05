@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.everit.jira.timetracker.plugin;
 
 import java.io.Serializable;
@@ -45,7 +44,6 @@ import com.atlassian.jira.web.action.JiraWebActionSupport;
  * The Timetracker table report action support class.
  */
 public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
-
   /**
    * EveritWorklog comparator by Date.
    */
@@ -69,7 +67,6 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   private static final String INVALID_USER_PICKER = "plugin.user.picker.label";
 
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
-
   /**
    * Logger.
    */
@@ -82,7 +79,6 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   private static final String PARAM_DATETO = "dateTo";
 
   private static final String PARAM_USERPICKER = "userPicker";
-
   /**
    * Serial version UID.
    */
@@ -101,17 +97,14 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   private String contextPath;
 
   private String currentUser = "";
-
   /**
    * The date.
    */
   private Date dateFrom = null;
-
   /**
    * The formated date.
    */
   private String dateFromFormated = "";
-
   /**
    * The date.
    */
@@ -124,12 +117,10 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   private HashMap<Integer, List<Object>> daySum = new HashMap<Integer, List<Object>>();
 
   private List<Pattern> issuesRegex;
-
   /**
    * The {@link JiraTimetrackerPlugin}.
    */
   private JiraTimetrackerPlugin jiraTimetrackerPlugin;
-
   /**
    * The message.
    */
@@ -449,8 +440,8 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   private boolean isRealWorklog(final EveritWorklog worklog) {
     boolean isRealWorklog = true;
     if (issuesRegex != null) {
-      for (final Pattern issuePattern : issuesRegex) {
-        final boolean issueMatches = issuePattern.matcher(worklog.getIssue()).matches();
+      for (Pattern issuePattern : issuesRegex) {
+        boolean issueMatches = issuePattern.matcher(worklog.getIssue()).matches();
         // if match not count in summary
         if (issueMatches) {
           isRealWorklog = false;

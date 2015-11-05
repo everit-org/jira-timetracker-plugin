@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.everit.jira.timetracker.plugin;
 
 import java.text.ParseException;
@@ -33,7 +32,6 @@ import com.atlassian.jira.web.action.JiraWebActionSupport;
 public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
-
   /**
    * Logger.
    */
@@ -43,12 +41,10 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
   private static final String PARAM_DATEFROM = "dateFrom";
 
   private static final String PARAM_DATETO = "dateTo";
-
   /**
    * The number of rows in the dates table.
    */
   private static final int ROW_COUNT = 20;
-
   /**
    * Serial version UID.
    */
@@ -59,26 +55,22 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
   private String baseUrl;
 
   private String userId;
-
   /**
    * The actual page.
    */
   private int actualPage;
 
   private List<String> allDatesWhereNoWorklog;
-
   /**
    * The report check the worklogs time spent is equal or greater than 8 hours.
    */
   public boolean checkHours = false;
-
   /**
    * If check the worklogs spent time, then exclude the non working issues, or not.
    */
   public boolean checkNonWorkingIssues = false;
 
   private String contextPath;
-
   /**
    * The date.
    */
@@ -91,17 +83,14 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    * The date.
    */
   private Date dateTo = null;
-
   /**
    * The formated date.
    */
   private String dateToFormated = "";
-
   /**
    * The {@link JiraTimetrackerPlugin}.
    */
   private JiraTimetrackerPlugin jiraTimetrackerPlugin;
-
   /**
    * The message.
    */
@@ -110,7 +99,6 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    * The message parameter.
    */
   private String messageParameter = "";
-
   /**
    * The number of pages.
    */
@@ -229,7 +217,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     statisticsMessageParameter = "0";
     allDatesWhereNoWorklog = new ArrayList<String>();
     showDatesWhereNoWorklog = new ArrayList<String>();
-    final String[] searchValue = getHttpRequest().getParameterValues("search");
+    String[] searchValue = getHttpRequest().getParameterValues("search");
     // if not null then we have to change the dates and make a new query
     if (searchValue != null) {
       // set actual page default! we start the new query with the first page
