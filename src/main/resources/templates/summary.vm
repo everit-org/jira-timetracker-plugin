@@ -68,10 +68,10 @@
 			($monthSummary)
 		</td>
 	</tr>
-	#if($issuesRegex.size() != 0)
+	
 	<tr>
 		<td align="right" class="summaty-table-summary-column" >
-			
+			#if($issuesRegex.size() != 0)
 				$i18n.getText("plugin.real.work") $i18n.getText("plugin.summary")
 				</td>
 				<td align="right" class="summaty-table-label-column">
@@ -91,8 +91,8 @@
 				</td>
 				<td align="left" class="summaty-table-value-column">
 					($monthFilteredSummary)
-			
+			#end
 		</td>
 	</tr>
-	#end
+	
 </table>

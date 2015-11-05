@@ -120,6 +120,7 @@
 										});
 										//Set the issues key all of them	
 										AJS.$("#issueSelect-textarea").append("$issueKey");
+										AJS.$('.issue-picker-popup').attr("style","margin-bottom: 15px;");
 										ip.handleFreeInput();
 								</script>
 							</div>
@@ -162,6 +163,7 @@
 										});
 										//Set the issues key all of them	
 										AJS.$("#issueSelect_collector-textarea").append("$collectorIssueKey");
+										AJS.$('.issue-picker-popup').attr("style","margin-bottom: 15px;");
 										ip.handleFreeInput();
 								</script>
 							</div>

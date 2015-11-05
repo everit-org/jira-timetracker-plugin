@@ -88,6 +88,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
                   </div>
 #end
 <form name="jttpForm" id="jttpForm" method="post"
+<<<<<<< HEAD
                     #if($isEdit) action="JiraTimetrackerWebAction.jspa?editedWorklogId=$editedWorklogId&dateFormated=$dateFormated" 
                     #elseif($isEditAll) action="JiraTimetrackerWebAction.jspa?editAllIds=$editAllIds&dateFormated=$dateFormated" 
                     #else action="JiraTimetrackerWebAction.jspa?dateFormated=$dateFormated" #end/>   
@@ -397,6 +398,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
                                                         //AJS.$('.drop-menu').attr("style","margin-top: 1px;");
                                                         AJS.$('.issue-picker-popup').attr("style","margin-bottom: 16px;");
 
+
                                                         #if($isPopup != 1)
                                                             #if($jiraMainVersion < 6)
                                                                 AJS.$("#issueSelect-multi-select").attr("style","width: 630px;");
@@ -420,7 +422,6 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
                                                         //Set the issue key        
                                                         AJS.$("#issueSelect-textarea").append("$issueKey");
                                                         AJS.$("#issueSelect-textarea").attr("tabindex","3");
-
                                                         ip.handleFreeInput();
                                                     </script>
                                                  </div>
