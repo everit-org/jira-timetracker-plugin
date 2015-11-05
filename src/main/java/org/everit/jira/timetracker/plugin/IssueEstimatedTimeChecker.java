@@ -105,8 +105,7 @@ public class IssueEstimatedTimeChecker implements Runnable {
 
     // query for all worklogs issues from yesterday. check the worklog update parameter
     EntityExpr startExpr = new EntityExpr("updated", EntityOperator.GREATER_THAN_EQUAL_TO,
-        new Timestamp(
-            start.getTime()));
+        new Timestamp(start.getTime()));
     EntityExpr endExpr = new EntityExpr("updated", EntityOperator.LESS_THAN,
         new Timestamp(end.getTime()));
 
