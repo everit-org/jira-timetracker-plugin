@@ -44,6 +44,7 @@ import com.atlassian.jira.web.action.JiraWebActionSupport;
  * The Timetracker table report action support class.
  */
 public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
+
   /**
    * EveritWorklog comparator by Date.
    */
@@ -67,6 +68,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   private static final String INVALID_USER_PICKER = "plugin.user.picker.label";
 
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
+
   /**
    * Logger.
    */
@@ -109,6 +111,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
    * The date.
    */
   private Date dateTo = null;
+
   /**
    * The formated date.
    */
@@ -117,10 +120,12 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   private HashMap<Integer, List<Object>> daySum = new HashMap<Integer, List<Object>>();
 
   private List<Pattern> issuesRegex;
+
   /**
    * The {@link JiraTimetrackerPlugin}.
    */
   private JiraTimetrackerPlugin jiraTimetrackerPlugin;
+
   /**
    * The message.
    */
@@ -255,6 +260,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
     normalizeContextPath();
     jiraTimetrackerPlugin.loadPluginSettings();
+
     pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
     baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(getHttpRequest().getSession());
     userId = JiraTimetrackerAnalytics.setUserSessionUserId(getHttpRequest().getSession());

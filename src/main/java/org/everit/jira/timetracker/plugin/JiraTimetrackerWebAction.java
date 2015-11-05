@@ -48,6 +48,7 @@ import com.atlassian.jira.web.action.JiraWebActionSupport;
  * The timetracker web action support class.
  */
 public class JiraTimetrackerWebAction extends JiraWebActionSupport {
+
   /**
    * The default worklog ID.
    */
@@ -58,10 +59,12 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private static final String INVALID_START_TIME = "plugin.invalid_startTime";
 
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
+
   /**
    * The JiraTimetrackerWebAction logger.
    */
   private static Logger log = Logger.getLogger(JiraTimetrackerWebAction.class);
+
   /**
    * Logger.
    */
@@ -75,6 +78,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private static final String PARAM_ISSUESELECT = "issueSelect";
 
   private static final String PARAM_STARTTIME = "startTime";
+
   /**
    * Serial version UID.
    */
@@ -115,16 +119,19 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The summary of day.
    */
   private String dayFilteredSummary = "";
+
   /**
    * The summary of day.
    */
   private String daySummary = "";
 
   private String debugMessage = "";
+
   /**
    * The deleted worklog id.
    */
   private Long deletedWorklogId = DEFAULT_WORKLOG_ID;
+
   /**
    * The worklog duration.
    */
@@ -133,36 +140,44 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The all edit worklogs ids.
    */
   private String editAllIds = "";
+
   /**
    * The edited worklog id.
    */
   private Long editedWorklogId = DEFAULT_WORKLOG_ID;
+
   /**
    * The worklog end time.
    */
   private String endTime = "";
+
   /**
    * The endTime input field changer buttons value.
    */
   private int endTimeChange;
+
   /**
    * List of the exclude days of the date variable current months.
    */
   private List<String> excludeDays = new ArrayList<String>();
+
   /**
    * The calendar show actual Date Or Last Worklog Date.
    */
   private boolean isActualDate;
+
   /**
    * The calendar highlights coloring function is active or not.
    */
   private boolean isColoring;
 
   private boolean isDurationSelected = false;
+
   /**
    * The WebAction is edit a worklog or not.
    */
   private boolean isEdit = false;
+
   /**
    * The WebAction is edit all worklog or not.
    */
@@ -171,6 +186,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The calendar isPopup.
    */
   private int isPopup;
+
   /**
    * The issue key.
    */
@@ -203,10 +219,12 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The message parameter.
    */
   private String messageParameter = "";
+
   /**
    * The summary of month.
    */
   private String monthFilteredSummary = "";
+
   /**
    * The summary of month.
    */
@@ -223,6 +241,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The worklog start time.
    */
   private String startTime = "";
+
   /**
    *
    */
@@ -237,18 +256,22 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private String timeSpent = "";
 
   private transient ApplicationUser userPickerObject;
+
   /**
    * The summary of week.
    */
   private String weekFilteredSummary = "";
+
   /**
    * The summary of week.
    */
   private String weekSummary = "";
+
   /**
    * The worklogs.
    */
   private List<EveritWorklog> worklogs = new ArrayList<EveritWorklog>();
+
   /**
    * The ids of the woklogs.
    */

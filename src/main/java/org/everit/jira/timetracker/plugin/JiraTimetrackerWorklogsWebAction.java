@@ -32,6 +32,7 @@ import com.atlassian.jira.web.action.JiraWebActionSupport;
 public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
+
   /**
    * Logger.
    */
@@ -61,6 +62,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
   private int actualPage;
 
   private List<String> allDatesWhereNoWorklog;
+
   /**
    * The report check the worklogs time spent is equal or greater than 8 hours.
    */
@@ -95,16 +97,19 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    * The message.
    */
   private String message = "";
+
   /**
    * The message parameter.
    */
   private String messageParameter = "";
+
   /**
    * The number of pages.
    */
   private int numberOfPages;
 
   private List<String> showDatesWhereNoWorklog;
+
   /**
    * The message parameter.
    */
@@ -164,6 +169,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
     normalizeContextPath();
     jiraTimetrackerPlugin.loadPluginSettings();
+
     pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
     baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(getHttpRequest().getSession());
     userId = JiraTimetrackerAnalytics.setUserSessionUserId(getHttpRequest().getSession());

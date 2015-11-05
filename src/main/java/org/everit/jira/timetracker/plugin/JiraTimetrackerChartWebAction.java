@@ -52,6 +52,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
   private static final String INVALID_USER_PICKER = "plugin.user.picker.label";
 
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
+
   /**
    * Logger.
    */
@@ -90,18 +91,22 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
    * The formated date.
    */
   private String dateFromFormated = "";
+
   /**
    * The date.
    */
   private Date dateTo = null;
+
   /**
    * The formated date.
    */
   private String dateToFormated = "";
+
   /**
    * The {@link JiraTimetrackerPlugin}.
    */
   private JiraTimetrackerPlugin jiraTimetrackerPlugin;
+
   /**
    * The message.
    */
@@ -149,6 +154,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
     normalizeContextPath();
     jiraTimetrackerPlugin.loadPluginSettings();
+
     pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
     baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(getHttpRequest().getSession());
     userId = JiraTimetrackerAnalytics.setUserSessionUserId(getHttpRequest().getSession());
@@ -178,6 +184,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
     normalizeContextPath();
     jiraTimetrackerPlugin.loadPluginSettings();
+
     pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
     baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(getHttpRequest().getSession());
     userId = JiraTimetrackerAnalytics.setUserSessionUserId(getHttpRequest().getSession());
