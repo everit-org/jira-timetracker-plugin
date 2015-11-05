@@ -167,31 +167,31 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   }
 
   private void addToDaySummary(final EveritWorklog worklog) {
-    final int dayNo = worklog.getDayNo();
-    final ArrayList<Object> list = new ArrayList<Object>();
-    final Long prevDaySum = (daySum.get(dayNo) == null) ? Long.valueOf(0)
+    int dayNo = worklog.getDayNo();
+    ArrayList<Object> list = new ArrayList<Object>();
+    Long prevDaySum = (daySum.get(dayNo) == null) ? Long.valueOf(0)
         : (Long) daySum.get(dayNo).get(0);
-    final Long sumSec = prevDaySum + (worklog.getMilliseconds() / MILLISEC_IN_SEC);
+    Long sumSec = prevDaySum + (worklog.getMilliseconds() / MILLISEC_IN_SEC);
     list.add(sumSec);
     list.add(DateTimeConverterUtil.secondConvertToString(sumSec));
     daySum.put(dayNo, list);
   }
 
   private void addToMonthSummary(final EveritWorklog worklog) {
-    final int monthNo = worklog.getMonthNo();
-    final ArrayList<Object> list = new ArrayList<Object>();
-    final Long prevMonthSum = (monthSum.get(monthNo) == null) ? Long.valueOf(0)
+    int monthNo = worklog.getMonthNo();
+    ArrayList<Object> list = new ArrayList<Object>();
+    Long prevMonthSum = (monthSum.get(monthNo) == null) ? Long.valueOf(0)
         : (Long) monthSum.get(monthNo).get(0);
-    final Long sumSec = prevMonthSum + (worklog.getMilliseconds() / MILLISEC_IN_SEC);
+    Long sumSec = prevMonthSum + (worklog.getMilliseconds() / MILLISEC_IN_SEC);
     list.add(sumSec);
     list.add(DateTimeConverterUtil.secondConvertToString(sumSec));
     monthSum.put(monthNo, list);
   }
 
   private void addToRealDaySummary(final EveritWorklog worklog, final boolean isRealWorklog) {
-    final int dayNo = worklog.getDayNo();
-    final ArrayList<Object> realList = new ArrayList<Object>();
-    final Long prevRealDaySum = (realDaySum.get(dayNo) == null) ? Long.valueOf(0)
+    int dayNo = worklog.getDayNo();
+    ArrayList<Object> realList = new ArrayList<Object>();
+    Long prevRealDaySum = (realDaySum.get(dayNo) == null) ? Long.valueOf(0)
         : (Long) realDaySum.get(dayNo).get(0);
     Long realSumSec = prevRealDaySum;
     if (isRealWorklog) {
@@ -203,9 +203,9 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   }
 
   private void addToRealMonthSummary(final EveritWorklog worklog, final boolean isRealWorklog) {
-    final int monthNo = worklog.getMonthNo();
-    final ArrayList<Object> realList = new ArrayList<Object>();
-    final Long prevRealMonthSum = realMonthSum.get(monthNo) == null ? Long.valueOf(0)
+    int monthNo = worklog.getMonthNo();
+    ArrayList<Object> realList = new ArrayList<Object>();
+    Long prevRealMonthSum = realMonthSum.get(monthNo) == null ? Long.valueOf(0)
         : (Long) realMonthSum.get(monthNo).get(0);
     Long realSumSec = prevRealMonthSum;
     if (isRealWorklog) {
@@ -217,9 +217,9 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   }
 
   private void addToRealWeekSummary(final EveritWorklog worklog, final boolean isRealWorklog) {
-    final int weekNo = worklog.getWeekNo();
-    final ArrayList<Object> realList = new ArrayList<Object>();
-    final Long prevRealWeekSum = realWeekSum.get(weekNo) == null ? Long.valueOf(0)
+    int weekNo = worklog.getWeekNo();
+    ArrayList<Object> realList = new ArrayList<Object>();
+    Long prevRealWeekSum = realWeekSum.get(weekNo) == null ? Long.valueOf(0)
         : (Long) realWeekSum.get(weekNo).get(0);
     Long realSumSec = prevRealWeekSum;
     if (isRealWorklog) {
@@ -231,11 +231,11 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   }
 
   private void addToWeekSummary(final EveritWorklog worklog) {
-    final ArrayList<Object> list = new ArrayList<Object>();
-    final int weekNo = worklog.getWeekNo();
-    final Long prevWeekSum = weekSum.get(weekNo) == null ? Long.valueOf(0)
+    ArrayList<Object> list = new ArrayList<Object>();
+    int weekNo = worklog.getWeekNo();
+    Long prevWeekSum = weekSum.get(weekNo) == null ? Long.valueOf(0)
         : (Long) weekSum.get(weekNo).get(0);
-    final Long sumSec = prevWeekSum + (worklog.getMilliseconds() / MILLISEC_IN_SEC);
+    Long sumSec = prevWeekSum + (worklog.getMilliseconds() / MILLISEC_IN_SEC);
     list.add(sumSec);
     list.add(DateTimeConverterUtil.secondConvertToString(sumSec));
     weekSum.put(weekNo, list);
@@ -245,7 +245,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
    * Set dateFrom and dateFromFormated default value.
    */
   private void dateFromDefaultInit() {
-    final Calendar calendarFrom = Calendar.getInstance();
+    Calendar calendarFrom = Calendar.getInstance();
     calendarFrom.add(Calendar.WEEK_OF_MONTH, -1);
     dateFrom = calendarFrom.getTime();
     dateFromFormated = DateTimeConverterUtil.dateToString(dateFrom);
@@ -255,14 +255,14 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
    * Set dateTo and dateToFormated default value.
    */
   private void dateToDefaultInit() {
-    final Calendar calendarTo = Calendar.getInstance();
+    Calendar calendarTo = Calendar.getInstance();
     dateTo = calendarTo.getTime();
     dateToFormated = DateTimeConverterUtil.dateToString(dateTo);
   }
 
   @Override
   public String doDefault() throws ParseException {
-    final boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
+    boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
     if (!isUserLogged) {
       setReturnUrl(JIRA_HOME_URL);
       return getRedirect(NONE);
@@ -281,7 +281,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
       dateToDefaultInit();
     }
 
-    final JiraAuthenticationContext authenticationContext = ComponentManager.getInstance()
+    JiraAuthenticationContext authenticationContext = ComponentManager.getInstance()
         .getJiraAuthenticationContext();
     currentUserKey = UserCompatibilityHelper.getKeyForUser(authenticationContext.getLoggedInUser());
     setUserPickerObjectBasedOnCurrentUser();
@@ -291,7 +291,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   @Override
   public String doExecute() throws ParseException, GenericEntityException {
-    final boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
+    boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
     if (!isUserLogged) {
       setReturnUrl(JIRA_HOME_URL);
       return getRedirect(NONE);
@@ -301,7 +301,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
     baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(request.getSession());
     userId = JiraTimetrackerAnalytics.setUserSessionUserId(request.getSession());
-    final PluginSettingsValues pluginSettings = jiraTimetrackerPlugin.loadPluginSettings();
+    PluginSettingsValues pluginSettings = jiraTimetrackerPlugin.loadPluginSettings();
     setIssuesRegex(pluginSettings.getFilteredSummaryIssues());
 
     setDefaultDates();
@@ -314,7 +314,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
       startDate = getStartDate();
       lastDate = getLastDate();
       validateDates(startDate, lastDate);
-    } catch (final IllegalArgumentException e) {
+    } catch (IllegalArgumentException e) {
       message = e.getMessage();
       return INPUT;
     }
@@ -323,21 +323,21 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     try {
       worklogs.addAll(jiraTimetrackerPlugin.getWorklogs(currentUserKey, startDate.getTime(),
           lastDate.getTime()));
-    } catch (final DataAccessException e) {
+    } catch (DataAccessException e) {
       LOGGER.error(GET_WORKLOGS_ERROR_MESSAGE, e);
       return ERROR;
-    } catch (final SQLException e) {
+    } catch (SQLException e) {
       LOGGER.error(GET_WORKLOGS_ERROR_MESSAGE, e);
       return ERROR;
     }
 
     Collections.sort(worklogs, new OrderByDate());
 
-    for (final EveritWorklog worklog : worklogs) {
-      final Calendar calendar = Calendar.getInstance();
+    for (EveritWorklog worklog : worklogs) {
+      Calendar calendar = Calendar.getInstance();
       calendar.setTime(worklog.getDate());
 
-      final boolean isRealWorklog = isRealWorklog(worklog);
+      boolean isRealWorklog = isRealWorklog(worklog);
 
       addToMonthSummary(worklog);
       addToRealMonthSummary(worklog, isRealWorklog);
@@ -393,16 +393,16 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   }
 
   private Calendar getLastDate() throws IllegalArgumentException {
-    final String dateToParam = request.getParameterValues(PARAM_DATETO)[0];
+    String dateToParam = request.getParameterValues(PARAM_DATETO)[0];
     if (!"".equals(dateToParam)) {
       dateToFormated = dateToParam;
     } else {
       throw new IllegalArgumentException(INVALID_END_TIME);
     }
-    final Calendar lastDate = Calendar.getInstance();
+    Calendar lastDate = Calendar.getInstance();
     try {
       lastDate.setTime(DateTimeConverterUtil.stringToDate(dateToParam));
-    } catch (final ParseException e) {
+    } catch (ParseException e) {
       throw new IllegalArgumentException(INVALID_END_TIME);
     }
     return lastDate;
@@ -433,16 +433,16 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   }
 
   private Calendar getStartDate() throws IllegalArgumentException {
-    final String dateFromParam = request.getParameterValues(PARAM_DATEFROM)[0];
+    String dateFromParam = request.getParameterValues(PARAM_DATEFROM)[0];
     if (!"".equals(dateFromParam)) {
       dateFromFormated = dateFromParam;
     } else {
       throw new IllegalArgumentException(INVALID_START_TIME);
     }
-    final Calendar startDate = Calendar.getInstance();
+    Calendar startDate = Calendar.getInstance();
     try {
       startDate.setTime(DateTimeConverterUtil.stringToDate(dateFromParam));
-    } catch (final ParseException e) {
+    } catch (ParseException e) {
       throw new IllegalArgumentException(INVALID_START_TIME);
     }
     return startDate;
@@ -467,8 +467,8 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   private boolean isRealWorklog(final EveritWorklog worklog) {
     boolean isRealWorklog = true;
     if (issuesRegex != null) {
-      for (final Pattern issuePattern : issuesRegex) {
-        final boolean issueMatches = issuePattern.matcher(worklog.getIssue()).matches();
+      for (Pattern issuePattern : issuesRegex) {
+        boolean issueMatches = issuePattern.matcher(worklog.getIssue()).matches();
         // if match not count in summary
         if (issueMatches) {
           isRealWorklog = false;
@@ -480,7 +480,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   }
 
   private void normalizeContextPath() {
-    final String path = request.getContextPath();
+    String path = request.getContextPath();
     if ((path.length() > 0) && "/".equals(path.substring(path.length() - 1))) {
       contextPath = path.substring(0, path.length() - 1);
     } else {
@@ -514,14 +514,14 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   private void setCurrentUserFromParam() throws IllegalArgumentException {
     if (request.getParameterValues(PARAM_USERPICKER) != null) {
-      final User user = UserCompatibilityHelper
+      User user = UserCompatibilityHelper
           .getUserForKey((request.getParameterValues("userPicker")[0]));
       currentUserKey = UserCompatibilityHelper.getKeyForUser(user);
     } else {
       throw new IllegalArgumentException(INVALID_USER_PICKER);
     }
     if ((currentUserKey == null) || "".equals(currentUserKey)) {
-      final JiraAuthenticationContext authenticationContext = ComponentManager.getInstance()
+      JiraAuthenticationContext authenticationContext = ComponentManager.getInstance()
           .getJiraAuthenticationContext();
       currentUserKey = UserCompatibilityHelper.getKeyForUser(authenticationContext
           .getLoggedInUser());
@@ -575,11 +575,11 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   private void setUserPickerObjectBasedOnCurrentUser() {
     if ((currentUserKey != null) && !"".equals(currentUserKey)) {
-      final User user = UserCompatibilityHelper.getUserForKey(currentUserKey);
+      User user = UserCompatibilityHelper.getUserForKey(currentUserKey);
       userPickerObject = UserCompatibilityHelper.convertUserObject(user);
-      final User loggedInUser = ComponentManager.getInstance().getJiraAuthenticationContext()
+      User loggedInUser = ComponentManager.getInstance().getJiraAuthenticationContext()
           .getLoggedInUser();
-      final AvatarService avatarService = ComponentManager
+      AvatarService avatarService = ComponentManager
           .getComponentInstanceOfType(AvatarService.class);
       setAvatarURL(avatarService.getAvatarURL(loggedInUser, currentUserKey, Avatar.Size.SMALL)
           .toString());
@@ -601,7 +601,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
       throw new IllegalArgumentException(WRONG_DATES);
     }
 
-    final Calendar yearCheckCal = (Calendar) lastDate.clone();
+    Calendar yearCheckCal = (Calendar) lastDate.clone();
     yearCheckCal.add(Calendar.YEAR, -1);
     if (startDate.before(yearCheckCal)) {
       throw new IllegalArgumentException(EXCEEDED_A_YEAR);

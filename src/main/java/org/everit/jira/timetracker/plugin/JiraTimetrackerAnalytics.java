@@ -33,6 +33,10 @@ import com.atlassian.jira.usercompatibility.UserCompatibilityHelper;
  */
 public final class JiraTimetrackerAnalytics {
 
+  private static final String BASE_URL = "org.everit.jira.timetracker.plugin.base.url.hash";
+
+  private static final String USER_ID = "org.everit.jira.timetracker.plugin.user.id.hash";
+
   /**
    * The JiraTimetrackerAnalytics logger.
    */
@@ -50,13 +54,13 @@ public final class JiraTimetrackerAnalytics {
   public static String getBaseUrl() {
     String baseUrl;
     try {
-      baseUrl = Hash.encryptString(ComponentAccessor
+      baseUrl = HashUtil.encryptString(ComponentAccessor
           .getApplicationProperties()
           .getString("jira.baseurl"));
-    } catch (final NoSuchAlgorithmException e) {
+    } catch (NoSuchAlgorithmException e) {
       log.error("Error when try to hash the base URL.", e);
       return ERROR_BASE_URL_HASH;
-    } catch (final UnsupportedEncodingException e) {
+    } catch (UnsupportedEncodingException e) {
       log.error("Error when try to hash the base URL.", e);
       return ERROR_BASE_URL_HASH;
     }
@@ -69,7 +73,7 @@ public final class JiraTimetrackerAnalytics {
    * @return The version.
    */
   public static String getPluginVersion() {
-    final String pluginVersion = ComponentAccessor.getPluginAccessor()
+    String pluginVersion = ComponentAccessor.getPluginAccessor()
         .getPlugin("org.everit.jira.timetracker.plugin")
         .getPluginInformation().getVersion();
     return pluginVersion;
@@ -83,15 +87,15 @@ public final class JiraTimetrackerAnalytics {
   public static String getUserId() {
     String userId;
     try {
-      final JiraAuthenticationContext authenticationContext = ComponentManager
+      JiraAuthenticationContext authenticationContext = ComponentManager
           .getInstance().getJiraAuthenticationContext();
-      final User user = authenticationContext.getLoggedInUser();
-      final String userKey = UserCompatibilityHelper.getKeyForUser(user);
-      userId = Hash.encryptString(userKey);
-    } catch (final NoSuchAlgorithmException e) {
+      User user = authenticationContext.getLoggedInUser();
+      String userKey = UserCompatibilityHelper.getKeyForUser(user);
+      userId = HashUtil.encryptString(userKey);
+    } catch (NoSuchAlgorithmException e) {
       log.error("Error when try to hash the user ID.", e);
       return ERROR_USER_ID_HASH;
-    } catch (final UnsupportedEncodingException e) {
+    } catch (UnsupportedEncodingException e) {
       log.error("Error when try to hash the userID.", e);
       return ERROR_USER_ID_HASH;
     }
@@ -107,10 +111,10 @@ public final class JiraTimetrackerAnalytics {
    */
   public static String setUserSessionBaseUrl(final HttpSession session) {
     String resultBaseUrl;
-    final String hashedBaseUrl = (String) session.getAttribute("BASE_URL");
+    String hashedBaseUrl = (String) session.getAttribute(BASE_URL);
     if (hashedBaseUrl == null) {
       resultBaseUrl = JiraTimetrackerAnalytics.getBaseUrl();
-      session.setAttribute("BASE_URL", resultBaseUrl);
+      session.setAttribute(BASE_URL, resultBaseUrl);
     } else {
       resultBaseUrl = hashedBaseUrl;
     }
@@ -126,10 +130,10 @@ public final class JiraTimetrackerAnalytics {
    */
   public static String setUserSessionUserId(final HttpSession session) {
     String resultUserId;
-    final String hashedUserId = (String) session.getAttribute("USER_ID");
+    final String hashedUserId = (String) session.getAttribute(USER_ID);
     if (hashedUserId == null) {
       resultUserId = JiraTimetrackerAnalytics.getUserId();
-      session.setAttribute("USER_ID", resultUserId);
+      session.setAttribute(USER_ID, resultUserId);
     } else {
       resultUserId = hashedUserId;
     }
