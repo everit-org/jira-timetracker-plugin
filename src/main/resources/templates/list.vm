@@ -110,11 +110,11 @@ cursor:pointer;
 		                    	 		<span class="aui-icon aui-icon-small aui-iconfont-edit"
 		                    	 			id="edit" name="edit" title="$i18n.getText('plugin.edit')"
 		                    	 			style="margin:3px"
-		                    	 			onclick="location.href='JiraTimetrackerWebAction.jspa?editedWorklogId=$worklog.worklogId&dateFormated=$dateFormated'"></span>
+		                    	 			onclick="location.href='JiraTimetrackerWebAction.jspa?editedWorklogId=$worklog.worklogId&dateFormatted=$dateFormatted'"></span>
 		                    	 		<span class="aui-icon aui-icon-small aui-iconfont-delete"
 		                    	 			id="delete" name="delete" title="$i18n.getText('plugin.delete')"
 		                    	 			style="margin:3px"
-		                    	 			onclick="location.href='JiraTimetrackerWebAction!default.jspa?deletedWorklogId=$worklog.worklogId&dateFormated=$dateFormated'"></span>
+		                    	 			onclick="location.href='JiraTimetrackerWebAction!default.jspa?deletedWorklogId=$worklog.worklogId&dateFormatted=$dateFormatted'"></span>
 		                    	 		<span class="aui-icon aui-icon-small aui-iconfont-copy-clipboard copy"
 		                    	 			style="margin:3px"
 		                    	 			id="copy" name="copy" title="$i18n.getText('plugin.copy')"></span>

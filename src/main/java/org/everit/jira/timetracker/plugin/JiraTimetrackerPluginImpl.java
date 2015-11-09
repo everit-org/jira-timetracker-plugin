@@ -168,7 +168,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   /**
    * The summary filter issues ids.
    */
-  private List<Pattern> defaultNonWorkingIssueIds = new ArrayList<Pattern>();
+  private final List<Pattern> defaultNonWorkingIssueIds = new ArrayList<Pattern>();
   /**
    * The parsed exclude dates.
    */
@@ -217,7 +217,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   /**
    * The PluginSettingsFactory.
    */
-  private PluginSettingsFactory settingsFactory;
+  private final PluginSettingsFactory settingsFactory;
 
   /**
    * Default constructor.
@@ -274,7 +274,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
 
   @Override
   public ActionResult createWorklog(final String issueId,
-      final String comment, final String dateFormated,
+      final String comment, final String dateFormatted,
       final String startTime, final String timeSpent) {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
@@ -297,7 +297,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
       return new ActionResult(ActionResultStatus.FAIL,
           NOPERMISSION_ISSUE, issueId);
     }
-    String dateAndTime = dateFormated + " " + startTime;
+    String dateAndTime = dateFormatted + " " + startTime;
     Date date;
     try {
       date = DateTimeConverterUtil.stringToDateAndTime(dateAndTime);
@@ -406,7 +406,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
 
   @Override
   public ActionResult editWorklog(final Long id, final String issueId,
-      final String comment, final String dateFormated, final String time,
+      final String comment, final String dateFormatted, final String time,
       final String timeSpent) {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
@@ -437,15 +437,12 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
       // DateTimeConverterUtil.dateToString(worklog.getStartDate());
       // String dateCreate = date;
       ActionResult createResult = createWorklog(issueId, comment,
-          dateFormated, time, timeSpent);
+          dateFormatted, time, timeSpent);
       if (createResult.getStatus() == ActionResultStatus.FAIL) {
         return createResult;
       }
     } else {
-      // String dateFormated =
-      // DateTimeConverterUtil.dateToString(worklog.getStartDate());
-      // String dateFormated = date;
-      String dateAndTime = dateFormated + " " + time;
+      String dateAndTime = dateFormatted + " " + time;
       Date dateCreate;
       try {
         dateCreate = DateTimeConverterUtil

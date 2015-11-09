@@ -70,7 +70,7 @@ public interface JiraTimetrackerPlugin {
    *          The worklog Issue.
    * @param comment
    *          The worklog note.
-   * @param dateFormated
+   * @param dateFormatted
    *          The date of the worklog (yyyy-MM-dd).
    * @param time
    *          When start the worklog. (kk:mm)
@@ -79,7 +79,7 @@ public interface JiraTimetrackerPlugin {
    * @return {@link ActionResult} Success if the worklog edited and Fail if not.
    */
   ActionResult editWorklog(Long worklogId, String issueId, String comment,
-      String dateFormated, String time, String timeSpent);
+      String dateFormatted, String time, String timeSpent);
 
   /**
    * Give back the date of the first day where missing worklogs. Use the properties files includes

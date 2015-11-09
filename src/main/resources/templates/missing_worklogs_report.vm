@@ -149,7 +149,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 									firstDay : $firstDay,
 									inputField : 'dateFrom',
 									button : 'date_trigger_from',
-									date : '$dateFormated',
+									date : '$dateFormatted',
 									align : 'Br',
 									electric: false,
 									singleClick : true,
@@ -246,7 +246,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 	        <tbody>
 	          #foreach ($date in $showDatesWhereNoWorklog)
 	          <tr #if($rowCount % 2 !=0) class="rowAlter" #end>
-	            <td><a href="JiraTimetrackerWebAction.jspa?dateFormated=$date">$date</a></td>
+	            <td><a href="JiraTimetrackerWebAction.jspa?dateFormatted=$date">$date</a></td>
 	          </tr>
 	          #set($rowCount = $rowCount + 1) #end
 	        </tbody>
