@@ -114,7 +114,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   /**
    * The formated date.
    */
-  private String dateFormated = "";
+  private String dateFormatted = "";
   /**
    * The summary of day.
    */
@@ -320,32 +320,32 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     String[] monthNextVaule = getHttpRequest().getParameterValues("monthNext");
 
     Calendar tempCal = Calendar.getInstance();
-    date = DateTimeConverterUtil.stringToDate(dateFormated);
+    date = DateTimeConverterUtil.stringToDate(dateFormatted);
     tempCal.setTime(date);
     if (dayNextValue != null) {
       tempCal.add(Calendar.DAY_OF_YEAR, 1);
       date = tempCal.getTime();
-      dateFormated = DateTimeConverterUtil.dateToString(date);
+      dateFormatted = DateTimeConverterUtil.dateToString(date);
     } else if (dayBackValue != null) {
       tempCal.add(Calendar.DAY_OF_YEAR, -1);
       date = tempCal.getTime();
-      dateFormated = DateTimeConverterUtil.dateToString(date);
+      dateFormatted = DateTimeConverterUtil.dateToString(date);
     } else if (monthNextVaule != null) {
       tempCal.add(Calendar.MONTH, 1);
       date = tempCal.getTime();
-      dateFormated = DateTimeConverterUtil.dateToString(date);
+      dateFormatted = DateTimeConverterUtil.dateToString(date);
     } else if (monthBackValue != null) {
       tempCal.add(Calendar.MONTH, -1);
       date = tempCal.getTime();
-      dateFormated = DateTimeConverterUtil.dateToString(date);
+      dateFormatted = DateTimeConverterUtil.dateToString(date);
     } else if (weekNextValue != null) {
       tempCal.add(Calendar.WEEK_OF_YEAR, 1);
       date = tempCal.getTime();
-      dateFormated = DateTimeConverterUtil.dateToString(date);
+      dateFormatted = DateTimeConverterUtil.dateToString(date);
     } else if (weekBackValue != null) {
       tempCal.add(Calendar.WEEK_OF_YEAR, -1);
       date = tempCal.getTime();
-      dateFormated = DateTimeConverterUtil.dateToString(date);
+      dateFormatted = DateTimeConverterUtil.dateToString(date);
     } else {
       parseDateParam();
     }
@@ -369,11 +369,11 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
     loadPluginSettingAndParseResult();
     // Just the here have to use the plugin actualDateOrLastWorklogDate setting
-    if (setDateAndDateFormated().equals(ERROR)) {
+    if (setDateAndDateFormatted().equals(ERROR)) {
       return ERROR;
     }
 
-    excludeDays = jiraTimetrackerPlugin.getExcludeDaysOfTheMonth(dateFormated);
+    excludeDays = jiraTimetrackerPlugin.getExcludeDaysOfTheMonth(dateFormatted);
     try {
       loggedDays = jiraTimetrackerPlugin.getLoggedDaysOfTheMonth(selectedUser, date);
     } catch (GenericEntityException e1) {
@@ -433,7 +433,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     dateSwitcherAction();
 
     try {
-      excludeDays = jiraTimetrackerPlugin.getExcludeDaysOfTheMonth(dateFormated);
+      excludeDays = jiraTimetrackerPlugin.getExcludeDaysOfTheMonth(dateFormatted);
       loadWorklogsAndMakeSummary();
       projectsId = jiraTimetrackerPlugin.getProjectsId();
     } catch (GenericEntityException | ParseException | DataAccessException | SQLException e) {
@@ -465,7 +465,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     String[] startTimeValue = getHttpRequest().getParameterValues(PARAM_STARTTIME);
 
     ActionResult createResult = jiraTimetrackerPlugin.createWorklog(
-        issueKey, commentForActions, dateFormated, startTimeValue[0], timeSpent);
+        issueKey, commentForActions, dateFormatted, startTimeValue[0], timeSpent);
     if (createResult.getStatus() == ActionResultStatus.FAIL) {
       message = createResult.getMessage();
       messageParameter = createResult.getMessageParameter();
@@ -498,7 +498,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       return ERROR;
     }
     ActionResult updateResult = jiraTimetrackerPlugin.editWorklog(
-        editedWorklogId, issueKey, commentForActions, dateFormated,
+        editedWorklogId, issueKey, commentForActions, dateFormatted,
         startTimeValue[0], timeSpent);
     if (updateResult.getStatus() == ActionResultStatus.FAIL) {
       message = updateResult.getMessage();
@@ -521,7 +521,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   /**
    * The edit all function save action. Save the worklogs in the given date. The worklogs come form
-   * the editAllIds, the date from the dateFormated.
+   * the editAllIds, the date from the {@code dateFormatted}.
    *
    * @return SUCCESS if the save was success else FAIL.
    * @throws ParseException
@@ -548,7 +548,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       jiraTimetrackerPlugin.editWorklog(editWorklog
           .getWorklogId(), editWorklog.getIssue(), editWorklog
               .getBody(),
-          dateFormated, editWorklog.getStartTime(),
+          dateFormatted, editWorklog.getStartTime(),
           DateTimeConverterUtil.stringTimeToString(editWorklog
               .getDuration()));
     }
@@ -589,8 +589,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return (Date) date.clone();
   }
 
-  public String getDateFormated() {
-    return dateFormated;
+  public String getDateFormatted() {
+    return dateFormatted;
   }
 
   public String getDayFilteredSummary() {
@@ -1005,14 +1005,14 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     if (requestDateArray != null) {
       String requestDate = getHttpRequest().getParameterValues(PARAM_DATE)[0];
       if (!"".equals(requestDate)) {
-        dateFormated = requestDate;
+        dateFormatted = requestDate;
       }
-      date = DateTimeConverterUtil.stringToDate(dateFormated);
-    } else if ((dateFormated == null) || "".equals(dateFormated)) {
+      date = DateTimeConverterUtil.stringToDate(dateFormatted);
+    } else if ((dateFormatted == null) || "".equals(dateFormatted)) {
       date = new Date();
-      dateFormated = DateTimeConverterUtil.dateToString(date);
+      dateFormatted = DateTimeConverterUtil.dateToString(date);
     } else {
-      date = DateTimeConverterUtil.stringToDate(dateFormated);
+      date = DateTimeConverterUtil.stringToDate(dateFormatted);
     }
   }
 
@@ -1060,15 +1060,15 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     this.date = (Date) date.clone();
   }
 
-  private String setDateAndDateFormated() {
-    if ("".equals(dateFormated)) {
+  private String setDateAndDateFormatted() {
+    if ("".equals(dateFormatted)) {
       if (isActualDate) {
         date = Calendar.getInstance().getTime();
-        dateFormated = DateTimeConverterUtil.dateToString(date);
+        dateFormatted = DateTimeConverterUtil.dateToString(date);
       } else {
         try {
           date = jiraTimetrackerPlugin.firstMissingWorklogsDate(selectedUser);
-          dateFormated = DateTimeConverterUtil.dateToString(date);
+          dateFormatted = DateTimeConverterUtil.dateToString(date);
         } catch (GenericEntityException e) {
           LOGGER.error("Error when try set the plugin date.", e);
           return ERROR;
@@ -1076,7 +1076,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       }
     } else {
       try {
-        date = DateTimeConverterUtil.stringToDate(dateFormated);
+        date = DateTimeConverterUtil.stringToDate(dateFormatted);
       } catch (ParseException e) {
         return ERROR;
       }
@@ -1084,8 +1084,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return SUCCESS;
   }
 
-  public void setDateFormated(final String dateFormated) {
-    this.dateFormated = dateFormated;
+  public void setDateFormatted(final String dateFormatted) {
+    this.dateFormatted = dateFormatted;
   }
 
   public void setDayFilteredSummary(final String dayFilteredSummary) {

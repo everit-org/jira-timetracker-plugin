@@ -181,9 +181,9 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 			  	</div>
 #end
 <form name="jttpForm" id="jttpForm" method="post"
-					#if($isEdit) action="JiraTimetrackerWebAction.jspa?editedWorklogId=$editedWorklogId&dateFormated=$dateFormated" 
-					#elseif($isEditAll) action="JiraTimetrackerWebAction.jspa?editAllIds=$editAllIds&dateFormated=$dateFormated" 
-					#else action="JiraTimetrackerWebAction.jspa?dateFormated=$dateFormated" #end/>   
+					#if($isEdit) action="JiraTimetrackerWebAction.jspa?editedWorklogId=$editedWorklogId&dateFormatted=$dateFormatted" 
+					#elseif($isEditAll) action="JiraTimetrackerWebAction.jspa?editAllIds=$editAllIds&dateFormatted=$dateFormatted" 
+					#else action="JiraTimetrackerWebAction.jspa?dateFormatted=$dateFormatted" #end/>   
 	#set($rendererType = "atlassian-wiki-renderer")
 	#if($currentCalendar.useISO8601 == true)
 		#set ($firstDay = 1)
@@ -252,7 +252,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 							<input type="submit" id="monthBack"  name="monthBack" value="<<<" class="button" title="$i18n.getText('plugin.prev.month')"/>
 							<input type="submit" id="weekBack"  name="weekBack" value="<<" class="button"  title="$i18n.getText('plugin.prev.week')"/>
 							<input type="submit" id="dayBack"  name="dayBack" value="<" class="button"  title="$i18n.getText('plugin.prev.day')"/>
-							 $dateFormated
+							 $dateFormatted
 							<img id="date_trigger" src="$contextPath/images/icons/cal.gif" width="16" height="16" border="0"
 								alt="Pick a date" style="vertical-align: sub;" title="$i18n.getText('plugin.choose.date')"/>
 							<input type="submit" id="dayNext"  name="dayNext" value=">"  class="button" title="$i18n.getText('plugin.next.day')"/>
@@ -263,7 +263,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 								firstDay : $firstDay,
 								inputField : 'date',
 								button : 'date_trigger',
-								date : '$dateFormated',
+								date : '$dateFormatted',
 								align : 'Br',
 								electric: false,
 								singleClick : true,
@@ -329,7 +329,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 	   		<table  width="100%">
 	   			<tbody>
 	   				<tr>
-	   					<input id="editAll" type="button" name="editall" value="$i18n.getText('plugin.edit.all')" onclick="location.href='JiraTimetrackerWebAction!default.jspa?editAllIds=$worklogsIds&dateFormated=$dateFormated'" class="button" />
+	   					<input id="editAll" type="button" name="editall" value="$i18n.getText('plugin.edit.all')" onclick="location.href='JiraTimetrackerWebAction!default.jspa?editAllIds=$worklogsIds&dateFormatted=$dateFormatted'" class="button" />
 	   					<td>
 							<table>
 						                <tbody>
@@ -650,7 +650,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 											##This is the not popup calendar. Works but not nice
 											Calendar.setup({
 												firstDay : $firstDay,
-												date : '$dateFormated',
+												date : '$dateFormatted',
 												align : 'Br',
 												singleClick : true,
 												showOthers: true,
@@ -701,7 +701,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 					onclick="AJS.$('#Submit').val('true');AJS.$('#Submit').attr('disabled', false); javascript:_paq.push(['trackEvent', 'User', 'Submit']); "/>
 			#end
 			<input id="setting"  type="button" name="setting" onclick="location.href='JiraTimetrackerSettingsWebAction!default.jspa'" value="$i18n.getText('plugin.settings')" class="button" style="display: inline; float: right;"/>
-			<input id="cancelButton"  type="button" name="Cancel" value="$i18n.getText('plugin.cancel')" onclick="location.href='JiraTimetrackerWebAction!default.jspa?dateFormated=$dateFormated'" class="button"/>
+			<input id="cancelButton"  type="button" name="Cancel" value="$i18n.getText('plugin.cancel')" onclick="location.href='JiraTimetrackerWebAction!default.jspa?dateFormatted=$dateFormatted'" class="button"/>
 			</div>
 		</div>	
 	</div>
