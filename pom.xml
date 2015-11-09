@@ -76,20 +76,31 @@
             </Import-Package>
             <Export-Package />
             <_failok>true</_failok>
-            <Embed-Dependency>usercompatibility-jira</Embed-Dependency>
+            <Embed-Dependency>sal-api</Embed-Dependency>
           </instructions>
           <log4jProperties>src/main/resources/log4j.properties</log4jProperties>
         </configuration>
       </plugin>
     </plugins>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+        <includes>
+          <include>**/atlassian-plugin.xml</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>false</filtering>
+        <excludes>
+          <exclude>**/atlassian-plugin.xml</exclude>
+        </excludes>
+      </resource>
+    </resources>
   </build>
 
   <dependencies>
-    <dependency>
-      <groupId>com.atlassian.usercompatibility</groupId>
-      <artifactId>usercompatibility-jira</artifactId>
-      <version>0.18</version>
-    </dependency>
     <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
@@ -112,66 +123,33 @@
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
-      <version>2.3</version>
-    </dependency>
-    <dependency>
-      <groupId>com.atlassian.crowd</groupId>
-      <artifactId>embedded-crowd-api</artifactId>
-      <version>2.2.8</version>
-    </dependency>
-    <dependency>
-      <groupId>com.atlassian.ofbiz</groupId>
-      <artifactId>entityengine</artifactId>
-      <version>1.0.3</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>jta</artifactId>
-          <groupId>jta</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>opensymphony</groupId>
-      <artifactId>webwork</artifactId>
-      <version>1.4-atlassian-17</version>
-    </dependency>
-    <dependency>
-      <groupId>com.atlassian.mail</groupId>
-      <artifactId>atlassian-mail</artifactId>
-      <version>1.24</version>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
+      <version>2.5</version>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-beans</artifactId>
-      <version>2.5.6</version>
+      <version>4.0.0.RELEASE</version>
     </dependency>
     <dependency>
       <groupId>com.atlassian.sal</groupId>
       <artifactId>sal-api</artifactId>
-      <version>2.6.1</version>
-    </dependency>
-    <dependency>
-      <groupId>com.atlassian.crowd</groupId>
-      <artifactId>atlassian-embedded-crowd-ofbiz</artifactId>
-      <version>1.2.8</version>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
+      <version>3.0.0</version>
     </dependency>
     <dependency>
       <groupId>com.atlassian.jira</groupId>
       <artifactId>jira-api</artifactId>
       <version>${jira.version}</version>
       <scope>provided</scope>
+       <exclusions>
+        <exclusion>
+          <groupId>jndi</groupId>
+          <artifactId>jndi</artifactId>
+        </exclusion>
+        <exclusion>
+          <artifactId>jta</artifactId>
+          <groupId>jta</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.atlassian.jira</groupId>
