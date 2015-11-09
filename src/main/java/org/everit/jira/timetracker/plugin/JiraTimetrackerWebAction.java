@@ -50,31 +50,16 @@ import com.atlassian.jira.web.action.JiraWebActionSupport;
  */
 public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
-  private static final String PARAM_STARTTIME = "startTime";
-
-  private static final String PARAM_ISSUESELECT = "issueSelect";
-
-  private static final String PARAM_DATE = "date";
-
-  private static final String MISSING_ISSUE = "plugin.missing_issue";
-
-  private static final String INVALID_START_TIME = "plugin.invalid_startTime";
-
-  private static final String INVALID_DURATION_TIME = "plugin.invalid_durationTime";
-
-  private static final String VERSION_SPLITTER = "\\.";
-
-  private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
-
-  /**
-   * Serial version UID.
-   */
-  private static final long serialVersionUID = 1L;
-
   /**
    * The default worklog ID.
    */
   private static final Long DEFAULT_WORKLOG_ID = Long.valueOf(0);
+
+  private static final String INVALID_DURATION_TIME = "plugin.invalid_durationTime";
+
+  private static final String INVALID_START_TIME = "plugin.invalid_startTime";
+
+  private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
 
   /**
    * Logger.
@@ -82,121 +67,24 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private static final Logger LOGGER = Logger
       .getLogger(JiraTimetrackerWebAction.class);
 
-  private String pluginVersion;
+  private static final String MISSING_ISSUE = "plugin.missing_issue";
+
+  private static final String PARAM_DATE = "date";
+
+  private static final String PARAM_ISSUESELECT = "issueSelect";
+
+  private static final String PARAM_STARTTIME = "startTime";
+
+  /**
+   * Serial version UID.
+   */
+  private static final long serialVersionUID = 1L;
+
+  private static final String VERSION_SPLITTER = "\\.";
+
+  private String avatarURL = "";
 
   private String baseUrl;
-
-  private String userId;
-
-  /**
-   * The {@link JiraTimetrackerPlugin}.
-   */
-  private JiraTimetrackerPlugin jiraTimetrackerPlugin;
-
-  /**
-   * The issues.
-   */
-  private transient List<Issue> issues = new ArrayList<Issue>();
-
-  /**
-   * The worklogs.
-   */
-  private List<EveritWorklog> worklogs = new ArrayList<EveritWorklog>();
-
-  /**
-   * The ids of the woklogs.
-   */
-  private List<Long> worklogsIds = new ArrayList<Long>();
-
-  /**
-   * The all edit worklogs ids.
-   */
-  private String editAllIds = "";
-
-  /**
-   * The deleted worklog id.
-   */
-  private Long deletedWorklogId = DEFAULT_WORKLOG_ID;
-  /**
-   * List of the exclude days of the date variable current months.
-   */
-  private List<String> excludeDays = new ArrayList<String>();
-  /**
-   * List of the logged days of the date variable current months.
-   */
-  private List<String> loggedDays = new ArrayList<String>();
-  /**
-   * The date.
-   */
-  private Date date = null;
-  /**
-   * The formated date.
-   */
-  private String dateFormated = "";
-  /**
-   * The summary of month.
-   */
-  private String monthFilteredSummary = "";
-  /**
-   * The summary of week.
-   */
-  private String weekFilteredSummary = "";
-  /**
-   * The summary of day.
-   */
-  private String dayFilteredSummary = "";
-  /**
-   * The summary of month.
-   */
-  private String monthSummary = "";
-  /**
-   * The summary of week.
-   */
-  private String weekSummary = "";
-
-  /**
-   * The summary of day.
-   */
-  private String daySummary = "";
-
-  /**
-   * The edited worklog id.
-   */
-  private Long editedWorklogId = DEFAULT_WORKLOG_ID;
-
-  /**
-   * The copied worklog id.
-   */
-  private Long copiedWorklogId = DEFAULT_WORKLOG_ID;
-
-  /**
-   * The WebAction is edit a worklog or not.
-   */
-  private boolean isEdit = false;
-  /**
-   * The WebAction is edit all worklog or not.
-   */
-  private boolean isEditAll = false;
-
-  /**
-   * The issue key.
-   */
-  private String issueKey = "";
-
-  /**
-   * The worklog start time.
-   */
-  private String startTime = "";
-
-  /**
-   * The worklog end time.
-   */
-  private String endTime = "";
-
-  /**
-   * The worklog duration.
-   */
-  private String durationTime = "";
 
   /**
    * The worklog comment.
@@ -208,53 +96,97 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    */
   private String commentForActions = "";
 
+  private String contextPath;
   /**
-   * The spent time in Jira time format (1h 20m).
+   * The copied worklog id.
    */
-  private String timeSpent = "";
+  private Long copiedWorklogId = DEFAULT_WORKLOG_ID;
+  /**
+   * The date.
+   */
+  private Date date = null;
+  /**
+   * The formated date.
+   */
+  private String dateFormated = "";
+  /**
+   * The summary of day.
+   */
+  private String dayFilteredSummary = "";
+  /**
+   * The summary of day.
+   */
+  private String daySummary = "";
+  /**
+   * The deleted worklog id.
+   */
+  private Long deletedWorklogId = DEFAULT_WORKLOG_ID;
+  /**
+   * The worklog duration.
+   */
+  private String durationTime = "";
 
   /**
-   * The IDs of the projects.
+   * The all edit worklogs ids.
    */
-  private List<String> projectsId;
+  private String editAllIds = "";
 
   /**
-   * The message.
+   * The edited worklog id.
    */
-  private String message = "";
-  /**
-   * The message parameter.
-   */
-  private String messageParameter = "";
+  private Long editedWorklogId = DEFAULT_WORKLOG_ID;
 
   /**
-   * The selected User for get Worklogs.
+   * The worklog end time.
    */
-  private String selectedUser = "";
-  /**
-   *
-   */
-  // private Date datePCalendar = new Date();
-  /**
-   * The startTime input field changer buttons value.
-   */
-  private int startTimeChange;
+  private String endTime = "";
+
   /**
    * The endTime input field changer buttons value.
    */
   private int endTimeChange;
   /**
-   * The calendar isPopup.
+   * List of the exclude days of the date variable current months.
    */
-  private int isPopup;
+  private List<String> excludeDays = new ArrayList<String>();
+
   /**
    * The calendar show actual Date Or Last Worklog Date.
    */
   private boolean isActualDate;
+
   /**
    * The calendar highlights coloring function is active or not.
    */
   private boolean isColoring;
+
+  private boolean isDurationSelected = false;
+
+  /**
+   * The WebAction is edit a worklog or not.
+   */
+  private boolean isEdit = false;
+
+  /**
+   * The WebAction is edit all worklog or not.
+   */
+  private boolean isEditAll = false;
+
+  /**
+   * The calendar isPopup.
+   */
+  private int isPopup;
+
+  /**
+   * The issue key.
+   */
+  private String issueKey = "";
+
+  /**
+   * The issues.
+   */
+  private transient List<Issue> issues = new ArrayList<Issue>();
+
   /**
    * The filtered Issues id.
    */
@@ -264,13 +196,82 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    */
   private int jiraMainVersion;
 
-  private String contextPath;
+  /**
+   * The {@link JiraTimetrackerPlugin}.
+   */
+  private JiraTimetrackerPlugin jiraTimetrackerPlugin;
+  /**
+   * List of the logged days of the date variable current months.
+   */
+  private List<String> loggedDays = new ArrayList<String>();
+  /**
+   * The message.
+   */
+  private String message = "";
+  /**
+   * The message parameter.
+   */
+  private String messageParameter = "";
+  /**
+   * The summary of month.
+   */
+  private String monthFilteredSummary = "";
+  /**
+   * The summary of month.
+   */
+  private String monthSummary = "";
 
-  private String avatarURL = "";
+  private String pluginVersion;
+  /**
+   * The IDs of the projects.
+   */
+  private List<String> projectsId;
+
+  /**
+   * The selected User for get Worklogs.
+   */
+  private String selectedUser = "";
+
+  /**
+   * The worklog start time.
+   */
+  private String startTime = "";
+  /**
+   *
+   */
+  // private Date datePCalendar = new Date();
+  /**
+   * The startTime input field changer buttons value.
+   */
+  private int startTimeChange;
+  /**
+   * The spent time in Jira time format (1h 20m).
+   */
+  private String timeSpent = "";
+
+  private String userId;
 
   private User userPickerObject;
 
-  private boolean isDurationSelected = false;
+  /**
+   * The summary of week.
+   */
+  private String weekFilteredSummary = "";
+
+  /**
+   * The summary of week.
+   */
+  private String weekSummary = "";
+
+  /**
+   * The worklogs.
+   */
+  private List<EveritWorklog> worklogs = new ArrayList<EveritWorklog>();
+
+  /**
+   * The ids of the woklogs.
+   */
+  private List<Long> worklogsIds = new ArrayList<Long>();
 
   /**
    * Simple constructor.
@@ -753,7 +754,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
         && (request.getParameter("editallsave") == null)) {
       try {
         handleEditAllIdsAndEditedWorklogId();
-      } catch (final ParseException e) {
+      } catch (ParseException e) {
         LOGGER.error("Error when try parse the worklog.", e);
         return ERROR;
       }
@@ -943,10 +944,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    *           GenericEntityException.
    */
   public void makeSummary() throws GenericEntityException {
-    ApplicationProperties applicationProperties = ComponentAccessor
-        .getApplicationProperties();
-    boolean useISO8601 = applicationProperties
-        .getOption(APKeys.JIRA_DATE_TIME_PICKER_USE_ISO8061);
+    ApplicationProperties applicationProperties = ComponentAccessor.getApplicationProperties();
+    boolean useISO8601 = applicationProperties.getOption(APKeys.JIRA_DATE_TIME_PICKER_USE_ISO8061);
 
     Calendar startCalendar = Calendar.getInstance();
     if (useISO8601) {

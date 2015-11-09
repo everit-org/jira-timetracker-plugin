@@ -25,8 +25,9 @@
 <script type="text/javascript">    
   var _paq = _paq || [];
     _paq.push(['setUserId', '$userId']);
-    _paq.push(['setCustomVariable', 4, 'Version', '$pluginVersion', 'page']);
-    _paq.push(['setCustomVariable', 3, 'baseURL', '$baseUrl', 'page']);
+    _paq.push(['setCustomVariable', 1, 'UserKey', '$userId', 'visit']);
+    _paq.push(['setCustomVariable', 2, 'Version', '$pluginVersion', 'visit']);
+    _paq.push(['setCustomVariable', 3, 'BaseURL', '$baseUrl', 'visit']);
     _paq.push(['trackPageView']);
     _paq.push(['enableLinkTracking']);
   (function() {

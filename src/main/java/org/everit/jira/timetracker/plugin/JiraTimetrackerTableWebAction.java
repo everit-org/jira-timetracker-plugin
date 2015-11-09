@@ -81,12 +81,10 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
 
   private static final int MILLISEC_IN_SEC = 1000;
-
   /**
    * Serial version UID.
    */
   private static final long serialVersionUID = 1L;
-
   /**
    * Logger.
    */
@@ -103,17 +101,14 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
    * The {@link JiraTimetrackerPlugin}.
    */
   private JiraTimetrackerPlugin jiraTimetrackerPlugin;
-
   /**
    * The date.
    */
   private Date dateFrom = null;
-
   /**
    * The formated date.
    */
   private String dateFromFormated = "";
-
   /**
    * The date.
    */

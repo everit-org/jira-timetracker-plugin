@@ -46,8 +46,6 @@ import com.atlassian.jira.web.action.JiraWebActionSupport;
  */
 public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
-  private static final String WRONG_DATES = "plugin.wrong.dates";
-
   private static final String GET_WORKLOGS_ERROR_MESSAGE = "Error when trying to get worklogs.";
 
   private static final String INVALID_END_TIME = "plugin.invalid_endTime";
@@ -56,18 +54,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
   private static final String INVALID_USER_PICKER = "plugin.user.picker.label";
 
-  private static final String PARAM_DATETO = "dateTo";
-
-  private static final String PARAM_DATEFROM = "dateFrom";
-
-  private static final String PARAM_USERPICKER = "userPicker";
-
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
-
-  /**
-   * Serial version UID.
-   */
-  private static final long serialVersionUID = 1L;
 
   /**
    * Logger.
@@ -75,11 +62,46 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
   private static final Logger LOGGER = Logger
       .getLogger(JiraTimetrackerChartWebAction.class);
 
-  private String pluginVersion;
+  private static final String PARAM_DATEFROM = "dateFrom";
+
+  private static final String PARAM_DATETO = "dateTo";
+
+  private static final String PARAM_USERPICKER = "userPicker";
+  /**
+   * Serial version UID.
+   */
+  private static final long serialVersionUID = 1L;
+
+  private static final String WRONG_DATES = "plugin.wrong.dates";
+
+  private List<User> allUsers;
+
+  private String avatarURL = "";
 
   private String baseUrl;
 
-  private String userId;
+  private List<ChartData> chartDataList;
+
+  private String contextPath;
+
+  private String currentUserKey = "";
+  /**
+   * The date.
+   */
+  private Date dateFrom = null;
+  /**
+   * The formated date.
+   */
+  private String dateFromFormated = "";
+  /**
+   * The date.
+   */
+  private Date dateTo = null;
+
+  /**
+   * The formated date.
+   */
+  private String dateToFormated = "";
 
   /**
    * The {@link JiraTimetrackerPlugin}.
@@ -87,37 +109,13 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
   private JiraTimetrackerPlugin jiraTimetrackerPlugin;
 
   /**
-   * The date.
-   */
-  private Date dateFrom = null;
-
-  /**
-   * The formated date.
-   */
-  private String dateFromFormated = "";
-
-  /**
-   * The date.
-   */
-  private Date dateTo = null;
-  /**
-   * The formated date.
-   */
-  private String dateToFormated = "";
-  /**
    * The message.
    */
   private String message = "";
 
-  private String contextPath;
+  private String pluginVersion;
 
-  private List<ChartData> chartDataList;
-
-  private List<User> allUsers;
-
-  private String currentUserKey = "";
-
-  private String avatarURL = "";
+  private String userId;
 
   private transient UserWithKey userPickerObject;
 
@@ -232,7 +230,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     }
 
     Map<String, Long> map = new HashMap<String, Long>();
-    for (final EveritWorklog worklog : worklogs) {
+    for (EveritWorklog worklog : worklogs) {
       String projectName = worklog.getIssue().split("-")[0];
       Long newValue = worklog.getMilliseconds();
       Long oldValue = map.get(projectName);
@@ -415,8 +413,8 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     if (!"".equals(currentUserKey)) {
       User user = UserCompatibilityHelper.getUserForKey(currentUserKey);
       userPickerObject = UserCompatibilityHelper.convertUserObject(user);
-      User loggedInUser = ComponentManager.getInstance().getJiraAuthenticationContext()
-          .getLoggedInUser();
+      User loggedInUser = ComponentManager.getInstance()
+          .getJiraAuthenticationContext().getLoggedInUser();
       AvatarService avatarService = ComponentManager
           .getComponentInstanceOfType(AvatarService.class);
       setAvatarURL(avatarService.getAvatarURL(loggedInUser, currentUserKey, Avatar.Size.SMALL)
