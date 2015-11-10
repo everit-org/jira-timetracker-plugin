@@ -39,7 +39,6 @@
   })();
 
 </script>
-<noscript><p><img src="//127.0.0.1:8090/analytics/piwik/piwik.php?idsite=$siteId" style="border:0;" alt="" /></p></noscript>
 <!-- End Piwik Code -->
 </body>
 </html>
