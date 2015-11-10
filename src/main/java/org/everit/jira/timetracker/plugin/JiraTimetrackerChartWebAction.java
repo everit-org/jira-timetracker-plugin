@@ -415,8 +415,8 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     if (!"".equals(currentUserKey)) {
       User user = UserCompatibilityHelper.getUserForKey(currentUserKey);
       userPickerObject = UserCompatibilityHelper.convertUserObject(user);
-      User loggedInUser = ComponentManager.getInstance()
-          .getJiraAuthenticationContext().getLoggedInUser();
+      User loggedInUser =
+          ComponentManager.getInstance().getJiraAuthenticationContext().getLoggedInUser();
       AvatarService avatarService = ComponentManager
           .getComponentInstanceOfType(AvatarService.class);
       setAvatarURL(avatarService.getAvatarURL(loggedInUser, currentUserKey, Avatar.Size.SMALL)

@@ -114,6 +114,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
    * The formated date.
    */
   private String dateFromFormated = "";
+
   /**
    * The date.
    */
