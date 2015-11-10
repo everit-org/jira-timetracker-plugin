@@ -85,7 +85,6 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   private static final String PARAM_DATETO = "dateTo";
 
   private static final String PARAM_USERPICKER = "userPicker";
-
   /**
    * Serial version UID.
    */
@@ -104,7 +103,6 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   private String contextPath;
 
   private String currentUserKey = "";
-
   /**
    * The date.
    */

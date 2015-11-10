@@ -64,7 +64,6 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    * The report check the worklogs time spent is equal or greater than 8 hours.
    */
   public boolean checkHours = false;
-
   /**
    * If check the worklogs spent time, then exclude the non working issues, or not.
    */
