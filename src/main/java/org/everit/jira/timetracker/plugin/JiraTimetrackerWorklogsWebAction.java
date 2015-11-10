@@ -34,31 +34,40 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
 
   /**
-   * Serial version UID.
-   */
-  private static final long serialVersionUID = 1L;
-
-  private static final String PARAM_DATETO = "dateTo";
-
-  private static final String PARAM_DATEFROM = "dateFrom";
-  /**
    * Logger.
    */
   private static final Logger LOGGER = Logger
       .getLogger(JiraTimetrackerWorklogsWebAction.class);
-  /**
-   * The {@link JiraTimetrackerPlugin}.
-   */
-  private JiraTimetrackerPlugin jiraTimetrackerPlugin;
 
+  private static final String PARAM_DATEFROM = "dateFrom";
+
+  private static final String PARAM_DATETO = "dateTo";
   /**
    * The number of rows in the dates table.
    */
   private static final int ROW_COUNT = 20;
+  /**
+   * Serial version UID.
+   */
+  private static final long serialVersionUID = 1L;
+
+  /**
+   * The actual page.
+   */
+  private int actualPage;
 
   private List<String> allDatesWhereNoWorklog;
 
-  private List<String> showDatesWhereNoWorklog;
+  /**
+   * The report check the worklogs time spent is equal or greater than 8 hours.
+   */
+  public boolean checkHours = false;
+  /**
+   * If check the worklogs spent time, then exclude the non working issues, or not.
+   */
+  public boolean checkNonWorkingIssues = false;
+
+  private String contextPath;
   /**
    * The date.
    */
@@ -76,38 +85,30 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    */
   private String dateToFormated = "";
   /**
+   * The {@link JiraTimetrackerPlugin}.
+   */
+  private JiraTimetrackerPlugin jiraTimetrackerPlugin;
+  /**
    * The message.
    */
   private String message = "";
+
   /**
    * The message parameter.
    */
   private String messageParameter = "";
-  /**
-   * The message parameter.
-   */
-  private String statisticsMessageParameter = "0";
+
   /**
    * The number of pages.
    */
   private int numberOfPages;
 
-  /**
-   * The actual page.
-   */
-  private int actualPage;
-
-  private String contextPath;
+  private List<String> showDatesWhereNoWorklog;
 
   /**
-   * The report check the worklogs time spent is equal or greater than 8 hours.
+   * The message parameter.
    */
-  public boolean checkHours = false;
-
-  /**
-   * If check the worklogs spent time, then exclude the non working issues, or not.
-   */
-  public boolean checkNonWorkingIssues = false;
+  private String statisticsMessageParameter = "0";
 
   /**
    * Simple constructor.

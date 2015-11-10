@@ -82,41 +82,49 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
  * The implementation of the {@link JiraTimetrackerPlugin}.
  */
 public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, InitializingBean,
-DisposableBean, Serializable {
-
-  private static final String DATE_PARSE = "plugin.date_parse";
-
-  private static final String NOPERMISSION_ISSUE = "plugin.nopermission_issue";
-
-  private static final String INVALID_ISSUE = "plugin.invalid_issue";
-
-  private static final String WORKLOG_CREATE_FAIL = "plugin.worklog.create.fail";
+    DisposableBean, Serializable {
 
   private static final int DATE_LENGTH = 7;
 
-  private static final int TEN_MINUTES = 10;
-
-  private static final int FIFTEEN_MINUTES = 15;
-
-  private static final int TWENTY_MINUTES = 20;
-
-  private static final int THIRTY_MINUTES = 30;
+  private static final String DATE_PARSE = "plugin.date_parse";
 
   private static final int DEFAULT_CHECK_TIME_IN_MINUTES = 1200;
 
-  private static final int MINUTES_IN_HOUR = 60;
+  private static final int FIFTEEN_MINUTES = 15;
 
   private static final int FIVE_MINUTES = 5;
 
+  private static final String INVALID_ISSUE = "plugin.invalid_issue";
+
   /**
-   * Serial version UID.
+   * The plugin setting is calendar popup key.
    */
-  private static final long serialVersionUID = 1L;
+  private static final String JTTP_PLUGIN_SETTINGS_END_TIME_CHANGE = "endTimechange";
+
   /**
-   * Logger.
+   * The plugin setting Exclude dates key.
    */
-  private static final Logger LOGGER = Logger
-      .getLogger(JiraTimetrackerPluginImpl.class);
+  private static final String JTTP_PLUGIN_SETTINGS_EXCLUDE_DATES = "ExcludeDates";
+
+  /**
+   * The plugin setting Include dates key.
+   */
+  private static final String JTTP_PLUGIN_SETTINGS_INCLUDE_DATES = "IncludeDates";
+
+  /**
+   * The plugin setting is actual date key.
+   */
+  private static final String JTTP_PLUGIN_SETTINGS_IS_ACTUAL_DATE = "isActualDate";
+
+  /**
+   * The plugin setting is calendar popup key.
+   */
+  private static final String JTTP_PLUGIN_SETTINGS_IS_CALENDAR_POPUP = "isCalendarPopup";
+
+  /**
+   * The plugin setting is actual date key.
+   */
+  private static final String JTTP_PLUGIN_SETTINGS_IS_COLORIG = "isColoring";
 
   /**
    * The plugin settings key prefix.
@@ -125,107 +133,104 @@ DisposableBean, Serializable {
   /**
    * The plugin setting Summary Filters key.
    */
-  private static final String JTTP_PLUGIN_SETTINGS_SUMMARY_FILTERS = "SummaryFilters";
-  /**
-   * The plugin setting Summary Filters key.
-   */
   private static final String JTTP_PLUGIN_SETTINGS_NON_ESTIMATED_ISSUES = "NonEstimated";
-  /**
-   * The plugin setting Exclude dates key.
-   */
-  private static final String JTTP_PLUGIN_SETTINGS_EXCLUDE_DATES = "ExcludeDates";
-  /**
-   * The plugin setting Include dates key.
-   */
-  private static final String JTTP_PLUGIN_SETTINGS_INCLUDE_DATES = "IncludeDates";
-  /**
-   * The plugin setting is calendar popup key.
-   */
-  private static final String JTTP_PLUGIN_SETTINGS_IS_CALENDAR_POPUP = "isCalendarPopup";
+
   /**
    * The plugin setting is calendar popup key.
    */
   private static final String JTTP_PLUGIN_SETTINGS_START_TIME_CHANGE = "startTimeChange";
   /**
-   * The plugin setting is calendar popup key.
+   * The plugin setting Summary Filters key.
    */
-  private static final String JTTP_PLUGIN_SETTINGS_END_TIME_CHANGE = "endTimechange";
+  private static final String JTTP_PLUGIN_SETTINGS_SUMMARY_FILTERS = "SummaryFilters";
   /**
-   * The plugin setting is actual date key.
+   * Logger.
    */
-  private static final String JTTP_PLUGIN_SETTINGS_IS_ACTUAL_DATE = "isActualDate";
-  /**
-   * The plugin setting is actual date key.
-   */
-  private static final String JTTP_PLUGIN_SETTINGS_IS_COLORIG = "isColoring";
+  private static final Logger LOGGER = Logger
+      .getLogger(JiraTimetrackerPluginImpl.class);
 
+  private static final int MINUTES_IN_HOUR = 60;
+
+  private static final String NOPERMISSION_ISSUE = "plugin.nopermission_issue";
   /**
    * A day in minutes.
    */
   private static final int ONE_DAY_IN_MINUTES = 1440;
+  /**
+   * Serial version UID.
+   */
+  private static final long serialVersionUID = 1L;
 
-  /**
-   * The PluginSettingsFactory.
-   */
-  private final PluginSettingsFactory settingsFactory;
-  /**
-   * The plugin setting form the settingsFactory.
-   */
-  private PluginSettings pluginSettings;
-  /**
-   * The plugin global setting form the settingsFactory.
-   */
-  private PluginSettings globalSettings;
-  /**
-   * The plugin setting values.
-   */
-  private PluginSettingsValues pluginSettingsValues;
-  /**
-   * The issue check time in minutes.
-   */
-  private long issueCheckTimeInMinutes;
-  /**
-   * The exclude dates from the properties file.
-   */
-  private String excludeDatesString;
-  /**
-   * The include dates from the properties file.
-   */
-  private String includeDatesString;
-  /**
-   * The parsed exclude dates.
-   */
-  private Set<String> excludeDatesSet = new HashSet<String>();
-  /**
-   * The parsed include dates.
-   */
-  private Set<String> includeDatesSet = new HashSet<String>();
+  private static final int TEN_MINUTES = 10;
 
-  /**
-   * The summary filter issues ids.
-   */
-  private List<Pattern> nonWorkingIssuePatterns;
+  private static final int THIRTY_MINUTES = 30;
+
+  private static final int TWENTY_MINUTES = 20;
+
+  private static final String WORKLOG_CREATE_FAIL = "plugin.worklog.create.fail";
+
   /**
    * The collector issues ids.
    */
   private List<Pattern> collectorIssuePatterns;
   /**
+   * The collector issues ids.
+   */
+  private List<Pattern> defaultNonEstimedIssuePatterns = new ArrayList<Pattern>();
+  /**
    * The summary filter issues ids.
    */
   private List<Pattern> defaultNonWorkingIssueIds = new ArrayList<Pattern>();
   /**
-   * The collector issues ids.
+   * The parsed exclude dates.
    */
-  private List<Pattern> defaultNonEstimedIssuePatterns = new ArrayList<Pattern>();
+  private Set<String> excludeDatesSet = new HashSet<String>();
+  /**
+   * The exclude dates from the properties file.
+   */
+  private String excludeDatesString;
+  /**
+   * The plugin global setting form the settingsFactory.
+   */
+  private PluginSettings globalSettings;
+  /**
+   * The parsed include dates.
+   */
+  private Set<String> includeDatesSet = new HashSet<String>();
+  /**
+   * The include dates from the properties file.
+   */
+  private String includeDatesString;
+  /**
+   * The issue check time in minutes.
+   */
+  private long issueCheckTimeInMinutes;
+
+  /**
+   * The issues Estimated Time Checker Future.
+   */
+  private ScheduledFuture<?> issueEstimatedTimeCheckerFuture;
+  /**
+   * The summary filter issues ids.
+   */
+  private List<Pattern> nonWorkingIssuePatterns;
+  /**
+   * The plugin setting form the settingsFactory.
+   */
+  private PluginSettings pluginSettings;
+  /**
+   * The plugin setting values.
+   */
+  private PluginSettingsValues pluginSettingsValues;
   /**
    * The plugin Scheduled Executor Service.
    */
   private final ScheduledExecutorService scheduledExecutorService = Executors
       .newScheduledThreadPool(1);
   /**
-   * The issues Estimated Time Checker Future.
+   * The PluginSettingsFactory.
    */
-  private ScheduledFuture<?> issueEstimatedTimeCheckerFuture;
+  private final PluginSettingsFactory settingsFactory;
 
   /**
    * Default constructor.
@@ -918,8 +923,8 @@ DisposableBean, Serializable {
     pluginSettingsValues = new PluginSettingsValues(
         new CalendarSettingsValues(isPopup, isActualDate,
             excludeDatesString, includeDatesString, isColoring),
-            nonWorkingIssuePatterns, collectorIssuePatterns,
-            startTimeChange, endTimeChange);
+        nonWorkingIssuePatterns, collectorIssuePatterns,
+        startTimeChange, endTimeChange);
     return pluginSettingsValues;
   }
 
@@ -1119,18 +1124,18 @@ DisposableBean, Serializable {
     int changeValueInt = Integer.parseInt(changeValue);
 
     switch (changeValueInt) {
-    case FIVE_MINUTES:
-      return true;
-    case TEN_MINUTES:
-      return true;
-    case FIFTEEN_MINUTES:
-      return true;
-    case TWENTY_MINUTES:
-      return true;
-    case THIRTY_MINUTES:
-      return true;
-    default:
-      return false;
+      case FIVE_MINUTES:
+        return true;
+      case TEN_MINUTES:
+        return true;
+      case FIFTEEN_MINUTES:
+        return true;
+      case TWENTY_MINUTES:
+        return true;
+      case THIRTY_MINUTES:
+        return true;
+      default:
+        return false;
     }
 
   }
