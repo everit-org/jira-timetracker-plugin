@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="M2Eclipse PMD RuleSet" xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 http://pmd.sourceforge.net/ruleset_2_0_0.xsd" xmlns="http://pmd.sourceforge.net/ruleset/2.0.0">
-<description/>
-<exclude-pattern>.*C:/Developer/Projects/Git/jira-timetracker-plugin/target.*</exclude-pattern>
-<exclude-pattern>.*C:/Developer/Projects/Git/jira-timetracker-plugin/src/test/java.*</exclude-pattern>
-<rule ref="rulesets/java/basic.xml"/>
-<rule ref="rulesets/java/unusedcode.xml"/>
-<rule ref="rulesets/java/imports.xml"/>
-</ruleset>
