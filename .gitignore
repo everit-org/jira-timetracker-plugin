@@ -5,3 +5,4 @@ target
 .pmd
 .fbExcludeFilterFile
 .pmdruleset.xml
+.checkstyle

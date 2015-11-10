@@ -96,6 +96,8 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   private String avatarURL = "";
 
+  private String baseUrl;
+
   private List<ChartData> chartDataList;
 
   private String contextPath;
@@ -137,11 +139,15 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   private HashMap<Integer, List<Object>> monthSum = new HashMap<Integer, List<Object>>();
 
+  private String pluginVersion;
+
   private HashMap<Integer, List<Object>> realDaySum = new HashMap<Integer, List<Object>>();
 
   private HashMap<Integer, List<Object>> realMonthSum = new HashMap<Integer, List<Object>>();
 
   private HashMap<Integer, List<Object>> realWeekSum = new HashMap<Integer, List<Object>>();
+
+  private String userId;
 
   private transient UserWithKey userPickerObject;
 
@@ -264,6 +270,9 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
     normalizeContextPath();
     jiraTimetrackerPlugin.loadPluginSettings();
+    pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
+    baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(request.getSession());
+    userId = JiraTimetrackerAnalytics.setUserSessionUserId(request.getSession());
 
     if ("".equals(dateFromFormated)) {
       dateFromDefaultInit();
@@ -289,6 +298,9 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     }
 
     normalizeContextPath();
+    pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
+    baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(request.getSession());
+    userId = JiraTimetrackerAnalytics.setUserSessionUserId(request.getSession());
     PluginSettingsValues pluginSettings = jiraTimetrackerPlugin.loadPluginSettings();
     setIssuesRegex(pluginSettings.getFilteredSummaryIssues());
 
@@ -348,6 +360,10 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     return avatarURL;
   }
 
+  public String getBaseUrl() {
+    return baseUrl;
+  }
+
   public List<ChartData> getChartDataList() {
     return chartDataList;
   }
@@ -400,6 +416,10 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     return monthSum;
   }
 
+  public String getPluginVersion() {
+    return pluginVersion;
+  }
+
   public HashMap<Integer, List<Object>> getRealDaySum() {
     return realDaySum;
   }
@@ -426,6 +446,10 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
       throw new IllegalArgumentException(INVALID_START_TIME);
     }
     return startDate;
+  }
+
+  public String getUserId() {
+    return userId;
   }
 
   public UserWithKey getUserPickerObject() {
@@ -470,6 +494,10 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   public void setAvatarURL(final String avatarURL) {
     this.avatarURL = avatarURL;
+  }
+
+  public void setBaseUrl(final String baseUrl) {
+    this.baseUrl = baseUrl;
   }
 
   public void setChartDataList(final List<ChartData> chartDataList) {
@@ -531,6 +559,14 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   public void setMonthSum(final HashMap<Integer, List<Object>> monthSum) {
     this.monthSum = monthSum;
+  }
+
+  public void setPluginVersion(final String pluginVersion) {
+    this.pluginVersion = pluginVersion;
+  }
+
+  public void setUserId(final String userId) {
+    this.userId = userId;
   }
 
   public void setUserPickerObject(final UserWithKey userPickerObject) {

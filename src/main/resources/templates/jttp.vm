@@ -705,7 +705,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 				</script>
 			#else
 				<input type="hidden" id="Submit" name="submit" disabled/>
-				<input id="Submitbutton" type="submit" name="submitbutton" value="$i18n.getText('plugin.submit')" class="button" tabindex="5" onclick="AJS.$('#Submit').val('true');AJS.$('#Submit').attr('disabled', false);"/>
+				<input id="Submitbutton" type="submit" name="submitbutton" value="$i18n.getText('plugin.submit')" class="button" tabindex="5" onclick="AJS.$('#Submit').val('true');AJS.$('#Submit').attr('disabled', false); javascript:_paq.push(['trackEvent', 'User', 'Submit']);"/>
 			#end
 			<input id="setting"  type="button" name="setting" onclick="location.href='JiraTimetrackerSettingsWebAction!default.jspa'" value="$i18n.getText('plugin.settings')" class="button" style="display: inline; float: right;"/>
 			<input id="cancelButton"  type="button" name="Cancel" value="$i18n.getText('plugin.cancel')" onclick="location.href='JiraTimetrackerWebAction!default.jspa?dateFormated=$dateFormated'" class="button"/>
@@ -771,5 +771,9 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 		 
 	</script>	
 </form>
+
+#set($IDSITE = 1);
+#parse("templates/analytics.vm")
+
 </body>
 </html>

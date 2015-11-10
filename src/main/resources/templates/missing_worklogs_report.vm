@@ -265,5 +265,9 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 	  </div>
 	</div>
 </form>
+
+#set($IDSITE = 2);
+#parse("templates/analytics.vm")
+
 </body>
 </html>

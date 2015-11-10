@@ -1,0 +1,44 @@
+#*
+ * Copyright (C) 2011 Everit Kft. (http://www.everit.org)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *#
+<html>
+<head>
+<title>Timetracker</title>
+</head>
+<body>
+
+
+
+<!-- Piwik -->
+<script type="text/javascript">    
+  var _paq = _paq || [];
+    _paq.push(['setUserId', '$userId']);
+    _paq.push(['setCustomVariable', 1, 'UserKey', '$userId', 'visit']);
+    _paq.push(['setCustomVariable', 2, 'Version', '$pluginVersion', 'visit']);
+    _paq.push(['setCustomVariable', 3, 'BaseURL', '$baseUrl', 'visit']);
+    _paq.push(['trackPageView']);
+    _paq.push(['enableLinkTracking']);
+  (function() {
+    var u="//127.0.0.1:8090/analytics/piwik/";
+    _paq.push(['setTrackerUrl', u+'piwik.php']);
+    _paq.push(['setSiteId', $IDSITE]);
+    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+    g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+  })();
+
+</script>
+<!-- End Piwik Code -->
+</body>
+</html>
