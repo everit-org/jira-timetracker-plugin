@@ -153,11 +153,15 @@
 	}
 	
 	function handleEnterKey(e, setFocusTo){
-		if ((e.keyCode == 10 || e.keyCode == 13) && e.ctrlKey){
+	    var isEnter = e.keyCode == 10 || e.keyCode == 13;
+	    if (!isEnter) {
+	      return;
+	    }
+		if (e.ctrlKey){
 		 AJS.$('#Submitbutton, #Edit').click();
-        } else if(e.keyCode == 13) { 
-         AJS.$(setFocusTo).focus();
+        } else {
          e.preventDefault ? e.preventDefault() : event.returnValue = false;
+         AJS.$(setFocusTo).focus();
          return false;
        }
 	}
@@ -762,7 +766,10 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 		 });
 		 
 		 AJS.$('#issueSelect-textarea').keydown(function(e){
-		 	return handleEnterKey(e, '#comments');
+		    var isEnter = e.keyCode == 10 || e.keyCode == 13;
+	        if (isEnter && e.ctrlKey) {
+	          AJS.$('#Submitbutton, #Edit').click();
+	        }
 	     });
 	     
 	     AJS.$('#comments').keydown(function(e){
