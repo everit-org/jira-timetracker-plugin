@@ -173,6 +173,12 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.12</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>com.atlassian.jira</groupId>
       <artifactId>jira-core</artifactId>
       <version>4.4</version>
