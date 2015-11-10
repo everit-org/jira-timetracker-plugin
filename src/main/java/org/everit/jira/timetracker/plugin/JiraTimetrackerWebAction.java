@@ -49,6 +49,8 @@ import com.atlassian.jira.web.action.JiraWebActionSupport;
  */
 public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
+  private static final String NOT_RATED = "Not rated";
+
   /**
    * The default worklog ID.
    */
@@ -305,6 +307,29 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return worklogIds;
   }
 
+  private String createWorklogAction() {
+    String[] startTimeValue = getHttpRequest().getParameterValues(PARAM_STARTTIME);
+
+    ActionResult createResult = jiraTimetrackerPlugin.createWorklog(
+        issueKey, commentForActions, dateFormatted, startTimeValue[0], timeSpent);
+    if (createResult.getStatus() == ActionResultStatus.FAIL) {
+      message = createResult.getMessage();
+      messageParameter = createResult.getMessageParameter();
+      return INPUT;
+    }
+    try {
+      loadWorklogsAndMakeSummary();
+      startTime = jiraTimetrackerPlugin.lastEndTime(worklogs);
+      endTime = DateTimeConverterUtil.dateTimeToString(new Date());
+      comment = "";
+      isDurationSelected = false;
+    } catch (GenericEntityException | ParseException | DataAccessException | SQLException e) {
+      LOGGER.error("Error when try set the plugin variables.", e);
+      return ERROR;
+    }
+    return SUCCESS;
+  }
+
   /**
    * Handle the date change.
    *
@@ -455,6 +480,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       return editAllAction();
     } else if (getHttpRequest().getParameter("edit") != null) {
       return editAction();
+    } else if (getHttpRequest().getParameter("sendfeedback") != null) {
+      return sendFeedBack();
     }
 
     String validateInputFieldsResult = validateInputFields();
@@ -462,26 +489,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       return INPUT;
     }
 
-    String[] startTimeValue = getHttpRequest().getParameterValues(PARAM_STARTTIME);
-
-    ActionResult createResult = jiraTimetrackerPlugin.createWorklog(
-        issueKey, commentForActions, dateFormatted, startTimeValue[0], timeSpent);
-    if (createResult.getStatus() == ActionResultStatus.FAIL) {
-      message = createResult.getMessage();
-      messageParameter = createResult.getMessageParameter();
-      return INPUT;
-    }
-    try {
-      loadWorklogsAndMakeSummary();
-      startTime = jiraTimetrackerPlugin.lastEndTime(worklogs);
-      endTime = DateTimeConverterUtil.dateTimeToString(new Date());
-      comment = "";
-      isDurationSelected = false;
-    } catch (GenericEntityException | ParseException | DataAccessException | SQLException e) {
-      LOGGER.error("Error when try set the plugin variables.", e);
-      return ERROR;
-    }
-    return SUCCESS;
+    return createWorklogAction();
   }
 
   /**
@@ -752,7 +760,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private String handleDateChangeAction() {
     if ((getHttpRequest().getParameter("edit") == null)
         && (getHttpRequest().getParameter("submit") == null)
-        && (getHttpRequest().getParameter("editallsave") == null)) {
+        && (getHttpRequest().getParameter("editallsave") == null)
+        && (getHttpRequest().getParameter("sendfeedback") == null)) {
       try {
         handleEditAllIdsAndEditedWorklogId();
       } catch (ParseException e) {
@@ -1030,6 +1039,30 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       ClassNotFoundException {
     in.defaultReadObject();
     issues = new ArrayList<Issue>();
+  }
+
+  private String sendFeedBack() {
+    String[] feedBackValue = getHttpRequest().getParameterValues("feedbackinput");
+    String[] ratingValue = getHttpRequest().getParameterValues("rating");
+    String feedBack = "";
+    String rating = NOT_RATED;
+    if (feedBackValue != null) {
+      feedBack = feedBackValue[0];
+    }
+    if ((ratingValue != null) && (ratingValue.length != 0)) {
+      rating = ratingValue[0];
+    }
+    jiraTimetrackerPlugin.sendFeedBackEmail(feedBack, pluginVersion, rating);
+    try {
+      loadWorklogsAndMakeSummary();
+      startTime = jiraTimetrackerPlugin.lastEndTime(worklogs);
+      endTime = DateTimeConverterUtil.dateTimeToString(new Date());
+      comment = "";
+    } catch (GenericEntityException | ParseException | DataAccessException | SQLException e) {
+      LOGGER.error("Error when try set the plugin variables.", e);
+      return ERROR;
+    }
+    return SUCCESS;
   }
 
   public void setAvatarURL(final String avatarURL) {

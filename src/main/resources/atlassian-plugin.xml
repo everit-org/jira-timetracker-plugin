@@ -38,7 +38,11 @@
     <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserLoggedInCondition" />
   </web-item>
 
-  <web-resource name="Everit TT logo" key="everit_tt_logo">
+ <web-resource key="jttp-resources" name="jttp Web Resources">
+    <dependency>com.atlassian.auiplugin:ajs</dependency>
+    <dependency>com.atlassian.auiplugin:dialog2</dependency>
+    <dependency>com.atlassian.auiplugin:aui-date-picker</dependency>
+    <resource type="download" name="jttp_feedback.css" location="/css/jttp_feedback.css"/>
     <resource type="download" name="everit_tt_logo.png" location="/icons/everit_timetracker_logo.png">
       <param name="content-type" value="image/png" />
     </resource>

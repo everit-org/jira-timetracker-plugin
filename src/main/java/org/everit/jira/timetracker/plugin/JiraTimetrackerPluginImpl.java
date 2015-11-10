@@ -60,11 +60,13 @@ import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.worklog.Worklog;
 import com.atlassian.jira.issue.worklog.WorklogManager;
+import com.atlassian.jira.mail.Email;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.PermissionManager;
 import com.atlassian.jira.security.Permissions;
 import com.atlassian.jira.user.ApplicationUser;
+import com.atlassian.mail.queue.SingleMailQueueItem;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
@@ -73,6 +75,10 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
  */
 public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, InitializingBean,
     DisposableBean, Serializable {
+
+  private static final String PREFIX_PLUGIN_RATED = "The plugin rated to: ";
+
+  private static final String FEEDBACK_MAIL_TO = "feedback.jttp@everit.biz";
 
   private static final int DATE_LENGTH = 7;
 
@@ -157,6 +163,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
 
   private static final String WORKLOG_CREATE_FAIL = "plugin.worklog.create.fail";
 
+  private static final String FEEDBACK_EMAIL_SUBJECT = "[JTTP] feedback";
   /**
    * The collector issues ids.
    */
@@ -214,6 +221,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
    */
   private final ScheduledExecutorService scheduledExecutorService = Executors
       .newScheduledThreadPool(1);
+
   /**
    * The PluginSettingsFactory.
    */
@@ -903,6 +911,26 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     globalSettings.put(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
         + JTTP_PLUGIN_SETTINGS_INCLUDE_DATES,
         pluginSettingsParameters.getIncludeDates());
+  }
+
+  @Override
+  public void sendFeedBackEmail(final String feedBack, final String pluginVersion,
+      final String rating) {
+    Email email = new Email(FEEDBACK_MAIL_TO);
+    ApplicationUser loggedUser = ComponentAccessor.getJiraAuthenticationContext().getUser();
+    String loggedUserEmailAdress = loggedUser.getEmailAddress();
+    email.setFrom(loggedUserEmailAdress);
+    email.setSubject(FEEDBACK_EMAIL_SUBJECT + " " + pluginVersion + " - "
+        + DateTimeConverterUtil.dateToString(new Date()));
+    String mailBody =
+        "From: " + loggedUser.getDisplayName() + " " + loggedUserEmailAdress
+            + "\n" + PREFIX_PLUGIN_RATED + rating + "\n" + feedBack;
+    email.setBody(mailBody);
+    LOGGER.warn(
+        "JFCP try to send feedba. From: " + loggedUserEmailAdress + "\n Message: " + feedBack);
+    SingleMailQueueItem singleMailQueueItem = new SingleMailQueueItem(email);
+    singleMailQueueItem.setMailThreader(null);
+    ComponentAccessor.getMailQueue().addItem(singleMailQueueItem);
   }
 
   private void setCollectorIssuePatterns() {

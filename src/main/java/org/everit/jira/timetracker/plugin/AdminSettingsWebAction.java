@@ -42,6 +42,9 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    * Serial version UID.
    */
   private static final long serialVersionUID = 1L;
+
+  private static final String NOT_RATED = "Not rated";
+
   /**
    * The collector issue key.
    */
@@ -56,7 +59,6 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    * The first day of the week.
    */
   private String contextPath;
-
   /**
    * The pluginSetting endTime value.
    */
@@ -114,6 +116,7 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    * The IDs of the projects.
    */
   private List<String> projectsId;
+
   /**
    * The pluginSetting startTime value.
    */
@@ -157,6 +160,21 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     } catch (Exception e) {
       LOGGER.error("Error when try set the plugin variables.", e);
       return ERROR;
+    }
+
+    if (getHttpRequest().getParameter("sendfeedback") != null) {
+      String[] feedBackValue = getHttpRequest().getParameterValues("feedbackinput");
+      String[] ratingValue = getHttpRequest().getParameterValues("rating");
+      String feedBack = "";
+      String rating = NOT_RATED;
+      if (feedBackValue != null) {
+        feedBack = feedBackValue[0];
+      }
+      if ((ratingValue != null) && (ratingValue.length != 0)) {
+        rating = ratingValue[0];
+      }
+      jiraTimetrackerPlugin.sendFeedBackEmail(feedBack, JiraTimetrackerAnalytics.getPluginVersion(),
+          rating);
     }
 
     if (getHttpRequest().getParameter("savesettings") != null) {
@@ -343,8 +361,9 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
   public void savePluginSettings() {
     PluginSettingsValues pluginSettingValues = new PluginSettingsValues(
         new CalendarSettingsValues(isPopup, isActualDate, excludeDates, includeDates,
-            isColoring), issuesPatterns, collectorIssuePatterns, startTime,
-            endTime);
+            isColoring),
+        issuesPatterns, collectorIssuePatterns, startTime,
+        endTime);
     jiraTimetrackerPlugin.savePluginSettings(pluginSettingValues);
   }
 
