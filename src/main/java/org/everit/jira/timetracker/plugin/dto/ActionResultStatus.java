@@ -20,11 +20,11 @@ package org.everit.jira.timetracker.plugin.dto;
  */
 public enum ActionResultStatus {
   /**
-   * Success.
-   */
-  SUCCESS,
-  /**
    * Fail.
    */
-  FAIL
+  FAIL,
+  /**
+   * Success.
+   */
+  SUCCESS
 }

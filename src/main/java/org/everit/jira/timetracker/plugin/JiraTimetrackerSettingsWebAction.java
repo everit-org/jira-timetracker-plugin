@@ -33,25 +33,24 @@ import com.atlassian.jira.web.action.JiraWebActionSupport;
 public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 
   /**
+   * Logger.
+   */
+  private static final Logger LOGGER = Logger
+      .getLogger(JiraTimetrackerSettingsWebAction.class);
+  /**
    * Serial version UID.
    */
   private static final long serialVersionUID = 1L;
   /**
-   * The {@link JiraTimetrackerPlugin}.
+   * The collector issue ids.
    */
-  private JiraTimetrackerPlugin jiraTimetrackerPlugin;
+  private List<Pattern> collectorIssuePatterns;
+
+  private String contextPath;
   /**
-   * The calendar is popup, inLine or both.
+   * The endTime.
    */
-  private int isPopup;
-  /**
-   * The calenar show the actualDate or the last unfilled date.
-   */
-  private boolean isActualDate;
-  /**
-   * The IDs of the projects.
-   */
-  private List<String> projectsId;
+  private String endTime;
   /**
    * The exclude dates in String format.
    */
@@ -61,42 +60,44 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
    */
   private String includeDates = "";
   /**
-   * The message.
+   * The calenar show the actualDate or the last unfilled date.
    */
-  private String message = "";
-  /**
-   * The message parameter.
-   */
-  private String messageParameter = "";
-  /**
-   * The startTime.
-   */
-  private String startTime;
-  /**
-   * The endTime.
-   */
-  private String endTime;
+  private boolean isActualDate;
   /**
    * The calendar highlights coloring.
    */
   private boolean isColoring;
   /**
-   * Logger.
+   * The calendar is popup, inLine or both.
    */
-  private static final Logger LOGGER = Logger
-      .getLogger(JiraTimetrackerSettingsWebAction.class);
-
+  private int isPopup;
   /**
    * The filtered Issues id.
    */
   private List<Pattern> issuesPatterns;
+  /**
+   * The {@link JiraTimetrackerPlugin}.
+   */
+  private JiraTimetrackerPlugin jiraTimetrackerPlugin;
+  /**
+   * The message.
+   */
+  private String message = "";
 
   /**
-   * The collector issue ids.
+   * The message parameter.
    */
-  private List<Pattern> collectorIssuePatterns;
+  private String messageParameter = "";
 
-  private String contextPath;
+  /**
+   * The IDs of the projects.
+   */
+  private List<String> projectsId;
+
+  /**
+   * The startTime.
+   */
+  private String startTime;
 
   public JiraTimetrackerSettingsWebAction(
       final JiraTimetrackerPlugin jiraTimetrackerPlugin) {
@@ -268,9 +269,10 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
   public void savePluginSettings() {
     PluginSettingsValues pluginSettingValues = new PluginSettingsValues(
         new CalendarSettingsValues(isPopup, isActualDate, excludeDates,
-            includeDates, isColoring), issuesPatterns,
-            collectorIssuePatterns, Integer.parseInt(startTime),
-            Integer.parseInt(endTime));
+            includeDates, isColoring),
+        issuesPatterns,
+        collectorIssuePatterns, Integer.parseInt(startTime),
+        Integer.parseInt(endTime));
     jiraTimetrackerPlugin.savePluginSettings(pluginSettingValues);
   }
 

@@ -24,9 +24,9 @@ public class ChartData implements Serializable {
 
   private static final long serialVersionUID = 21551301923003314L;
 
-  private String projectId;
-
   private Long duration;
+
+  private String projectId;
 
   /**
    * Constructor for a chart data.

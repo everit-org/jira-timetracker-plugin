@@ -95,10 +95,12 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    * The message.
    */
   private String message = "";
+
   /**
    * The message parameter.
    */
   private String messageParameter = "";
+
   /**
    * The number of pages.
    */

@@ -48,13 +48,13 @@ public class IssueEstimatedTimeChecker implements Runnable {
    */
   private static final Logger LOGGER = Logger.getLogger(IssueEstimatedTimeChecker.class);
   /**
-   * The email address of the sender.
-   */
-  private String emailSender;
-  /**
    * The check dates calendar.
    */
   private Calendar checkerCalendar;
+  /**
+   * The email address of the sender.
+   */
+  private String emailSender;
 
   /**
    * The {@link JiraTimetrackerPlugin}.

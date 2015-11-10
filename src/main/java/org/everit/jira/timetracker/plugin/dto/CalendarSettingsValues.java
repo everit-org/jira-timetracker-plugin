@@ -19,13 +19,13 @@ package org.everit.jira.timetracker.plugin.dto;
  * Settings of the shown calendars.
  */
 public class CalendarSettingsValues {
-  private int isCalendarPopup;
-
-  private boolean isActualDate;
-
   private String excludeDates;
 
   private String includeDates;
+
+  private boolean isActualDate;
+
+  private int isCalendarPopup;
 
   private boolean isColoring;
 

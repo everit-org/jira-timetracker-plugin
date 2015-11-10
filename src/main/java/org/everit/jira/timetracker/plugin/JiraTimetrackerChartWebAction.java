@@ -89,10 +89,12 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
    * The date.
    */
   private Date dateFrom = null;
+
   /**
    * The formated date.
    */
   private String dateFromFormated = "";
+
   /**
    * The date.
    */

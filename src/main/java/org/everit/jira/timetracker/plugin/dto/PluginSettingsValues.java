@@ -28,35 +28,36 @@ public class PluginSettingsValues implements Serializable {
   private static final long serialVersionUID = -315087086405495545L;
 
   /**
-   * The plugin calendar is popup.
+   * The collector issues pattern list.
    */
-  private int isCalendarPopup;
+  private List<Pattern> collectorIssues;
+
+  private int endTimeChange;
+
+  private String excludeDates;
+  /**
+   * The non working issues list.
+   */
+  private List<Pattern> filteredSummaryIssues;
+
+  // TODO javadoc !!! WHY MISSING!!!
+
+  private String includeDates;
 
   /**
    * The plugin calendar show the actual date when start or the latest day what not contains
    * worklog.
    */
   private Boolean isActualDate;
+
   /**
-   * The non working issues list.
+   * The plugin calendar is popup.
    */
-  private List<Pattern> filteredSummaryIssues;
-  /**
-   * The collector issues pattern list.
-   */
-  private List<Pattern> collectorIssues;
-
-  // TODO javadoc !!! WHY MISSING!!!
-
-  private int startTimeChange;
-
-  private int endTimeChange;
-
-  private String excludeDates;
-
-  private String includeDates;
+  private int isCalendarPopup;
 
   private Boolean isColoring;
+
+  private int startTimeChange;
 
   public PluginSettingsValues() {
 

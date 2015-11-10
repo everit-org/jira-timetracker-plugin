@@ -90,7 +90,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The worklog comment.
    */
   private String comment = "";
-
   /**
    * The worklog comment.
    */
@@ -117,10 +116,12 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The summary of day.
    */
   private String daySummary = "";
+
   /**
    * The deleted worklog id.
    */
   private Long deletedWorklogId = DEFAULT_WORKLOG_ID;
+
   /**
    * The worklog duration.
    */
@@ -135,7 +136,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The edited worklog id.
    */
   private Long editedWorklogId = DEFAULT_WORKLOG_ID;
-
   /**
    * The worklog end time.
    */
@@ -145,6 +145,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The endTime input field changer buttons value.
    */
   private int endTimeChange;
+
   /**
    * List of the exclude days of the date variable current months.
    */
@@ -181,7 +182,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The issue key.
    */
   private String issueKey = "";
-
   /**
    * The issues.
    */
@@ -195,7 +195,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The jira main version.
    */
   private int jiraMainVersion;
-
   /**
    * The {@link JiraTimetrackerPlugin}.
    */
@@ -231,7 +230,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The selected User for get Worklogs.
    */
   private String selectedUser = "";
-
   /**
    * The worklog start time.
    */
