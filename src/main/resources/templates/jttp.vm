@@ -153,11 +153,15 @@
 	}
 	
 	function handleEnterKey(e, setFocusTo){
-		if ((e.keyCode == 10 || e.keyCode == 13) && e.ctrlKey){
+	    var isEnter = e.keyCode == 10 || e.keyCode == 13;
+	    if (!isEnter) {
+	      return;
+	    }
+		if (e.ctrlKey){
 		 AJS.$('#Submitbutton, #Edit').click();
-        } else if(e.keyCode == 13) { 
-         AJS.$(setFocusTo).focus();
+        } else {
          e.preventDefault ? e.preventDefault() : event.returnValue = false;
+         AJS.$(setFocusTo).focus();
          return false;
        }
 	}
@@ -329,7 +333,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 	   		<table  width="100%">
 	   			<tbody>
 	   				<tr>
-	   					<input id="editAll" type="button" name="editall" value="$i18n.getText('plugin.edit.all')" onclick="location.href='JiraTimetrackerWebAction!default.jspa?editAllIds=$worklogsIds&dateFormatted=$dateFormatted'" class="button" />
+	   					<input id="editAll" type="button" name="editall" value="$i18n.getText('plugin.edit.all')" onclick="location.href='JiraTimetrackerWebAction!default.jspa?editAllIds=$worklogsIds&dateFormatted=$dateFormatted'" class="button" #if($worklogs.size() == 0) disabled #end/>
 	   					<td>
 							<table>
 						                <tbody>
@@ -762,7 +766,10 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 		 });
 		 
 		 AJS.$('#issueSelect-textarea').keydown(function(e){
-		 	return handleEnterKey(e, '#comments');
+		    var isEnter = e.keyCode == 10 || e.keyCode == 13;
+	        if (isEnter && e.ctrlKey) {
+	          AJS.$('#Submitbutton, #Edit').click();
+	        }
 	     });
 	     
 	     AJS.$('#comments').keydown(function(e){
