@@ -333,7 +333,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 	   		<table  width="100%">
 	   			<tbody>
 	   				<tr>
-	   					<input id="editAll" type="button" name="editall" value="$i18n.getText('plugin.edit.all')" onclick="location.href='JiraTimetrackerWebAction!default.jspa?editAllIds=$worklogsIds&dateFormatted=$dateFormatted'" class="button" />
+	   					<input id="editAll" type="button" name="editall" value="$i18n.getText('plugin.edit.all')" onclick="location.href='JiraTimetrackerWebAction!default.jspa?editAllIds=$worklogsIds&dateFormatted=$dateFormatted'" class="button" #if($worklogs.size() == 0) disabled #end/>
 	   					<td>
 							<table>
 						                <tbody>
