@@ -148,7 +148,9 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
    */
   private static final Logger LOGGER = Logger
       .getLogger(JiraTimetrackerPluginImpl.class);
+
   private static final int MINUTES_IN_HOUR = 60;
+
   private static final String NOPERMISSION_ISSUE = "plugin.nopermission_issue";
   /**
    * A day in minutes.
@@ -158,8 +160,11 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
    * Serial version UID.
    */
   private static final long serialVersionUID = 1L;
+
   private static final int TEN_MINUTES = 10;
+
   private static final int THIRTY_MINUTES = 30;
+
   private static final int TWENTY_MINUTES = 20;
 
   private static final String WORKLOG_CREATE_FAIL = "plugin.worklog.create.fail";

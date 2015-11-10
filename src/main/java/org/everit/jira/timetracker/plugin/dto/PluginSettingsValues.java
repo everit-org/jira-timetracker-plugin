@@ -33,6 +33,7 @@ public class PluginSettingsValues implements Serializable {
   private List<Pattern> collectorIssues;
 
   private int endTimeChange;
+
   private String excludeDates;
   /**
    * The non working issues list.

@@ -66,6 +66,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    * If check the worklogs spent time, then exclude the non working issues, or not.
    */
   public boolean checkNonWorkingIssues = false;
+
   private String contextPath;
   /**
    * The date.

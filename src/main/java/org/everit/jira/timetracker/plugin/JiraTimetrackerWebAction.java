@@ -81,6 +81,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private static final long serialVersionUID = 1L;
 
   private static final String VERSION_SPLITTER = "\\.";
+
   private String avatarURL = "";
   /**
    * The worklog comment.
@@ -90,6 +91,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The worklog comment.
    */
   private String commentForActions = "";
+
   private String contextPath;
   /**
    * The copied worklog id.

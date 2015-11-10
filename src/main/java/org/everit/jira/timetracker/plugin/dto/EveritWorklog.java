@@ -46,7 +46,9 @@ public class EveritWorklog implements Serializable {
    * The worklog note.
    */
   private String body;
+
   private Date date;
+
   private int dayNo;
 
   /**
@@ -86,6 +88,7 @@ public class EveritWorklog implements Serializable {
    * The milliseconds between the start time and the end time.
    */
   private long milliseconds;
+
   private int monthNo;
   /**
    * The start Date.

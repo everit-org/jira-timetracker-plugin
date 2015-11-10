@@ -89,11 +89,17 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
    * Serial version UID.
    */
   private static final long serialVersionUID = 1L;
+
   private static final String WRONG_DATES = "plugin.wrong.dates";
+
   private List<User> allUsers;
+
   private String avatarURL = "";
+
   private List<ChartData> chartDataList;
+
   private String contextPath;
+
   private String currentUserKey = "";
   /**
    * The date.

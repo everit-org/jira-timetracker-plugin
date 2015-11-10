@@ -45,6 +45,7 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
    * The collector issue ids.
    */
   private List<Pattern> collectorIssuePatterns;
+
   private String contextPath;
   /**
    * The endTime.
