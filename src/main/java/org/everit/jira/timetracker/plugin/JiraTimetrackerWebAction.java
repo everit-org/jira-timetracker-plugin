@@ -64,12 +64,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
 
   /**
-   * The JiraTimetrackerWebAction logger.
-   */
-  private static Logger log = Logger.getLogger(JiraTimetrackerWebAction.class);
-
-  /**
-   * Logger.
+   * The JiraTimetrackerWebAction logger..
    */
   private static final Logger LOGGER = Logger
       .getLogger(JiraTimetrackerWebAction.class);
@@ -303,16 +298,14 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     for (EveritWorklog worklog : worklogsParam) {
       worklogIds.add(worklog.getWorklogId());
     }
-    log.warn("JTWA log: copyWorklogIdsToArray: worklogIds size: "
-        + worklogIds.size());
     return worklogIds;
   }
 
   private String createWorklogAction() {
-    String[] startTimeValue = getHttpRequest().getParameterValues(PARAM_STARTTIME);
+    String startTimeValue = getHttpRequest().getParameter(PARAM_STARTTIME);
 
     ActionResult createResult = jiraTimetrackerPlugin.createWorklog(
-        issueKey, commentForActions, dateFormatted, startTimeValue[0], timeSpent);
+        issueKey, commentForActions, dateFormatted, startTimeValue, timeSpent);
     if (createResult.getStatus() == ActionResultStatus.FAIL) {
       message = createResult.getMessage();
       messageParameter = createResult.getMessageParameter();
@@ -338,12 +331,12 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    *           When can't parse date.
    */
   public void dateSwitcherAction() throws ParseException {
-    String[] dayBackValue = getHttpRequest().getParameterValues("dayBack");
-    String[] dayNextValue = getHttpRequest().getParameterValues("dayNext");
-    String[] weekBackValue = getHttpRequest().getParameterValues("weekBack");
-    String[] weekNextValue = getHttpRequest().getParameterValues("weekNext");
-    String[] monthBackValue = getHttpRequest().getParameterValues("monthBack");
-    String[] monthNextVaule = getHttpRequest().getParameterValues("monthNext");
+    String dayBackValue = getHttpRequest().getParameter("dayBack");
+    String dayNextValue = getHttpRequest().getParameter("dayNext");
+    String weekBackValue = getHttpRequest().getParameter("weekBack");
+    String weekNextValue = getHttpRequest().getParameter("weekNext");
+    String monthBackValue = getHttpRequest().getParameter("monthBack");
+    String monthNextVaule = getHttpRequest().getParameter("monthNext");
 
     Calendar tempCal = Calendar.getInstance();
     date = DateTimeConverterUtil.stringToDate(dateFormatted);
@@ -499,8 +492,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * @return String which will be passed to the WebAction.
    */
   public String editAction() {
-    String[] startTimeValue = getHttpRequest().getParameterValues(PARAM_STARTTIME);
-    startTime = startTimeValue[0];
+    String startTimeValue = getHttpRequest().getParameter(PARAM_STARTTIME);
+    startTime = startTimeValue;
     String validateInputFieldsResult = validateInputFields();
     if (validateInputFieldsResult.equals(INPUT)) {
       isEdit = true;
@@ -508,7 +501,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     }
     ActionResult updateResult = jiraTimetrackerPlugin.editWorklog(
         editedWorklogId, issueKey, commentForActions, dateFormatted,
-        startTimeValue[0], timeSpent);
+        startTimeValue, timeSpent);
     if (updateResult.getStatus() == ActionResultStatus.FAIL) {
       message = updateResult.getMessage();
       isEdit = true;
@@ -768,11 +761,11 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   }
 
   private String handleDuration() {
-    String[] startTimeValue = getHttpRequest().getParameterValues(PARAM_STARTTIME);
-    String durationTimeValue = getHttpRequest().getParameterValues("durationTime")[0];
+    String startTimeValue = getHttpRequest().getParameter(PARAM_STARTTIME);
+    String durationTimeValue = getHttpRequest().getParameter("durationTime");
     Date startDateTime;
     try {
-      startDateTime = DateTimeConverterUtil.stringTimeToDateTime(startTimeValue[0]);
+      startDateTime = DateTimeConverterUtil.stringTimeToDateTime(startTimeValue);
     } catch (ParseException e) {
       message = INVALID_START_TIME;
       return INPUT;
@@ -825,29 +818,25 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
     if ((copiedWorklogId != null)
         && !DEFAULT_WORKLOG_ID.equals(copiedWorklogId)) {
-      // isEdit = true;
       EveritWorklog editWorklog;
       editWorklog = jiraTimetrackerPlugin.getWorklog(copiedWorklogId);
       issueKey = editWorklog.getIssue();
       comment = editWorklog.getBody();
-      // startTime = editWorklog.getStartTime();
-      // endTime = editWorklog.getEndTime();
-      // durationTime = editWorklog.getDuration();
     }
   }
 
   private String handleEndTime() {
-    String[] startTimeValue = getHttpRequest().getParameterValues(PARAM_STARTTIME);
-    String[] endTimeValue = getHttpRequest().getParameterValues("endTime");
-    if (!DateTimeConverterUtil.isValidTime(endTimeValue[0])) {
+    String startTimeValue = getHttpRequest().getParameter(PARAM_STARTTIME);
+    String endTimeValue = getHttpRequest().getParameter("endTime");
+    if (!DateTimeConverterUtil.isValidTime(endTimeValue)) {
       message = "plugin.invalid_endTime";
       return INPUT;
     }
     Date startDateTime;
     Date endDateTime;
     try {
-      startDateTime = DateTimeConverterUtil.stringTimeToDateTimeGMT(startTimeValue[0]);
-      endDateTime = DateTimeConverterUtil.stringTimeToDateTimeGMT(endTimeValue[0]);
+      startDateTime = DateTimeConverterUtil.stringTimeToDateTimeGMT(startTimeValue);
+      endDateTime = DateTimeConverterUtil.stringTimeToDateTimeGMT(endTimeValue);
     } catch (ParseException e) {
       message = "plugin.invalid_endTime";
       return INPUT;
@@ -865,11 +854,11 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   }
 
   private String handleValidDuration(final Date startDateTime) {
-    String[] durationTimeValue = getHttpRequest().getParameterValues("durationTime");
+    String durationTimeValue = getHttpRequest().getParameter("durationTime");
     Date durationDateTime;
     try {
       durationDateTime = DateTimeConverterUtil
-          .stringTimeToDateTimeGMT(durationTimeValue[0]);
+          .stringTimeToDateTimeGMT(durationTimeValue);
     } catch (ParseException e) {
       message = INVALID_DURATION_TIME;
       return INPUT;
@@ -924,8 +913,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       message = "plugin.calendar.logged.coloring.fail";
     }
     worklogs = jiraTimetrackerPlugin.getWorklogs(selectedUser, date, null);
-    log.warn("JTWA log: loadWorklogsAndMakeSummary: worklogs size: "
-        + worklogs.size());
     worklogsIds = copyWorklogIdsToArray(worklogs);
     makeSummary();
   }
@@ -1003,9 +990,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   }
 
   private void parseDateParam() throws ParseException {
-    String[] requestDateArray = getHttpRequest().getParameterValues(PARAM_DATE);
-    if (requestDateArray != null) {
-      String requestDate = getHttpRequest().getParameterValues(PARAM_DATE)[0];
+    String requestDate = getHttpRequest().getParameter(PARAM_DATE);
+    if (requestDate != null) {
       if (!"".equals(requestDate)) {
         dateFormatted = requestDate;
       }
@@ -1054,15 +1040,15 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   }
 
   private String sendFeedBack() {
-    String[] feedBackValue = getHttpRequest().getParameterValues("feedbackinput");
-    String[] ratingValue = getHttpRequest().getParameterValues("rating");
+    String feedBackValue = getHttpRequest().getParameter("feedbackinput");
+    String ratingValue = getHttpRequest().getParameter("rating");
     String feedBack = "";
     String rating = NOT_RATED;
     if (feedBackValue != null) {
-      feedBack = feedBackValue[0];
+      feedBack = feedBackValue;
     }
-    if ((ratingValue != null) && (ratingValue.length != 0)) {
-      rating = ratingValue[0];
+    if (ratingValue != null) {
+      rating = ratingValue;
     }
     jiraTimetrackerPlugin.sendFeedBackEmail(feedBack, pluginVersion, rating);
     try {
@@ -1185,19 +1171,18 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * Set the read values to the input fields back.
    */
   private String setFieldsValue() {
-    String[] issueSelectValue = getHttpRequest().getParameterValues(PARAM_ISSUESELECT);
-    String[] endTimeValue = getHttpRequest().getParameterValues("endTime");
-    String[] durationTimeValue = getHttpRequest().getParameterValues("durationTime");
-    // String[] startTimeValue = getHttpRequest().getParameterValues("startTime");
-    String[] commentsValue = getHttpRequest().getParameterValues("comments");
-    String[] endOrDurationValue = getHttpRequest().getParameterValues("endOrDuration");
+    String issueSelectValue = getHttpRequest().getParameter(PARAM_ISSUESELECT);
+    String endTimeValue = getHttpRequest().getParameter("endTime");
+    String durationTimeValue = getHttpRequest().getParameter("durationTime");
+    String commentsValue = getHttpRequest().getParameter("comments");
+    String endOrDurationValue = getHttpRequest().getParameter("endOrDuration");
 
-    if ((endOrDurationValue != null) && "duration".equals(endOrDurationValue[0])) {
+    if ((endOrDurationValue != null) && "duration".equals(endOrDurationValue)) {
       isDurationSelected = true;
     }
 
     if (issueSelectValue != null) {
-      issueKey = issueSelectValue[0];
+      issueKey = issueSelectValue;
     }
 
     try {
@@ -1208,24 +1193,22 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     }
 
     if (endTimeValue != null) {
-      endTime = endTimeValue[0];
+      endTime = endTimeValue;
     } else {
       endTime = DateTimeConverterUtil.dateTimeToString(new Date());
     }
 
     if (durationTimeValue != null) {
-      durationTime = durationTimeValue[0];
+      durationTime = durationTimeValue;
     }
     if (commentsValue != null) {
-      comment = commentsValue[0];
-      commentForActions = commentsValue[0];
-      if (comment != null) {
-        comment = comment.replace("\"", "\\\"");
-        comment = comment.replace("\r", "\\r");
-        comment = comment.replace("\n", "\\n");
-      } else {
-        comment = "";
-      }
+      comment = commentsValue;
+      commentForActions = commentsValue;
+      comment = comment.replace("\"", "\\\"");
+      comment = comment.replace("\r", "\\r");
+      comment = comment.replace("\n", "\\n");
+    } else {
+      comment = "";
     }
     return null;
   }
@@ -1291,15 +1274,12 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   }
 
   private void setSelectedUserFromParam() {
-    String[] selectedUserValue = getHttpRequest().getParameterValues("selectedUser");
+    String selectedUserValue = getHttpRequest().getParameter("selectedUser");
     if (selectedUserValue != null) {
-      selectedUser = selectedUserValue[0];
-      log.info("We set selectedUSer " + selectedUser);
+      selectedUser = selectedUserValue;
     } else {
-      log.info("We set selectedUSer to empty");
       selectedUser = "";
     }
-    LOGGER.info("The selectedUser value: " + selectedUser);
   }
 
   public void setStartTime(final String startTime) {
@@ -1353,23 +1333,23 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * @return If the values valid the return SUCCESS else return INPUT.
    */
   public String validateInputFields() {
-    String[] startTimeValue = getHttpRequest().getParameterValues(PARAM_STARTTIME);
-    String[] endOrDurationValue = getHttpRequest().getParameterValues("endOrDuration");
-    String[] issueSelectValue = getHttpRequest().getParameterValues(PARAM_ISSUESELECT);
+    String startTimeValue = getHttpRequest().getParameter(PARAM_STARTTIME);
+    String endOrDurationValue = getHttpRequest().getParameter("endOrDuration");
+    String issueSelectValue = getHttpRequest().getParameter(PARAM_ISSUESELECT);
 
     // if (commentsValue[0] == null) {
     // return INPUT;
     // }
-    if ((issueSelectValue == null) || (issueSelectValue[0] == null)) {
+    if (issueSelectValue == null) {
       message = MISSING_ISSUE;
       return INPUT;
     }
 
-    if (!DateTimeConverterUtil.isValidTime(startTimeValue[0])) {
+    if (!DateTimeConverterUtil.isValidTime(startTimeValue)) {
       message = INVALID_START_TIME;
       return INPUT;
     }
-    if ("duration".equals(endOrDurationValue[0])) {
+    if ("duration".equals(endOrDurationValue)) {
       String result = handleDuration();
       if (!result.equals(SUCCESS)) {
         return result;

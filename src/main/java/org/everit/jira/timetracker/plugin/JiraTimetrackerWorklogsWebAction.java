@@ -223,7 +223,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     statisticsMessageParameter = "0";
     allDatesWhereNoWorklog = new ArrayList<String>();
     showDatesWhereNoWorklog = new ArrayList<String>();
-    String[] searchValue = getHttpRequest().getParameterValues("search");
+    String searchValue = getHttpRequest().getParameter("search");
     // if not null then we have to change the dates and make a new query
     if (searchValue != null) {
       // set actual page default! we start the new query with the first page
@@ -235,8 +235,8 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
         message = "plugin.wrong.dates";
         return INPUT;
       }
-      String[] hourValue = getHttpRequest().getParameterValues("hour");
-      String[] nonworkingValue = getHttpRequest().getParameterValues("nonworking");
+      String hourValue = getHttpRequest().getParameter("hour");
+      String nonworkingValue = getHttpRequest().getParameter("nonworking");
       if (hourValue != null) {
         checkHours = true;
       }
@@ -342,8 +342,8 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    * Handle the page changer action.
    */
   public void pageChangeAction() {
-    String[] dayBackValue = getHttpRequest().getParameterValues("pageBack");
-    String[] dayNextValue = getHttpRequest().getParameterValues("pageNext");
+    String dayBackValue = getHttpRequest().getParameter("pageBack");
+    String dayNextValue = getHttpRequest().getParameter("pageNext");
     if ((dayBackValue != null) && (actualPage > 1)) {
       actualPage--;
     }
@@ -355,12 +355,11 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
   private boolean parseDateParams() {
 
-    String[] requestDateFromArray = getHttpRequest().getParameterValues(PARAM_DATEFROM);
+    String requestDateFrom = getHttpRequest().getParameter(PARAM_DATEFROM);
     try {
-      if (requestDateFromArray != null) {
-        String requestDate = getHttpRequest().getParameterValues(PARAM_DATEFROM)[0];
-        if (!"".equals(requestDate)) {
-          dateFromFormated = requestDate;
+      if (requestDateFrom != null) {
+        if (!"".equals(requestDateFrom)) {
+          dateFromFormated = requestDateFrom;
         }
         dateFrom = DateTimeConverterUtil.stringToDate(dateFromFormated);
       } else if ((dateFromFormated == null) || "".equals(dateFromFormated)) {
@@ -369,11 +368,10 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
         dateFrom = DateTimeConverterUtil.stringToDate(dateFromFormated);
       }
 
-      String[] requestDateToArray = getHttpRequest().getParameterValues(PARAM_DATETO);
-      if (requestDateToArray != null) {
-        String requestDate = getHttpRequest().getParameterValues(PARAM_DATETO)[0];
-        if (!"".equals(requestDate)) {
-          dateToFormated = requestDate;
+      String requestDateTo = getHttpRequest().getParameter(PARAM_DATETO);
+      if (requestDateTo != null) {
+        if (!"".equals(requestDateTo)) {
+          dateToFormated = requestDateTo;
         }
         dateTo = DateTimeConverterUtil.stringToDate(dateToFormated);
       } else if ((dateToFormated == null) || "".equals(dateToFormated)) {

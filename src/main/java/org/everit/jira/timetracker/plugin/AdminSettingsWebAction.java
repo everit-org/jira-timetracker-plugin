@@ -163,15 +163,15 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     }
 
     if (getHttpRequest().getParameter("sendfeedback") != null) {
-      String[] feedBackValue = getHttpRequest().getParameterValues("feedbackinput");
-      String[] ratingValue = getHttpRequest().getParameterValues("rating");
+      String feedBackValue = getHttpRequest().getParameter("feedbackinput");
+      String ratingValue = getHttpRequest().getParameter("rating");
       String feedBack = "";
       String rating = NOT_RATED;
       if (feedBackValue != null) {
-        feedBack = feedBackValue[0];
+        feedBack = feedBackValue;
       }
-      if ((ratingValue != null) && (ratingValue.length != 0)) {
-        rating = ratingValue[0];
+      if (ratingValue != null) {
+        rating = ratingValue;
       }
       jiraTimetrackerPlugin.sendFeedBackEmail(feedBack, JiraTimetrackerAnalytics.getPluginVersion(),
           rating);
@@ -183,7 +183,6 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
         return parseResult;
       }
       savePluginSettings();
-      // setReturnUrl("/secure/AdminSummary.jspa");
       setReturnUrl("/secure/JiraTimetrackerWebAction!default.jspa");
       return getRedirect(INPUT);
     }
@@ -263,12 +262,12 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     }
   }
 
-  private boolean parseExcludeDatesValue(final String[] excludeDatesValue) {
+  private boolean parseExcludeDatesValue(final String excludeDatesValue) {
     boolean parseExcludeException = false;
     if (excludeDatesValue == null) {
       excludeDates = "";
     } else {
-      String excludeDatesValueString = excludeDatesValue[0];
+      String excludeDatesValueString = excludeDatesValue;
       if (!excludeDatesValueString.isEmpty()) {
         excludeDatesValueString = excludeDatesValueString
             .replace(" ", "").replace("\r", "").replace("\n", "");
@@ -291,12 +290,12 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     return parseExcludeException;
   }
 
-  private boolean parseIncludeDatesValue(final String[] includeDatesValue) {
+  private boolean parseIncludeDatesValue(final String includeDatesValue) {
     boolean parseExcludeException = false;
     if (includeDatesValue == null) {
       includeDates = "";
     } else {
-      String excludeDatesValueString = includeDatesValue[0];
+      String excludeDatesValueString = includeDatesValue;
       if (!excludeDatesValueString.isEmpty()) {
         excludeDatesValueString = excludeDatesValueString
             .replace(" ", "").replace("\r", "").replace("\n", "");
@@ -328,8 +327,8 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
   public String parseSaveSettings(final HttpServletRequest request) {
     String[] issueSelectValue = request.getParameterValues("issueSelect");
     String[] collectorIssueSelectValue = request.getParameterValues("issueSelect_collector");
-    String[] excludeDatesValue = request.getParameterValues("excludedates");
-    String[] includeDatesValue = request.getParameterValues("includedates");
+    String excludeDatesValue = request.getParameter("excludedates");
+    String includeDatesValue = request.getParameter("includedates");
 
     issuesPatterns = new ArrayList<Pattern>();
     if (issueSelectValue != null) {
