@@ -494,9 +494,9 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     String[] startTimeValue = getHttpRequest().getParameterValues(PARAM_STARTTIME);
     startTime = startTimeValue[0];
     String validateInputFieldsResult = validateInputFields();
-    if (validateInputFieldsResult.equals(ERROR)) {
+    if (validateInputFieldsResult.equals(INPUT)) {
       isEdit = true;
-      return ERROR;
+      return INPUT;
     }
     ActionResult updateResult = jiraTimetrackerPlugin.editWorklog(
         editedWorklogId, issueKey, commentForActions, dateFormatted,
