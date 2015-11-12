@@ -275,6 +275,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    */
   private List<Long> worklogsIds = new ArrayList<Long>();
 
+  private boolean feedBackSendAviable;
+
   /**
    * Simple constructor.
    *
@@ -284,6 +286,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   public JiraTimetrackerWebAction(
       final JiraTimetrackerPlugin jiraTimetrackerPlugin) {
     this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
+  }
+
+  private void checkMailServer() {
+    feedBackSendAviable = ComponentAccessor.getMailServerManager().isDefaultSMTPMailServerDefined();
   }
 
   /**
@@ -387,6 +393,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     getJiraVersionFromBuildUtilsInfo();
 
     loadPluginSettingAndParseResult();
+    checkMailServer();
     // Just the here have to use the plugin actualDateOrLastWorklogDate setting
     if (setDateAndDateFormatted().equals(ERROR)) {
       return ERROR;
@@ -444,6 +451,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     getJiraVersionFromBuildUtilsInfo();
 
     loadPluginSettingAndParseResult();
+    checkMailServer();
 
     message = "";
     messageParameter = "";
@@ -625,6 +633,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   public List<String> getExcludeDays() {
     return excludeDays;
+  }
+
+  public boolean getFeedBackSendAviable() {
+    return feedBackSendAviable;
   }
 
   public boolean getIsColoring() {
@@ -1042,6 +1054,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private String sendFeedBack() {
     String feedBackValue = getHttpRequest().getParameter("feedbackinput");
     String ratingValue = getHttpRequest().getParameter("rating");
+    String customerMail = getHttpRequest().getParameter("customerMail");
     String feedBack = "";
     String rating = NOT_RATED;
     if (feedBackValue != null) {
@@ -1050,7 +1063,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     if (ratingValue != null) {
       rating = ratingValue;
     }
-    jiraTimetrackerPlugin.sendFeedBackEmail(feedBack, pluginVersion, rating);
+    jiraTimetrackerPlugin.sendFeedBackEmail(feedBack, pluginVersion, rating, customerMail);
     try {
       loadWorklogsAndMakeSummary();
       startTime = jiraTimetrackerPlugin.lastEndTime(worklogs);
@@ -1165,6 +1178,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   public void setExcludeDays(final List<String> excludeDays) {
     this.excludeDays = excludeDays;
+  }
+
+  public void setFeedBackSendAviable(final boolean feedBackSendAviable) {
+    this.feedBackSendAviable = feedBackSendAviable;
   }
 
   /**

@@ -26,6 +26,7 @@ import org.apache.log4j.Logger;
 import org.everit.jira.timetracker.plugin.dto.CalendarSettingsValues;
 import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
 
+import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
 
 /**
@@ -122,9 +123,15 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    */
   private int startTime;
 
+  private boolean feedBackSendAviable;
+
   public AdminSettingsWebAction(
       final JiraTimetrackerPlugin jiraTimetrackerPlugin) {
     this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
+  }
+
+  private void checkMailServer() {
+    feedBackSendAviable = ComponentAccessor.getMailServerManager().isDefaultSMTPMailServerDefined();
   }
 
   @Override
@@ -136,6 +143,7 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     }
     normalizeContextPath();
     loadPluginSettingAndParseResult();
+    checkMailServer();
     try {
       projectsId = jiraTimetrackerPlugin.getProjectsId();
     } catch (Exception e) {
@@ -155,6 +163,7 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     }
     normalizeContextPath();
     loadPluginSettingAndParseResult();
+    checkMailServer();
     try {
       projectsId = jiraTimetrackerPlugin.getProjectsId();
     } catch (Exception e) {
@@ -165,6 +174,7 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     if (getHttpRequest().getParameter("sendfeedback") != null) {
       String feedBackValue = getHttpRequest().getParameter("feedbackinput");
       String ratingValue = getHttpRequest().getParameter("rating");
+      String customerMail = getHttpRequest().getParameter("customerMail");
       String feedBack = "";
       String rating = NOT_RATED;
       if (feedBackValue != null) {
@@ -174,7 +184,7 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
         rating = ratingValue;
       }
       jiraTimetrackerPlugin.sendFeedBackEmail(feedBack, JiraTimetrackerAnalytics.getPluginVersion(),
-          rating);
+          rating, customerMail);
     }
 
     if (getHttpRequest().getParameter("savesettings") != null) {
@@ -186,8 +196,8 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
       setReturnUrl("/secure/JiraTimetrackerWebAction!default.jspa");
       return getRedirect(INPUT);
     }
-
-    return SUCCESS;
+    setReturnUrl("/secure/admin/JiraTimetrackerAdminSettingsWebAction!default.jspa");
+    return getRedirect(INPUT);
   }
 
   public String getCollectorIssueKey() {
@@ -200,6 +210,10 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
 
   public String getExcludeDates() {
     return excludeDates;
+  }
+
+  public boolean getFeedBackSendAviable() {
+    return feedBackSendAviable;
   }
 
   public String getIncludeDates() {
@@ -376,6 +390,10 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
 
   public void setExcludeDates(final String excludeDates) {
     this.excludeDates = excludeDates;
+  }
+
+  public void setFeedBackSendAviable(final boolean feedBackSendAviable) {
+    this.feedBackSendAviable = feedBackSendAviable;
   }
 
   public void setIncludeDates(final String includeDates) {

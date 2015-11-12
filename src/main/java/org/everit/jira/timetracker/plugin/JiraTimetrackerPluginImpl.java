@@ -15,7 +15,12 @@
  */
 package org.everit.jira.timetracker.plugin;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
+import java.net.URL;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -25,6 +30,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -67,6 +73,7 @@ import com.atlassian.jira.security.PermissionManager;
 import com.atlassian.jira.security.Permissions;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.mail.queue.SingleMailQueueItem;
+import com.atlassian.plugin.util.ClassLoaderUtils;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
@@ -76,9 +83,11 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, InitializingBean,
     DisposableBean, Serializable {
 
-  private static final String PREFIX_PLUGIN_RATED = "The plugin rated to: ";
+  private static final String CUSTOMER_EMAIL_PREFIX = "The customer email address is ";
 
-  private static final String FEEDBACK_MAIL_TO = "feedback.jttp@everit.biz";
+  private static final String FEEDBACK_EMAIL_DEFAULT_VALUE = "${feedback.email}";
+
+  private static final String PREFIX_PLUGIN_RATED = "The plugin rated to: ";
 
   private static final int DATE_LENGTH = 7;
 
@@ -164,6 +173,10 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   private static final String WORKLOG_CREATE_FAIL = "plugin.worklog.create.fail";
 
   private static final String FEEDBACK_EMAIL_SUBJECT = "[JTTP] feedback";
+
+  private static final String PROPERTIES = "jttp_build.properties";
+
+  private static final String FEEDBACK_EMAIL_TO = "FEEDBACK_EMAIL_TO";
   /**
    * The collector issues ids.
    */
@@ -212,10 +225,12 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
    * The plugin setting form the settingsFactory.
    */
   private PluginSettings pluginSettings;
+
   /**
    * The plugin setting values.
    */
   private PluginSettingsValues pluginSettingsValues;
+
   /**
    * The plugin Scheduled Executor Service.
    */
@@ -227,6 +242,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
    */
   private final PluginSettingsFactory settingsFactory;
 
+  private String feedBackEmailTo;
+
   /**
    * Default constructor.
    */
@@ -236,6 +253,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
 
   @Override
   public void afterPropertiesSet() throws Exception {
+
+    loadJttpBuildProperties();
 
     setDefaultVariablesValue();
 
@@ -596,6 +615,13 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     return resultexcludeDays;
   }
 
+  private String getFromMail() {
+    if (ComponentAccessor.getMailServerManager().isDefaultSMTPMailServerDefined()) {
+      return ComponentAccessor.getMailServerManager().getDefaultSMTPMailServer().getDefaultFrom();
+    }
+    return null;
+  }
+
   @Override
   public List<Issue> getIssues() throws GenericEntityException {
     // List<GenericValue> issuesGV = null;
@@ -797,6 +823,28 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     return endTime;
   }
 
+  private void loadJttpBuildProperties() throws IOException {
+    InputStream inputStream = null;
+    Properties properties = new Properties();
+    try {
+      inputStream = ClassLoaderUtils
+          .getResourceAsStream(PROPERTIES, JiraTimetrackerPluginImpl.class);
+      if (inputStream == null) {
+        URL resource = ClassLoaderUtils.getResource(PROPERTIES, JiraTimetrackerPluginImpl.class);
+        File propertiesFile = new File(resource.getFile());
+        inputStream = new FileInputStream(propertiesFile);
+      }
+      properties.load(inputStream);
+
+      feedBackEmailTo = properties.getProperty(FEEDBACK_EMAIL_TO);
+
+    } finally {
+      if (inputStream != null) {
+        inputStream.close();
+      }
+    }
+  }
+
   @Override
   public PluginSettingsValues loadPluginSettings() {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
@@ -849,7 +897,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     return pluginSettingsValues;
   }
 
-  private void readObject(final java.io.ObjectInputStream stream) throws java.io.IOException,
+  private void readObject(final java.io.ObjectInputStream stream) throws IOException,
       ClassNotFoundException {
     stream.close();
     throw new java.io.NotSerializableException(getClass().getName());
@@ -915,22 +963,32 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
 
   @Override
   public void sendFeedBackEmail(final String feedBack, final String pluginVersion,
-      final String rating) {
-    Email email = new Email(FEEDBACK_MAIL_TO);
-    ApplicationUser loggedUser = ComponentAccessor.getJiraAuthenticationContext().getUser();
-    String loggedUserEmailAdress = loggedUser.getEmailAddress();
-    email.setFrom(loggedUserEmailAdress);
-    email.setSubject(FEEDBACK_EMAIL_SUBJECT + " " + pluginVersion + " - "
-        + DateTimeConverterUtil.dateToString(new Date()));
-    String mailBody =
-        "From: " + loggedUser.getDisplayName() + " " + loggedUserEmailAdress
-            + "\n" + PREFIX_PLUGIN_RATED + rating + "\n" + feedBack;
-    email.setBody(mailBody);
-    LOGGER.warn(
-        "JFCP try to send feedba. From: " + loggedUserEmailAdress + "\n Message: " + feedBack);
-    SingleMailQueueItem singleMailQueueItem = new SingleMailQueueItem(email);
-    singleMailQueueItem.setMailThreader(null);
-    ComponentAccessor.getMailQueue().addItem(singleMailQueueItem);
+      final String rating, final String customerEmail) {
+    StringBuilder mailBody = new StringBuilder();
+    if ((customerEmail != null) && !customerEmail.isEmpty()) {
+      mailBody.append(CUSTOMER_EMAIL_PREFIX);
+      mailBody.append(customerEmail);
+      mailBody.append("\n");
+    }
+    mailBody.append(PREFIX_PLUGIN_RATED);
+    mailBody.append(rating);
+    mailBody.append("\n");
+    mailBody.append(feedBack);
+    String defaultFrom = getFromMail();
+    if (!FEEDBACK_EMAIL_DEFAULT_VALUE.equals(feedBackEmailTo) && (defaultFrom != null)) {
+      Email email = new Email(feedBackEmailTo);
+      email.setFrom(defaultFrom);
+      email.setSubject(FEEDBACK_EMAIL_SUBJECT + " " + pluginVersion + " - "
+          + DateTimeConverterUtil.dateToString(new Date()));
+      email.setBody(mailBody.toString());
+      SingleMailQueueItem singleMailQueueItem = new SingleMailQueueItem(email);
+      singleMailQueueItem.setMailThreader(null);
+      ComponentAccessor.getMailQueue().addItem(singleMailQueueItem);
+    } else {
+      LOGGER.info(
+          "Feedback not sent, beacause To mail address is not setted . \n"
+              + "The message: \n" + mailBody.toString());
+    }
   }
 
   private void setCollectorIssuePatterns() {
@@ -1080,7 +1138,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
 
   }
 
-  private void writeObject(final java.io.ObjectOutputStream stream) throws java.io.IOException {
+  private void writeObject(final java.io.ObjectOutputStream stream) throws IOException {
     stream.close();
     throw new java.io.NotSerializableException(getClass().getName());
   }

@@ -16,7 +16,7 @@
 <a href="#" id="dialog-show-button" style="position: relative; bottom: 10px; margin-right: 5px;">$i18n.getText('jttp.send.feedback')</a>
 <section role="dialog" id="jttp-feedback-dialog" class="aui-layer aui-dialog2 aui-dialog2-medium" aria-hidden="true">
     <!-- Dialog header -->
-    <form name="jttpFeedbackForm" id="jttpFeedbackForm" method="post" action="JiraTimetrackerWebAction.jspa?dateFormatted=$dateFormatted" />
+    <form name="jttpFeedbackForm" id="jttpFeedbackForm" method="post" action="JiraTimetrackerWebAction.jspa?dateFormatted=$dateFormatted" class="aui"/>
       <header class="aui-dialog2-header">
         <!-- The dialog's title -->
         <h1 class="aui-dialog2-header-main">$i18n.getText('jttp.feedback.header')</h1>   
@@ -34,8 +34,11 @@
             <button id="dialog-close-button" class="aui-button aui-button-link">$i18n.getText('jttp.close')</button>
         </div>
         <div class="aui-dialog2-footer-actions" style="margin-right: 5px;">
-            <button id="sendfeedback" type="submit" name="sendfeedback" class="aui-button">$i18n.getText('jttp.send')</button>
+            <button id="sendfeedback" type="submit" name="sendfeedback" class="aui-button" #if(!$feedBackSendAviable) disabled #end >$i18n.getText('jttp.send')</button>
         </div>
+        #if(!$feedBackSendAviable)
+            <div class="aui-dialog2-footer-hint">$i18n.getText('jttp.feedback.no.mail')</div>
+        #end
       </footer>
     </form>
 </section>
@@ -47,7 +50,13 @@ AJS.$("#dialog-show-button").click(function() {
 });
 // SEND FEEDBACK and hide the dialog
 AJS.$("#sendfeedback").click(function(e) {
-    AJS.dialog2("#jttp-feedback-dialog").hide();
+    var comment = AJS.$("#feedbackinput").val().trim();
+    if(comment.length == 0){
+      e.preventDefault();
+      AJS.$("#feedbackError").show();
+    }else{
+      AJS.dialog2("#jttp-feedback-dialog").hide();
+    }
 });
 
 // Hides the dialog

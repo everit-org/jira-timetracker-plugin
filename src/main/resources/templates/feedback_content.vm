@@ -14,9 +14,12 @@
  * limitations under the License.
  *#
 <div class="aui-dialog2-content">
+  <div id="feedbackError" style="margin-bottom: 5px; width: 100%; float: left; display: none;" class="error_message">
+    <p>$i18n.getText('jttp.feedback.missing')</p>
+  </div>
   <div style="margin-bottom: 5px; margin-left: -2px; width: 100%; float: left;">
+    <p>$i18n.getText('jttp.feedback.rate')</p>
     <fieldset class="rating" >
-      <legend>$i18n.getText('jttp.feedback.rate')</legend>
       <input type="radio" id="star5" name="rating" value="5" /><label for="star5" title="$i18n.getText('jttp.feedback.star5')">5 stars</label>
       <input type="radio" id="star4" name="rating" value="4" /><label for="star4" title="$i18n.getText('jttp.feedback.star4')">4 stars</label>
       <input type="radio" id="star3" name="rating" value="3" /><label for="star3" title="$i18n.getText('jttp.feedback.star3')">3 stars</label>
@@ -24,6 +27,8 @@
       <input type="radio" id="star1" name="rating" value="1" /><label for="star1" title="$i18n.getText('jttp.feedback.star1')">1 star</label>
     </fieldset>
   </div>
-  <p style="margin-bottom: 5px;">$i18n.getText('jttp.feedback.msg')</p>
+  <p style="margin-bottom: 5px;">$i18n.getText('jttp.feedback.msg') <img src="$contextPath/images/required.png" width="16" height="16" border="0" /></p>
   <textarea id="feedbackinput" name="feedbackinput" style="width: 100%; height: 300px;"></textarea> 
+  <p style="margin-bottom: 5px;">$i18n.getText('jttp.feedback.customer.mail')</p>
+  <input type="text" id="customerMail" name="customerMail" class="text">
 </div>
