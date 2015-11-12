@@ -21,6 +21,7 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -498,9 +499,9 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     String[] startTimeValue = getHttpRequest().getParameterValues(PARAM_STARTTIME);
     startTime = startTimeValue[0];
     String validateInputFieldsResult = validateInputFields();
-    if (validateInputFieldsResult.equals(ERROR)) {
+    if (validateInputFieldsResult.equals(INPUT)) {
       isEdit = true;
-      return ERROR;
+      return INPUT;
     }
     ActionResult updateResult = jiraTimetrackerPlugin.editWorklog(
         editedWorklogId, issueKey, commentForActions, dateFormatted,
@@ -534,15 +535,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    */
   public String editAllAction() throws ParseException {
     // parse the editAllIds
-    List<Long> editWorklogIds = new ArrayList<Long>();
-    String editAllIdsCopy = editAllIds;
-    editAllIdsCopy = editAllIdsCopy.replace("[", "");
-    editAllIdsCopy = editAllIdsCopy.replace("]", "");
-    editAllIdsCopy = editAllIdsCopy.replace(" ", "");
-    String[] editIds = editAllIdsCopy.split(",");
-    for (String editId : editIds) {
-      editWorklogIds.add(Long.valueOf(editId));
-    }
+    List<Long> editWorklogIds = parseEditAllIds();
     // edit the worklogs!
     // TODO what if result is a fail?????? what if just one fail?
     // ActionResult editResult;
@@ -1024,6 +1017,25 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     } else {
       date = DateTimeConverterUtil.stringToDate(dateFormatted);
     }
+  }
+
+  /**
+   * Parses the {@link #editAllIds} string to a list of {@code Long} values.
+   */
+  List<Long> parseEditAllIds() {
+    List<Long> editWorklogIds = new ArrayList<Long>();
+    String editAllIdsCopy = editAllIds;
+    editAllIdsCopy = editAllIdsCopy.replace("[", "");
+    editAllIdsCopy = editAllIdsCopy.replace("]", "");
+    editAllIdsCopy = editAllIdsCopy.replace(" ", "");
+    if (editAllIdsCopy.trim().equals("")) {
+      return Collections.emptyList();
+    }
+    String[] editIds = editAllIdsCopy.split(",");
+    for (String editId : editIds) {
+      editWorklogIds.add(Long.valueOf(editId));
+    }
+    return editWorklogIds;
   }
 
   /**

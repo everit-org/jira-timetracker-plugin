@@ -109,6 +109,10 @@
 		background-color: #d04437;
 	}
 	
+	.summary td{
+        white-space: nowrap;
+	}
+	
 </style>
 </head>
 <body>
@@ -153,11 +157,15 @@
 	}
 	
 	function handleEnterKey(e, setFocusTo){
-		if ((e.keyCode == 10 || e.keyCode == 13) && e.ctrlKey){
+	    var isEnter = e.keyCode == 10 || e.keyCode == 13;
+	    if (!isEnter) {
+	      return;
+	    }
+		if (e.ctrlKey){
 		 AJS.$('#Submitbutton, #Edit').click();
-        } else if(e.keyCode == 13) { 
-         AJS.$(setFocusTo).focus();
+        } else {
          e.preventDefault ? e.preventDefault() : event.returnValue = false;
+         AJS.$(setFocusTo).focus();
          return false;
        }
 	}
@@ -243,7 +251,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 					</td>
 				</tr>
 				-->
-		  		<tr>
+		  		<tr class="summary">
 		  			<td rowspan="2" style="width: 40%">
 					  	<input type="text" id="date" name="date" style="display: none" onchange="this.form.datesubmit.click()" />
 						<input type="submit" id="datesubmit" name="datesubmit" class="spaced" style="display: none"/>
@@ -274,50 +282,50 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 							</script>
 						#end
 						</div>
-					</td>
-					<td align="right"  style="width: 20%">
+					</td>					
+					<td align="right" style="padding-right: 10px">
 						$i18n.getText("plugin.summary")
 					</td>
-					<td align="right" style="width: 5%">
+					<td align="right">
 						 $i18n.getText("plugin.day")
 					</td>
-					<td align="left" style="width: 80px;">
+					<td align="left">
 						 ($daySummary)
 					</td>
-					<td align="right" style="width: 5%">
+					<td align="right">
 						$i18n.getText("plugin.week")
 					</td>
-					<td align="left" style="width: 85px;">
+					<td align="left">
 						($weekSummary)
 					</td>
-					<td align="right" style="width: 5%">
+					<td align="right">
 						$i18n.getText("plugin.month")
 					</td>
-					<td align="left" style="width: 85px;">
+					<td align="left">
 						 ($monthSummary)
-					</td>
+					</td>					
 				</tr>
-				<tr>
-					<td align="right" style="width: 15%" >
+				<tr class="summary">				
+					<td align="right" style="padding-right: 10px">
 						#if($issuesRegex.size() != 0)
 									$i18n.getText("plugin.real.work") $i18n.getText("plugin.summary")
 								</td>
-								<td align="right" style="width: 5%">
+								<td align="right">
 									$i18n.getText("plugin.day")
 								</td>
-								<td align="left" style="width: 80px;">
+								<td align="left">
 									($dayFilteredSummary)
 								</td>
-								<td align="right" style="width: 5%">
+								<td align="right">
 									$i18n.getText("plugin.week")
 								</td>
-								<td align="left" style="width: 85px;">
+								<td align="left">
 									($weekFilteredSummary)
 								</td>
-								<td align="right" style="width: 5%">
+								<td align="right">
 									$i18n.getText("plugin.month")
 								</td>
-								<td align="left" style="width: 85px;">
+								<td align="left">
 									($monthFilteredSummary)
 						#end
 					</td>
@@ -329,7 +337,7 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 	   		<table  width="100%">
 	   			<tbody>
 	   				<tr>
-	   					<input id="editAll" type="button" name="editall" value="$i18n.getText('plugin.edit.all')" onclick="location.href='JiraTimetrackerWebAction!default.jspa?editAllIds=$worklogsIds&dateFormatted=$dateFormatted'" class="button" />
+	   					<input id="editAll" type="button" name="editall" value="$i18n.getText('plugin.edit.all')" onclick="location.href='JiraTimetrackerWebAction!default.jspa?editAllIds=$worklogsIds&dateFormatted=$dateFormatted'" class="button" #if($worklogs.size() == 0) disabled #end/>
 	   					<td>
 							<table>
 						                <tbody>
@@ -762,7 +770,10 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 		 });
 		 
 		 AJS.$('#issueSelect-textarea').keydown(function(e){
-		 	return handleEnterKey(e, '#comments');
+		    var isEnter = e.keyCode == 10 || e.keyCode == 13;
+	        if (isEnter && e.ctrlKey) {
+	          AJS.$('#Submitbutton, #Edit').click();
+	        }
 	     });
 	     
 	     AJS.$('#comments').keydown(function(e){
