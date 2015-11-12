@@ -86,17 +86,17 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   private static final String VERSION_SPLITTER = "\\.";
 
-  private String pluginVersion;
+  private boolean analyticsCheck;
+
+  private String avatarURL = "";
 
   private String baseUrl;
 
-  private String userId;
-
-  private String avatarURL = "";
   /**
    * The worklog comment.
    */
   private String comment = "";
+
   /**
    * The worklog comment.
    */
@@ -107,6 +107,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The copied worklog id.
    */
   private Long copiedWorklogId = DEFAULT_WORKLOG_ID;
+
   /**
    * The date.
    */
@@ -119,7 +120,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The summary of day.
    */
   private String dayFilteredSummary = "";
-
   /**
    * The summary of day.
    */
@@ -136,6 +136,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The worklog duration.
    */
   private String durationTime = "";
+
   /**
    * The all edit worklogs ids.
    */
@@ -145,7 +146,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The edited worklog id.
    */
   private Long editedWorklogId = DEFAULT_WORKLOG_ID;
-
   /**
    * The worklog end time.
    */
@@ -182,6 +182,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The WebAction is edit all worklog or not.
    */
   private boolean isEditAll = false;
+
   /**
    * The calendar isPopup.
    */
@@ -195,6 +196,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The issues.
    */
   private transient List<Issue> issues = new ArrayList<Issue>();
+
   /**
    * The filtered Issues id.
    */
@@ -219,16 +221,17 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The message parameter.
    */
   private String messageParameter = "";
-
   /**
    * The summary of month.
    */
   private String monthFilteredSummary = "";
-
   /**
    * The summary of month.
    */
   private String monthSummary = "";
+
+  private String pluginVersion;
+
   /**
    * The IDs of the projects.
    */
@@ -241,7 +244,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The worklog start time.
    */
   private String startTime = "";
-
   /**
    *
    */
@@ -250,10 +252,13 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The startTime input field changer buttons value.
    */
   private int startTimeChange;
+
   /**
    * The spent time in Jira time format (1h 20m).
    */
   private String timeSpent = "";
+
+  private String userId;
 
   private transient ApplicationUser userPickerObject;
 
@@ -563,6 +568,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     }
     editAllIds = "";
     return SUCCESS;
+  }
+
+  public boolean getAnalyticsCheck() {
+    return analyticsCheck;
   }
 
   public String getAvatarURL() {
@@ -895,6 +904,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     startTimeChange = pluginSettingsValues.getStartTimeChange();
     endTimeChange = pluginSettingsValues.getEndTimeChange();
     isColoring = pluginSettingsValues.isColoring();
+    analyticsCheck = pluginSettingsValues.getAnalyticsCheckChange();
   }
 
   /**
@@ -1030,6 +1040,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       ClassNotFoundException {
     in.defaultReadObject();
     issues = new ArrayList<Issue>();
+  }
+
+  public void setAnalyticsCheck(final boolean analyticsCheck) {
+    this.analyticsCheck = analyticsCheck;
   }
 
   public void setAvatarURL(final String avatarURL) {

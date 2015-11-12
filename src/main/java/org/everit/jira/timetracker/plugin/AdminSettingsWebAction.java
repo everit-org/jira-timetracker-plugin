@@ -43,6 +43,10 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    */
   private static final long serialVersionUID = 1L;
   /**
+   * Check if the analytics is disable or enable.
+   */
+  private boolean analyticsCheck;
+  /**
    * The collector issue key.
    */
   private String collectorIssueKey = "";
@@ -173,6 +177,10 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     return SUCCESS;
   }
 
+  public boolean getAnalyticsCheck() {
+    return analyticsCheck;
+  }
+
   public String getCollectorIssueKey() {
     return collectorIssueKey;
   }
@@ -234,6 +242,7 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     }
     excludeDates = pluginSettingsValues.getExcludeDates();
     includeDates = pluginSettingsValues.getIncludeDates();
+    analyticsCheck = pluginSettingsValues.getAnalyticsCheckChange();
   }
 
   private void normalizeContextPath() {
@@ -312,6 +321,13 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     String[] collectorIssueSelectValue = request.getParameterValues("issueSelect_collector");
     String[] excludeDatesValue = request.getParameterValues("excludedates");
     String[] includeDatesValue = request.getParameterValues("includedates");
+    String analyticsCheckValue = request.getParameter("analyticsCheck");
+
+    if ((analyticsCheckValue != null) && "enable".equals(analyticsCheckValue)) {
+      analyticsCheck = true;
+    } else {
+      analyticsCheck = false;
+    }
 
     issuesPatterns = new ArrayList<Pattern>();
     if (issueSelectValue != null) {
@@ -343,9 +359,14 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
   public void savePluginSettings() {
     PluginSettingsValues pluginSettingValues = new PluginSettingsValues(
         new CalendarSettingsValues(isPopup, isActualDate, excludeDates, includeDates,
-            isColoring), issuesPatterns, collectorIssuePatterns, startTime,
-            endTime);
+            isColoring),
+        issuesPatterns, collectorIssuePatterns, startTime,
+        endTime, analyticsCheck);
     jiraTimetrackerPlugin.savePluginSettings(pluginSettingValues);
+  }
+
+  public void setAnalyticsCheck(final boolean analyticsCheck) {
+    this.analyticsCheck = analyticsCheck;
   }
 
   public void setCollectorIssueKey(final String collectorIssueKey) {

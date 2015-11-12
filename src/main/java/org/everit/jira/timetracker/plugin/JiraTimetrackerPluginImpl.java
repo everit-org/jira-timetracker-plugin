@@ -87,6 +87,11 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   private static final String INVALID_ISSUE = "plugin.invalid_issue";
 
   /**
+   * The plugin settings analytics check.
+   */
+  private static final String JTTP_PLUGIN_SETTINGS_ANALYTICS_CHECK_CHANGE = "analyticsCheckChange";
+
+  /**
    * The plugin setting is calendar popup key.
    */
   private static final String JTTP_PLUGIN_SETTINGS_END_TIME_CHANGE = "endTimechange";
@@ -157,6 +162,10 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
 
   private static final String WORKLOG_CREATE_FAIL = "plugin.worklog.create.fail";
 
+  /**
+   * The parsed analytics check value.
+   */
+  private boolean analyticsCheckValue;
   /**
    * The collector issues ids.
    */
@@ -800,6 +809,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     setCollectorIssuePatterns();
     setExcludeDates();
     setIncludeDates();
+    setAnalyticsCheck();
 
     pluginSettings = settingsFactory.createSettingsForKey(
         JTTP_PLUGIN_SETTINGS_KEY_PREFIX + user.getName());
@@ -837,7 +847,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
         new CalendarSettingsValues(isPopup, isActualDate,
             excludeDatesString, includeDatesString, isColoring),
         nonWorkingIssuePatterns, collectorIssuePatterns,
-        startTimeChange, endTimeChange);
+        startTimeChange, endTimeChange, analyticsCheckValue);
     return pluginSettingsValues;
   }
 
@@ -903,6 +913,17 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     globalSettings.put(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
         + JTTP_PLUGIN_SETTINGS_INCLUDE_DATES,
         pluginSettingsParameters.getIncludeDates());
+    globalSettings.put(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+        + JTTP_PLUGIN_SETTINGS_ANALYTICS_CHECK_CHANGE,
+        Boolean.toString(pluginSettingsParameters.getAnalyticsCheckChange()));
+  }
+
+  private void setAnalyticsCheck() {
+    analyticsCheckValue = true;
+    if ("false".equals(globalSettings
+        .get(JTTP_PLUGIN_SETTINGS_KEY_PREFIX + JTTP_PLUGIN_SETTINGS_ANALYTICS_CHECK_CHANGE))) {
+      analyticsCheckValue = false;
+    }
   }
 
   private void setCollectorIssuePatterns() {

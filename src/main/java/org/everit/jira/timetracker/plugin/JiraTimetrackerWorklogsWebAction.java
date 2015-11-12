@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
 import org.ofbiz.core.entity.GenericEntityException;
 
 import com.atlassian.jira.web.action.JiraWebActionSupport;
@@ -51,11 +52,6 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    */
   private static final long serialVersionUID = 1L;
 
-  private String pluginVersion;
-
-  private String baseUrl;
-
-  private String userId;
   /**
    * The actual page.
    */
@@ -63,10 +59,15 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
   private List<String> allDatesWhereNoWorklog;
 
+  private boolean analyticsCheck;
+
+  private String baseUrl;
+
   /**
    * The report check the worklogs time spent is equal or greater than 8 hours.
    */
   public boolean checkHours = false;
+
   /**
    * If check the worklogs spent time, then exclude the non working issues, or not.
    */
@@ -77,10 +78,12 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    * The date.
    */
   private Date dateFrom = null;
+
   /**
    * The formated date.
    */
   private String dateFromFormated = "";
+
   /**
    * The date.
    */
@@ -89,6 +92,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    * The formated date.
    */
   private String dateToFormated = "";
+
   /**
    * The {@link JiraTimetrackerPlugin}.
    */
@@ -97,23 +101,24 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    * The message.
    */
   private String message = "";
-
   /**
    * The message parameter.
    */
   private String messageParameter = "";
-
   /**
    * The number of pages.
    */
   private int numberOfPages;
 
-  private List<String> showDatesWhereNoWorklog;
+  private String pluginVersion;
 
+  private List<String> showDatesWhereNoWorklog;
   /**
    * The message parameter.
    */
   private String statisticsMessageParameter = "0";
+
+  private String userId;
 
   /**
    * Simple constructor.
@@ -173,6 +178,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
     baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(getHttpRequest().getSession());
     userId = JiraTimetrackerAnalytics.setUserSessionUserId(getHttpRequest().getSession());
+    loadPluginSettingAndParseResult();
     if ("".equals(dateToFormated)) {
       dateToDefaultInit();
     }
@@ -218,6 +224,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
     baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(getHttpRequest().getSession());
     userId = JiraTimetrackerAnalytics.setUserSessionUserId(getHttpRequest().getSession());
+    loadPluginSettingAndParseResult();
     message = "";
     messageParameter = "";
     statisticsMessageParameter = "0";
@@ -271,6 +278,10 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
   public int getActualPage() {
     return actualPage;
+  }
+
+  public boolean getAnalyticsCheck() {
+    return analyticsCheck;
   }
 
   public String getBaseUrl() {
@@ -327,6 +338,12 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
   public String getUserId() {
     return userId;
+  }
+
+  private void loadPluginSettingAndParseResult() {
+    PluginSettingsValues pluginSettingsValues = jiraTimetrackerPlugin
+        .loadPluginSettings();
+    analyticsCheck = pluginSettingsValues.getAnalyticsCheckChange();
   }
 
   private void normalizeContextPath() {
@@ -393,6 +410,10 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
   public void setActualPage(final int actualPage) {
     this.actualPage = actualPage;
+  }
+
+  public void setAnalyticsCheck(final boolean analyticsCheck) {
+    this.analyticsCheck = analyticsCheck;
   }
 
   public void setBaseUrl(final String baseUrl) {
