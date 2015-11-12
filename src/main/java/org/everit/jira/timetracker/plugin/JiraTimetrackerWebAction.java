@@ -103,7 +103,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private String commentForActions = "";
 
   private String contextPath;
-
   /**
    * The copied worklog id.
    */
@@ -112,7 +111,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The date.
    */
   private Date date = null;
-
   /**
    * The formated date.
    */
@@ -152,6 +150,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The worklog end time.
    */
   private String endTime = "";
+
   /**
    * The endTime input field changer buttons value.
    */
@@ -178,11 +177,11 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The WebAction is edit a worklog or not.
    */
   private boolean isEdit = false;
+
   /**
    * The WebAction is edit all worklog or not.
    */
   private boolean isEditAll = false;
-
   /**
    * The calendar isPopup.
    */
@@ -192,7 +191,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The issue key.
    */
   private String issueKey = "";
-
   /**
    * The issues.
    */
@@ -201,7 +199,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The filtered Issues id.
    */
   private List<Pattern> issuesRegex;
-
   /**
    * The jira main version.
    */
