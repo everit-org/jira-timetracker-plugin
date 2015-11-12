@@ -986,7 +986,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
       ComponentAccessor.getMailQueue().addItem(singleMailQueueItem);
     } else {
       LOGGER.info(
-          "Feedback not sent, beacause To mail address is not setted . \n"
+          "Feedback not sent, beacause To mail address is not defined. \n"
               + "The message: \n" + mailBody.toString());
     }
   }

@@ -47,6 +47,7 @@
 // Shows the dialog when the "Show dialog" button is clicked
 AJS.$("#dialog-show-button").click(function() {
     AJS.dialog2("#jttp-feedback-dialog").show();
+    AJS.$("#feedbackError").hide();
 });
 // SEND FEEDBACK and hide the dialog
 AJS.$("#sendfeedback").click(function(e) {
