@@ -72,18 +72,15 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    * If check the worklogs spent time, then exclude the non working issues, or not.
    */
   public boolean checkNonWorkingIssues = false;
-
   private String contextPath;
   /**
    * The date.
    */
   private Date dateFrom = null;
-
   /**
    * The formated date.
    */
   private String dateFromFormated = "";
-
   /**
    * The date.
    */
@@ -92,7 +89,6 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    * The formated date.
    */
   private String dateToFormated = "";
-
   /**
    * The {@link JiraTimetrackerPlugin}.
    */
@@ -101,10 +97,12 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    * The message.
    */
   private String message = "";
+
   /**
    * The message parameter.
    */
   private String messageParameter = "";
+
   /**
    * The number of pages.
    */

@@ -38,7 +38,6 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
    */
   private static final Logger LOGGER = Logger
       .getLogger(JiraTimetrackerSettingsWebAction.class);
-
   /**
    * Serial version UID.
    */
