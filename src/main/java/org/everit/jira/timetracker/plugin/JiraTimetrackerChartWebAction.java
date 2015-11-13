@@ -29,6 +29,7 @@ import java.util.Map.Entry;
 import org.apache.log4j.Logger;
 import org.everit.jira.timetracker.plugin.dto.ChartData;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
+import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
 
 import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jira.ComponentManager;
@@ -75,6 +76,8 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
   private static final String WRONG_DATES = "plugin.wrong.dates";
 
   private List<User> allUsers;
+
+  private boolean analyticsCheck;
 
   private String avatarURL = "";
 
@@ -164,6 +167,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
     baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(request.getSession());
     userId = JiraTimetrackerAnalytics.setUserSessionUserId(request.getSession());
+    loadPluginSettingAndParseResult();
 
     if ("".equals(dateFromFormated)) {
       dateFromDefaultInit();
@@ -197,6 +201,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
     baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(request.getSession());
     userId = JiraTimetrackerAnalytics.setUserSessionUserId(request.getSession());
+    loadPluginSettingAndParseResult();
 
     setDefaultDates();
 
@@ -251,6 +256,10 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
   public List<User> getAllUsers() {
     return allUsers;
+  }
+
+  public boolean getAnalyticsCheck() {
+    return analyticsCheck;
   }
 
   public String getAvatarURL() {
@@ -329,6 +338,12 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     return userPickerObject;
   }
 
+  private void loadPluginSettingAndParseResult() {
+    PluginSettingsValues pluginSettingsValues = jiraTimetrackerPlugin
+        .loadPluginSettings();
+    analyticsCheck = pluginSettingsValues.getAnalyticsCheckChange();
+  }
+
   private void normalizeContextPath() {
     String path = request.getContextPath();
     if ((path.length() > 0) && "/".equals(path.substring(path.length() - 1))) {
@@ -340,6 +355,10 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
   public void setAllUsers(final List<User> allUsers) {
     this.allUsers = allUsers;
+  }
+
+  public void setAnalyticsCheck(final boolean analyticsCheck) {
+    this.analyticsCheck = analyticsCheck;
   }
 
   public void setAvatarURL(final String avatarURL) {

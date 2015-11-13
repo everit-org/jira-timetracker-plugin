@@ -82,6 +82,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   private static final String VERSION_SPLITTER = "\\.";
 
+  private boolean analyticsCheck;
+
   private String avatarURL = "";
 
   private String baseUrl;
@@ -566,6 +568,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return SUCCESS;
   }
 
+  public boolean getAnalyticsCheck() {
+    return analyticsCheck;
+  }
+
   public String getAvatarURL() {
     return avatarURL;
   }
@@ -892,6 +898,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     startTimeChange = pluginSettingsValues.getStartTimeChange();
     endTimeChange = pluginSettingsValues.getEndTimeChange();
     isColoring = pluginSettingsValues.isColoring();
+    analyticsCheck = pluginSettingsValues.getAnalyticsCheckChange();
   }
 
   /**
@@ -1037,6 +1044,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       ClassNotFoundException {
     in.defaultReadObject();
     issues = new ArrayList<Issue>();
+  }
+
+  public void setAnalyticsCheck(final boolean analyticsCheck) {
+    this.analyticsCheck = analyticsCheck;
   }
 
   public void setAvatarURL(final String avatarURL) {

@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
 import org.ofbiz.core.entity.GenericEntityException;
 
 import com.atlassian.jira.web.action.JiraWebActionSupport;
@@ -57,6 +58,8 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
   private int actualPage;
 
   private List<String> allDatesWhereNoWorklog;
+
+  private boolean analyticsCheck;
 
   private String baseUrl;
 
@@ -173,6 +176,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
     baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(request.getSession());
     userId = JiraTimetrackerAnalytics.setUserSessionUserId(request.getSession());
+    loadPluginSettingAndParseResult();
 
     if ("".equals(dateToFormated)) {
       dateToDefaultInit();
@@ -219,6 +223,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
     baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(request.getSession());
     userId = JiraTimetrackerAnalytics.setUserSessionUserId(request.getSession());
+    loadPluginSettingAndParseResult();
     message = "";
     messageParameter = "";
     statisticsMessageParameter = "0";
@@ -275,6 +280,10 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     return actualPage;
   }
 
+  public boolean getAnalyticsCheck() {
+    return analyticsCheck;
+  }
+
   public String getBaseUrl() {
     return baseUrl;
   }
@@ -329,6 +338,12 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
   public String getUserId() {
     return userId;
+  }
+
+  private void loadPluginSettingAndParseResult() {
+    PluginSettingsValues pluginSettingsValues = jiraTimetrackerPlugin
+        .loadPluginSettings();
+    analyticsCheck = pluginSettingsValues.getAnalyticsCheckChange();
   }
 
   private void normalizeContextPath() {
@@ -395,6 +410,10 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
   public void setActualPage(final int actualPage) {
     this.actualPage = actualPage;
+  }
+
+  public void setAnalyticsCheck(final boolean analyticsCheck) {
+    this.analyticsCheck = analyticsCheck;
   }
 
   public void setBaseUrl(final String baseUrl) {

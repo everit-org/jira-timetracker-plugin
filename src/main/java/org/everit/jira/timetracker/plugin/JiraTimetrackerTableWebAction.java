@@ -94,6 +94,8 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   private List<User> allUsers;
 
+  private boolean analyticsCheck;
+
   private String avatarURL = "";
 
   private String baseUrl;
@@ -273,6 +275,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
     baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(request.getSession());
     userId = JiraTimetrackerAnalytics.setUserSessionUserId(request.getSession());
+    loadPluginSettingAndParseResult();
 
     if ("".equals(dateFromFormated)) {
       dateFromDefaultInit();
@@ -301,6 +304,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
     baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(request.getSession());
     userId = JiraTimetrackerAnalytics.setUserSessionUserId(request.getSession());
+    loadPluginSettingAndParseResult();
     PluginSettingsValues pluginSettings = jiraTimetrackerPlugin.loadPluginSettings();
     setIssuesRegex(pluginSettings.getFilteredSummaryIssues());
 
@@ -354,6 +358,10 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   public List<User> getAllUsers() {
     return allUsers;
+  }
+
+  public boolean getAnalyticsCheck() {
+    return analyticsCheck;
   }
 
   public String getAvatarURL() {
@@ -479,6 +487,12 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     return isRealWorklog;
   }
 
+  private void loadPluginSettingAndParseResult() {
+    PluginSettingsValues pluginSettingsValues = jiraTimetrackerPlugin
+        .loadPluginSettings();
+    analyticsCheck = pluginSettingsValues.getAnalyticsCheckChange();
+  }
+
   private void normalizeContextPath() {
     String path = request.getContextPath();
     if ((path.length() > 0) && "/".equals(path.substring(path.length() - 1))) {
@@ -490,6 +504,10 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   public void setAllUsers(final List<User> allUsers) {
     this.allUsers = allUsers;
+  }
+
+  public void setAnalyticsCheck(final boolean analyticsCheck) {
+    this.analyticsCheck = analyticsCheck;
   }
 
   public void setAvatarURL(final String avatarURL) {
