@@ -132,6 +132,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
    * The plugin setting is calendar popup key.
    */
   private static final String JTTP_PLUGIN_SETTINGS_IS_CALENDAR_POPUP = "isCalendarPopup";
+
   /**
    * The plugin setting is actual date key.
    */
@@ -140,11 +141,11 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
    * The plugin settings key prefix.
    */
   private static final String JTTP_PLUGIN_SETTINGS_KEY_PREFIX = "jttp";
-
   /**
    * The plugin setting Summary Filters key.
    */
   private static final String JTTP_PLUGIN_SETTINGS_NON_ESTIMATED_ISSUES = "NonEstimated";
+
   /**
    * The plugin setting is calendar popup key.
    */
@@ -153,7 +154,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
    * The plugin setting Summary Filters key.
    */
   private static final String JTTP_PLUGIN_SETTINGS_SUMMARY_FILTERS = "SummaryFilters";
-
   /**
    * Logger.
    */
@@ -234,7 +234,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
    * The summary filter issues ids.
    */
   private List<Pattern> nonWorkingIssuePatterns;
-
   /**
    * The plugin setting form the settingsFactory.
    */
