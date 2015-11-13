@@ -41,6 +41,8 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
    * Serial version UID.
    */
   private static final long serialVersionUID = 1L;
+
+  private boolean analyticsCheck;
   /**
    * The collector issue ids.
    */
@@ -149,6 +151,10 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     }
 
     return SUCCESS;
+  }
+
+  public boolean getAnalyticsCheck() {
+    return analyticsCheck;
   }
 
   public String getContextPath() {
@@ -272,8 +278,12 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
             includeDates, isColoring),
         issuesPatterns,
         collectorIssuePatterns, Integer.parseInt(startTime),
-        Integer.parseInt(endTime));
+        Integer.parseInt(endTime), analyticsCheck);
     jiraTimetrackerPlugin.savePluginSettings(pluginSettingValues);
+  }
+
+  public void setAnalyticsCheck(final boolean analyticsCheck) {
+    this.analyticsCheck = analyticsCheck;
   }
 
   public void setColoring(final boolean isColoring) {

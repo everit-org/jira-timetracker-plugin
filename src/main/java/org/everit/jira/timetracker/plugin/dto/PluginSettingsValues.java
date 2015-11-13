@@ -27,6 +27,7 @@ public class PluginSettingsValues implements Serializable {
 
   private static final long serialVersionUID = -315087086405495545L;
 
+  private boolean analyticsCheckChange;
   /**
    * The collector issues pattern list.
    */
@@ -76,11 +77,13 @@ public class PluginSettingsValues implements Serializable {
    *          Start time change value
    * @param endTimeChange
    *          End time change value
+   * @param analyticsCheckChange
+   *          Analytics Checked value
    */
   public PluginSettingsValues(final CalendarSettingsValues calendarSettingValues,
       final List<Pattern> filteredSummaryIssues,
       final List<Pattern> collectorIssues,
-      final int startTimeChange, final int endTimeChange) {
+      final int startTimeChange, final int endTimeChange, final boolean analyticsCheckChange) {
     super();
     isCalendarPopup = calendarSettingValues.getIsCalendarPopup();
     isActualDate = calendarSettingValues.isActualDate();
@@ -91,6 +94,11 @@ public class PluginSettingsValues implements Serializable {
     this.startTimeChange = startTimeChange;
     this.endTimeChange = endTimeChange;
     isColoring = calendarSettingValues.isColoring();
+    this.analyticsCheckChange = analyticsCheckChange;
+  }
+
+  public boolean getAnalyticsCheckChange() {
+    return analyticsCheckChange;
   }
 
   public List<Pattern> getCollectorIssues() {
@@ -135,6 +143,10 @@ public class PluginSettingsValues implements Serializable {
 
   public void setActualDate(final boolean actualDateOrLastWorklogDate) {
     isActualDate = actualDateOrLastWorklogDate;
+  }
+
+  public void setAnalyticsCheckChange(final boolean analyticsCheckChange) {
+    this.analyticsCheckChange = analyticsCheckChange;
   }
 
   public void setCalendarPopup(final int isCalendarPopup) {
