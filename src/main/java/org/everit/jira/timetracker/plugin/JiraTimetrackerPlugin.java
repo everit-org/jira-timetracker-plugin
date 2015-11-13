@@ -219,6 +219,23 @@ public interface JiraTimetrackerPlugin {
   void savePluginSettings(PluginSettingsValues pluginSettingsParameter);
 
   /**
+   * Send a feed back email through the Jira to the given FEEDBACK_EMAIL_TO address. The address
+   * come form the jttp_build.properties. If no mail address was set by build the method only log
+   * the feed back mail. If the method not find setted mail server and default from mail address,
+   * the feedback email not will be send just logged.
+   *
+   * @param feedBack
+   *          The user feed back. Required.
+   * @param version
+   *          The plugin version.
+   * @param rating
+   *          The rating value.
+   * @param customerEmail
+   *          The customer user mail address.
+   */
+  void sendFeedBackEmail(String feedBack, String version, String rating, String customerEmail);
+
+  /**
    * Give back the all worklogs spent time between the two date.
    *
    * @param selectedUser

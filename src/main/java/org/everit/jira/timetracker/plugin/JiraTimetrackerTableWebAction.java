@@ -380,7 +380,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   }
 
   private Calendar getLastDate() throws IllegalArgumentException {
-    String dateToParam = getHttpRequest().getParameterValues(PARAM_DATETO)[0];
+    String dateToParam = getHttpRequest().getParameter(PARAM_DATETO);
     if (!"".equals(dateToParam)) {
       dateToFormated = dateToParam;
     } else {
@@ -420,7 +420,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   }
 
   private Calendar getStartDate() throws IllegalArgumentException {
-    String dateFromParam = getHttpRequest().getParameterValues(PARAM_DATEFROM)[0];
+    String dateFromParam = getHttpRequest().getParameter(PARAM_DATEFROM);
     if (!"".equals(dateFromParam)) {
       dateFromFormated = dateFromParam;
     } else {
@@ -502,12 +502,13 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   }
 
   private void setCurrentUserFromParam() throws IllegalArgumentException {
-    if (getHttpRequest().getParameterValues(PARAM_USERPICKER) != null) {
-      currentUser = getHttpRequest().getParameterValues(PARAM_USERPICKER)[0];
+    String selectedUser = getHttpRequest().getParameter(PARAM_USERPICKER);
+    if (selectedUser != null) {
+      currentUser = selectedUser;
     } else {
       throw new IllegalArgumentException(INVALID_USER_PICKER);
     }
-    if ((currentUser == null) || "".equals(currentUser)) {
+    if ("".equals(currentUser)) {
       JiraAuthenticationContext authenticationContext =
           ComponentAccessor.getJiraAuthenticationContext();
       currentUser = authenticationContext.getUser().getKey();
