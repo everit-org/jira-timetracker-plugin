@@ -88,6 +88,8 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   private static final String WRONG_DATES = "plugin.wrong.dates";
 
+  private boolean analyticsCheck;
+
   private String avatarURL = "";
 
   private String baseUrl;
@@ -264,6 +266,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
     baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(getHttpRequest().getSession());
     userId = JiraTimetrackerAnalytics.setUserSessionUserId(getHttpRequest().getSession());
+    loadPluginSettingAndParseResult();
     if ("".equals(dateFromFormated)) {
       dateFromDefaultInit();
     }
@@ -291,6 +294,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
     baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(getHttpRequest().getSession());
     userId = JiraTimetrackerAnalytics.setUserSessionUserId(getHttpRequest().getSession());
+    loadPluginSettingAndParseResult();
     PluginSettingsValues pluginSettings = jiraTimetrackerPlugin.loadPluginSettings();
     setIssuesRegex(pluginSettings.getFilteredSummaryIssues());
 
@@ -337,6 +341,10 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     }
 
     return SUCCESS;
+  }
+
+  public boolean getAnalyticsCheck() {
+    return analyticsCheck;
   }
 
   public String getAvatarURL() {
@@ -458,6 +466,12 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     return isRealWorklog;
   }
 
+  private void loadPluginSettingAndParseResult() {
+    PluginSettingsValues pluginSettingsValues = jiraTimetrackerPlugin
+        .loadPluginSettings();
+    analyticsCheck = pluginSettingsValues.getAnalyticsCheckChange();
+  }
+
   private void normalizeContextPath() {
     String path = getHttpRequest().getContextPath();
     if ((path.length() > 0) && "/".equals(path.substring(path.length() - 1))) {
@@ -465,6 +479,10 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     } else {
       contextPath = path;
     }
+  }
+
+  public void setAnalyticsCheck(final boolean analyticsCheck) {
+    this.analyticsCheck = analyticsCheck;
   }
 
   public void setAvatarURL(final String avatarURL) {

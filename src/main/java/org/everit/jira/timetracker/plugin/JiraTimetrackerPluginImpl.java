@@ -85,21 +85,28 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
 
   private static final String CUSTOMER_EMAIL_PREFIX = "The customer email address is ";
 
-  private static final String FEEDBACK_EMAIL_DEFAULT_VALUE = "${feedback.email}";
-
-  private static final String PREFIX_PLUGIN_RATED = "The plugin rated to: ";
-
   private static final int DATE_LENGTH = 7;
 
   private static final String DATE_PARSE = "plugin.date_parse";
 
   private static final int DEFAULT_CHECK_TIME_IN_MINUTES = 1200;
 
+  private static final String FEEDBACK_EMAIL_DEFAULT_VALUE = "${feedback.email}";
+
+  private static final String FEEDBACK_EMAIL_SUBJECT = "[JTTP] feedback";
+
+  private static final String FEEDBACK_EMAIL_TO = "FEEDBACK_EMAIL_TO";
+
   private static final int FIFTEEN_MINUTES = 15;
 
   private static final int FIVE_MINUTES = 5;
 
   private static final String INVALID_ISSUE = "plugin.invalid_issue";
+
+  /**
+   * The plugin settings analytics check.
+   */
+  private static final String JTTP_PLUGIN_SETTINGS_ANALYTICS_CHECK_CHANGE = "analyticsCheckChange";
 
   /**
    * The plugin setting is calendar popup key.
@@ -159,6 +166,11 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
    * A day in minutes.
    */
   private static final int ONE_DAY_IN_MINUTES = 1440;
+
+  private static final String PREFIX_PLUGIN_RATED = "The plugin rated to: ";
+
+  private static final String PROPERTIES = "jttp_build.properties";
+
   /**
    * Serial version UID.
    */
@@ -172,11 +184,10 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
 
   private static final String WORKLOG_CREATE_FAIL = "plugin.worklog.create.fail";
 
-  private static final String FEEDBACK_EMAIL_SUBJECT = "[JTTP] feedback";
-
-  private static final String PROPERTIES = "jttp_build.properties";
-
-  private static final String FEEDBACK_EMAIL_TO = "FEEDBACK_EMAIL_TO";
+  /**
+   * The parsed analytics check value.
+   */
+  private boolean analyticsCheckValue;
   /**
    * The collector issues ids.
    */
@@ -197,6 +208,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
    * The exclude dates from the properties file.
    */
   private String excludeDatesString;
+
+  private String feedBackEmailTo;
   /**
    * The plugin global setting form the settingsFactory.
    */
@@ -241,8 +254,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
    * The PluginSettingsFactory.
    */
   private final PluginSettingsFactory settingsFactory;
-
-  private String feedBackEmailTo;
 
   /**
    * Default constructor.
@@ -856,6 +867,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     setCollectorIssuePatterns();
     setExcludeDates();
     setIncludeDates();
+    setAnalyticsCheck();
 
     pluginSettings = settingsFactory.createSettingsForKey(
         JTTP_PLUGIN_SETTINGS_KEY_PREFIX + user.getName());
@@ -893,7 +905,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
         new CalendarSettingsValues(isPopup, isActualDate,
             excludeDatesString, includeDatesString, isColoring),
         nonWorkingIssuePatterns, collectorIssuePatterns,
-        startTimeChange, endTimeChange);
+        startTimeChange, endTimeChange, analyticsCheckValue);
     return pluginSettingsValues;
   }
 
@@ -959,6 +971,9 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     globalSettings.put(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
         + JTTP_PLUGIN_SETTINGS_INCLUDE_DATES,
         pluginSettingsParameters.getIncludeDates());
+    globalSettings.put(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+        + JTTP_PLUGIN_SETTINGS_ANALYTICS_CHECK_CHANGE,
+        Boolean.toString(pluginSettingsParameters.getAnalyticsCheckChange()));
   }
 
   @Override
@@ -988,6 +1003,14 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
       LOGGER.info(
           "Feedback not sent, beacause To mail address is not defined. \n"
               + "The message: \n" + mailBody.toString());
+    }
+  }
+
+  private void setAnalyticsCheck() {
+    analyticsCheckValue = true;
+    if ("false".equals(globalSettings
+        .get(JTTP_PLUGIN_SETTINGS_KEY_PREFIX + JTTP_PLUGIN_SETTINGS_ANALYTICS_CHECK_CHANGE))) {
+      analyticsCheckValue = false;
     }
   }
 

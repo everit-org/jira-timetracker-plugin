@@ -39,13 +39,18 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    * Logger.
    */
   private static final Logger LOGGER = Logger.getLogger(AdminSettingsWebAction.class);
+
+  private static final String NOT_RATED = "Not rated";
+
   /**
    * Serial version UID.
    */
   private static final long serialVersionUID = 1L;
 
-  private static final String NOT_RATED = "Not rated";
-
+  /**
+   * Check if the analytics is disable or enable.
+   */
+  private boolean analyticsCheck;
   /**
    * The collector issue key.
    */
@@ -68,6 +73,8 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    * The exclude dates in String format.
    */
   private String excludeDates = "";
+
+  private boolean feedBackSendAviable;
   /**
    * The include dates in String format.
    */
@@ -113,6 +120,7 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    * The paramater of the message.
    */
   private String messageParameterInclude = "";
+
   /**
    * The IDs of the projects.
    */
@@ -122,8 +130,6 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    * The pluginSetting startTime value.
    */
   private int startTime;
-
-  private boolean feedBackSendAviable;
 
   public AdminSettingsWebAction(
       final JiraTimetrackerPlugin jiraTimetrackerPlugin) {
@@ -200,6 +206,10 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     return getRedirect(INPUT);
   }
 
+  public boolean getAnalyticsCheck() {
+    return analyticsCheck;
+  }
+
   public String getCollectorIssueKey() {
     return collectorIssueKey;
   }
@@ -265,6 +275,7 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     }
     excludeDates = pluginSettingsValues.getExcludeDates();
     includeDates = pluginSettingsValues.getIncludeDates();
+    analyticsCheck = pluginSettingsValues.getAnalyticsCheckChange();
   }
 
   private void normalizeContextPath() {
@@ -343,6 +354,13 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     String[] collectorIssueSelectValue = request.getParameterValues("issueSelect_collector");
     String excludeDatesValue = request.getParameter("excludedates");
     String includeDatesValue = request.getParameter("includedates");
+    String analyticsCheckValue = request.getParameter("analyticsCheck");
+
+    if ((analyticsCheckValue != null) && "enable".equals(analyticsCheckValue)) {
+      analyticsCheck = true;
+    } else {
+      analyticsCheck = false;
+    }
 
     issuesPatterns = new ArrayList<Pattern>();
     if (issueSelectValue != null) {
@@ -376,8 +394,13 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
         new CalendarSettingsValues(isPopup, isActualDate, excludeDates, includeDates,
             isColoring),
         issuesPatterns, collectorIssuePatterns, startTime,
-        endTime);
+        endTime, analyticsCheck);
+
     jiraTimetrackerPlugin.savePluginSettings(pluginSettingValues);
+  }
+
+  public void setAnalyticsCheck(final boolean analyticsCheck) {
+    this.analyticsCheck = analyticsCheck;
   }
 
   public void setCollectorIssueKey(final String collectorIssueKey) {

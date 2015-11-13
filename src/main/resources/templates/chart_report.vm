@@ -343,8 +343,9 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
       google.load('visualization', '1', {packages:['controls'], callback: drawChart});
 </script>
 
-#set($IDSITE = 3);
-#parse("templates/analytics.vm")
-
+#if($analyticsCheck)
+	#set($IDSITE = 3);
+	#parse("templates/analytics.vm")
+#end
 </body>
 </html>

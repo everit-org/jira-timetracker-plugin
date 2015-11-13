@@ -84,13 +84,12 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   private static final String VERSION_SPLITTER = "\\.";
 
-  private String pluginVersion;
+  private boolean analyticsCheck;
+
+  private String avatarURL = "";
 
   private String baseUrl;
 
-  private String userId;
-
-  private String avatarURL = "";
   /**
    * The worklog comment.
    */
@@ -227,6 +226,9 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The summary of month.
    */
   private String monthSummary = "";
+
+  private String pluginVersion;
+
   /**
    * The IDs of the projects.
    */
@@ -252,6 +254,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The spent time in Jira time format (1h 20m).
    */
   private String timeSpent = "";
+
+  private String userId;
 
   private transient ApplicationUser userPickerObject;
 
@@ -565,6 +569,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     }
     editAllIds = "";
     return SUCCESS;
+  }
+
+  public boolean getAnalyticsCheck() {
+    return analyticsCheck;
   }
 
   public String getAvatarURL() {
@@ -898,6 +906,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     startTimeChange = pluginSettingsValues.getStartTimeChange();
     endTimeChange = pluginSettingsValues.getEndTimeChange();
     isColoring = pluginSettingsValues.isColoring();
+    analyticsCheck = pluginSettingsValues.getAnalyticsCheckChange();
   }
 
   /**
@@ -1074,6 +1083,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       return ERROR;
     }
     return SUCCESS;
+  }
+
+  public void setAnalyticsCheck(final boolean analyticsCheck) {
+    this.analyticsCheck = analyticsCheck;
   }
 
   public void setAvatarURL(final String avatarURL) {

@@ -28,6 +28,7 @@ import java.util.Map.Entry;
 import org.apache.log4j.Logger;
 import org.everit.jira.timetracker.plugin.dto.ChartData;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
+import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
 import org.ofbiz.core.entity.GenericEntityException;
 
 import com.atlassian.jira.avatar.Avatar;
@@ -69,6 +70,8 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
   private static final long serialVersionUID = 1L;
 
   private static final String WRONG_DATES = "plugin.wrong.dates";
+
+  private boolean analyticsCheck;
 
   private String avatarURL = "";
 
@@ -158,6 +161,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
     baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(getHttpRequest().getSession());
     userId = JiraTimetrackerAnalytics.setUserSessionUserId(getHttpRequest().getSession());
+    loadPluginSettingAndParseResult();
     if ("".equals(dateFromFormated)) {
       dateFromDefaultInit();
     }
@@ -188,6 +192,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
     baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(getHttpRequest().getSession());
     userId = JiraTimetrackerAnalytics.setUserSessionUserId(getHttpRequest().getSession());
+    loadPluginSettingAndParseResult();
     setDefaultDates();
 
     Calendar startDate = null;
@@ -235,6 +240,10 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
       chartDataList.add(new ChartData(entry.getKey(), entry.getValue()));
     }
     return SUCCESS;
+  }
+
+  public boolean getAnalyticsCheck() {
+    return analyticsCheck;
   }
 
   public String getAvatarURL() {
@@ -313,6 +322,12 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     return userPickerObject;
   }
 
+  private void loadPluginSettingAndParseResult() {
+    PluginSettingsValues pluginSettingsValues = jiraTimetrackerPlugin
+        .loadPluginSettings();
+    analyticsCheck = pluginSettingsValues.getAnalyticsCheckChange();
+  }
+
   private void normalizeContextPath() {
     String path = getHttpRequest().getContextPath();
     if ((path.length() > 0) && "/".equals(path.substring(path.length() - 1))) {
@@ -320,6 +335,10 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     } else {
       contextPath = path;
     }
+  }
+
+  public void setAnalyticsCheck(final boolean analyticsCheck) {
+    this.analyticsCheck = analyticsCheck;
   }
 
   public void setAvatarURL(final String avatarURL) {

@@ -219,7 +219,29 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 									$i18n.getText("plugin.setting.include.dates.help")
 							</div>
 						</td>		
-					</tr>	
+					</tr>
+					<tr>
+						<td style="border-top: 1px solid #D2D2D2; text-align: right; vertical-align: top;" width="15%">
+							<div style="margin-bottom: 10px; margin-top: 20px;">
+								<h3>$i18n.getText("plugin.settings.analytics")</h3>
+							</div>
+						</td>
+						<td style="border-top: 1px solid #D2D2D2;">
+							<div class="description" style="margin-top: 12px;">
+										$i18n.getText("plugin.settings.analytics.help")
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td></td>
+						<td>
+							<div>
+							<input id="analyticsCheckEnable" type="radio" name="analyticsCheck" value="enable" #if($analyticsCheck) checked #end/>
+										$i18n.getText("plugin.settings.analytics.radiobutton.enable")
+							<input id="analyticsCheckDisable" type="radio" name="analyticsCheck" value="disable" #if(!$analyticsCheck) checked #end/>
+										$i18n.getText("plugin.settings.analytics.radiobutton.disable")
+							</div>
+						</td>
 					</tr>
 					<tr class="buttons-container">
 						<td colspan="2">
