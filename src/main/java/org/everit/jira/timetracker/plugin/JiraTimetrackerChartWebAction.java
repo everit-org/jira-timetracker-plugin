@@ -53,7 +53,6 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
   private static final String INVALID_USER_PICKER = "plugin.user.picker.label";
 
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
-
   /**
    * Logger.
    */
@@ -64,6 +63,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
   private static final String PARAM_DATETO = "dateTo";
 
   private static final String PARAM_USERPICKER = "userPicker";
+
   /**
    * Serial version UID.
    */
@@ -82,10 +82,12 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
   private String contextPath;
 
   private String currentUser = "";
+
   /**
    * The date.
    */
   private Date dateFrom = null;
+
   /**
    * The formated date.
    */
@@ -110,6 +112,10 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
    * The message.
    */
   private String message = "";
+
+  private String piwikHost;
+
+  private String piwikSiteId;
 
   private String pluginVersion;
 
@@ -158,9 +164,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     normalizeContextPath();
     jiraTimetrackerPlugin.loadPluginSettings();
 
-    pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
-    baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(getHttpRequest().getSession());
-    userId = JiraTimetrackerAnalytics.setUserSessionUserId(getHttpRequest().getSession());
+    setPiwikProperties();
     loadPluginSettingAndParseResult();
     if ("".equals(dateFromFormated)) {
       dateFromDefaultInit();
@@ -189,9 +193,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     normalizeContextPath();
     jiraTimetrackerPlugin.loadPluginSettings();
 
-    pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
-    baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(getHttpRequest().getSession());
-    userId = JiraTimetrackerAnalytics.setUserSessionUserId(getHttpRequest().getSession());
+    setPiwikProperties();
     loadPluginSettingAndParseResult();
     setDefaultDates();
 
@@ -294,6 +296,14 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     return message;
   }
 
+  public String getPiwikHost() {
+    return piwikHost;
+  }
+
+  public String getPiwikSiteId() {
+    return piwikSiteId;
+  }
+
   public String getPluginVersion() {
     return pluginVersion;
   }
@@ -394,6 +404,25 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
   public void setMessage(final String message) {
     this.message = message;
+  }
+
+  public void setPiwikHost(final String piwikHost) {
+    this.piwikHost = piwikHost;
+  }
+
+  private void setPiwikProperties() {
+    pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
+    baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(getHttpRequest().getSession());
+    userId = JiraTimetrackerAnalytics.setUserSessionUserId(getHttpRequest().getSession());
+
+    piwikHost =
+        jiraTimetrackerPlugin.getPiwikPorperty(JiraTimetrackerPiwikPropertiesUtil.PIWIK_HOST);
+    piwikSiteId = jiraTimetrackerPlugin
+        .getPiwikPorperty(JiraTimetrackerPiwikPropertiesUtil.PIWIK_CHART_SITEID);
+  }
+
+  public void setPiwikSiteId(final String piwikSiteId) {
+    this.piwikSiteId = piwikSiteId;
   }
 
   public void setPluginVersion(final String pluginVersion) {

@@ -77,18 +77,22 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    * The date.
    */
   private Date dateFrom = null;
+
   /**
    * The formated date.
    */
   private String dateFromFormated = "";
+
   /**
    * The date.
    */
   private Date dateTo = null;
+
   /**
    * The formated date.
    */
   private String dateToFormated = "";
+
   /**
    * The {@link JiraTimetrackerPlugin}.
    */
@@ -102,11 +106,14 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    * The message parameter.
    */
   private String messageParameter = "";
-
   /**
    * The number of pages.
    */
   private int numberOfPages;
+
+  private String piwikHost;
+
+  private String piwikSiteId;
 
   private String pluginVersion;
 
@@ -172,10 +179,8 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
     normalizeContextPath();
     jiraTimetrackerPlugin.loadPluginSettings();
+    setPiwikProperties();
 
-    pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
-    baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(getHttpRequest().getSession());
-    userId = JiraTimetrackerAnalytics.setUserSessionUserId(getHttpRequest().getSession());
     loadPluginSettingAndParseResult();
     if ("".equals(dateToFormated)) {
       dateToDefaultInit();
@@ -219,9 +224,8 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
     normalizeContextPath();
     jiraTimetrackerPlugin.loadPluginSettings();
-    pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
-    baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(getHttpRequest().getSession());
-    userId = JiraTimetrackerAnalytics.setUserSessionUserId(getHttpRequest().getSession());
+
+    setPiwikProperties();
     loadPluginSettingAndParseResult();
     message = "";
     messageParameter = "";
@@ -320,6 +324,14 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
   public int getNumberOfPages() {
     return numberOfPages;
+  }
+
+  public String getPiwikHost() {
+    return piwikHost;
+  }
+
+  public String getPiwikSiteId() {
+    return piwikSiteId;
   }
 
   public String getPluginVersion() {
@@ -450,6 +462,25 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
   public void setNumberOfPages(final int numberOfPages) {
     this.numberOfPages = numberOfPages;
+  }
+
+  public void setPiwikHost(final String piwikHost) {
+    this.piwikHost = piwikHost;
+  }
+
+  private void setPiwikProperties() {
+    pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
+    baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(getHttpRequest().getSession());
+    userId = JiraTimetrackerAnalytics.setUserSessionUserId(getHttpRequest().getSession());
+
+    piwikHost =
+        jiraTimetrackerPlugin.getPiwikPorperty(JiraTimetrackerPiwikPropertiesUtil.PIWIK_HOST);
+    piwikSiteId = jiraTimetrackerPlugin
+        .getPiwikPorperty(JiraTimetrackerPiwikPropertiesUtil.PIWIK_WORKLOGS_SITEID);
+  }
+
+  public void setPiwikSiteId(final String piwikSiteId) {
+    this.piwikSiteId = piwikSiteId;
   }
 
   public void setPluginVersion(final String pluginVersion) {

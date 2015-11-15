@@ -153,6 +153,15 @@ public interface JiraTimetrackerPlugin {
       throws GenericEntityException;
 
   /**
+   * Get Piwik build property value by key.
+   * 
+   * @param key
+   *          The porperty key.
+   * @return The property value.
+   */
+  String getPiwikPorperty(String key);
+
+  /**
    * Give back the Projects.
    *
    * @return whit Projects.
