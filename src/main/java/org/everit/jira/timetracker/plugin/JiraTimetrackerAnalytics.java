@@ -31,16 +31,16 @@ public final class JiraTimetrackerAnalytics {
 
   private static final String BASE_URL = "org.everit.jira.timetracker.plugin.base.url.hash";
 
-  private static final String USER_ID = "org.everit.jira.timetracker.plugin.user.id.hash";
+  private static final String ERROR_BASE_URL_HASH = "errorBaseUrlHash";
+
+  private static final String ERROR_USER_ID_HASH = "errorUserIdHash";
 
   /**
    * The JiraTimetrackerAnalytics logger.
    */
   private static Logger log = Logger.getLogger(JiraTimetrackerAnalytics.class);
 
-  private static final String ERROR_BASE_URL_HASH = "errorBaseUrlHash";
-
-  private static final String ERROR_USER_ID_HASH = "errorUserIdHash";
+  private static final String USER_ID = "org.everit.jira.timetracker.plugin.user.id.hash";
 
   /**
    * Get the base URL.

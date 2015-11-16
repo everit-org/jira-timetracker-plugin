@@ -194,7 +194,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 							<div id="messageExclude" style="color: red; ">
 		 							$i18n.getText($messageExclude) $messageParameterExclude
 		  					</div>
-							<textarea id="excludedates" name="excludedates"></textarea>
+							<textarea id="excludedates" name="excludedates" style="width: 95%; height: 75px;"></textarea>
 							<script>
 								AJS.$("#excludedates").append("$excludeDates");
 							</script>
@@ -211,7 +211,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 							<div id="messageInclude" style="color: red; ">
 		 							$i18n.getText($messageInclude) $messageParameterInclude
 		  					</div>
-							<textarea id="includedates" name="includedates"></textarea>
+							<textarea id="includedates" name="includedates" style="width: 95%; height: 75px;"></textarea>
 							<script>
 								AJS.$("#includedates").append("$includeDates");
 							</script>
