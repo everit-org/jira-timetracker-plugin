@@ -248,7 +248,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
    */
   private List<Pattern> nonWorkingIssuePatterns;
 
-  Map<String, String> piwikPorpeties;
+  private Map<String, String> piwikPorpeties;
 
   /**
    * The plugin setting form the settingsFactory.
