@@ -117,7 +117,7 @@
 </head>
 <body>
 <script>
-	function calculateTimeForInputfileds(hour,min){
+	function calculateTimeForInputfields(hour,min){
 		if (hour < 10){
 			hour = "0" + hour
 		}
@@ -391,7 +391,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 															var hour = currentTime.getHours();
 															var minute = currentTime.getMinutes();
 															startState = 1;
-															var now = calculateTimeForInputfileds(hour,minute);
+															var now = calculateTimeForInputfields(hour,minute);
 															AJS.$("#startTime").val(now);
 					               						}
 					               						function setStartDecTemporary(){
@@ -410,7 +410,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 						               							}
 					               								startState = 0;
 					               							}
-					               							var time = calculateTimeForInputfileds(hour,min);
+					               							var time = calculateTimeForInputfields(hour,min);
 															AJS.$("#startTime").val(time);
 					               						}
 					               						function setStartInc(){
@@ -439,7 +439,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 					               								min = min - minSubInt;
 					               							}
 					               							startState = 2;
-															var time = calculateTimeForInputfileds(hour,min);
+															var time = calculateTimeForInputfields(hour,min);
 															AJS.$("#startTime").val(time);
 					               						}
 													</script>
@@ -477,7 +477,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 															var hour = currentTime.getHours();
 															var minute = currentTime.getMinutes();
 															endState = 1;
-															var now =calculateTimeForInputfileds(hour,minute);
+															var now =calculateTimeForInputfields(hour,minute);
 															AJS.$("#endTime").val(now);
 					               						 }
 					               						
@@ -513,7 +513,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 						               							}
 					               								endState = 0;
 					               							}
-					               							var time = calculateTimeForInputfileds(hour,min);
+					               							var time = calculateTimeForInputfields(hour,min);
 															AJS.$("#endTime").val(time);
 					               							
 					               						}
@@ -543,7 +543,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 					               								min = min - minSubInt;
 					               							}
 					               							endState = 2;
-															var time = calculateTimeForInputfileds(hour,min);
+															var time = calculateTimeForInputfields(hour,min);
 															AJS.$("#endTime").val(time);
 					               						}  
 													</script>
