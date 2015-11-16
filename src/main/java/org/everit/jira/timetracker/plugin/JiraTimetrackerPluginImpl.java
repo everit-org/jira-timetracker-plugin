@@ -28,8 +28,10 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Executors;
@@ -137,10 +139,12 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
    * The plugin setting is actual date key.
    */
   private static final String JTTP_PLUGIN_SETTINGS_IS_COLORIG = "isColoring";
+
   /**
    * The plugin settings key prefix.
    */
   private static final String JTTP_PLUGIN_SETTINGS_KEY_PREFIX = "jttp";
+
   /**
    * The plugin setting Summary Filters key.
    */
@@ -150,10 +154,12 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
    * The plugin setting is calendar popup key.
    */
   private static final String JTTP_PLUGIN_SETTINGS_START_TIME_CHANGE = "startTimeChange";
+
   /**
    * The plugin setting Summary Filters key.
    */
   private static final String JTTP_PLUGIN_SETTINGS_SUMMARY_FILTERS = "SummaryFilters";
+
   /**
    * Logger.
    */
@@ -162,6 +168,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   private static final int MINUTES_IN_HOUR = 60;
 
   private static final String NOPERMISSION_ISSUE = "plugin.nopermission_issue";
+
   /**
    * A day in minutes.
    */
@@ -210,30 +217,39 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   private String excludeDatesString;
 
   private String feedBackEmailTo;
+
   /**
    * The plugin global setting form the settingsFactory.
    */
   private PluginSettings globalSettings;
+
   /**
    * The parsed include dates.
    */
   private Set<String> includeDatesSet = new HashSet<String>();
+
   /**
    * The include dates from the properties file.
    */
   private String includeDatesString;
+
   /**
    * The issue check time in minutes.
    */
   private long issueCheckTimeInMinutes;
+
   /**
    * The issues Estimated Time Checker Future.
    */
   private ScheduledFuture<?> issueEstimatedTimeCheckerFuture;
+
   /**
    * The summary filter issues ids.
    */
   private List<Pattern> nonWorkingIssuePatterns;
+
+  Map<String, String> piwikPorpeties;
+
   /**
    * The plugin setting form the settingsFactory.
    */
@@ -666,6 +682,11 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   }
 
   @Override
+  public String getPiwikPorperty(final String key) {
+    return piwikPorpeties.get(key);
+  }
+
+  @Override
   public List<String> getProjectsId() throws GenericEntityException {
     List<String> projectsId = new ArrayList<String>();
     List<GenericValue> projectsGV = ComponentAccessor.getOfBizDelegator().findAll("Project");
@@ -848,6 +869,18 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
       properties.load(inputStream);
 
       feedBackEmailTo = properties.getProperty(FEEDBACK_EMAIL_TO);
+
+      piwikPorpeties = new HashMap<String, String>();
+      piwikPorpeties.put(JiraTimetrackerPiwikPropertiesUtil.PIWIK_HOST,
+          properties.getProperty(JiraTimetrackerPiwikPropertiesUtil.PIWIK_HOST));
+      piwikPorpeties.put(JiraTimetrackerPiwikPropertiesUtil.PIWIK_TIMETRACKER_SITEID,
+          properties.getProperty(JiraTimetrackerPiwikPropertiesUtil.PIWIK_TIMETRACKER_SITEID));
+      piwikPorpeties.put(JiraTimetrackerPiwikPropertiesUtil.PIWIK_WORKLOGS_SITEID,
+          properties.getProperty(JiraTimetrackerPiwikPropertiesUtil.PIWIK_WORKLOGS_SITEID));
+      piwikPorpeties.put(JiraTimetrackerPiwikPropertiesUtil.PIWIK_CHART_SITEID,
+          properties.getProperty(JiraTimetrackerPiwikPropertiesUtil.PIWIK_CHART_SITEID));
+      piwikPorpeties.put(JiraTimetrackerPiwikPropertiesUtil.PIWIK_TABLE_SITEID,
+          properties.getProperty(JiraTimetrackerPiwikPropertiesUtil.PIWIK_TABLE_SITEID));
 
     } finally {
       if (inputStream != null) {

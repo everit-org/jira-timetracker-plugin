@@ -794,7 +794,6 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 </form>
 
 #if($analyticsCheck)
-	#set($IDSITE = 1);
 	#parse("templates/analytics.vm")
 #end
 </body>
