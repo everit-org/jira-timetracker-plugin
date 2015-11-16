@@ -15,42 +15,31 @@
  *#
 $webResourceManager.requireResource("jira.webresources:dwr", null)   
 $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
-<style type="text/css">
-{
-margin-bottom: 0em;
-}
-.table-endtime:hover, .table-starttime:hover, .table-issue:hover, .table-comment:hover{
-cursor:pointer;
-}
-span{
-cursor:pointer;
-}
-</style>
 #set($rowCount = 0)
 <div class="results-wrap">
 	<div>
 	    <table class="grid" border="0" cellpadding="2" cellspacing="0" width="100%">
 	              <thead>
 	                   <tr class="rowHeader">
-	                       <td width="10%" style="text-align: center;">
+	                       <td width="10%">
 	                           Issue
 	                        </td>
-	                        <td width="5%" style="text-align: center;">
+	                        <td class="label-row">
 	                           $i18n.getText("plugin.start")
 	                        </td>
-	                        <td width="5%" style="text-align: center;">
+	                        <td class="label-row">
 	                           $i18n.getText("plugin.end")
 	                        </td>
-	                        <td width="5%" style="text-align: center;"> 
+	                        <td class="label-row"> 
 	                          $i18n.getText("plugin.duration")
 	                        </td>
-	                        <td width="5%" style="text-align: center;"> 
+	                        <td class="label-row"> 
 	                          $i18n.getText("plugin.remaining")
 	                        </td>
-	                        <td width="60%" style="text-align: center;">
+	                        <td width="60%">
 	                          $i18n.getText("plugin.note")
 	                        </td>
-	                        <td width="10%" style="text-align: center;">
+	                        <td width="10%">
 	                          $i18n.getText("plugin.actions")
 	                        </td>
 	                    </tr>

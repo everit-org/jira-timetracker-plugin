@@ -14,13 +14,22 @@
  * limitations under the License.
  */
 @CHARSET "UTF-8";
-
+{
+margin-bottom: 0em;
+}
+.table-endtime:hover, .table-starttime:hover, .table-issue:hover, .table-comment:hover{
+cursor:pointer;
+}
+span{
+cursor:pointer;
+}
 .grid td {
     text-align: center;
     vertical-align: inherit;
 }
 .rowHeader {
     background-color: #E2E2E2;
+	text-align: center;
 }
 .rowAlter {
     background-color: #F2F2F2;
@@ -99,14 +108,14 @@ item-header {
     background-color: #d04437;
 }
 
-.calendar{
+.jttp-calendar{
     text-align: left;
     vertical-align: inherit;
     float: left;
     padding:5px;
 }
 
-.calendar-img{
+.jttp-calendar-img{
     vertical-align: sub;
 }
 
@@ -119,16 +128,18 @@ item-header {
     width: 20%;
 }
 
-.summaty-table-label-column{
+.label-row{
     width: 5%;
 }
 
-.summaty-table-value-column{
+.value-row{
     width: 85px;
 }
 
 .summary-table-datepicker-column{
 	width: 40%;
 }
-
+.worklog-table-header-column{
+	
+}
 
