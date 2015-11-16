@@ -15,7 +15,15 @@
  */
 package org.everit.jira.timetracker.plugin;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.NotSerializableException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -27,8 +35,11 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -75,6 +86,7 @@ import com.atlassian.jira.security.PermissionManager;
 import com.atlassian.jira.security.Permissions;
 import com.atlassian.jira.usercompatibility.UserCompatibilityHelper;
 import com.atlassian.mail.MailException;
+import com.atlassian.plugin.util.ClassLoaderUtils;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
@@ -105,7 +117,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
    * The plugin setting is calendar popup key.
    */
   private static final String JTTP_PLUGIN_SETTINGS_END_TIME_CHANGE = "endTimechange";
-
   /**
    * The plugin setting Exclude dates key.
    */
@@ -135,6 +146,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
    * The plugin settings key prefix.
    */
   private static final String JTTP_PLUGIN_SETTINGS_KEY_PREFIX = "jttp";
+
   /**
    * The plugin setting Summary Filters key.
    */
@@ -148,6 +160,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
    * The plugin setting Summary Filters key.
    */
   private static final String JTTP_PLUGIN_SETTINGS_SUMMARY_FILTERS = "SummaryFilters";
+
   /**
    * Logger.
    */
@@ -157,10 +170,13 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   private static final int MINUTES_IN_HOUR = 60;
 
   private static final String NOPERMISSION_ISSUE = "plugin.nopermission_issue";
+
   /**
    * A day in minutes.
    */
   private static final int ONE_DAY_IN_MINUTES = 1440;
+
+  private static final String PROPERTIES = "jttp_build.properties";
   /**
    * Serial version UID.
    */
@@ -183,6 +199,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
    * The collector issues ids.
    */
   private List<Pattern> collectorIssuePatterns;
+
   /**
    * The collector issues ids.
    */
@@ -215,15 +232,17 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
    * The issue check time in minutes.
    */
   private long issueCheckTimeInMinutes;
-
   /**
    * The issues Estimated Time Checker Future.
    */
   private ScheduledFuture<?> issueEstimatedTimeCheckerFuture;
+
   /**
    * The summary filter issues ids.
    */
   private List<Pattern> nonWorkingIssuePatterns;
+
+  private Map<String, String> piwikPorpeties;
   /**
    * The plugin setting form the settingsFactory.
    */
@@ -253,6 +272,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   public void afterPropertiesSet() throws Exception {
 
     setDefaultVariablesValue();
+    loadJttpBuildProperties();
 
     final Runnable issueEstimatedTimeChecker = new IssueEstimatedTimeChecker(
         this);
@@ -626,6 +646,11 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   }
 
   @Override
+  public String getPiwikPorperty(final String key) {
+    return piwikPorpeties.get(key);
+  }
+
+  @Override
   public List<String> getProjectsId() throws GenericEntityException {
     List<String> projectsId = new ArrayList<String>();
     @SuppressWarnings("unchecked")
@@ -886,6 +911,38 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     return endTime;
   }
 
+  private void loadJttpBuildProperties() throws IOException {
+    InputStream inputStream = null;
+    Properties properties = new Properties();
+    try {
+      inputStream = ClassLoaderUtils
+          .getResourceAsStream(PROPERTIES, JiraTimetrackerPluginImpl.class);
+      if (inputStream == null) {
+        URL resource = ClassLoaderUtils.getResource(PROPERTIES, JiraTimetrackerPluginImpl.class);
+        File propertiesFile = new File(resource.getFile());
+        inputStream = new FileInputStream(propertiesFile);
+      }
+      properties.load(inputStream);
+
+      piwikPorpeties = new HashMap<String, String>();
+      piwikPorpeties.put(JiraTimetrackerPiwikPropertiesUtil.PIWIK_HOST,
+          properties.getProperty(JiraTimetrackerPiwikPropertiesUtil.PIWIK_HOST));
+      piwikPorpeties.put(JiraTimetrackerPiwikPropertiesUtil.PIWIK_TIMETRACKER_SITEID,
+          properties.getProperty(JiraTimetrackerPiwikPropertiesUtil.PIWIK_TIMETRACKER_SITEID));
+      piwikPorpeties.put(JiraTimetrackerPiwikPropertiesUtil.PIWIK_WORKLOGS_SITEID,
+          properties.getProperty(JiraTimetrackerPiwikPropertiesUtil.PIWIK_WORKLOGS_SITEID));
+      piwikPorpeties.put(JiraTimetrackerPiwikPropertiesUtil.PIWIK_CHART_SITEID,
+          properties.getProperty(JiraTimetrackerPiwikPropertiesUtil.PIWIK_CHART_SITEID));
+      piwikPorpeties.put(JiraTimetrackerPiwikPropertiesUtil.PIWIK_TABLE_SITEID,
+          properties.getProperty(JiraTimetrackerPiwikPropertiesUtil.PIWIK_TABLE_SITEID));
+
+    } finally {
+      if (inputStream != null) {
+        inputStream.close();
+      }
+    }
+  }
+
   @Override
   public PluginSettingsValues loadPluginSettings() {
     JiraAuthenticationContext authenticationContext = ComponentManager
@@ -939,10 +996,10 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     return pluginSettingsValues;
   }
 
-  private void readObject(final java.io.ObjectInputStream stream) throws java.io.IOException,
+  private void readObject(final ObjectInputStream stream) throws IOException,
       ClassNotFoundException {
     stream.close();
-    throw new java.io.NotSerializableException(getClass().getName());
+    throw new NotSerializableException(getClass().getName());
   }
 
   private void removeNonWorkingIssues(final List<GenericValue> worklogGVList) {
@@ -1162,8 +1219,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
 
   }
 
-  private void writeObject(final java.io.ObjectOutputStream stream) throws java.io.IOException {
+  private void writeObject(final ObjectOutputStream stream) throws IOException {
     stream.close();
-    throw new java.io.NotSerializableException(getClass().getName());
+    throw new NotSerializableException(getClass().getName());
   }
 }

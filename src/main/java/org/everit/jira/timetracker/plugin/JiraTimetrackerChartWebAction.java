@@ -88,6 +88,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
   private String contextPath;
 
   private String currentUserKey = "";
+
   /**
    * The date.
    */
@@ -117,6 +118,10 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
    * The message.
    */
   private String message = "";
+
+  private String piwikHost;
+
+  private String piwikSiteId;
 
   private String pluginVersion;
 
@@ -164,9 +169,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
     normalizeContextPath();
     jiraTimetrackerPlugin.loadPluginSettings();
-    pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
-    baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(request.getSession());
-    userId = JiraTimetrackerAnalytics.setUserSessionUserId(request.getSession());
+    setPiwikProperties();
     loadPluginSettingAndParseResult();
 
     if ("".equals(dateFromFormated)) {
@@ -198,9 +201,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
     normalizeContextPath();
     jiraTimetrackerPlugin.loadPluginSettings();
-    pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
-    baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(request.getSession());
-    userId = JiraTimetrackerAnalytics.setUserSessionUserId(request.getSession());
+    setPiwikProperties();
     loadPluginSettingAndParseResult();
 
     setDefaultDates();
@@ -310,6 +311,14 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     return message;
   }
 
+  public String getPiwikHost() {
+    return piwikHost;
+  }
+
+  public String getPiwikSiteId() {
+    return piwikSiteId;
+  }
+
   public String getPluginVersion() {
     return pluginVersion;
   }
@@ -416,6 +425,25 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
   public void setMessage(final String message) {
     this.message = message;
+  }
+
+  public void setPiwikHost(final String piwikHost) {
+    this.piwikHost = piwikHost;
+  }
+
+  private void setPiwikProperties() {
+    pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
+    baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(request.getSession());
+    userId = JiraTimetrackerAnalytics.setUserSessionUserId(request.getSession());
+
+    piwikHost =
+        jiraTimetrackerPlugin.getPiwikPorperty(JiraTimetrackerPiwikPropertiesUtil.PIWIK_HOST);
+    piwikSiteId = jiraTimetrackerPlugin
+        .getPiwikPorperty(JiraTimetrackerPiwikPropertiesUtil.PIWIK_TIMETRACKER_SITEID);
+  }
+
+  public void setPiwikSiteId(final String piwikSiteId) {
+    this.piwikSiteId = piwikSiteId;
   }
 
   public void setPluginVersion(final String pluginVersion) {

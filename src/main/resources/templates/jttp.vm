@@ -773,7 +773,6 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 </form>
 
 #if($analyticsCheck)
-	#set($IDSITE = 1);
 	#parse("templates/analytics.vm")
 #end
 </body>
