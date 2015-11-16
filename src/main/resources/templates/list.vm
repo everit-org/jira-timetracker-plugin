@@ -32,25 +32,25 @@ cursor:pointer;
 	    <table class="grid" border="0" cellpadding="2" cellspacing="0" width="100%">
 	              <thead>
 	                   <tr class="rowHeader">
-	                       <td width="10%" style="text-align: center;">
+	                       <td width="10%" style="text-align: center;" title="$i18n.getText('jttp.list.title.issue')">
 	                           Issue
 	                        </td>
-	                        <td width="5%" style="text-align: center;"> 
+	                        <td width="5%" style="text-align: center;" title="$i18n.getText('jttp.list.title.remaining')"> 
 	                          $i18n.getText("plugin.remaining")
 	                        </td>
-	                        <td width="5%" style="text-align: center;">
+	                        <td width="5%" style="text-align: center;" title="$i18n.getText('jttp.list.title.start')">
 	                           $i18n.getText("plugin.start")
 	                        </td>
-	                        <td width="5%" style="text-align: center;">
+	                        <td width="5%" style="text-align: center;" title="$i18n.getText('jttp.list.title.end')">
 	                           $i18n.getText("plugin.end")
 	                        </td>
-	                        <td width="5%" style="text-align: center;"> 
+	                        <td width="5%" style="text-align: center;" title="$i18n.getText('jttp.list.title.duration')"> 
 	                          $i18n.getText("plugin.duration")
 	                        </td>
-	                        <td width="60%" style="text-align: center;">
+	                        <td width="60%" style="text-align: center;" title="$i18n.getText('jttp.list.title.note')">
 	                          $i18n.getText("plugin.note")
 	                        </td>
-	                        <td width="10%" style="text-align: center;">
+	                        <td width="10%" style="text-align: center;" title="$i18n.getText('jttp.list.title.actions')">
 	                          $i18n.getText("plugin.actions")
 	                        </td>
 	                    </tr>
