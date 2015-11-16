@@ -154,7 +154,7 @@ public interface JiraTimetrackerPlugin {
 
   /**
    * Get Piwik build property value by key.
-   * 
+   *
    * @param key
    *          The porperty key.
    * @return The property value.
