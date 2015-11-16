@@ -117,6 +117,7 @@
 </head>
 <body>
 <script>
+	var _paq = (_paq || []);
 	function calculateTimeForInputfields(hour,min){
 		if (hour < 10){
 			hour = "0" + hour
@@ -772,11 +773,21 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 		 	AJS.$('#Submitbutton').focus();
 		 });
 		 
+		 function isIssueSelectorPopupVisible() {
+		 	var visible = AJS.$("#issueSelect-suggestions .aui-list-scroll h5").is(":visible");
+		 	return visible;
+		 }
+		 
 		 AJS.$('#issueSelect-textarea').keydown(function(e){
 		    var isEnter = e.keyCode == 10 || e.keyCode == 13;
 	        if (isEnter && e.ctrlKey) {
 	          AJS.$('#Submitbutton, #Edit').click();
+	        } else if (isEnter && !isIssueSelectorPopupVisible()) {
+	        	e.preventDefault();
+	        	e.stopPropagation();
+	        	return false;
 	        }
+	        
 	     });
 	     
 	     AJS.$('#comments').keydown(function(e){
@@ -786,6 +797,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 	     });
 	     
 	     AJS.$('#jttpForm').submit(function () {
+	     	console.log("setting to disabled");
 	        AJS.$('#Submitbutton').prop("disabled", true);
 	        return true;
 	     });
