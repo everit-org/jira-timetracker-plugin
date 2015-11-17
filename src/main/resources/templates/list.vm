@@ -21,7 +21,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 	    <table class="grid" border="0" cellpadding="2" cellspacing="0" width="100%">
 	              <thead>
 	                   <tr class="rowHeader">
-	                       <td width="10%">
+	                       <td width="10%" style="text-align: center;" title="$i18n.getText('jttp.list.title.issue')">
 	                           Issue
 	                        </td>
 	                        <td class="label-row">
@@ -39,7 +39,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 	                        <td width="60%">
 	                          $i18n.getText("plugin.note")
 	                        </td>
-	                        <td width="10%">
+	                        <td width="10%" style="text-align: center;" title="$i18n.getText('jttp.list.title.actions')">
 	                          $i18n.getText("plugin.actions")
 	                        </td>
 	                    </tr>
@@ -56,6 +56,14 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 		                    	 	<td class="table-issue" style="vertical-align: middle;">
 		                    	 		<a href="/browse/$worklog.issue" class="issue-link" title="#if($worklog.issueParent != '') $i18n.getText('plugin.parent.issue') $worklog.issueParent &#13 $worklog.issueSummary #else $worklog.issueSummary #end">$worklog.issue</a>
 		                    	 	</td>
+		                    	 	<td style="vertical-align: middle;">
+		                    	 		#if(!$worklog.isMoreEstimatedTime)
+		                    	 			<div style="color:red;">$worklog.remaining</div>
+										#else
+											$worklog.remaining
+										#end
+		                    	 		
+		                    	 	</td>
 		                    	 	<td class="table-starttime" style="vertical-align: middle;">
 		                    	 		$worklog.startTime
 		                    	 	</td>
@@ -64,14 +72,6 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 		                    	 	</td>
 		                    	 	<td style="vertical-align: middle;">
 		                    	 		$worklog.duration
-		                    	 	</td>
-		                    	 	<td style="vertical-align: middle;">
-		                    	 		#if(!$worklog.isMoreEstimatedTime)
-		                    	 			<div style="color:red;">$worklog.remaining</div>
-										#else
-											$worklog.remaining
-										#end
-		                    	 		
 		                    	 	</td>
 		                    	 	<td id="commentRow_$rowCount" name="commentRow_$rowCount" class="table-comment wiki-edit-content" style="vertical-align: middle;">
 		                    	 		<input id="hiddenWorklogBody" type="hidden" value="$worklog.body">
@@ -99,11 +99,11 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 		                    	 		<span class="aui-icon aui-icon-small aui-iconfont-edit"
 		                    	 			id="edit" name="edit" title="$i18n.getText('plugin.edit')"
 		                    	 			style="margin:3px"
-		                    	 			onclick="location.href='JiraTimetrackerWebAction.jspa?editedWorklogId=$worklog.worklogId&dateFormated=$dateFormated'"></span>
+		                    	 			onclick="location.href='JiraTimetrackerWebAction.jspa?editedWorklogId=$worklog.worklogId&dateFormatted=$dateFormatted'"></span>
 		                    	 		<span class="aui-icon aui-icon-small aui-iconfont-delete"
 		                    	 			id="delete" name="delete" title="$i18n.getText('plugin.delete')"
 		                    	 			style="margin:3px"
-		                    	 			onclick="location.href='JiraTimetrackerWebAction!default.jspa?deletedWorklogId=$worklog.worklogId&dateFormated=$dateFormated'"></span>
+		                    	 			onclick="location.href='JiraTimetrackerWebAction!default.jspa?deletedWorklogId=$worklog.worklogId&dateFormatted=$dateFormatted'"></span>
 		                    	 		<span class="aui-icon aui-icon-small aui-iconfont-copy-clipboard copy"
 		                    	 			style="margin:3px"
 		                    	 			id="copy" name="copy" title="$i18n.getText('plugin.copy')"></span>

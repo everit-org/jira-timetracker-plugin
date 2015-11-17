@@ -42,6 +42,8 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
    * Serial version UID.
    */
   private static final long serialVersionUID = 1L;
+
+  private boolean analyticsCheck;
   /**
    * The collector issue ids.
    */
@@ -157,6 +159,10 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     return SUCCESS;
   }
 
+  public boolean getAnalyticsCheck() {
+    return analyticsCheck;
+  }
+
   public String getContextPath() {
     return contextPath;
   }
@@ -230,43 +236,43 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
    *          The HttpServletRequest.
    */
   public String parseSaveSettings(final HttpServletRequest request) {
-    String[] popupOrInlineValue = request.getParameterValues("popupOrInline");
-    String[] startTimeValue = request.getParameterValues("startTime");
-    String[] endTimeValue = request.getParameterValues("endTime");
+    String popupOrInlineValue = request.getParameter("popupOrInline");
+    String startTimeValue = request.getParameter("startTime");
+    String endTimeValue = request.getParameter("endTime");
 
-    if ("popup".equals(popupOrInlineValue[0])) {
+    if ("popup".equals(popupOrInlineValue)) {
       isPopup = JiraTimetrackerUtil.POPUP_CALENDAR_CODE;
-    } else if ("inline".equals(popupOrInlineValue[0])) {
+    } else if ("inline".equals(popupOrInlineValue)) {
       isPopup = JiraTimetrackerUtil.INLINE_CALENDAR_CODE;
     } else {
       isPopup = JiraTimetrackerUtil.BOTH_TYPE_CALENDAR_CODE;
     }
 
-    String[] currentOrLastValue = request.getParameterValues("currentOrLast");
-    isActualDate = "current".equals(currentOrLastValue[0]);
+    String currentOrLastValue = request.getParameter("currentOrLast");
+    isActualDate = "current".equals(currentOrLastValue);
 
-    String[] isColoringValue = request.getParameterValues("isColoring");
+    String isColoringValue = request.getParameter("isColoring");
     isColoring = (isColoringValue != null);
 
     try {
-      if (jiraTimetrackerPlugin.validateTimeChange(startTimeValue[0])) {
-        startTime = startTimeValue[0];
+      if (jiraTimetrackerPlugin.validateTimeChange(startTimeValue)) {
+        startTime = startTimeValue;
       } else {
         message = "plugin.setting.start.time.change.wrong";
       }
     } catch (NumberFormatException e) {
       message = "plugin.settings.time.format";
-      messageParameter = startTimeValue[0];
+      messageParameter = startTimeValue;
     }
     try {
-      if (jiraTimetrackerPlugin.validateTimeChange(endTimeValue[0])) {
-        endTime = endTimeValue[0];
+      if (jiraTimetrackerPlugin.validateTimeChange(endTimeValue)) {
+        endTime = endTimeValue;
       } else {
         message = "plugin.setting.end.time.change.wrong";
       }
     } catch (NumberFormatException e) {
       message = "plugin.settings.time.format";
-      messageParameter = endTimeValue[0];
+      messageParameter = endTimeValue;
     }
     if (!"".equals(message)) {
       return SUCCESS;
@@ -281,8 +287,12 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     PluginSettingsValues pluginSettingValues = new PluginSettingsValues(
         new CalendarSettingsValues(isPopup, isActualDate, excludeDates, includeDates, isColoring),
         issuesPatterns, collectorIssuePatterns, Integer.parseInt(startTime),
-        Integer.parseInt(endTime));
+        Integer.parseInt(endTime), analyticsCheck);
     jiraTimetrackerPlugin.savePluginSettings(pluginSettingValues);
+  }
+
+  public void setAnalyticsCheck(final boolean analyticsCheck) {
+    this.analyticsCheck = analyticsCheck;
   }
 
   public void setContextPath(final String contextPath) {

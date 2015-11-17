@@ -70,7 +70,7 @@ public interface JiraTimetrackerPlugin {
    *          The worklog Issue.
    * @param comment
    *          The worklog note.
-   * @param dateFormated
+   * @param dateFormatted
    *          The date of the worklog (yyyy-MM-dd).
    * @param time
    *          When start the worklog. (kk:mm)
@@ -79,7 +79,7 @@ public interface JiraTimetrackerPlugin {
    * @return {@link ActionResult} Success if the worklog edited and Fail if not.
    */
   ActionResult editWorklog(Long worklogId, String issueId, String comment,
-      String dateFormated, String time, String timeSpent);
+      String dateFormatted, String time, String timeSpent);
 
   /**
    * Give back the date of the first day where missing worklogs. Use the properties files includes
@@ -217,6 +217,23 @@ public interface JiraTimetrackerPlugin {
    * @return {@link ActionResult} if the plugin settings was saved successful SUCCESS else FAIL.
    */
   void savePluginSettings(PluginSettingsValues pluginSettingsParameter);
+
+  /**
+   * Send a feed back email through the Jira to the given FEEDBACK_EMAIL_TO address. The address
+   * come form the jttp_build.properties. If no mail address was set by build the method only log
+   * the feed back mail. If the method not find setted mail server and default from mail address,
+   * the feedback email not will be send just logged.
+   *
+   * @param feedBack
+   *          The user feed back. Required.
+   * @param version
+   *          The plugin version.
+   * @param rating
+   *          The rating value.
+   * @param customerEmail
+   *          The customer user mail address.
+   */
+  void sendFeedBackEmail(String feedBack, String version, String rating, String customerEmail);
 
   /**
    * Give back the all worklogs spent time between the two date.

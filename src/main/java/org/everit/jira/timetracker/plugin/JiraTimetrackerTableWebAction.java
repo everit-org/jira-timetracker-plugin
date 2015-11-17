@@ -88,7 +88,11 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   private static final String WRONG_DATES = "plugin.wrong.dates";
 
+  private boolean analyticsCheck;
+
   private String avatarURL = "";
+
+  private String baseUrl;
 
   private String contextPath;
 
@@ -127,11 +131,15 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   private HashMap<Integer, List<Object>> monthSum = new HashMap<Integer, List<Object>>();
 
+  private String pluginVersion;
+
   private HashMap<Integer, List<Object>> realDaySum = new HashMap<Integer, List<Object>>();
 
   private HashMap<Integer, List<Object>> realMonthSum = new HashMap<Integer, List<Object>>();
 
   private HashMap<Integer, List<Object>> realWeekSum = new HashMap<Integer, List<Object>>();
+
+  private String userId;
 
   private transient ApplicationUser userPickerObject;
 
@@ -255,6 +263,10 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     normalizeContextPath();
     jiraTimetrackerPlugin.loadPluginSettings();
 
+    pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
+    baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(getHttpRequest().getSession());
+    userId = JiraTimetrackerAnalytics.setUserSessionUserId(getHttpRequest().getSession());
+    loadPluginSettingAndParseResult();
     if ("".equals(dateFromFormated)) {
       dateFromDefaultInit();
     }
@@ -279,6 +291,10 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     }
 
     normalizeContextPath();
+    pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
+    baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(getHttpRequest().getSession());
+    userId = JiraTimetrackerAnalytics.setUserSessionUserId(getHttpRequest().getSession());
+    loadPluginSettingAndParseResult();
     PluginSettingsValues pluginSettings = jiraTimetrackerPlugin.loadPluginSettings();
     setIssuesRegex(pluginSettings.getFilteredSummaryIssues());
 
@@ -327,8 +343,16 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     return SUCCESS;
   }
 
+  public boolean getAnalyticsCheck() {
+    return analyticsCheck;
+  }
+
   public String getAvatarURL() {
     return avatarURL;
+  }
+
+  public String getBaseUrl() {
+    return baseUrl;
   }
 
   public String getContextPath() {
@@ -356,7 +380,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   }
 
   private Calendar getLastDate() throws IllegalArgumentException {
-    String dateToParam = getHttpRequest().getParameterValues(PARAM_DATETO)[0];
+    String dateToParam = getHttpRequest().getParameter(PARAM_DATETO);
     if (!"".equals(dateToParam)) {
       dateToFormated = dateToParam;
     } else {
@@ -379,6 +403,10 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     return monthSum;
   }
 
+  public String getPluginVersion() {
+    return pluginVersion;
+  }
+
   public HashMap<Integer, List<Object>> getRealDaySum() {
     return realDaySum;
   }
@@ -392,7 +420,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   }
 
   private Calendar getStartDate() throws IllegalArgumentException {
-    String dateFromParam = getHttpRequest().getParameterValues(PARAM_DATEFROM)[0];
+    String dateFromParam = getHttpRequest().getParameter(PARAM_DATEFROM);
     if (!"".equals(dateFromParam)) {
       dateFromFormated = dateFromParam;
     } else {
@@ -405,6 +433,10 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
       throw new IllegalArgumentException(INVALID_START_TIME);
     }
     return startDate;
+  }
+
+  public String getUserId() {
+    return userId;
   }
 
   public ApplicationUser getUserPickerObject() {
@@ -434,6 +466,12 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     return isRealWorklog;
   }
 
+  private void loadPluginSettingAndParseResult() {
+    PluginSettingsValues pluginSettingsValues = jiraTimetrackerPlugin
+        .loadPluginSettings();
+    analyticsCheck = pluginSettingsValues.getAnalyticsCheckChange();
+  }
+
   private void normalizeContextPath() {
     String path = getHttpRequest().getContextPath();
     if ((path.length() > 0) && "/".equals(path.substring(path.length() - 1))) {
@@ -443,8 +481,16 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     }
   }
 
+  public void setAnalyticsCheck(final boolean analyticsCheck) {
+    this.analyticsCheck = analyticsCheck;
+  }
+
   public void setAvatarURL(final String avatarURL) {
     this.avatarURL = avatarURL;
+  }
+
+  public void setBaseUrl(final String baseUrl) {
+    this.baseUrl = baseUrl;
   }
 
   public void setContextPath(final String contextPath) {
@@ -456,12 +502,13 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   }
 
   private void setCurrentUserFromParam() throws IllegalArgumentException {
-    if (getHttpRequest().getParameterValues(PARAM_USERPICKER) != null) {
-      currentUser = getHttpRequest().getParameterValues(PARAM_USERPICKER)[0];
+    String selectedUser = getHttpRequest().getParameter(PARAM_USERPICKER);
+    if (selectedUser != null) {
+      currentUser = selectedUser;
     } else {
       throw new IllegalArgumentException(INVALID_USER_PICKER);
     }
-    if ((currentUser == null) || "".equals(currentUser)) {
+    if ("".equals(currentUser)) {
       JiraAuthenticationContext authenticationContext =
           ComponentAccessor.getJiraAuthenticationContext();
       currentUser = authenticationContext.getUser().getKey();
@@ -499,6 +546,14 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   public void setMonthSum(final HashMap<Integer, List<Object>> monthSum) {
     this.monthSum = monthSum;
+  }
+
+  public void setPluginVersion(final String pluginVersion) {
+    this.pluginVersion = pluginVersion;
+  }
+
+  public void setUserId(final String userId) {
+    this.userId = userId;
   }
 
   public void setUserPickerObject(final ApplicationUser userPickerObject) {

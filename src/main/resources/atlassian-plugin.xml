@@ -18,7 +18,7 @@
 <atlassian-plugin key="org.everit.jira.timetracker.plugin" name="Timetracker" plugins-version="2">
 
   <plugin-info>
-    <version>2.2.0-SNAPSHOT</version>
+    <version>${project.version}</version>
     <description>Timetracker</description>
     <application-version min="6.2" />
     <vendor name="EverIT Kft." url="https://www.everit.biz" />
@@ -39,10 +39,15 @@
   </web-item>
 
   <web-resource name="JTTP Resources" key="jttp-resources">
+    <dependency>com.atlassian.auiplugin:ajs</dependency>
+    <dependency>com.atlassian.auiplugin:dialog2</dependency>
+    <dependency>com.atlassian.auiplugin:aui-date-picker</dependency>
+    <resource type="download" name="jttp_feedback.css" location="/css/jttp_feedback.css"/>
     <resource type="download" name="everit_tt_logo.png" location="/icons/everit_timetracker_logo.png">
       <param name="content-type" value="image/png" />
     </resource>
     <resource type="download" name="jttp.css" location="/css/jttp.css"/>
+    <resource type="download" name="jttp.js" location="/js/jttp.js"/>
   </web-resource>
 
   <webwork1 key="jttp-webaction" name="JTTP Webwork actions" class="java.lang.Object">

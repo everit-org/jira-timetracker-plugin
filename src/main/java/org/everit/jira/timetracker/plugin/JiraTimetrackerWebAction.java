@@ -21,6 +21,7 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -49,6 +50,8 @@ import com.atlassian.jira.web.action.JiraWebActionSupport;
  */
 public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
+  private static final String NOT_RATED = "Not rated";
+
   /**
    * The default worklog ID.
    */
@@ -61,12 +64,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
 
   /**
-   * The JiraTimetrackerWebAction logger.
-   */
-  private static Logger log = Logger.getLogger(JiraTimetrackerWebAction.class);
-
-  /**
-   * Logger.
+   * The JiraTimetrackerWebAction logger..
    */
   private static final Logger LOGGER = Logger
       .getLogger(JiraTimetrackerWebAction.class);
@@ -86,7 +84,12 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   private static final String VERSION_SPLITTER = "\\.";
 
+  private boolean analyticsCheck;
+
   private String avatarURL = "";
+
+  private String baseUrl;
+
   /**
    * The worklog comment.
    */
@@ -108,7 +111,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   /**
    * The formated date.
    */
-  private String dateFormated = "";
+  private String dateFormatted = "";
   /**
    * The summary of day.
    */
@@ -223,6 +226,9 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The summary of month.
    */
   private String monthSummary = "";
+
+  private String pluginVersion;
+
   /**
    * The IDs of the projects.
    */
@@ -249,6 +255,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    */
   private String timeSpent = "";
 
+  private String userId;
+
   private transient ApplicationUser userPickerObject;
 
   /**
@@ -271,6 +279,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    */
   private List<Long> worklogsIds = new ArrayList<Long>();
 
+  private boolean feedBackSendAviable;
+
   /**
    * Simple constructor.
    *
@@ -280,6 +290,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   public JiraTimetrackerWebAction(
       final JiraTimetrackerPlugin jiraTimetrackerPlugin) {
     this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
+  }
+
+  private void checkMailServer() {
+    feedBackSendAviable = ComponentAccessor.getMailServerManager().isDefaultSMTPMailServerDefined();
   }
 
   /**
@@ -294,9 +308,30 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     for (EveritWorklog worklog : worklogsParam) {
       worklogIds.add(worklog.getWorklogId());
     }
-    log.warn("JTWA log: copyWorklogIdsToArray: worklogIds size: "
-        + worklogIds.size());
     return worklogIds;
+  }
+
+  private String createWorklogAction() {
+    String startTimeValue = getHttpRequest().getParameter(PARAM_STARTTIME);
+
+    ActionResult createResult = jiraTimetrackerPlugin.createWorklog(
+        issueKey, commentForActions, dateFormatted, startTimeValue, timeSpent);
+    if (createResult.getStatus() == ActionResultStatus.FAIL) {
+      message = createResult.getMessage();
+      messageParameter = createResult.getMessageParameter();
+      return INPUT;
+    }
+    try {
+      loadWorklogsAndMakeSummary();
+      startTime = jiraTimetrackerPlugin.lastEndTime(worklogs);
+      endTime = DateTimeConverterUtil.dateTimeToString(new Date());
+      comment = "";
+      isDurationSelected = false;
+    } catch (GenericEntityException | ParseException | DataAccessException | SQLException e) {
+      LOGGER.error("Error when try set the plugin variables.", e);
+      return ERROR;
+    }
+    return SUCCESS;
   }
 
   /**
@@ -306,40 +341,40 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    *           When can't parse date.
    */
   public void dateSwitcherAction() throws ParseException {
-    String[] dayBackValue = getHttpRequest().getParameterValues("dayBack");
-    String[] dayNextValue = getHttpRequest().getParameterValues("dayNext");
-    String[] weekBackValue = getHttpRequest().getParameterValues("weekBack");
-    String[] weekNextValue = getHttpRequest().getParameterValues("weekNext");
-    String[] monthBackValue = getHttpRequest().getParameterValues("monthBack");
-    String[] monthNextVaule = getHttpRequest().getParameterValues("monthNext");
+    String dayBackValue = getHttpRequest().getParameter("dayBack");
+    String dayNextValue = getHttpRequest().getParameter("dayNext");
+    String weekBackValue = getHttpRequest().getParameter("weekBack");
+    String weekNextValue = getHttpRequest().getParameter("weekNext");
+    String monthBackValue = getHttpRequest().getParameter("monthBack");
+    String monthNextVaule = getHttpRequest().getParameter("monthNext");
 
     Calendar tempCal = Calendar.getInstance();
-    date = DateTimeConverterUtil.stringToDate(dateFormated);
+    date = DateTimeConverterUtil.stringToDate(dateFormatted);
     tempCal.setTime(date);
     if (dayNextValue != null) {
       tempCal.add(Calendar.DAY_OF_YEAR, 1);
       date = tempCal.getTime();
-      dateFormated = DateTimeConverterUtil.dateToString(date);
+      dateFormatted = DateTimeConverterUtil.dateToString(date);
     } else if (dayBackValue != null) {
       tempCal.add(Calendar.DAY_OF_YEAR, -1);
       date = tempCal.getTime();
-      dateFormated = DateTimeConverterUtil.dateToString(date);
+      dateFormatted = DateTimeConverterUtil.dateToString(date);
     } else if (monthNextVaule != null) {
       tempCal.add(Calendar.MONTH, 1);
       date = tempCal.getTime();
-      dateFormated = DateTimeConverterUtil.dateToString(date);
+      dateFormatted = DateTimeConverterUtil.dateToString(date);
     } else if (monthBackValue != null) {
       tempCal.add(Calendar.MONTH, -1);
       date = tempCal.getTime();
-      dateFormated = DateTimeConverterUtil.dateToString(date);
+      dateFormatted = DateTimeConverterUtil.dateToString(date);
     } else if (weekNextValue != null) {
       tempCal.add(Calendar.WEEK_OF_YEAR, 1);
       date = tempCal.getTime();
-      dateFormated = DateTimeConverterUtil.dateToString(date);
+      dateFormatted = DateTimeConverterUtil.dateToString(date);
     } else if (weekBackValue != null) {
       tempCal.add(Calendar.WEEK_OF_YEAR, -1);
       date = tempCal.getTime();
-      dateFormated = DateTimeConverterUtil.dateToString(date);
+      dateFormatted = DateTimeConverterUtil.dateToString(date);
     } else {
       parseDateParam();
     }
@@ -355,18 +390,20 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     }
     normalizeContextPath();
 
-    BuildUtilsInfo component = ComponentAccessor.getComponent(BuildUtilsInfo.class);
-    String version = component.getVersion();
-    String[] versionSplit = version.split(VERSION_SPLITTER);
-    jiraMainVersion = Integer.parseInt(versionSplit[0]);
+    pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
+    baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(getHttpRequest().getSession());
+    userId = JiraTimetrackerAnalytics.setUserSessionUserId(getHttpRequest().getSession());
+
+    getJiraVersionFromBuildUtilsInfo();
 
     loadPluginSettingAndParseResult();
+    checkMailServer();
     // Just the here have to use the plugin actualDateOrLastWorklogDate setting
-    if (setDateAndDateFormated().equals(ERROR)) {
+    if (setDateAndDateFormatted().equals(ERROR)) {
       return ERROR;
     }
 
-    excludeDays = jiraTimetrackerPlugin.getExcludeDaysOfTheMonth(dateFormated);
+    excludeDays = jiraTimetrackerPlugin.getExcludeDaysOfTheMonth(dateFormatted);
     try {
       loggedDays = jiraTimetrackerPlugin.getLoggedDaysOfTheMonth(selectedUser, date);
     } catch (GenericEntityException e1) {
@@ -411,12 +448,14 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
     normalizeContextPath();
 
-    BuildUtilsInfo component = ComponentAccessor.getComponent(BuildUtilsInfo.class);
-    String version = component.getVersion();
-    String[] versionSplit = version.split(VERSION_SPLITTER);
-    jiraMainVersion = Integer.parseInt(versionSplit[0]);
+    pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
+    baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(getHttpRequest().getSession());
+    userId = JiraTimetrackerAnalytics.setUserSessionUserId(getHttpRequest().getSession());
+
+    getJiraVersionFromBuildUtilsInfo();
 
     loadPluginSettingAndParseResult();
+    checkMailServer();
 
     message = "";
     messageParameter = "";
@@ -425,7 +464,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     dateSwitcherAction();
 
     try {
-      excludeDays = jiraTimetrackerPlugin.getExcludeDaysOfTheMonth(dateFormated);
+      excludeDays = jiraTimetrackerPlugin.getExcludeDaysOfTheMonth(dateFormatted);
       loadWorklogsAndMakeSummary();
       projectsId = jiraTimetrackerPlugin.getProjectsId();
     } catch (GenericEntityException | ParseException | DataAccessException | SQLException e) {
@@ -447,6 +486,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       return editAllAction();
     } else if (getHttpRequest().getParameter("edit") != null) {
       return editAction();
+    } else if (getHttpRequest().getParameter("sendfeedback") != null) {
+      return sendFeedBack();
     }
 
     String validateInputFieldsResult = validateInputFields();
@@ -454,26 +495,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       return INPUT;
     }
 
-    String[] startTimeValue = getHttpRequest().getParameterValues(PARAM_STARTTIME);
-
-    ActionResult createResult = jiraTimetrackerPlugin.createWorklog(
-        issueKey, commentForActions, dateFormated, startTimeValue[0], timeSpent);
-    if (createResult.getStatus() == ActionResultStatus.FAIL) {
-      message = createResult.getMessage();
-      messageParameter = createResult.getMessageParameter();
-      return INPUT;
-    }
-    try {
-      loadWorklogsAndMakeSummary();
-      startTime = jiraTimetrackerPlugin.lastEndTime(worklogs);
-      endTime = DateTimeConverterUtil.dateTimeToString(new Date());
-      comment = "";
-      isDurationSelected = false;
-    } catch (GenericEntityException | ParseException | DataAccessException | SQLException e) {
-      LOGGER.error("Error when try set the plugin variables.", e);
-      return ERROR;
-    }
-    return SUCCESS;
+    return createWorklogAction();
   }
 
   /**
@@ -482,16 +504,16 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * @return String which will be passed to the WebAction.
    */
   public String editAction() {
-    String[] startTimeValue = getHttpRequest().getParameterValues(PARAM_STARTTIME);
-    startTime = startTimeValue[0];
+    String startTimeValue = getHttpRequest().getParameter(PARAM_STARTTIME);
+    startTime = startTimeValue;
     String validateInputFieldsResult = validateInputFields();
-    if (validateInputFieldsResult.equals(ERROR)) {
+    if (validateInputFieldsResult.equals(INPUT)) {
       isEdit = true;
-      return ERROR;
+      return INPUT;
     }
     ActionResult updateResult = jiraTimetrackerPlugin.editWorklog(
-        editedWorklogId, issueKey, commentForActions, dateFormated,
-        startTimeValue[0], timeSpent);
+        editedWorklogId, issueKey, commentForActions, dateFormatted,
+        startTimeValue, timeSpent);
     if (updateResult.getStatus() == ActionResultStatus.FAIL) {
       message = updateResult.getMessage();
       isEdit = true;
@@ -513,7 +535,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   /**
    * The edit all function save action. Save the worklogs in the given date. The worklogs come form
-   * the editAllIds, the date from the dateFormated.
+   * the editAllIds, the date from the {@code dateFormatted}.
    *
    * @return SUCCESS if the save was success else FAIL.
    * @throws ParseException
@@ -521,15 +543,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    */
   public String editAllAction() throws ParseException {
     // parse the editAllIds
-    List<Long> editWorklogIds = new ArrayList<Long>();
-    String editAllIdsCopy = editAllIds;
-    editAllIdsCopy = editAllIdsCopy.replace("[", "");
-    editAllIdsCopy = editAllIdsCopy.replace("]", "");
-    editAllIdsCopy = editAllIdsCopy.replace(" ", "");
-    String[] editIds = editAllIdsCopy.split(",");
-    for (String editId : editIds) {
-      editWorklogIds.add(Long.valueOf(editId));
-    }
+    List<Long> editWorklogIds = parseEditAllIds();
     // edit the worklogs!
     // TODO what if result is a fail?????? what if just one fail?
     // ActionResult editResult;
@@ -540,7 +554,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       jiraTimetrackerPlugin.editWorklog(editWorklog
           .getWorklogId(), editWorklog.getIssue(), editWorklog
               .getBody(),
-          dateFormated, editWorklog.getStartTime(),
+          dateFormatted, editWorklog.getStartTime(),
           DateTimeConverterUtil.stringTimeToString(editWorklog
               .getDuration()));
     }
@@ -557,8 +571,16 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return SUCCESS;
   }
 
+  public boolean getAnalyticsCheck() {
+    return analyticsCheck;
+  }
+
   public String getAvatarURL() {
     return avatarURL;
+  }
+
+  public String getBaseUrl() {
+    return baseUrl;
   }
 
   public String getComment() {
@@ -577,8 +599,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return (Date) date.clone();
   }
 
-  public String getDateFormated() {
-    return dateFormated;
+  public String getDateFormatted() {
+    return dateFormatted;
   }
 
   public String getDayFilteredSummary() {
@@ -621,6 +643,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return excludeDays;
   }
 
+  public boolean getFeedBackSendAviable() {
+    return feedBackSendAviable;
+  }
+
   public boolean getIsColoring() {
     return isColoring;
   }
@@ -661,6 +687,13 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return jiraTimetrackerPlugin;
   }
 
+  private void getJiraVersionFromBuildUtilsInfo() {
+    BuildUtilsInfo component = ComponentAccessor.getComponent(BuildUtilsInfo.class);
+    String version = component.getVersion();
+    String[] versionSplit = version.split(VERSION_SPLITTER);
+    jiraMainVersion = Integer.parseInt(versionSplit[0]);
+  }
+
   public List<String> getLoggedDays() {
     return loggedDays;
   }
@@ -681,6 +714,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return monthSummary;
   }
 
+  public String getPluginVersion() {
+    return pluginVersion;
+  }
+
   public List<String> getProjectsId() {
     return projectsId;
   }
@@ -695,6 +732,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   public int getStartTimeChange() {
     return startTimeChange;
+  }
+
+  public String getUserId() {
+    return userId;
   }
 
   public ApplicationUser getUserPickerObject() {
@@ -725,7 +766,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private String handleDateChangeAction() {
     if ((getHttpRequest().getParameter("edit") == null)
         && (getHttpRequest().getParameter("submit") == null)
-        && (getHttpRequest().getParameter("editallsave") == null)) {
+        && (getHttpRequest().getParameter("editallsave") == null)
+        && (getHttpRequest().getParameter("sendfeedback") == null)) {
       try {
         handleEditAllIdsAndEditedWorklogId();
       } catch (ParseException e) {
@@ -739,11 +781,11 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   }
 
   private String handleDuration() {
-    String[] startTimeValue = getHttpRequest().getParameterValues(PARAM_STARTTIME);
-    String durationTimeValue = getHttpRequest().getParameterValues("durationTime")[0];
+    String startTimeValue = getHttpRequest().getParameter(PARAM_STARTTIME);
+    String durationTimeValue = getHttpRequest().getParameter("durationTime");
     Date startDateTime;
     try {
-      startDateTime = DateTimeConverterUtil.stringTimeToDateTime(startTimeValue[0]);
+      startDateTime = DateTimeConverterUtil.stringTimeToDateTime(startTimeValue);
     } catch (ParseException e) {
       message = INVALID_START_TIME;
       return INPUT;
@@ -796,29 +838,25 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
     if ((copiedWorklogId != null)
         && !DEFAULT_WORKLOG_ID.equals(copiedWorklogId)) {
-      // isEdit = true;
       EveritWorklog editWorklog;
       editWorklog = jiraTimetrackerPlugin.getWorklog(copiedWorklogId);
       issueKey = editWorklog.getIssue();
       comment = editWorklog.getBody();
-      // startTime = editWorklog.getStartTime();
-      // endTime = editWorklog.getEndTime();
-      // durationTime = editWorklog.getDuration();
     }
   }
 
   private String handleEndTime() {
-    String[] startTimeValue = getHttpRequest().getParameterValues(PARAM_STARTTIME);
-    String[] endTimeValue = getHttpRequest().getParameterValues("endTime");
-    if (!DateTimeConverterUtil.isValidTime(endTimeValue[0])) {
+    String startTimeValue = getHttpRequest().getParameter(PARAM_STARTTIME);
+    String endTimeValue = getHttpRequest().getParameter("endTime");
+    if (!DateTimeConverterUtil.isValidTime(endTimeValue)) {
       message = "plugin.invalid_endTime";
       return INPUT;
     }
     Date startDateTime;
     Date endDateTime;
     try {
-      startDateTime = DateTimeConverterUtil.stringTimeToDateTimeGMT(startTimeValue[0]);
-      endDateTime = DateTimeConverterUtil.stringTimeToDateTimeGMT(endTimeValue[0]);
+      startDateTime = DateTimeConverterUtil.stringTimeToDateTimeGMT(startTimeValue);
+      endDateTime = DateTimeConverterUtil.stringTimeToDateTimeGMT(endTimeValue);
     } catch (ParseException e) {
       message = "plugin.invalid_endTime";
       return INPUT;
@@ -836,11 +874,11 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   }
 
   private String handleValidDuration(final Date startDateTime) {
-    String[] durationTimeValue = getHttpRequest().getParameterValues("durationTime");
+    String durationTimeValue = getHttpRequest().getParameter("durationTime");
     Date durationDateTime;
     try {
       durationDateTime = DateTimeConverterUtil
-          .stringTimeToDateTimeGMT(durationTimeValue[0]);
+          .stringTimeToDateTimeGMT(durationTimeValue);
     } catch (ParseException e) {
       message = INVALID_DURATION_TIME;
       return INPUT;
@@ -868,6 +906,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     startTimeChange = pluginSettingsValues.getStartTimeChange();
     endTimeChange = pluginSettingsValues.getEndTimeChange();
     isColoring = pluginSettingsValues.isColoring();
+    analyticsCheck = pluginSettingsValues.getAnalyticsCheckChange();
   }
 
   /**
@@ -895,8 +934,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       message = "plugin.calendar.logged.coloring.fail";
     }
     worklogs = jiraTimetrackerPlugin.getWorklogs(selectedUser, date, null);
-    log.warn("JTWA log: loadWorklogsAndMakeSummary: worklogs size: "
-        + worklogs.size());
     worklogsIds = copyWorklogIdsToArray(worklogs);
     makeSummary();
   }
@@ -974,19 +1011,37 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   }
 
   private void parseDateParam() throws ParseException {
-    String[] requestDateArray = getHttpRequest().getParameterValues(PARAM_DATE);
-    if (requestDateArray != null) {
-      String requestDate = getHttpRequest().getParameterValues(PARAM_DATE)[0];
+    String requestDate = getHttpRequest().getParameter(PARAM_DATE);
+    if (requestDate != null) {
       if (!"".equals(requestDate)) {
-        dateFormated = requestDate;
+        dateFormatted = requestDate;
       }
-      date = DateTimeConverterUtil.stringToDate(dateFormated);
-    } else if ((dateFormated == null) || "".equals(dateFormated)) {
+      date = DateTimeConverterUtil.stringToDate(dateFormatted);
+    } else if ((dateFormatted == null) || "".equals(dateFormatted)) {
       date = new Date();
-      dateFormated = DateTimeConverterUtil.dateToString(date);
+      dateFormatted = DateTimeConverterUtil.dateToString(date);
     } else {
-      date = DateTimeConverterUtil.stringToDate(dateFormated);
+      date = DateTimeConverterUtil.stringToDate(dateFormatted);
     }
+  }
+
+  /**
+   * Parses the {@link #editAllIds} string to a list of {@code Long} values.
+   */
+  List<Long> parseEditAllIds() {
+    List<Long> editWorklogIds = new ArrayList<Long>();
+    String editAllIdsCopy = editAllIds;
+    editAllIdsCopy = editAllIdsCopy.replace("[", "");
+    editAllIdsCopy = editAllIdsCopy.replace("]", "");
+    editAllIdsCopy = editAllIdsCopy.replace(" ", "");
+    if (editAllIdsCopy.trim().equals("")) {
+      return Collections.emptyList();
+    }
+    String[] editIds = editAllIdsCopy.split(",");
+    for (String editId : editIds) {
+      editWorklogIds.add(Long.valueOf(editId));
+    }
+    return editWorklogIds;
   }
 
   /**
@@ -1005,8 +1060,41 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     issues = new ArrayList<Issue>();
   }
 
+  private String sendFeedBack() {
+    String feedBackValue = getHttpRequest().getParameter("feedbackinput");
+    String ratingValue = getHttpRequest().getParameter("rating");
+    String customerMail = getHttpRequest().getParameter("customerMail");
+    String feedBack = "";
+    String rating = NOT_RATED;
+    if (feedBackValue != null) {
+      feedBack = feedBackValue;
+    }
+    if (ratingValue != null) {
+      rating = ratingValue;
+    }
+    jiraTimetrackerPlugin.sendFeedBackEmail(feedBack, pluginVersion, rating, customerMail);
+    try {
+      loadWorklogsAndMakeSummary();
+      startTime = jiraTimetrackerPlugin.lastEndTime(worklogs);
+      endTime = DateTimeConverterUtil.dateTimeToString(new Date());
+      comment = "";
+    } catch (GenericEntityException | ParseException | DataAccessException | SQLException e) {
+      LOGGER.error("Error when try set the plugin variables.", e);
+      return ERROR;
+    }
+    return SUCCESS;
+  }
+
+  public void setAnalyticsCheck(final boolean analyticsCheck) {
+    this.analyticsCheck = analyticsCheck;
+  }
+
   public void setAvatarURL(final String avatarURL) {
     this.avatarURL = avatarURL;
+  }
+
+  public void setBaseUrl(final String baseUrl) {
+    this.baseUrl = baseUrl;
   }
 
   public void setColoring(final boolean isColoring) {
@@ -1029,15 +1117,15 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     this.date = (Date) date.clone();
   }
 
-  private String setDateAndDateFormated() {
-    if ("".equals(dateFormated)) {
+  private String setDateAndDateFormatted() {
+    if ("".equals(dateFormatted)) {
       if (isActualDate) {
         date = Calendar.getInstance().getTime();
-        dateFormated = DateTimeConverterUtil.dateToString(date);
+        dateFormatted = DateTimeConverterUtil.dateToString(date);
       } else {
         try {
           date = jiraTimetrackerPlugin.firstMissingWorklogsDate(selectedUser);
-          dateFormated = DateTimeConverterUtil.dateToString(date);
+          dateFormatted = DateTimeConverterUtil.dateToString(date);
         } catch (GenericEntityException e) {
           LOGGER.error("Error when try set the plugin date.", e);
           return ERROR;
@@ -1045,7 +1133,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       }
     } else {
       try {
-        date = DateTimeConverterUtil.stringToDate(dateFormated);
+        date = DateTimeConverterUtil.stringToDate(dateFormatted);
       } catch (ParseException e) {
         return ERROR;
       }
@@ -1053,8 +1141,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return SUCCESS;
   }
 
-  public void setDateFormated(final String dateFormated) {
-    this.dateFormated = dateFormated;
+  public void setDateFormatted(final String dateFormatted) {
+    this.dateFormatted = dateFormatted;
   }
 
   public void setDayFilteredSummary(final String dayFilteredSummary) {
@@ -1105,23 +1193,26 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     this.excludeDays = excludeDays;
   }
 
+  public void setFeedBackSendAviable(final boolean feedBackSendAviable) {
+    this.feedBackSendAviable = feedBackSendAviable;
+  }
+
   /**
    * Set the read values to the input fields back.
    */
   private String setFieldsValue() {
-    String[] issueSelectValue = getHttpRequest().getParameterValues(PARAM_ISSUESELECT);
-    String[] endTimeValue = getHttpRequest().getParameterValues("endTime");
-    String[] durationTimeValue = getHttpRequest().getParameterValues("durationTime");
-    // String[] startTimeValue = getHttpRequest().getParameterValues("startTime");
-    String[] commentsValue = getHttpRequest().getParameterValues("comments");
-    String[] endOrDurationValue = getHttpRequest().getParameterValues("endOrDuration");
+    String issueSelectValue = getHttpRequest().getParameter(PARAM_ISSUESELECT);
+    String endTimeValue = getHttpRequest().getParameter("endTime");
+    String durationTimeValue = getHttpRequest().getParameter("durationTime");
+    String commentsValue = getHttpRequest().getParameter("comments");
+    String endOrDurationValue = getHttpRequest().getParameter("endOrDuration");
 
-    if ((endOrDurationValue != null) && "duration".equals(endOrDurationValue[0])) {
+    if ((endOrDurationValue != null) && "duration".equals(endOrDurationValue)) {
       isDurationSelected = true;
     }
 
     if (issueSelectValue != null) {
-      issueKey = issueSelectValue[0];
+      issueKey = issueSelectValue;
     }
 
     try {
@@ -1132,24 +1223,22 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     }
 
     if (endTimeValue != null) {
-      endTime = endTimeValue[0];
+      endTime = endTimeValue;
     } else {
       endTime = DateTimeConverterUtil.dateTimeToString(new Date());
     }
 
     if (durationTimeValue != null) {
-      durationTime = durationTimeValue[0];
+      durationTime = durationTimeValue;
     }
     if (commentsValue != null) {
-      comment = commentsValue[0];
-      commentForActions = commentsValue[0];
-      if (comment != null) {
-        comment = comment.replace("\"", "\\\"");
-        comment = comment.replace("\r", "\\r");
-        comment = comment.replace("\n", "\\n");
-      } else {
-        comment = "";
-      }
+      comment = commentsValue;
+      commentForActions = commentsValue;
+      comment = comment.replace("\"", "\\\"");
+      comment = comment.replace("\r", "\\r");
+      comment = comment.replace("\n", "\\n");
+    } else {
+      comment = "";
     }
     return null;
   }
@@ -1198,6 +1287,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     this.monthSummary = monthSummary;
   }
 
+  public void setPluginVersion(final String pluginVersion) {
+    this.pluginVersion = pluginVersion;
+  }
+
   public void setPopup(final int isPopup) {
     this.isPopup = isPopup;
   }
@@ -1211,15 +1304,12 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   }
 
   private void setSelectedUserFromParam() {
-    String[] selectedUserValue = getHttpRequest().getParameterValues("selectedUser");
+    String selectedUserValue = getHttpRequest().getParameter("selectedUser");
     if (selectedUserValue != null) {
-      selectedUser = selectedUserValue[0];
-      log.info("We set selectedUSer " + selectedUser);
+      selectedUser = selectedUserValue;
     } else {
-      log.info("We set selectedUSer to empty");
       selectedUser = "";
     }
-    LOGGER.info("The selectedUser value: " + selectedUser);
   }
 
   public void setStartTime(final String startTime) {
@@ -1228,6 +1318,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   public void setStartTimeChange(final int startTimeChange) {
     this.startTimeChange = startTimeChange;
+  }
+
+  public void setUserId(final String userId) {
+    this.userId = userId;
   }
 
   public void setUserPickerObject(final ApplicationUser userPickerObject) {
@@ -1269,23 +1363,23 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * @return If the values valid the return SUCCESS else return INPUT.
    */
   public String validateInputFields() {
-    String[] startTimeValue = getHttpRequest().getParameterValues(PARAM_STARTTIME);
-    String[] endOrDurationValue = getHttpRequest().getParameterValues("endOrDuration");
-    String[] issueSelectValue = getHttpRequest().getParameterValues(PARAM_ISSUESELECT);
+    String startTimeValue = getHttpRequest().getParameter(PARAM_STARTTIME);
+    String endOrDurationValue = getHttpRequest().getParameter("endOrDuration");
+    String issueSelectValue = getHttpRequest().getParameter(PARAM_ISSUESELECT);
 
     // if (commentsValue[0] == null) {
     // return INPUT;
     // }
-    if ((issueSelectValue == null) || (issueSelectValue[0] == null)) {
+    if (issueSelectValue == null) {
       message = MISSING_ISSUE;
       return INPUT;
     }
 
-    if (!DateTimeConverterUtil.isValidTime(startTimeValue[0])) {
+    if (!DateTimeConverterUtil.isValidTime(startTimeValue)) {
       message = INVALID_START_TIME;
       return INPUT;
     }
-    if ("duration".equals(endOrDurationValue[0])) {
+    if ("duration".equals(endOrDurationValue)) {
       String result = handleDuration();
       if (!result.equals(SUCCESS)) {
         return result;
