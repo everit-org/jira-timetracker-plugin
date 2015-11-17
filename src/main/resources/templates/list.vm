@@ -68,10 +68,10 @@ cursor:pointer;
 		                    	 		<a href="/browse/$worklog.issue" class="issue-link" title="#if($worklog.issueParent != '') $i18n.getText('plugin.parent.issue') $worklog.issueParent &#13 $worklog.issueSummary #else $worklog.issueSummary #end">$worklog.issue</a>
 		                    	 	</td>
 		                    	 	<td style="vertical-align: middle;">
-		                    	 		#if(!$worklog.isMoreEstimatedTime)
-		                    	 			<div style="color:red;">$worklog.remaining</div>
-										#else
+		                    	 		#if($worklog.isMoreEstimatedTime)
 											$worklog.remaining
+										#else
+		                    	 			<div style="color:red;">$worklog.remaining</div>
 										#end
 		                    	 		
 		                    	 	</td>

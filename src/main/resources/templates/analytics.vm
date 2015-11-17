@@ -21,7 +21,7 @@
 
 
 
-<!-- Piwik -->
+<!-- Piwik 
 <script type="text/javascript">    
   var _paq = _paq || [];
     _paq.push(['setUserId', '$userId']);
@@ -39,6 +39,6 @@
   })();
 
 </script>
-<!-- End Piwik Code -->
+ End Piwik Code -->
 </body>
 </html>
