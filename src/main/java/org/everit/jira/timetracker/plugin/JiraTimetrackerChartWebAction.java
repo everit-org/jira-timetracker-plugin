@@ -439,7 +439,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     piwikHost =
         jiraTimetrackerPlugin.getPiwikPorperty(JiraTimetrackerPiwikPropertiesUtil.PIWIK_HOST);
     piwikSiteId = jiraTimetrackerPlugin
-        .getPiwikPorperty(JiraTimetrackerPiwikPropertiesUtil.PIWIK_TIMETRACKER_SITEID);
+        .getPiwikPorperty(JiraTimetrackerPiwikPropertiesUtil.PIWIK_CHART_SITEID);
   }
 
   public void setPiwikSiteId(final String piwikSiteId) {
