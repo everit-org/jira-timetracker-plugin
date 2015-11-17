@@ -30,6 +30,8 @@ AJS.$(document).ready(function(){
     document.getElementById("startTime").focus();
     AJS.$('.aui-ss-editing').attr("style","width: 250px;");
     AJS.$('.aui-ss.aui-ss-editing .aui-ss-field').attr("style","width: 250px;");
+
+	
 });
 
 
@@ -221,3 +223,30 @@ function setEndInc(endTimeChange){
     var time = calculateTimeForInputfileds(hour,min);
     AJS.$("#endTime").val(time);
 }
+
+function startNowClick(){
+	var startState = 0;
+    if(startState == 0){
+        setStartNow();
+    }else if(startState == 1){
+        setStartInc($startTimeChange);
+    }else if(startState == 2){
+        setStartDecTemporary($startTimeChange);
+    }
+}
+
+function endTimeInputClick(){
+	
+}
+
+function endNowClick(){
+	var endState = 0;
+    if(endState == 0){
+        setEndNow();
+    }else if(endState == 1){
+        setEndInc($endTimeChange);
+    }else if(endState == 2){
+        setEndDecTemporary($endTimeChange);
+    } 
+}
+
