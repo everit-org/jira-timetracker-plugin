@@ -13,6 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+AJS.$(document).ready(function(){
+    var original = Calendar.prototype.show;
+	var excludeDays = AJS.$("#excludeDays");
+	var isColoring = AJS.$("#isColoring");
+	var loggedDays = AJS.$("#loggedDays");
+    Calendar.prototype.show = function(){
+        original.call(this);
+        setExcludeDaysToWeekend(excludeDays);
+        setLoggedDaysDesign(isColoring, loggedDays);
+    }
+	document.getElementById('inputfields').scrollIntoView(allignWithTop=false);
+    setExcludeDaysToWeekend(excludeDays);
+    setLoggedDaysDesign(isColoring, loggedDays);
+    document.getElementById("startTime").focus();
+    AJS.$('.aui-ss-editing').attr("style","width: 250px;");
+    AJS.$('.aui-ss.aui-ss-editing .aui-ss-field').attr("style","width: 250px;");
+});
+
+
+
 function calculateTimeForInputfileds(hour,min){
     if (hour < 10){
         hour = "0" + hour
@@ -24,11 +45,11 @@ function calculateTimeForInputfileds(hour,min){
     return time;
 }
 
-function setLoggedDaysDesign(){
-    if($isColoring){
-        var dayNumber =  $loggedDays.size();
+function setLoggedDaysDesign(isColoring, loggedDays){
+    if(isColoring){
+        var dayNumber =  loggedDays.size();
         for(var i = 0; i < dayNumber; i++){
-            var theDay = $loggedDays[i];
+            var theDay = loggedDays[i];
             var calendarDays = AJS.$('.day.day-'+theDay);
             for (var j=0;j<calendarDays.length;j++){
                 if(!(AJS.$(calendarDays[j]).hasClass('selected') || AJS.$(calendarDays[j]).hasClass('othermonth') || AJS.$(calendarDays[j]).hasClass('logged'))){
@@ -39,10 +60,10 @@ function setLoggedDaysDesign(){
     }
 }
 
-function setExcludeDaysToWeekend(){
-    var dayNumber =  $excludeDays.size();
+function setExcludeDaysToWeekend(excludeDays){
+    var dayNumber =  excludeDays.size();
     for(var i = 0; i < dayNumber; i++){
-        var theDay = $excludeDays[i];
+        var theDay = excludeDays[i];
         var calendarDays = AJS.$('.day.day-'+theDay);
         for (var j=0;j<calendarDays.length;j++){
             if(!(AJS.$(calendarDays[j]).hasClass('selected') || AJS.$(calendarDays[j]).hasClass('othermonth') || AJS.$(calendarDays[j]).hasClass('weekend'))){
@@ -53,6 +74,9 @@ function setExcludeDaysToWeekend(){
 }
 
 function handleEnterKey(e, setFocusTo){
+	console.log('handleEnterKey meghívódott');
+	console.log('keyCode: ' + e.keyCode);
+	console.log('setFocusTo: ' + setFocusTo);
     if ((e.keyCode == 10 || e.keyCode == 13) && e.ctrlKey){
         AJS.$('#Submitbutton, #Edit').click();
     } else if(e.keyCode == 13) { 
@@ -64,23 +88,16 @@ function handleEnterKey(e, setFocusTo){
     }
 }
 
-var original = Calendar.prototype.show;
-    
-    Calendar.prototype.show = function(){
-        original.call(this);
-        setExcludeDaysToWeekend();
-        setLoggedDaysDesign();
-    }
-
-    function setStartNow(){
+function setStartNow(){
     var currentTime = new Date();
- var hour = currentTime.getHours();
- var minute = currentTime.getMinutes();
- startState = 1;
- var now = calculateTimeForInputfileds(hour,minute);
- AJS.$("#startTime").val(now);
+    var hour = currentTime.getHours();
+    var minute = currentTime.getMinutes();
+    startState = 1;
+    var now = calculateTimeForInputfileds(hour,minute);
+    AJS.$("#startTime").val(now);
 }
-function setStartDecTemporary(){
+
+function setStartDecTemporary(startTimeChange){
     setStartNow();
     var startTimeValParts = AJS.$("#startTime").val().split(':');
     var hour = parseInt(startTimeValParts[0]);
@@ -88,23 +105,24 @@ function setStartDecTemporary(){
     var min = parseInt(minString);
     var minSubInt = parseInt(minString.substring(1,2));
     if((minSubInt != 0) && (minSubInt != 5)){
-        min = min - $startTimeChange;
+        min = min - startTimeChange;
         if(minSubInt < 5){
-                 min = min + (5-minSubInt);
+            min = min + (5-minSubInt);
         }else if(minSubInt > 5){
-                  min = min + (10-minSubInt);
+            min = min + (10-minSubInt);
         }
         startState = 0;
     }
     var time = calculateTimeForInputfileds(hour,min);
- AJS.$("#startTime").val(time);
+    AJS.$("#startTime").val(time);
 }
-function setStartInc(){
+
+function setStartInc(startTimeChange){
     setStartNow();
     var startTimeValParts = AJS.$("#startTime").val().split(':');
     var hour = parseInt(startTimeValParts[0]);
     var min = parseInt(startTimeValParts[1]);
-    min = min + $startTimeChange;
+    min = min + startTimeChange;
     if(min >= 60){
         min = min - 60;
         hour = hour + 1;
@@ -115,9 +133,9 @@ function setStartInc(){
     var minString = min.toString();
     var minSubInt;
     if(minString.length > 1){
-     minSubInt = parseInt(minString.substring(1,2));
+        minSubInt = parseInt(minString.substring(1,2));
     }else{
-     minSubInt = min;
+        minSubInt = min;
     }
     if(minSubInt >= 5){
         min = min - (minSubInt - 5);
@@ -125,20 +143,20 @@ function setStartInc(){
         min = min - minSubInt;
     }
     startState = 2;
- var time = calculateTimeForInputfileds(hour,min);
- AJS.$("#startTime").val(time);
+    var time = calculateTimeForInputfileds(hour,min);
+    AJS.$("#startTime").val(time);
 }
 
 function setEndNow(){
-     var currentTime = new Date();
- var hour = currentTime.getHours();
- var minute = currentTime.getMinutes();
- endState = 1;
- var now =calculateTimeForInputfileds(hour,minute);
- AJS.$("#endTime").val(now);
+    var currentTime = new Date();
+    var hour = currentTime.getHours();
+    var minute = currentTime.getMinutes();
+    endState = 1;
+    var now =calculateTimeForInputfileds(hour,minute);
+    AJS.$("#endTime").val(now);
  }
 
- function setEndDecTemporary(){
+function setEndDecTemporary(endTimeChange){
     setEndNow();
     var endTimeValParts = AJS.$("#endTime").val().split(':');
     var hour = parseInt(endTimeValParts[0]);
@@ -146,7 +164,7 @@ function setEndNow(){
     var min = parseInt(minString);
     var minSubInt = parseInt(minString.substring(1,2));
     if((minSubInt != 0) && (minSubInt != 5)){
-        min = min - $endTimeChange;
+        min = min - endTimeChange;
         var checkHour = false;
         if(min < 0){
             min = 60 + min;
@@ -154,45 +172,45 @@ function setEndNow(){
             minSubInt =  parseInt(min.toString().substring(1,2));;
         }
         if(minSubInt < 5){
-                 min = min + (5-minSubInt);
+            min = min + (5-minSubInt);
         }else if(minSubInt > 5){
-                  min = min + (10-minSubInt);
+            min = min + (10-minSubInt);
         }
         if(checkHour){
             if(min != 60){
                 hour = hour - 1;
                 if(hour < 0){
-                     hour = 23;
+                    hour = 23;
                 }
             }else{
-                 min = 0;
+                min = 0;
             } 
         }
         endState = 0;
     }
     var time = calculateTimeForInputfileds(hour,min);
- AJS.$("#endTime").val(time);
-    
+     AJS.$("#endTime").val(time);
 }
-function setEndInc(){
+
+function setEndInc(endTimeChange){
     setEndNow();
     var endTimeValParts = AJS.$("#endTime").val().split(':');
     var hour = parseInt(endTimeValParts[0]);
     var min = parseInt(endTimeValParts[1]);
-    min = min + $endTimeChange;
+    min = min + endTimeChange;
     if(min >= 60){
         min = min - 60;
         hour = hour + 1;
         if(hour > 23){
             hour = 0;
-        } 
+        }
     }
     var minString = min.toString();
     var minSubInt;
     if(minString.length > 1){
-     minSubInt = parseInt(minString.substring(1,2));
+        minSubInt = parseInt(minString.substring(1,2));
     }else{
-     minSubInt = min;
+        minSubInt = min;
     }
     if(minSubInt >= 5){
         min = min - (minSubInt - 5);
@@ -200,7 +218,6 @@ function setEndInc(){
         min = min - minSubInt;
     }
     endState = 2;
- var time = calculateTimeForInputfileds(hour,min);
- AJS.$("#endTime").val(time);
-}  
-    
+    var time = calculateTimeForInputfileds(hour,min);
+    AJS.$("#endTime").val(time);
+}

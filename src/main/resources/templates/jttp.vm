@@ -28,6 +28,9 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
                          $debugMessage
                   </div>
 #end
+<input id="excludeDays" type="hidden" value="$excludeDays" />
+<input id="isColoring" type="hidden" value="$isColoring" />
+<input id="loggedDays" type="hidden" value="$loggedDays" />
 <form name="jttpForm" id="jttpForm" method="post"
                     #if($isEdit) action="JiraTimetrackerWebAction.jspa?editedWorklogId=$editedWorklogId&dateFormated=$dateFormated" 
                     #elseif($isEditAll) action="JiraTimetrackerWebAction.jspa?editAllIds=$editAllIds&dateFormated=$dateFormated" 
@@ -65,7 +68,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
                          $i18n.getText($message) $messageParameter
                   </div>
               #end
-			#parse("templates/summary.vm")
+            #parse("templates/summary.vm")
             #parse("templates/list.vm")
                </br>
                <div id="inputfields" name="inputfields">
@@ -108,16 +111,16 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
                                                 <td style="width: 110px;">
                                                    <input id="startNow"  type="button" name="startNow" value="$i18n.getText('plugin.now')" class="button" width: 40px;"/>
                                                    <script>
-                                                           var startState = 0;
+                                                        var startState = 0;
                                                         AJS.$("#startNow").click(function() {
-                                                               if(startState == 0){
-                                                                   setStartNow();
-                                                               }else if(startState == 1){
-                                                                    setStartInc();
-                                                               }else if(startState == 2){
-                                                                   setStartDecTemporary();
-                                                               }
-                                                           });
+                                                            if(startState == 0){
+                                                                setStartNow();
+                                                            }else if(startState == 1){
+                                                                setStartInc($startTimeChange);
+                                                            }else if(startState == 2){
+                                                                setStartDecTemporary($startTimeChange);
+                                                            }
+                                                        });
                                                     </script>
                                                 </td>
                                                 <td  style="width: 110px">
@@ -143,9 +146,9 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
                                                                if(endState == 0){
                                                                    setEndNow();
                                                                }else if(endState == 1){
-                                                                    setEndInc();
+                                                                    setEndInc($endTimeChange);
                                                                }else if(endState == 2){
-                                                                   setEndDecTemporary();
+                                                                   setEndDecTemporary($endTimeChange);
                                                                }    
                                                             });
                                                     </script>
@@ -316,16 +319,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
             </div>
         </div>    
     </div>
-    <script>
-        window.onload = function() {
-            document.getElementById('inputfields').scrollIntoView(allignWithTop=false);
-            setExcludeDaysToWeekend();
-            setLoggedDaysDesign();
-             document.getElementById("startTime").focus();
-             AJS.$('.aui-ss-editing').attr("style","width: 250px;");
-             AJS.$('.aui-ss.aui-ss-editing .aui-ss-field').attr("style","width: 250px;");
-         };
-         
+    <script>   
          AJS.$('.table-endtime').click(function(){
              var temp = new String(AJS.$(this).html());
              AJS.$('#startTime').val(temp.trim());
