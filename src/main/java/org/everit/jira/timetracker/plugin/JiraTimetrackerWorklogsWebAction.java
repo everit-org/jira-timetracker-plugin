@@ -25,6 +25,7 @@ import org.apache.log4j.Logger;
 import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
 import org.ofbiz.core.entity.GenericEntityException;
 
+import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
 
 /**
@@ -40,13 +41,17 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
   private static final Logger LOGGER = Logger
       .getLogger(JiraTimetrackerWorklogsWebAction.class);
 
+  private static final String NOT_RATED = "Not rated";
+
   private static final String PARAM_DATEFROM = "dateFrom";
 
   private static final String PARAM_DATETO = "dateTo";
+
   /**
    * The number of rows in the dates table.
    */
   private static final int ROW_COUNT = 20;
+
   /**
    * Serial version UID.
    */
@@ -67,17 +72,18 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    * The report check the worklogs time spent is equal or greater than 8 hours.
    */
   public boolean checkHours = false;
+
   /**
    * If check the worklogs spent time, then exclude the non working issues, or not.
    */
   public boolean checkNonWorkingIssues = false;
 
   private String contextPath;
+
   /**
    * The date.
    */
   private Date dateFrom = null;
-
   /**
    * The formated date.
    */
@@ -93,10 +99,13 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    */
   private String dateToFormated = "";
 
+  private boolean feedBackSendAviable;
+
   /**
    * The {@link JiraTimetrackerPlugin}.
    */
   private JiraTimetrackerPlugin jiraTimetrackerPlugin;
+
   /**
    * The message.
    */
@@ -118,6 +127,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
   private String pluginVersion;
 
   private List<String> showDatesWhereNoWorklog;
+
   /**
    * The message parameter.
    */
@@ -134,6 +144,10 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
   public JiraTimetrackerWorklogsWebAction(
       final JiraTimetrackerPlugin jiraTimetrackerPlugin) {
     this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
+  }
+
+  private void checkMailServer() {
+    feedBackSendAviable = ComponentAccessor.getMailServerManager().isDefaultSMTPMailServerDefined();
   }
 
   /**
@@ -178,6 +192,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     }
 
     normalizeContextPath();
+    checkMailServer();
     jiraTimetrackerPlugin.loadPluginSettings();
     setPiwikProperties();
 
@@ -223,10 +238,14 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     }
 
     normalizeContextPath();
+    checkMailServer();
     jiraTimetrackerPlugin.loadPluginSettings();
 
     setPiwikProperties();
     loadPluginSettingAndParseResult();
+
+    parseFeedBack();
+
     message = "";
     messageParameter = "";
     statisticsMessageParameter = "0";
@@ -312,6 +331,10 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
   public String getDateToFormated() {
     return dateToFormated;
+  }
+
+  public boolean getFeedBackSendAviable() {
+    return feedBackSendAviable;
   }
 
   public String getMessage() {
@@ -416,6 +439,24 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     return true;
   }
 
+  private void parseFeedBack() {
+    if (getHttpRequest().getParameter("sendfeedback") != null) {
+      String feedBackValue = getHttpRequest().getParameter("feedbackinput");
+      String ratingValue = getHttpRequest().getParameter("rating");
+      String customerMail = getHttpRequest().getParameter("customerMail");
+      String feedBack = "";
+      String rating = NOT_RATED;
+      if (feedBackValue != null) {
+        feedBack = feedBackValue;
+      }
+      if (ratingValue != null) {
+        rating = ratingValue;
+      }
+      jiraTimetrackerPlugin.sendFeedBackEmail(feedBack, JiraTimetrackerAnalytics.getPluginVersion(),
+          rating, customerMail);
+    }
+  }
+
   public void setActualPage(final int actualPage) {
     this.actualPage = actualPage;
   }
@@ -450,6 +491,10 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
   public void setDateToFormated(final String dateToFormated) {
     this.dateToFormated = dateToFormated;
+  }
+
+  public void setFeedBackSendAviable(final boolean feedBackSendAviable) {
+    this.feedBackSendAviable = feedBackSendAviable;
   }
 
   public void setMessage(final String message) {

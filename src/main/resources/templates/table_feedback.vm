@@ -16,7 +16,7 @@
 <a href="#" id="dialog-show-button">$i18n.getText('jttp.send.feedback')</a>
 <section role="dialog" id="jttp-feedback-dialog" class="aui-layer aui-dialog2 aui-dialog2-medium" aria-hidden="true">
     <!-- Dialog header -->
-   <form name="jttpFeedbackForm" id="jttpFeedbackForm" method="post" action="JiraTimetrackerWebAction.jspa?dateFormatted=$dateFormatted" class="aui"/>
+   <form name="jttpFeedbackForm" id="jttpFeedbackForm" method="post" action="JiraTimetrackerTableWebAction.jspa" class="aui"/>
       <header class="aui-dialog2-header">
         <!-- The dialog's title -->
         <h1 class="aui-dialog2-header-main" style="color: #707070;">$i18n.getText('jttp.feedback.header')</h1>   

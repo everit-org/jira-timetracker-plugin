@@ -58,6 +58,8 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
    */
   private static final Logger LOGGER = Logger.getLogger(JiraTimetrackerChartWebAction.class);
 
+  private static final String NOT_RATED = "Not rated";
+
   private static final String PARAM_DATEFROM = "dateFrom";
 
   private static final String PARAM_DATETO = "dateTo";
@@ -103,6 +105,8 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
    */
   private String dateToFormated = "";
 
+  private boolean feedBackSendAviable;
+
   /**
    * The {@link JiraTimetrackerPlugin}.
    */
@@ -134,6 +138,10 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
   }
 
+  private void checkMailServer() {
+    feedBackSendAviable = ComponentAccessor.getMailServerManager().isDefaultSMTPMailServerDefined();
+  }
+
   /**
    * Set dateFrom and dateFromFormated default value.
    */
@@ -162,6 +170,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     }
 
     normalizeContextPath();
+    checkMailServer();
     jiraTimetrackerPlugin.loadPluginSettings();
 
     setPiwikProperties();
@@ -174,10 +183,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     }
     chartDataList = null;
 
-    JiraAuthenticationContext authenticationContext = ComponentAccessor
-        .getJiraAuthenticationContext();
-    currentUser = authenticationContext.getUser().getKey();
-    setUserPickerObjectBasedOnCurrentUser();
+    setLoggedUserToCurrentUser();
 
     return INPUT;
   }
@@ -191,11 +197,17 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     }
 
     normalizeContextPath();
+    checkMailServer();
     jiraTimetrackerPlugin.loadPluginSettings();
 
     setPiwikProperties();
     loadPluginSettingAndParseResult();
     setDefaultDates();
+    setLoggedUserToCurrentUser();
+
+    if (parseFeedback()) {
+      return INPUT;
+    }
 
     Calendar startDate = null;
     Calendar lastDate = null;
@@ -276,9 +288,13 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     return dateToFormated;
   }
 
+  public boolean getFeedBackSendAviable() {
+    return feedBackSendAviable;
+  }
+
   private Calendar getLastDate() throws IllegalArgumentException {
     String dateToParam = getHttpRequest().getParameter(PARAM_DATETO);
-    if (!"".equals(dateToParam)) {
+    if ((dateToParam != null) && !"".equals(dateToParam)) {
       dateToFormated = dateToParam;
     } else {
       throw new IllegalArgumentException(INVALID_END_TIME);
@@ -310,7 +326,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
   private Calendar getStartDate() throws IllegalArgumentException {
     String dateFromParam = getHttpRequest().getParameter(PARAM_DATEFROM);
-    if (!"".equals(dateFromParam)) {
+    if ((dateFromParam != null) && !"".equals(dateFromParam)) {
       dateFromFormated = dateFromParam;
     } else {
       throw new IllegalArgumentException(INVALID_START_TIME);
@@ -345,6 +361,26 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     } else {
       contextPath = path;
     }
+  }
+
+  private boolean parseFeedback() {
+    if (getHttpRequest().getParameter("sendfeedback") != null) {
+      String feedBackValue = getHttpRequest().getParameter("feedbackinput");
+      String ratingValue = getHttpRequest().getParameter("rating");
+      String customerMail = getHttpRequest().getParameter("customerMail");
+      String feedBack = "";
+      String rating = NOT_RATED;
+      if (feedBackValue != null) {
+        feedBack = feedBackValue;
+      }
+      if (ratingValue != null) {
+        rating = ratingValue;
+      }
+      jiraTimetrackerPlugin.sendFeedBackEmail(feedBack, JiraTimetrackerAnalytics.getPluginVersion(),
+          rating, customerMail);
+      return true;
+    }
+    return false;
   }
 
   public void setAnalyticsCheck(final boolean analyticsCheck) {
@@ -400,6 +436,17 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     if ("".equals(dateToFormated)) {
       dateToDefaultInit();
     }
+  }
+
+  public void setFeedBackSendAviable(final boolean feedBackSendAviable) {
+    this.feedBackSendAviable = feedBackSendAviable;
+  }
+
+  private void setLoggedUserToCurrentUser() {
+    JiraAuthenticationContext authenticationContext = ComponentAccessor
+        .getJiraAuthenticationContext();
+    currentUser = authenticationContext.getUser().getKey();
+    setUserPickerObjectBasedOnCurrentUser();
   }
 
   public void setMessage(final String message) {
