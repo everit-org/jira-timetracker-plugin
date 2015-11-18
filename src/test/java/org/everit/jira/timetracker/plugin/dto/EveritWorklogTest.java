@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.easymock.EasyMock;
+import org.everit.jira.timetracker.plugin.DurationBuilder;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -62,31 +63,28 @@ public class EveritWorklogTest {
 
   }
 
-  private static final int MINUTE = 60;
+  private static DurationBuilder duration() {
+    return new DurationBuilder();
+  }
 
-  private static final int HOUR = MINUTE * 60;
-
-  private static final int DAY = HOUR * 8;
-
-  private static final int WEEK = DAY * 5;
-
-  private static Object[] param(final String expectedRemaining, final int remainingInSeconds) {
-    return new Object[] { expectedRemaining, remainingInSeconds };
+  private static Object[] param(final String expectedRemaining,
+      final DurationBuilder remainingInSeconds) {
+    return new Object[] { expectedRemaining, remainingInSeconds.toSeconds() };
   }
 
   @Parameters(name = "{0} from {1}")
   public static final List<Object[]> params() {
     return Arrays.asList(
-        param("", 0),
-        param("3m", 3 * MINUTE),
-        param("1h 3m", HOUR + 3 * MINUTE),
-        param("2h 3m", 2 * HOUR + 3 * MINUTE),
-        param("2w 2d", 2 * WEEK + 2 * DAY),
-        param("2d", 2 * DAY),
-        param("~2d 1h", (2 * DAY) + (1 * HOUR) + (3 * MINUTE)),
-        param("~2w", (2 * WEEK) + (3 * HOUR) + (3 * MINUTE)),
-        param("~5w 4d", (5 * WEEK) + (4 * DAY) + (3 * MINUTE)),
-        param("~5w", (5 * WEEK) + (4 * HOUR) + (3 * MINUTE)));
+        param("", duration()),
+        param("3m", duration().min(3)),
+        param("1h 3m", duration().hour(1).min(3)),
+        param("2h 3m", duration().hour(2).min(3)),
+        param("2w 2d", duration().week(2).day(2)),
+        param("2d", duration().day(2)),
+        param("~2d 1h", duration().day(2).hour(1).min(3)),
+        param("~2w", duration().week(2).hour(3).min(3)),
+        param("~5w 4d", duration().week(5).day(4).min(3)),
+        param("~5w", duration().week(5).hour(4).min(3)));
   }
 
   private final String expectedRemaining;
