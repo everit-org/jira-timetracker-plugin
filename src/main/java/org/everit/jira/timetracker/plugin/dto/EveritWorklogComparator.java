@@ -25,12 +25,20 @@ import org.everit.jira.timetracker.plugin.DateTimeConverterUtil;
 /**
  * The comparator of the {@link EveritWorklog}.
  */
-public class EveritWorklogComparator implements Comparator<EveritWorklog>, Serializable {
+public final class EveritWorklogComparator implements Comparator<EveritWorklog>, Serializable {
+
+  public static final EveritWorklogComparator INSTANCE = new EveritWorklogComparator();
 
   /**
    * Serial version UID.
    */
   private static final long serialVersionUID = -4563970131275373338L;
+
+  /**
+   * Empty private constructor.
+   */
+  private EveritWorklogComparator() {
+  }
 
   /**
    * Compare by start and end Date.

@@ -161,6 +161,18 @@
     </dependency>
     <dependency>
       <groupId>com.atlassian.jira</groupId>
+      <artifactId>jira-tests</artifactId>
+      <version>6.1.5</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.easymock</groupId>
+      <artifactId>easymock</artifactId>
+      <version>3.4</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.atlassian.jira</groupId>
       <artifactId>jira-core</artifactId>
       <version>${jira.version}</version>
       <scope>provided</scope>

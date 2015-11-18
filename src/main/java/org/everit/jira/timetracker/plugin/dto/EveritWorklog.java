@@ -23,6 +23,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import org.everit.jira.timetracker.plugin.DateTimeConverterUtil;
+import org.everit.jira.timetracker.plugin.DurationFormatter;
 import org.ofbiz.core.entity.GenericValue;
 
 import com.atlassian.jira.component.ComponentAccessor;
@@ -93,7 +94,9 @@ public class EveritWorklog implements Serializable {
   /**
    * Remaining time on the issue.
    */
-  private String remaining;
+  private String roundedRemaining;
+
+  private String exactRemaining;
 
   /**
    * The start Date.
@@ -157,7 +160,8 @@ public class EveritWorklog implements Serializable {
     duration = DateTimeConverterUtil.secondConvertToString(timeSpentInSec);
     endTime = DateTimeConverterUtil.countEndTime(startTime, milliseconds);
 
-    remaining = DateTimeConverterUtil.secondConvertToString(issueObject.getEstimate());
+    roundedRemaining = DurationFormatter.roundedDuration(issueObject.getEstimate());
+    exactRemaining = DateTimeConverterUtil.secondConvertToString(issueObject.getEstimate());
   }
 
   /**
@@ -208,7 +212,8 @@ public class EveritWorklog implements Serializable {
     duration = DateTimeConverterUtil.secondConvertToString(timeSpentInSec);
     endTime = DateTimeConverterUtil.countEndTime(startTime, milliseconds);
 
-    remaining = DateTimeConverterUtil.secondConvertToString(issueObject.getEstimate());
+    roundedRemaining = DurationFormatter.roundedDuration(issueObject.getEstimate());
+    exactRemaining = DateTimeConverterUtil.secondConvertToString(issueObject.getEstimate());
   }
 
   /**
@@ -267,6 +272,10 @@ public class EveritWorklog implements Serializable {
     return endTime;
   }
 
+  public String getExactRemaining() {
+    return exactRemaining;
+  }
+
   public boolean getIsMoreEstimatedTime() {
     return isMoreEstimatedTime;
   }
@@ -291,8 +300,8 @@ public class EveritWorklog implements Serializable {
     return monthNo;
   }
 
-  public String getRemaining() {
-    return remaining;
+  public String getRoundedRemaining() {
+    return roundedRemaining;
   }
 
   public String getStartDate() {
@@ -331,6 +340,10 @@ public class EveritWorklog implements Serializable {
     this.endTime = endTime;
   }
 
+  public void setExactRemaining(final String exactRemaining) {
+    this.exactRemaining = exactRemaining;
+  }
+
   public void setIssue(final String issue) {
     this.issue = issue;
   }
@@ -355,8 +368,8 @@ public class EveritWorklog implements Serializable {
     this.isMoreEstimatedTime = isMoreEstimatedTime;
   }
 
-  public void setRemaining(final String remaining) {
-    this.remaining = remaining;
+  public void setRoundedRemaining(final String remaining) {
+    this.roundedRemaining = remaining;
   }
 
   public void setStartDate(final String startDate) {

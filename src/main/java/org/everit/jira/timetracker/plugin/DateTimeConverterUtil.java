@@ -132,6 +132,11 @@ public final class DateTimeConverterUtil {
   public static final int WORK_HOURS_PER_DAY = 8;
 
   /**
+   * The number of workdays per week.
+   */
+  public static final int WORKDAYS_PER_WEEK = 5;
+
+  /**
    * Count the worklog end time.
    *
    * @param start
@@ -262,20 +267,7 @@ public final class DateTimeConverterUtil {
    * @return The result String.
    */
   public static String secondConvertToString(final long spentSeconds) {
-    String summaryString = "";
-    long spentMin = spentSeconds / SECONDS_PER_MINUTE;
-    long spentHour = spentMin / MINUTES_PER_HOUR;
-    long days = spentHour / WORK_HOURS_PER_DAY;
-    long hours = spentHour % WORK_HOURS_PER_DAY;
-    long mins = spentMin % MINUTES_PER_HOUR;
-    if (days != 0) {
-      summaryString = days + "d " + hours + "h " + mins + "m";
-    } else if (hours != 0) {
-      summaryString = hours + "h " + mins + "m";
-    } else {
-      summaryString = mins + "m";
-    }
-    return summaryString;
+    return DurationFormatter.exactDuration(spentSeconds);
   }
 
   /**
