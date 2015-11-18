@@ -31,9 +31,9 @@
     _paq.push(['trackPageView']);
     _paq.push(['enableLinkTracking']);
   (function() {
-    var u="//104.155.68.215/";
+    var u='$piwikHost';
     _paq.push(['setTrackerUrl', u+'piwik.php']);
-    _paq.push(['setSiteId', $IDSITE]);
+    _paq.push(['setSiteId', $piwikSiteId]);
     var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
     g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
   })();

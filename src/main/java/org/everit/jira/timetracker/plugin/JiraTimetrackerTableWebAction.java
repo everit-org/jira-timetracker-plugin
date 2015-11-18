@@ -81,6 +81,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   private static final String PARAM_DATETO = "dateTo";
 
   private static final String PARAM_USERPICKER = "userPicker";
+
   /**
    * Serial version UID.
    */
@@ -101,10 +102,12 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
    * The date.
    */
   private Date dateFrom = null;
+
   /**
    * The formated date.
    */
   private String dateFromFormated = "";
+
   /**
    * The date.
    */
@@ -123,13 +126,16 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
    * The {@link JiraTimetrackerPlugin}.
    */
   private final JiraTimetrackerPlugin jiraTimetrackerPlugin;
-
   /**
    * The message.
    */
   private String message = "";
 
   private HashMap<Integer, List<Object>> monthSum = new HashMap<Integer, List<Object>>();
+
+  private String piwikHost;
+
+  private String piwikSiteId;
 
   private String pluginVersion;
 
@@ -263,9 +269,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     normalizeContextPath();
     jiraTimetrackerPlugin.loadPluginSettings();
 
-    pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
-    baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(getHttpRequest().getSession());
-    userId = JiraTimetrackerAnalytics.setUserSessionUserId(getHttpRequest().getSession());
+    setPiwikProperties();
     loadPluginSettingAndParseResult();
     if ("".equals(dateFromFormated)) {
       dateFromDefaultInit();
@@ -291,9 +295,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     }
 
     normalizeContextPath();
-    pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
-    baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(getHttpRequest().getSession());
-    userId = JiraTimetrackerAnalytics.setUserSessionUserId(getHttpRequest().getSession());
+    setPiwikProperties();
     loadPluginSettingAndParseResult();
     PluginSettingsValues pluginSettings = jiraTimetrackerPlugin.loadPluginSettings();
     setIssuesRegex(pluginSettings.getFilteredSummaryIssues());
@@ -401,6 +403,14 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   public HashMap<Integer, List<Object>> getMonthSum() {
     return monthSum;
+  }
+
+  public String getPiwikHost() {
+    return piwikHost;
+  }
+
+  public String getPiwikSiteId() {
+    return piwikSiteId;
   }
 
   public String getPluginVersion() {
@@ -546,6 +556,25 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   public void setMonthSum(final HashMap<Integer, List<Object>> monthSum) {
     this.monthSum = monthSum;
+  }
+
+  public void setPiwikHost(final String piwikHost) {
+    this.piwikHost = piwikHost;
+  }
+
+  private void setPiwikProperties() {
+    pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
+    baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(getHttpRequest().getSession());
+    userId = JiraTimetrackerAnalytics.setUserSessionUserId(getHttpRequest().getSession());
+
+    piwikHost = jiraTimetrackerPlugin
+        .getPiwikPorperty(JiraTimetrackerPiwikPropertiesUtil.PIWIK_HOST);
+    piwikSiteId = jiraTimetrackerPlugin
+        .getPiwikPorperty(JiraTimetrackerPiwikPropertiesUtil.PIWIK_TABLE_SITEID);
+  }
+
+  public void setPiwikSiteId(final String piwikSiteId) {
+    this.piwikSiteId = piwikSiteId;
   }
 
   public void setPluginVersion(final String pluginVersion) {
