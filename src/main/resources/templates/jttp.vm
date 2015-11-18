@@ -117,7 +117,8 @@
 </head>
 <body>
 <script>
-	function calculateTimeForInputfileds(hour,min){
+	var _paq = (_paq || []);
+	function calculateTimeForInputfields(hour,min){
 		if (hour < 10){
 			hour = "0" + hour
 		}
@@ -391,7 +392,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 															var hour = currentTime.getHours();
 															var minute = currentTime.getMinutes();
 															startState = 1;
-															var now = calculateTimeForInputfileds(hour,minute);
+															var now = calculateTimeForInputfields(hour,minute);
 															AJS.$("#startTime").val(now);
 					               						}
 					               						function setStartDecTemporary(){
@@ -410,7 +411,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 						               							}
 					               								startState = 0;
 					               							}
-					               							var time = calculateTimeForInputfileds(hour,min);
+					               							var time = calculateTimeForInputfields(hour,min);
 															AJS.$("#startTime").val(time);
 					               						}
 					               						function setStartInc(){
@@ -439,7 +440,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 					               								min = min - minSubInt;
 					               							}
 					               							startState = 2;
-															var time = calculateTimeForInputfileds(hour,min);
+															var time = calculateTimeForInputfields(hour,min);
 															AJS.$("#startTime").val(time);
 					               						}
 													</script>
@@ -477,7 +478,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 															var hour = currentTime.getHours();
 															var minute = currentTime.getMinutes();
 															endState = 1;
-															var now =calculateTimeForInputfileds(hour,minute);
+															var now =calculateTimeForInputfields(hour,minute);
 															AJS.$("#endTime").val(now);
 					               						 }
 					               						
@@ -513,7 +514,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 						               							}
 					               								endState = 0;
 					               							}
-					               							var time = calculateTimeForInputfileds(hour,min);
+					               							var time = calculateTimeForInputfields(hour,min);
 															AJS.$("#endTime").val(time);
 					               							
 					               						}
@@ -543,7 +544,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 					               								min = min - minSubInt;
 					               							}
 					               							endState = 2;
-															var time = calculateTimeForInputfileds(hour,min);
+															var time = calculateTimeForInputfields(hour,min);
 															AJS.$("#endTime").val(time);
 					               						}  
 													</script>
@@ -772,11 +773,21 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 		 	AJS.$('#Submitbutton').focus();
 		 });
 		 
+		 function isIssueSelectorPopupVisible() {
+		 	var visible = AJS.$("#issueSelect-suggestions .aui-list-scroll h5").is(":visible");
+		 	return visible;
+		 }
+		 
 		 AJS.$('#issueSelect-textarea').keydown(function(e){
 		    var isEnter = e.keyCode == 10 || e.keyCode == 13;
 	        if (isEnter && e.ctrlKey) {
 	          AJS.$('#Submitbutton, #Edit').click();
+	        } else if (isEnter && !isIssueSelectorPopupVisible()) {
+	        	e.preventDefault();
+	        	e.stopPropagation();
+	        	return false;
 	        }
+	        
 	     });
 	     
 	     AJS.$('#comments').keydown(function(e){
