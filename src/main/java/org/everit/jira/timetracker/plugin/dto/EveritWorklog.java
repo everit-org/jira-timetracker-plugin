@@ -21,6 +21,8 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.everit.jira.timetracker.plugin.DateTimeConverterUtil;
 import org.ofbiz.core.entity.GenericValue;
@@ -93,7 +95,9 @@ public class EveritWorklog implements Serializable {
   /**
    * Remaining time on the issue.
    */
-  private String remaining;
+  private String roundedRemaining;
+
+  private String exactRemaining;
 
   /**
    * The start Date.
@@ -157,7 +161,8 @@ public class EveritWorklog implements Serializable {
     duration = DateTimeConverterUtil.secondConvertToString(timeSpentInSec);
     endTime = DateTimeConverterUtil.countEndTime(startTime, milliseconds);
 
-    remaining = DateTimeConverterUtil.secondConvertToString(issueObject.getEstimate());
+    roundedRemaining = calculateFormattedRemaining(issueObject.getEstimate());
+    exactRemaining = DateTimeConverterUtil.secondConvertToString(issueObject.getEstimate());
   }
 
   /**
@@ -208,7 +213,8 @@ public class EveritWorklog implements Serializable {
     duration = DateTimeConverterUtil.secondConvertToString(timeSpentInSec);
     endTime = DateTimeConverterUtil.countEndTime(startTime, milliseconds);
 
-    remaining = DateTimeConverterUtil.secondConvertToString(issueObject.getEstimate());
+    roundedRemaining = calculateFormattedRemaining(issueObject.getEstimate());
+    exactRemaining = DateTimeConverterUtil.secondConvertToString(issueObject.getEstimate());
   }
 
   /**
@@ -247,6 +253,51 @@ public class EveritWorklog implements Serializable {
     endTime = DateTimeConverterUtil.countEndTime(startTime, milliseconds);
   }
 
+  private String buildRoundedEstimateString(final Map<String, Long> fragments,
+      final int firstNonzeroIdx, final int lastNonzeroIdx) {
+    Map<String, Long> truncatedFragments = new LinkedHashMap<>();
+    int idx = 0;
+    int handledFragmentCount = 0;
+    boolean needsTilde = false;
+    for (Map.Entry<String, Long> fragment : fragments.entrySet()) {
+      Long value = fragment.getValue();
+      if (firstNonzeroIdx <= idx && idx <= lastNonzeroIdx) {
+        if (value.longValue() > 0) {
+          if (handledFragmentCount < 2) {
+            truncatedFragments.put(fragment.getKey(), value);
+          } else {
+            needsTilde = true;
+          }
+        }
+        ++handledFragmentCount;
+      }
+      ++idx;
+    }
+    StringBuilder rval = new StringBuilder(needsTilde ? "~" : "");
+    for (Map.Entry<String, Long> fragment : truncatedFragments.entrySet()) {
+      rval.append(fragment.getValue()).append(fragment.getKey());
+    }
+    return rval.toString().trim();
+  }
+
+  private String calculateFormattedRemaining(final long estimateSec) {
+    Map<String, Long> fragments = getFragmentsOfRemainingEstimate(estimateSec);
+    int firstNonzeroIdx = -1;
+    int lastNonzeroIdx = 0;
+    int idx = 0;
+    for (Map.Entry<String, Long> fragment : fragments.entrySet()) {
+      if (fragment.getValue().longValue() != 0) {
+        if (firstNonzeroIdx == -1) {
+          firstNonzeroIdx = idx;
+        }
+        lastNonzeroIdx = idx;
+      }
+      ++idx;
+    }
+    lastNonzeroIdx = Math.max(lastNonzeroIdx, firstNonzeroIdx + 1);
+    return buildRoundedEstimateString(fragments, firstNonzeroIdx, lastNonzeroIdx);
+  }
+
   public String getBody() {
     return body;
   }
@@ -265,6 +316,27 @@ public class EveritWorklog implements Serializable {
 
   public String getEndTime() {
     return endTime;
+  }
+
+  public String getExactRemaining() {
+    return exactRemaining;
+  }
+
+  private Map<String, Long> getFragmentsOfRemainingEstimate(final long estimateSec) {
+    long estimate = estimateSec / DateTimeConverterUtil.MINUTES_PER_HOUR;
+    long minutes = estimate % DateTimeConverterUtil.MINUTES_PER_HOUR;
+    estimate /= DateTimeConverterUtil.MINUTES_PER_HOUR;
+    long hours = estimate % DateTimeConverterUtil.WORK_HOURS_PER_DAY;
+    estimate /= DateTimeConverterUtil.WORK_HOURS_PER_DAY;
+    long days = estimate % DateTimeConverterUtil.WORKDAYS_PER_WEEK;
+    estimate /= DateTimeConverterUtil.WORKDAYS_PER_WEEK;
+    long weeks = estimate;
+    Map<String, Long> fragments = new LinkedHashMap<>();
+    fragments.put("w ", weeks);
+    fragments.put("d ", days);
+    fragments.put("h ", hours);
+    fragments.put("m ", minutes);
+    return fragments;
   }
 
   public boolean getIsMoreEstimatedTime() {
@@ -291,8 +363,8 @@ public class EveritWorklog implements Serializable {
     return monthNo;
   }
 
-  public String getRemaining() {
-    return remaining;
+  public String getRoundedRemaining() {
+    return roundedRemaining;
   }
 
   public String getStartDate() {
@@ -331,6 +403,10 @@ public class EveritWorklog implements Serializable {
     this.endTime = endTime;
   }
 
+  public void setExactRemaining(final String exactRemaining) {
+    this.exactRemaining = exactRemaining;
+  }
+
   public void setIssue(final String issue) {
     this.issue = issue;
   }
@@ -355,8 +431,8 @@ public class EveritWorklog implements Serializable {
     this.isMoreEstimatedTime = isMoreEstimatedTime;
   }
 
-  public void setRemaining(final String remaining) {
-    this.remaining = remaining;
+  public void setRoundedRemaining(final String remaining) {
+    this.roundedRemaining = remaining;
   }
 
   public void setStartDate(final String startDate) {

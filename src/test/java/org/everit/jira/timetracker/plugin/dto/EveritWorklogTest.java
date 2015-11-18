@@ -16,14 +16,18 @@
 package org.everit.jira.timetracker.plugin.dto;
 
 import java.text.ParseException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.easymock.EasyMock;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 import org.ofbiz.core.entity.GenericValue;
 import org.ofbiz.core.entity.model.ModelEntity;
 
@@ -32,6 +36,7 @@ import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.mock.component.MockComponentWorker;
 import com.atlassian.jira.mock.issue.MockIssue;
 
+@RunWith(Parameterized.class)
 public class EveritWorklogTest {
 
   static class DummyGenericValue extends GenericValue {
@@ -57,8 +62,47 @@ public class EveritWorklogTest {
 
   }
 
-  @Before
-  public void before() {
+  private static final int MINUTE = 60;
+
+  private static final int HOUR = MINUTE * 60;
+
+  private static final int DAY = HOUR * 8;
+
+  private static final int WEEK = DAY * 5;
+
+  private static Object[] param(final String expectedRemaining, final int remainingInSeconds) {
+    return new Object[] { expectedRemaining, remainingInSeconds };
+  }
+
+  @Parameters(name = "{0} from {1}")
+  public static final List<Object[]> params() {
+    return Arrays.asList(
+        param("", 0),
+        param("3m", 3 * MINUTE),
+        param("1h 3m", HOUR + 3 * MINUTE),
+        param("2h 3m", 2 * HOUR + 3 * MINUTE),
+        param("2w 2d", 2 * WEEK + 2 * DAY),
+        param("2d", 2 * DAY),
+        param("~2d 1h", (2 * DAY) + (1 * HOUR) + (3 * MINUTE)),
+        param("~2w", (2 * WEEK) + (3 * HOUR) + (3 * MINUTE)),
+        param("~5w 4d", (5 * WEEK) + (4 * DAY) + (3 * MINUTE)),
+        param("~5w", (5 * WEEK) + (4 * HOUR) + (3 * MINUTE)));
+  }
+
+  private final String expectedRemaining;
+
+  private final int remainingInSecond;
+
+  public EveritWorklogTest(final String expectedRemaining, final Integer remainingInSecond) {
+    this.expectedRemaining = expectedRemaining;
+    this.remainingInSecond = remainingInSecond;
+  }
+
+  /**
+   * Mocks the {@code ComponentAccessor.getIssueManager()} call in the
+   * {@link EveritWorklog(GenericValue)} constructor.
+   */
+  public void setupMockIssueManager(final int remainingTimeInSec) {
     MockIssue mockIssue = new MockIssue() {
       @Override
       public Issue getParentObject() {
@@ -66,7 +110,7 @@ public class EveritWorklogTest {
       }
     };
     mockIssue.setKey("KEY-12");
-    mockIssue.setEstimate(18000L);
+    mockIssue.setEstimate((long) remainingTimeInSec);
     IssueManager mgr = EasyMock.createNiceMock(IssueManager.class);
     EasyMock.expect(mgr.getIssueObject(EasyMock.<Long> anyObject())).andReturn(mockIssue)
         .anyTimes();
@@ -75,22 +119,14 @@ public class EveritWorklogTest {
   }
 
   @Test
-  public void dummyWorks() {
-    HashMap<String, Object> values = new HashMap<String, Object>();
-    values.put("id", 10L);
-    DummyGenericValue dummy = new DummyGenericValue(values);
-    Assert.assertEquals(new Long(10L), dummy.getLong("id"));
-  }
-
-  @Test
-  public void min3() {
-    EveritWorklog subject = worklogWithRemaining(180);
-    System.out.println(subject.getRemaining());
+  public void test() {
+    EveritWorklog subject = worklogWithRemaining(remainingInSecond);
+    Assert.assertEquals(expectedRemaining, subject.getRoundedRemaining());
   }
 
   private EveritWorklog worklogWithRemaining(final int remainingInSeconds) {
     HashMap<String, Object> values = new HashMap<String, Object>();
-    values.put("remaining", new Long(remainingInSeconds));
+    setupMockIssueManager(remainingInSeconds);
     values.put("startdate", "2011-11-11 11:11");
     values.put("issue", "11");
     values.put("timeworked", 10L);

@@ -69,9 +69,9 @@ cursor:pointer;
 		                    	 	</td>
 		                    	 	<td style="vertical-align: middle;">
 		                    	 		#if($worklog.isMoreEstimatedTime)
-											$worklog.remaining
+											<div title="$worklog.exactRemaining">$worklog.roundedRemaining<div>
 										#else
-		                    	 			<div style="color:red;">$worklog.remaining</div>
+		                    	 			<div title="$worklog.exactRemaining" style="color:red;">$worklog.roundedRemaining</div>
 										#end
 		                    	 		
 		                    	 	</td>

@@ -132,6 +132,11 @@ public final class DateTimeConverterUtil {
   public static final int WORK_HOURS_PER_DAY = 8;
 
   /**
+   * The number of workdays per week.
+   */
+  public static final int WORKDAYS_PER_WEEK = 5;
+
+  /**
    * Count the worklog end time.
    *
    * @param start
