@@ -14,9 +14,44 @@
  * limitations under the License.
  */
 
+body{
+    overflow: scroll;
+}
+
+.footer{
+    position: relative;
+    top: -10px;
+    float: right;
+    right: 695px;
+    margin-bottom: 10px;
+    padding: 5px;
+    text-align: right;
+    border: solid;
+    border-color: #bbbbbb;
+    border-width: 0px 1px 1px 1px;
+    border-radius: 0em 0em .6em .6em;
+}
+
+td .text{
+	box-sizing: border-box;
+    height: 2.1428571428571em;
+    line-height: 1.4285714285714;
+    padding: 4px 5px;
+}
+
 .rating {
-    float:left;
+  float:left;
+  position: relative;
+  top: -7px;
  }
+
+.label_td{
+  width: 30%;
+  text-align: right;
+  vertical-align: top;
+  padding-right: 20px;
+  padding-top: 3px;
+}
 
 /* :not(:checked) is a filter, so that browsers that don’t support :checked don’t 
    follow these rules. Every browser that supports :checked also supports :not(), so
