@@ -81,6 +81,24 @@
         </configuration>
       </plugin>
     </plugins>
+     <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+        <includes>
+          <include>**/atlassian-plugin.xml</include>
+          <include>**/jttp_build.properties</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>false</filtering>
+        <excludes>
+          <exclude>**/atlassian-plugin.xml</exclude>
+          <exclude>**/jttp_build.properties</exclude>
+        </excludes>
+      </resource>
+    </resources>
   </build>
 
   <dependencies>

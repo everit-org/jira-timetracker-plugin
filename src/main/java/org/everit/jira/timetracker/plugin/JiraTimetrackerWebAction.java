@@ -93,33 +93,38 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The worklog comment.
    */
   private String comment = "";
+
   /**
    * The worklog comment.
    */
   private String commentForActions = "";
 
   private String contextPath;
+
   /**
    * The copied worklog id.
    */
   private Long copiedWorklogId = DEFAULT_WORKLOG_ID;
+
   /**
    * The date.
    */
   private Date date = null;
+
   /**
    * The formated date.
    */
   private String dateFormated = "";
+
   /**
    * The summary of day.
    */
   private String dayFilteredSummary = "";
+
   /**
    * The summary of day.
    */
   private String daySummary = "";
-
   /**
    * The deleted worklog id.
    */
@@ -129,12 +134,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The worklog duration.
    */
   private String durationTime = "";
-
   /**
    * The all edit worklogs ids.
    */
   private String editAllIds = "";
-
   /**
    * The edited worklog id.
    */
@@ -143,12 +146,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The worklog end time.
    */
   private String endTime = "";
-
   /**
    * The endTime input field changer buttons value.
    */
   private int endTimeChange;
-
   /**
    * List of the exclude days of the date variable current months.
    */
@@ -170,7 +171,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The WebAction is edit a worklog or not.
    */
   private boolean isEdit = false;
-
   /**
    * The WebAction is edit all worklog or not.
    */
@@ -185,6 +185,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The issue key.
    */
   private String issueKey = "";
+
   /**
    * The issues.
    */
@@ -194,22 +195,27 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The filtered Issues id.
    */
   private List<Pattern> issuesRegex;
+
   /**
    * The jira main version.
    */
   private int jiraMainVersion;
+
   /**
    * The {@link JiraTimetrackerPlugin}.
    */
   private JiraTimetrackerPlugin jiraTimetrackerPlugin;
+
   /**
    * List of the logged days of the date variable current months.
    */
   private List<String> loggedDays = new ArrayList<String>();
+
   /**
    * The message.
    */
   private String message = "";
+
   /**
    * The message parameter.
    */
@@ -218,17 +224,21 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The summary of month.
    */
   private String monthFilteredSummary = "";
+
   /**
    * The summary of month.
    */
   private String monthSummary = "";
+
+  private String piwikHost;
+
+  private String piwikSiteId;
 
   private String pluginVersion;
   /**
    * The IDs of the projects.
    */
   private List<String> projectsId;
-
   /**
    * The selected User for get Worklogs.
    */
@@ -245,6 +255,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The startTime input field changer buttons value.
    */
   private int startTimeChange;
+
   /**
    * The spent time in Jira time format (1h 20m).
    */
@@ -253,17 +264,14 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private String userId;
 
   private User userPickerObject;
-
   /**
    * The summary of week.
    */
   private String weekFilteredSummary = "";
-
   /**
    * The summary of week.
    */
   private String weekSummary = "";
-
   /**
    * The worklogs.
    */
@@ -358,9 +366,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     }
 
     normalizeContextPath();
-    pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
-    baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(request.getSession());
-    userId = JiraTimetrackerAnalytics.setUserSessionUserId(request.getSession());
+    setPiwikProperties();
 
     getJiraVersionFromBuildUtilsInfo();
 
@@ -419,9 +425,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     }
 
     normalizeContextPath();
-    pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
-    baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(request.getSession());
-    userId = JiraTimetrackerAnalytics.setUserSessionUserId(request.getSession());
+    setPiwikProperties();
 
     getJiraVersionFromBuildUtilsInfo();
 
@@ -694,6 +698,14 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   public String getMonthSummary() {
     return monthSummary;
+  }
+
+  public String getPiwikHost() {
+    return piwikHost;
+  }
+
+  public String getPiwikSiteId() {
+    return piwikSiteId;
   }
 
   public String getPluginVersion() {
@@ -1253,6 +1265,25 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   public void setMonthSummary(final String monthSummary) {
     this.monthSummary = monthSummary;
+  }
+
+  public void setPiwikHost(final String piwikHost) {
+    this.piwikHost = piwikHost;
+  }
+
+  private void setPiwikProperties() {
+    pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
+    baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(request.getSession());
+    userId = JiraTimetrackerAnalytics.setUserSessionUserId(request.getSession());
+
+    piwikHost =
+        jiraTimetrackerPlugin.getPiwikPorperty(JiraTimetrackerPiwikPropertiesUtil.PIWIK_HOST);
+    piwikSiteId = jiraTimetrackerPlugin
+        .getPiwikPorperty(JiraTimetrackerPiwikPropertiesUtil.PIWIK_TIMETRACKER_SITEID);
+  }
+
+  public void setPiwikSiteId(final String piwikSiteId) {
+    this.piwikSiteId = piwikSiteId;
   }
 
   public void setPluginVersion(final String pluginVersion) {
