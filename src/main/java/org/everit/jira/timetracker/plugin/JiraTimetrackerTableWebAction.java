@@ -122,7 +122,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   /**
    * The {@link JiraTimetrackerPlugin}.
    */
-  private JiraTimetrackerPlugin jiraTimetrackerPlugin;
+  private final JiraTimetrackerPlugin jiraTimetrackerPlugin;
 
   /**
    * The message.
@@ -133,11 +133,11 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   private String pluginVersion;
 
-  private HashMap<Integer, List<Object>> realDaySum = new HashMap<Integer, List<Object>>();
+  private final HashMap<Integer, List<Object>> realDaySum = new HashMap<Integer, List<Object>>();
 
-  private HashMap<Integer, List<Object>> realMonthSum = new HashMap<Integer, List<Object>>();
+  private final HashMap<Integer, List<Object>> realMonthSum = new HashMap<Integer, List<Object>>();
 
-  private HashMap<Integer, List<Object>> realWeekSum = new HashMap<Integer, List<Object>>();
+  private final HashMap<Integer, List<Object>> realWeekSum = new HashMap<Integer, List<Object>>();
 
   private String userId;
 
@@ -509,8 +509,8 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
       throw new IllegalArgumentException(INVALID_USER_PICKER);
     }
     if ("".equals(currentUser)) {
-      JiraAuthenticationContext authenticationContext =
-          ComponentAccessor.getJiraAuthenticationContext();
+      JiraAuthenticationContext authenticationContext = ComponentAccessor
+          .getJiraAuthenticationContext();
       currentUser = authenticationContext.getUser().getKey();
     }
   }
