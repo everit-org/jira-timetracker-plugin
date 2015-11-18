@@ -75,7 +75,7 @@ public class EveritWorklogTest {
   @Parameters(name = "{0} from {1}")
   public static final List<Object[]> params() {
     return Arrays.asList(
-        param("", duration()),
+        param("0m", duration()),
         param("3m", duration().min(3)),
         param("1h 3m", duration().hour(1).min(3)),
         param("2h 3m", duration().hour(2).min(3)),
