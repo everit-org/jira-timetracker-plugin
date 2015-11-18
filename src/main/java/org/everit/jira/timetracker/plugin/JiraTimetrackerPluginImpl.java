@@ -93,7 +93,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
 
   private static final int DEFAULT_CHECK_TIME_IN_MINUTES = 1200;
 
-  private static final String FEEDBACK_EMAIL_DEFAULT_VALUE = "${feedback.email}";
+  private static final String FEEDBACK_EMAIL_DEFAULT_VALUE = "${jttp.feedback.email}";
 
   private static final String FEEDBACK_EMAIL_SUBJECT = "[JTTP] feedback";
 
@@ -248,7 +248,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
    */
   private List<Pattern> nonWorkingIssuePatterns;
 
-  Map<String, String> piwikPorpeties;
+  private Map<String, String> piwikPorpeties;
 
   /**
    * The plugin setting form the settingsFactory.
