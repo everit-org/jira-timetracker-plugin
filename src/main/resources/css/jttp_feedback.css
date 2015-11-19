@@ -18,12 +18,11 @@ body{
     overflow: scroll;
 }
 
-.footer{
+.feedback_footer{
     position: relative;
-    top: -10px;
     float: right;
-    right: 695px;
     margin-bottom: 10px;
+    margin-right: 10px;
     padding: 5px;
     text-align: right;
     border: solid;
