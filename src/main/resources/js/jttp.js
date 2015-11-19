@@ -31,7 +31,69 @@ AJS.$(document).ready(function(){
     AJS.$('.aui-ss-editing').attr("style","width: 250px;");
     AJS.$('.aui-ss.aui-ss-editing .aui-ss-field').attr("style","width: 250px;");
 
-	
+			 AJS.$('.table-endtime').click(function(){
+		 	var temp = new String(AJS.$(this).html());
+		 	AJS.$('#startTime').val(temp.trim());
+		 });
+		 AJS.$('.table-starttime').click(function(){
+		 	var temp = new String(AJS.$(this).html());
+		 	AJS.$('#endTime').val(temp.trim());
+		 });
+		 
+		 AJS.$('.table-comment').click(function(){
+			 var temp = AJS.$(this).find('#hiddenWorklogBody').val();
+			
+			 var temp2 = temp.replace(/(\\r\\n|\\n|\\r)/gm, "&#013;");
+			 var temp3 = temp.replace(/(\\r\\n|\\n|\\r)/gm, "\n");
+	     
+	     	 AJS.$("#comments").html(temp2);
+	     	 AJS.$("#comments").val(temp3);
+		 });
+		 
+		 AJS.$('.table-issue').click(function(){
+		 	AJS.$('#issueSelect-textarea').parent().find('.item-delete').click();
+		 	
+		 	var temp = new String(AJS.$(this).find('a').html());
+		 	AJS.$('#issueSelect-textarea').val(temp.trim());
+		 	AJS.$('#issueSelect-textarea').focus();
+		 	AJS.$('#Edit').focus();
+		 	AJS.$('#Submitbutton').focus();
+		 });
+		 
+		 AJS.$('.copy').click(function(){
+		    AJS.$('#issueSelect-textarea').parent().find('.item-delete').click();
+		    
+		 	var temp = AJS.$(this).parent().parent().find('.table-issue').find('a').html();
+		 	AJS.$('#issueSelect-textarea').val(temp.trim());
+		 	
+		 	temp = AJS.$(this).parent().parent().find('#hiddenWorklogBody').val();
+		 	var temp2 = temp.replace(/(\\r\\n|\\n|\\r)/gm, "&#013;");
+		 	var temp3 = temp.replace(/(\\r\\n|\\n|\\r)/gm, "\n");
+		 	
+		 	AJS.$("#comments").html(temp2);
+		 	AJS.$("#comments").val(temp3);
+		 	
+		 	AJS.$('#issueSelect-textarea').focus();
+		 	AJS.$('#Submitbutton').focus();
+		 });
+		 
+		 AJS.$('#issueSelect-textarea').keydown(function(e){
+		    var isEnter = e.keyCode == 10 || e.keyCode == 13;
+	        if (isEnter && e.ctrlKey) {
+	          AJS.$('#Submitbutton, #Edit').click();
+	        }
+	     });
+	     
+	     AJS.$('#comments').keydown(function(e){
+	       if ((e.keyCode == 10 || e.keyCode == 13) && e.ctrlKey){
+		     AJS.$('#Submitbutton, #Edit').click();
+           }
+	     });
+	     
+	     AJS.$('#jttpForm').submit(function () {
+	        AJS.$('#Submitbutton').prop("disabled", true);
+	        return true;
+	     });
 });
 
 
@@ -76,18 +138,17 @@ function setExcludeDaysToWeekend(excludeDays){
 }
 
 function handleEnterKey(e, setFocusTo){
-	console.log('handleEnterKey meghívódott');
-	console.log('keyCode: ' + e.keyCode);
-	console.log('setFocusTo: ' + setFocusTo);
-    if ((e.keyCode == 10 || e.keyCode == 13) && e.ctrlKey){
-        AJS.$('#Submitbutton, #Edit').click();
-    } else if(e.keyCode == 13) { 
-        AJS.$(setFocusTo).focus();
-    } else {
-        e.preventDefault ? e.preventDefault() : event.returnValue = false;
-        AJS.$(setFocusTo).focus();
-        return false;
-    }
+	    var isEnter = e.keyCode == 10 || e.keyCode == 13;
+	    if (!isEnter) {
+	      return;
+	    }
+		if (e.ctrlKey){
+		 AJS.$('#Submitbutton, #Edit').click();
+        } else {
+         e.preventDefault ? e.preventDefault() : event.returnValue = false;
+         AJS.$(setFocusTo).focus();
+         return false;
+       }
 }
 
 function setStartNow(){
@@ -226,17 +287,26 @@ function setEndInc(endTimeChange){
 
 function startNowClick(){
 	var startState = 0;
+	var startTimeChange = AJS.$('#startTimeChange');
     if(startState == 0){
         setStartNow();
     }else if(startState == 1){
-        setStartInc($startTimeChange);
+        setStartInc(startTimeChange);
     }else if(startState == 2){
-        setStartDecTemporary($startTimeChange);
+        setStartDecTemporary(startTimeChange);
     }
 }
 
 function endTimeInputClick(){
-	
+	console.log('endTimeInputClick called');
+	var isEditAll = AJS.$("#isEditAll");
+	console.log('isEditAll: '+isEditAll);
+	if(!isEditAll){
+		console.log("inside if");
+		AJS.$('#endTimeInput').css("cursor","text").hide().prev().prop("disabled", false).css("cursor","text").focus();
+		AJS.$("#durationTimeInput").css("cursor","pointer").show().prev("input").prop("disabled", true).css("cursor","pointer");
+		AJS.$("#radioEnd").prop("checked", true);
+	}
 }
 
 function endNowClick(){

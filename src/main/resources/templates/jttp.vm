@@ -28,19 +28,21 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
                          $debugMessage
                   </div>
 #end
-<input id="excludeDays" type="hidden" value="$excludeDays" />
-<input id="isColoring" type="hidden" value="$isColoring" />
-<input id="loggedDays" type="hidden" value="$loggedDays" />
+	<input id="excludeDays" type="hidden" value="$excludeDays" />
+	<input id="isColoring" type="hidden" value="$isColoring" />
+	<input id="loggedDays" type="hidden" value="$loggedDays" />
+	<input id="startTimeChange" type="hidden" value="$startTimeChange" />
 <form name="jttpForm" id="jttpForm" method="post"
-                    #if($isEdit) action="JiraTimetrackerWebAction.jspa?editedWorklogId=$editedWorklogId&dateFormated=$dateFormated" 
-                    #elseif($isEditAll) action="JiraTimetrackerWebAction.jspa?editAllIds=$editAllIds&dateFormated=$dateFormated" 
-                    #else action="JiraTimetrackerWebAction.jspa?dateFormated=$dateFormated" #end/>   
+                    #if($isEdit) action="JiraTimetrackerWebAction.jspa?editedWorklogId=$editedWorklogId&dateFormatted=$dateFormatted" 
+                    #elseif($isEditAll) action="JiraTimetrackerWebAction.jspa?editAllIds=$editAllIds&dateFormatted=$dateFormatted" 
+                    #else action="JiraTimetrackerWebAction.jspa?dateFormatted=$dateFormatted" #end/>   
     #set($rendererType = "atlassian-wiki-renderer")
     #if($currentCalendar.useISO8601 == true)
         #set ($firstDay = 1)
     #else
         #set ($firstDay = 0)
     #end
+
     <div id="plugin_head" class="item-header" style="width:980px;">
             <div style="float: right;">
                 <a href="http://www.everit.org/jira-timetracker-plugin/" target="_blank">
@@ -75,7 +77,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
                <table id="inputfields-table" width="100%">
                    <tbody>
                        <tr>
-                           <input id="editAll" type="button" name="editall" value="$i18n.getText('plugin.edit.all')" onclick="location.href='JiraTimetrackerWebAction!default.jspa?editAllIds=$worklogsIds&dateFormated=$dateFormated'" class="button" />
+                           <input id="editAll" type="button" name="editall" value="$i18n.getText('plugin.edit.all')" onclick="location.href='JiraTimetrackerWebAction!default.jspa?editAllIds=$worklogsIds&dateFormatted=$dateFormatted'" class="button" />
                            <td>
                             <table>
                                         <tbody>
@@ -109,49 +111,16 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
                                                    <input id="startTime"  type="text" name="startTime" value="$startTime" onkeypress="handleEnterKey(event, '#endTime');" tabindex="1" style="margin-right: 5px; width: 100px;"/>
                                                 </td>
                                                 <td style="width: 110px;">
-                                                   <input id="startNow"  type="button" name="startNow" value="$i18n.getText('plugin.now')" class="button" width: 40px;"/>
-                                                   <script>
-                                                        var startState = 0;
-                                                        AJS.$("#startNow").click(function() {
-                                                            if(startState == 0){
-                                                                setStartNow();
-                                                            }else if(startState == 1){
-                                                                setStartInc($startTimeChange);
-                                                            }else if(startState == 2){
-                                                                setStartDecTemporary($startTimeChange);
-                                                            }
-                                                        });
-                                                    </script>
+                                                   <input id="startNow"  type="button" name="startNow" value="$i18n.getText('plugin.now')" class="button" style="width: 40px;" onclick="startNowClick();"/>
                                                 </td>
                                                 <td  style="width: 110px">
                                                     <span style="position:relative;">
                                                          <input id="endTime"  type="text" name="endTime" value="$endTime" onkeypress="handleEnterKey(event, '#issueSelect-textarea');" tabindex="2" style="margin-right: 5px; width: 100px;"/> 
-                                                         <div id="endTimeInput" style="position:absolute; left:0; right:0; top:0; bottom:0;" ></div>
+                                                         <div id="endTimeInput" style="position:absolute; left:0; right:0; top:0; bottom:0;" onclick="endTimeInputClick();"></div>
                                                       </span>
-                                                     <script>
-                                                        AJS.$("#endTimeInput").click(function (evt) {
-                                                           #if(!$isEditAll)
-                                                            AJS.$(this).css("cursor","text").hide().prev().prop("disabled", false).css("cursor","text").focus();
-                                                            AJS.$("#durationTimeInput").css("cursor","pointer").show().prev("input").prop("disabled", true).css("cursor","pointer");
-                                                            AJS.$("#radioEnd").prop("checked", true);
-                                                          #end
-                                                        });
-                                                       </script>
                                                  </td>
                                                  <td style="width: 85px;">
-                                                   <input id="endNow"  type="button" name="endNow" value="$i18n.getText('plugin.now')" class="button" width: 40px;"/>
-                                                   <script>
-                                                           var endState = 0;
-                                                        AJS.$("#endNow").click(function() {
-                                                               if(endState == 0){
-                                                                   setEndNow();
-                                                               }else if(endState == 1){
-                                                                    setEndInc($endTimeChange);
-                                                               }else if(endState == 2){
-                                                                   setEndDecTemporary($endTimeChange);
-                                                               }    
-                                                            });
-                                                    </script>
+                                                   <input id="endNow"  type="button" name="endNow" value="$i18n.getText('plugin.now')" class="button" style="width: 40px;" onclick="endNowClick();"/>
                                                  </td>
                                                  <td  style="width: 120px" >
                                                   <span style="position:relative;">
@@ -246,7 +215,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
                                                            #if($isPopup != 1)
                                                              AJS.$("#comments").attr("style","width: 650px");
                                                            #else
-                                                             AJS.$("#comments").attr("style","width: 99.5%");    
+                                                             AJS.$("#comments").attr("style","width: 99.4%");    
                                                            #end 
                                                            AJS.$("#comments").append("$comment");
                                                            AJS.$("#comments").attr("tabindex","4");
@@ -264,7 +233,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
                                             ##This is the not popup calendar. Works but not nice
                                             Calendar.setup({
                                                 firstDay : $firstDay,
-                                                date : '$dateFormated',
+                                                date : '$dateFormatted',
                                                 align : 'Br',
                                                 singleClick : true,
                                                 showOthers: true,
@@ -315,78 +284,10 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
                     onclick="AJS.$('#Submit').val('true');AJS.$('#Submit').attr('disabled', false);"/>
             #end
             <input id="setting"  type="button" name="setting" onclick="location.href='JiraTimetrackerSettingsWebAction!default.jspa'" value="$i18n.getText('plugin.settings')" class="button" style="display: inline; float: right;"/>
-            <input id="cancelButton"  type="button" name="Cancel" value="$i18n.getText('plugin.cancel')" onclick="location.href='JiraTimetrackerWebAction!default.jspa?dateFormated=$dateFormated'" class="button"/>
+            <input id="cancelButton"  type="button" name="Cancel" value="$i18n.getText('plugin.cancel')" onclick="location.href='JiraTimetrackerWebAction!default.jspa?dateFormatted=$dateFormatted'" class="button"/>
             </div>
         </div>    
-    </div>
-    <script>   
-
-		 
-		 AJS.$('.table-endtime').click(function(){
-		 	var temp = new String(AJS.$(this).html());
-		 	AJS.$('#startTime').val(temp.trim());
-		 });
-		 AJS.$('.table-starttime').click(function(){
-		 	var temp = new String(AJS.$(this).html());
-		 	AJS.$('#endTime').val(temp.trim());
-		 });
-		 
-		 AJS.$('.table-comment').click(function(){
-			 var temp = AJS.$(this).find('#hiddenWorklogBody').val();
-			
-			 var temp2 = temp.replace(/(\\r\\n|\\n|\\r)/gm, "&#013;");
-			 var temp3 = temp.replace(/(\\r\\n|\\n|\\r)/gm, "\n");
-	     
-	     	 AJS.$("#comments").html(temp2);
-	     	 AJS.$("#comments").val(temp3);
-		 });
-		 
-		 AJS.$('.table-issue').click(function(){
-		 	AJS.$('#issueSelect-textarea').parent().find('.item-delete').click();
-		 	
-		 	var temp = new String(AJS.$(this).find('a').html());
-		 	AJS.$('#issueSelect-textarea').val(temp.trim());
-		 	AJS.$('#issueSelect-textarea').focus();
-		 	AJS.$('#Edit').focus();
-		 	AJS.$('#Submitbutton').focus();
-		 });
-		 
-		 AJS.$('.copy').click(function(){
-		    AJS.$('#issueSelect-textarea').parent().find('.item-delete').click();
-		    
-		 	var temp = AJS.$(this).parent().parent().find('.table-issue').find('a').html();
-		 	AJS.$('#issueSelect-textarea').val(temp.trim());
-		 	
-		 	temp = AJS.$(this).parent().parent().find('#hiddenWorklogBody').val();
-		 	var temp2 = temp.replace(/(\\r\\n|\\n|\\r)/gm, "&#013;");
-		 	var temp3 = temp.replace(/(\\r\\n|\\n|\\r)/gm, "\n");
-		 	
-		 	AJS.$("#comments").html(temp2);
-		 	AJS.$("#comments").val(temp3);
-		 	
-		 	AJS.$('#issueSelect-textarea').focus();
-		 	AJS.$('#Submitbutton').focus();
-		 });
-		 
-		 AJS.$('#issueSelect-textarea').keydown(function(e){
-		    var isEnter = e.keyCode == 10 || e.keyCode == 13;
-	        if (isEnter && e.ctrlKey) {
-	          AJS.$('#Submitbutton, #Edit').click();
-	        }
-	     });
-	     
-	     AJS.$('#comments').keydown(function(e){
-	       if ((e.keyCode == 10 || e.keyCode == 13) && e.ctrlKey){
-		     AJS.$('#Submitbutton, #Edit').click();
-           }
-	     });
-	     
-	     AJS.$('#jttpForm').submit(function () {
-	        AJS.$('#Submitbutton').prop("disabled", true);
-	        return true;
-	     });
-              
-    </script>    
+    </div> 
 </form>
 
 #if($analyticsCheck)
