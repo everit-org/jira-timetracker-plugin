@@ -31,7 +31,12 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 	<input id="excludeDays" type="hidden" value="$excludeDays" />
 	<input id="isColoring" type="hidden" value="$isColoring" />
 	<input id="loggedDays" type="hidden" value="$loggedDays" />
-	<input id="startTimeChange" type="hidden" value="$startTimeChange" />
+	<input id="isDurationSelected" type="hidden" value="$isDurationSelected" />
+	<input id="projectsId" type="hidden" value="$projectsId" />
+	<input id="isPopup" type="hidden" value="$isPopup" />
+	<input id="jiraMainVersion" type="hidden" value="$jiraMainVersion" />
+	<input id="issueKey" type="hidden" value="$issueKey" />
+	<input id="comment" type="hidden" value="$comment" />
 <form name="jttpForm" id="jttpForm" method="post"
                     #if($isEdit) action="JiraTimetrackerWebAction.jspa?editedWorklogId=$editedWorklogId&dateFormatted=$dateFormatted" 
                     #elseif($isEditAll) action="JiraTimetrackerWebAction.jspa?editAllIds=$editAllIds&dateFormatted=$dateFormatted" 
@@ -111,12 +116,12 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
                                                    <input id="startTime"  type="text" name="startTime" value="$startTime" onkeypress="handleEnterKey(event, '#endTime');" tabindex="1" style="margin-right: 5px; width: 100px;"/>
                                                 </td>
                                                 <td style="width: 110px;">
-                                                   <input id="startNow"  type="button" name="startNow" value="$i18n.getText('plugin.now')" class="button" style="width: 40px;" onclick="startNowClick();"/>
+                                                   <input id="startNow"  type="button" name="startNow" value="$i18n.getText('plugin.now')" class="button" style="width: 40px;" onclick="startNowClick($startTimeChange);"/>
                                                 </td>
                                                 <td  style="width: 110px">
                                                     <span style="position:relative;">
                                                          <input id="endTime"  type="text" name="endTime" value="$endTime" onkeypress="handleEnterKey(event, '#issueSelect-textarea');" tabindex="2" style="margin-right: 5px; width: 100px;"/> 
-                                                         <div id="endTimeInput" style="position:absolute; left:0; right:0; top:0; bottom:0;" onclick="endTimeInputClick();"></div>
+                                                         <div id="endTimeInput" style="position:absolute; left:0; right:0; top:0; bottom:0;" onclick="endTimeInputClick($isEditAll);"></div>
                                                       </span>
                                                  </td>
                                                  <td style="width: 85px;">
@@ -125,26 +130,8 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
                                                  <td  style="width: 120px" >
                                                   <span style="position:relative;">
                                                      <input id="durationTime"  type="text" name="durationTime" onkeypress="handleEnterKey(event, '#issueSelect-textarea');" tabindex="2" disabled value="$durationTime" style="width: 100px"/>
-                                                    <div id="durationTimeInput" style="position:absolute; left:0; right:0; top:0; bottom:0;" ></div>
+                                                    <div id="durationTimeInput" style="position:absolute; left:0; right:0; top:0; bottom:0;" onclick="durationTimeInput($isEditAll);"></div>
                                                   </span>
-                                                    <script>
-                                                        #if($isDurationSelected)
-                                                            AJS.$("#durationTimeInput").css("cursor","text").hide().prev("input[disabled]").prop("disabled", false).css("cursor","text").focus();
-                                                            AJS.$("#endTimeInput").css("cursor","pointer").show().prev("input").prop("disabled", true).css("cursor","pointer");
-                                                            AJS.$("#radioDuration").prop("checked", true);
-                                                        #else
-                                                            AJS.$("#endTimeInput").css("cursor","text");
-                                                            AJS.$("#durationTimeInput").css("cursor","pointer");
-                                                        #end
-                                                        
-                                                        AJS.$("#durationTimeInput").click(function (evt) {
-                                                         #if(!$isEditAll)
-                                                            AJS.$(this).css("cursor","text").hide().prev("input[disabled]").prop("disabled", false).css("cursor","text").focus();
-                                                            AJS.$("#endTimeInput").css("cursor","pointer").show().prev("input").prop("disabled", true).css("cursor","pointer");
-                                                            AJS.$("#radioDuration").prop("checked", true);
-                                                         #end
-                                                        });
-                                                       </script>
                                                  </td>
                                                 <td width="auto">
                                                 </td>
@@ -169,40 +156,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
                                                         data-ajax-options.data.show-sub-task-parent="true"
                                                         data-ajax-options.data.current_jql="resolution = Unresolved ORDER BY issuetype ASC, priority DESC">
                                                     </select> 
-                                                    <script>
-                                                        var ip = new AJS.IssuePicker({
-                                                          element: AJS.$("#issueSelect"),
-                                                          userEnteredOptionsMsg: AJS.params.enterIssueKey,
-                                                          uppercaseUserEnteredOnSelect: true,
-                                                          singleSelectOnly: true,
-                                                           currentProjectId: $projectsId,
-                                                        });
-                                                        //AJS.$('.drop-menu').attr("style","margin-top: 1px;");
-                                                        AJS.$('.issue-picker-popup').attr("style","margin-bottom: 16px;");
-                                                        #if($isPopup != 1)
-                                                            #if($jiraMainVersion < 6)
-                                                                AJS.$("#issueSelect-multi-select").attr("style","width: 630px;");
-                                                                AJS.$("#issueSelect-textarea").attr("style","width: 605px; height: 20px");
-                                                            #else
-                                                                AJS.$("#issueSelect-multi-select").attr("style","width: 630px;");
-                                                                AJS.$("#issueSelect-textarea").attr("style","width: 625px; height: 30px");
-                                                            #end
 
-                                                        #else
-                                                            #if($jiraMainVersion < 6)
-                                                                AJS.$("#issueSelect-multi-select").attr("style","width: 930px;");
-                                                                AJS.$("#issueSelect-textarea").attr("style","width: 905px; height: 20px");
-                                                            #else
-                                                                AJS.$("#issueSelect-multi-select").attr("style","width: 910px;");
-                                                                AJS.$("#issueSelect-textarea").attr("style","width: 905px; height: 30px");
-                                                            #end
-                                                        #end    
-                                                        AJS.$("#issueSelect-textarea").attr("class","select2-choices");
-                                                        //Set the issue key        
-                                                        AJS.$("#issueSelect-textarea").append("$issueKey");
-                                                        AJS.$("#issueSelect-textarea").attr("tabindex","3");
-                                                        ip.handleFreeInput();
-                                                    </script>
                                                  </div>
                                                 </td>
                                             </tr>
@@ -211,16 +165,6 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
                                                     $i18n.getText("plugin.note"):</br>
                                                     #set($fieldId = "comments")
                                                     #parse("templates/plugins/renderers/wiki/wiki-renderer-edit.vm")
-                                                       <script>
-                                                           #if($isPopup != 1)
-                                                             AJS.$("#comments").attr("style","width: 650px");
-                                                           #else
-                                                             AJS.$("#comments").attr("style","width: 99.4%");    
-                                                           #end 
-                                                           AJS.$("#comments").append("$comment");
-                                                           AJS.$("#comments").attr("tabindex","4");
-                                                           AJS.$("#comments").attr("height","100px");
-                                                       </script>
                                                    </td>
                                               </tr>
                                           </tbody>

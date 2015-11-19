@@ -94,8 +94,75 @@ AJS.$(document).ready(function(){
 	        AJS.$('#Submitbutton').prop("disabled", true);
 	        return true;
 	     });
+		 
+		durationSelectionSetup();
+		
+		var isPopup = AJS.$("#isPopup").val();
+		
+		issuePickerSetup();
+		
+		commentsCSSFormat(isPopup);
 });
 
+function durationSelectionSetup(){
+	var isDurationSelected = (AJS.$("#isDurationSelected").val() === "true");
+		 if(isDurationSelected){
+			AJS.$("#durationTimeInput").css("cursor","text").hide().prev("input[disabled]").prop("disabled", false).css("cursor","text").focus();
+			AJS.$("#endTimeInput").css("cursor","pointer").show().prev("input").prop("disabled", true).css("cursor","pointer");
+			AJS.$("#radioDuration").prop("checked", true);
+		 } else {
+			AJS.$("#endTimeInput").css("cursor","text");
+			AJS.$("#durationTimeInput").css("cursor","pointer");
+		 }
+}
+
+function issuePickerSetup(isPopup){
+	var ip = new AJS.IssuePicker({
+		  element: AJS.$("#issueSelect"),
+		  userEnteredOptionsMsg: AJS.params.enterIssueKey,
+		  uppercaseUserEnteredOnSelect: true,
+		  singleSelectOnly: true,
+		   currentProjectId: AJS.$("#projectsId").val(),
+		});
+		
+		var jiraMainVersion = AJS.$("#jiraMainVersion").val();
+		var issueKey = AJS.$("#issueKey").val();
+		AJS.$('.issue-picker-popup').attr("style","margin-bottom: 16px;");
+		if(isPopup != 1){
+		    if(jiraMainVersion < 6){
+		        AJS.$("#issueSelect-multi-select").attr("style","width: 630px;");
+		        AJS.$("#issueSelect-textarea").attr("style","width: 605px; height: 20px");
+		    } else {
+		        AJS.$("#issueSelect-multi-select").attr("style","width: 630px;");
+		        AJS.$("#issueSelect-textarea").attr("style","width: 625px; height: 30px");
+		    }
+		}else{
+		    if(jiraMainVersion < 6){
+		        AJS.$("#issueSelect-multi-select").attr("style","width: 930px;");
+		        AJS.$("#issueSelect-textarea").attr("style","width: 905px; height: 20px");
+		    }else{
+		        AJS.$("#issueSelect-multi-select").attr("style","width: 910px;");
+		        AJS.$("#issueSelect-textarea").attr("style","width: 905px; height: 30px");
+		    }
+		}   
+		AJS.$("#issueSelect-textarea").attr("class","select2-choices");
+     
+		AJS.$("#issueSelect-textarea").append(issueKey);
+		AJS.$("#issueSelect-textarea").attr("tabindex","3");
+		ip.handleFreeInput();
+}
+
+function commentsCSSFormat(isPopup){
+	var comment = AJS.$("#comment").val();
+		if(isPopup != 1){
+		    AJS.$("#comments").attr("style","width: 650px");
+		}else{
+		    AJS.$("#comments").attr("style","width: 99.4%");    
+		}
+		AJS.$("#comments").append(comment);
+		AJS.$("#comments").attr("tabindex","4");
+		AJS.$("#comments").attr("height","100px");
+}
 
 
 function calculateTimeForInputfileds(hour,min){
@@ -285,9 +352,8 @@ function setEndInc(endTimeChange){
     AJS.$("#endTime").val(time);
 }
 
-function startNowClick(){
+function startNowClick(startTimeChange){
 	var startState = 0;
-	var startTimeChange = AJS.$('#startTimeChange');
     if(startState == 0){
         setStartNow();
     }else if(startState == 1){
@@ -297,13 +363,9 @@ function startNowClick(){
     }
 }
 
-function endTimeInputClick(){
-	console.log('endTimeInputClick called');
-	var isEditAll = AJS.$("#isEditAll");
-	console.log('isEditAll: '+isEditAll);
+function endTimeInputClick(isEditAll){
 	if(!isEditAll){
-		console.log("inside if");
-		AJS.$('#endTimeInput').css("cursor","text").hide().prev().prop("disabled", false).css("cursor","text").focus();
+		AJS.$("#endTimeInput").css("cursor","text").hide().prev().prop("disabled", false).css("cursor","text").focus();
 		AJS.$("#durationTimeInput").css("cursor","pointer").show().prev("input").prop("disabled", true).css("cursor","pointer");
 		AJS.$("#radioEnd").prop("checked", true);
 	}
@@ -318,5 +380,13 @@ function endNowClick(){
     }else if(endState == 2){
         setEndDecTemporary($endTimeChange);
     } 
+}
+
+function durationTimeInput(isEditAll){
+	if(!isEditAll){
+		AJS.$("#durationTimeInput").css("cursor","text").hide().prev("input[disabled]").prop("disabled", false).css("cursor","text").focus();
+		AJS.$("#endTimeInput").css("cursor","pointer").show().prev("input").prop("disabled", true).css("cursor","pointer");
+		AJS.$("#radioDuration").prop("checked", true);
+	}
 }
 
