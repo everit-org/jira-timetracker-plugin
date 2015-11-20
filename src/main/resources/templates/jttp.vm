@@ -802,7 +802,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 		</script>	
 	</form>
 	<div id="feedbackfooter" class="feedback_footer">
-		#parse("templates/jttp_feedback.vm")
+		#parse("templates/feedback_jttp.vm")
 	</div>
 </div>
 #if($analyticsCheck)
