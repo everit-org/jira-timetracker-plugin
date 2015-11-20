@@ -283,7 +283,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 		</div>
 	</form>
 	<div id="feedbackfooter" class="feedback_footer">
-		#parse("templates/chart_feedback.vm")
+		#parse("templates/feedback_chart.vm")
 	</div>
 </div>
 

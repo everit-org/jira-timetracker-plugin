@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *#
-<a href="#" id="dialog-show-button">$i18n.getText('jttp.send.feedback')</a>
+<button id="dialog-show-button" class="aui-button aui-button-primary" style="position: relative; bottom: 15px; margin-right: 5px;">$i18n.getText('jttp.send.feedback')</button>
 <section role="dialog" id="jttp-feedback-dialog" class="aui-layer aui-dialog2 aui-dialog2-medium" aria-hidden="true">
     <!-- Dialog header -->
-   <form name="jttpFeedbackForm" id="jttpFeedbackForm" method="post" action="JiraTimetrackerTableWebAction.jspa" class="aui"/>
+    <form name="jttpFeedbackForm" id="jttpFeedbackForm" method="post" action="JiraTimetrackerAdminSettingsWebAction.jspa" class="aui"/>
       <header class="aui-dialog2-header">
         <!-- The dialog's title -->
         <h1 class="aui-dialog2-header-main" style="color: #707070;">$i18n.getText('jttp.feedback.header')</h1>   
@@ -29,10 +29,10 @@
         <div class="aui-dialog2-footer-actions" style="margin-right: 5px;" >
             <button id="dialog-close-button" class="aui-button aui-button-link">$i18n.getText('jttp.close')</button>
         </div>
-        <div class="aui-dialog2-footer-actions" style="margin-right: 5px;">
-            <button id="sendfeedback" type="submit" name="sendfeedback" class="aui-button-primary aui-button" #if(!$feedBackSendAviable) disabled #end >$i18n.getText('jttp.send')</button>
+        <div class="aui-dialog2-footer-actions" style="margin-right: 15px;">
+            <button id="sendfeedback" type="submit" name="sendfeedback" class="aui-button-primary aui-button"  #if(!$feedBackSendAviable) disabled #end >$i18n.getText('jttp.send')</button>
         </div>
-        #if(!$feedBackSendAviable)
+         #if(!$feedBackSendAviable)
             <div class="aui-dialog2-footer-hint">$i18n.getText('jttp.feedback.no.mail')</div>
         #end
       </footer>
@@ -61,6 +61,8 @@ AJS.$("#dialog-close-button").click(function(e) {
     e.preventDefault();
     AJS.dialog2("#jttp-feedback-dialog").hide();
 });
+
+
 
 </script>
 

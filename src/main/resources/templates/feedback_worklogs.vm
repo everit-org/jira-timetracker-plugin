@@ -16,7 +16,7 @@
 <a href="#" id="dialog-show-button">$i18n.getText('jttp.send.feedback')</a>
 <section role="dialog" id="jttp-feedback-dialog" class="aui-layer aui-dialog2 aui-dialog2-medium" aria-hidden="true">
     <!-- Dialog header -->
-   <form name="jttpFeedbackForm" id="jttpFeedbackForm" method="post" action="JiraTimetrackerChartWebAction.jspa" class="aui"/>
+   <form name="jttpFeedbackForm" id="jttpFeedbackForm" method="post" action="JiraTimetrackerWorklogsWebAction.jspa?dateFromFormated=$dateFromFormated&dateToFormated=$dateToFormated&actualPage=$actualPage" class="aui"/>
       <header class="aui-dialog2-header">
         <!-- The dialog's title -->
         <h1 class="aui-dialog2-header-main" style="color: #707070;">$i18n.getText('jttp.feedback.header')</h1>   
@@ -29,7 +29,7 @@
         <div class="aui-dialog2-footer-actions" style="margin-right: 5px;" >
             <button id="dialog-close-button" class="aui-button aui-button-link">$i18n.getText('jttp.close')</button>
         </div>
-        <div class="aui-dialog2-footer-actions" style="margin-right: 5px;">
+        <div class="aui-dialog2-footer-actions" style="margin-right: 15px;">
             <button id="sendfeedback" type="submit" name="sendfeedback" class="aui-button-primary aui-button" #if(!$feedBackSendAviable) disabled #end >$i18n.getText('jttp.send')</button>
         </div>
         #if(!$feedBackSendAviable)
