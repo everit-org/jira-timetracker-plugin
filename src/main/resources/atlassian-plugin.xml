@@ -23,6 +23,7 @@
     <application-version min="6.2" />
     <vendor name="EverIT Kft." url="https://www.everit.biz" />
     <param name="atlassian-data-center-compatible">true</param>
+    <param name="configure.url">/secure/admin/JiraTimetrackerAdminSettingsWebAction!default.jspa</param>
   </plugin-info>
 
   <component-import key="pluginSettingFactroy" interface="com.atlassian.sal.api.pluginsettings.PluginSettingsFactory" />
