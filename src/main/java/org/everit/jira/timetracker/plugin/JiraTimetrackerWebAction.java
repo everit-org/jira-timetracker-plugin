@@ -61,6 +61,9 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
 
+  private static final String SELF_WITH_DATE_URL_FORMAT =
+      "/secure/JiraTimetrackerWebAction.jspa?dateFormatted=%s";
+
   /**
    * The JiraTimetrackerWebAction logger..
    */
@@ -418,7 +421,9 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
           "Error while try to collect the logged days for the calendar color fulling", e1);
       message = "plugin.calendar.logged.coloring.fail";
     }
-    if ((deletedWorklogId != null) && !DEFAULT_WORKLOG_ID.equals(deletedWorklogId)) {
+    boolean deleteWorklog =
+        (deletedWorklogId != null) && !DEFAULT_WORKLOG_ID.equals(deletedWorklogId);
+    if (deleteWorklog) {
       ActionResult deleteResult = jiraTimetrackerPlugin.deleteWorklog(deletedWorklogId);
       if (deleteResult.getStatus() == ActionResultStatus.FAIL) {
         message = deleteResult.getMessage();
@@ -440,7 +445,11 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       LOGGER.error("Error when try parse the worklog.", e);
       return ERROR;
     }
-    return INPUT;
+    if (deleteWorklog) {
+      return redirectWithDateFormattedParameterOnly(INPUT);
+    } else {
+      return INPUT;
+    }
   }
 
   @Override
@@ -485,19 +494,26 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     userPickerObject = null;
     // edit all save before the input fields validate
     if (getHttpRequest().getParameter("editallsave") != null) {
-      return editAllAction();
+      result = editAllAction();
     } else if (getHttpRequest().getParameter("edit") != null) {
-      return editAction();
+      result = editAction();
     } else if (getHttpRequest().getParameter("sendfeedback") != null) {
-      return sendFeedBack();
+      result = sendFeedBack();
+    } else {
+      String validateInputFieldsResult = validateInputFields();
+      if (!validateInputFieldsResult.equals(SUCCESS)) {
+        result = INPUT;
+      } else {
+        result = createWorklogAction();
+      }
     }
 
-    String validateInputFieldsResult = validateInputFields();
-    if (!validateInputFieldsResult.equals(SUCCESS)) {
-      return INPUT;
+    if (SUCCESS.equals(result)) {
+      return redirectWithDateFormattedParameterOnly(result);
+    } else {
+      return result;
     }
 
-    return createWorklogAction();
   }
 
   /**
@@ -1070,6 +1086,12 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     issues = new ArrayList<Issue>();
   }
 
+  private String redirectWithDateFormattedParameterOnly(final String action) {
+    setReturnUrl(String.format(SELF_WITH_DATE_URL_FORMAT, dateFormatted));
+    LOGGER.info("Redirect to: " + getReturnUrl());
+    return getRedirect(action);
+  }
+
   private String sendFeedBack() {
     String feedBackValue = getHttpRequest().getParameter("feedbackinput");
     String ratingValue = getHttpRequest().getParameter("rating");
@@ -1306,8 +1328,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(getHttpRequest().getSession());
     userId = JiraTimetrackerAnalytics.setUserSessionUserId(getHttpRequest().getSession());
 
-    piwikHost =
-        jiraTimetrackerPlugin.getPiwikPorperty(JiraTimetrackerPiwikPropertiesUtil.PIWIK_HOST);
+    piwikHost = jiraTimetrackerPlugin
+        .getPiwikPorperty(JiraTimetrackerPiwikPropertiesUtil.PIWIK_HOST);
     piwikSiteId = jiraTimetrackerPlugin
         .getPiwikPorperty(JiraTimetrackerPiwikPropertiesUtil.PIWIK_TIMETRACKER_SITEID);
   }

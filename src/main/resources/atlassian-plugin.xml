@@ -29,8 +29,7 @@
   <component-import key="pluginSettingFactroy" interface="com.atlassian.sal.api.pluginsettings.PluginSettingsFactory" />
 
   <component key="JTTP" name="Timetracker" class="org.everit.jira.timetracker.plugin.JiraTimetrackerPluginImpl">
-    <interface class="org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin" />
-    <interface>org.springframework.beans.factory.InitializingBean</interface>
+    <interface>org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin</interface>
   </component>
 
   <web-item key="jttp_link" name="JTTP Link" section="system.top.navigation.bar" weight="47">
