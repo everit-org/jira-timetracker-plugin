@@ -146,11 +146,11 @@
             viewed. Next to the issue code a red exclamation mark appears if it is not closed and if
             there is no more estimated time assigned to it. If the issue is amongst the
             non-estimated ones, then the exclamation mark does not appear.</li>
+		  <li><b>Remaining</b> - Remaining time on the issue in JIRA format (d h m).</li>
           <li><b>Start</b> - Start date of the worklog. Its format: hh:mm.</li>
           <li><b>End</b> - End date of the worklog: Its format: hh:mm.</li>
           <li><b>Duration</b> - Duration of the worklog; the time between the start and the end
-            date in JIRA format (d h m).</li>
-          <li><b>Remaining</b> - Remaining time on the issue in JIRA format (d h m).</li>
+            date in JIRA format (d h m).</li>          
           <li><b>Note</b> - Description of the worklog.</li>
           <li><b>Actions</b> - It contains action buttons: Edit button - After pressing it, the
             given worklog can be edited. Delete button - After pressing it, the given worklog is
@@ -164,9 +164,9 @@
         <p>The input fields can be seen in the bottom of the page. These fields are used when
           editing worklogs.
         <ul>
-          <li><b>Edit All</b> - It may be used to edit the worklog of a whole day. By means of
+          <li><b>Change Date For All</b> - It may be used to edit the worklog of a whole day. By means of
             this option, all the worklogs assigned to a specific date can be reassigned to another
-            one. You may read more about the Edit All function under the Edit Worklog menu item.</li>
+            one. You may read more about the Change Date For All function under the <a href="#edit_worklogs">Edit Worklog</a> menu item.</li>
           <li><b>Start Time</b> - Start time of the worklog. Required! Its format: hh:mm. Its
             default value is 08:00, however, if there are worklogs belonging to the given day, then
             its value equals the end date of the last worklog.
@@ -234,8 +234,8 @@
           effect. Editing can be cancelled by pressing the Cancel button.</p>
         <img class="img-responsive img-thumbnail" src="images/jttp_edit.png" alt="Edit worklog" />
 
-        <h3 id="edit_all">Edit All function</h3>
-        <p>The Edit All button can be found below the worklog table, and it can be used to edit
+        <h3 id="edit_all">Change Date For All function</h3>
+        <p>The Change Date For All button can be found below the worklog table, and it can be used to edit
           all the worklogs assigned to a particular day. In this case, only the date of the worklogs
           can be changed. After selecting the desired date, one may save the worklogs by clicking
           the Save button. At this time, the worklogs will no longer be assigned to the previous
@@ -322,12 +322,14 @@
             they are not counted as such (e.g.: National Holidays).</li>
           <li><b>Include date</b> - List of those days that are non-working days by default,
             but they are counted as working days.</li>
-        </ul>
-        <p>The settings can be saved by pressing the Save button. The Reset button can restore
-          the foregoing settings. By selecting the Cancel button, the user is redirected to the
-          Administrator screen without making any changes.</p>
+        </ul>        
         <img class="img-responsive img-thumbnail" src="images/jttp_global_settings.png"
           alt="Global settings" />
+		<p>The settings can be saved by pressing the Save button. The Reset button can restore
+          the foregoing settings. By selecting the Cancel button, the user is redirected to the
+          Administrator screen without making any changes.</p>
+		<img class="img-responsive img-thumbnail" src="images/jttp_global_settings_buttons.png"
+          alt="Global settings buttons" />
 
       </div>
       <hr class="featurette-divider">
@@ -447,13 +449,70 @@
 
 	  <div class="bs-docs-featurette cookbook" id="analytics">
 	    <h2>Analytics</h2>
-        <p>The Timetracker add-on collects anonymous usage data, which allows us to measure user experience. 
-		  All  sensitive data is encrypted before being uploaded.</p>
+        <p>In order to enhance the features of the add-on, we need to understand how our customers use Timetracker. 
+           To achieve this, we would like to collect anonymous data about the usage of this plugin:</p>
+           <ul>
+             <li>Anonymized IP address (to be able to create statistics about the usage in the different countries)</li>
+			 <li>Hash of the domain address of the JIRA system (we will not know your domain address)</li>
+			 <li>Hash of the user (we will not know your original user id)</li>
+			 <li>Usage count of the time tracking feature</li>
+			 <li>Usage count of the Missing Days Report</li>
+			 <li>Usage count of the Chart Report</li>
+			 <li>Usage count of the Table Report</li>
+			 <li>User Agent of the browser being used</li>
+			 <li>Timetracker version number</li>
+		   </ul>
+		<p>This option is on by default, but you can switch it off on the Global settings page.</p>
+	  </div>
+	  <hr class="featurette-divider">
+	  
+	  <div class="bs-docs-featurette cookbook" id="feedback">
+	    <h2>Feedback</h2>
+        <p>Your thoughts about Timetracker are very important to us, so we built in an easy feedback feature.
+           You can find the feedback button in the right bottom on each pages, and in the upper right on the Global settings page.</p>
+		<p>On the feedback dialog:</p>
+           <ul>
+             <li>Please Rate this add-on by selecting one of the stars.</li>
+			 <li>Tell us what do you like or what needs to be improved. This is mandatory.</li>
+			 <li>Provide your e-mail address if you would like us to contact you about your feedback. 
+			     (We will not use your email for any other purpose and we will never share it with any third party company.)</li>
+		   </ul>		
+        <img class="img-responsive img-thumbnail" src="images/jttp_feedback.png"
+          alt="Feedback" />
 	  </div>
 	  <hr class="featurette-divider">
 	  
       <div class="bs-docs-featurette cookbook" id="release_notes">
         <h2>Release notes</h2>
+		<h3>Timetracker version 2.2.0</h3>
+		<h4 style="margin-left: 20px;">Bugfix</h4>
+        <ul>
+          <li>Fixed duration validation error.</li>
+          <li>Fixed labels missing for unsupported languages.</li>
+          <li>Fixed worklog text area style.</li>
+          <li>Fixed parameter misspelling.</li>
+          <li>Fixed change date and submit action, without logged work.</li>
+		  <li>Fixed sticky command parameters.</li>
+          <li>Added error message for invalid time while editing worklog.</li>
+        </ul>
+        <h4 style="margin-left: 20px;">Changes</h4>
+        <ul>
+          <li>Support for JIRA 7.</li>
+          <li>Change Edit, Delete and Copy buttons to icons.</li>
+          <li>Added remaining estimate column.</li>
+          <li>Added analytics tool.</li>
+          <li>Added feedback feature.</li>
+        </ul>
+		<h3>Timetracker version 1.4.2</h3>
+		<h4 style="margin-left: 20px;">Bugfix</h4>
+        <ul>
+          <li>Fixed labels missing for unsupported languages.</li>
+		  <li>Fixed change date and submit action, without logged work.</li>
+        </ul>
+        <h4 style="margin-left: 20px;">Changes</h4>
+        <ul>
+          <li>Added analytics tool.</li>
+        </ul>
         <h3>Timetracker version 2.1.2</h3>
         <h4 style="margin-left: 20px;">Bugfix</h4>
         <ul>
@@ -639,6 +698,7 @@
           <li><a href="#notification_email">Notification Email</a></li>
           <li><a href="#error_messages">Error messages</a></li>
 		  <li><a href="#analytics">Analytics</a></li>
+		  <li><a href="#feedback">Feedback</a></li>
           <li><a href="#release_notes">Release notes</a></li>
         </ul>
       </nav>
