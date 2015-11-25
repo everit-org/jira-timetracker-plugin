@@ -502,9 +502,9 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     } else {
       String validateInputFieldsResult = validateInputFields();
       if (!validateInputFieldsResult.equals(SUCCESS)) {
-        result = INPUT;
+        return INPUT;
       } else {
-        result = createWorklogAction();
+        return createWorklogAction();
       }
     }
 
@@ -1088,7 +1088,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   private String redirectWithDateFormattedParameterOnly(final String action) {
     setReturnUrl(String.format(SELF_WITH_DATE_URL_FORMAT, dateFormatted));
-    LOGGER.info("Redirect to: " + getReturnUrl());
     return getRedirect(action);
   }
 
