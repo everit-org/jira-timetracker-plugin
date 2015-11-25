@@ -13,21 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *#
-<html>
-<head>
-<title>Timetracker</title>
-</head>
-<body>
-
-
-
 <!-- Piwik --> 
 <script type="text/javascript">    
+  var customURL = 'http://customer.jira.com' + window.location.pathname;
   var _paq = _paq || [];
     _paq.push(['setUserId', '$userId']);
     _paq.push(['setCustomVariable', 1, 'UserKey', '$userId', 'visit']);
     _paq.push(['setCustomVariable', 2, 'Version', '$pluginVersion', 'visit']);
     _paq.push(['setCustomVariable', 3, 'BaseURL', '$baseUrl', 'visit']);
+    _paq.push(['setDocumentTitle', '$baseUrl']);
+    _paq.push(['setCustomUrl', customURL]);
     _paq.push(['trackPageView']);
     _paq.push(['enableLinkTracking']);
   (function() {
@@ -40,5 +35,3 @@
 
 </script>
  <!-- End Piwik Code -->
-</body>
-</html>
