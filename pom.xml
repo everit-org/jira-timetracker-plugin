@@ -28,7 +28,7 @@
   <groupId>org.everit.jira.timetracker</groupId>
   <artifactId>org.everit.jira.timetracker.plugin</artifactId>
 
-  <version>1.4.3-SNAPSHOT</version>
+  <version>1.4.3</version>
 
   <packaging>bundle</packaging>
 
