@@ -226,10 +226,10 @@
 					<tr>
 						<td></td>
 						<td>
-							<div>
-							<input id="analyticsCheckEnable" type="radio" name="analyticsCheck" value="enable" #if($analyticsCheck) checked #end/>
+						    <div style="padding-top: 5px;">
+								<input id="analyticsCheckEnable" type="radio" name="analyticsCheck" value="enable" #if($analyticsCheck) checked #end/>
 										$i18n.getText("plugin.settings.analytics.radiobutton.enable")
-							<input id="analyticsCheckDisable" type="radio" name="analyticsCheck" value="disable" #if(!$analyticsCheck) checked #end/>
+								<input id="analyticsCheckDisable" type="radio" name="analyticsCheck" value="disable" #if(!$analyticsCheck) checked #end/>
 										$i18n.getText("plugin.settings.analytics.radiobutton.disable")
 							</div>
 						</td>
