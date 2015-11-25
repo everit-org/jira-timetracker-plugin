@@ -16,6 +16,8 @@
 package org.everit.jira.timetracker.plugin;
 
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -59,11 +61,14 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     }
   }
 
-  private static final String SESSION_DATE_FROM_KEY = "jttpTableDateFromValue";
+  private static final String SESSION_KEY = "jttpTableStore";
 
-  private static final String SESSION_DATE_TO_KEY = "jttpTableDateToValue";
-
-  private static final String SESSION_CURRENT_USER_KEY = "jttpTableCurrentUserValue";
+  private static final String SELF_WITH_DATE_AND_USER_URL_FORMAT =
+      "/secure/JiraTimetrackerTableWebAction.jspa"
+      + "?dateFrom=%s"
+      + "&dateTo=%s"
+      + "&userPicker=%s"
+      + "&search";
 
   private static final String EXCEEDED_A_YEAR = "plugin.exceeded.year";
 
@@ -271,10 +276,16 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
     setPiwikProperties();
     loadPluginSettingAndParseResult();
+    boolean loadedFromSession = loadDataFromSession();
     initDatesIfNecessary();
     initCurrentUserIfNecessary();
 
-    return INPUT;
+    if (loadedFromSession) {
+      setReturnUrl(getFormattedRedirectUrl());
+      return getRedirect(NONE);
+    } else {
+      return INPUT;
+    }
   }
 
   @Override
@@ -291,9 +302,6 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     loadPluginSettingAndParseResult();
     PluginSettingsValues pluginSettings = jiraTimetrackerPlugin.loadPluginSettings();
     setIssuesRegex(pluginSettings.getFilteredSummaryIssues());
-
-    initDatesIfNecessary();
-    initCurrentUserIfNecessary();
 
     if (parseFeedback()) {
       return INPUT;
@@ -316,8 +324,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     try {
       worklogs.addAll(jiraTimetrackerPlugin.getWorklogs(currentUser, startDate.getTime(),
           lastDate.getTime()));
-      saveDatesToSession();
-      saveCurrentUserToSession();
+      saveDataToSession();
     } catch (DataAccessException | SQLException e) {
       LOGGER.error(GET_WORKLOGS_ERROR_MESSAGE, e);
       return ERROR;
@@ -380,6 +387,20 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     return feedBackSendAviable;
   }
 
+  private String getFormattedRedirectUrl() {
+    String currentUserEncoded;
+    try {
+      currentUserEncoded = URLEncoder.encode(currentUser, "UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      currentUserEncoded = "";
+    }
+    return String.format(
+        SELF_WITH_DATE_AND_USER_URL_FORMAT,
+        dateFromFormated,
+        dateToFormated,
+        currentUserEncoded);
+  }
+
   public List<Pattern> getIssuesRegex() {
     return issuesRegex;
   }
@@ -433,63 +454,26 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   }
 
   private void initCurrentUserIfNecessary() {
-    if (!"".equals(currentUser)) {
-      return;
-    }
-    HttpSession session = getHttpSession();
-    Object currentUserSessionDefault = session.getAttribute(SESSION_CURRENT_USER_KEY);
-    if (currentUserSessionDefault != null) {
-      currentUser = (String) currentUserSessionDefault;
-    } else {
+    if ("".equals(currentUser)) {
       JiraAuthenticationContext authenticationContext = ComponentAccessor
           .getJiraAuthenticationContext();
       currentUser = authenticationContext.getUser().getKey();
+      setUserPickerObjectBasedOnCurrentUser();
     }
-    setUserPickerObjectBasedOnCurrentUser();
-  }
-
-  /**
-   * Sets the default value of #dateFrom and #dateFromFormated. It loads from the session if a saved
-   * date present, or defaults to a week earlier.
-   */
-  private void initDateFrom() {
-    HttpSession session = getHttpSession();
-    Object dateFromSessionDefault = session.getAttribute(SESSION_DATE_FROM_KEY);
-
-    if (dateFromSessionDefault != null) {
-      dateFrom = (Date) dateFromSessionDefault;
-    } else {
-      Calendar calendarFrom = Calendar.getInstance();
-      calendarFrom.add(Calendar.WEEK_OF_MONTH, -1);
-      dateFrom = calendarFrom.getTime();
-    }
-    dateFromFormated = DateTimeConverterUtil.dateToString(dateFrom);
   }
 
   private void initDatesIfNecessary() {
     if ("".equals(dateFromFormated)) {
-      initDateFrom();
+      Calendar calendarFrom = Calendar.getInstance();
+      calendarFrom.add(Calendar.WEEK_OF_MONTH, -1);
+      dateFrom = calendarFrom.getTime();
+      dateFromFormated = DateTimeConverterUtil.dateToString(dateFrom);
     }
     if ("".equals(dateToFormated)) {
-      initDateToDefault();
-    }
-  }
-
-  /**
-   * Sets the default value of #dateTo and #dateToFormated. It loads from the session if a saved
-   * date present, or defaults to the current date.
-   */
-  private void initDateToDefault() {
-    HttpSession session = getHttpSession();
-    Object dateToSessionDefault = session.getAttribute(SESSION_DATE_TO_KEY);
-
-    if (dateToSessionDefault != null) {
-      dateTo = (Date) dateToSessionDefault;
-    } else {
       Calendar calendarTo = Calendar.getInstance();
       dateTo = calendarTo.getTime();
+      dateToFormated = DateTimeConverterUtil.dateToString(dateTo);
     }
-    dateToFormated = DateTimeConverterUtil.dateToString(dateTo);
   }
 
   private boolean isRealWorklog(final EveritWorklog worklog) {
@@ -505,6 +489,23 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
       }
     }
     return isRealWorklog;
+  }
+
+  private boolean loadDataFromSession() {
+    HttpSession session = getHttpSession();
+    Object data = session.getAttribute(SESSION_KEY);
+
+    if (data == null) {
+      return false;
+    } else {
+      ReportSessionData reportSessionData = (ReportSessionData) data;
+      currentUser = reportSessionData.currentUser;
+      dateFrom = reportSessionData.dateFrom;
+      dateFromFormated = DateTimeConverterUtil.dateToString(dateFrom);
+      dateTo = reportSessionData.dateTo;
+      dateToFormated = DateTimeConverterUtil.dateToString(dateTo);
+      return true;
+    }
   }
 
   private void loadPluginSettingAndParseResult() {
@@ -576,15 +577,10 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     return false;
   }
 
-  private void saveCurrentUserToSession() {
+  private void saveDataToSession() {
     HttpSession session = getHttpSession();
-    session.setAttribute(SESSION_CURRENT_USER_KEY, currentUser);
-  }
-
-  private void saveDatesToSession() {
-    HttpSession session = getHttpSession();
-    session.setAttribute(SESSION_DATE_FROM_KEY, dateFrom);
-    session.setAttribute(SESSION_DATE_TO_KEY, dateTo);
+    session.setAttribute(SESSION_KEY,
+        new ReportSessionData().currentUser(currentUser).dateFrom(dateFrom).dateTo(dateTo));
   }
 
   public void setAnalyticsCheck(final boolean analyticsCheck) {
