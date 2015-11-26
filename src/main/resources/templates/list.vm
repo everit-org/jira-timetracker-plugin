@@ -111,11 +111,11 @@ cursor:pointer;
 		                    	 			id="edit" name="edit" title="$i18n.getText('plugin.edit')"
 		                    	 			style="margin:3px"
 		                    	 			onclick="location.href='JiraTimetrackerWebAction.jspa?editedWorklogId=$worklog.worklogId&dateFormatted=$dateFormatted'"></span>
-		                    	 		<span class="aui-icon aui-icon-small aui-iconfont-delete"
+		                    	 		<span class="aui-icon aui-icon-small #if($jiraVersion.substring(0, 3) == '6.2') aui-iconfont-remove #else aui-iconfont-delete #end"
 		                    	 			id="delete" name="delete" title="$i18n.getText('plugin.delete')"
 		                    	 			style="margin:3px"
 		                    	 			onclick="location.href='JiraTimetrackerWebAction!default.jspa?deletedWorklogId=$worklog.worklogId&dateFormatted=$dateFormatted'"></span>
-		                    	 		<span class="aui-icon aui-icon-small aui-iconfont-copy-clipboard copy"
+		                    	 		<span class="aui-icon aui-icon-small #if($jiraVersion.substring(0, 3) == '6.2') aui-iconfont-doc #else aui-iconfont-copy-clipboard #end copy"
 		                    	 			style="margin:3px"
 		                    	 			id="copy" name="copy" title="$i18n.getText('plugin.copy')"></span>
 		                    	 	</td>

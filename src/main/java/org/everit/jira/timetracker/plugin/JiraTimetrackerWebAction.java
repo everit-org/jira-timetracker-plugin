@@ -61,9 +61,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
 
-  private static final String SELF_WITH_DATE_URL_FORMAT =
-      "/secure/JiraTimetrackerWebAction.jspa?dateFormatted=%s";
-
   /**
    * The JiraTimetrackerWebAction logger..
    */
@@ -79,6 +76,9 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private static final String PARAM_ISSUESELECT = "issueSelect";
 
   private static final String PARAM_STARTTIME = "startTime";
+
+  private static final String SELF_WITH_DATE_URL_FORMAT =
+      "/secure/JiraTimetrackerWebAction.jspa?dateFormatted=%s";
 
   /**
    * Serial version UID.
@@ -124,12 +124,14 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The summary of day.
    */
   private String dayFilteredSummary = "";
+
   /**
    * The summary of day.
    */
   private String daySummary = "";
 
   private String debugMessage = "";
+
   /**
    * The deleted worklog id.
    */
@@ -146,7 +148,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The edited worklog id.
    */
   private Long editedWorklogId = DEFAULT_WORKLOG_ID;
-
   /**
    * The worklog end time.
    */
@@ -163,11 +164,11 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private List<String> excludeDays = new ArrayList<String>();
 
   private boolean feedBackSendAviable;
+
   /**
    * The calendar show actual Date Or Last Worklog Date.
    */
   private boolean isActualDate;
-
   /**
    * The calendar highlights coloring function is active or not.
    */
@@ -209,10 +210,15 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The jira main version.
    */
   private int jiraMainVersion;
+
   /**
    * The {@link JiraTimetrackerPlugin}.
    */
   private transient JiraTimetrackerPlugin jiraTimetrackerPlugin;
+  /**
+   * The jira version.
+   */
+  private String jiraVersion;
 
   /**
    * List of the logged days of the date variable current months.
@@ -705,11 +711,16 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return jiraTimetrackerPlugin;
   }
 
+  public String getJiraVersion() {
+    return jiraVersion;
+  }
+
   private void getJiraVersionFromBuildUtilsInfo() {
     BuildUtilsInfo component = ComponentAccessor.getComponent(BuildUtilsInfo.class);
-    String version = component.getVersion();
-    String[] versionSplit = version.split(VERSION_SPLITTER);
+    jiraVersion = component.getVersion();
+    String[] versionSplit = jiraVersion.split(VERSION_SPLITTER);
     jiraMainVersion = Integer.parseInt(versionSplit[0]);
+
   }
 
   public List<String> getLoggedDays() {
@@ -1296,6 +1307,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   public void setJiraTimetrackerPlugin(final JiraTimetrackerPlugin jiraTimetrackerPlugin) {
     this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
+  }
+
+  public void setJiraVersion(final String jiraVersion) {
+    this.jiraVersion = jiraVersion;
   }
 
   public void setLoggedDays(final List<String> loggedDays) {
