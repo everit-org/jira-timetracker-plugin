@@ -16,6 +16,8 @@
 package org.everit.jira.timetracker.plugin;
 
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -26,6 +28,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
+
+import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
@@ -56,6 +60,15 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
       return wl1.getDate().compareTo(wl2.getDate());
     }
   }
+
+  private static final String SESSION_KEY = "jttpTableStore";
+
+  private static final String SELF_WITH_DATE_AND_USER_URL_FORMAT =
+      "/secure/JiraTimetrackerTableWebAction.jspa"
+      + "?dateFrom=%s"
+      + "&dateTo=%s"
+      + "&userPicker=%s"
+      + "&search";
 
   private static final String EXCEEDED_A_YEAR = "plugin.exceeded.year";
 
@@ -249,25 +262,6 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     feedBackSendAviable = ComponentAccessor.getMailServerManager().isDefaultSMTPMailServerDefined();
   }
 
-  /**
-   * Set dateFrom and dateFromFormated default value.
-   */
-  private void dateFromDefaultInit() {
-    Calendar calendarFrom = Calendar.getInstance();
-    calendarFrom.add(Calendar.WEEK_OF_MONTH, -1);
-    dateFrom = calendarFrom.getTime();
-    dateFromFormated = DateTimeConverterUtil.dateToString(dateFrom);
-  }
-
-  /**
-   * Set dateTo and dateToFormated default value.
-   */
-  private void dateToDefaultInit() {
-    Calendar calendarTo = Calendar.getInstance();
-    dateTo = calendarTo.getTime();
-    dateToFormated = DateTimeConverterUtil.dateToString(dateTo);
-  }
-
   @Override
   public String doDefault() throws ParseException {
     boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
@@ -282,16 +276,16 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
     setPiwikProperties();
     loadPluginSettingAndParseResult();
-    if ("".equals(dateFromFormated)) {
-      dateFromDefaultInit();
-    }
-    if ("".equals(dateToFormated)) {
-      dateToDefaultInit();
-    }
+    boolean loadedFromSession = loadDataFromSession();
+    initDatesIfNecessary();
+    initCurrentUserIfNecessary();
 
-    setLoggedUserToCurrentUser();
-
-    return INPUT;
+    if (loadedFromSession) {
+      setReturnUrl(getFormattedRedirectUrl());
+      return getRedirect(NONE);
+    } else {
+      return INPUT;
+    }
   }
 
   @Override
@@ -309,9 +303,6 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     PluginSettingsValues pluginSettings = jiraTimetrackerPlugin.loadPluginSettings();
     setIssuesRegex(pluginSettings.getFilteredSummaryIssues());
 
-    setDefaultDates();
-    setLoggedUserToCurrentUser();
-
     if (parseFeedback()) {
       return INPUT;
     }
@@ -321,8 +312,8 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     try {
       setCurrentUserFromParam();
       setUserPickerObjectBasedOnCurrentUser();
-      startDate = getStartDate();
-      lastDate = getLastDate();
+      startDate = parseDateFrom();
+      lastDate = parseDateTo();
       validateDates(startDate, lastDate);
     } catch (IllegalArgumentException e) {
       message = e.getMessage();
@@ -333,6 +324,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     try {
       worklogs.addAll(jiraTimetrackerPlugin.getWorklogs(currentUser, startDate.getTime(),
           lastDate.getTime()));
+      saveDataToSession();
     } catch (DataAccessException | SQLException e) {
       LOGGER.error(GET_WORKLOGS_ERROR_MESSAGE, e);
       return ERROR;
@@ -395,24 +387,22 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     return feedBackSendAviable;
   }
 
-  public List<Pattern> getIssuesRegex() {
-    return issuesRegex;
+  private String getFormattedRedirectUrl() {
+    String currentUserEncoded;
+    try {
+      currentUserEncoded = URLEncoder.encode(currentUser, "UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      currentUserEncoded = "";
+    }
+    return String.format(
+        SELF_WITH_DATE_AND_USER_URL_FORMAT,
+        dateFromFormated,
+        dateToFormated,
+        currentUserEncoded);
   }
 
-  private Calendar getLastDate() throws IllegalArgumentException {
-    String dateToParam = getHttpRequest().getParameter(PARAM_DATETO);
-    if ((dateToParam != null) && !"".equals(dateToParam)) {
-      dateToFormated = dateToParam;
-    } else {
-      throw new IllegalArgumentException(INVALID_END_TIME);
-    }
-    Calendar lastDate = Calendar.getInstance();
-    try {
-      lastDate.setTime(DateTimeConverterUtil.stringToDate(dateToParam));
-    } catch (ParseException e) {
-      throw new IllegalArgumentException(INVALID_END_TIME);
-    }
-    return lastDate;
+  public List<Pattern> getIssuesRegex() {
+    return issuesRegex;
   }
 
   public String getMessage() {
@@ -447,22 +437,6 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     return realWeekSum;
   }
 
-  private Calendar getStartDate() throws IllegalArgumentException {
-    String dateFromParam = getHttpRequest().getParameter(PARAM_DATEFROM);
-    if ((dateFromParam != null) && !"".equals(dateFromParam)) {
-      dateFromFormated = dateFromParam;
-    } else {
-      throw new IllegalArgumentException(INVALID_START_TIME);
-    }
-    Calendar startDate = Calendar.getInstance();
-    try {
-      startDate.setTime(DateTimeConverterUtil.stringToDate(dateFromParam));
-    } catch (ParseException e) {
-      throw new IllegalArgumentException(INVALID_START_TIME);
-    }
-    return startDate;
-  }
-
   public String getUserId() {
     return userId;
   }
@@ -477,6 +451,29 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   public List<EveritWorklog> getWorklogs() {
     return worklogs;
+  }
+
+  private void initCurrentUserIfNecessary() {
+    if ("".equals(currentUser)) {
+      JiraAuthenticationContext authenticationContext = ComponentAccessor
+          .getJiraAuthenticationContext();
+      currentUser = authenticationContext.getUser().getKey();
+      setUserPickerObjectBasedOnCurrentUser();
+    }
+  }
+
+  private void initDatesIfNecessary() {
+    if ("".equals(dateFromFormated)) {
+      Calendar calendarFrom = Calendar.getInstance();
+      calendarFrom.add(Calendar.WEEK_OF_MONTH, -1);
+      dateFrom = calendarFrom.getTime();
+      dateFromFormated = DateTimeConverterUtil.dateToString(dateFrom);
+    }
+    if ("".equals(dateToFormated)) {
+      Calendar calendarTo = Calendar.getInstance();
+      dateTo = calendarTo.getTime();
+      dateToFormated = DateTimeConverterUtil.dateToString(dateTo);
+    }
   }
 
   private boolean isRealWorklog(final EveritWorklog worklog) {
@@ -494,6 +491,23 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     return isRealWorklog;
   }
 
+  private boolean loadDataFromSession() {
+    HttpSession session = getHttpSession();
+    Object data = session.getAttribute(SESSION_KEY);
+
+    if (data == null) {
+      return false;
+    } else {
+      ReportSessionData reportSessionData = (ReportSessionData) data;
+      currentUser = reportSessionData.currentUser;
+      dateFrom = reportSessionData.dateFrom;
+      dateFromFormated = DateTimeConverterUtil.dateToString(dateFrom);
+      dateTo = reportSessionData.dateTo;
+      dateToFormated = DateTimeConverterUtil.dateToString(dateTo);
+      return true;
+    }
+  }
+
   private void loadPluginSettingAndParseResult() {
     PluginSettingsValues pluginSettingsValues = jiraTimetrackerPlugin
         .loadPluginSettings();
@@ -507,6 +521,40 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     } else {
       contextPath = path;
     }
+  }
+
+  private Calendar parseDateFrom() throws IllegalArgumentException {
+    String dateFromParam = getHttpRequest().getParameter(PARAM_DATEFROM);
+    if ((dateFromParam != null) && !"".equals(dateFromParam)) {
+      dateFromFormated = dateFromParam;
+    } else {
+      throw new IllegalArgumentException(INVALID_START_TIME);
+    }
+    Calendar parsedCalendarFrom = Calendar.getInstance();
+    try {
+      dateFrom = DateTimeConverterUtil.stringToDate(dateFromParam);
+      parsedCalendarFrom.setTime(dateFrom);
+    } catch (ParseException e) {
+      throw new IllegalArgumentException(INVALID_START_TIME);
+    }
+    return parsedCalendarFrom;
+  }
+
+  private Calendar parseDateTo() throws IllegalArgumentException {
+    String dateToParam = getHttpRequest().getParameter(PARAM_DATETO);
+    if ((dateToParam != null) && !"".equals(dateToParam)) {
+      dateToFormated = dateToParam;
+    } else {
+      throw new IllegalArgumentException(INVALID_END_TIME);
+    }
+    Calendar parsedCalendarTo = Calendar.getInstance();
+    try {
+      dateTo = DateTimeConverterUtil.stringToDate(dateToParam);
+      parsedCalendarTo.setTime(dateTo);
+    } catch (ParseException e) {
+      throw new IllegalArgumentException(INVALID_END_TIME);
+    }
+    return parsedCalendarTo;
   }
 
   private boolean parseFeedback() {
@@ -527,6 +575,12 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
       return true;
     }
     return false;
+  }
+
+  private void saveDataToSession() {
+    HttpSession session = getHttpSession();
+    session.setAttribute(SESSION_KEY,
+        new ReportSessionData().currentUser(currentUser).dateFrom(dateFrom).dateTo(dateTo));
   }
 
   public void setAnalyticsCheck(final boolean analyticsCheck) {
@@ -556,11 +610,6 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     } else {
       throw new IllegalArgumentException(INVALID_USER_PICKER);
     }
-    if ("".equals(currentUser)) {
-      JiraAuthenticationContext authenticationContext = ComponentAccessor
-          .getJiraAuthenticationContext();
-      currentUser = authenticationContext.getUser().getKey();
-    }
   }
 
   public void setDateFromFormated(final String dateFromFormated) {
@@ -575,28 +624,12 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     this.daySum = daySum;
   }
 
-  private void setDefaultDates() {
-    if ("".equals(dateFromFormated)) {
-      dateFromDefaultInit();
-    }
-    if ("".equals(dateToFormated)) {
-      dateToDefaultInit();
-    }
-  }
-
   public void setFeedBackSendAviable(final boolean feedBackSendAviable) {
     this.feedBackSendAviable = feedBackSendAviable;
   }
 
   public void setIssuesRegex(final List<Pattern> issuesRegex) {
     this.issuesRegex = issuesRegex;
-  }
-
-  private void setLoggedUserToCurrentUser() {
-    JiraAuthenticationContext authenticationContext = ComponentAccessor
-        .getJiraAuthenticationContext();
-    currentUser = authenticationContext.getUser().getKey();
-    setUserPickerObjectBasedOnCurrentUser();
   }
 
   public void setMessage(final String message) {
