@@ -20,13 +20,7 @@ margin-bottom: 0em;
 .table-endtime:hover, .table-starttime:hover, .table-issue:hover, .table-comment:hover{
 cursor:pointer;
 }
-span{
-cursor:pointer;
-}
-.grid td {
-    text-align: center;
-    vertical-align: inherit;
-}
+
 .rowHeader {
     background-color: #E2E2E2;
 	text-align: center;
@@ -40,12 +34,22 @@ cursor:pointer;
 .button {
     padding: 2px;
 }
+
+.settings-button{
+	display: inline;
+	float: right;
+}
+
 .grid {
     font-family:Arial,Helvetica,sans-serif;
     font-size:12px;
     background-color:#FCFCFC;
     border:1px solid #D2D2D2;
     border-collapse:collapse;
+}
+.grid td {
+    text-align: center;
+    vertical-align: inherit;
 }
 .grid th, .grid td {
     border:1px solid #D2D2D2;
@@ -65,9 +69,17 @@ input[type="text"]:disabled{
 .calendar tbody td.othermonth{
     color: #7e7a7a;
 }
+
+div.calendar {
+	-moz-box-shadow: 0px 0px 0px #666;
+	-webkit-box-shadow: 0px 0px 0px #666;
+	box-shadow: 0px 0px 0px #666;
+	z-index: inherit;
+}
 .content {
     margin: 0 .714em .714em;
     position: relative;
+	width:970px;
 }
 .rounded {
     background-color: #fff;
@@ -76,22 +88,26 @@ input[type="text"]:disabled{
     -webkit-border-radius: .4em;
     border-radius: .4em;
 }
-item-header {
+.item-header {
     margin: 12px 12px 0 12px;
     min-height: 48px;
     position: relative;
     padding-left: 5px;
     padding-right: 5px;
     padding-top: 0px;
+	width: 980px;
 }
 #main-content {
     min-width: 990px;
 }
-.item-header .item-summary {
+.item-summary {
     font-size: 2em;
     line-height: 1.167;
     margin: 0;
+	display: inline-block;
+	padding-top: 6px;
 }
+
 #issueSelect-textarea, #issueSelect-multi-select{
     width: 610px;
 }
@@ -106,6 +122,10 @@ item-header {
     border-color: #d04437;
     border-radius: 3px;
     background-color: #d04437;
+}
+
+.logo-img{
+	float: right;
 }
 
 .jttp-calendar{
@@ -137,9 +157,77 @@ item-header {
 }
 
 .summary-table-datepicker-column{
-	width: 40%;
+	width: 30%;
 }
 .worklog-table-header-column{
-	
+	width: 110px;
 }
 
+.time-input{
+	margin-right: 5px;
+	width: 100px;
+}
+
+.time-input-div{
+	position:absolute;
+	left:0;
+	right:0;
+	top:0;
+	bottom:0;
+}
+
+.time-input-span{
+	position:relative;
+}
+	
+.inside-content{
+	margin:10px;
+	width:970px;
+}
+
+.not_popup_calendar{
+	float: right;
+}
+
+.center-text{
+	text-align: center;
+}
+
+.vertically-middle{
+	vertical-align: middle;
+}
+
+.jttp-aui-icon{
+	margin: 3px;
+	cursor:pointer;
+}
+
+.settings-label-column{
+	text-align: right;
+	width:10%;
+}
+
+.settings-value-column{
+	width:40%;
+}
+
+.setting-separator-label-div{
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+.settings-input{
+	margin-right: 10px;
+}
+
+.message{
+	text-align: center;
+	padding: 3px;
+	font-size: 14px;
+	width: 30%;
+}
+
+.result-table{
+	text-align: center;
+	padding-bottom: 5px;
+}

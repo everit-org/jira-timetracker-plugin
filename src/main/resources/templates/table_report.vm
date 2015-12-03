@@ -17,53 +17,13 @@
 <head>
 <title>Timetracker Table Report</title>
 ## Style Declaration
-<style type="text/css">
-.button {
-        padding: 2px;
-    }
-    .content {
-		margin: 0 .714em .714em;
-		position: relative;
-	}
-    .rounded {
-		background-color: #fff;
-		border: 1px solid #bbb;
-		-moz-border-radius: .4em;
-		-webkit-border-radius: .4em;
-		border-radius: .4em;
-	}
-    .item-header {
-		margin: 12px 12px 0 12px;
-		min-height: 48px;
-		position: relative;
-		padding-left: 5px;
-		padding-right: 5px;
-		padding-top: 0px;
-	}
-	#main-content {
-		min-width: 990px;
-	}
-	.item-header .item-summary {
-		font-size: 2em;
-		line-height: 1.167;
-		margin: 0;
-	}
-	#error_message{
-		color: white;
-		text-align: center;
-		border: 1px solid;
-		border-color: #d04437;
-		border-radius: 3px;
-		background-color: #d04437;
-	}
-	
-</style>
 </head>
 $webResourceManager.requireResource("jira.webresources:global-static")
 $webResourceManager.requireResource("jira.webresources:calendar")
 $webResourceManager.requireResource("jira.webresources:calendar-en")
 $webResourceManager.requireResource("jira.webresources:dwr", null)   
 $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
+$webResourceManager.requireResource("org.everit.jira.timetracker.plugin:table_report-resources")
 <body>
 <form name="chartReportForm"  method="get" action="JiraTimetrackerTableWebAction.jspa" />   
 	#set($rendererType = "atlassian-wiki-renderer")
@@ -72,6 +32,11 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 	#else
 		#set ($firstDay = 0)
 	#end
+	
+	<input id="currentCalendar" type="hidden" value="$currentCalendar" />
+	<input id="dateFormatted" type="hidden" value="$dateFormatted" />
+	<input id="firstDay" type="hidden" value="$firstDay" />
+	
 	<div id="plugin_head" class="item-header" style="width:980px;">
 			<div style="float: right;">
 				<a href="http://www.everit.org/jira-timetracker-plugin/" target="_blank">
@@ -105,31 +70,9 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 								$i18n.getText("plugin.from"): 
 								</td>
 								<td>
-								<input type="text" id="dateFrom" name="dateFrom" tabindex="1" onkeydown="return checkFromEnter(event);" value="$dateFromFormated"/>
-								 <script>
-						            function checkFromEnter(event){
-									    if (event.keyCode == 13) {
-									      AJS.$("#dateTo").focus();
-									      return false;
-									    }
-									}
-						          </script>
+								<input type="text" id="dateFrom" name="dateFrom" tabindex="1" onkeydown="return checkEnter(event);" value="$dateFromFormated"/>
 								<img id="date_trigger_from" src="$contextPath/images/icons/cal.gif" width="16" height="16" border="0"
 									alt="Pick a date" style="vertical-align: sub;" title="$i18n.getText('plugin.choose.date')"/>
-								<script>
-								var cal= Calendar.setup({
-									firstDay : $firstDay,
-									inputField : 'dateFrom',
-									button : 'date_trigger_from',
-									date : '$dateFromFormated',
-									align : 'Br',
-									electric: false,
-									singleClick : true,
-									showOthers: true,
-									useISO8601WeekNumbers : $currentCalendar.useISO8601,
-									ifFormat : '%Y-%m-%d'
-								});
-								</script>
 							</td>
 						</tr>
 						<tr>
@@ -137,31 +80,9 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 								$i18n.getText("plugin.to"): 
 								</td>
 								<td>
-								<input type="text" id="dateTo" name="dateTo" tabindex="1" onkeydown="return checkToEnter(event);" value="$dateToFormated"/>
-								 <script>
-						            function checkToEnter(event){
-									    if (event.keyCode == 13) {
-									      AJS.$("#dateTo").focus();
-									      return false;
-									    }
-									}
-						          </script>
+								<input type="text" id="dateTo" name="dateTo" tabindex="1" onkeydown="return checkEnter(event);" value="$dateToFormated"/>
 								<img id="date_trigger_to" src="$contextPath/images/icons/cal.gif" width="16" height="16" border="0"
 									alt="Pick a date" style="vertical-align: sub;" title="$i18n.getText('plugin.choose.date')"/>
-								<script>
-								var cal= Calendar.setup({
-									firstDay : $firstDay,
-									inputField : 'dateTo',
-									button : 'date_trigger_to',
-									date : '$dateToFormated',
-									align : 'Br',
-									electric: false,
-									singleClick : true,
-									showOthers: true,
-									useISO8601WeekNumbers : $currentCalendar.useISO8601,
-									ifFormat : '%Y-%m-%d'
-								});
-								</script>
 							</td>
 						</tr>
 						<tr>
@@ -180,7 +101,9 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 									 	</option>
 									 #end
 									</select>
+									## 
 									<script>
+									
 	 									AJS.$('.aui-ss, .aui-ss-editing, .aui-ss-field').attr("style","width: 300px;");
 	 									(function ($) {
 										    function createSingleUserPickers(ctx) {

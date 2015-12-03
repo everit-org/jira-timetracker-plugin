@@ -15,15 +15,9 @@
  */
 
 AJS.$(document).ready(function(){
-    var original = Calendar.prototype.show;
 	var excludeDays = AJS.$("#excludeDays");
-	var isColoring = AJS.$("#isColoring");
+	var isColoring = AJS.$("#isColoring").val() === "true";
 	var loggedDays = AJS.$("#loggedDays");
-    Calendar.prototype.show = function(){
-        original.call(this);
-        setExcludeDaysToWeekend(excludeDays);
-        setLoggedDaysDesign(isColoring, loggedDays);
-    }
 	document.getElementById('inputfields').scrollIntoView(allignWithTop=false);
     setExcludeDaysToWeekend(excludeDays);
     setLoggedDaysDesign(isColoring, loggedDays);
@@ -31,137 +25,156 @@ AJS.$(document).ready(function(){
     AJS.$('.aui-ss-editing').attr("style","width: 250px;");
     AJS.$('.aui-ss.aui-ss-editing .aui-ss-field').attr("style","width: 250px;");
 
-			 AJS.$('.table-endtime').click(function(){
-		 	var temp = new String(AJS.$(this).html());
-		 	AJS.$('#startTime').val(temp.trim());
-		 });
-		 AJS.$('.table-starttime').click(function(){
-		 	var temp = new String(AJS.$(this).html());
-		 	AJS.$('#endTime').val(temp.trim());
-		 });
-		 
-		 AJS.$('.table-comment').click(function(){
-			 var temp = AJS.$(this).find('#hiddenWorklogBody').val();
-			
-			 var temp2 = temp.replace(/(\\r\\n|\\n|\\r)/gm, "&#013;");
-			 var temp3 = temp.replace(/(\\r\\n|\\n|\\r)/gm, "\n");
-	     
-	     	 AJS.$("#comments").html(temp2);
-	     	 AJS.$("#comments").val(temp3);
-		 });
-		 
-		 AJS.$('.table-issue').click(function(){
-		 	AJS.$('#issueSelect-textarea').parent().find('.item-delete').click();
-		 	
-		 	var temp = new String(AJS.$(this).find('a').html());
-		 	AJS.$('#issueSelect-textarea').val(temp.trim());
-		 	AJS.$('#issueSelect-textarea').focus();
-		 	AJS.$('#Edit').focus();
-		 	AJS.$('#Submitbutton').focus();
-		 });
-		 
-		 AJS.$('.copy').click(function(){
-		    AJS.$('#issueSelect-textarea').parent().find('.item-delete').click();
-		    
-		 	var temp = AJS.$(this).parent().parent().find('.table-issue').find('a').html();
-		 	AJS.$('#issueSelect-textarea').val(temp.trim());
-		 	
-		 	temp = AJS.$(this).parent().parent().find('#hiddenWorklogBody').val();
-		 	var temp2 = temp.replace(/(\\r\\n|\\n|\\r)/gm, "&#013;");
-		 	var temp3 = temp.replace(/(\\r\\n|\\n|\\r)/gm, "\n");
-		 	
-		 	AJS.$("#comments").html(temp2);
-		 	AJS.$("#comments").val(temp3);
-		 	
-		 	AJS.$('#issueSelect-textarea').focus();
-		 	AJS.$('#Submitbutton').focus();
-		 });
-		 
-		 AJS.$('#issueSelect-textarea').keydown(function(e){
-		    var isEnter = e.keyCode == 10 || e.keyCode == 13;
+    eventBinding();
+	durationSelectionSetup();
+	var isPopup = AJS.$("#isPopup").val();
+	issuePickerSetup(isPopup);
+	commentsCSSFormat(isPopup);
+	
+	var isEditAll = AJS.$("#isEditAll").val() === "true";
+	if (isEditAll){
+		disableInputFields();
+	}
+});
+
+function dateChanged(calendar){
+		AJS.$("date").val(calendar.date.print(calendar.params.ifFormat));
+		AJS.$("date").change();
+	}
+
+function disableInputFields(){
+	AJS.$("#startTime").prop("disabled", true);
+	AJS.$("#startNow").prop("disabled", true);
+	AJS.$("#endTime").prop("disabled", true);
+	AJS.$("#endNow").prop("disabled", true);
+	AJS.$("#durationTime").prop("disabled", true);
+	AJS.$("#issueSelect-textarea").prop("disabled", true);
+	AJS.$("#issueSelect-textarea").prop("disabled", true);
+	AJS.$("#comments").prop("disabled", true);
+}
+
+function eventBinding(){
+	AJS.$('.table-endtime').click(function(){
+		var temp = new String(AJS.$(this).html());
+		AJS.$('#startTime').val(temp.trim());
+	});
+
+	AJS.$('.table-starttime').click(function(){
+		var temp = new String(AJS.$(this).html());
+		AJS.$('#endTime').val(temp.trim());
+	});
+
+	AJS.$('.table-comment').click(function(){
+		var temp = AJS.$(this).find('#hiddenWorklogBody').val();
+		var temp2 = temp.replace(/(\\r\\n|\\n|\\r)/gm, "&#013;");
+		var temp3 = temp.replace(/(\\r\\n|\\n|\\r)/gm, "\n");
+	    AJS.$("#comments").html(temp2);
+	    AJS.$("#comments").val(temp3);
+	});
+
+	AJS.$('.table-issue').click(function(){
+		AJS.$('#issueSelect-textarea').parent().find('.item-delete').click();
+		
+		var temp = new String(AJS.$(this).find('a').html());
+		AJS.$('#issueSelect-textarea').val(temp.trim());
+		AJS.$('#issueSelect-textarea').focus();
+		AJS.$('#Edit').focus();
+		AJS.$('#Submitbutton').focus();
+	});
+
+	 AJS.$('.copy').click(function(){
+	    AJS.$('#issueSelect-textarea').parent().find('.item-delete').click();
+		var temp = AJS.$(this).parent().parent().find('.table-issue').find('a').html();
+		AJS.$('#issueSelect-textarea').val(temp.trim());
+
+		temp = AJS.$(this).parent().parent().find('#hiddenWorklogBody').val();
+		var temp2 = temp.replace(/(\\r\\n|\\n|\\r)/gm, "&#013;");
+		var temp3 = temp.replace(/(\\r\\n|\\n|\\r)/gm, "\n");
+
+		AJS.$("#comments").html(temp2);
+		AJS.$("#comments").val(temp3);
+
+		AJS.$('#issueSelect-textarea').focus();
+		AJS.$('#Submitbutton').focus();
+	});
+
+	AJS.$('#issueSelect-textarea').keydown(function(e){
+	    var isEnter = e.keyCode == 10 || e.keyCode == 13;
 	        if (isEnter && e.ctrlKey) {
 	          AJS.$('#Submitbutton, #Edit').click();
 	        }
-	     });
-	     
-	     AJS.$('#comments').keydown(function(e){
-	       if ((e.keyCode == 10 || e.keyCode == 13) && e.ctrlKey){
-		     AJS.$('#Submitbutton, #Edit').click();
-           }
-	     });
-	     
-	     AJS.$('#jttpForm').submit(function () {
-	        AJS.$('#Submitbutton').prop("disabled", true);
-	        return true;
-	     });
-		 
-		durationSelectionSetup();
-		
-		var isPopup = AJS.$("#isPopup").val();
-		
-		issuePickerSetup();
-		
-		commentsCSSFormat(isPopup);
-});
+	    });
+
+	AJS.$('#comments').keydown(function(e){
+	    if ((e.keyCode == 10 || e.keyCode == 13) && e.ctrlKey){
+		    AJS.$('#Submitbutton, #Edit').click();
+        }
+	});
+
+	AJS.$('#jttpForm').submit(function (){
+	    AJS.$('#Submitbutton').prop("disabled", true);
+	    return true;
+	});
+}
 
 function durationSelectionSetup(){
 	var isDurationSelected = (AJS.$("#isDurationSelected").val() === "true");
-		 if(isDurationSelected){
-			AJS.$("#durationTimeInput").css("cursor","text").hide().prev("input[disabled]").prop("disabled", false).css("cursor","text").focus();
-			AJS.$("#endTimeInput").css("cursor","pointer").show().prev("input").prop("disabled", true).css("cursor","pointer");
-			AJS.$("#radioDuration").prop("checked", true);
-		 } else {
-			AJS.$("#endTimeInput").css("cursor","text");
-			AJS.$("#durationTimeInput").css("cursor","pointer");
-		 }
+	if(isDurationSelected){
+		AJS.$("#durationTimeInput").css("cursor","text").hide().prev("input[disabled]").prop("disabled", false).css("cursor","text").focus();
+		AJS.$("#endTimeInput").css("cursor","pointer").show().prev("input").prop("disabled", true).css("cursor","pointer");
+		AJS.$("#radioDuration").prop("checked", true);
+	} else {
+		AJS.$("#endTimeInput").css("cursor","text");
+		AJS.$("#durationTimeInput").css("cursor","pointer");
+	}
 }
 
 function issuePickerSetup(isPopup){
 	var ip = new AJS.IssuePicker({
-		  element: AJS.$("#issueSelect"),
-		  userEnteredOptionsMsg: AJS.params.enterIssueKey,
-		  uppercaseUserEnteredOnSelect: true,
-		  singleSelectOnly: true,
-		   currentProjectId: AJS.$("#projectsId").val(),
-		});
-		
-		var jiraMainVersion = AJS.$("#jiraMainVersion").val();
-		var issueKey = AJS.$("#issueKey").val();
-		AJS.$('.issue-picker-popup').attr("style","margin-bottom: 16px;");
-		if(isPopup != 1){
-		    if(jiraMainVersion < 6){
-		        AJS.$("#issueSelect-multi-select").attr("style","width: 630px;");
-		        AJS.$("#issueSelect-textarea").attr("style","width: 605px; height: 20px");
-		    } else {
-		        AJS.$("#issueSelect-multi-select").attr("style","width: 630px;");
-		        AJS.$("#issueSelect-textarea").attr("style","width: 625px; height: 30px");
-		    }
-		}else{
-		    if(jiraMainVersion < 6){
-		        AJS.$("#issueSelect-multi-select").attr("style","width: 930px;");
-		        AJS.$("#issueSelect-textarea").attr("style","width: 905px; height: 20px");
-		    }else{
-		        AJS.$("#issueSelect-multi-select").attr("style","width: 910px;");
-		        AJS.$("#issueSelect-textarea").attr("style","width: 905px; height: 30px");
-		    }
-		}   
-		AJS.$("#issueSelect-textarea").attr("class","select2-choices");
-     
-		AJS.$("#issueSelect-textarea").append(issueKey);
-		AJS.$("#issueSelect-textarea").attr("tabindex","3");
-		ip.handleFreeInput();
+		element: AJS.$("#issueSelect"),
+		userEnteredOptionsMsg: AJS.params.enterIssueKey,
+		uppercaseUserEnteredOnSelect: true,
+		singleSelectOnly: true,
+		currentProjectId: AJS.$("#projectsId").val(),
+	});
+
+	var jiraMainVersion = AJS.$("#jiraMainVersion").val();
+	var issueKey = AJS.$("#issueKey").val();
+	AJS.$('.issue-picker-popup').attr("style","margin-bottom: 16px;");
+	if(isPopup != 1){
+	    if(jiraMainVersion < 6){
+	        AJS.$("#issueSelect-multi-select").attr("style","width: 630px;");
+	        AJS.$("#issueSelect-textarea").attr("style","width: 605px; height: 20px");
+	    } else {
+	        AJS.$("#issueSelect-multi-select").attr("style","width: 630px;");
+	        AJS.$("#issueSelect-textarea").attr("style","width: 625px; height: 30px");
+	    }
+	}else{
+	    if(jiraMainVersion < 6){
+	        AJS.$("#issueSelect-multi-select").attr("style","width: 930px;");
+	        AJS.$("#issueSelect-textarea").attr("style","width: 905px; height: 20px");
+	    }else{
+	        AJS.$("#issueSelect-multi-select").attr("style","width: 910px;");
+	        AJS.$("#issueSelect-textarea").attr("style","width: 905px; height: 30px");
+	    }
+	}
+	AJS.$("#issueSelect-textarea").attr("class","select2-choices");
+
+	AJS.$("#issueSelect-textarea").append(issueKey);
+	AJS.$("#issueSelect-textarea").attr("tabindex","3");
+	ip.handleFreeInput();
 }
 
 function commentsCSSFormat(isPopup){
 	var comment = AJS.$("#comment").val();
-		if(isPopup != 1){
-		    AJS.$("#comments").attr("style","width: 650px");
-		}else{
-		    AJS.$("#comments").attr("style","width: 99.4%");    
-		}
-		AJS.$("#comments").append(comment);
-		AJS.$("#comments").attr("tabindex","4");
-		AJS.$("#comments").attr("height","100px");
+	if(isPopup != 1){
+	    AJS.$("#comments").attr("style","width: 650px");
+	}else{
+	    AJS.$("#comments").attr("style","width: 99.4%");    
+	}
+	AJS.$("#comments").append(comment);
+	AJS.$("#comments").attr("tabindex","4");
+	AJS.$("#comments").attr("height","100px");
 }
 
 
@@ -205,17 +218,17 @@ function setExcludeDaysToWeekend(excludeDays){
 }
 
 function handleEnterKey(e, setFocusTo){
-	    var isEnter = e.keyCode == 10 || e.keyCode == 13;
-	    if (!isEnter) {
-	      return;
-	    }
-		if (e.ctrlKey){
-		 AJS.$('#Submitbutton, #Edit').click();
-        } else {
-         e.preventDefault ? e.preventDefault() : event.returnValue = false;
-         AJS.$(setFocusTo).focus();
-         return false;
-       }
+    var isEnter = e.keyCode == 10 || e.keyCode == 13;
+    if (!isEnter) {
+        return;
+    }
+	if (e.ctrlKey){
+		AJS.$('#Submitbutton, #Edit').click();
+    } else {
+        e.preventDefault ? e.preventDefault() : event.returnValue = false;
+        AJS.$(setFocusTo).focus();
+        return false;
+    }
 }
 
 function setStartNow(){
@@ -319,7 +332,7 @@ function setEndDecTemporary(endTimeChange){
         endState = 0;
     }
     var time = calculateTimeForInputfileds(hour,min);
-     AJS.$("#endTime").val(time);
+    AJS.$("#endTime").val(time);
 }
 
 function setEndInc(endTimeChange){
@@ -388,5 +401,10 @@ function durationTimeInput(isEditAll){
 		AJS.$("#endTimeInput").css("cursor","pointer").show().prev("input").prop("disabled", true).css("cursor","pointer");
 		AJS.$("#radioDuration").prop("checked", true);
 	}
+}
+
+function submitButtonClick(){
+	AJS.$('#Submit').val('true');
+	AJS.$('#Submit').attr('disabled', false);
 }
 

@@ -49,6 +49,30 @@
     <resource type="download" name="jttp.css" location="/css/jttp.css"/>
     <resource type="download" name="jttp.js" location="/js/jttp.js"/>
   </web-resource>
+  
+  <web-resource name="JTTP Resources" key="table_report-resources">
+    <dependency>com.atlassian.auiplugin:ajs</dependency>
+    <dependency>com.atlassian.auiplugin:dialog2</dependency>
+    <dependency>com.atlassian.auiplugin:aui-date-picker</dependency>
+    <resource type="download" name="jttp_feedback.css" location="/css/jttp_feedback.css"/>
+    <resource type="download" name="everit_tt_logo.png" location="/icons/everit_timetracker_logo.png">
+      <param name="content-type" value="image/png" />
+    </resource>
+    <resource type="download" name="jttp.css" location="/css/jttp.css"/>
+    <resource type="download" name="table_report.js" location="/js/table_report.js"/>
+  </web-resource>
+  
+  <web-resource name="JTTP Resources" key="missing_worklogs-resources">
+    <dependency>com.atlassian.auiplugin:ajs</dependency>
+    <dependency>com.atlassian.auiplugin:dialog2</dependency>
+    <dependency>com.atlassian.auiplugin:aui-date-picker</dependency>
+    <resource type="download" name="jttp_feedback.css" location="/css/jttp_feedback.css"/>
+    <resource type="download" name="everit_tt_logo.png" location="/icons/everit_timetracker_logo.png">
+      <param name="content-type" value="image/png" />
+    </resource>
+    <resource type="download" name="jttp.css" location="/css/jttp.css"/>
+    <resource type="download" name="missing_worklogs.js" location="/js/missing_worklogs.js"/>
+  </web-resource>
 
   <webwork1 key="jttp-webaction" name="JTTP Webwork actions" class="java.lang.Object">
     <resource type="i18n" name="i18n-jttp-vm" location="i18n/jttp" />
