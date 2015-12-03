@@ -25,6 +25,12 @@ cursor:pointer;
     background-color: #E2E2E2;
 	text-align: center;
 }
+
+.workRows{
+	background-color: #E2E2E2;
+	text-align: left!important;
+}
+
 .rowAlter {
     background-color: #F2F2F2;
 }

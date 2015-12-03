@@ -32,6 +32,8 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:table_re
 	#else
 		#set ($firstDay = 0)
 	#end
+	<input id="currentCalendar" type="hidden" value="$currentCalendar" />
+	<input id="dateFormatted" type="hidden" value="$dateFormatted" />
 	<input id="firstDay" type="hidden" value="$firstDay" />
 	
 	<div id="plugin_head" class="item-header">
@@ -77,27 +79,12 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:table_re
 	      <table>
 	        <tbody>
 	          <tr>
-	            <td><input id="hour" type="checkbox" value="check 8 h" name="hour" #if($checkHours) checked #end /></td>
+	            <td><input id="hour" type="checkbox" value="check 8 h" name="hour" onclick="setCheckWorkedHours();" #if($checkHours) checked #end/></td>
 	            <td>$i18n.getText("plugin.missing.days.hours")</td>
 	          </tr>
 	          <tr>
 	            <td><input id="nonworking" type="checkbox" value="non-working not count" name="nonworking"
 	              #if($checkNonWorkingIssues) checked #end /> 
-	              <script>
-						function setcheckworkedhours() {
-							if (AJS.$("#hour").is(":checked")) {
-								document.getElementById("nonworking").disabled = false;
-							} else {
-								document.getElementById("nonworking").disabled = true;
-							}
-						};
-						AJS.$("#hour").click(function() {
-											setcheckworkedhours();
-										});
-						window.onload = function() {
-							setcheckworkedhours();
-						};
-					</script>
 				</td>
 	            <td>$i18n.getText("plugin.missing.days.nonworking")</td>
 	          </tr>

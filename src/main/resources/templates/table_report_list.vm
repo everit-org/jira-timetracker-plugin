@@ -15,82 +15,36 @@
  *#
 $webResourceManager.requireResource("jira.webresources:dwr", null)   
 $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
-<style type="text/css">
-{
-margin-bottom: 0em;
-}
-	.grid td {
-		text-align: center;
-		vertical-align: inherit;
-	}
-	.rowHeader {
-        background-color:#E2E2E2;
-    }
-    .rowAlter {
-        background-color:#F2F2F2;
-    }
-    .rowDay {
-        background-color:#A9D0F5;
-    }
-    .rowWeek {
-        background-color:#81BEF7;
-    }
-    .rowMonth {
-        background-color:#58ACFA;
-    }
-    .rowEdit {
-        background-color:#FFEAAE;
-    }
-    .button {
-        padding: 2px;
-    }
-    .grid {
-        font-family:Arial,Helvetica,sans-serif;
-        font-size:12px;
-        background-color:#FCFCFC;
-        border:1px solid #D2D2D2;
-        border-collapse:collapse;
-    }
-    .grid th, .grid td {
-        border:1px solid #D2D2D2;   
-        padding:4px;
-    }
-    
-    input[type="text"]:disabled
-	{
-		background:#D3D3D3!important;
-		background-color:#D3D3D3!important;
-	}
-</style>
+
 #set($rowCount = 0)
 <div class="results-wrap">
 		    <div>
 		     <table class="grid" border="0" cellpadding="2" cellspacing="0" width="100%">
 		     	<thead>
 			     	<tr class="rowHeader">
-		                   		<td width="80px" style="text-align: center;">
+		                   		<td width="80px" class="center-text">
 		                           $i18n.getText("plugin.date")
 		                        </td>
-		                       	<td width="80px" style="text-align: center;">
+		                       	<td width="80px" class="center-text">
 		                           Issue
 		                        </td>
-		                        <td width="50px" style="text-align: center;">
+		                        <td width="50px" class="center-text">
 		                           $i18n.getText("plugin.start")
 		                        </td>
-		                        <td width="50px" style="text-align: center;">
+		                        <td width="50px" class="center-text">
 		                           $i18n.getText("plugin.end")
 		                        </td>
-		                        <td width="70px" style="text-align: center;"> 
+		                        <td width="70px" class="center-text"> 
 		                          $i18n.getText("plugin.duration")
 		                        </td>
-		                        <td colspan="3" style="text-align: center;">
+		                        <td colspan="3" class="center-text">
 		                          $i18n.getText("plugin.note")
 		                        </td>
 		             </tr>
 	             </thead>
 	             #if($worklogs.size() == 0)
             			</table>
-            			<div id="message" style="text-align: center; padding: 3px; font-size: 14px;">
+            			<div id="message" class="message">
 				 			$i18n.getText("plugin.no.worklogs")
 					  	</div>
                  #else
@@ -100,10 +54,10 @@ margin-bottom: 0em;
 			     		#set($currentWeek = $worklog.weekNo)
 			     		#set($currentMonth = $worklog.monthNo)
 			                    <tr class="rowAlter">
-		                    	 	<td class="table-starttime" style="vertical-align: middle;">
+		                    	 	<td class="table-starttime" class="vertically-middle">
 			                    	 		$worklog.startDate
 		                    	 	</td>
-		                    	 	<td class="table-issue" style="vertical-align: middle;">
+		                    	 	<td class="table-issue" class="vertically-middle">
 		                    	 		<a href="/browse/$worklog.issue" class="issue-link" title="#if($worklog.issueParent != '') $i18n.getText('plugin.parent.issue') $worklog.issueParent &#13 $worklog.issueSummary #else $worklog.issueSummary #end">$worklog.issue</a>
 		                    	 		
 		                    	 		#if(!$worklog.isMoreEstimatedTime)
@@ -111,16 +65,16 @@ margin-bottom: 0em;
 															alt="$i18n.getText('plugin.exclamation.mark.message')" style="vertical-align: text-bottom;" title="$i18n.getText('plugin.exclamation.mark.message')"/>
 										#end
 		                    	 	</td>
-		                    	 	<td class="table-starttime" style="vertical-align: middle;">
+		                    	 	<td class="table-starttime vertically-middle">
 		                    	 		$worklog.startTime
 		                    	 	</td>
-		                    	 	<td class="table-endtime" style="vertical-align: middle;">
+		                    	 	<td class="table-endtime vertically-middle">
 		                    	 		$worklog.endTime
 		                    	 	</td>
-		                    	 	<td style="vertical-align: middle;">
+		                    	 	<td class="vertically-middle">
 		                    	 		$worklog.duration
 		                    	 	</td>
-		                    	 	<td id="commentRow_$rowCount" colspan="3" name="commentRow_$rowCount" class="table-comment wiki-edit-content" style="vertical-align: middle;">
+		                    	 	<td id="commentRow_$rowCount" colspan="3" name="commentRow_$rowCount" class="table-comment wiki-edit-content vertically-middle">
 		                    	 		<input id="hiddenWorklogBody" type="hidden" value="$worklog.body">
 		                    	 	</td>
 		                    	 	<script>
@@ -153,10 +107,10 @@ margin-bottom: 0em;
 			           		<td class="rowHeader">
 			           			<b>$i18n.getText("plugin.daily") $i18n.getText("plugin.summary")</b>
 			           		</td>
-			           		<td class="rowHeader" style="text-align: left;">
+			           		<td class="workRows" >
 			           			$i18n.getText("plugin.work"): $daySum.get($currentDay).get(1)
 			           		</td>
-			           		<td class="rowHeader" style="text-align: left;">
+			           		<td class="workRows" >
 			           			$i18n.getText("plugin.real.work"): $realDaySum.get($currentDay).get(1)
 			           		</td>
 			           	</tr>
@@ -167,10 +121,10 @@ margin-bottom: 0em;
 			           		<td class="rowHeader">
 			           			<b>$i18n.getText("plugin.weekly") $i18n.getText("plugin.summary")</b>
 			           		</td>
-			           		<td class="rowHeader" style="text-align: left;">
+			           		<td class="workRows" >
 			           			$i18n.getText("plugin.work"): $weekSum.get($currentWeek).get(1)
 			           		</td>
-			           		<td class="rowHeader" style="text-align: left;">
+			           		<td class="workRows" >
 			           			$i18n.getText("plugin.real.work"): $realWeekSum.get($currentWeek).get(1)
 			           		</td>
 			           	</tr>
@@ -181,10 +135,10 @@ margin-bottom: 0em;
 			           		<td class="rowHeader">
 			           			<b>$i18n.getText("plugin.monthly") $i18n.getText("plugin.summary")</b>
 			           		</td>
-			           		<td class="rowHeader" style="text-align: left;">
+			           		<td class="workRows" >
 			           			$i18n.getText("plugin.work"): $monthSum.get($currentMonth).get(1)
 			           		</td>
-			           		<td class="rowHeader" style="text-align: left;">
+			           		<td class="workRows" >
 			           			$i18n.getText("plugin.real.work"): $realMonthSum.get($currentMonth).get(1)
 			           		</td>
 			           	</tr>

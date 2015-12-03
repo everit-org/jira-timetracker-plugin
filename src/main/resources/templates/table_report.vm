@@ -90,81 +90,17 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:table_re
 								$i18n.getText("plugin.user"): 
 							</td>
 							<td>
-								<div style="width:300px;">
-									<select  id="userPicker" class="js-default-user-picker2 single-user-picker" name="userPicker" >
-								 	#if($userPickerObject)
+								<div class="field-group">
+									<select  id="userPicker" class="js-default-user-picker single-user-picker" name="userPicker">
+										#if($userPickerObject)
 										<option selected="selected" 
-											value="$userPickerObject.getKey()"
-									  		data-field-text="$userPickerObject.getDisplayName()"
-									  		style="background-image:url('$avatarURL')" >
-									  	$userPickerObject.getDisplayName()
-									 	</option>
-									 #end
+										 value="$userPickerObject.getKey()"
+										   data-field-text="$userPickerObject.getDisplayName()"
+										   style="background-image:url('$avatarURL')" >
+										  $userPickerObject.getDisplayName()
+										 </option>
+										#end   
 									</select>
-									## 
-									<script>
-									
-	 									AJS.$('.aui-ss, .aui-ss-editing, .aui-ss-field').attr("style","width: 300px;");
-	 									(function ($) {
-										    function createSingleUserPickers(ctx) {
-										
-										        var restPath = "/rest/api/2/user/picker";
-										
-										        $(".js-default-user-picker2", ctx).each(function () {
-										            var $this = $(this);
-										            if ($this.data("aui-ss")) return;
-										            var data = {showAvatar: true},
-										                inputText = $this.data('inputValue');
-										            new AJS.SingleSelect({
-										                element: $this,
-										                submitInputVal: true,
-										                showDropdownButton: !!$this.data('show-dropdown-button'),
-										                errorMessage: AJS.I18n.getText("user.picker.invalid.user", "'{0}'"),
-										                ajaxOptions: {
-										                    url: contextPath + restPath,
-										                    query: true, // keep going back to the sever for each keystroke
-										                    data: data,
-										                    formatResponse: JIRA.UserPickerUtil.formatResponse2
-										                },
-										                inputText: inputText
-										            });
-										        });
-										    }
-										
-										    JIRA.bind(JIRA.Events.NEW_CONTENT_ADDED, function (e, context, reason) {
-										        if (reason !== JIRA.CONTENT_ADDED_REASON.panelRefreshed) {
-										            createSingleUserPickers(context);
-										        }
-										    });
-										
-										})(AJS.$);
-										(function ($) {
-										    JIRA.UserPickerUtil = {
-										        formatResponse2: function (data) {
-										            var ret = [];
-										            $(data).each(function(i, suggestions) {
-										                var groupDescriptor = new AJS.GroupDescriptor({
-										                    weight: i, // order or groups in suggestions dropdown
-										                    label: suggestions.footer
-										                });
-										                $(suggestions.users).each(function(){
-										                    groupDescriptor.addItem(new AJS.ItemDescriptor({
-										                        value: this.key, // value of item added to select
-										                        text: this.key,
-										                        label: this.displayName, // title of lozenge
-										                        html: this.html,
-										                        icon: this.avatarUrl,
-										                        allowDuplicate: false,
-										                        highlighted: true
-										                    }));
-										                });
-										                ret.push(groupDescriptor);
-										            });
-										            return ret;
-										        }		
-										    };						
-										})(AJS.$);
-									</script>
 								</div>
 							</td>
 						</tr>
