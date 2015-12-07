@@ -641,9 +641,9 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 							                    	#parse("templates/plugins/renderers/wiki/wiki-renderer-edit.vm")
 							 	  					<script>
 							 	  						#if($isPopup != 1)
-							 	  						  AJS.$("#comments").attr("style","width: 650px");
+							 	  						  AJS.$("#comments").attr("style","width: 650px; resize: vertical;");
 							 	  						#else
-							 	  						  AJS.$("#comments").attr("style","width: 99.4%");	
+							 	  						  AJS.$("#comments").attr("style","width: 99.4%; resize: vertical;");	
 							 	  						#end 
 							 	  						AJS.$("#comments").append("$comment");
 							 	  						AJS.$("#comments").attr("tabindex","4");
