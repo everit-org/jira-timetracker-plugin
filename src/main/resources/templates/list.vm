@@ -64,7 +64,7 @@ cursor:pointer;
                     	<tbody id="issueTable">
 		                   	#foreach ($worklog in $worklogs)
 		                    	<tr #if($worklog.worklogId == $editedWorklogId) class="rowEdit" #end #if($rowCount % 2 != 0) class="rowAlter" #end>
-		                    	 	<td class="table-issue" style="vertical-align: middle;">
+		                    	 	<td class="table-issue" style="vertical-align: middle; white-space: nowrap;">
 		                    	 		<a href="/browse/$worklog.issue" class="issue-link" title="#if($worklog.issueParent != '') $i18n.getText('plugin.parent.issue') $worklog.issueParent &#13 $worklog.issueSummary #else $worklog.issueSummary #end">$worklog.issue</a>
 		                    	 	</td>
 		                    	 	<td style="vertical-align: middle;">
@@ -81,7 +81,7 @@ cursor:pointer;
 		                    	 	<td class="table-endtime" style="vertical-align: middle;">
 		                    	 		$worklog.endTime
 		                    	 	</td>
-		                    	 	<td style="vertical-align: middle;">
+		                    	 	<td style="vertical-align: middle; white-space: nowrap;">
 		                    	 		$worklog.duration
 		                    	 	</td>
 		                    	 	<td id="commentRow_$rowCount" name="commentRow_$rowCount" class="table-comment wiki-edit-content" style="vertical-align: middle;">
