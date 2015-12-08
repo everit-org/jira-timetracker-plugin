@@ -49,11 +49,6 @@ public final class DateTimeConverterUtil {
    */
   public static final int DAYS_PER_WEEK = 7;
 
-  /**
-   * The number of seconds in 8 hour.
-   */
-  public static final int EIGHT_HOUR_IN_SECONDS = 8 * 60 * 60;
-
   private static final int HOURS_GROUP = 8;
 
   private static final int HOURS_GROUP_2 = 2;

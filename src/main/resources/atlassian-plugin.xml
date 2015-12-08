@@ -28,6 +28,8 @@
 
   <component-import key="pluginSettingFactroy" interface="com.atlassian.sal.api.pluginsettings.PluginSettingsFactory" />
 
+  <component-import key="timeTrackingConfiguration" interface="com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration" />
+
   <component key="JTTP" name="Timetracker" class="org.everit.jira.timetracker.plugin.JiraTimetrackerPluginImpl">
     <interface>org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin</interface>
   </component>
