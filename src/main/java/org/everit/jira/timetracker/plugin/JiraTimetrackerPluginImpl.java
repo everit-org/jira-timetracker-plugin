@@ -422,12 +422,15 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
         EntityOperator.LESS_THAN, new Timestamp(endDate.getTimeInMillis()));
     EntityExpr userExpr = new EntityExpr("author", EntityOperator.EQUALS,
         userKey);
-    EntityExpr projectExpr = new EntityExpr("project", EntityOperator.IN, projects);
     List<EntityCondition> exprList = new ArrayList<EntityCondition>();
     exprList.add(userExpr);
     exprList.add(startExpr);
     exprList.add(endExpr);
-    exprList.add(projectExpr);
+
+    if (!projects.isEmpty()) {
+      EntityExpr projectExpr = new EntityExpr("project", EntityOperator.IN, projects);
+      exprList.add(projectExpr);
+    }
     return exprList;
   }
 
