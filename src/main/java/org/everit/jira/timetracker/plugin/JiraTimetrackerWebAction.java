@@ -335,11 +335,19 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     } else {
       result = createWorklog();
     }
-    if (!SUCCESS.equals(result)
-        && (copiedWorklogId != null) && !DEFAULT_WORKLOG_ID.equals(copiedWorklogId)) {
-      isCopy = true;
+    boolean copying = (copiedWorklogId != null) && !DEFAULT_WORKLOG_ID.equals(copiedWorklogId);
+    if (SUCCESS.equals(result)) {
+      if (copying) {
+        return redirectWithDateFormattedParameterOnly(result);
+      }  else {
+        return result;
+      }
+    } else {
+      if (copying) {
+        isCopy = true;
+      }
+      return result;
     }
-    return result;
   }
 
   private String createWorklog() {
@@ -520,7 +528,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     } else if (getHttpRequest().getParameter("sendfeedback") != null) {
       result = sendFeedBack();
     } else {
-      result = createOrCopyAction();
+      return createOrCopyAction();
     }
 
     if (SUCCESS.equals(result)) {
