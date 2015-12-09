@@ -31,6 +31,9 @@
     .rowEdit {
         background-color:#FFEAAE;
     }
+    .rowCopy {
+        background-color:#FFEAAE;
+    }
     .button {
         padding: 2px;
     }
@@ -209,6 +212,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 	<form name="jttpForm" id="jttpForm" method="post"
 					#if($isEdit) action="JiraTimetrackerWebAction.jspa?editedWorklogId=$editedWorklogId&dateFormatted=$dateFormatted" 
 					#elseif($isEditAll) action="JiraTimetrackerWebAction.jspa?editAllIds=$editAllIds&dateFormatted=$dateFormatted" 
+					#elseif($isCopy) action="JiraTimetrackerWebAction.jspa?copiedWorklogId=$copiedWorklogId&dateFormatted=$dateFormatted" 
 					#else action="JiraTimetrackerWebAction.jspa?dateFormatted=$dateFormatted" #end/>   
 		<div style="margin:10px; width:970px;">
 			##TAB START
@@ -751,23 +755,6 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 			 	AJS.$('#issueSelect-textarea').val(temp.trim());
 			 	AJS.$('#issueSelect-textarea').focus();
 			 	AJS.$('#Edit').focus();
-			 	AJS.$('#Submitbutton').focus();
-			 });
-			 
-			 AJS.$('.copy').click(function(){
-			    AJS.$('#issueSelect-textarea').parent().find('.item-delete').click();
-			    
-			 	var temp = AJS.$(this).parent().parent().find('.table-issue').find('a').html();
-			 	AJS.$('#issueSelect-textarea').val(temp.trim());
-			 	
-			 	temp = AJS.$(this).parent().parent().find('#hiddenWorklogBody').val();
-			 	var temp2 = temp.replace(/(\\r\\n|\\n|\\r)/gm, "&#013;");
-			 	var temp3 = temp.replace(/(\\r\\n|\\n|\\r)/gm, "\n");
-			 	
-			 	AJS.$("#comments").html(temp2);
-			 	AJS.$("#comments").val(temp3);
-			 	
-			 	AJS.$('#issueSelect-textarea').focus();
 			 	AJS.$('#Submitbutton').focus();
 			 });
 			 

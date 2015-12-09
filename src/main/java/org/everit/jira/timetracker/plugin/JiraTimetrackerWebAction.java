@@ -293,6 +293,11 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private List<Long> worklogsIds = new ArrayList<Long>();
 
   /**
+   * The WebAction is copying a worklog or not.
+   */
+  private boolean isCopy = false;
+
+  /**
    * Simple constructor.
    *
    * @param jiraTimetrackerPlugin
@@ -322,7 +327,22 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return worklogIds;
   }
 
-  private String createWorklogAction() {
+  private String createOrCopyAction() {
+    String result;
+    String validateInputFieldsResult = validateInputFields();
+    if (!validateInputFieldsResult.equals(SUCCESS)) {
+      result = INPUT;
+    } else {
+      result = createWorklog();
+    }
+    if (!SUCCESS.equals(result)
+        && (copiedWorklogId != null) && !DEFAULT_WORKLOG_ID.equals(copiedWorklogId)) {
+      isCopy = true;
+    }
+    return result;
+  }
+
+  private String createWorklog() {
     String startTimeValue = getHttpRequest().getParameter(PARAM_STARTTIME);
 
     ActionResult createResult = jiraTimetrackerPlugin.createWorklog(
@@ -421,8 +441,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
           "Error while try to collect the logged days for the calendar color fulling", e1);
       message = "plugin.calendar.logged.coloring.fail";
     }
-    boolean deleteWorklog =
-        (deletedWorklogId != null) && !DEFAULT_WORKLOG_ID.equals(deletedWorklogId);
+    boolean deleteWorklog = (deletedWorklogId != null)
+        && !DEFAULT_WORKLOG_ID.equals(deletedWorklogId);
     if (deleteWorklog) {
       ActionResult deleteResult = jiraTimetrackerPlugin.deleteWorklog(deletedWorklogId);
       if (deleteResult.getStatus() == ActionResultStatus.FAIL) {
@@ -440,7 +460,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     startTime = jiraTimetrackerPlugin.lastEndTime(worklogs);
     endTime = DateTimeConverterUtil.dateTimeToString(new Date());
     try {
-      handleEditAllIdsAndEditedWorklogId();
+      handleInputWorklogId();
     } catch (ParseException e) {
       LOGGER.error("Error when try parse the worklog.", e);
       return ERROR;
@@ -500,12 +520,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     } else if (getHttpRequest().getParameter("sendfeedback") != null) {
       result = sendFeedBack();
     } else {
-      String validateInputFieldsResult = validateInputFields();
-      if (!validateInputFieldsResult.equals(SUCCESS)) {
-        return INPUT;
-      } else {
-        return createWorklogAction();
-      }
+      result = createOrCopyAction();
     }
 
     if (SUCCESS.equals(result)) {
@@ -669,6 +684,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return isColoring;
   }
 
+  public boolean getIsCopy() {
+    return isCopy;
+  }
+
   public boolean getIsDurationSelected() {
     return isDurationSelected;
   }
@@ -795,7 +814,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
         && (getHttpRequest().getParameter("editallsave") == null)
         && (getHttpRequest().getParameter("sendfeedback") == null)) {
       try {
-        handleEditAllIdsAndEditedWorklogId();
+        handleInputWorklogId();
       } catch (ParseException e) {
         LOGGER.error("Error when try parse the worklog.", e);
         return ERROR;
@@ -839,38 +858,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return SUCCESS;
   }
 
-  /**
-   * Handle the editAllIds and the editedWorklogIds variable values. If the values different from
-   * the default, then make the necessary settings.
-   *
-   * @throws ParseException
-   *           If can't parse the editWorklog date.
-   */
-  private void handleEditAllIdsAndEditedWorklogId() throws ParseException {
-    if (!"".equals(editAllIds)) {
-      isEditAll = true;
-    }
-    if ((editedWorklogId != null)
-        && !DEFAULT_WORKLOG_ID.equals(editedWorklogId)) {
-      isEdit = true;
-      EveritWorklog editWorklog;
-      editWorklog = jiraTimetrackerPlugin.getWorklog(editedWorklogId);
-      issueKey = editWorklog.getIssue();
-      comment = editWorklog.getBody();
-      startTime = editWorklog.getStartTime();
-      endTime = editWorklog.getEndTime();
-      durationTime = editWorklog.getDuration();
-    }
-
-    if ((copiedWorklogId != null)
-        && !DEFAULT_WORKLOG_ID.equals(copiedWorklogId)) {
-      EveritWorklog editWorklog;
-      editWorklog = jiraTimetrackerPlugin.getWorklog(copiedWorklogId);
-      issueKey = editWorklog.getIssue();
-      comment = editWorklog.getBody();
-    }
-  }
-
   private String handleEndTime() {
     String startTimeValue = getHttpRequest().getParameter(PARAM_STARTTIME);
     String endTimeValue = getHttpRequest().getParameter("endTime");
@@ -897,6 +884,39 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       return INPUT;
     }
     return SUCCESS;
+  }
+
+  /**
+   * Handle the editAllIds, the editedWorklogIds and the copiedWorklogId variable values. If the
+   * values different from the default, then make the necessary settings.
+   *
+   * @throws ParseException
+   *           If can't parse the editWorklog date.
+   */
+  private void handleInputWorklogId() throws ParseException {
+    if (!"".equals(editAllIds)) {
+      isEditAll = true;
+    }
+    if ((editedWorklogId != null)
+        && !DEFAULT_WORKLOG_ID.equals(editedWorklogId)) {
+      isEdit = true;
+      EveritWorklog editWorklog;
+      editWorklog = jiraTimetrackerPlugin.getWorklog(editedWorklogId);
+      issueKey = editWorklog.getIssue();
+      comment = editWorklog.getBody();
+      startTime = editWorklog.getStartTime();
+      endTime = editWorklog.getEndTime();
+      durationTime = editWorklog.getDuration();
+    }
+
+    if ((copiedWorklogId != null)
+        && !DEFAULT_WORKLOG_ID.equals(copiedWorklogId)) {
+      isCopy = true;
+      EveritWorklog editWorklog;
+      editWorklog = jiraTimetrackerPlugin.getWorklog(copiedWorklogId);
+      issueKey = editWorklog.getIssue();
+      comment = editWorklog.getBody();
+    }
   }
 
   private String handleValidDuration(final Date startDateTime) {
@@ -1274,6 +1294,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return null;
   }
 
+  public void setIsCopy(final boolean isCopy) {
+    this.isCopy = isCopy;
+  }
+
   public void setIsDurationSelected(final boolean isDurationSelected) {
     this.isDurationSelected = isDurationSelected;
   }
@@ -1442,4 +1466,5 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     }
     return SUCCESS;
   }
+
 }
