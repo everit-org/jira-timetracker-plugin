@@ -15,14 +15,19 @@
  */
 package org.everit.jira.timetracker.plugin;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
+import org.easymock.EasyMock;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+
+import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
+import com.atlassian.jira.mock.component.MockComponentWorker;
 
 @RunWith(Parameterized.class)
 public class DateTimeConverterUtilTest {
@@ -53,8 +58,25 @@ public class DateTimeConverterUtilTest {
     this.inputSeconds = inputSeconds.toSeconds();
   }
 
+  /**
+   * Mocks the {@code ComponentAccessor.getComponent(TimeTrackingConfiguration.class);} call in the
+   * {@link DateTimeConverterUtil.secondConvertToString} constructor.
+   */
+  public void setupMockTimeTrackerConfig() {
+    BigDecimal daysPerWeek = new BigDecimal(5);
+    BigDecimal hoursPerDay = new BigDecimal(8);
+    TimeTrackingConfiguration ttConfig = EasyMock.createNiceMock(TimeTrackingConfiguration.class);
+    EasyMock.expect(ttConfig.getDaysPerWeek()).andReturn(daysPerWeek)
+        .anyTimes();
+    EasyMock.expect(ttConfig.getHoursPerDay()).andReturn(hoursPerDay)
+        .anyTimes();
+    EasyMock.replay(ttConfig);
+    new MockComponentWorker().addMock(TimeTrackingConfiguration.class, ttConfig).init();
+  }
+
   @Test
   public void testSecondConvertToString() {
+    setupMockTimeTrackerConfig();
     Assert.assertEquals(expectedString, DateTimeConverterUtil.secondConvertToString(inputSeconds));
   }
 }

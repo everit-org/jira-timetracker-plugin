@@ -20,7 +20,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.net.URL;
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -284,17 +283,21 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
    */
   private TimeTrackingConfiguration timeTrackingConfiguration;
 
+  private long workHoursPerDay;
+
   /**
    * Default constructor.
    */
-  public JiraTimetrackerPluginImpl(final PluginSettingsFactory settingFactory,
+  public JiraTimetrackerPluginImpl(final PluginSettingsFactory settingsFactory,
       final TimeTrackingConfiguration timeTrackingConfiguration) {
-    settingsFactory = settingFactory;
+    this.settingsFactory = settingsFactory;
     this.timeTrackingConfiguration = timeTrackingConfiguration;
   }
 
   @Override
   public void afterPropertiesSet() throws Exception {
+
+    workHoursPerDay = timeTrackingConfiguration.getHoursPerDay().longValue();
 
     loadJttpBuildProperties();
 
@@ -817,10 +820,9 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     for (GenericValue worklog : worklogGVList) {
       timeSpent += worklog.getLong("timeworked").longValue();
     }
-    BigDecimal secondsPerHour = new BigDecimal(
-        DateTimeConverterUtil.SECONDS_PER_MINUTE * DateTimeConverterUtil.MINUTES_PER_HOUR);
-    long expectedTimeSpent = timeTrackingConfiguration.getHoursPerDay().multiply(secondsPerHour)
-        .longValue();
+
+    long expectedTimeSpent = workHoursPerDay * DateTimeConverterUtil.SECONDS_PER_MINUTE
+        * DateTimeConverterUtil.MINUTES_PER_HOUR;
     return timeSpent >= expectedTimeSpent;
   }
 
