@@ -169,7 +169,13 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
 
   private static final int MINUTES_IN_HOUR = 60;
 
+  private static final String NOPERMISSION_CREATE_WORKLOG = "jttp.nopermission.worklog.create";
+
+  private static final String NOPERMISSION_DELETE_WORKLOG = "jttp.nopermission.worklog.delete";
+
   private static final String NOPERMISSION_ISSUE = "plugin.nopermission_issue";
+
+  private static final String NOPERMISSION_UPDATE_WORKLOG = "jttp.nopermission.worklog.update";
 
   /**
    * A day in minutes.
@@ -368,6 +374,10 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
         .issue(issue).startDate(date).timeSpent(timeSpent)
         .comment(comment).buildNewEstimate();
     WorklogService worklogService = ComponentAccessor.getComponent(WorklogService.class);
+    if (!worklogService.hasPermissionToCreate(serviceContext, issue, true)) {
+      return new ActionResult(ActionResultStatus.FAIL,
+          NOPERMISSION_CREATE_WORKLOG, issueId);
+    }
     WorklogResult worklogResult = worklogService.validateCreate(
         serviceContext, params);
     if (worklogResult == null) {
@@ -441,6 +451,12 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     ApplicationUser user = authenticationContext.getUser();
     JiraServiceContext serviceContext = new JiraServiceContextImpl(user);
     WorklogService worklogService = ComponentAccessor.getComponent(WorklogService.class);
+    WorklogManager worklogManager = ComponentAccessor.getWorklogManager();
+    Worklog worklog = worklogManager.getById(id);
+    if (!worklogService.hasPermissionToDelete(serviceContext, worklog)) {
+      return new ActionResult(ActionResultStatus.FAIL,
+          NOPERMISSION_DELETE_WORKLOG, worklog.getIssue().getKey());
+    }
     WorklogResult deleteWorklogResult = worklogService.validateDelete(
         serviceContext, id);
     if (deleteWorklogResult == null) {
@@ -510,6 +526,10 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
           .issue(issue).startDate(dateCreate).timeSpent(timeSpent)
           .comment(comment).worklogId(id).issue(issue).build();
       WorklogService worklogService = ComponentAccessor.getComponent(WorklogService.class);
+      if (!worklogService.hasPermissionToUpdate(serviceContext, worklog)) {
+        return new ActionResult(ActionResultStatus.FAIL,
+            NOPERMISSION_UPDATE_WORKLOG, issueId);
+      }
       WorklogResult worklogResult = worklogService.validateUpdate(
           serviceContext, params);
       if (worklogResult == null) {
