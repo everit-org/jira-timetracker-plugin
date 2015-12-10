@@ -73,7 +73,8 @@ cursor:pointer;
 		                   		#end
 		                   		
 		                    	<tr #if(not $wl_item_class.isEmpty()) class="${wl_item_class}"#end>
-		                    	 	<td class="table-issue" style="vertical-align: middle;">
+		                    	 	<td class="table-issue" style="vertical-align: middle; white-space: nowrap;">
+
 		                    	 		<a href="/browse/$worklog.issue" class="issue-link" title="#if($worklog.issueParent != '') $i18n.getText('plugin.parent.issue') $worklog.issueParent &#13 $worklog.issueSummary #else $worklog.issueSummary #end">$worklog.issue</a>
 		                    	 	</td>
 		                    	 	<td style="vertical-align: middle;">
@@ -90,7 +91,7 @@ cursor:pointer;
 		                    	 	<td class="table-endtime" style="vertical-align: middle;">
 		                    	 		$worklog.endTime
 		                    	 	</td>
-		                    	 	<td style="vertical-align: middle;">
+		                    	 	<td style="vertical-align: middle; white-space: nowrap;">
 		                    	 		$worklog.duration
 		                    	 	</td>
 		                    	 	<td id="commentRow_$rowCount" name="commentRow_$rowCount" class="table-comment wiki-edit-content" style="vertical-align: middle;">
@@ -120,11 +121,11 @@ cursor:pointer;
 		                    	 			id="edit" name="edit" title="$i18n.getText('plugin.edit')"
 		                    	 			style="margin:3px"
 		                    	 			onclick="location.href='JiraTimetrackerWebAction.jspa?editedWorklogId=$worklog.worklogId&dateFormatted=$dateFormatted'"></span>
-		                    	 		<span class="aui-icon aui-icon-small aui-iconfont-delete"
+		                    	 		<span class="aui-icon aui-icon-small #if($jiraVersion.substring(0, 3) == '6.2') aui-iconfont-remove #else aui-iconfont-delete #end"
 		                    	 			id="delete" name="delete" title="$i18n.getText('plugin.delete')"
 		                    	 			style="margin:3px"
 		                    	 			onclick="location.href='JiraTimetrackerWebAction!default.jspa?deletedWorklogId=$worklog.worklogId&dateFormatted=$dateFormatted'"></span>
-		                    	 		<span class="aui-icon aui-icon-small aui-iconfont-copy-clipboard copy"
+		                    	 		<span class="aui-icon aui-icon-small #if($jiraVersion.substring(0, 3) == '6.2') aui-iconfont-doc #else aui-iconfont-copy-clipboard #end copy"
 		                    	 			id="copy" name="copy" title="$i18n.getText('plugin.copy')"
 		                    	 			style="margin:3px"
 		                    	 			onclick="location.href='JiraTimetrackerWebAction!default.jspa?copiedWorklogId=$worklog.worklogId&dateFormatted=$dateFormatted'"></span>

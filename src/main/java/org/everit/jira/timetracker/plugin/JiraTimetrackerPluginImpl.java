@@ -20,6 +20,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.net.URL;
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -57,6 +58,7 @@ import org.springframework.beans.factory.InitializingBean;
 
 import com.atlassian.jira.bc.JiraServiceContext;
 import com.atlassian.jira.bc.JiraServiceContextImpl;
+import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
 import com.atlassian.jira.bc.issue.worklog.WorklogInputParameters;
 import com.atlassian.jira.bc.issue.worklog.WorklogInputParametersImpl;
 import com.atlassian.jira.bc.issue.worklog.WorklogNewEstimateInputParameters;
@@ -272,10 +274,17 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   private final PluginSettingsFactory settingsFactory;
 
   /**
+   * Time tracking configuration.
+   */
+  private TimeTrackingConfiguration timeTrackingConfiguration;
+
+  /**
    * Default constructor.
    */
-  public JiraTimetrackerPluginImpl(final PluginSettingsFactory settingFactory) {
+  public JiraTimetrackerPluginImpl(final PluginSettingsFactory settingFactory,
+      final TimeTrackingConfiguration timeTrackingConfiguration) {
     settingsFactory = settingFactory;
+    this.timeTrackingConfiguration = timeTrackingConfiguration;
   }
 
   @Override
@@ -333,12 +342,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
     ApplicationUser user = authenticationContext.getUser();
-    LOGGER.warn("JTTP createWorklog: user: " + user.getDisplayName() + " "
-        + user.getName() + " " + user.getEmailAddress());
     JiraServiceContext serviceContext = new JiraServiceContextImpl(user);
-    LOGGER.warn("JTTP createWorklog: serviceContext User: "
-        + user.getName() + " "
-        + user.getEmailAddress());
     IssueManager issueManager = ComponentAccessor.getIssueManager();
     MutableIssue issue = issueManager.getIssueObject(issueId);
     if (issue == null) {
@@ -393,8 +397,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
         EntityOperator.LESS_THAN, new Timestamp(endDate.getTimeInMillis()));
     EntityExpr userExpr = new EntityExpr("author", EntityOperator.EQUALS,
         userKey);
-    LOGGER.info("JTTP LOG: getWorklogs start date: " + startDate.toString()
-        + " end date:" + endDate.toString());
 
     List<EntityCondition> exprList = new ArrayList<EntityCondition>();
     exprList.add(userExpr);
@@ -420,15 +422,15 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
         EntityOperator.LESS_THAN, new Timestamp(endDate.getTimeInMillis()));
     EntityExpr userExpr = new EntityExpr("author", EntityOperator.EQUALS,
         userKey);
-    EntityExpr projectExpr = new EntityExpr("project", EntityOperator.IN, projects);
-    LOGGER.info("JTTP LOG: getWorklogs start date: " + startDate.toString()
-        + " end date:" + endDate.toString());
-
     List<EntityCondition> exprList = new ArrayList<EntityCondition>();
     exprList.add(userExpr);
     exprList.add(startExpr);
     exprList.add(endExpr);
-    exprList.add(projectExpr);
+
+    if (!projects.isEmpty()) {
+      EntityExpr projectExpr = new EntityExpr("project", EntityOperator.IN, projects);
+      exprList.add(projectExpr);
+    }
     return exprList;
   }
 
@@ -455,7 +457,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   public void destroy() throws Exception {
     scheduledExecutorService.shutdown();
     issueEstimatedTimeCheckerFuture.cancel(true);
-    LOGGER.info("JiraTimetrackerPluginImpl destroyed");
   }
 
   @Override
@@ -751,7 +752,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
 
     List<GenericValue> worklogGVList = ComponentAccessor.getOfBizDelegator()
         .findByAnd("IssueWorklogView", exprList);
-    LOGGER.warn("JTTP LOG: getWorklogs worklog GV list size: " + worklogGVList.size());
 
     for (GenericValue worklogGv : worklogGVList) {
       EveritWorklog worklog = new EveritWorklog(worklogGv);
@@ -759,8 +759,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     }
 
     Collections.sort(worklogs, EveritWorklogComparator.INSTANCE);
-    LOGGER.warn("JTTP LOG: getWorklogs worklog GV list size: "
-        + worklogs.size());
     return worklogs;
   }
 
@@ -799,11 +797,11 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     for (GenericValue worklog : worklogGVList) {
       timeSpent += worklog.getLong("timeworked").longValue();
     }
-    if (timeSpent < DateTimeConverterUtil.EIGHT_HOUR_IN_SECONDS) {
-      return false;
-    }
-
-    return true;
+    BigDecimal secondsPerHour = new BigDecimal(
+        DateTimeConverterUtil.SECONDS_PER_MINUTE * DateTimeConverterUtil.MINUTES_PER_HOUR);
+    long expectedTimeSpent = timeTrackingConfiguration.getHoursPerDay().multiply(secondsPerHour)
+        .longValue();
+    return timeSpent >= expectedTimeSpent;
   }
 
   /**
@@ -1033,7 +1031,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
       singleMailQueueItem.setMailThreader(null);
       ComponentAccessor.getMailQueue().addItem(singleMailQueueItem);
     } else {
-      LOGGER.info(
+      LOGGER.error(
           "Feedback not sent, beacause To mail address is not defined. \n"
               + "The message: \n" + mailBody.toString());
     }

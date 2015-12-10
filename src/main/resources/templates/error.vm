@@ -14,11 +14,15 @@
  * limitations under the License.
  *#
 <html>
-<head>
-<title>Timetracker Error Page</title>
-</head>
-<body>
-<p>This is the Jira Timetracker Plugin Error Page.</p>
-<p>More information about the error in the atlassian-jira.log file.</p>
-</body>
+  <head>
+    <title>$i18n.getText("jttp.error.title")</title>
+  </head>
+  <body>
+    <div class="aui-message aui-message-error">
+      <p class="title">
+        <strong>$i18n.getText("jttp.error.message.title")</strong>
+      </p>
+      <p>$i18n.getText("jttp.error.message.detials").</p>
+    </div>
+  </body>
 </html>
