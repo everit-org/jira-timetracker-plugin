@@ -24,6 +24,9 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
+import com.atlassian.jira.component.ComponentAccessor;
+
 /**
  * The utility class of date and time conversions.
  */
@@ -120,16 +123,6 @@ public final class DateTimeConverterUtil {
    * The 24 hours pattern.
    */
   public static final String TIME24HOURS_PATTERN = "([01]?[0-9]|2[0-3]):[0-5][0-9]";
-
-  /**
-   * The number of work hours per day.
-   */
-  public static final int WORK_HOURS_PER_DAY = 8;
-
-  /**
-   * The number of workdays per week.
-   */
-  public static final int WORKDAYS_PER_WEEK = 5;
 
   /**
    * Count the worklog end time.
@@ -261,8 +254,27 @@ public final class DateTimeConverterUtil {
    *          The spent seconds.
    * @return The result String.
    */
+  public static String secondConvertToRoundedDuration(final long spentSeconds) {
+    TimeTrackingConfiguration timeTrackingConfiguration =
+        ComponentAccessor.getComponent(TimeTrackingConfiguration.class);
+    long workDaysPerWeek = timeTrackingConfiguration.getDaysPerWeek().longValue();
+    long workHoursPerDay = timeTrackingConfiguration.getHoursPerDay().longValue();
+    return DurationFormatter.roundedDuration(spentSeconds, workDaysPerWeek, workHoursPerDay);
+  }
+
+  /**
+   * Convert the seconds to jira format (1h 30m) String.
+   *
+   * @param spentSeconds
+   *          The spent seconds.
+   * @return The result String.
+   */
   public static String secondConvertToString(final long spentSeconds) {
-    return DurationFormatter.exactDuration(spentSeconds);
+    TimeTrackingConfiguration timeTrackingConfiguration =
+        ComponentAccessor.getComponent(TimeTrackingConfiguration.class);
+    long workDaysPerWeek = timeTrackingConfiguration.getDaysPerWeek().longValue();
+    long workHoursPerDay = timeTrackingConfiguration.getHoursPerDay().longValue();
+    return DurationFormatter.exactDuration(spentSeconds, workDaysPerWeek, workHoursPerDay);
   }
 
   /**

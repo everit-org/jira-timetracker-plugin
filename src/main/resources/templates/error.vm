@@ -18,7 +18,7 @@
     <title>$i18n.getText("jttp.error.title")</title>
   </head>
   <body>
-    <div class="aui-message aui-message-error">
+    <div class="aui-message aui-message-error" style="margin: 5px;">
       <p class="title">
         <strong>$i18n.getText("jttp.error.message.title")</strong>
       </p>

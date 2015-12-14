@@ -20,7 +20,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.net.URL;
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -169,7 +168,13 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
 
   private static final int MINUTES_IN_HOUR = 60;
 
+  private static final String NOPERMISSION_CREATE_WORKLOG = "jttp.nopermission.worklog.create";
+
+  private static final String NOPERMISSION_DELETE_WORKLOG = "jttp.nopermission.worklog.delete";
+
   private static final String NOPERMISSION_ISSUE = "plugin.nopermission_issue";
+
+  private static final String NOPERMISSION_UPDATE_WORKLOG = "jttp.nopermission.worklog.update";
 
   /**
    * A day in minutes.
@@ -278,17 +283,21 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
    */
   private TimeTrackingConfiguration timeTrackingConfiguration;
 
+  private long workHoursPerDay;
+
   /**
    * Default constructor.
    */
-  public JiraTimetrackerPluginImpl(final PluginSettingsFactory settingFactory,
+  public JiraTimetrackerPluginImpl(final PluginSettingsFactory settingsFactory,
       final TimeTrackingConfiguration timeTrackingConfiguration) {
-    settingsFactory = settingFactory;
+    this.settingsFactory = settingsFactory;
     this.timeTrackingConfiguration = timeTrackingConfiguration;
   }
 
   @Override
   public void afterPropertiesSet() throws Exception {
+
+    workHoursPerDay = timeTrackingConfiguration.getHoursPerDay().longValue();
 
     loadJttpBuildProperties();
 
@@ -368,6 +377,10 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
         .issue(issue).startDate(date).timeSpent(timeSpent)
         .comment(comment).buildNewEstimate();
     WorklogService worklogService = ComponentAccessor.getComponent(WorklogService.class);
+    if (!worklogService.hasPermissionToCreate(serviceContext, issue, true)) {
+      return new ActionResult(ActionResultStatus.FAIL,
+          NOPERMISSION_CREATE_WORKLOG, issueId);
+    }
     WorklogResult worklogResult = worklogService.validateCreate(
         serviceContext, params);
     if (worklogResult == null) {
@@ -441,6 +454,12 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     ApplicationUser user = authenticationContext.getUser();
     JiraServiceContext serviceContext = new JiraServiceContextImpl(user);
     WorklogService worklogService = ComponentAccessor.getComponent(WorklogService.class);
+    WorklogManager worklogManager = ComponentAccessor.getWorklogManager();
+    Worklog worklog = worklogManager.getById(id);
+    if (!worklogService.hasPermissionToDelete(serviceContext, worklog)) {
+      return new ActionResult(ActionResultStatus.FAIL,
+          NOPERMISSION_DELETE_WORKLOG, worklog.getIssue().getKey());
+    }
     WorklogResult deleteWorklogResult = worklogService.validateDelete(
         serviceContext, id);
     if (deleteWorklogResult == null) {
@@ -510,6 +529,10 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
           .issue(issue).startDate(dateCreate).timeSpent(timeSpent)
           .comment(comment).worklogId(id).issue(issue).build();
       WorklogService worklogService = ComponentAccessor.getComponent(WorklogService.class);
+      if (!worklogService.hasPermissionToUpdate(serviceContext, worklog)) {
+        return new ActionResult(ActionResultStatus.FAIL,
+            NOPERMISSION_UPDATE_WORKLOG, issueId);
+      }
       WorklogResult worklogResult = worklogService.validateUpdate(
           serviceContext, params);
       if (worklogResult == null) {
@@ -797,10 +820,9 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     for (GenericValue worklog : worklogGVList) {
       timeSpent += worklog.getLong("timeworked").longValue();
     }
-    BigDecimal secondsPerHour = new BigDecimal(
-        DateTimeConverterUtil.SECONDS_PER_MINUTE * DateTimeConverterUtil.MINUTES_PER_HOUR);
-    long expectedTimeSpent = timeTrackingConfiguration.getHoursPerDay().multiply(secondsPerHour)
-        .longValue();
+
+    long expectedTimeSpent = workHoursPerDay * DateTimeConverterUtil.SECONDS_PER_MINUTE
+        * DateTimeConverterUtil.MINUTES_PER_HOUR;
     return timeSpent >= expectedTimeSpent;
   }
 

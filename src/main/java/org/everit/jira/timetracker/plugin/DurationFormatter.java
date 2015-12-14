@@ -25,20 +25,31 @@ import java.util.Map;
  */
 public final class DurationFormatter {
 
-  public static String exactDuration(final long durationInSeconds) {
-    return new DurationFormatter(durationInSeconds).buildFromFragments(false);
+  public static String exactDuration(final long durationInSeconds, final long workDaysPerWeek,
+      final long workHoursPerDay) {
+    return new DurationFormatter(durationInSeconds, workDaysPerWeek, workHoursPerDay)
+        .buildFromFragments(false);
   }
 
-  public static String roundedDuration(final long durationInSeconds) {
-    return new DurationFormatter(durationInSeconds).calculateFormattedRemaining();
+  public static String roundedDuration(final long durationInSeconds, final long workDaysPerWeek,
+      final long workHoursPerDay) {
+    return new DurationFormatter(durationInSeconds, workDaysPerWeek, workHoursPerDay)
+        .calculateFormattedRemaining();
   }
 
   private final long durationInSeconds;
 
   private LinkedHashMap<String, Long> fragments = new LinkedHashMap<>();
 
-  private DurationFormatter(final long durationInSeconds) {
+  private final long workDaysPerWeek;
+
+  private final long workHoursPerDay;
+
+  private DurationFormatter(final long durationInSeconds, final long workDaysPerWeek,
+      final long workHoursPerDay) {
     this.durationInSeconds = durationInSeconds;
+    this.workDaysPerWeek = workDaysPerWeek;
+    this.workHoursPerDay = workHoursPerDay;
     constructFragmentsOfRemainingEstimate();
   }
 
@@ -68,7 +79,7 @@ public final class DurationFormatter {
     boolean needsTilde = false;
     for (Map.Entry<String, Long> fragment : fragments.entrySet()) {
       Long value = fragment.getValue();
-      if (firstNonzeroIdx <= idx && idx <= lastNonzeroIdx) {
+      if ((firstNonzeroIdx <= idx) && (idx <= lastNonzeroIdx)) {
         if (value.longValue() > 0) {
           if (handledFragmentCount < 2) {
             truncatedFragments.put(fragment.getKey(), value);
@@ -106,10 +117,10 @@ public final class DurationFormatter {
     long estimate = durationInSeconds / DateTimeConverterUtil.MINUTES_PER_HOUR;
     long minutes = estimate % DateTimeConverterUtil.MINUTES_PER_HOUR;
     estimate /= DateTimeConverterUtil.MINUTES_PER_HOUR;
-    long hours = estimate % DateTimeConverterUtil.WORK_HOURS_PER_DAY;
-    estimate /= DateTimeConverterUtil.WORK_HOURS_PER_DAY;
-    long days = estimate % DateTimeConverterUtil.WORKDAYS_PER_WEEK;
-    estimate /= DateTimeConverterUtil.WORKDAYS_PER_WEEK;
+    long hours = estimate % workHoursPerDay;
+    estimate /= workHoursPerDay;
+    long days = estimate % workDaysPerWeek;
+    estimate /= workDaysPerWeek;
     long weeks = estimate;
     fragments.put("w ", weeks);
     fragments.put("d ", days);

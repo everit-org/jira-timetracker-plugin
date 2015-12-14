@@ -455,14 +455,12 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
           "Error while try to collect the logged days for the calendar color fulling", e1);
       message = "plugin.calendar.logged.coloring.fail";
     }
-    boolean deleteWorklog = (deletedWorklogId != null)
-        && !DEFAULT_WORKLOG_ID.equals(deletedWorklogId);
+
+    boolean deleteWorklog =
+        (deletedWorklogId != null) && !DEFAULT_WORKLOG_ID.equals(deletedWorklogId);
+    ActionResult deleteResult = null;
     if (deleteWorklog) {
-      ActionResult deleteResult = jiraTimetrackerPlugin.deleteWorklog(deletedWorklogId);
-      if (deleteResult.getStatus() == ActionResultStatus.FAIL) {
-        message = deleteResult.getMessage();
-        return ERROR;
-      }
+      deleteResult = jiraTimetrackerPlugin.deleteWorklog(deletedWorklogId);
     }
     try {
       projectsId = jiraTimetrackerPlugin.getProjectsId();
@@ -480,6 +478,11 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       return ERROR;
     }
     if (deleteWorklog) {
+      if (deleteResult.getStatus() == ActionResultStatus.FAIL) {
+        message = deleteResult.getMessage();
+        messageParameter = deleteResult.getMessageParameter();
+        return INPUT;
+      }
       return redirectWithDateFormattedParameterOnly(INPUT);
     } else {
       return INPUT;
@@ -563,8 +566,9 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
         startTimeValue, timeSpent);
     if (updateResult.getStatus() == ActionResultStatus.FAIL) {
       message = updateResult.getMessage();
+      messageParameter = updateResult.getMessageParameter();
       isEdit = true;
-      return ERROR;
+      return INPUT;
     }
     try {
       loadWorklogsAndMakeSummary();

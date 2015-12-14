@@ -23,7 +23,6 @@ import java.util.Calendar;
 import java.util.Date;
 
 import org.everit.jira.timetracker.plugin.DateTimeConverterUtil;
-import org.everit.jira.timetracker.plugin.DurationFormatter;
 import org.ofbiz.core.entity.GenericValue;
 
 import com.atlassian.jira.component.ComponentAccessor;
@@ -58,6 +57,8 @@ public class EveritWorklog implements Serializable {
    * The calculated end time.
    */
   private String endTime;
+
+  private String exactRemaining;
 
   /**
    * The issue estimated time is 0 or not.
@@ -95,8 +96,6 @@ public class EveritWorklog implements Serializable {
    * Remaining time on the issue.
    */
   private String roundedRemaining;
-
-  private String exactRemaining;
 
   /**
    * The start Date.
@@ -160,7 +159,8 @@ public class EveritWorklog implements Serializable {
     duration = DateTimeConverterUtil.secondConvertToString(timeSpentInSec);
     endTime = DateTimeConverterUtil.countEndTime(startTime, milliseconds);
 
-    roundedRemaining = DurationFormatter.roundedDuration(issueObject.getEstimate());
+    roundedRemaining =
+        DateTimeConverterUtil.secondConvertToRoundedDuration(issueObject.getEstimate());
     exactRemaining = DateTimeConverterUtil.secondConvertToString(issueObject.getEstimate());
   }
 
@@ -212,7 +212,8 @@ public class EveritWorklog implements Serializable {
     duration = DateTimeConverterUtil.secondConvertToString(timeSpentInSec);
     endTime = DateTimeConverterUtil.countEndTime(startTime, milliseconds);
 
-    roundedRemaining = DurationFormatter.roundedDuration(issueObject.getEstimate());
+    roundedRemaining =
+        DateTimeConverterUtil.secondConvertToRoundedDuration(issueObject.getEstimate());
     exactRemaining = DateTimeConverterUtil.secondConvertToString(issueObject.getEstimate());
   }
 
@@ -369,7 +370,7 @@ public class EveritWorklog implements Serializable {
   }
 
   public void setRoundedRemaining(final String remaining) {
-    this.roundedRemaining = remaining;
+    roundedRemaining = remaining;
   }
 
   public void setStartDate(final String startDate) {

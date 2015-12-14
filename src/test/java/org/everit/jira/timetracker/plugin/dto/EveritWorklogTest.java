@@ -15,6 +15,7 @@
  */
 package org.everit.jira.timetracker.plugin.dto;
 
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -32,6 +33,7 @@ import org.junit.runners.Parameterized.Parameters;
 import org.ofbiz.core.entity.GenericValue;
 import org.ofbiz.core.entity.model.ModelEntity;
 
+import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.mock.component.MockComponentWorker;
@@ -101,6 +103,7 @@ public class EveritWorklogTest {
    * {@link EveritWorklog(GenericValue)} constructor.
    */
   public void setupMockIssueManager(final int remainingTimeInSec) {
+    MockComponentWorker mockComponentWorker = new MockComponentWorker();
     MockIssue mockIssue = new MockIssue() {
       @Override
       public Issue getParentObject() {
@@ -113,7 +116,18 @@ public class EveritWorklogTest {
     EasyMock.expect(mgr.getIssueObject(EasyMock.<Long> anyObject())).andReturn(mockIssue)
         .anyTimes();
     EasyMock.replay(mgr);
-    new MockComponentWorker().addMock(IssueManager.class, mgr).init();
+    mockComponentWorker.addMock(IssueManager.class, mgr);
+
+    BigDecimal daysPerWeek = new BigDecimal(5);
+    BigDecimal hoursPerDay = new BigDecimal(8);
+    TimeTrackingConfiguration ttConfig = EasyMock.createNiceMock(TimeTrackingConfiguration.class);
+    EasyMock.expect(ttConfig.getDaysPerWeek()).andReturn(daysPerWeek)
+        .anyTimes();
+    EasyMock.expect(ttConfig.getHoursPerDay()).andReturn(hoursPerDay)
+        .anyTimes();
+    EasyMock.replay(ttConfig);
+    mockComponentWorker.addMock(TimeTrackingConfiguration.class, ttConfig).init();
+
   }
 
   @Test
