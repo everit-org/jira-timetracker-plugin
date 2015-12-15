@@ -61,15 +61,6 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     }
   }
 
-  private static final String SESSION_KEY = "jttpTableStore";
-
-  private static final String SELF_WITH_DATE_AND_USER_URL_FORMAT =
-      "/secure/JiraTimetrackerTableWebAction.jspa"
-      + "?dateFrom=%s"
-      + "&dateTo=%s"
-      + "&userPicker=%s"
-      + "&search";
-
   private static final String EXCEEDED_A_YEAR = "plugin.exceeded.year";
 
   private static final String GET_WORKLOGS_ERROR_MESSAGE = "Error when trying to get worklogs.";
@@ -97,10 +88,19 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   private static final String PARAM_USERPICKER = "userPicker";
 
+  private static final String SELF_WITH_DATE_AND_USER_URL_FORMAT =
+      "/secure/JiraTimetrackerTableWebAction.jspa"
+          + "?dateFrom=%s"
+          + "&dateTo=%s"
+          + "&userPicker=%s"
+          + "&search";
+
   /**
    * Serial version UID.
    */
   private static final long serialVersionUID = 1L;
+
+  private static final String SESSION_KEY = "jttpTableStore";
 
   private static final String WRONG_DATES = "plugin.wrong.dates";
 
@@ -495,17 +495,16 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     HttpSession session = getHttpSession();
     Object data = session.getAttribute(SESSION_KEY);
 
-    if (data == null) {
+    if (!(data instanceof ReportSessionData)) {
       return false;
-    } else {
-      ReportSessionData reportSessionData = (ReportSessionData) data;
-      currentUser = reportSessionData.currentUser;
-      dateFrom = reportSessionData.dateFrom;
-      dateFromFormated = DateTimeConverterUtil.dateToString(dateFrom);
-      dateTo = reportSessionData.dateTo;
-      dateToFormated = DateTimeConverterUtil.dateToString(dateTo);
-      return true;
     }
+    ReportSessionData reportSessionData = (ReportSessionData) data;
+    currentUser = reportSessionData.currentUser;
+    dateFrom = reportSessionData.dateFrom;
+    dateFromFormated = DateTimeConverterUtil.dateToString(dateFrom);
+    dateTo = reportSessionData.dateTo;
+    dateToFormated = DateTimeConverterUtil.dateToString(dateTo);
+    return true;
   }
 
   private void loadPluginSettingAndParseResult() {
