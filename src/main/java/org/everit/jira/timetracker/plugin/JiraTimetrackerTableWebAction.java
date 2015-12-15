@@ -495,17 +495,16 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     HttpSession session = getHttpSession();
     Object data = session.getAttribute(SESSION_KEY);
 
-    if ((data != null) && (data instanceof ReportSessionData)) {
-      ReportSessionData reportSessionData = (ReportSessionData) data;
-      currentUser = reportSessionData.currentUser;
-      dateFrom = reportSessionData.dateFrom;
-      dateFromFormated = DateTimeConverterUtil.dateToString(dateFrom);
-      dateTo = reportSessionData.dateTo;
-      dateToFormated = DateTimeConverterUtil.dateToString(dateTo);
-      return true;
-    } else {
+    if (!(data instanceof ReportSessionData)) {
       return false;
     }
+    ReportSessionData reportSessionData = (ReportSessionData) data;
+    currentUser = reportSessionData.currentUser;
+    dateFrom = reportSessionData.dateFrom;
+    dateFromFormated = DateTimeConverterUtil.dateToString(dateFrom);
+    dateTo = reportSessionData.dateTo;
+    dateToFormated = DateTimeConverterUtil.dateToString(dateTo);
+    return true;
   }
 
   private void loadPluginSettingAndParseResult() {
