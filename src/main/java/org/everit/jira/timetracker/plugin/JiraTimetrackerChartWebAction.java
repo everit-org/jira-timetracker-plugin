@@ -351,21 +351,16 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     HttpSession session = getHttpSession();
     Object data = session.getAttribute(SESSION_KEY);
 
-    if (data == null) {
-      return false;
-    } else {
-      ReportSessionData reportSessionData = null;
-      try {
-        reportSessionData = (ReportSessionData) data;
-      } catch (ClassCastException e) {
-        return false;
-      }
+    if ((data != null) && (data instanceof ReportSessionData)) {
+      ReportSessionData reportSessionData = (ReportSessionData) data;
       currentUser = reportSessionData.currentUser;
       dateFrom = reportSessionData.dateFrom;
       dateFromFormated = DateTimeConverterUtil.dateToString(dateFrom);
       dateTo = reportSessionData.dateTo;
       dateToFormated = DateTimeConverterUtil.dateToString(dateTo);
       return true;
+    } else {
+      return false;
     }
   }
 
