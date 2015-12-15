@@ -28,6 +28,7 @@ import org.ofbiz.core.entity.GenericValue;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.MutableIssue;
+import com.atlassian.jira.issue.status.category.StatusCategory;
 import com.atlassian.jira.issue.worklog.Worklog;
 
 /**
@@ -61,10 +62,14 @@ public class EveritWorklog implements Serializable {
   private String exactRemaining;
 
   /**
+   * The issue closed.
+   */
+  private boolean isClosed = false;
+
+  /**
    * The issue estimated time is 0 or not.
    */
   private boolean isMoreEstimatedTime;
-
   /**
    * The worklog Issue key.
    */
@@ -78,7 +83,7 @@ public class EveritWorklog implements Serializable {
   /**
    * The worklog Issue epic.
    */
-  private String issueParent;
+  private String issueParent = "";
 
   /**
    * The worklog Issue Summary.
@@ -138,11 +143,12 @@ public class EveritWorklog implements Serializable {
     MutableIssue issueObject = issueManager.getIssueObject(issueId);
     issue = issueObject.getKey();
     issueSummary = issueObject.getSummary();
-
+    if (StatusCategory.COMPLETE
+        .equals(issueObject.getStatusObject().getSimpleStatus().getStatusCategory().getKey())) {
+      isClosed = true;
+    }
     if (issueObject.getParentObject() != null) {
       issueParent = issueObject.getParentObject().getKey();
-    } else {
-      issueParent = "";
     }
     isMoreEstimatedTime = issueObject.getEstimate() == 0 ? false : true;
     body = worklogGv.getString("body");
@@ -191,11 +197,12 @@ public class EveritWorklog implements Serializable {
     MutableIssue issueObject = issueManager.getIssueObject(issueId);
     issue = issueObject.getKey();
     issueSummary = issueObject.getSummary();
-
+    if (StatusCategory.COMPLETE
+        .equals(issueObject.getStatusObject().getSimpleStatus().getStatusCategory().getKey())) {
+      isClosed = true;
+    }
     if (issueObject.getParentObject() != null) {
       issueParent = issueObject.getParentObject().getKey();
-    } else {
-      issueParent = "";
     }
     isMoreEstimatedTime = issueObject.getEstimate() == 0 ? false : true;
     body = rs.getString("worklogbody");
@@ -277,6 +284,10 @@ public class EveritWorklog implements Serializable {
     return exactRemaining;
   }
 
+  public boolean getisClosed() {
+    return isClosed;
+  }
+
   public boolean getIsMoreEstimatedTime() {
     return isMoreEstimatedTime;
   }
@@ -323,6 +334,10 @@ public class EveritWorklog implements Serializable {
 
   public void setBody(final String body) {
     this.body = body;
+  }
+
+  public void setClosed(final boolean isClosed) {
+    this.isClosed = isClosed;
   }
 
   public void setDate(final Date date) {

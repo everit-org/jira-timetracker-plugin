@@ -64,7 +64,7 @@ cursor:pointer;
                     	<tbody id="issueTable">
 		                   	#foreach ($worklog in $worklogs)
 		                    	<tr #if($worklog.worklogId == $editedWorklogId) class="rowEdit" #end #if($rowCount % 2 != 0) class="rowAlter" #end>
-		                    	 	<td class="table-issue" style="vertical-align: middle; white-space: nowrap;">
+		                    	 	<td class="table-issue" style="vertical-align: middle; white-space: nowrap; #if($worklog.isClosed) text-decoration: line-through; #end">
 		                    	 		<a href="/browse/$worklog.issue" class="issue-link" title="#if($worklog.issueParent != '') $i18n.getText('plugin.parent.issue') $worklog.issueParent &#13 $worklog.issueSummary #else $worklog.issueSummary #end">$worklog.issue</a>
 		                    	 	</td>
 		                    	 	<td style="vertical-align: middle;">
@@ -73,7 +73,6 @@ cursor:pointer;
 										#else
 		                    	 			<div title="$worklog.exactRemaining" style="color:red;">$worklog.roundedRemaining</div>
 										#end
-		                    	 		
 		                    	 	</td>
 		                    	 	<td class="table-starttime" style="vertical-align: middle;">
 		                    	 		$worklog.startTime
