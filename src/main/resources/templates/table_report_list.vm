@@ -74,6 +74,9 @@ margin-bottom: 0em;
 		                       	<td width="80px" style="text-align: center;">
 		                           Issue
 		                        </td>
+		                        <td width="5%" style="text-align: center;" title="$i18n.getText('jttp.list.title.remaining')"> 
+	                               $i18n.getText("plugin.remaining")
+	                            </td>
 		                        <td width="50px" style="text-align: center;">
 		                           $i18n.getText("plugin.start")
 		                        </td>
@@ -103,13 +106,16 @@ margin-bottom: 0em;
 		                    	 	<td class="table-starttime" style="vertical-align: middle;">
 			                    	 		$worklog.startDate
 		                    	 	</td>
-		                    	 	<td class="table-issue" style="vertical-align: middle; #if($worklog.isClosed) text-decoration: line-through; #end">
+		                    	 	<td class="table-issue" style="vertical-align: middle; white-space: nowrap; #if($worklog.isClosed) text-decoration: line-through; #end">
 		                    	 		<a href="/browse/$worklog.issue" class="issue-link" title="#if($worklog.issueParent != '') $i18n.getText('plugin.parent.issue') $worklog.issueParent &#13 $worklog.issueSummary #else $worklog.issueSummary #end">$worklog.issue</a>
-		                    	 		
-		                    	 		#if(!$worklog.isMoreEstimatedTime)
-		                    	 			<img id="no_estimated" src="$contextPath/images/icons/priority_blocker.gif" width="16" height="16" border="0"
-															alt="$i18n.getText('plugin.exclamation.mark.message')" style="vertical-align: text-bottom;" title="$i18n.getText('plugin.exclamation.mark.message')"/>
+		                    	 	</td>
+		                    	 	<td style="vertical-align: middle; white-space: nowrap;">
+		                    	 		#if($worklog.isMoreEstimatedTime)
+											<div title="$worklog.exactRemaining">$worklog.roundedRemaining<div>
+										#else
+		                    	 			<div title="$worklog.exactRemaining" style="color:red;">$worklog.roundedRemaining</div>
 										#end
+		                    	 		
 		                    	 	</td>
 		                    	 	<td class="table-starttime" style="vertical-align: middle;">
 		                    	 		$worklog.startTime
@@ -149,7 +155,7 @@ margin-bottom: 0em;
 		              #end
 		              #if($worklog.dayNo != $nextWorklog.dayNo || $endSign)
 			           	<tr>
-			           		<td colspan="5"></td>
+			           		<td colspan="6"></td>
 			           		<td class="rowHeader">
 			           			<b>$i18n.getText("plugin.daily") $i18n.getText("plugin.summary")</b>
 			           		</td>
@@ -163,7 +169,7 @@ margin-bottom: 0em;
 			           #end		           
 			           #if($worklog.weekNo != $nextWorklog.weekNo || $endSign)
 			           	<tr>
-			           		<td colspan="5"></td>
+			           		<td colspan="6"></td>
 			           		<td class="rowHeader">
 			           			<b>$i18n.getText("plugin.weekly") $i18n.getText("plugin.summary")</b>
 			           		</td>
@@ -177,7 +183,7 @@ margin-bottom: 0em;
 			           #end
 			           #if($worklog.monthNo != $nextWorklog.monthNo || $endSign)
 			           	<tr>
-			           		<td colspan="5"></td>
+			           		<td colspan="6"></td>
 			           		<td class="rowHeader">
 			           			<b>$i18n.getText("plugin.monthly") $i18n.getText("plugin.summary")</b>
 			           		</td>

@@ -48,15 +48,6 @@ import com.atlassian.jira.web.action.JiraWebActionSupport;
  */
 public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
-  private static final String SESSION_KEY = "jttpChartStore";
-
-  private static final String SELF_WITH_DATE_AND_USER_URL_FORMAT =
-      "/secure/JiraTimetrackerChartWebAction.jspa"
-      + "?dateFrom=%s"
-      + "&dateTo=%s"
-      + "&userPicker=%s"
-      + "&search";
-
   private static final String GET_WORKLOGS_ERROR_MESSAGE = "Error when trying to get worklogs.";
 
   private static final String INVALID_END_TIME = "plugin.invalid_endTime";
@@ -66,6 +57,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
   private static final String INVALID_USER_PICKER = "plugin.user.picker.label";
 
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
+
   /**
    * Logger.
    */
@@ -79,10 +71,19 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
   private static final String PARAM_USERPICKER = "userPicker";
 
+  private static final String SELF_WITH_DATE_AND_USER_URL_FORMAT =
+      "/secure/JiraTimetrackerChartWebAction.jspa"
+          + "?dateFrom=%s"
+          + "&dateTo=%s"
+          + "&userPicker=%s"
+          + "&search";
+
   /**
    * Serial version UID.
    */
   private static final long serialVersionUID = 1L;
+
+  private static final String SESSION_KEY = "jttpChartStore";
 
   private static final String WRONG_DATES = "plugin.wrong.dates";
 
@@ -350,17 +351,16 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     HttpSession session = getHttpSession();
     Object data = session.getAttribute(SESSION_KEY);
 
-    if (data == null) {
+    if (!(data instanceof ReportSessionData)) {
       return false;
-    } else {
-      ReportSessionData reportSessionData = (ReportSessionData) data;
-      currentUser = reportSessionData.currentUser;
-      dateFrom = reportSessionData.dateFrom;
-      dateFromFormated = DateTimeConverterUtil.dateToString(dateFrom);
-      dateTo = reportSessionData.dateTo;
-      dateToFormated = DateTimeConverterUtil.dateToString(dateTo);
-      return true;
     }
+    ReportSessionData reportSessionData = (ReportSessionData) data;
+    currentUser = reportSessionData.currentUser;
+    dateFrom = reportSessionData.dateFrom;
+    dateFromFormated = DateTimeConverterUtil.dateToString(dateFrom);
+    dateTo = reportSessionData.dateTo;
+    dateToFormated = DateTimeConverterUtil.dateToString(dateTo);
+    return true;
   }
 
   private void loadPluginSettingAndParseResult() {
