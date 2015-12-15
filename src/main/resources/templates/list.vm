@@ -68,7 +68,9 @@ cursor:pointer;
 		                    	 		<a href="/browse/$worklog.issue" class="issue-link" title="#if($worklog.issueParent != '') $i18n.getText('plugin.parent.issue') $worklog.issueParent &#13 $worklog.issueSummary #else $worklog.issueSummary #end">$worklog.issue</a>
 		                    	 	</td>
 		                    	 	<td style="vertical-align: middle;">
-		                    	 		#if($worklog.isMoreEstimatedTime)
+		                    	 		#if($worklog.isClosed)
+		                    	 			<div title="$worklog.exactRemaining" style="color: #808080;">$worklog.roundedRemaining</div>
+		                    	 		#elseif($worklog.isMoreEstimatedTime)
 											<div title="$worklog.exactRemaining">$worklog.roundedRemaining<div>
 										#else
 		                    	 			<div title="$worklog.exactRemaining" style="color:red;">$worklog.roundedRemaining</div>
