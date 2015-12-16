@@ -111,7 +111,7 @@ margin-bottom: 0em;
 		                    	 	</td>
 		                    	 	<td style="vertical-align: middle; white-space: nowrap;">
 		                    	 		#if($worklog.isClosed)
-		                    	 			<div title="$worklog.exactRemaining" style="color: #808080;">$worklog.roundedRemaining</div>
+		                    	 			<div title="$worklog.exactRemaining" style="color: #A3A1A1;">$worklog.roundedRemaining</div>
 		                    	 		#elseif($worklog.isMoreEstimatedTime)
 											<div title="$worklog.exactRemaining">$worklog.roundedRemaining<div>
 										#else
