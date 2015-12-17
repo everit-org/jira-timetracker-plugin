@@ -27,163 +27,124 @@ public class PluginSettingsValues implements Serializable {
 
   private static final long serialVersionUID = 4176034622671140618L;
 
-  private boolean analyticsCheckChange;
+  /**
+   * Plugin analytics set.
+   */
+  public boolean analyticsCheck;
+
   /**
    * The collector issues pattern list.
    */
-  private List<Pattern> collectorIssues;
+  public List<Pattern> collectorIssues;
 
-  private int endTimeChange;
+  /**
+   * End time rounding change value.
+   */
+  public int endTimeChange;
 
-  private String excludeDates;
+  /**
+   * Exclude dates.
+   */
+  public String excludeDates;
+
   /**
    * The non working issues list.
    */
-  private List<Pattern> filteredSummaryIssues;
+  public List<Pattern> filteredSummaryIssues;
 
-  // TODO javadoc !!! WHY MISSING!!!
-
-  private String includeDates;
+  /**
+   * Include dates.
+   */
+  public String includeDates;
 
   /**
    * The plugin calendar show the actual date when start or the latest day what not contains
    * worklog.
    */
-  private Boolean isActualDate;
+  public Boolean isActualDate;
 
   /**
    * The plugin calendar is popup.
    */
-  private int isCalendarPopup;
-
-  private Boolean isColoring;
-
-  private int startTimeChange;
-
-  public PluginSettingsValues() {
-
-  }
+  public int isCalendarPopup;
 
   /**
-   * Constructor for a PluginSettingsValues.
-   *
-   * @param calendarSettingValues
-   *          Calendar settings
-   * @param filteredSummaryIssues
-   *          Non working issues
-   * @param collectorIssues
-   *          Collector issues
-   * @param startTimeChange
-   *          Start time change value
-   * @param endTimeChange
-   *          End time change value
-   * @param analyticsCheckChange
-   *          Analytics Checked value
+   * Coloring settings.
    */
-  public PluginSettingsValues(final CalendarSettingsValues calendarSettingValues,
-      final List<Pattern> filteredSummaryIssues,
-      final List<Pattern> collectorIssues,
-      final int startTimeChange, final int endTimeChange, final boolean analyticsCheckChange) {
-    super();
-    isCalendarPopup = calendarSettingValues.getIsCalendarPopup();
-    isActualDate = calendarSettingValues.isActualDate();
-    this.filteredSummaryIssues = filteredSummaryIssues;
-    this.collectorIssues = collectorIssues;
-    excludeDates = calendarSettingValues.getExcludeDates();
-    includeDates = calendarSettingValues.getIncludeDates();
-    this.startTimeChange = startTimeChange;
-    this.endTimeChange = endTimeChange;
-    isColoring = calendarSettingValues.isColoring();
-    this.analyticsCheckChange = analyticsCheckChange;
+  public Boolean isColoring;
+
+  /**
+   * The plugin UUID.
+   */
+  public String pluginUUID;
+
+  /**
+   * Start time rounding value change.
+   */
+  public int startTimeChange;
+
+  public PluginSettingsValues() {
   }
 
-  public boolean getAnalyticsCheckChange() {
-    return analyticsCheckChange;
-  }
-
-  public List<Pattern> getCollectorIssues() {
-    return collectorIssues;
-  }
-
-  public int getEndTimeChange() {
-    return endTimeChange;
-  }
-
-  public String getExcludeDates() {
-    return excludeDates;
-  }
-
-  public List<Pattern> getFilteredSummaryIssues() {
-    return filteredSummaryIssues;
-  }
-
-  public String getIncludeDates() {
-    return includeDates;
-  }
-
-  public int getIsCalendarPopup() {
-    return isCalendarPopup;
-  }
-
-  public int getStartTimeChange() {
-    return startTimeChange;
-  }
-
-  public Boolean isActualDate() {
-    return isActualDate;
-  }
-
-  public int isCalendarPopup() {
-    return isCalendarPopup;
-  }
-
-  public Boolean isColoring() {
-    return isColoring;
-  }
-
-  public void setActualDate(final boolean actualDateOrLastWorklogDate) {
+  public PluginSettingsValues actualDate(final boolean actualDateOrLastWorklogDate) {
     isActualDate = actualDateOrLastWorklogDate;
+    return this;
   }
 
-  public void setAnalyticsCheckChange(final boolean analyticsCheckChange) {
-    this.analyticsCheckChange = analyticsCheckChange;
+  public PluginSettingsValues analyticsCheck(final boolean analyticsCheck) {
+    this.analyticsCheck = analyticsCheck;
+    return this;
   }
 
-  public void setCalendarPopup(final int isCalendarPopup) {
+  public PluginSettingsValues calendarPopup(final int isCalendarPopup) {
     this.isCalendarPopup = isCalendarPopup;
+    return this;
   }
 
-  public void setCollectorIssues(final List<Pattern> collectorIssues) {
+  public PluginSettingsValues collectorIssues(final List<Pattern> collectorIssues) {
     this.collectorIssues = collectorIssues;
+    return this;
   }
 
-  public void setColoring(final boolean isColoring) {
+  public PluginSettingsValues coloring(final boolean isColoring) {
     this.isColoring = isColoring;
+    return this;
   }
 
-  public void setEndTimeChange(final int endTimeChange) {
+  public PluginSettingsValues endTimeChange(final int endTimeChange) {
     this.endTimeChange = endTimeChange;
+    return this;
   }
 
-  public void setExcludeDates(final String excludeDates) {
+  public PluginSettingsValues excludeDates(final String excludeDates) {
     this.excludeDates = excludeDates;
+    return this;
   }
 
-  public void setFilteredSummaryIssues(
+  public PluginSettingsValues filteredSummaryIssues(
       final List<Pattern> filteredSummaryIssues) {
     this.filteredSummaryIssues = filteredSummaryIssues;
+    return this;
   }
 
-  public void setIncludeDates(final String includeDates) {
+  public PluginSettingsValues includeDates(final String includeDates) {
     this.includeDates = includeDates;
+    return this;
   }
 
-  public void setIsCalendarPopup(final int isCalendarPopup) {
+  public PluginSettingsValues isCalendarPopup(final int isCalendarPopup) {
     this.isCalendarPopup = isCalendarPopup;
+    return this;
   }
 
-  public void setStartTimeChange(final int startTimeChange) {
+  public PluginSettingsValues pluginUUID(final String pluginUUID) {
+    this.pluginUUID = pluginUUID;
+    return this;
+  }
+
+  public PluginSettingsValues startTimeChange(final int startTimeChange) {
     this.startTimeChange = startTimeChange;
+    return this;
   }
 
 }

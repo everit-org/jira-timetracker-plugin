@@ -165,10 +165,12 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   private boolean feedBackSendAviable;
 
+  private String installedPluginId;
   /**
    * The calendar show actual Date Or Last Worklog Date.
    */
   private boolean isActualDate;
+
   /**
    * The calendar highlights coloring function is active or not.
    */
@@ -210,16 +212,15 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The jira main version.
    */
   private int jiraMainVersion;
-
   /**
    * The {@link JiraTimetrackerPlugin}.
    */
   private transient JiraTimetrackerPlugin jiraTimetrackerPlugin;
+
   /**
    * The jira version.
    */
   private String jiraVersion;
-
   /**
    * List of the logged days of the date variable current months.
    */
@@ -236,6 +237,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The summary of month.
    */
   private String monthFilteredSummary = "";
+
   /**
    * The summary of month.
    */
@@ -261,7 +263,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The worklog start time.
    */
   private String startTime = "";
-
   /**
    *
    */
@@ -270,14 +271,15 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The startTime input field changer buttons value.
    */
   private int startTimeChange;
+
   /**
    * The spent time in Jira time format (1h 20m).
    */
   private String timeSpent = "";
 
   private String userId;
-
   private transient ApplicationUser userPickerObject;
+
   /**
    * The summary of week.
    */
@@ -674,6 +676,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return feedBackSendAviable;
   }
 
+  public String getInstalledPluginId() {
+    return installedPluginId;
+  }
+
   public boolean getIsColoring() {
     return isColoring;
   }
@@ -940,13 +946,14 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private void loadPluginSettingAndParseResult() {
     PluginSettingsValues pluginSettingsValues = jiraTimetrackerPlugin
         .loadPluginSettings();
-    isPopup = pluginSettingsValues.isCalendarPopup();
-    isActualDate = pluginSettingsValues.isActualDate();
-    issuesRegex = pluginSettingsValues.getFilteredSummaryIssues();
-    startTimeChange = pluginSettingsValues.getStartTimeChange();
-    endTimeChange = pluginSettingsValues.getEndTimeChange();
-    isColoring = pluginSettingsValues.isColoring();
-    analyticsCheck = pluginSettingsValues.getAnalyticsCheckChange();
+    isPopup = pluginSettingsValues.isCalendarPopup;
+    isActualDate = pluginSettingsValues.isActualDate;
+    issuesRegex = pluginSettingsValues.filteredSummaryIssues;
+    startTimeChange = pluginSettingsValues.startTimeChange;
+    endTimeChange = pluginSettingsValues.endTimeChange;
+    isColoring = pluginSettingsValues.isColoring;
+    analyticsCheck = pluginSettingsValues.analyticsCheck;
+    installedPluginId = pluginSettingsValues.pluginUUID;
   }
 
   /**
@@ -1286,6 +1293,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       comment = "";
     }
     return null;
+  }
+
+  public void setInstalledPluginId(final String installedPluginId) {
+    this.installedPluginId = installedPluginId;
   }
 
   public void setIsDurationSelected(final boolean isDurationSelected) {
