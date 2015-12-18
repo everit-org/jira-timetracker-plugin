@@ -63,8 +63,18 @@ cursor:pointer;
                     #else
                     	<tbody id="issueTable">
 		                   	#foreach ($worklog in $worklogs)
-		                    	<tr #if($worklog.worklogId == $editedWorklogId) class="rowEdit" #end #if($rowCount % 2 != 0) class="rowAlter" #end>
+		                   		#set($wl_item_class = "")
+		                   		#if($worklog.worklogId == $editedWorklogId)
+		                   			#set($wl_item_class = "rowEdit")
+		                   		#elseif($worklog.worklogId == $copiedWorklogId)
+		                   			#set($wl_item_class = "rowCopy")
+		                   		#elseif($rowCount % 2 != 0)
+		                   			#set($wl_item_class = "rowAlter")
+		                   		#end
+		                   		
+		                    	<tr #if(not $wl_item_class.isEmpty()) class="${wl_item_class}"#end>
 		                    	 	<td class="table-issue" style="vertical-align: middle; white-space: nowrap;">
+
 		                    	 		<a href="/browse/$worklog.issue" class="issue-link" title="#if($worklog.issueParent != '') $i18n.getText('plugin.parent.issue') $worklog.issueParent &#13 $worklog.issueSummary #else $worklog.issueSummary #end">$worklog.issue</a>
 		                    	 	</td>
 		                    	 	<td style="vertical-align: middle;">
@@ -116,8 +126,9 @@ cursor:pointer;
 		                    	 			style="margin:3px"
 		                    	 			onclick="location.href='JiraTimetrackerWebAction!default.jspa?deletedWorklogId=$worklog.worklogId&dateFormatted=$dateFormatted'"></span>
 		                    	 		<span class="aui-icon aui-icon-small #if($jiraVersion.substring(0, 3) == '6.2') aui-iconfont-doc #else aui-iconfont-copy-clipboard #end copy"
+		                    	 			id="copy" name="copy" title="$i18n.getText('plugin.copy')"
 		                    	 			style="margin:3px"
-		                    	 			id="copy" name="copy" title="$i18n.getText('plugin.copy')"></span>
+		                    	 			onclick="location.href='JiraTimetrackerWebAction!default.jspa?copiedWorklogId=$worklog.worklogId&dateFormatted=$dateFormatted'"></span>
 		                    	 	</td>
 		                    	</tr>
 		                    	#set($rowCount = $rowCount + 1)
