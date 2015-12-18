@@ -284,7 +284,7 @@ public class EveritWorklog implements Serializable {
     return exactRemaining;
   }
 
-  public boolean getisClosed() {
+  public boolean getIsClosed() {
     return isClosed;
   }
 
@@ -336,10 +336,6 @@ public class EveritWorklog implements Serializable {
     this.body = body;
   }
 
-  public void setClosed(final boolean isClosed) {
-    this.isClosed = isClosed;
-  }
-
   public void setDate(final Date date) {
     this.date = (Date) date.clone();
   }
@@ -358,6 +354,10 @@ public class EveritWorklog implements Serializable {
 
   public void setExactRemaining(final String exactRemaining) {
     this.exactRemaining = exactRemaining;
+  }
+
+  public void setIsClosed(final boolean isClosed) {
+    this.isClosed = isClosed;
   }
 
   public void setIssue(final String issue) {
