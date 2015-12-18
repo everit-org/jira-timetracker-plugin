@@ -281,6 +281,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The spent time in Jira time format (1h 20m).
    */
   private String timeSpent = "";
+
   private String userId;
 
   private transient ApplicationUser userPickerObject;

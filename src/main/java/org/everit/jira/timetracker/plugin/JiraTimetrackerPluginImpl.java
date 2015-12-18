@@ -232,7 +232,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   /**
    * The plugin global setting form the settingsFactory.
    */
-  private PluginSettings globalSettings;;
+  private PluginSettings globalSettings;
 
   /**
    * The parsed include dates.
