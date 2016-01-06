@@ -121,6 +121,8 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
   private boolean feedBackSendAviable;
 
+  private String installedPluginId;
+
   /**
    * The {@link JiraTimetrackerPlugin}.
    */
@@ -300,6 +302,10 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
         currentUserEncoded);
   }
 
+  public String getInstalledPluginId() {
+    return installedPluginId;
+  }
+
   public String getMessage() {
     return message;
   }
@@ -366,7 +372,8 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
   private void loadPluginSettingAndParseResult() {
     PluginSettingsValues pluginSettingsValues = jiraTimetrackerPlugin
         .loadPluginSettings();
-    analyticsCheck = pluginSettingsValues.getAnalyticsCheckChange();
+    analyticsCheck = pluginSettingsValues.analyticsCheck;
+    installedPluginId = pluginSettingsValues.pluginUUID;
   }
 
   private void normalizeContextPath() {
@@ -486,6 +493,10 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
   public void setFeedBackSendAviable(final boolean feedBackSendAviable) {
     this.feedBackSendAviable = feedBackSendAviable;
+  }
+
+  public void setInstalledPluginId(final String installedPluginId) {
+    this.installedPluginId = installedPluginId;
   }
 
   public void setMessage(final String message) {

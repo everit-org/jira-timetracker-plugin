@@ -101,6 +101,8 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
   private boolean feedBackSendAviable;
 
+  private String installedPluginId;
+
   /**
    * The {@link JiraTimetrackerPlugin}.
    */
@@ -110,11 +112,11 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    * The message.
    */
   private String message = "";
-
   /**
    * The message parameter.
    */
   private String messageParameter = "";
+
   /**
    * The number of pages.
    */
@@ -337,6 +339,10 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     return feedBackSendAviable;
   }
 
+  public String getInstalledPluginId() {
+    return installedPluginId;
+  }
+
   public String getMessage() {
     return message;
   }
@@ -376,7 +382,8 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
   private void loadPluginSettingAndParseResult() {
     PluginSettingsValues pluginSettingsValues = jiraTimetrackerPlugin
         .loadPluginSettings();
-    analyticsCheck = pluginSettingsValues.getAnalyticsCheckChange();
+    analyticsCheck = pluginSettingsValues.analyticsCheck;
+    installedPluginId = pluginSettingsValues.pluginUUID;
   }
 
   private void normalizeContextPath() {
@@ -495,6 +502,10 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
   public void setFeedBackSendAviable(final boolean feedBackSendAviable) {
     this.feedBackSendAviable = feedBackSendAviable;
+  }
+
+  public void setInstalledPluginId(final String installedPluginId) {
+    this.installedPluginId = installedPluginId;
   }
 
   public void setMessage(final String message) {

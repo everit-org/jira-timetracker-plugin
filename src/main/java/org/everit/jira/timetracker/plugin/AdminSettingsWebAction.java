@@ -23,7 +23,6 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
-import org.everit.jira.timetracker.plugin.dto.CalendarSettingsValues;
 import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
 
 import com.atlassian.jira.component.ComponentAccessor;
@@ -260,22 +259,22 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
   public void loadPluginSettingAndParseResult() {
     PluginSettingsValues pluginSettingsValues = jiraTimetrackerPlugin
         .loadPluginSettings();
-    isPopup = pluginSettingsValues.isCalendarPopup();
-    isActualDate = pluginSettingsValues.isActualDate();
-    startTime = pluginSettingsValues.getStartTimeChange();
-    endTime = pluginSettingsValues.getEndTimeChange();
-    isColoring = pluginSettingsValues.isColoring();
-    issuesPatterns = pluginSettingsValues.getFilteredSummaryIssues();
+    isPopup = pluginSettingsValues.isCalendarPopup;
+    isActualDate = pluginSettingsValues.isActualDate;
+    startTime = pluginSettingsValues.startTimeChange;
+    endTime = pluginSettingsValues.endTimeChange;
+    isColoring = pluginSettingsValues.isColoring;
+    issuesPatterns = pluginSettingsValues.filteredSummaryIssues;
     for (Pattern issueId : issuesPatterns) {
       issueKey += issueId.toString() + " ";
     }
-    collectorIssuePatterns = pluginSettingsValues.getCollectorIssues();
+    collectorIssuePatterns = pluginSettingsValues.collectorIssues;
     for (Pattern issuePattern : collectorIssuePatterns) {
       collectorIssueKey += issuePattern.toString() + " ";
     }
-    excludeDates = pluginSettingsValues.getExcludeDates();
-    includeDates = pluginSettingsValues.getIncludeDates();
-    analyticsCheck = pluginSettingsValues.getAnalyticsCheckChange();
+    excludeDates = pluginSettingsValues.excludeDates;
+    includeDates = pluginSettingsValues.includeDates;
+    analyticsCheck = pluginSettingsValues.analyticsCheck;
   }
 
   private void normalizeContextPath() {
@@ -390,11 +389,11 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    * Save the plugin settings.
    */
   public void savePluginSettings() {
-    PluginSettingsValues pluginSettingValues = new PluginSettingsValues(
-        new CalendarSettingsValues(isPopup, isActualDate, excludeDates, includeDates,
-            isColoring),
-        issuesPatterns, collectorIssuePatterns, startTime,
-        endTime, analyticsCheck);
+    PluginSettingsValues pluginSettingValues = new PluginSettingsValues()
+        .isCalendarPopup(isPopup).actualDate(isActualDate).excludeDates(excludeDates)
+        .includeDates(includeDates).coloring(isColoring).filteredSummaryIssues(issuesPatterns)
+        .collectorIssues(collectorIssuePatterns).startTimeChange(startTime).endTimeChange(endTime)
+        .analyticsCheck(analyticsCheck);
 
     jiraTimetrackerPlugin.savePluginSettings(pluginSettingValues);
   }

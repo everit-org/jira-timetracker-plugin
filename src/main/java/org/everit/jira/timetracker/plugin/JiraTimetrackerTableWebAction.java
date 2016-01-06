@@ -138,6 +138,8 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   private boolean feedBackSendAviable;
 
+  private String installedPluginId;
+
   private List<Pattern> issuesRegex;
 
   /**
@@ -301,7 +303,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     setPiwikProperties();
     loadPluginSettingAndParseResult();
     PluginSettingsValues pluginSettings = jiraTimetrackerPlugin.loadPluginSettings();
-    setIssuesRegex(pluginSettings.getFilteredSummaryIssues());
+    setIssuesRegex(pluginSettings.filteredSummaryIssues);
 
     if (parseFeedback()) {
       return INPUT;
@@ -399,6 +401,10 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
         dateFromFormated,
         dateToFormated,
         currentUserEncoded);
+  }
+
+  public String getInstalledPluginId() {
+    return installedPluginId;
   }
 
   public List<Pattern> getIssuesRegex() {
@@ -510,7 +516,8 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   private void loadPluginSettingAndParseResult() {
     PluginSettingsValues pluginSettingsValues = jiraTimetrackerPlugin
         .loadPluginSettings();
-    analyticsCheck = pluginSettingsValues.getAnalyticsCheckChange();
+    analyticsCheck = pluginSettingsValues.analyticsCheck;
+    installedPluginId = pluginSettingsValues.pluginUUID;
   }
 
   private void normalizeContextPath() {
@@ -625,6 +632,10 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   public void setFeedBackSendAviable(final boolean feedBackSendAviable) {
     this.feedBackSendAviable = feedBackSendAviable;
+  }
+
+  public void setInstalledPluginId(final String installedPluginId) {
+    this.installedPluginId = installedPluginId;
   }
 
   public void setIssuesRegex(final List<Pattern> issuesRegex) {

@@ -22,6 +22,7 @@
     _paq.push(['setCustomVariable', 2, 'Version', '$pluginVersion', 'visit']);
     _paq.push(['setCustomVariable', 3, 'BaseURL', '$baseUrl', 'visit']);
     _paq.push(['setCustomVariable', 4, 'JiraVersion', '$jiraVersion', 'visit']);
+    _paq.push(['setCustomVariable', 5, 'InstalledPluginId', '$installedPluginId', 'visit']);
     _paq.push(['setDocumentTitle', '$baseUrl']);
     _paq.push(['setCustomUrl', customURL]);
     _paq.push(['trackPageView']);
