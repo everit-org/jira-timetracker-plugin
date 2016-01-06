@@ -30,14 +30,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.mockito.Matchers;
+import org.mockito.Mockito;
 import org.ofbiz.core.entity.GenericValue;
 import org.ofbiz.core.entity.model.ModelEntity;
 
 import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
-import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.mock.component.MockComponentWorker;
-import com.atlassian.jira.mock.issue.MockIssue;
 
 @RunWith(Parameterized.class)
 public class EveritWorklogTest {
@@ -104,19 +104,14 @@ public class EveritWorklogTest {
    */
   public void setupMockIssueManager(final int remainingTimeInSec) {
     MockComponentWorker mockComponentWorker = new MockComponentWorker();
-    MockIssue mockIssue = new MockIssue() {
-      @Override
-      public Issue getParentObject() {
-        return null;
-      }
-    };
-    mockIssue.setKey("KEY-12");
-    mockIssue.setEstimate((long) remainingTimeInSec);
-    IssueManager mgr = EasyMock.createNiceMock(IssueManager.class);
-    EasyMock.expect(mgr.getIssueObject(EasyMock.<Long> anyObject())).andReturn(mockIssue)
-        .anyTimes();
-    EasyMock.replay(mgr);
-    mockComponentWorker.addMock(IssueManager.class, mgr);
+
+    IssueManager mockIssueManager = Mockito.mock(IssueManager.class, Mockito.RETURNS_DEEP_STUBS);
+    Mockito.when(mockIssueManager.getIssueObject(Matchers.anyLong()).getKey()).thenReturn("KEY-12");
+    Mockito.when(mockIssueManager.getIssueObject(Matchers.anyLong()).getEstimate())
+        .thenReturn((long) remainingTimeInSec);
+    Mockito.when(mockIssueManager.getIssueObject(Matchers.anyLong()).getStatusObject()
+        .getSimpleStatus().getStatusCategory().getKey()).thenReturn("done");
+    mockComponentWorker.addMock(IssueManager.class, mockIssueManager);
 
     BigDecimal daysPerWeek = new BigDecimal(5);
     BigDecimal hoursPerDay = new BigDecimal(8);

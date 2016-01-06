@@ -106,11 +106,13 @@ margin-bottom: 0em;
 		                    	 	<td class="table-starttime" style="vertical-align: middle;">
 			                    	 		$worklog.startDate
 		                    	 	</td>
-		                    	 	<td class="table-issue" style="vertical-align: middle;  white-space: nowrap;">
+		                    	 	<td class="table-issue" style="vertical-align: middle; white-space: nowrap; #if($worklog.isClosed) text-decoration: line-through; #end">
 		                    	 		<a href="/browse/$worklog.issue" class="issue-link" title="#if($worklog.issueParent != '') $i18n.getText('plugin.parent.issue') $worklog.issueParent &#13 $worklog.issueSummary #else $worklog.issueSummary #end">$worklog.issue</a>
 		                    	 	</td>
 		                    	 	<td style="vertical-align: middle; white-space: nowrap;">
-		                    	 		#if($worklog.isMoreEstimatedTime)
+		                    	 		#if($worklog.isClosed)
+		                    	 			<div title="$worklog.exactRemaining" style="color: #A3A1A1;">$worklog.roundedRemaining</div>
+		                    	 		#elseif($worklog.isMoreEstimatedTime)
 											<div title="$worklog.exactRemaining">$worklog.roundedRemaining<div>
 										#else
 		                    	 			<div title="$worklog.exactRemaining" style="color:red;">$worklog.roundedRemaining</div>
