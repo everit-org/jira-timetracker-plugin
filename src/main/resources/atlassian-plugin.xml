@@ -33,11 +33,32 @@
   <component key="JTTP" name="Timetracker" class="org.everit.jira.timetracker.plugin.JiraTimetrackerPluginImpl">
     <interface>org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin</interface>
   </component>
-
-  <web-item key="jttp_link" name="JTTP Link" section="system.top.navigation.bar" weight="47">
+  
+   <web-item key="jttp_menu_item" name="JTTP Item" section="system.top.navigation.bar" weight="47">
+    <label>Timetracker Menu</label>
+    <link linkId="jttp_menu"></link>
+    <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserLoggedInCondition" />
+  </web-item>
+  
+  <web-section key="jttp_section" location="jttp_menu"></web-section>
+  <web-section key="jttp_doc_section" location="jttp_menu"></web-section>
+    
+  <web-item key="jttp_link" name="JTTP Link" section="jttp_menu/jttp_section" weight="47">
     <label>Timetracker</label>
     <link linkId="my_jttp_link"><![CDATA[/secure/JiraTimetrackerWebAction!default.jspa]]></link>
     <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserLoggedInCondition" />
+  </web-item>
+  
+  <web-item key="jttp_documentation_link" name="JTTP Documentaion Link" section="jttp_menu/jttp_doc_section" weight="47">
+    <label>Documentation</label>
+    <link linkId="jttp_doc_link" absolute="true">http://www.everit.org/jira-timetracker-plugin/</link>
+    <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserLoggedInCondition" />
+  </web-item>
+  
+  <web-item key="jttp_admin_link" name="JTTP Administration Link" section="jttp_menu/jttp_doc_section" weight="47">
+    <label>Administration</label>
+    <link linkId="jttp_admin_link"><![CDATA[/secure/admin/JiraTimetrackerAdminSettingsWebAction!default.jspa]]></link>
+    <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition" />
   </web-item>
 
  <web-resource key="jttp-resources" name="jttp Web Resources">
@@ -91,11 +112,11 @@
 
 <!--     Admin settings -->
 
-  <web-section key="jttp_section" location="admin_plugins_menu">
+  <web-section key="jttp_admin_section" location="admin_plugins_menu">
     <label key="Timetracker" />
   </web-section>
 
-  <web-item key="jttp_settings_link" name="Jttp Settings Link" section="admin_plugins_menu/jttp_section"
+  <web-item key="jttp_settings_link" name="Jttp Settings Link" section="admin_plugins_menu/jttp_admin_section"
     weight="47">
     <label>Global Settings</label>
     <link linkId="my_jttp_settings_link"><![CDATA[/secure/admin/JiraTimetrackerAdminSettingsWebAction!default.jspa]]></link>
