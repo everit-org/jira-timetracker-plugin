@@ -74,8 +74,8 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 #end
 <div id="plugin_head" class="item-header" style="width:980px;">
 		<div style="float: right;">
-			<a href="http://www.everit.org/jira-timetracker-plugin/" target="_blank">
-			<img src="$contextPath/download/resources/org.everit.jira.timetracker.plugin:jttp-resources/everit_tt_logo.png" alt="Everit logo" height="42" width="42" style:"float: right">
+			<a href="http://www.everit.biz/" target="_blank">
+			  <img src="$contextPath/download/resources/org.everit.jira.timetracker.plugin:jttp-resources/everit_tt_logo.png" alt="Everit logo" height="42" width="42" style:"float: right">
 			</a>
 		</div>
 		<h1 class="item-summary" style="display: inline-block; padding-top: 6px;">Timetracker</h1>
