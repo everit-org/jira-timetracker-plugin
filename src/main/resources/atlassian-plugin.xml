@@ -35,7 +35,7 @@
   </component>
   
    <web-item key="jttp_menu_item" name="JTTP Item" section="system.top.navigation.bar" weight="47">
-    <label>Timetracker Menu</label>
+    <label>Timetracker</label>
     <link linkId="jttp_menu"></link>
     <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserLoggedInCondition" />
   </web-item>
