@@ -252,19 +252,8 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 						<tr>
 							<td>
 								<input id="search"  tabindex="3" type="submit" name="search" value="$i18n.getText('plugin.search')" class="button" 
-								  onclick="searchOnClick();"/>
+								  onclick="searchOnClick('Chart');"/>
 							</td>
-							<script>
-								function searchOnClick(){
-									var loggedUserIn = AJS.params.loggedInUser;
-									var selectedUser = document.getElementById("userPicker").value;
-									if(loggedUserIn == selectedUser){
-										_paq.push(['trackEvent', 'User', 'MyChart']);
-									}else{
-										_paq.push(['trackEvent', 'User', 'OthersChart']);
-									}
-								}
-							</script>
 						</tr>
 					</tbody>
 				</table>
