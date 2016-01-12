@@ -524,7 +524,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     }
 
     setFieldsValue();
-    // if not edit and not submit than just a simple date change
+    // TODO if you add any submit action you have to check in this method too! (for exaple:
+    // sendfeedback)
     String result = handleDateChangeAction();
     if (result != null) {
       return result;
@@ -539,6 +540,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       result = editAction();
     } else if (getHttpRequest().getParameter("sendfeedback") != null) {
       result = sendFeedBack();
+    } else if (getHttpRequest().getParameter("reporting-send-button") != null) {
+      result = sendReportingFeedBack();
     } else {
       return createOrCopyAction();
     }
@@ -842,7 +845,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     if ((getHttpRequest().getParameter("edit") == null)
         && (getHttpRequest().getParameter("submit") == null)
         && (getHttpRequest().getParameter("editallsave") == null)
-        && (getHttpRequest().getParameter("sendfeedback") == null)) {
+        && (getHttpRequest().getParameter("sendfeedback") == null)
+        && (getHttpRequest().getParameter("reporting-send-button") == null)) {
       try {
         handleInputWorklogId();
       } catch (ParseException e) {
@@ -1154,7 +1158,46 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     if (ratingValue != null) {
       rating = ratingValue;
     }
-    jiraTimetrackerPlugin.sendFeedBackEmail(feedBack, pluginVersion, rating, customerMail);
+    String mailSubject = JiraTimetrackerUtil.createFeedbackMailSubject(pluginVersion);
+    String mailBody = JiraTimetrackerUtil.createFeedbackMailBody(customerMail, rating, feedBack);
+    jiraTimetrackerPlugin.sendEmail(mailSubject, mailBody);
+    try {
+      loadWorklogsAndMakeSummary();
+      startTime = jiraTimetrackerPlugin.lastEndTime(worklogs);
+      endTime = DateTimeConverterUtil.dateTimeToString(new Date());
+      comment = "";
+    } catch (GenericEntityException | ParseException | DataAccessException | SQLException e) {
+      LOGGER.error("Error when try set the plugin variables.", e);
+      return ERROR;
+    }
+    return SUCCESS;
+  }
+
+  private String sendReportingFeedBack() {
+    String[] answer1 = getHttpRequest().getParameterValues("answer1");
+    String[] answer2 = getHttpRequest().getParameterValues("answer2");
+    String[] answer3 = getHttpRequest().getParameterValues("answer3");
+    String[] answer9 = getHttpRequest().getParameterValues("answer9");
+    String[] answer4 = getHttpRequest().getParameterValues("answer4");
+    String answer5 = getHttpRequest().getParameter("answer5");
+    String answer6 = getHttpRequest().getParameter("answer6");
+    String reportinginput7 = getHttpRequest().getParameter("reportinginput7");
+    String reportinginput8 = getHttpRequest().getParameter("reportinginput8");
+    String customerMail = getHttpRequest().getParameter("customerMail");
+    String mailSubject = JiraTimetrackerUtil.createReportingMailSubject(pluginVersion);
+
+    JiraTimetrackerUtil.createReportMailBody(customerMail);
+    JiraTimetrackerUtil.addAnswersToReportingMailBody("answer.1", answer1);
+    JiraTimetrackerUtil.addAnswersToReportingMailBody("answer.2", answer2);
+    JiraTimetrackerUtil.addAnswersToReportingMailBody("answer.3", answer3);
+    JiraTimetrackerUtil.addAnswersToReportingMailBody("answer.9", answer9);
+    JiraTimetrackerUtil.addAnswersToReportingMailBody("answer.4", answer4);
+    JiraTimetrackerUtil.addAnswerToReportingMailBody("answer.5", answer5);
+    JiraTimetrackerUtil.addAnswerToReportingMailBody("answer.6", answer6);
+    JiraTimetrackerUtil.addAnswerToReportingMailBody("answer.7", reportinginput7);
+    JiraTimetrackerUtil.addAnswerToReportingMailBody("answer.8", reportinginput8);
+    String mailBody = JiraTimetrackerUtil.finishReportingMailBody();
+    jiraTimetrackerPlugin.sendEmail(mailSubject, mailBody);
     try {
       loadWorklogsAndMakeSummary();
       startTime = jiraTimetrackerPlugin.lastEndTime(worklogs);

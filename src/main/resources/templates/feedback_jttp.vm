@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *#
-<a href="#" id="dialog-show-button">$i18n.getText('jttp.send.feedback')</a>
+<a href="javascript:void(0);" id="dialog-show-button">$i18n.getText('jttp.send.feedback')</a>
 <section role="dialog" id="jttp-feedback-dialog" class="aui-layer aui-dialog2 aui-dialog2-medium" aria-hidden="true">
     <!-- Dialog header -->
    <form name="jttpFeedbackForm" id="jttpFeedbackForm" method="post" action="JiraTimetrackerWebAction.jspa?dateFormatted=$dateFormatted" class="aui"/>

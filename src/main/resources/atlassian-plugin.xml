@@ -41,11 +41,18 @@
   </web-item>
   
   <web-section key="jttp_section" location="jttp_menu"></web-section>
+  <web-section key="jttp_reporting_section" location="jttp_menu"></web-section>
   <web-section key="jttp_doc_section" location="jttp_menu"></web-section>
     
   <web-item key="jttp_link" name="JTTP Link" section="jttp_menu/jttp_section" weight="47">
     <label>Timetracker</label>
     <link linkId="my_jttp_link"><![CDATA[/secure/JiraTimetrackerWebAction!default.jspa]]></link>
+    <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserLoggedInCondition" />
+  </web-item>
+  
+  <web-item key="jttp_report_link" name="JTTP Report Link" section="jttp_menu/jttp_reporting_section" weight="47">
+    <label>Reporting</label>
+    <link linkId="jttp_reporting_link"><![CDATA[/secure/JiraTimetrackerWebAction!default.jspa#reporting-dialog]]></link>
     <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserLoggedInCondition" />
   </web-item>
   
@@ -105,6 +112,11 @@
       <action name="org.everit.jira.timetracker.plugin.JiraTimetrackerTableWebAction" alias="JiraTimetrackerTableWebAction">
         <view name="success">/templates/table_report.vm</view>
         <view name="input">/templates/table_report.vm</view>
+        <view name="error">/templates/error.vm</view>
+      </action>
+      <action name="org.everit.jira.timetracker.plugin.JiraReportingPopupWebAction" alias="JiraReportingPopupWebAction">
+        <view name="success">/templates/reporting_popup.vm</view>
+        <view name="input">/templates/reporting_popup.vm</view>
         <view name="error">/templates/error.vm</view>
       </action>
     </actions>

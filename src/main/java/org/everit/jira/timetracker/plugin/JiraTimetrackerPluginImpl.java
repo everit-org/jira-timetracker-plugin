@@ -86,8 +86,6 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, InitializingBean,
     DisposableBean, Serializable {
 
-  private static final String CUSTOMER_EMAIL_PREFIX = "The customer email address is ";
-
   private static final int DATE_LENGTH = 7;
 
   private static final String DATE_PARSE = "plugin.date_parse";
@@ -95,8 +93,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   private static final int DEFAULT_CHECK_TIME_IN_MINUTES = 1200;
 
   private static final String FEEDBACK_EMAIL_DEFAULT_VALUE = "${jttp.feedback.email}";
-
-  private static final String FEEDBACK_EMAIL_SUBJECT = "[JTTP] feedback";
 
   private static final String FEEDBACK_EMAIL_TO = "FEEDBACK_EMAIL_TO";
 
@@ -184,8 +180,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
    * A day in minutes.
    */
   private static final int ONE_DAY_IN_MINUTES = 1440;
-
-  private static final String PREFIX_PLUGIN_RATED = "The plugin rated to: ";
 
   private static final String PROPERTIES = "jttp_build.properties";
 
@@ -1041,33 +1035,22 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   }
 
   @Override
-  public void sendFeedBackEmail(final String feedBack, final String pluginVersion,
-      final String rating, final String customerEmail) {
-    StringBuilder mailBody = new StringBuilder();
-    if ((customerEmail != null) && !customerEmail.isEmpty()) {
-      mailBody.append(CUSTOMER_EMAIL_PREFIX);
-      mailBody.append(customerEmail);
-      mailBody.append("\n");
-    }
-    mailBody.append(PREFIX_PLUGIN_RATED);
-    mailBody.append(rating);
-    mailBody.append("\n");
-    mailBody.append(feedBack);
+  public void sendEmail(final String mailSubject, final String mailBody) {
     String defaultFrom = getFromMail();
     if (!FEEDBACK_EMAIL_DEFAULT_VALUE.equals(feedBackEmailTo) && (defaultFrom != null)) {
       Email email = new Email(feedBackEmailTo);
       email.setFrom(defaultFrom);
-      email.setSubject(FEEDBACK_EMAIL_SUBJECT + " " + pluginVersion + " - "
-          + DateTimeConverterUtil.dateToString(new Date()));
-      email.setBody(mailBody.toString());
+      email.setSubject(mailSubject);
+      email.setBody(mailBody);
       SingleMailQueueItem singleMailQueueItem = new SingleMailQueueItem(email);
       singleMailQueueItem.setMailThreader(null);
       ComponentAccessor.getMailQueue().addItem(singleMailQueueItem);
     } else {
       LOGGER.error(
           "Feedback not sent, beacause To mail address is not defined. \n"
-              + "The message: \n" + mailBody.toString());
+              + "The message: \n" + mailBody);
     }
+
   }
 
   private void setAnalyticsCheck() {

@@ -459,8 +459,10 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
       if (ratingValue != null) {
         rating = ratingValue;
       }
-      jiraTimetrackerPlugin.sendFeedBackEmail(feedBack, JiraTimetrackerAnalytics.getPluginVersion(),
-          rating, customerMail);
+      String mailSubject = JiraTimetrackerUtil
+          .createFeedbackMailSubject(JiraTimetrackerAnalytics.getPluginVersion());
+      String mailBody = JiraTimetrackerUtil.createFeedbackMailBody(customerMail, rating, feedBack);
+      jiraTimetrackerPlugin.sendEmail(mailSubject, mailBody);
     }
   }
 
