@@ -151,24 +151,8 @@
 
 <script>
 
-window.onhashchange = function () {
-var currentHash = window.location.hash;
-    if (currentHash=="#reporting-dialog") {
-        window.location.hash = "";
-        AJS.dialog2("#reporting-dialog").show();
-        AJS.$("#reportingError").hide();
-        _paq.push(['trackEvent', 'User', 'Reporting']); 
-    }
-};
-window.onload = function(){
-  var currentHash = window.location.hash;
-  if (currentHash=="#reporting-dialog") {
-      window.location.hash = "";
-      AJS.dialog2("#reporting-dialog").show();
-      AJS.$("#reportingError").hide();
-      _paq.push(['trackEvent', 'User', 'Reporting']); 
-  }
-};
+window.onhashchange = jttpReportDialogShow();
+window.onload = jttpReportDialogShow();
 
 // SEND FEEDBACK and hide the dialog
 AJS.$("#reporting-send-button").click(function(e) {

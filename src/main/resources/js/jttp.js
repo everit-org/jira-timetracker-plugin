@@ -14,12 +14,22 @@
  * limitations under the License.
  */
 
-  function searchOnClick(reportName){
+  function jttpSearchOnClick(reportName){
     var loggedUserIn = AJS.params.loggedInUser;
     var selectedUser = document.getElementById("userPicker").value;
     if(loggedUserIn == selectedUser){
       _paq.push(['trackEvent', 'User', 'My'+reportName]);
     }else{
       _paq.push(['trackEvent', 'User', 'Others'+reportName]);
+    }
+  }
+
+  function jttpReportDialogShow() {
+    var currentHash = window.location.hash;
+    if (currentHash=="#reporting-dialog") {
+        window.location.hash = "";
+        AJS.dialog2("#reporting-dialog").show();
+        AJS.$("#reportingError").hide();
+        _paq.push(['trackEvent', 'User', 'Reporting']); 
     }
   }
