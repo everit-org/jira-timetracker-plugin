@@ -18,6 +18,10 @@ body{
     overflow: scroll;
 }
 
+.question{
+    padding-top: 15px;
+}
+
 .feedback_footer{
     position: relative;
     float: right;
@@ -50,6 +54,10 @@ td .text{
   vertical-align: top;
   padding-right: 20px;
   padding-top: 3px;
+}
+
+.label_td_left{
+  vertical-align: middle;
 }
 
 /* :not(:checked) is a filter, so that browsers that don’t support :checked don’t 
