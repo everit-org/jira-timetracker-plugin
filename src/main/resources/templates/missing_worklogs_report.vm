@@ -219,7 +219,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 	          </tr>
 	          <tr>
 	            <td><input id="search" tabindex="3" type="submit" name="search" value="$i18n.getText('plugin.search')"
-	              class="button" /></td>
+	              class="button" onclick="_paq.push(['trackEvent', 'User', 'Missings']); "/></td>
 	          </tr>
 	        </tbody>
 	      </table>
