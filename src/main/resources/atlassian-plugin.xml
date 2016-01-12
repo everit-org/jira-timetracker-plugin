@@ -73,6 +73,7 @@
     <dependency>com.atlassian.auiplugin:dialog2</dependency>
     <dependency>com.atlassian.auiplugin:aui-date-picker</dependency>
     <resource type="download" name="jttp_feedback.css" location="/css/jttp_feedback.css"/>
+    <resource type="download" name="jttp.js" location="/js/jttp.js"/>
     <resource type="download" name="everit_tt_logo.png" location="/icons/everit_timetracker_logo.png">
       <param name="content-type" value="image/png" />
     </resource>
