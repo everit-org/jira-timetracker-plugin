@@ -53,6 +53,12 @@
             </td>
           </tr>
           <tr>
+            <td colspan="2">
+              $i18n.getText('jttp.reporting.answer.2.9')
+              <textarea name="answer2" style="width: 75%; height: 130px; resize: none; border-radius: 0.3em;"></textarea>
+            </td>
+          </tr>
+          <tr>
             <td colspan="2" class="question">
               <label style="margin-bottom: 5px;">$i18n.getText('jttp.reporting.question.3') </label> 
             </td>
@@ -60,6 +66,12 @@
           <tr>
             <td colspan="2">
              <input type="checkbox" value="1" name="answer3"/> $i18n.getText('jttp.reporting.answer.3.1') <input type="checkbox" value="2" name="answer3"/> $i18n.getText('jttp.reporting.answer.3.2') <input type="checkbox" value="3" name="answer3"/> $i18n.getText('jttp.reporting.answer.3.3')
+            </td>
+          </tr>
+          <tr>
+            <td colspan="2">
+              $i18n.getText('jttp.reporting.answer.3.4')
+              <textarea name="answer3" style="width: 75%; height: 130px; resize: none; border-radius: 0.3em;"></textarea>
             </td>
           </tr>
           <tr>
