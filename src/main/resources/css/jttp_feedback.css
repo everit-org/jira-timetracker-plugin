@@ -18,6 +18,11 @@ body{
     overflow: scroll;
 }
 
+.other_answer{
+    text-align: right;
+    vertical-align: top;
+}
+
 .question{
     padding-top: 15px;
 }
