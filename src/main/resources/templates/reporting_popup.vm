@@ -172,7 +172,8 @@ window.onhashchange = function(){
         _paq.push(['trackEvent', 'User', 'Reporting']); 
     }
 };
-window.onload = jttpReportDialogShow();
+//onload added in jttp.vm, after refactore this not will be a problem
+//window.onload = jttpReportDialogShow();
 
 // SEND FEEDBACK and hide the dialog
 AJS.$("#reporting-send-button").click(function(e) {
