@@ -53,6 +53,12 @@
             </td>
           </tr>
           <tr>
+            <td colspan="2" style="padding-top: 5px;">
+              <label style="vertical-align: top; color: black;">$i18n.getText('jttp.reporting.answer.2.9')</label> 
+              <textarea name="answer2" style="width: 50%; height: 20px; resize: none; border-radius: 0.3em;"></textarea>
+            </td>
+          </tr>
+          <tr>
             <td colspan="2" class="question">
               <label style="margin-bottom: 5px;">$i18n.getText('jttp.reporting.question.3') </label> 
             </td>
@@ -60,6 +66,12 @@
           <tr>
             <td colspan="2">
              <input type="checkbox" value="1" name="answer3"/> $i18n.getText('jttp.reporting.answer.3.1') <input type="checkbox" value="2" name="answer3"/> $i18n.getText('jttp.reporting.answer.3.2') <input type="checkbox" value="3" name="answer3"/> $i18n.getText('jttp.reporting.answer.3.3')
+            </td>
+          </tr>
+          <tr>
+            <td colspan="2" style="padding-top: 5px;">
+              <label style="vertical-align: top; color: black;"> $i18n.getText('jttp.reporting.answer.3.4')</label> 
+              <textarea name="answer3" style="width: 50%; height: 20px; resize: none; border-radius: 0.3em;"></textarea>
             </td>
           </tr>
           <tr>
@@ -151,7 +163,15 @@
 
 <script>
 
-window.onhashchange = jttpReportDialogShow();
+window.onhashchange = function(){
+    var currentHash = window.location.hash;
+    if (currentHash=="#reporting-dialog") {
+        window.location.hash = "";
+        AJS.dialog2("#reporting-dialog").show();
+        AJS.$("#reportingError").hide();
+        _paq.push(['trackEvent', 'User', 'Reporting']); 
+    }
+};
 window.onload = jttpReportDialogShow();
 
 // SEND FEEDBACK and hide the dialog
