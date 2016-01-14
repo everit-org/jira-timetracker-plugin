@@ -57,8 +57,8 @@
   </web-item>
   
   <web-item key="jttp_documentation_link" name="JTTP Documentaion Link" section="jttp_menu/jttp_doc_section" weight="47">
-    <label>Documentation</label>
-    <link linkId="jttp_doc_link" absolute="true">http://www.everit.org/jira-timetracker-plugin/</link>
+    <label>Help</label>
+    <link linkId="jttp_doc_link">http://www.everit.org/jira-timetracker-plugin/" target="_blank</link>
     <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserLoggedInCondition" />
   </web-item>
   
