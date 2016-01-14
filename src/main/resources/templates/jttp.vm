@@ -727,6 +727,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 	 			document.getElementById("startTime").focus();
 	 			AJS.$('.aui-ss-editing').attr("style","width: 250px;");
 	 			AJS.$('.aui-ss.aui-ss-editing .aui-ss-field').attr("style","width: 250px;");
+	 			jttpReportDialogShow();
 			 };
 			 
 			 AJS.$('.table-endtime').click(function(){
