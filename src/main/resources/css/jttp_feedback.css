@@ -121,3 +121,22 @@ td .text{
 	border-radius: 3px;
 	background-color: #d04437;
 }
+
+
+div.aui-dialog2-content tr {
+  display: table;
+  width: 100%;
+}
+
+div.aui-dialog2-content td.answers {
+  display: table-row;
+  width: 100%;
+}
+
+div.aui-dialog2-content .answers .answer-column {
+  display: table-cell;
+}
+
+div.aui-dialog2-content .answers .answer-column label {
+  color: #333
+}
