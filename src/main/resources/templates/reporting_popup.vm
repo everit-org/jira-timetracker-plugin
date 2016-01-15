@@ -37,8 +37,13 @@
             </td>
           </tr>
           <tr>
-            <td colspan="2">
-             <input type="checkbox" value="1" name="answer1"/> $i18n.getText('jttp.reporting.answer.1.1') <input type="checkbox" value="2" name="answer1"/> $i18n.getText('jttp.reporting.answer.1.2') <input type="checkbox" value="3" name="answer1"/> $i18n.getText('jttp.reporting.answer.1.3') <input type="checkbox" value="4" name="answer1"/> $i18n.getText('jttp.reporting.answer.1.4')
+            <td colspan="2" class="answers">
+              <div class="answer-column">
+                <div><input type="checkbox" value="1" name="answer1" id="answer1-opt1"><label for="answer1-opt1">$i18n.getText('jttp.reporting.answer.1.1')</label></div>
+                <div><input type="checkbox" value="2" name="answer1" id="answer1-opt2"><label for="answer1-opt2">$i18n.getText('jttp.reporting.answer.1.2')</label></div>
+                <div><input type="checkbox" value="3" name="answer1" id="answer1-opt3"><label for="answer1-opt3">$i18n.getText('jttp.reporting.answer.1.3')</label></div>
+                <div><input type="checkbox" value="4" name="answer1" id="answer1-opt4"><label for="answer1-opt4">$i18n.getText('jttp.reporting.answer.1.4')</label></div>
+              </div>
             </td>
           </tr>
           <tr>
@@ -47,9 +52,21 @@
             </td>
           </tr>
           <tr>
-            <td colspan="2">
-              <input type="checkbox" value="1" name="answer2"/> $i18n.getText('jttp.reporting.answer.2.1') <input type="checkbox" value="2" name="answer2"/> $i18n.getText('jttp.reporting.answer.2.2') <input type="checkbox" value="3" name="answer2"/> $i18n.getText('jttp.reporting.answer.2.3') <input type="checkbox" value="4" name="answer2"/> $i18n.getText('jttp.reporting.answer.2.4')
-              <input type="checkbox" value="5" name="answer2"/> $i18n.getText('jttp.reporting.answer.2.5') <input type="checkbox" value="6" name="answer2"/> $i18n.getText('jttp.reporting.answer.2.6') <input type="checkbox" value="7" name="answer2"/> $i18n.getText('jttp.reporting.answer.2.7') <input type="checkbox" value="8" name="answer2"> $i18n.getText('jttp.reporting.answer.2.8') </input>
+            <td colspan="2" class="answers">
+              <div class="answer-column">
+                <div><input type="checkbox" value="1" name="answer2" id="answer2-opt1"><label for="answer2-opt1">$i18n.getText('jttp.reporting.answer.2.1')</label></div>
+                <div><input type="checkbox" value="2" name="answer2" id="answer2-opt2"><label for="answer2-opt2">$i18n.getText('jttp.reporting.answer.2.2')</label></div>
+                <div><input type="checkbox" value="3" name="answer2" id="answer2-opt3"><label for="answer2-opt3">$i18n.getText('jttp.reporting.answer.2.3')</label></div>
+              </div>
+              <div class="answer-column">
+                <div><input type="checkbox" value="4" name="answer2" id="answer2-opt4"><label for="answer2-opt4">$i18n.getText('jttp.reporting.answer.2.4')</label></div>
+                <div><input type="checkbox" value="5" name="answer2" id="answer2-opt5"><label for="answer2-opt5">$i18n.getText('jttp.reporting.answer.2.5')</label></div>
+                <div><input type="checkbox" value="6" name="answer2" id="answer2-opt6"><label for="answer2-opt6">$i18n.getText('jttp.reporting.answer.2.6')</label></div>
+              </div>
+              <div class="answer-column">
+                <div><input type="checkbox" value="7" name="answer2" id="answer2-opt7"><label for="answer2-opt7">$i18n.getText('jttp.reporting.answer.2.7')</label></div>
+                <div><input type="checkbox" value="8" name="answer2" id="answer2-opt8"><label for="answer2-opt8">$i18n.getText('jttp.reporting.answer.2.8')</label></div>
+              </div>
             </td>
           </tr>
           <tr>
@@ -64,8 +81,12 @@
             </td>
           </tr>
           <tr>
-            <td colspan="2">
-             <input type="checkbox" value="1" name="answer3"/> $i18n.getText('jttp.reporting.answer.3.1') <input type="checkbox" value="2" name="answer3"/> $i18n.getText('jttp.reporting.answer.3.2') <input type="checkbox" value="3" name="answer3"/> $i18n.getText('jttp.reporting.answer.3.3')
+            <td colspan="2" class="answers">
+              <div class="answer-column">
+                <div><input type="checkbox" value="1" name="answer3" id="answer3-opt1"><label for="answer3-opt1">$i18n.getText('jttp.reporting.answer.3.1')</label></div>
+                <div><input type="checkbox" value="2" name="answer3" id="answer3-opt2"><label for="answer3-opt2">$i18n.getText('jttp.reporting.answer.3.2')</label></div>
+                <div><input type="checkbox" value="3" name="answer3" id="answer3-opt3"><label for="answer3-opt3">$i18n.getText('jttp.reporting.answer.3.3')</label></div>
+              </div>
             </td>
           </tr>
           <tr>
@@ -80,11 +101,27 @@
             </td>
           </tr>
           <tr>
-            <td colspan="2">
-              <input type="checkbox" value="1" name="answer9"/> $i18n.getText('jttp.reporting.answer.9.1') <input type="checkbox" value="2" name="answer9"/> $i18n.getText('jttp.reporting.answer.9.2') <input type="checkbox" value="3" name="answer9"/> $i18n.getText('jttp.reporting.answer.9.3') <input type="checkbox" value="4" name="answer9"/> $i18n.getText('jttp.reporting.answer.9.4')
-              <input type="checkbox" value="5" name="answer9"/> $i18n.getText('jttp.reporting.answer.9.5') <input type="checkbox" value="6" name="answer9"/> $i18n.getText('jttp.reporting.answer.9.6') <input type="checkbox" value="7" name="answer9"/> $i18n.getText('jttp.reporting.answer.9.7') <input type="checkbox" value="8" name="answer9"> $i18n.getText('jttp.reporting.answer.9.8') </input>
-              <input type="checkbox" value="9" name="answer9"/> $i18n.getText('jttp.reporting.answer.9.9') <input type="checkbox" value="10" name="answer9"/> $i18n.getText('jttp.reporting.answer.9.10') <input type="checkbox" value="11" name="answer9"/> $i18n.getText('jttp.reporting.answer.9.11') <input type="checkbox" value="12" name="answer9"> $i18n.getText('jttp.reporting.answer.9.12') </input>
-              <input type="checkbox" value="13" name="answer9"/> $i18n.getText('jttp.reporting.answer.9.13') <input type="checkbox" value="14" name="answer9"/> $i18n.getText('jttp.reporting.answer.9.14') 
+            <td colspan="2" class="answers">
+              <div class="answer-column">
+                <div><input type="checkbox" value="1" name="answer9" id="answer9-opt1"><label for="answer9-opt1">$i18n.getText('jttp.reporting.answer.9.1')</label></div>
+                <div><input type="checkbox" value="2" name="answer9" id="answer9-opt2"><label for="answer9-opt2">$i18n.getText('jttp.reporting.answer.9.2')</label></div>
+                <div><input type="checkbox" value="3" name="answer9" id="answer9-opt3"><label for="answer9-opt3">$i18n.getText('jttp.reporting.answer.9.3')</label></div>
+                <div><input type="checkbox" value="4" name="answer9" id="answer9-opt4"><label for="answer9-opt4">$i18n.getText('jttp.reporting.answer.9.4')</label></div>
+                <div><input type="checkbox" value="5" name="answer9" id="answer9-opt5"><label for="answer9-opt5">$i18n.getText('jttp.reporting.answer.9.5')</label></div>
+              </div>
+              <div class="answer-column">
+                <div><input type="checkbox" value="6" name="answer9" id="answer9-opt6"><label for="answer9-opt6">$i18n.getText('jttp.reporting.answer.9.6') </label></div>
+                <div><input type="checkbox" value="7" name="answer9" id="answer9-opt7"><label for="answer9-opt7">$i18n.getText('jttp.reporting.answer.9.7') </label></div>
+                <div><input type="checkbox" value="8" name="answer9" id="answer9-opt8"><label for="answer9-opt8">$i18n.getText('jttp.reporting.answer.9.8') </label></div>
+                <div><input type="checkbox" value="9" name="answer9" id="answer9-opt9"><label for="answer9-opt9">$i18n.getText('jttp.reporting.answer.9.9') </label></div>
+                <div><input type="checkbox" value="10" name="answer9" id="answer9-opt10"><label for="answer9-opt10">$i18n.getText('jttp.reporting.answer.9.10') </label></div>
+              </div>
+              <div class="answer-column">
+                <div><input type="checkbox" value="11" name="answer9" id="answer9-opt11"><label for="answer9-opt11"> $i18n.getText('jttp.reporting.answer.9.11')</label></div>
+                <div><input type="checkbox" value="12" name="answer9" id="answer9-opt12"><label for="answer9-opt12">$i18n.getText('jttp.reporting.answer.9.12')</label></div>
+                <div><input type="checkbox" value="13" name="answer9" id="answer9-opt13"><label for="answer9-opt13">$i18n.getText('jttp.reporting.answer.9.13')</label></div>
+                <div><input type="checkbox" value="14" name="answer9" id="answer9-opt14"><label for="answer9-opt14">$i18n.getText('jttp.reporting.answer.9.14') </label></div>
+              </div> 
             </td>
           </tr>
           <tr>
@@ -93,8 +130,14 @@
             </td>
           </tr>
           <tr>
-            <td colspan="2">
-             <input type="checkbox" value="1" name="answer4"/> $i18n.getText('jttp.reporting.answer.4.1') <input type="checkbox" value="2" name="answer4"/> $i18n.getText('jttp.reporting.answer.4.2') <input type="checkbox" value="3" name="answer4"/> $i18n.getText('jttp.reporting.answer.4.3') <input type="checkbox" value="4" name="answer4"/> $i18n.getText('jttp.reporting.answer.4.4') <input type="checkbox" value="5" name="answer4"/> $i18n.getText('jttp.reporting.answer.4.5')
+            <td colspan="2" class="answers">
+              <div class="answer-column">
+                <div><input type="checkbox" value="1" name="answer4" id="answer4-opt1"><label for="answer4-opt1">$i18n.getText('jttp.reporting.answer.4.1')</label></div>
+                <div><input type="checkbox" value="2" name="answer4" id="answer4-opt2"><label for="answer4-opt2">$i18n.getText('jttp.reporting.answer.4.2')</label></div>
+                <div><input type="checkbox" value="3" name="answer4" id="answer4-opt3"><label for="answer4-opt3">$i18n.getText('jttp.reporting.answer.4.3')</label></div>
+                <div><input type="checkbox" value="4" name="answer4" id="answer4-opt4"><label for="answer4-opt4">$i18n.getText('jttp.reporting.answer.4.4')</label></div>
+                <div><input type="checkbox" value="5" name="answer4" id="answer4-opt5"><label for="answer4-opt5">$i18n.getText('jttp.reporting.answer.4.5')</label></div>
+              </div>
             </td>
           </tr>
           <tr>
@@ -103,8 +146,12 @@
             </td>
           </tr>
           <tr>
-            <td colspan="2">
-              <input type="radio" name="answer5" value="1"/> $i18n.getText('jttp.reporting.answer.5.1') <input type="radio" name="answer5" value="2"/> $i18n.getText('jttp.reporting.answer.5.2') <input type="radio" name="answer5" value="3"/> $i18n.getText('jttp.reporting.answer.5.3')
+            <td colspan="2" class="answers">
+              <div class="answer-column">
+                <input type="radio" name="answer5" value="1" id="answer5-opt1"><label for="answer5-opt1">$i18n.getText('jttp.reporting.answer.5.1')</label>
+                <input type="radio" name="answer5" value="2" id="answer5-opt2"><label for="answer5-opt2">$i18n.getText('jttp.reporting.answer.5.2')</label>
+                <input type="radio" name="answer5" value="3" id="answer5-opt3"><label for="answer5-opt3">$i18n.getText('jttp.reporting.answer.5.3')</label>
+              </div>
             </td>
           </tr>
           <tr>
@@ -113,8 +160,12 @@
             </td>
           </tr>
           <tr>
-            <td colspan="2">
-              <input type="radio" name="answer6" value="1"/> $i18n.getText('jttp.reporting.answer.5.1') <input type="radio" name="answer6" value="2"/> $i18n.getText('jttp.reporting.answer.5.2') <input type="radio" name="answer6" value="3"/> $i18n.getText('jttp.reporting.answer.5.3')
+            <td colspan="2" class="answers">
+              <div class="answer-column">
+                <input type="radio" name="answer6" value="1" id="answer6-opt1"><label for="answer6-opt1">$i18n.getText('jttp.reporting.answer.6.1')</label>
+                <input type="radio" name="answer6" value="2" id="answer6-opt2"><label for="answer6-opt2">$i18n.getText('jttp.reporting.answer.6.2')</label>
+                <input type="radio" name="answer6" value="3" id="answer6-opt3"><label for="answer6-opt3">$i18n.getText('jttp.reporting.answer.6.3')</label>
+              </div>
             </td>
           </tr>
           <tr>
