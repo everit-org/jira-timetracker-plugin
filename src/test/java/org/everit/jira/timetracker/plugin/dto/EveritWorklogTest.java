@@ -66,7 +66,7 @@ public class EveritWorklogTest {
   }
 
   private static DurationBuilder duration() {
-    return new DurationBuilder();
+    return new DurationBuilder(8, 5);
   }
 
   private static Object[] param(final String expectedRemaining,

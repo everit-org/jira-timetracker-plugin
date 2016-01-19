@@ -257,8 +257,8 @@ public final class DateTimeConverterUtil {
   public static String secondConvertToRoundedDuration(final long spentSeconds) {
     TimeTrackingConfiguration timeTrackingConfiguration =
         ComponentAccessor.getComponent(TimeTrackingConfiguration.class);
-    long workDaysPerWeek = timeTrackingConfiguration.getDaysPerWeek().longValue();
-    long workHoursPerDay = timeTrackingConfiguration.getHoursPerDay().longValue();
+    double workDaysPerWeek = timeTrackingConfiguration.getDaysPerWeek().doubleValue();
+    double workHoursPerDay = timeTrackingConfiguration.getHoursPerDay().doubleValue();
     return DurationFormatter.roundedDuration(spentSeconds, workDaysPerWeek, workHoursPerDay);
   }
 
@@ -272,8 +272,8 @@ public final class DateTimeConverterUtil {
   public static String secondConvertToString(final long spentSeconds) {
     TimeTrackingConfiguration timeTrackingConfiguration =
         ComponentAccessor.getComponent(TimeTrackingConfiguration.class);
-    long workDaysPerWeek = timeTrackingConfiguration.getDaysPerWeek().longValue();
-    long workHoursPerDay = timeTrackingConfiguration.getHoursPerDay().longValue();
+    double workDaysPerWeek = timeTrackingConfiguration.getDaysPerWeek().doubleValue();
+    double workHoursPerDay = timeTrackingConfiguration.getHoursPerDay().doubleValue();
     return DurationFormatter.exactDuration(spentSeconds, workDaysPerWeek, workHoursPerDay);
   }
 
