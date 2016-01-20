@@ -55,6 +55,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    */
   private static final Long DEFAULT_WORKLOG_ID = Long.valueOf(0);
 
+  private static final String FREQUENT_FEEDBACK = "jttp.plugin.frequent.feedback";
+
   private static final String INVALID_DURATION_TIME = "plugin.invalid_durationTime";
 
   private static final String INVALID_START_TIME = "plugin.invalid_startTime";
@@ -131,7 +133,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private String daySummary = "";
 
   private String debugMessage = "";
-
   /**
    * The deleted worklog id.
    */
@@ -144,10 +145,12 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The all edit worklogs ids.
    */
   private String editAllIds = "";
+
   /**
    * The edited worklog id.
    */
   private Long editedWorklogId = DEFAULT_WORKLOG_ID;
+
   /**
    * The worklog end time.
    */
@@ -166,6 +169,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private boolean feedBackSendAviable;
 
   private String installedPluginId;
+
   /**
    * The calendar show actual Date Or Last Worklog Date.
    */
@@ -202,7 +206,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The issue key.
    */
   private String issueKey = "";
-
   /**
    * The issues.
    */
@@ -216,7 +219,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The jira main version.
    */
   private int jiraMainVersion;
-
   /**
    * The {@link JiraTimetrackerPlugin}.
    */
@@ -229,10 +231,12 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * List of the logged days of the date variable current months.
    */
   private List<String> loggedDays = new ArrayList<String>();
+
   /**
    * The message.
    */
   private String message = "";
+
   /**
    * The message parameter.
    */
@@ -253,7 +257,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private String piwikSiteId;
 
   private String pluginVersion;
-
   /**
    * The IDs of the projects.
    */
@@ -263,6 +266,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The selected User for get Worklogs.
    */
   private String selectedUser = "";
+
   /**
    * The worklog start time.
    */
@@ -1147,67 +1151,81 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   }
 
   private String sendFeedBack() {
-    String feedBackValue = getHttpRequest().getParameter("feedbackinput");
-    String ratingValue = getHttpRequest().getParameter("rating");
-    String customerMail = getHttpRequest().getParameter("customerMail");
-    String feedBack = "";
-    String rating = NOT_RATED;
-    if (feedBackValue != null) {
-      feedBack = feedBackValue;
+    if (JiraTimetrackerUtil.loadAndCheckFeedBackTimeStampFromSession(getHttpSession())) {
+      String feedBackValue = getHttpRequest().getParameter("feedbackinput");
+      String ratingValue = getHttpRequest().getParameter("rating");
+      String customerMail =
+          JiraTimetrackerUtil.getCheckCustomerMail(getHttpRequest().getParameter("customerMail"));
+      String feedBack = "";
+      String rating = NOT_RATED;
+      if (feedBackValue != null) {
+        feedBack = feedBackValue.trim();
+      }
+      if (ratingValue != null) {
+        rating = ratingValue;
+      }
+      String mailSubject = JiraTimetrackerUtil.createFeedbackMailSubject(pluginVersion);
+      String mailBody = JiraTimetrackerUtil.createFeedbackMailBody(customerMail, rating, feedBack);
+      jiraTimetrackerPlugin.sendEmail(mailSubject, mailBody);
+      try {
+        loadWorklogsAndMakeSummary();
+        startTime = jiraTimetrackerPlugin.lastEndTime(worklogs);
+        endTime = DateTimeConverterUtil.dateTimeToString(new Date());
+        comment = "";
+      } catch (GenericEntityException | ParseException | DataAccessException | SQLException e) {
+        LOGGER.error("Error when try set the plugin variables.", e);
+        return ERROR;
+      }
+      JiraTimetrackerUtil.saveFeedBackTimeStampToSession(getHttpSession());
+      return SUCCESS;
+    } else {
+      message = FREQUENT_FEEDBACK;
+      return INPUT;
     }
-    if (ratingValue != null) {
-      rating = ratingValue;
-    }
-    String mailSubject = JiraTimetrackerUtil.createFeedbackMailSubject(pluginVersion);
-    String mailBody = JiraTimetrackerUtil.createFeedbackMailBody(customerMail, rating, feedBack);
-    jiraTimetrackerPlugin.sendEmail(mailSubject, mailBody);
-    try {
-      loadWorklogsAndMakeSummary();
-      startTime = jiraTimetrackerPlugin.lastEndTime(worklogs);
-      endTime = DateTimeConverterUtil.dateTimeToString(new Date());
-      comment = "";
-    } catch (GenericEntityException | ParseException | DataAccessException | SQLException e) {
-      LOGGER.error("Error when try set the plugin variables.", e);
-      return ERROR;
-    }
-    return SUCCESS;
   }
 
   private String sendReportingFeedBack() {
-    String[] answer1 = getHttpRequest().getParameterValues("answer1");
-    String[] answer2 = getHttpRequest().getParameterValues("answer2");
-    String[] answer3 = getHttpRequest().getParameterValues("answer3");
-    String[] answer9 = getHttpRequest().getParameterValues("answer9");
-    String[] answer4 = getHttpRequest().getParameterValues("answer4");
-    String answer5 = getHttpRequest().getParameter("answer5");
-    String answer6 = getHttpRequest().getParameter("answer6");
-    String reportinginput7 = getHttpRequest().getParameter("reportinginput7");
-    String reportinginput8 = getHttpRequest().getParameter("reportinginput8");
-    String customerMail = getHttpRequest().getParameter("customerMail");
-    String mailSubject = JiraTimetrackerUtil.createReportingMailSubject(pluginVersion);
+    if (JiraTimetrackerUtil.loadAndCheckFeedBackTimeStampFromSession(getHttpSession())) {
+      String[] answer1 = getHttpRequest().getParameterValues("answer1");
+      String[] answer2 = getHttpRequest().getParameterValues("answer2");
+      String[] answer3 = getHttpRequest().getParameterValues("answer3");
+      String[] answer9 = getHttpRequest().getParameterValues("answer9");
+      String[] answer4 = getHttpRequest().getParameterValues("answer4");
+      String answer5 = getHttpRequest().getParameter("answer5");
+      String answer6 = getHttpRequest().getParameter("answer6");
+      String reportinginput7 = getHttpRequest().getParameter("reportinginput7");
+      String reportinginput8 = getHttpRequest().getParameter("reportinginput8");
+      String customerMail =
+          JiraTimetrackerUtil.getCheckCustomerMail(getHttpRequest().getParameter("customerMail"));
+      String mailSubject = JiraTimetrackerUtil.createReportingMailSubject(pluginVersion);
 
-    JiraTimetrackerUtil.createReportMailBody(customerMail);
-    JiraTimetrackerUtil.addAnswersToReportingMailBody("answer.1", answer1);
-    JiraTimetrackerUtil.addAnswersToReportingMailBody("answer.2", answer2);
-    JiraTimetrackerUtil.addAnswersToReportingMailBody("answer.3", answer3);
-    JiraTimetrackerUtil.addAnswersToReportingMailBody("answer.9", answer9);
-    JiraTimetrackerUtil.addAnswersToReportingMailBody("answer.4", answer4);
-    JiraTimetrackerUtil.addAnswerToReportingMailBody("answer.5", answer5);
-    JiraTimetrackerUtil.addAnswerToReportingMailBody("answer.6", answer6);
-    JiraTimetrackerUtil.addAnswerToReportingMailBody("answer.7", reportinginput7);
-    JiraTimetrackerUtil.addAnswerToReportingMailBody("answer.8", reportinginput8);
-    String mailBody = JiraTimetrackerUtil.finishReportingMailBody();
-    jiraTimetrackerPlugin.sendEmail(mailSubject, mailBody);
-    try {
-      loadWorklogsAndMakeSummary();
-      startTime = jiraTimetrackerPlugin.lastEndTime(worklogs);
-      endTime = DateTimeConverterUtil.dateTimeToString(new Date());
-      comment = "";
-    } catch (GenericEntityException | ParseException | DataAccessException | SQLException e) {
-      LOGGER.error("Error when try set the plugin variables.", e);
-      return ERROR;
+      JiraTimetrackerUtil.createReportMailBody(customerMail);
+      JiraTimetrackerUtil.addAnswersToReportingMailBody("answer.1", answer1);
+      JiraTimetrackerUtil.addAnswersToReportingMailBody("answer.2", answer2);
+      JiraTimetrackerUtil.addAnswersToReportingMailBody("answer.3", answer3);
+      JiraTimetrackerUtil.addAnswersToReportingMailBody("answer.9", answer9);
+      JiraTimetrackerUtil.addAnswersToReportingMailBody("answer.4", answer4);
+      JiraTimetrackerUtil.addAnswerToReportingMailBody("answer.5", answer5);
+      JiraTimetrackerUtil.addAnswerToReportingMailBody("answer.6", answer6);
+      JiraTimetrackerUtil.addAnswerToReportingMailBody("answer.7", reportinginput7);
+      JiraTimetrackerUtil.addAnswerToReportingMailBody("answer.8", reportinginput8);
+      String mailBody = JiraTimetrackerUtil.finishReportingMailBody();
+      jiraTimetrackerPlugin.sendEmail(mailSubject, mailBody);
+      try {
+        loadWorklogsAndMakeSummary();
+        startTime = jiraTimetrackerPlugin.lastEndTime(worklogs);
+        endTime = DateTimeConverterUtil.dateTimeToString(new Date());
+        comment = "";
+      } catch (GenericEntityException | ParseException | DataAccessException | SQLException e) {
+        LOGGER.error("Error when try set the plugin variables.", e);
+        return ERROR;
+      }
+      JiraTimetrackerUtil.saveFeedBackTimeStampToSession(getHttpSession());
+      return SUCCESS;
+    } else {
+      message = FREQUENT_FEEDBACK;
+      return INPUT;
     }
-    return SUCCESS;
   }
 
   public void setAnalyticsCheck(final boolean analyticsCheck) {

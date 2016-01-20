@@ -33,7 +33,10 @@ import com.atlassian.jira.web.action.JiraWebActionSupport;
  */
 public class AdminSettingsWebAction extends JiraWebActionSupport {
 
+  private static final String FREQUENT_FEEDBACK = "jttp.plugin.frequent.feedback";
+
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
+
   /**
    * Logger.
    */
@@ -45,11 +48,11 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    * Serial version UID.
    */
   private static final long serialVersionUID = 1L;
-
   /**
    * Check if the analytics is disable or enable.
    */
   private boolean analyticsCheck;
+
   /**
    * The collector issue key.
    */
@@ -59,7 +62,6 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    * The collector issue ids.
    */
   private List<Pattern> collectorIssuePatterns;
-
   /**
    * The first day of the week.
    */
@@ -68,6 +70,7 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    * The pluginSetting endTime value.
    */
   private int endTime;
+
   /**
    * The exclude dates in String format.
    */
@@ -104,6 +107,10 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
 
   private JiraTimetrackerPlugin jiraTimetrackerPlugin;
   /**
+   * The message.
+   */
+  private String message = "";
+  /**
    * The settings page message parameter.
    */
   private String messageExclude = "";
@@ -111,10 +118,12 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    * The settings page message parameter.
    */
   private String messageInclude = "";
+
   /**
    * The paramater of the message.
    */
   private String messageParameterExclude = "";
+
   /**
    * The paramater of the message.
    */
@@ -177,21 +186,10 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     }
 
     if (getHttpRequest().getParameter("sendfeedback") != null) {
-      String feedBackValue = getHttpRequest().getParameter("feedbackinput");
-      String ratingValue = getHttpRequest().getParameter("rating");
-      String customerMail = getHttpRequest().getParameter("customerMail");
-      String feedBack = "";
-      String rating = NOT_RATED;
-      if (feedBackValue != null) {
-        feedBack = feedBackValue;
+      String feedbacktResult = parseFeedback();
+      if (feedbacktResult != null) {
+        return feedbacktResult;
       }
-      if (ratingValue != null) {
-        rating = ratingValue;
-      }
-      String mailSubject = JiraTimetrackerUtil
-          .createFeedbackMailSubject(JiraTimetrackerAnalytics.getPluginVersion());
-      String mailBody = JiraTimetrackerUtil.createFeedbackMailBody(customerMail, rating, feedBack);
-      jiraTimetrackerPlugin.sendEmail(mailSubject, mailBody);
     }
 
     if (getHttpRequest().getParameter("savesettings") != null) {
@@ -233,6 +231,10 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
 
   public String getIssueKey() {
     return issueKey;
+  }
+
+  public String getMessage() {
+    return message;
   }
 
   public String getMessageExclude() {
@@ -314,6 +316,33 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
       excludeDates = excludeDatesValueString;
     }
     return parseExcludeException;
+  }
+
+  private String parseFeedback() {
+    if (JiraTimetrackerUtil.loadAndCheckFeedBackTimeStampFromSession(getHttpSession())) {
+      String feedBackValue = getHttpRequest().getParameter("feedbackinput");
+      String ratingValue = getHttpRequest().getParameter("rating");
+      String customerMail =
+          JiraTimetrackerUtil.getCheckCustomerMail(getHttpRequest().getParameter("customerMail"));
+      String feedBack = "";
+      String rating = NOT_RATED;
+      if (feedBackValue != null) {
+        feedBack = feedBackValue.trim();
+      }
+      if (ratingValue != null) {
+        rating = ratingValue;
+      }
+      String mailSubject = JiraTimetrackerUtil
+          .createFeedbackMailSubject(JiraTimetrackerAnalytics.getPluginVersion());
+      String mailBody =
+          JiraTimetrackerUtil.createFeedbackMailBody(customerMail, rating, feedBack);
+      jiraTimetrackerPlugin.sendEmail(mailSubject, mailBody);
+      JiraTimetrackerUtil.saveFeedBackTimeStampToSession(getHttpSession());
+    } else {
+      message = FREQUENT_FEEDBACK;
+      return SUCCESS;
+    }
+    return null;
   }
 
   private boolean parseIncludeDatesValue(final String includeDatesValue) {
@@ -426,6 +455,10 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
 
   public void setIssueKey(final String issueKey) {
     this.issueKey = issueKey;
+  }
+
+  public void setMessage(final String message) {
+    this.message = message;
   }
 
   public void setMessageExclude(final String messageExclude) {

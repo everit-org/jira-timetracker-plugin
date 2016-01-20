@@ -21,6 +21,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -179,6 +180,20 @@ public final class DateTimeConverterUtil {
     DateFormat formatterDate = new SimpleDateFormat(DATE_FORMAT);
     String dateString = formatterDate.format(date);
     return dateString;
+  }
+
+  /**
+   * Get the difference between to date in seconds.
+   *
+   * @param firstDate
+   *          The fisrt date.
+   * @param secondDate
+   *          The second date.
+   * @return The difference between dates.
+   */
+  public static long getDateDifference(final Date firstDate, final Date secondDate) {
+    long diffInMillies = secondDate.getTime() - firstDate.getTime();
+    return TimeUnit.SECONDS.convert(diffInMillies, TimeUnit.MILLISECONDS);
   }
 
   /**
