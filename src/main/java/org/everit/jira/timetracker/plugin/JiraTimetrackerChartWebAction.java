@@ -48,6 +48,8 @@ import com.atlassian.jira.web.action.JiraWebActionSupport;
  */
 public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
+  private static final String FREQUENT_FEEDBACK = "jttp.plugin.frequent.feedback";
+
   private static final String GET_WORKLOGS_ERROR_MESSAGE = "Error when trying to get worklogs.";
 
   private static final String INVALID_END_TIME = "plugin.invalid_endTime";
@@ -201,6 +203,10 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     loadPluginSettingAndParseResult();
 
     if (parseFeedback()) {
+      loadDataFromSession();
+      initDatesIfNecessary();
+      initCurrentUserIfNecessary();
+      chartDataList = null;
       return INPUT;
     }
 
@@ -421,21 +427,28 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
   private boolean parseFeedback() {
     if (getHttpRequest().getParameter("sendfeedback") != null) {
-      String feedBackValue = getHttpRequest().getParameter("feedbackinput");
-      String ratingValue = getHttpRequest().getParameter("rating");
-      String customerMail = getHttpRequest().getParameter("customerMail");
-      String feedBack = "";
-      String rating = NOT_RATED;
-      if (feedBackValue != null) {
-        feedBack = feedBackValue;
+      if (JiraTimetrackerUtil.loadAndCheckFeedBackTimeStampFromSession(getHttpSession())) {
+        String feedBackValue = getHttpRequest().getParameter("feedbackinput");
+        String ratingValue = getHttpRequest().getParameter("rating");
+        String customerMail =
+            JiraTimetrackerUtil.getCheckCustomerMail(getHttpRequest().getParameter("customerMail"));
+        String feedBack = "";
+        String rating = NOT_RATED;
+        if (feedBackValue != null) {
+          feedBack = feedBackValue.trim();
+        }
+        if (ratingValue != null) {
+          rating = ratingValue;
+        }
+        String mailSubject = JiraTimetrackerUtil
+            .createFeedbackMailSubject(JiraTimetrackerAnalytics.getPluginVersion());
+        String mailBody =
+            JiraTimetrackerUtil.createFeedbackMailBody(customerMail, rating, feedBack);
+        jiraTimetrackerPlugin.sendEmail(mailSubject, mailBody);
+        JiraTimetrackerUtil.saveFeedBackTimeStampToSession(getHttpSession());
+      } else {
+        message = FREQUENT_FEEDBACK;
       }
-      if (ratingValue != null) {
-        rating = ratingValue;
-      }
-      String mailSubject = JiraTimetrackerUtil
-          .createFeedbackMailSubject(JiraTimetrackerAnalytics.getPluginVersion());
-      String mailBody = JiraTimetrackerUtil.createFeedbackMailBody(customerMail, rating, feedBack);
-      jiraTimetrackerPlugin.sendEmail(mailSubject, mailBody);
       return true;
     }
     return false;

@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
+import javax.servlet.http.HttpSession;
+
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.status.Status;
@@ -68,6 +70,10 @@ public final class JiraTimetrackerUtil {
 
   private static StringBuilder reportingMailBody;
 
+  private static final int SECOND_BEETWEN_FEEDBACKS = 30;
+
+  private static final String SESSION_DATE_KEY = "jttpFeedbackTS";
+
   /**
    * Sunday first day of the week.
    */
@@ -89,7 +95,7 @@ public final class JiraTimetrackerUtil {
       reportingMailBody.append(": ");
       for (String answer : answers) {
         if ((answer != null) && !answer.isEmpty()) {
-          reportingMailBody.append(getI18nAnswerOrTheAnswer(answerKey, answer));
+          reportingMailBody.append(getI18nAnswerOrTheAnswer(answerKey, answer.trim()));
           reportingMailBody.append("; ");
         }
       }
@@ -109,7 +115,7 @@ public final class JiraTimetrackerUtil {
     if ((answer != null) && !answer.isEmpty()) {
       reportingMailBody.append(getI18nQuestion(answerKey));
       reportingMailBody.append(": ");
-      reportingMailBody.append(getI18nAnswerOrTheAnswer(answerKey, answer));
+      reportingMailBody.append(getI18nAnswerOrTheAnswer(answerKey, answer.trim()));
       reportingMailBody.append("\n");
     }
   }
@@ -217,6 +223,24 @@ public final class JiraTimetrackerUtil {
     return reportingMailBody.toString();
   }
 
+  /**
+   * Check the customer mail form feedback and reporting dialog and remove the unexpected parts.
+   *
+   * @param originalCustomerMail
+   *          The original mail.
+   * @return The checked mail.
+   */
+  public static String getCheckCustomerMail(final String originalCustomerMail) {
+    String customerMail = originalCustomerMail.trim();
+    if (customerMail.contains("\n")) {
+      customerMail = customerMail.substring(0, customerMail.indexOf("\n"));
+    }
+    if (customerMail.contains("\t")) {
+      customerMail = customerMail.substring(0, customerMail.indexOf("\t"));
+    }
+    return customerMail;
+  }
+
   private static String getI18nAnswerOrTheAnswer(final String answerKey, final String answer) {
     String i18nKey = "jttp.reporting." + answerKey + "." + answer;
     if (defaultLocalI18n.isKeyDefined(i18nKey)) {
@@ -247,6 +271,37 @@ public final class JiraTimetrackerUtil {
       return false;
     }
     return true;
+  }
+
+  /**
+   * Load and check the SESSION_DATE_KEY value from the session. If the key value is a Date then
+   * check the difference the stored and the current time.
+   *
+   * @param session
+   *          The session where we except the key.
+   * @return True if no key found or the time difference big enough.
+   */
+  public static boolean loadAndCheckFeedBackTimeStampFromSession(final HttpSession session) {
+    Object data = session.getAttribute(SESSION_DATE_KEY);
+    if (!(data instanceof Date)) {
+      return true;
+    }
+    Date fromSession = (Date) data;
+    if (SECOND_BEETWEN_FEEDBACKS >= DateTimeConverterUtil.getDateDifference(fromSession,
+        new Date())) {
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * Save the current date in to the session with SESSION_DATE_KEY.
+   *
+   * @param session
+   *          The session.
+   */
+  public static void saveFeedBackTimeStampToSession(final HttpSession session) {
+    session.setAttribute(SESSION_DATE_KEY, new Date());
   }
 
   private JiraTimetrackerUtil() {
