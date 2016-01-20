@@ -32,39 +32,53 @@ import com.atlassian.jira.mock.component.MockComponentWorker;
 @RunWith(Parameterized.class)
 public class DateTimeConverterUtilTest {
 
-  private static DurationBuilder duration() {
-    return new DurationBuilder();
+  private static DurationBuilder duration(final double hoursPerDayParam,
+      final double daysPerWeekParam) {
+    return new DurationBuilder(hoursPerDayParam, daysPerWeekParam);
   }
 
   @Parameters
   public static List<Object[]> params() {
     return Arrays.asList(
-        new Object[] { "0m", duration() },
-        new Object[] { "3m", duration().min(3) },
-        new Object[] { "2h 3m", duration().hour(2).min(3) },
-        new Object[] { "2h 0m", duration().hour(2) },
-        new Object[] { "2d 2h 0m", duration().day(2).hour(2) },
-        new Object[] { "3w 2d 0h 0m", duration().week(3).day(2) });
+        new Object[] { "0m", duration(8, 5), 8, 5 },
+        new Object[] { "3m", duration(8, 5).min(3), 8, 5 },
+        new Object[] { "2h 3m", duration(8, 5).hour(2).min(3), 8, 5 },
+        new Object[] { "2h 0m", duration(8, 5).hour(2), 8, 5 },
+        new Object[] { "2d 2h 0m", duration(8, 5).day(2).hour(2), 8, 5 },
+        new Object[] { "3w 2d 0h 0m", duration(8, 5).week(3).day(2), 8, 5 },
+        new Object[] { "1d 0h 0m", duration(7, 5).hour(7), 7, 5 },
+        new Object[] { "7h 0m", duration(7.5, 5).hour(7), 7.5, 5 },
+        new Object[] { "1d 0h 0m", duration(7.5, 5).hour(7).min(30), 7.5, 5 },
+        new Object[] { "1d 0h 30m", duration(7.5, 5).hour(8), 7.5, 5 },
+        new Object[] { "1w 0d 4h 0m", duration(8, 4.5).hour(40), 8, 4.5 },
+        new Object[] { "1w 0d 6h 15m", duration(7.5, 4.5).hour(40), 7.5, 4.5 });
   }
 
+  private final double dayPerWeek;
+
   private final String expectedString;
+
+  private final double hoursPerDay;
 
   private final long inputSeconds;
 
   public DateTimeConverterUtilTest(final String expectedString,
-      final DurationBuilder inputSeconds) {
+      final DurationBuilder inputSeconds, final double hoursPerDay, final double dayPerWeek) {
     super();
     this.expectedString = expectedString;
     this.inputSeconds = inputSeconds.toSeconds();
+    this.hoursPerDay = hoursPerDay;
+    this.dayPerWeek = dayPerWeek;
   }
 
   /**
    * Mocks the {@code ComponentAccessor.getComponent(TimeTrackingConfiguration.class);} call in the
    * {@link DateTimeConverterUtil.secondConvertToString} constructor.
    */
-  public void setupMockTimeTrackerConfig() {
-    BigDecimal daysPerWeek = new BigDecimal(5);
-    BigDecimal hoursPerDay = new BigDecimal(8);
+  public void setupMockTimeTrackerConfig(final double hoursPerDayParam,
+      final double daysPerWeekParam) {
+    BigDecimal daysPerWeek = new BigDecimal(daysPerWeekParam);
+    BigDecimal hoursPerDay = new BigDecimal(hoursPerDayParam);
     TimeTrackingConfiguration ttConfig = EasyMock.createNiceMock(TimeTrackingConfiguration.class);
     EasyMock.expect(ttConfig.getDaysPerWeek()).andReturn(daysPerWeek)
         .anyTimes();
@@ -76,7 +90,7 @@ public class DateTimeConverterUtilTest {
 
   @Test
   public void testSecondConvertToString() {
-    setupMockTimeTrackerConfig();
+    setupMockTimeTrackerConfig(hoursPerDay, dayPerWeek);
     Assert.assertEquals(expectedString, DateTimeConverterUtil.secondConvertToString(inputSeconds));
   }
 }

@@ -20,21 +20,30 @@ package org.everit.jira.timetracker.plugin;
  */
 public class DurationBuilder {
 
+  private static final int HOUR;
+
   private static final int MINUTE = 60;
 
-  private static final int HOUR = MINUTE * 60;
+  static {
+    HOUR = MINUTE * 60;
+  }
 
-  private static final int DAY = HOUR * 8;
-
-  private static final int WEEK = DAY * 5;
-
-  private int minutes;
-
-  private int hours;
+  private final double dayConstant;
 
   private int days;
 
+  private int hours;
+
+  private int minutes;
+
+  private final double weekConstant;
+
   private int weeks;
+
+  public DurationBuilder(final double hoursPerDay, final double daysPerWeek) {
+    dayConstant = HOUR * hoursPerDay;
+    weekConstant = dayConstant * daysPerWeek;
+  }
 
   public DurationBuilder day(final int dayCount) {
     days = dayCount;
@@ -52,7 +61,8 @@ public class DurationBuilder {
   }
 
   public int toSeconds() {
-    return weeks * WEEK + days * DAY + hours * HOUR + minutes * MINUTE;
+    return (int) (weeks * weekConstant) + (int) (days * dayConstant) + (hours * HOUR)
+        + (minutes * MINUTE);
   }
 
   public DurationBuilder week(final int weekCount) {

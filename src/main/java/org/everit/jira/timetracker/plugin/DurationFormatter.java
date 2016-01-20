@@ -25,14 +25,14 @@ import java.util.Map;
  */
 public final class DurationFormatter {
 
-  public static String exactDuration(final long durationInSeconds, final long workDaysPerWeek,
-      final long workHoursPerDay) {
+  public static String exactDuration(final long durationInSeconds, final double workDaysPerWeek,
+      final double workHoursPerDay) {
     return new DurationFormatter(durationInSeconds, workDaysPerWeek, workHoursPerDay)
         .buildFromFragments(false);
   }
 
-  public static String roundedDuration(final long durationInSeconds, final long workDaysPerWeek,
-      final long workHoursPerDay) {
+  public static String roundedDuration(final long durationInSeconds, final double workDaysPerWeek,
+      final double workHoursPerDay) {
     return new DurationFormatter(durationInSeconds, workDaysPerWeek, workHoursPerDay)
         .calculateFormattedRemaining();
   }
@@ -41,12 +41,12 @@ public final class DurationFormatter {
 
   private LinkedHashMap<String, Long> fragments = new LinkedHashMap<>();
 
-  private final long workDaysPerWeek;
+  private final double workDaysPerWeek;
 
-  private final long workHoursPerDay;
+  private final double workHoursPerDay;
 
-  private DurationFormatter(final long durationInSeconds, final long workDaysPerWeek,
-      final long workHoursPerDay) {
+  private DurationFormatter(final long durationInSeconds, final double workDaysPerWeek,
+      final double workHoursPerDay) {
     this.durationInSeconds = durationInSeconds;
     this.workDaysPerWeek = workDaysPerWeek;
     this.workHoursPerDay = workHoursPerDay;
@@ -62,7 +62,7 @@ public final class DurationFormatter {
         nonzeroFragmentVisited = true;
       }
       if (nonzeroFragmentVisited) {
-        rval.append(value).append(fragment.getKey());
+        rval.append(value.longValue()).append(fragment.getKey());
       }
     }
     if (nonzeroFragmentVisited) {
@@ -96,7 +96,7 @@ public final class DurationFormatter {
   }
 
   private String calculateFormattedRemaining() {
-    constructFragmentsOfRemainingEstimate();
+    constructFragmentsOfRemainingEstimate(); // TODO do we need this
     int firstNonzeroIdx = -1;
     int lastNonzeroIdx = 0;
     int idx = 0;
@@ -115,13 +115,15 @@ public final class DurationFormatter {
 
   private void constructFragmentsOfRemainingEstimate() {
     long estimate = durationInSeconds / DateTimeConverterUtil.MINUTES_PER_HOUR;
+    double weekInMin =
+        workDaysPerWeek * workHoursPerDay * DateTimeConverterUtil.MINUTES_PER_HOUR;
+    double dayInMin = workHoursPerDay * DateTimeConverterUtil.MINUTES_PER_HOUR;
+    long weeks = (long) (estimate / weekInMin);
+    estimate %= weekInMin;
+    long days = (long) (estimate / dayInMin);
+    estimate %= dayInMin;
+    long hours = estimate / DateTimeConverterUtil.MINUTES_PER_HOUR;
     long minutes = estimate % DateTimeConverterUtil.MINUTES_PER_HOUR;
-    estimate /= DateTimeConverterUtil.MINUTES_PER_HOUR;
-    long hours = estimate % workHoursPerDay;
-    estimate /= workHoursPerDay;
-    long days = estimate % workDaysPerWeek;
-    estimate /= workDaysPerWeek;
-    long weeks = estimate;
     fragments.put("w ", weeks);
     fragments.put("d ", days);
     fragments.put("h ", hours);
