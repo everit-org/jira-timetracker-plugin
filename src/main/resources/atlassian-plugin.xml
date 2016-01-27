@@ -62,7 +62,7 @@
     <resource type="download" name="table_report.js" location="/js/table_report.js"/>
   </web-resource>
   
-  <web-resource name="JTTP Resources" key="missing_worklogs-resources">
+  <web-resource name="JTTP Resources" key="chart_report-resources">
     <dependency>com.atlassian.auiplugin:ajs</dependency>
     <dependency>com.atlassian.auiplugin:dialog2</dependency>
     <dependency>com.atlassian.auiplugin:aui-date-picker</dependency>
@@ -71,7 +71,7 @@
       <param name="content-type" value="image/png" />
     </resource>
     <resource type="download" name="jttp.css" location="/css/jttp.css"/>
-    <resource type="download" name="missing_worklogs.js" location="/js/missing_worklogs.js"/>
+    <resource type="download" name="chart_report.js" location="/js/chart_report.js"/>
   </web-resource>
 
   <webwork1 key="jttp-webaction" name="JTTP Webwork actions" class="java.lang.Object">

@@ -147,7 +147,6 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
                                                         name="issueSelect" 
                                                         id="issueSelect" 
                                                         data-popup-link-message="" 
-                                                        data-popup-width="620" 
                                                         data-popup-height="500" 
                                                         data-remove-on-un-select="true" 
                                                         data-ajax-options.query="true" 

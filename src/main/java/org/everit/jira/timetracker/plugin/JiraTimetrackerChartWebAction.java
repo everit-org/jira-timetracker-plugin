@@ -38,6 +38,9 @@ import com.atlassian.jira.exception.DataAccessException;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
+import com.atlassian.velocity.htmlsafe.HtmlSafe;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 /**
  * The Timetracker chart report action support class.
@@ -254,8 +257,17 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     return baseUrl;
   }
 
-  public List<ChartData> getChartDataList() {
-    return chartDataList;
+  /**
+   * ChartDataList JSON representation.
+   *
+   * @return String array of chartDataList.
+   */
+  @HtmlSafe
+  // @com.atlassian.velocity.htmlsafe.annotations.CollectionInheritable
+  public String getChartDataList() {
+    Gson gson = new GsonBuilder().create();
+    return gson.toJson(chartDataList);
+    // return chartDataList;
   }
 
   public String getContextPath() {
@@ -369,8 +381,8 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
       throw new IllegalArgumentException(INVALID_USER_PICKER);
     }
     if ("".equals(currentUser)) {
-      JiraAuthenticationContext authenticationContext =
-          ComponentAccessor.getJiraAuthenticationContext();
+      JiraAuthenticationContext authenticationContext = ComponentAccessor
+          .getJiraAuthenticationContext();
       currentUser = authenticationContext.getUser().getKey();
     }
   }
