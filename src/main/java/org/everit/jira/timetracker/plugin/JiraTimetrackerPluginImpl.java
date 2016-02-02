@@ -415,7 +415,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   private List<EntityCondition> createWorklogQueryExprListWithPermissionCheck(
       final String selectedUser,
       final ApplicationUser loggedInUser,
-      final Calendar startDate, final Calendar endDate) throws GenericEntityException {
+      final Calendar startDate, final Calendar endDate) {
 
     String userKey = ((selectedUser == null) || "".equals(selectedUser))
         ? loggedInUser.getKey() : selectedUser;
@@ -750,7 +750,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   @Override
   public List<EveritWorklog> getWorklogs(final String selectedUser, final Date date,
       final Date finalDate)
-          throws ParseException, GenericEntityException {
+          throws ParseException {
     Calendar startDate = DateTimeConverterUtil.setDateToDayStart(date);
     Calendar endDate = (Calendar) startDate.clone();
     if (finalDate == null) {

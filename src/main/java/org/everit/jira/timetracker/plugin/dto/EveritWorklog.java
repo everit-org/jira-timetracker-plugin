@@ -150,7 +150,12 @@ public class EveritWorklog implements Serializable {
     if (issueObject.getParentObject() != null) {
       issueParent = issueObject.getParentObject().getKey();
     }
-    isMoreEstimatedTime = issueObject.getEstimate() == 0 ? false : true;
+    Long issueEstimate = issueObject.getEstimate();
+    if ((issueEstimate != null) && (issueEstimate != 0)) {
+      isMoreEstimatedTime = true;
+    } else {
+      isMoreEstimatedTime = false;
+    }
     body = worklogGv.getString("body");
     if (body != null) {
       body = body.replace("\"", "\\\"");
