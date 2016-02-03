@@ -23,47 +23,61 @@ $webResourceManager.requireResource("jira.webresources:global-static")
 $webResourceManager.requireResource("jira.webresources:calendar")
 $webResourceManager.requireResource("jira.webresources:calendar-en")
 $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-resources")
+
 #if(!$debugMessage.isEmpty())
                   <div id="error_message">
                          $debugMessage
                   </div>
 #end
-
-	
-	
-<form name="jttpForm" id="jttpForm" method="post"
-                    #if($isEdit) action="JiraTimetrackerWebAction.jspa?editedWorklogId=$editedWorklogId&dateFormatted=$dateFormatted" 
-                    #elseif($isEditAll) action="JiraTimetrackerWebAction.jspa?editAllIds=$editAllIds&dateFormatted=$dateFormatted" 
-                    #else action="JiraTimetrackerWebAction.jspa?dateFormatted=$dateFormatted" #end/>   
-    #set($rendererType = "atlassian-wiki-renderer")
+#set($rendererType = "atlassian-wiki-renderer")
     #if($currentCalendar.useISO8601 == true)
         #set ($firstDay = 1)
     #else
         #set ($firstDay = 0)
     #end
-<input id="firstDay" type="hidden" value="$firstDay" />
-<input id="dateFormatted" type="hidden" value="$dateFormatted" />
-<input id="currentCalendar" type="hidden" value="$currentCalendar" />
-<input id="excludeDays" type="hidden" value="$excludeDays" />
-<input id="isColoring" type="hidden" value="$isColoring" />
-<input id="loggedDays" type="hidden" value="$loggedDays" />
-<input id="isDurationSelected" type="hidden" value="$isDurationSelected" />
-<input id="projectsId" type="hidden" value="$projectsId" />
-<input id="isPopup" type="hidden" value="$isPopup" />
-<input id="jiraMainVersion" type="hidden" value="$jiraMainVersion" />
-<input id="issueKey" type="hidden" value="$issueKey" />
-<input id="comment" type="hidden" value="$comment" />
-<input id="isEditAll" type="hidden" value="$isEditAll" />
 
-    <div id="plugin_head" class="item-header" >
-            <div class="logo-img">
-                <a href="http://www.everit.org/jira-timetracker-plugin/" target="_blank">
-                    <img src="$contextPath/download/resources/org.everit.jira.timetracker.plugin:everit_tt_logo/everit_tt_logo.png" alt="Everit logo" height="42" width="42">
-                </a>
-            </div>
-             <h1 class="item-summary" >Timetracker</h1>
-      </div>
-    <div id="main-content" class="content rounded">
+<script type="text/javascript">
+	window.everit = window.everit || {};
+	everit.jttp = everit.jttp || {};
+	everit.jttp.main = everit.jttp.main || {};
+
+	(function(jttp, jQuery) {
+		jttp.options = jQuery.extend( 
+			{},
+			jttp.options,
+			{
+				firstDay : ${firstDay},
+				useISO8601 : ${currentCalendar.useISO8601},
+				dateFormatted : ${dateFormatted},
+				excludeDays : ${excludeDays},
+				isColoring : ${isColoring},
+				loggedDays : ${loggedDays},
+				isDurationSelected : ${isDurationSelected},
+				projectsId : ${projectsId},
+				isPopup : ${isPopup},
+				jiraMainVersion : ${jiraMainVersion},
+				issueKey : '${issueKey}',
+				comment : '${comment}',
+				isEditAll : ${isEditAll}
+			}
+		);
+	})(everit.jttp.main, AJS.$);
+</script>
+
+<div id="plugin_head" class="item-header" >
+	<div class="logo-img">
+		<a href="http://www.everit.org/jira-timetracker-plugin/" target="_blank">
+		<img src="$contextPath/download/resources/org.everit.jira.timetracker.plugin:everit_tt_logo/everit_tt_logo.png" alt="Everit logo" height="42" width="42">
+		</a>
+	</div>
+	<h1 class="item-summary" >Timetracker</h1>
+</div>
+<div id="main-content" class="content rounded">
+	<form name="jttpForm" id="jttpForm" method="post"
+                    #if($isEdit) action="JiraTimetrackerWebAction.jspa?editedWorklogId=$editedWorklogId&dateFormatted=$dateFormatted" 
+                    #elseif($isEditAll) action="JiraTimetrackerWebAction.jspa?editAllIds=$editAllIds&dateFormatted=$dateFormatted" 
+                    #elseif($isCopy) action="JiraTimetrackerWebAction.jspa?copiedWorklogId=$copiedWorklogId&dateFormatted=$dateFormatted" 
+					#else action="JiraTimetrackerWebAction.jspa?dateFormatted=$dateFormatted" #end/>   
         <div class="inside-content">
             ##TAB START
             <div class="tabwrap tabs2" id="tabs-jttp">
@@ -89,13 +103,13 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
                <table id="inputfields-table" width="100%">
                    <tbody>
                        <tr>
-                           <input id="editAll" type="button" name="editall" value="$i18n.getText('plugin.edit.all')" onclick="location.href='JiraTimetrackerWebAction!default.jspa?editAllIds=$worklogsIds&dateFormatted=$dateFormatted'" class="button" />
+                           <input id="editAll" type="button" name="editall" value="$i18n.getText('plugin.edit.all')" onclick="location.href='JiraTimetrackerWebAction!default.jspa?editAllIds=$worklogsIds&dateFormatted=$dateFormatted'" class="button" #if($worklogs.size() == 0) disabled #end/>
                            <td>
                             <table>
                                         <tbody>
                                             <tr>
                                                 <td class="worklog-table-header-column">
-                                                    <div>
+                                                    <div class="field-group">
                                                         $i18n.getText("plugin.start.time") <img src="$contextPath/images/required.png" width="16" height="16" border="0" />
                                                     </div>
                                                 </td>
@@ -113,27 +127,28 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
                                                         $i18n.getText("plugin.duration.time")
                                                     </div>
                                                 </td>
+												<td />
                                             </tr>
                                             <tr>
                                                 <td class="worklog-table-header-column">
-                                                   <input id="startTime"  type="text" name="startTime" value="$startTime" onkeypress="handleEnterKey(event, '#endTime');" tabindex="1" class="time-input"/>
+                                                   <input id="startTime"  type="text" name="startTime" value="$startTime" onkeypress="everit.jttp.main.handleEnterKey(event, '#endTime');" tabindex="1" class="time-input"/>
                                                 </td>
                                                 <td class="worklog-table-header-column">
-                                                   <input id="startNow"  type="button" name="startNow" value="$i18n.getText('plugin.now')" class="button" onclick="startNowClick($startTimeChange);"/>
+                                                   <input id="startNow"  type="button" name="startNow" value="$i18n.getText('plugin.now')" class="button" onclick="everit.jttp.main.startNowClick($startTimeChange);"/>
                                                 </td>
                                                 <td  class="worklog-table-header-column">
 												  <span class="time-input-span">
-                                                         <input id="endTime"  type="text" name="endTime" value="$endTime" onkeypress="handleEnterKey(event, '#issueSelect-textarea');" tabindex="2" class="time-input"/> 
-                                                         <div id="endTimeInput" class="time-input-div" onclick="endTimeInputClick($isEditAll);"></div>
+                                                         <input id="endTime"  type="text" name="endTime" value="$endTime" onkeypress="everit.jttp.main.handleEnterKey(event, '#issueSelect-textarea');" tabindex="2" class="time-input"/> 
+                                                         <div id="endTimeInput" class="time-input-div" onclick="everit.jttp.main.endTimeInputClick($isEditAll);"></div>
                                                       </span>
                                                  </td>
                                                  <td class="worklog-table-header-column">
-                                                   <input id="endNow"  type="button" name="endNow" value="$i18n.getText('plugin.now')" class="button" onclick="endNowClick();"/>
+                                                   <input id="endNow"  type="button" name="endNow" value="$i18n.getText('plugin.now')" class="button" onclick="everit.jttp.main.endNowClick();"/>
                                                  </td>
                                                  <td class="worklog-table-header-column" >
                                                   <span class="time-input-span">
-                                                     <input id="durationTime"  type="text" name="durationTime" onkeypress="handleEnterKey(event, '#issueSelect-textarea');" tabindex="2" disabled value="$durationTime" class="time-input"/>
-                                                    <div id="durationTimeInput" class="time-input-div" onclick="durationTimeInput($isEditAll);"></div>
+                                                     <input id="durationTime"  type="text" name="durationTime" onkeypress="everit.jttp.main.handleEnterKey(event, '#issueSelect-textarea');" tabindex="2" disabled value="$durationTime" class="time-input"/>
+                                                    <div id="durationTimeInput" class="time-input-div" onclick="everit.jttp.main.durationTimeInput($isEditAll);"></div>
                                                   </span>
                                                  </td>
                                                 <td />
@@ -192,7 +207,6 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 											      document.getElementById("date").value=calendar.date.print(calendar.params.ifFormat);
 											      jQuery(document.getElementById("date")).change();
 											  };
-											
 											</script>
 									#end
 									</div>
@@ -206,14 +220,18 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
             #else
                 <input type="hidden" id="Submit" name="submit" disabled />
                 <input id="Submitbutton" type="submit" name="submitbutton" value="$i18n.getText('plugin.submit')" class="button" tabindex="5"
-                    onclick="submitButtonClick();"/>
+                    onclick="everit.jttp.main.submitButtonClick();"/>
             #end
             <input id="setting"  type="button" name="setting" onclick="location.href='JiraTimetrackerSettingsWebAction!default.jspa'" value="$i18n.getText('plugin.settings')" class="button settings-button" />
             <input id="cancelButton"  type="button" name="Cancel" value="$i18n.getText('plugin.cancel')" onclick="location.href='JiraTimetrackerWebAction!default.jspa?dateFormatted=$dateFormatted'" class="button"/>
             </div>
-        </div>    
-    </div> 
-</form>
+        </div>
+	</form>
+		<div id="feedbackfooter" class="feedback_footer">
+		#parse("templates/feedback_jttp.vm")
+	</div>
+	#parse("templates/reporting_popup.vm")
+</div>
 
 #if($analyticsCheck)
 	#set($IDSITE = 1);

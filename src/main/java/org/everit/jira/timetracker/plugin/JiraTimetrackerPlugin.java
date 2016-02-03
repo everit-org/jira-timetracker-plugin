@@ -153,6 +153,15 @@ public interface JiraTimetrackerPlugin {
       throws GenericEntityException;
 
   /**
+   * Get Piwik build property value by key.
+   *
+   * @param key
+   *          The porperty key.
+   * @return The property value.
+   */
+  String getPiwikPorperty(String key);
+
+  /**
    * Give back the Projects.
    *
    * @return whit Projects.
@@ -219,21 +228,17 @@ public interface JiraTimetrackerPlugin {
   void savePluginSettings(PluginSettingsValues pluginSettingsParameter);
 
   /**
-   * Send a feed back email through the Jira to the given FEEDBACK_EMAIL_TO address. The address
-   * come form the jttp_build.properties. If no mail address was set by build the method only log
-   * the feed back mail. If the method not find setted mail server and default from mail address,
-   * the feedback email not will be send just logged.
+   * Send a email through the Jira to the given FEEDBACK_EMAIL_TO address. The address come form the
+   * jttp_build.properties. If no mail address was set by build the method only log the mail. If the
+   * method not find setted mail server and default from mail address, the email not will be send
+   * just logged.
    *
-   * @param feedBack
-   *          The user feed back. Required.
-   * @param version
-   *          The plugin version.
-   * @param rating
-   *          The rating value.
-   * @param customerEmail
-   *          The customer user mail address.
+   * @param mailSubject
+   *          The subject of the mail.
+   * @param mailBody
+   *          The body of the mail.
    */
-  void sendFeedBackEmail(String feedBack, String version, String rating, String customerEmail);
+  void sendEmail(String mailSubject, String mailBody);
 
   /**
    * Give back the all worklogs spent time between the two date.

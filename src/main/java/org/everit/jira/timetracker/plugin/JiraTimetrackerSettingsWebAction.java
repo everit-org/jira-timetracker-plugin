@@ -22,7 +22,6 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
-import org.everit.jira.timetracker.plugin.dto.CalendarSettingsValues;
 import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
 
 import com.atlassian.jira.web.action.JiraWebActionSupport;
@@ -209,15 +208,15 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
   public void loadPluginSettingAndParseResult() {
     PluginSettingsValues pluginSettingsValues = jiraTimetrackerPlugin
         .loadPluginSettings();
-    isPopup = pluginSettingsValues.isCalendarPopup();
-    isActualDate = pluginSettingsValues.isActualDate();
-    issuesPatterns = pluginSettingsValues.getFilteredSummaryIssues();
-    collectorIssuePatterns = pluginSettingsValues.getCollectorIssues();
-    excludeDates = pluginSettingsValues.getExcludeDates();
-    includeDates = pluginSettingsValues.getIncludeDates();
-    startTime = Integer.toString(pluginSettingsValues.getStartTimeChange());
-    endTime = Integer.toString(pluginSettingsValues.getEndTimeChange());
-    isColoring = pluginSettingsValues.isColoring();
+    isPopup = pluginSettingsValues.isCalendarPopup;
+    isActualDate = pluginSettingsValues.isActualDate;
+    issuesPatterns = pluginSettingsValues.filteredSummaryIssues;
+    collectorIssuePatterns = pluginSettingsValues.collectorIssues;
+    excludeDates = pluginSettingsValues.excludeDates;
+    includeDates = pluginSettingsValues.includeDates;
+    startTime = Integer.toString(pluginSettingsValues.startTimeChange);
+    endTime = Integer.toString(pluginSettingsValues.endTimeChange);
+    isColoring = pluginSettingsValues.isColoring;
   }
 
   private void normalizeContextPath() {
@@ -284,10 +283,11 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
    * Save the plugin settings.
    */
   public void savePluginSettings() {
-    PluginSettingsValues pluginSettingValues = new PluginSettingsValues(
-        new CalendarSettingsValues(isPopup, isActualDate, excludeDates, includeDates, isColoring),
-        issuesPatterns, collectorIssuePatterns, Integer.parseInt(startTime),
-        Integer.parseInt(endTime), analyticsCheck);
+    PluginSettingsValues pluginSettingValues = new PluginSettingsValues()
+        .isCalendarPopup(isPopup).actualDate(isActualDate).excludeDates(excludeDates)
+        .includeDates(includeDates).coloring(isColoring).filteredSummaryIssues(issuesPatterns)
+        .collectorIssues(collectorIssuePatterns).startTimeChange(Integer.parseInt(startTime))
+        .endTimeChange(Integer.parseInt(endTime)).analyticsCheck(analyticsCheck);
     jiraTimetrackerPlugin.savePluginSettings(pluginSettingValues);
   }
 

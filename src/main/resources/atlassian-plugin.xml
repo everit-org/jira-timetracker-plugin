@@ -59,7 +59,20 @@
       <param name="content-type" value="image/png" />
     </resource>
     <resource type="download" name="jttp.css" location="/css/jttp.css"/>
-    <resource type="download" name="table_report.js" location="/js/table_report.js"/>
+	<resource type="download" name="report_common_scripts.js" location="/js/report_common_scripts.js"/>
+  </web-resource>
+  
+  <web-resource name="JTTP Resources" key="missing_days_report-resources">
+    <dependency>com.atlassian.auiplugin:ajs</dependency>
+    <dependency>com.atlassian.auiplugin:dialog2</dependency>
+    <dependency>com.atlassian.auiplugin:aui-date-picker</dependency>
+    <resource type="download" name="jttp_feedback.css" location="/css/jttp_feedback.css"/>
+    <resource type="download" name="everit_tt_logo.png" location="/icons/everit_timetracker_logo.png">
+      <param name="content-type" value="image/png" />
+    </resource>
+    <resource type="download" name="jttp.css" location="/css/jttp.css"/>
+	<resource type="download" name="report_common_scripts.js" location="/js/report_common_scripts.js"/>
+    <resource type="download" name="missing_days_report.js" location="/js/missing_days_report.js"/>
   </web-resource>
   
   <web-resource name="JTTP Resources" key="chart_report-resources">
@@ -71,6 +84,7 @@
       <param name="content-type" value="image/png" />
     </resource>
     <resource type="download" name="jttp.css" location="/css/jttp.css"/>
+	<resource type="download" name="report_common_scripts.js" location="/js/report_common_scripts.js"/>
     <resource type="download" name="chart_report.js" location="/js/chart_report.js"/>
   </web-resource>
 

@@ -15,6 +15,8 @@
  */
 package org.everit.jira.timetracker.plugin;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -24,6 +26,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.everit.jira.timetracker.plugin.dto.ChartData;
@@ -47,6 +51,8 @@ import com.google.gson.GsonBuilder;
  */
 public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
+  private static final String FREQUENT_FEEDBACK = "jttp.plugin.frequent.feedback";
+
   private static final String GET_WORKLOGS_ERROR_MESSAGE = "Error when trying to get worklogs.";
 
   private static final String INVALID_END_TIME = "plugin.invalid_endTime";
@@ -62,15 +68,27 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
    */
   private static final Logger LOGGER = Logger.getLogger(JiraTimetrackerChartWebAction.class);
 
+  private static final String NOT_RATED = "Not rated";
+
   private static final String PARAM_DATEFROM = "dateFrom";
 
   private static final String PARAM_DATETO = "dateTo";
 
   private static final String PARAM_USERPICKER = "userPicker";
+
+  private static final String SELF_WITH_DATE_AND_USER_URL_FORMAT =
+      "/secure/JiraTimetrackerChartWebAction.jspa"
+      + "?dateFrom=%s"
+      + "&dateTo=%s"
+      + "&userPicker=%s"
+      + "&search";
+
   /**
    * Serial version UID.
    */
   private static final long serialVersionUID = 1L;
+
+  private static final String SESSION_KEY = "jttpChartStore";
 
   private static final String WRONG_DATES = "plugin.wrong.dates";
 
@@ -85,10 +103,12 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
   private String contextPath;
 
   private String currentUser = "";
+
   /**
    * The date.
    */
   private Date dateFrom = null;
+
   /**
    * The formated date.
    */
@@ -104,6 +124,10 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
    */
   private String dateToFormated = "";
 
+  private boolean feedBackSendAviable;
+
+  private String installedPluginId;
+
   /**
    * The {@link JiraTimetrackerPlugin}.
    */
@@ -113,6 +137,10 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
    * The message.
    */
   private String message = "";
+
+  private String piwikHost;
+
+  private String piwikSiteId;
 
   private String pluginVersion;
 
@@ -131,23 +159,8 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
   }
 
-  /**
-   * Set dateFrom and dateFromFormated default value.
-   */
-  private void dateFromDefaultInit() {
-    Calendar calendarFrom = Calendar.getInstance();
-    calendarFrom.add(Calendar.WEEK_OF_MONTH, -1);
-    dateFrom = calendarFrom.getTime();
-    dateFromFormated = DateTimeConverterUtil.dateToString(dateFrom);
-  }
-
-  /**
-   * Set dateTo and dateToFormated default value.
-   */
-  private void dateToDefaultInit() {
-    Calendar calendarTo = Calendar.getInstance();
-    dateTo = calendarTo.getTime();
-    dateToFormated = DateTimeConverterUtil.dateToString(dateTo);
+  private void checkMailServer() {
+    feedBackSendAviable = ComponentAccessor.getMailServerManager().isDefaultSMTPMailServerDefined();
   }
 
   @Override
@@ -159,26 +172,22 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     }
 
     normalizeContextPath();
+    checkMailServer();
     jiraTimetrackerPlugin.loadPluginSettings();
 
-    pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
-    baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(getHttpRequest().getSession());
-    userId = JiraTimetrackerAnalytics.setUserSessionUserId(getHttpRequest().getSession());
+    setPiwikProperties();
     loadPluginSettingAndParseResult();
-    if ("".equals(dateFromFormated)) {
-      dateFromDefaultInit();
-    }
-    if ("".equals(dateToFormated)) {
-      dateToDefaultInit();
-    }
+    boolean loadedFromSession = loadDataFromSession();
+    initDatesIfNecessary();
+    initCurrentUserIfNecessary();
     chartDataList = null;
 
-    JiraAuthenticationContext authenticationContext = ComponentAccessor
-        .getJiraAuthenticationContext();
-    currentUser = authenticationContext.getUser().getKey();
-    setUserPickerObjectBasedOnCurrentUser();
-
-    return INPUT;
+    if (loadedFromSession) {
+      setReturnUrl(getFormattedRedirectUrl());
+      return getRedirect(NONE);
+    } else {
+      return INPUT;
+    }
   }
 
   @Override
@@ -190,21 +199,27 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     }
 
     normalizeContextPath();
+    checkMailServer();
     jiraTimetrackerPlugin.loadPluginSettings();
 
-    pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
-    baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(getHttpRequest().getSession());
-    userId = JiraTimetrackerAnalytics.setUserSessionUserId(getHttpRequest().getSession());
+    setPiwikProperties();
     loadPluginSettingAndParseResult();
-    setDefaultDates();
+
+    if (parseFeedback()) {
+      loadDataFromSession();
+      initDatesIfNecessary();
+      initCurrentUserIfNecessary();
+      chartDataList = null;
+      return INPUT;
+    }
 
     Calendar startDate = null;
     Calendar lastDate = null;
     try {
       setCurrentUserFromParam();
       setUserPickerObjectBasedOnCurrentUser();
-      startDate = getStartDate();
-      lastDate = getLastDate();
+      startDate = parseDateFrom();
+      lastDate = parseDateTo();
     } catch (IllegalArgumentException e) {
       message = e.getMessage();
       return INPUT;
@@ -219,6 +234,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     try {
       worklogs.addAll(jiraTimetrackerPlugin.getWorklogs(currentUser, startDate.getTime(),
           lastDate.getTime()));
+      saveDataToSession();
     } catch (DataAccessException e) {
       LOGGER.error(GET_WORKLOGS_ERROR_MESSAGE, e);
       return ERROR;
@@ -263,11 +279,9 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
    * @return String array of chartDataList.
    */
   @HtmlSafe
-  // @com.atlassian.velocity.htmlsafe.annotations.CollectionInheritable
   public String getChartDataList() {
     Gson gson = new GsonBuilder().create();
     return gson.toJson(chartDataList);
-    // return chartDataList;
   }
 
   public String getContextPath() {
@@ -286,44 +300,42 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     return dateToFormated;
   }
 
-  private Calendar getLastDate() throws IllegalArgumentException {
-    String dateToParam = getHttpRequest().getParameter(PARAM_DATETO);
-    if (!"".equals(dateToParam)) {
-      dateToFormated = dateToParam;
-    } else {
-      throw new IllegalArgumentException(INVALID_END_TIME);
-    }
-    Calendar lastDate = Calendar.getInstance();
+  public boolean getFeedBackSendAviable() {
+    return feedBackSendAviable;
+  }
+
+  private String getFormattedRedirectUrl() {
+    String currentUserEncoded;
     try {
-      lastDate.setTime(DateTimeConverterUtil.stringToDate(dateToParam));
-    } catch (ParseException e) {
-      throw new IllegalArgumentException(INVALID_END_TIME);
+      currentUserEncoded = URLEncoder.encode(currentUser, "UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      currentUserEncoded = "";
     }
-    return lastDate;
+    return String.format(
+        SELF_WITH_DATE_AND_USER_URL_FORMAT,
+        dateFromFormated,
+        dateToFormated,
+        currentUserEncoded);
+  }
+
+  public String getInstalledPluginId() {
+    return installedPluginId;
   }
 
   public String getMessage() {
     return message;
   }
 
-  public String getPluginVersion() {
-    return pluginVersion;
+  public String getPiwikHost() {
+    return piwikHost;
   }
 
-  private Calendar getStartDate() throws IllegalArgumentException {
-    String dateFromParam = getHttpRequest().getParameter(PARAM_DATEFROM);
-    if (!"".equals(dateFromParam)) {
-      dateFromFormated = dateFromParam;
-    } else {
-      throw new IllegalArgumentException(INVALID_START_TIME);
-    }
-    Calendar startDate = Calendar.getInstance();
-    try {
-      startDate.setTime(DateTimeConverterUtil.stringToDate(dateFromParam));
-    } catch (ParseException e) {
-      throw new IllegalArgumentException(INVALID_START_TIME);
-    }
-    return startDate;
+  public String getPiwikSiteId() {
+    return piwikSiteId;
+  }
+
+  public String getPluginVersion() {
+    return pluginVersion;
   }
 
   public String getUserId() {
@@ -334,10 +346,50 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     return userPickerObject;
   }
 
+  private void initCurrentUserIfNecessary() {
+    if ("".equals(currentUser)) {
+      JiraAuthenticationContext authenticationContext = ComponentAccessor
+          .getJiraAuthenticationContext();
+      currentUser = authenticationContext.getUser().getKey();
+      setUserPickerObjectBasedOnCurrentUser();
+    }
+  }
+
+  private void initDatesIfNecessary() {
+    if ("".equals(dateFromFormated)) {
+      Calendar calendarFrom = Calendar.getInstance();
+      calendarFrom.add(Calendar.WEEK_OF_MONTH, -1);
+      dateFrom = calendarFrom.getTime();
+      dateFromFormated = DateTimeConverterUtil.dateToString(dateFrom);
+    }
+    if ("".equals(dateToFormated)) {
+      Calendar calendarTo = Calendar.getInstance();
+      dateTo = calendarTo.getTime();
+      dateToFormated = DateTimeConverterUtil.dateToString(dateTo);
+    }
+  }
+
+  private boolean loadDataFromSession() {
+    HttpSession session = getHttpSession();
+    Object data = session.getAttribute(SESSION_KEY);
+
+    if (!(data instanceof ReportSessionData)) {
+      return false;
+    }
+    ReportSessionData reportSessionData = (ReportSessionData) data;
+    currentUser = reportSessionData.currentUser;
+    dateFrom = reportSessionData.dateFrom;
+    dateFromFormated = DateTimeConverterUtil.dateToString(dateFrom);
+    dateTo = reportSessionData.dateTo;
+    dateToFormated = DateTimeConverterUtil.dateToString(dateTo);
+    return true;
+  }
+
   private void loadPluginSettingAndParseResult() {
     PluginSettingsValues pluginSettingsValues = jiraTimetrackerPlugin
         .loadPluginSettings();
-    analyticsCheck = pluginSettingsValues.getAnalyticsCheckChange();
+    analyticsCheck = pluginSettingsValues.analyticsCheck;
+    installedPluginId = pluginSettingsValues.pluginUUID;
   }
 
   private void normalizeContextPath() {
@@ -347,6 +399,75 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     } else {
       contextPath = path;
     }
+  }
+
+  private Calendar parseDateFrom() throws IllegalArgumentException {
+    String dateFromParam = getHttpRequest().getParameter(PARAM_DATEFROM);
+    if ((dateFromParam != null) && !"".equals(dateFromParam)) {
+      dateFromFormated = dateFromParam;
+    } else {
+      throw new IllegalArgumentException(INVALID_START_TIME);
+    }
+    Calendar parsedCalendarFrom = Calendar.getInstance();
+    try {
+      dateFrom = DateTimeConverterUtil.stringToDate(dateFromParam);
+      parsedCalendarFrom.setTime(dateFrom);
+    } catch (ParseException e) {
+      throw new IllegalArgumentException(INVALID_START_TIME);
+    }
+    return parsedCalendarFrom;
+  }
+
+  private Calendar parseDateTo() throws IllegalArgumentException {
+    String dateToParam = getHttpRequest().getParameter(PARAM_DATETO);
+    if ((dateToParam != null) && !"".equals(dateToParam)) {
+      dateToFormated = dateToParam;
+    } else {
+      throw new IllegalArgumentException(INVALID_END_TIME);
+    }
+    Calendar parsedCalendarTo = Calendar.getInstance();
+    try {
+      dateTo = DateTimeConverterUtil.stringToDate(dateToParam);
+      parsedCalendarTo.setTime(dateTo);
+    } catch (ParseException e) {
+      throw new IllegalArgumentException(INVALID_END_TIME);
+    }
+    return parsedCalendarTo;
+  }
+
+  private boolean parseFeedback() {
+    if (getHttpRequest().getParameter("sendfeedback") != null) {
+      if (JiraTimetrackerUtil.loadAndCheckFeedBackTimeStampFromSession(getHttpSession())) {
+        String feedBackValue = getHttpRequest().getParameter("feedbackinput");
+        String ratingValue = getHttpRequest().getParameter("rating");
+        String customerMail = JiraTimetrackerUtil
+            .getCheckCustomerMail(getHttpRequest().getParameter("customerMail"));
+        String feedBack = "";
+        String rating = NOT_RATED;
+        if (feedBackValue != null) {
+          feedBack = feedBackValue.trim();
+        }
+        if (ratingValue != null) {
+          rating = ratingValue;
+        }
+        String mailSubject = JiraTimetrackerUtil
+            .createFeedbackMailSubject(JiraTimetrackerAnalytics.getPluginVersion());
+        String mailBody = JiraTimetrackerUtil.createFeedbackMailBody(customerMail, rating,
+            feedBack);
+        jiraTimetrackerPlugin.sendEmail(mailSubject, mailBody);
+        JiraTimetrackerUtil.saveFeedBackTimeStampToSession(getHttpSession());
+      } else {
+        message = FREQUENT_FEEDBACK;
+      }
+      return true;
+    }
+    return false;
+  }
+
+  private void saveDataToSession() {
+    HttpSession session = getHttpSession();
+    session.setAttribute(SESSION_KEY,
+        new ReportSessionData().currentUser(currentUser).dateFrom(dateFrom).dateTo(dateTo));
   }
 
   public void setAnalyticsCheck(final boolean analyticsCheck) {
@@ -395,17 +516,35 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     this.dateToFormated = dateToFormated;
   }
 
-  private void setDefaultDates() {
-    if ("".equals(dateFromFormated)) {
-      dateFromDefaultInit();
-    }
-    if ("".equals(dateToFormated)) {
-      dateToDefaultInit();
-    }
+  public void setFeedBackSendAviable(final boolean feedBackSendAviable) {
+    this.feedBackSendAviable = feedBackSendAviable;
+  }
+
+  public void setInstalledPluginId(final String installedPluginId) {
+    this.installedPluginId = installedPluginId;
   }
 
   public void setMessage(final String message) {
     this.message = message;
+  }
+
+  public void setPiwikHost(final String piwikHost) {
+    this.piwikHost = piwikHost;
+  }
+
+  private void setPiwikProperties() {
+    pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
+    baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(getHttpRequest().getSession());
+    userId = JiraTimetrackerAnalytics.setUserSessionUserId(getHttpRequest().getSession());
+
+    piwikHost = jiraTimetrackerPlugin
+        .getPiwikPorperty(JiraTimetrackerPiwikPropertiesUtil.PIWIK_HOST);
+    piwikSiteId = jiraTimetrackerPlugin
+        .getPiwikPorperty(JiraTimetrackerPiwikPropertiesUtil.PIWIK_CHART_SITEID);
+  }
+
+  public void setPiwikSiteId(final String piwikSiteId) {
+    this.piwikSiteId = piwikSiteId;
   }
 
   public void setPluginVersion(final String pluginVersion) {

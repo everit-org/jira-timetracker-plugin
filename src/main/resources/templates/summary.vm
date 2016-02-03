@@ -21,9 +21,9 @@
             <input type="submit" id="datesubmit" name="datesubmit" class="spaced" style="display: none"/>
             <div id="calendar_div" class="jttp-calendar">
                 #if($isPopup != 2)
-                    <input type="submit" id="monthBack"    name="monthBack" value="<<<" class="button" title="$i18n.getText('plugin.prev.month')"/>
-                    <input type="submit" id="weekBack"    name="weekBack" value="<<" class="button"    title="$i18n.getText('plugin.prev.week')"/>
-                    <input type="submit" id="dayBack"    name="dayBack" value="<" class="button"    title="$i18n.getText('plugin.prev.day')"/>
+                    <input type="submit" id="monthBack"  name="monthBack" value="<<<" class="button" title="$i18n.getText('plugin.prev.month')"/>
+                    <input type="submit" id="weekBack"  name="weekBack" value="<<" class="button"    title="$i18n.getText('plugin.prev.week')"/>
+                    <input type="submit" id="dayBack"  name="dayBack" value="<" class="button"  title="$i18n.getText('plugin.prev.day')"/>
                     $dateFormatted
                     <img id="date_trigger" src="$contextPath/images/icons/cal.gif" width="16" height="16" border="0"
                         alt="Pick a date" class="jttp-calendar-img" title="$i18n.getText('plugin.choose.date')"/>

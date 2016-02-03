@@ -52,9 +52,27 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
                     #else
                     	<tbody id="issueTable">
 		                   	#foreach ($worklog in $worklogs)
-		                    	<tr #if($worklog.worklogId == $editedWorklogId) class="rowEdit" #end #if($rowCount % 2 != 0) class="rowAlter" #end>
+								#set($wl_item_class = "")
+		                   		#if($worklog.worklogId == $editedWorklogId)
+		                   			#set($wl_item_class = "rowEdit")
+		                   		#elseif($worklog.worklogId == $copiedWorklogId)
+		                   			#set($wl_item_class = "rowCopy")
+		                   		#elseif($rowCount % 2 != 0)
+		                   			#set($wl_item_class = "rowAlter")
+		                   		#end
+								
+		                    	<tr #if(not $wl_item_class.isEmpty()) class="${wl_item_class}"#end>
 		                    	 	<td class="table-issue" class="vertically-middle">
 		                    	 		<a href="/browse/$worklog.issue" class="issue-link" title="#if($worklog.issueParent != '') $i18n.getText('plugin.parent.issue') $worklog.issueParent &#13 $worklog.issueSummary #else $worklog.issueSummary #end">$worklog.issue</a>
+		                    	 	</td>
+									<td style="vertical-align: middle;">
+		                    	 		#if($worklog.isClosed)
+		                    	 			<div title="$worklog.exactRemaining" style="color: #A3A1A1;">$worklog.roundedRemaining</div>
+		                    	 		#elseif($worklog.isMoreEstimatedTime)
+											<div title="$worklog.exactRemaining">$worklog.roundedRemaining<div>
+										#else
+		                    	 			<div title="$worklog.exactRemaining" style="color:red;">$worklog.roundedRemaining</div>
+										#end
 		                    	 	</td>
 		                    	 	<td class="table-starttime" class="vertically-middle">
 		                    	 		$worklog.startTime
@@ -64,14 +82,6 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 		                    	 	</td>
 		                    	 	<td class="vertically-middle">
 		                    	 		$worklog.duration
-		                    	 	</td>
-									<td class="vertically-middle">
-		                    	 		#if(!$worklog.isMoreEstimatedTime)
-		                    	 			<div style="color:red;">$worklog.remaining</div>
-										#else
-											$worklog.remaining
-										#end
-		                    	 		
 		                    	 	</td>
 		                    	 	<td id="commentRow_$rowCount" name="commentRow_$rowCount" class="table-comment wiki-edit-content" class="vertically-middle">
 		                    	 		<input id="hiddenWorklogBody" type="hidden" value="$worklog.body">
@@ -99,11 +109,12 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 		                    	 		<span class="aui-icon aui-icon-small aui-iconfont-edit jttp-aui-icon"
 		                    	 			id="edit" name="edit" title="$i18n.getText('plugin.edit')"
 		                    	 			onclick="location.href='JiraTimetrackerWebAction.jspa?editedWorklogId=$worklog.worklogId&dateFormatted=$dateFormatted'"></span>
-		                    	 		<span class="aui-icon aui-icon-small aui-iconfont-delete jttp-aui-icon"
+		                    	 		<span class="aui-icon aui-icon-small aui-iconfont-delete jttp-aui-icon #if($jiraVersion.substring(0, 3) == '6.2') aui-iconfont-remove #else aui-iconfont-delete #end"
 		                    	 			id="delete" name="delete" title="$i18n.getText('plugin.delete')"
 		                    	 			onclick="location.href='JiraTimetrackerWebAction!default.jspa?deletedWorklogId=$worklog.worklogId&dateFormatted=$dateFormatted'"></span>
-		                    	 		<span class="aui-icon aui-icon-small aui-iconfont-copy-clipboard copy jttp-aui-icon"
-		                    	 			id="copy" name="copy" title="$i18n.getText('plugin.copy')"></span>
+		                    	 		<span class="aui-icon aui-icon-small aui-iconfont-copy-clipboard copy jttp-aui-icon #if($jiraVersion.substring(0, 3) == '6.2') aui-iconfont-doc #else aui-iconfont-copy-clipboard #end copy"
+		                    	 			id="copy" name="copy" title="$i18n.getText('plugin.copy')" onclick="location.href='JiraTimetrackerWebAction!default.jspa?copiedWorklogId=$worklog.worklogId&dateFormatted=$dateFormatted'"
+											></span>
 		                    	 	</td>
 		                    	</tr>
 		                    	#set($rowCount = $rowCount + 1)

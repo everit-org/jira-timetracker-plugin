@@ -21,51 +21,8 @@ everit.jttp.chart_report = everit.jttp.chart_report || {};
 (function(jttp, jQuery) {
  
 jQuery(document).ready(function(){
-	
-	var opt = jttp.options;
-	
-	var calFrom= Calendar.setup({
-		firstDay : opt.firstDay,
-		inputField : jQuery("#dateFrom"),
-		button : jQuery("#date_trigger_from"),
-		date : opt.dateFromFormated,
-		align : 'Br',
-		electric: false,
-		singleClick : true,
-		showOthers: true,
-		useISO8601WeekNumbers : opt.useISO8601,
-		ifFormat : '%Y-%m-%d'
-	});
-
-	var calTo= Calendar.setup({
-		firstDay : opt.firstDay,
-		inputField : jQuery("#dateTo"),
-		button : jQuery("#date_trigger_to"),
-		date : opt.dateToFormated,
-		align : 'Br',
-		electric: false,
-		singleClick : true,
-		showOthers: true,
-		useISO8601WeekNumbers : opt.useISO8601,
-		ifFormat : '%Y-%m-%d'
-	});
-	
 	google.load('visualization', '1', {packages:['controls'], callback: drawChart});
 });
-
-jttp.checkToEnter = function(event) {
-	if (event.keyCode == 13) {
-		jQuery("#search").click();
-		return false;
-	}
-}
-
-jttp.checkFromEnter = function(event){
-    if (event.keyCode == 13) {
-      jQuery("#dateTo").focus();
-      return false;
-    }
-}
 
 function drawChart() {
       	 var dataArray = new Array();

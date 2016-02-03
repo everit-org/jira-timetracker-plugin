@@ -24,27 +24,42 @@ $webResourceManager.requireResource("jira.webresources:dwr", null)
 $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:table_report-resources")
 <body>
-<form name="chartReportForm"  method="get" action="JiraTimetrackerTableWebAction.jspa" />   
-	#set($rendererType = "atlassian-wiki-renderer")
+#set($rendererType = "atlassian-wiki-renderer")
 	#if($currentCalendar.useISO8601 == true)
 		#set ($firstDay = 1)
 	#else
 		#set ($firstDay = 0)
 	#end
 	
-	<input id="currentCalendar" type="hidden" value="$currentCalendar" />
-	<input id="dateFormatted" type="hidden" value="$dateFormatted" />
-	<input id="firstDay" type="hidden" value="$firstDay" />
+<script type="text/javascript">
+	window.everit = window.everit || {};
+	everit.jttp = everit.jttp || {};
+	everit.jttp.report_common_scripts = everit.jttp.report_common_scripts || {};
+
+	(function(jttp, jQuery) {
+		jttp.options = jQuery.extend( 
+			{},
+			jttp.options,
+			{
+				firstDay : ${firstDay},
+				useISO8601 : ${currentCalendar.useISO8601},
+				dateFromFormated : '${dateFromFormated}',
+				dateToFormated : '${dateToFormated}'
+			}
+		);
+	})(everit.jttp.report_common_scripts, AJS.$);
+</script>
 	
-	<div id="plugin_head" class="item-header">
-			<div class="logo-img">
-				<a href="http://www.everit.org/jira-timetracker-plugin/" target="_blank">
-					<img src="$contextPath/download/resources/org.everit.jira.timetracker.plugin:everit_tt_logo/everit_tt_logo.png" alt="Everit logo" height="42" width="42" >
-				</a>
-			</div>
- 			<h1 class="item-summary">Timetracker</h1>
-  	</div>
-	<div id="main-content" class="content rounded">
+<div id="plugin_head" class="item-header">
+	<div class="logo-img">
+		<a href="http://www.everit.biz/" target="_blank">
+			<img src="$contextPath/download/resources/org.everit.jira.timetracker.plugin:everit_tt_logo/everit_tt_logo.png" alt="Everit logo" height="42" width="42" >
+		</a>
+	</div>
+	<h1 class="item-summary">Timetracker</h1>
+</div>
+<div id="main-content" class="content rounded">
+	<form name="chartReportForm"  method="get" action="JiraTimetrackerTableWebAction.jspa" />   
 		<div class="inside-content">
 			##TAB START
 			<div class="tabwrap tabs2" id="tabs-jttp">
@@ -69,7 +84,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:table_re
 								$i18n.getText("plugin.from"): 
 								</td>
 								<td>
-								<input type="text" id="dateFrom" name="dateFrom" tabindex="1" onkeydown="return checkEnter(event);" value="$dateFromFormated"/>
+								<input type="text" id="dateFrom" name="dateFrom" tabindex="1" onkeydown="return everit.jttp.report_common_scripts.checkEnter(event);" value="$dateFromFormated"/>
 								<img id="date_trigger_from" src="$contextPath/images/icons/cal.gif" width="16" height="16" border="0"
 									alt="Pick a date" style="vertical-align: sub;" title="$i18n.getText('plugin.choose.date')"/>
 							</td>
@@ -79,7 +94,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:table_re
 								$i18n.getText("plugin.to"): 
 								</td>
 								<td>
-								<input type="text" id="dateTo" name="dateTo" tabindex="1" onkeydown="return checkEnter(event);" value="$dateToFormated"/>
+								<input type="text" id="dateTo" name="dateTo" tabindex="1" onkeydown="return everit.jttp.report_common_scripts.checkEnter(event);" value="$dateToFormated"/>
 								<img id="date_trigger_to" src="$contextPath/images/icons/cal.gif" width="16" height="16" border="0"
 									alt="Pick a date" style="vertical-align: sub;" title="$i18n.getText('plugin.choose.date')"/>
 							</td>
@@ -90,7 +105,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:table_re
 							</td>
 							<td>
 								<div class="field-group">
-									<select  id="userPicker" class="js-default-user-picker single-user-picker" name="userPicker">
+									<select  id="userPicker" class="js-default-user-picker2 single-user-picker" name="userPicker">
 										#if($userPickerObject)
 										<option selected="selected" 
 										 value="$userPickerObject.getKey()"
@@ -105,7 +120,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:table_re
 						</tr>
 						<tr>
 							<td>
-								<input id="search"  tabindex="3" type="submit" name="search" value="$i18n.getText('plugin.search')" class="button" />
+								<input id="search"  tabindex="3" type="submit" name="search" value="$i18n.getText('plugin.search')" class="button" onclick="jttpSearchOnClick('Table');" />
 							</td>
 						</tr>
 					</tbody>
@@ -113,11 +128,13 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:table_re
 			</div>
 			#parse("templates/table_report_list.vm")
 		</div>
+	</form>
+	<div id="feedbackfooter" class="feedback_footer">
+		#parse("templates/feedback_table.vm")
 	</div>
-</form>
+</div>
 
 #if($analyticsCheck)
-	#set($IDSITE = 4);
 	#parse("templates/analytics.vm")
 #end
 </body>

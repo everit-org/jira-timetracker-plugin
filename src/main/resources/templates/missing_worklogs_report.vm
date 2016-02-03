@@ -23,7 +23,7 @@ $webResourceManager.requireResource("jira.webresources:calendar")
 $webResourceManager.requireResource("jira.webresources:calendar-en")
 $webResourceManager.requireResource("jira.webresources:dwr", null)
 $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
-$webResourceManager.requireResource("org.everit.jira.timetracker.plugin:table_report-resources")
+$webResourceManager.requireResource("org.everit.jira.timetracker.plugin:missing_days_report-resources")
 
 <form name="myForm" method="post"action="JiraTimetrackerWorklogsWebAction.jspa?dateFromFormated=$dateFromFormated&dateToFormated=$dateToFormated&actualPage=$actualPage" />
 	#set($rendererType = "atlassian-wiki-renderer")
@@ -32,9 +32,36 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:table_re
 	#else
 		#set ($firstDay = 0)
 	#end
-	<input id="currentCalendar" type="hidden" value="$currentCalendar" />
-	<input id="dateFormatted" type="hidden" value="$dateFormatted" />
-	<input id="firstDay" type="hidden" value="$firstDay" />
+	
+	<script type="text/javascript">
+	window.everit = window.everit || {};
+	everit.jttp = everit.jttp || {};
+	everit.jttp.report_common_scripts = everit.jttp.report_common_scripts || {};
+
+	(function(jttp, jQuery) {
+		jttp.options = jQuery.extend( 
+			{},
+			jttp.options,
+			{
+				firstDay : ${firstDay},
+				useISO8601 : ${currentCalendar.useISO8601},
+				dateFromFormated : '${dateFromFormated}',
+				dateToFormated : '${dateToFormated}'
+			}
+		);
+	})(everit.jttp.report_common_scripts, AJS.$);
+	
+	everit.jttp.missing_days_report = everit.jttp.missing_days_report || {};
+
+	(function(jttp, jQuery) {
+		jttp.options = jQuery.extend( 
+			{},
+			jttp.options,
+			{
+			}
+		);
+	})(everit.jttp.missing_days_report, AJS.$);
+</script>
 	
 	<div id="plugin_head" class="item-header">
 	  <div class="logo-img">
@@ -66,11 +93,11 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:table_re
 	        <tbody>
 	          <tr>
 	            <td>$i18n.getText("plugin.from") <input type="text" id="dateFrom" name="dateFrom" tabindex="1"
-	              onkeydown="return checkEnter(event);" value="$dateFromFormated" /> 
+	              onkeydown="return everit.jttp.report_common_scripts.checkEnter(event);" value="$dateFromFormated" /> 
 					<img id="date_trigger_from" src="$contextPath/images/icons/cal.gif" width="16" height="16" border="0" alt="Pick a date" class="jttp-calendar-img" title="$i18n.getText('plugin.choose.date')"/> 
 	            </td>
 	            <td>$i18n.getText("plugin.to") <input type="text" id="dateTo" name="dateTo" tabindex="2"
-	              onkeydown="return checkToEnter(event);" value="$dateToFormated" /> 
+	              onkeydown="return everit.jttp.report_common_scripts.checkToEnter(event);" value="$dateToFormated" /> 
 				<img id="date_trigger_to" src="$contextPath/images/icons/cal.gif" width="16" height="16" border="0" alt="Pick a date" class="jttp-calendar-img" title="$i18n.getText('plugin.choose.date')"/> 
 	            </td>
 	          </tr>
@@ -79,7 +106,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:table_re
 	      <table>
 	        <tbody>
 	          <tr>
-	            <td><input id="hour" type="checkbox" value="check 8 h" name="hour" onclick="setCheckWorkedHours();" #if($checkHours) checked #end/></td>
+	            <td><input id="hour" type="checkbox" value="check 8 h" name="hour" onclick="everit.jttp.missing_days_report.setCheckWorkedHours();" #if($checkHours) checked #end/></td>
 	            <td>$i18n.getText("plugin.missing.days.hours")</td>
 	          </tr>
 	          <tr>

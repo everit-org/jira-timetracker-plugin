@@ -21,8 +21,12 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
+import com.atlassian.jira.component.ComponentAccessor;
 
 /**
  * The utility class of date and time conversions.
@@ -48,11 +52,6 @@ public final class DateTimeConverterUtil {
    * The number of days per week.
    */
   public static final int DAYS_PER_WEEK = 7;
-
-  /**
-   * The number of seconds in 8 hour.
-   */
-  public static final int EIGHT_HOUR_IN_SECONDS = 8 * 60 * 60;
 
   private static final int HOURS_GROUP = 8;
 
@@ -127,11 +126,6 @@ public final class DateTimeConverterUtil {
   public static final String TIME24HOURS_PATTERN = "([01]?[0-9]|2[0-3]):[0-5][0-9]";
 
   /**
-   * The number of work hours per day.
-   */
-  public static final int WORK_HOURS_PER_DAY = 8;
-
-  /**
    * Count the worklog end time.
    *
    * @param start
@@ -186,6 +180,20 @@ public final class DateTimeConverterUtil {
     DateFormat formatterDate = new SimpleDateFormat(DATE_FORMAT);
     String dateString = formatterDate.format(date);
     return dateString;
+  }
+
+  /**
+   * Get the difference between to date in seconds.
+   *
+   * @param firstDate
+   *          The fisrt date.
+   * @param secondDate
+   *          The second date.
+   * @return The difference between dates.
+   */
+  public static long getDateDifference(final Date firstDate, final Date secondDate) {
+    long diffInMillies = secondDate.getTime() - firstDate.getTime();
+    return TimeUnit.SECONDS.convert(diffInMillies, TimeUnit.MILLISECONDS);
   }
 
   /**
@@ -261,21 +269,27 @@ public final class DateTimeConverterUtil {
    *          The spent seconds.
    * @return The result String.
    */
+  public static String secondConvertToRoundedDuration(final long spentSeconds) {
+    TimeTrackingConfiguration timeTrackingConfiguration =
+        ComponentAccessor.getComponent(TimeTrackingConfiguration.class);
+    double workDaysPerWeek = timeTrackingConfiguration.getDaysPerWeek().doubleValue();
+    double workHoursPerDay = timeTrackingConfiguration.getHoursPerDay().doubleValue();
+    return DurationFormatter.roundedDuration(spentSeconds, workDaysPerWeek, workHoursPerDay);
+  }
+
+  /**
+   * Convert the seconds to jira format (1h 30m) String.
+   *
+   * @param spentSeconds
+   *          The spent seconds.
+   * @return The result String.
+   */
   public static String secondConvertToString(final long spentSeconds) {
-    String summaryString = "";
-    long spentMin = spentSeconds / SECONDS_PER_MINUTE;
-    long spentHour = spentMin / MINUTES_PER_HOUR;
-    long days = spentHour / WORK_HOURS_PER_DAY;
-    long hours = spentHour % WORK_HOURS_PER_DAY;
-    long mins = spentMin % MINUTES_PER_HOUR;
-    if (days != 0) {
-      summaryString = days + "d " + hours + "h " + mins + "m";
-    } else if (hours != 0) {
-      summaryString = hours + "h " + mins + "m";
-    } else {
-      summaryString = mins + "m";
-    }
-    return summaryString;
+    TimeTrackingConfiguration timeTrackingConfiguration =
+        ComponentAccessor.getComponent(TimeTrackingConfiguration.class);
+    double workDaysPerWeek = timeTrackingConfiguration.getDaysPerWeek().doubleValue();
+    double workHoursPerDay = timeTrackingConfiguration.getHoursPerDay().doubleValue();
+    return DurationFormatter.exactDuration(spentSeconds, workDaysPerWeek, workHoursPerDay);
   }
 
   /**

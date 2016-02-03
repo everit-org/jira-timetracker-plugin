@@ -28,6 +28,7 @@ import org.ofbiz.core.entity.GenericValue;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.MutableIssue;
+import com.atlassian.jira.issue.status.category.StatusCategory;
 import com.atlassian.jira.issue.worklog.Worklog;
 
 /**
@@ -58,11 +59,17 @@ public class EveritWorklog implements Serializable {
    */
   private String endTime;
 
+  private String exactRemaining;
+
+  /**
+   * The issue closed.
+   */
+  private boolean isClosed = false;
+
   /**
    * The issue estimated time is 0 or not.
    */
   private boolean isMoreEstimatedTime;
-
   /**
    * The worklog Issue key.
    */
@@ -76,7 +83,7 @@ public class EveritWorklog implements Serializable {
   /**
    * The worklog Issue epic.
    */
-  private String issueParent;
+  private String issueParent = "";
 
   /**
    * The worklog Issue Summary.
@@ -93,7 +100,7 @@ public class EveritWorklog implements Serializable {
   /**
    * Remaining time on the issue.
    */
-  private String remaining;
+  private String roundedRemaining;
 
   /**
    * The start Date.
@@ -136,11 +143,12 @@ public class EveritWorklog implements Serializable {
     MutableIssue issueObject = issueManager.getIssueObject(issueId);
     issue = issueObject.getKey();
     issueSummary = issueObject.getSummary();
-
+    if (StatusCategory.COMPLETE
+        .equals(issueObject.getStatusObject().getSimpleStatus().getStatusCategory().getKey())) {
+      isClosed = true;
+    }
     if (issueObject.getParentObject() != null) {
       issueParent = issueObject.getParentObject().getKey();
-    } else {
-      issueParent = "";
     }
     isMoreEstimatedTime = issueObject.getEstimate() == 0 ? false : true;
     body = worklogGv.getString("body");
@@ -157,7 +165,9 @@ public class EveritWorklog implements Serializable {
     duration = DateTimeConverterUtil.secondConvertToString(timeSpentInSec);
     endTime = DateTimeConverterUtil.countEndTime(startTime, milliseconds);
 
-    remaining = DateTimeConverterUtil.secondConvertToString(issueObject.getEstimate());
+    roundedRemaining =
+        DateTimeConverterUtil.secondConvertToRoundedDuration(issueObject.getEstimate());
+    exactRemaining = DateTimeConverterUtil.secondConvertToString(issueObject.getEstimate());
   }
 
   /**
@@ -187,11 +197,12 @@ public class EveritWorklog implements Serializable {
     MutableIssue issueObject = issueManager.getIssueObject(issueId);
     issue = issueObject.getKey();
     issueSummary = issueObject.getSummary();
-
+    if (StatusCategory.COMPLETE
+        .equals(issueObject.getStatusObject().getSimpleStatus().getStatusCategory().getKey())) {
+      isClosed = true;
+    }
     if (issueObject.getParentObject() != null) {
       issueParent = issueObject.getParentObject().getKey();
-    } else {
-      issueParent = "";
     }
     isMoreEstimatedTime = issueObject.getEstimate() == 0 ? false : true;
     body = rs.getString("worklogbody");
@@ -208,7 +219,9 @@ public class EveritWorklog implements Serializable {
     duration = DateTimeConverterUtil.secondConvertToString(timeSpentInSec);
     endTime = DateTimeConverterUtil.countEndTime(startTime, milliseconds);
 
-    remaining = DateTimeConverterUtil.secondConvertToString(issueObject.getEstimate());
+    roundedRemaining =
+        DateTimeConverterUtil.secondConvertToRoundedDuration(issueObject.getEstimate());
+    exactRemaining = DateTimeConverterUtil.secondConvertToString(issueObject.getEstimate());
   }
 
   /**
@@ -267,6 +280,14 @@ public class EveritWorklog implements Serializable {
     return endTime;
   }
 
+  public String getExactRemaining() {
+    return exactRemaining;
+  }
+
+  public boolean getIsClosed() {
+    return isClosed;
+  }
+
   public boolean getIsMoreEstimatedTime() {
     return isMoreEstimatedTime;
   }
@@ -291,8 +312,8 @@ public class EveritWorklog implements Serializable {
     return monthNo;
   }
 
-  public String getRemaining() {
-    return remaining;
+  public String getRoundedRemaining() {
+    return roundedRemaining;
   }
 
   public String getStartDate() {
@@ -331,6 +352,14 @@ public class EveritWorklog implements Serializable {
     this.endTime = endTime;
   }
 
+  public void setExactRemaining(final String exactRemaining) {
+    this.exactRemaining = exactRemaining;
+  }
+
+  public void setIsClosed(final boolean isClosed) {
+    this.isClosed = isClosed;
+  }
+
   public void setIssue(final String issue) {
     this.issue = issue;
   }
@@ -355,8 +384,8 @@ public class EveritWorklog implements Serializable {
     this.isMoreEstimatedTime = isMoreEstimatedTime;
   }
 
-  public void setRemaining(final String remaining) {
-    this.remaining = remaining;
+  public void setRoundedRemaining(final String remaining) {
+    roundedRemaining = remaining;
   }
 
   public void setStartDate(final String startDate) {

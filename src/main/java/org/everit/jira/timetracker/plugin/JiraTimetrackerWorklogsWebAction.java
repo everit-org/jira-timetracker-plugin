@@ -25,12 +25,15 @@ import org.apache.log4j.Logger;
 import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
 import org.ofbiz.core.entity.GenericEntityException;
 
+import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
 
 /**
  * Missing worklogs page.
  */
 public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
+
+  private static final String FREQUENT_FEEDBACK = "jttp.plugin.frequent.feedback";
 
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
 
@@ -40,13 +43,17 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
   private static final Logger LOGGER = Logger
       .getLogger(JiraTimetrackerWorklogsWebAction.class);
 
+  private static final String NOT_RATED = "Not rated";
+
   private static final String PARAM_DATEFROM = "dateFrom";
 
   private static final String PARAM_DATETO = "dateTo";
+
   /**
    * The number of rows in the dates table.
    */
   private static final int ROW_COUNT = 20;
+
   /**
    * Serial version UID.
    */
@@ -67,6 +74,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    * The report check the worklogs time spent is equal or greater than 8 hours.
    */
   public boolean checkHours = false;
+
   /**
    * If check the worklogs spent time, then exclude the non working issues, or not.
    */
@@ -77,18 +85,26 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    * The date.
    */
   private Date dateFrom = null;
+
   /**
    * The formated date.
    */
   private String dateFromFormated = "";
+
   /**
    * The date.
    */
   private Date dateTo = null;
+
   /**
    * The formated date.
    */
   private String dateToFormated = "";
+
+  private boolean feedBackSendAviable;
+
+  private String installedPluginId;
+
   /**
    * The {@link JiraTimetrackerPlugin}.
    */
@@ -108,9 +124,14 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    */
   private int numberOfPages;
 
+  private String piwikHost;
+
+  private String piwikSiteId;
+
   private String pluginVersion;
 
   private List<String> showDatesWhereNoWorklog;
+
   /**
    * The message parameter.
    */
@@ -127,6 +148,10 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
   public JiraTimetrackerWorklogsWebAction(
       final JiraTimetrackerPlugin jiraTimetrackerPlugin) {
     this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
+  }
+
+  private void checkMailServer() {
+    feedBackSendAviable = ComponentAccessor.getMailServerManager().isDefaultSMTPMailServerDefined();
   }
 
   /**
@@ -171,11 +196,10 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     }
 
     normalizeContextPath();
+    checkMailServer();
     jiraTimetrackerPlugin.loadPluginSettings();
+    setPiwikProperties();
 
-    pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
-    baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(getHttpRequest().getSession());
-    userId = JiraTimetrackerAnalytics.setUserSessionUserId(getHttpRequest().getSession());
     loadPluginSettingAndParseResult();
     if ("".equals(dateToFormated)) {
       dateToDefaultInit();
@@ -218,11 +242,12 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     }
 
     normalizeContextPath();
+    checkMailServer();
     jiraTimetrackerPlugin.loadPluginSettings();
-    pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
-    baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(getHttpRequest().getSession());
-    userId = JiraTimetrackerAnalytics.setUserSessionUserId(getHttpRequest().getSession());
+
+    setPiwikProperties();
     loadPluginSettingAndParseResult();
+
     message = "";
     messageParameter = "";
     statisticsMessageParameter = "0";
@@ -271,6 +296,9 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     numberOfPages = countNumberOfPages();
     pageChangeAction();
     setShowDatesListByActualPage(actualPage);
+
+    parseFeedBack();
+
     return SUCCESS;
   }
 
@@ -310,6 +338,14 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     return dateToFormated;
   }
 
+  public boolean getFeedBackSendAviable() {
+    return feedBackSendAviable;
+  }
+
+  public String getInstalledPluginId() {
+    return installedPluginId;
+  }
+
   public String getMessage() {
     return message;
   }
@@ -320,6 +356,14 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
   public int getNumberOfPages() {
     return numberOfPages;
+  }
+
+  public String getPiwikHost() {
+    return piwikHost;
+  }
+
+  public String getPiwikSiteId() {
+    return piwikSiteId;
   }
 
   public String getPluginVersion() {
@@ -341,7 +385,8 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
   private void loadPluginSettingAndParseResult() {
     PluginSettingsValues pluginSettingsValues = jiraTimetrackerPlugin
         .loadPluginSettings();
-    analyticsCheck = pluginSettingsValues.getAnalyticsCheckChange();
+    analyticsCheck = pluginSettingsValues.analyticsCheck;
+    installedPluginId = pluginSettingsValues.pluginUUID;
   }
 
   private void normalizeContextPath() {
@@ -404,6 +449,33 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     return true;
   }
 
+  private void parseFeedBack() {
+    if (getHttpRequest().getParameter("sendfeedback") != null) {
+      if (JiraTimetrackerUtil.loadAndCheckFeedBackTimeStampFromSession(getHttpSession())) {
+        String feedBackValue = getHttpRequest().getParameter("feedbackinput");
+        String ratingValue = getHttpRequest().getParameter("rating");
+        String customerMail =
+            JiraTimetrackerUtil.getCheckCustomerMail(getHttpRequest().getParameter("customerMail"));
+        String feedBack = "";
+        String rating = NOT_RATED;
+        if (feedBackValue != null) {
+          feedBack = feedBackValue;
+        }
+        if (ratingValue != null) {
+          rating = ratingValue.trim();
+        }
+        String mailSubject = JiraTimetrackerUtil
+            .createFeedbackMailSubject(JiraTimetrackerAnalytics.getPluginVersion());
+        String mailBody =
+            JiraTimetrackerUtil.createFeedbackMailBody(customerMail, rating, feedBack);
+        jiraTimetrackerPlugin.sendEmail(mailSubject, mailBody);
+        JiraTimetrackerUtil.saveFeedBackTimeStampToSession(getHttpSession());
+      } else {
+        message = FREQUENT_FEEDBACK;
+      }
+    }
+  }
+
   public void setActualPage(final int actualPage) {
     this.actualPage = actualPage;
   }
@@ -440,6 +512,14 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     this.dateToFormated = dateToFormated;
   }
 
+  public void setFeedBackSendAviable(final boolean feedBackSendAviable) {
+    this.feedBackSendAviable = feedBackSendAviable;
+  }
+
+  public void setInstalledPluginId(final String installedPluginId) {
+    this.installedPluginId = installedPluginId;
+  }
+
   public void setMessage(final String message) {
     this.message = message;
   }
@@ -450,6 +530,25 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
   public void setNumberOfPages(final int numberOfPages) {
     this.numberOfPages = numberOfPages;
+  }
+
+  public void setPiwikHost(final String piwikHost) {
+    this.piwikHost = piwikHost;
+  }
+
+  private void setPiwikProperties() {
+    pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
+    baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(getHttpRequest().getSession());
+    userId = JiraTimetrackerAnalytics.setUserSessionUserId(getHttpRequest().getSession());
+
+    piwikHost =
+        jiraTimetrackerPlugin.getPiwikPorperty(JiraTimetrackerPiwikPropertiesUtil.PIWIK_HOST);
+    piwikSiteId = jiraTimetrackerPlugin
+        .getPiwikPorperty(JiraTimetrackerPiwikPropertiesUtil.PIWIK_WORKLOGS_SITEID);
+  }
+
+  public void setPiwikSiteId(final String piwikSiteId) {
+    this.piwikSiteId = piwikSiteId;
   }
 
   public void setPluginVersion(final String pluginVersion) {
