@@ -823,7 +823,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     for (GenericValue worklog : worklogGVList) {
       timeSpent += worklog.getLong("timeworked").longValue();
     }
-
     double expectedTimeSpent = workHoursPerDay * DateTimeConverterUtil.SECONDS_PER_MINUTE
         * DateTimeConverterUtil.MINUTES_PER_HOUR;
     return timeSpent >= expectedTimeSpent;

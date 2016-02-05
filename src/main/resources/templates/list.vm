@@ -15,49 +15,38 @@
  *#
 $webResourceManager.requireResource("jira.webresources:dwr", null)   
 $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
-<style type="text/css">
-{
-margin-bottom: 0em;
-}
-.table-endtime:hover, .table-starttime:hover, .table-issue:hover, .table-comment:hover{
-cursor:pointer;
-}
-span{
-cursor:pointer;
-}
-</style>
 #set($rowCount = 0)
 <div class="results-wrap">
 	<div>
 	    <table class="grid" border="0" cellpadding="2" cellspacing="0" width="100%">
 	              <thead>
 	                   <tr class="rowHeader">
-	                       <td width="10%" style="text-align: center;" title="$i18n.getText('jttp.list.title.issue')">
+	                       <td width="10%" class="center-text" title="$i18n.getText('jttp.list.title.issue')">
 	                           Issue
 	                        </td>
-	                        <td width="5%" style="text-align: center;" title="$i18n.getText('jttp.list.title.remaining')"> 
-	                          $i18n.getText("plugin.remaining")
-	                        </td>
-	                        <td width="5%" style="text-align: center;" title="$i18n.getText('jttp.list.title.start')">
+	                        <td class="label-row">
 	                           $i18n.getText("plugin.start")
 	                        </td>
-	                        <td width="5%" style="text-align: center;" title="$i18n.getText('jttp.list.title.end')">
+	                        <td class="label-row">
 	                           $i18n.getText("plugin.end")
 	                        </td>
-	                        <td width="5%" style="text-align: center;" title="$i18n.getText('jttp.list.title.duration')"> 
+	                        <td class="label-row"> 
 	                          $i18n.getText("plugin.duration")
 	                        </td>
-	                        <td width="60%" style="text-align: center;" title="$i18n.getText('jttp.list.title.note')">
+	                        <td class="label-row"> 
+	                          $i18n.getText("plugin.remaining")
+	                        </td>
+	                        <td width="60%">
 	                          $i18n.getText("plugin.note")
 	                        </td>
-	                        <td width="10%" style="text-align: center;" title="$i18n.getText('jttp.list.title.actions')">
+	                        <td width="10%" class="center-text" title="$i18n.getText('jttp.list.title.actions')">
 	                          $i18n.getText("plugin.actions")
 	                        </td>
 	                    </tr>
                     </thead>
                     #if($worklogs.size() == 0)
             			</table>
-            			<div id="message" style="text-align: center; padding: 3px; font-size: 14px;">
+            			<div id="message" style="center-text padding: 3px; font-size: 14px;">
 				 			$i18n.getText("plugin.no.worklogs")
 					  	</div>
                     #else
@@ -73,10 +62,10 @@ cursor:pointer;
 		                   		#end
 		                   		
 		                    	<tr #if(not $wl_item_class.isEmpty()) class="${wl_item_class}"#end>
-		                    	 	<td class="table-issue" style="vertical-align: middle; white-space: nowrap; #if($worklog.isClosed) text-decoration: line-through; #end">
+		                    	 	<td class="table-issue" class="vertically-middle" style="white-space: nowrap; #if($worklog.isClosed) text-decoration: line-through; #end">
 		                    	 		<a href="/browse/$worklog.issue" class="issue-link" title="#if($worklog.issueParent != '') $i18n.getText('plugin.parent.issue') $worklog.issueParent &#13 $worklog.issueSummary #else $worklog.issueSummary #end">$worklog.issue</a>
 		                    	 	</td>
-		                    	 	<td style="vertical-align: middle;">
+									<td class="vertically-middle">
 		                    	 		#if($worklog.isClosed)
 		                    	 			<div title="$worklog.exactRemaining" style="color: #A3A1A1;">$worklog.roundedRemaining</div>
 		                    	 		#elseif($worklog.isMoreEstimatedTime)
@@ -85,16 +74,16 @@ cursor:pointer;
 		                    	 			<div title="$worklog.exactRemaining" style="color:red;">$worklog.roundedRemaining</div>
 										#end
 		                    	 	</td>
-		                    	 	<td class="table-starttime" style="vertical-align: middle;">
+		                    	 	<td class="table-starttime" class="vertically-middle">
 		                    	 		$worklog.startTime
 		                    	 	</td>
-		                    	 	<td class="table-endtime" style="vertical-align: middle;">
+		                    	 	<td class="table-endtime" class="vertically-middle">
 		                    	 		$worklog.endTime
 		                    	 	</td>
-		                    	 	<td style="vertical-align: middle; white-space: nowrap;">
+		                    	 	<td class="vertically-middle" style="white-space: nowrap;">
 		                    	 		$worklog.duration
 		                    	 	</td>
-		                    	 	<td id="commentRow_$rowCount" name="commentRow_$rowCount" class="table-comment wiki-edit-content" style="vertical-align: middle;">
+		                    	 	<td id="commentRow_$rowCount" name="commentRow_$rowCount" class="table-comment wiki-edit-content" class="vertically-middle">
 		                    	 		<input id="hiddenWorklogBody" type="hidden" value="$worklog.body">
 		                    	 	</td>
 		                    	 	<script>
@@ -111,24 +100,23 @@ cursor:pointer;
 	                								data = data.replace('<p>','');
 	                								data = data.replace('</p>','');
 			                    	 				AJS.$("#commentRow_$rowCount").append(data);
-			                    	 				AJS.$("#commentRow_$rowCount").attr("style","vertical-align: middle;");
+			                    	 				AJS.$("#commentRow_$rowCount").attr("class","vertically-middle");
 			                    	 			}
 	            								}); 
 	            					</script>
-		                    	 	<td style="vertical-align: middle; text-align: center;>
+		                    	 	<td class="vertically-middle center-text>
 		                    	 		<input id="hiddenWorklogId" type="hidden" value="$worklog.worklogId" >
-		                    	 		<span class="aui-icon aui-icon-small aui-iconfont-edit"
+		                    	 		<span class="aui-icon aui-icon-small aui-iconfont-edit jttp-aui-icon"
 		                    	 			id="edit" name="edit" title="$i18n.getText('plugin.edit')"
-		                    	 			style="margin:3px"
-		                    	 			onclick="location.href='JiraTimetrackerWebAction.jspa?editedWorklogId=$worklog.worklogId&dateFormatted=$dateFormatted'"></span>
-		                    	 		<span class="aui-icon aui-icon-small #if($jiraVersion.substring(0, 3) == '6.2') aui-iconfont-remove #else aui-iconfont-delete #end"
+		                    	 			onclick="location.href='JiraTimetrackerWebAction.jspa?editedWorklogId=$worklog.worklogId&dateFormatted=$dateFormatted'">
+		                    	 		</span>
+		                    	 		<span class="aui-icon aui-icon-small aui-iconfont-delete jttp-aui-icon #if($jiraVersion.substring(0, 3) == '6.2') aui-iconfont-remove #else aui-iconfont-delete #end"
 		                    	 			id="delete" name="delete" title="$i18n.getText('plugin.delete')"
-		                    	 			style="margin:3px"
-		                    	 			onclick="location.href='JiraTimetrackerWebAction!default.jspa?deletedWorklogId=$worklog.worklogId&dateFormatted=$dateFormatted'"></span>
-		                    	 		<span class="aui-icon aui-icon-small #if($jiraVersion.substring(0, 3) == '6.2') aui-iconfont-doc #else aui-iconfont-copy-clipboard #end copy"
-		                    	 			id="copy" name="copy" title="$i18n.getText('plugin.copy')"
-		                    	 			style="margin:3px"
-		                    	 			onclick="location.href='JiraTimetrackerWebAction!default.jspa?copiedWorklogId=$worklog.worklogId&dateFormatted=$dateFormatted'"></span>
+		                    	 			onclick="location.href='JiraTimetrackerWebAction!default.jspa?deletedWorklogId=$worklog.worklogId&dateFormatted=$dateFormatted'">
+	                    	 			</span>
+		                    	 		<span class="aui-icon aui-icon-small aui-iconfont-copy-clipboard copy jttp-aui-icon #if($jiraVersion.substring(0, 3) == '6.2') aui-iconfont-doc #else aui-iconfont-copy-clipboard #end copy"
+		                    	 			id="copy" name="copy" title="$i18n.getText('plugin.copy')" onclick="location.href='JiraTimetrackerWebAction!default.jspa?copiedWorklogId=$worklog.worklogId&dateFormatted=$dateFormatted'">
+		                    	 		</span>
 		                    	 	</td>
 		                    	</tr>
 		                    	#set($rowCount = $rowCount + 1)
