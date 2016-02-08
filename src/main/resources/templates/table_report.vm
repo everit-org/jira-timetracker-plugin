@@ -53,7 +53,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:table_re
 <div id="plugin_head" class="item-header">
 	<div class="logo-img">
 		<a href="http://www.everit.biz/" target="_blank">
-			<img src="$contextPath/download/resources/org.everit.jira.timetracker.plugin:everit_tt_logo/everit_tt_logo.png" alt="Everit logo" height="42" width="42" >
+			<img src="$contextPath/download/resources/org.everit.jira.timetracker.plugin:table_report-resources/everit_tt_logo.png" alt="Everit logo" height="42" width="42" style:"float: right">
 		</a>
 	</div>
 	<h1 class="item-summary">Timetracker</h1>
@@ -87,6 +87,20 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:table_re
 								<input type="text" id="dateFrom" name="dateFrom" tabindex="1" onkeydown="return everit.jttp.report_common_scripts.checkEnter(event);" value="$dateFromFormated"/>
 								<img id="date_trigger_from" src="$contextPath/images/icons/cal.gif" width="16" height="16" border="0"
 									alt="Pick a date" style="vertical-align: sub;" title="$i18n.getText('plugin.choose.date')"/>
+								<script>
+									var cal= Calendar.setup({
+										firstDay : $firstDay,
+										inputField : 'dateFrom',
+										button : 'date_trigger_from',
+										date : '$dateFromFormated',
+										align : 'Br',
+										electric: false,
+										singleClick : true,
+										showOthers: true,
+										useISO8601WeekNumbers : $currentCalendar.useISO8601,
+										ifFormat : '%Y-%m-%d'
+									});
+								</script>
 							</td>
 						</tr>
 						<tr>
@@ -97,6 +111,20 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:table_re
 								<input type="text" id="dateTo" name="dateTo" tabindex="1" onkeydown="return everit.jttp.report_common_scripts.checkEnter(event);" value="$dateToFormated"/>
 								<img id="date_trigger_to" src="$contextPath/images/icons/cal.gif" width="16" height="16" border="0"
 									alt="Pick a date" style="vertical-align: sub;" title="$i18n.getText('plugin.choose.date')"/>
+								<script>
+									var cal= Calendar.setup({
+										firstDay : $firstDay,
+										inputField : 'dateTo',
+										button : 'date_trigger_to',
+										date : '$dateToFormated',
+										align : 'Br',
+										electric: false,
+										singleClick : true,
+										showOthers: true,
+										useISO8601WeekNumbers : $currentCalendar.useISO8601,
+										ifFormat : '%Y-%m-%d'
+									});
+								</script>
 							</td>
 						</tr>
 						<tr>

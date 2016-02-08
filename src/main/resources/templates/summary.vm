@@ -31,17 +31,17 @@
                     <input type="submit" id="weekNext"    name="weekNext" value=">>"    class="button" title="$i18n.getText('plugin.next.week')"/>
                     <input type="submit" id="monthNext"    name="monthNext" value=">>>" class="button" title="$i18n.getText('plugin.next.month')"/>
                     <script>
-                        var cal= Calendar.setup({
-                        firstDay : $firstDay,
-                        inputField : 'date',
-                        button : 'date_trigger',
-                        date : '$dateFormatted',
-                        align : 'Br',
-                        electric: false,
-                        singleClick : true,
-                        showOthers: true,
-                        useISO8601WeekNumbers : $currentCalendar.useISO8601,
-                        ifFormat : '%Y-%m-%d'
+	                    var cal= Calendar.setup({
+	                        firstDay : $firstDay,
+	                        inputField : 'date',
+	                        button : 'date_trigger',
+	                        date : '$dateFormatted',
+	                        align : 'Br',
+	                        electric: false,
+	                        singleClick : true,
+	                        showOthers: true,
+	                        useISO8601WeekNumbers : $currentCalendar.useISO8601,
+	                        ifFormat : '%Y-%m-%d'
                         });
                     </script>
                 #end

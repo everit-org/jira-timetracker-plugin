@@ -25,7 +25,6 @@ $webResourceManager.requireResource("jira.webresources:dwr", null)
 $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:missing_days_report-resources")
 
-<form name="myForm" method="post"action="JiraTimetrackerWorklogsWebAction.jspa?dateFromFormated=$dateFromFormated&dateToFormated=$dateToFormated&actualPage=$actualPage" />
 	#set($rendererType = "atlassian-wiki-renderer")
 	#if($currentCalendar.useISO8601 == true)
 		#set ($firstDay = 1)
@@ -33,7 +32,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:missing_
 		#set ($firstDay = 0)
 	#end
 	
-	<script type="text/javascript">
+  <script type="text/javascript">
 	window.everit = window.everit || {};
 	everit.jttp = everit.jttp || {};
 	everit.jttp.report_common_scripts = everit.jttp.report_common_scripts || {};
@@ -61,17 +60,18 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:missing_
 			}
 		);
 	})(everit.jttp.missing_days_report, AJS.$);
-</script>
+  </script>
 	
 	<div id="plugin_head" class="item-header">
 	  <div class="logo-img">
-	    <a href="http://www.everit.org/jira-timetracker-plugin/" target="_blank"> <img
-	      src="$contextPath/download/resources/org.everit.jira.timetracker.plugin:everit_tt_logo/everit_tt_logo.png"
-	      alt="Everit logo" height="42" width="42"></a>
-	  </div>
-	  <h1 class="item-summary">Timetracker</h1>
-	</div>
-	<div id="main-content" class="content rounded">
+	      <a href="http://www.everit.biz/" target="_blank">
+			<img src="$contextPath/download/resources/org.everit.jira.timetracker.plugin:missing_days_report-resources/everit_tt_logo.png" alt="Everit logo" height="42" width="42" style:"float: right">
+		  </a>
+	   <h1 class="item-summary">Timetracker</h1>
+	 </div>
+   </div>	
+  <div id="main-content" class="content rounded">
+    <form name="myForm" method="post"action="JiraTimetrackerWorklogsWebAction.jspa?dateFromFormated=$dateFromFormated&dateToFormated=$dateToFormated&actualPage=$actualPage" />
 	  <div class="inside-content">
 	    ##TAB START
 	    <div class="tabwrap tabs2" id="tabs-jttp">
@@ -95,10 +95,38 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:missing_
 	            <td>$i18n.getText("plugin.from") <input type="text" id="dateFrom" name="dateFrom" tabindex="1"
 	              onkeydown="return everit.jttp.report_common_scripts.checkEnter(event);" value="$dateFromFormated" /> 
 					<img id="date_trigger_from" src="$contextPath/images/icons/cal.gif" width="16" height="16" border="0" alt="Pick a date" class="jttp-calendar-img" title="$i18n.getText('plugin.choose.date')"/> 
+	            	<script>
+						Calendar.setup({
+							firstDay : $firstDay,
+							inputField : 'dateFrom',
+							button : 'date_trigger_from',
+							date : '$dateFormatted',
+							align : 'Br',
+							electric: false,
+							singleClick : true,
+							showOthers: true,
+							useISO8601WeekNumbers : $currentCalendar.useISO8601,
+							ifFormat : '%Y-%m-%d'
+						});
+					</script>
 	            </td>
 	            <td>$i18n.getText("plugin.to") <input type="text" id="dateTo" name="dateTo" tabindex="2"
 	              onkeydown="return everit.jttp.report_common_scripts.checkToEnter(event);" value="$dateToFormated" /> 
-				<img id="date_trigger_to" src="$contextPath/images/icons/cal.gif" width="16" height="16" border="0" alt="Pick a date" class="jttp-calendar-img" title="$i18n.getText('plugin.choose.date')"/> 
+				  <img id="date_trigger_to" src="$contextPath/images/icons/cal.gif" width="16" height="16" border="0" alt="Pick a date" class="jttp-calendar-img" title="$i18n.getText('plugin.choose.date')"/> 
+	                 <script>
+					 	Calendar.setup({
+							firstDay : $firstDay,
+							inputField : 'dateTo',
+							button : 'date_trigger_to',
+							date : '$dateToFormated',
+							align : 'Br',
+							electric : false,
+							singleClick : true,
+							showOthers : true,
+							useISO8601WeekNumbers : $currentCalendar.useISO8601,
+							ifFormat : '%Y-%m-%d'
+						});
+					</script>
 	            </td>
 	          </tr>
 	        </tbody>
@@ -158,10 +186,10 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:missing_
 	    </div>
 	    #end
 	  </div>
-	</div>
-  </form>
-  <div id="feedbackfooter" class="feedback_footer">
-	#parse("templates/feedback_worklogs.vm")
+    </form>
+    <div id="feedbackfooter" class="feedback_footer">
+      #parse("templates/feedback_worklogs.vm")
+    </div>
   </div>
   #if($analyticsCheck)
 	#parse("templates/analytics.vm")

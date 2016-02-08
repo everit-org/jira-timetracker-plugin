@@ -74,11 +74,10 @@
     <dependency>com.atlassian.auiplugin:aui-date-picker</dependency>
     <resource type="download" name="jttp_feedback.css" location="/css/jttp_feedback.css"/>
     <resource type="download" name="jttp.js" location="/js/jttp.js"/>
-    <resource type="download" name="everit_tt_logo.png" location="/icons/everit_timetracker_logo.png">
+    <resource type="download" name="everit_tt_logo.png" location="/icons/everit_tt_logo.png">
       <param name="content-type" value="image/png" />
     </resource>
     <resource type="download" name="jttp.css" location="/css/jttp.css"/>
-    <resource type="download" name="jttp.js" location="/js/jttp.js"/>
   </web-resource>
   
   <web-resource name="JTTP Resources" key="table_report-resources">
@@ -86,7 +85,7 @@
     <dependency>com.atlassian.auiplugin:dialog2</dependency>
     <dependency>com.atlassian.auiplugin:aui-date-picker</dependency>
     <resource type="download" name="jttp_feedback.css" location="/css/jttp_feedback.css"/>
-    <resource type="download" name="everit_tt_logo.png" location="/icons/everit_timetracker_logo.png">
+    <resource type="download" name="everit_tt_logo.png" location="/icons/everit_tt_logo.png">
       <param name="content-type" value="image/png" />
     </resource>
     <resource type="download" name="jttp.css" location="/css/jttp.css"/>
@@ -98,7 +97,7 @@
     <dependency>com.atlassian.auiplugin:dialog2</dependency>
     <dependency>com.atlassian.auiplugin:aui-date-picker</dependency>
     <resource type="download" name="jttp_feedback.css" location="/css/jttp_feedback.css"/>
-    <resource type="download" name="everit_tt_logo.png" location="/icons/everit_timetracker_logo.png">
+    <resource type="download" name="everit_tt_logo.png" location="/icons/everit_tt_logo.png">
       <param name="content-type" value="image/png" />
     </resource>
     <resource type="download" name="jttp.css" location="/css/jttp.css"/>
@@ -111,7 +110,7 @@
     <dependency>com.atlassian.auiplugin:dialog2</dependency>
     <dependency>com.atlassian.auiplugin:aui-date-picker</dependency>
     <resource type="download" name="jttp_feedback.css" location="/css/jttp_feedback.css"/>
-    <resource type="download" name="everit_tt_logo.png" location="/icons/everit_timetracker_logo.png">
+    <resource type="download" name="everit_tt_logo.png" location="/icons/everit_tt_logo.png">
       <param name="content-type" value="image/png" />
     </resource>
     <resource type="download" name="jttp.css" location="/css/jttp.css"/>

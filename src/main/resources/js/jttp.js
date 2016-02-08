@@ -57,6 +57,12 @@ jQuery(document).ready(function(){
 	if (isEditAll){
 		disableInputFields();
 	}
+	var original = Calendar.prototype.show;
+	Calendar.prototype.show = function(){
+		original.call(this);
+		setExcludeDaysToWeekend(jttp.options.excludeDays);
+	    setLoggedDaysDesign(jttp.options.isColoring, jttp.options.loggedDays);
+	}
 });
 
 jttp.dateChanged = function(calendar){
