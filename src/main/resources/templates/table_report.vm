@@ -105,7 +105,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:table_re
 							</td>
 							<td>
 								<div class="field-group">
-									<select  id="userPicker" class="js-default-user-picker2 single-user-picker" name="userPicker">
+									<select  id="userPicker" class="js-default-user-picker single-user-picker" name="userPicker">
 										#if($userPickerObject)
 										<option selected="selected" 
 										 value="$userPickerObject.getKey()"
@@ -121,7 +121,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:table_re
 						<tr>
 							<td>
 								<input id="search"  tabindex="3" type="submit" name="search" value="$i18n.getText('plugin.search')" class="button" 
-								  onclick="jttpSearchOnClick('Table');"/>
+								  onclick="return everit.jttp.report_common_scripts.jttpSearchOnClick('Table');"/>
 							</td>
 						</tr>
 					</tbody>

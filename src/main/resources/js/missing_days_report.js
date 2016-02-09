@@ -17,17 +17,17 @@ window.missing_days_report = window.missing_days_report || {}
 everit.jttp.missing_days_report = everit.jttp.missing_days_report || {};
 
 (function(jttp, jQuery) {
-	
-jQuery(document).ready(function(){
-	setCheckWorkedHours();
-});
 
-function setCheckWorkedHours() {
-	if (jQuery("#hour").is(":checked")) {
-		document.getElementById("nonworking").disabled = false;
-	} else {
-		document.getElementById("nonworking").disabled = true;
-	}
-}
+  jQuery(document).ready(function() {
+    setCheckWorkedHours();
+  });
+
+  function setCheckWorkedHours() {
+    if (jQuery("#hour").is(":checked")) {
+      document.getElementById("nonworking").disabled = false;
+    } else {
+      document.getElementById("nonworking").disabled = true;
+    }
+  }
 
 })(everit.jttp.missing_days_report, jQuery);

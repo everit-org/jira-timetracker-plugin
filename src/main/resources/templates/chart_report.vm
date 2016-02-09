@@ -126,7 +126,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:chart_re
 							</td>
 							<td>
 								<div class="field-group">
-									<select  id="userPicker" class="js-default-user-picker2 single-user-picker" name="userPicker">
+									<select  id="userPicker" class="js-default-user-picker single-user-picker" name="userPicker">
 										#if($userPickerObject)
 										<option selected="selected" 
 										 value="$userPickerObject.getKey()"
@@ -142,7 +142,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:chart_re
 						<tr>
 							<td>
 								<input id="search"  tabindex="3" type="submit" name="search" value="$i18n.getText('plugin.search')" class="button" 
-								  onclick="jttpSearchOnClick('Chart');"/>
+								  onclick="return everit.jttp.report_common_scripts.jttpSearchOnClick('Chart');"/>
 							</td>
 						</tr>
 					</tbody>

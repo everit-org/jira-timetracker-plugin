@@ -13,60 +13,69 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
- window.everit = window.everit || {};
+
+window.everit = window.everit || {};
 everit.jttp = everit.jttp || {};
 everit.jttp.report_common_scripts = everit.jttp.report_common_scripts || {};
 
 (function(jttp, jQuery) {
-	
-jQuery(document).ready(function(){
-	
-	var opt = jttp.options;
-	
-	var calFrom = Calendar.setup({
-		firstDay : opt.firstDay,
-		inputField : jQuery("#dateFrom"),
-		button : jQuery("#date_trigger_from"),
-		date : opt.dateFromFormated,
-		align : 'Br',
-		electric: false,
-		singleClick : true,
-		showOthers: true,
-		useISO8601WeekNumbers : opt.useISO8601,
-		ifFormat : '%Y-%m-%d'
-	});
 
-	var calTo = Calendar.setup({
-		firstDay : opt.firstDay,
-		inputField : jQuery("#dateTo"),
-		button : jQuery("#date_trigger_to"),
-		date : opt.dateToFormated,
-		align : 'Br',
-		electric: false,
-		singleClick : true,
-		showOthers: true,
-		useISO8601WeekNumbers : opt.useISO8601,
-		ifFormat : '%Y-%m-%d'
-	});
+  jQuery(document).ready(function() {
 
-	jQuery('.aui-ss, .aui-ss-editing, .aui-ss-field').attr("style","width: 300px;");
+    var opt = jttp.options;
 
-});
+    var calFrom = Calendar.setup({
+      firstDay : opt.firstDay,
+      inputField : jQuery("#dateFrom"),
+      button : jQuery("#date_trigger_from"),
+      date : opt.dateFromFormated,
+      align : 'Br',
+      electric : false,
+      singleClick : true,
+      showOthers : true,
+      useISO8601WeekNumbers : opt.useISO8601,
+      ifFormat : '%Y-%m-%d'
+    });
 
-function checkToEnter(event) {
-	if (event.keyCode == 13) {
-		jQuery("#search").click();
-		return false;
-	}
-}
+    var calTo = Calendar.setup({
+      firstDay : opt.firstDay,
+      inputField : jQuery("#dateTo"),
+      button : jQuery("#date_trigger_to"),
+      date : opt.dateToFormated,
+      align : 'Br',
+      electric : false,
+      singleClick : true,
+      showOthers : true,
+      useISO8601WeekNumbers : opt.useISO8601,
+      ifFormat : '%Y-%m-%d'
+    });
 
-function checkEnter(event){
+    jQuery('.aui-ss, .aui-ss-editing, .aui-ss-field').attr("style", "width: 300px;");
+
+  });
+
+  jttp.jttpSearchOnClick = function(reportName) {
+    var loggedUserIn = AJS.params.loggedInUser;
+    var selectedUser = document.getElementById("userPicker").value;
+    if (loggedUserIn == selectedUser) {
+      _paq.push([ 'trackEvent', 'User', 'My' + reportName ]);
+    } else {
+      _paq.push([ 'trackEvent', 'User', 'Others' + reportName ]);
+    }
+  }
+
+ jttp.checkToEnter function(event) {
+    if (event.keyCode == 13) {
+      jQuery("#search").click();
+      return false;
+    }
+  }
+
+ jttp.checkEnter function(event) {
     if (event.keyCode == 13) {
       jQuery("#dateTo").focus();
       return false;
     }
-}
-
+  }
 
 })(everit.jttp.report_common_scripts, jQuery);
