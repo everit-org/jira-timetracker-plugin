@@ -57,6 +57,11 @@ cursor:pointer;
     text-align: center;
     vertical-align: inherit;
 }
+
+.grid td.align_left {
+    text-align: left;
+}
+
 .grid th, .grid td {
     border:1px solid #D2D2D2;
     padding:4px;

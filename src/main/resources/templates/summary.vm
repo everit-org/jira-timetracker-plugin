@@ -16,7 +16,7 @@
 
 <table id="summary_table" class="summaty-table">
     <tr>
-        <td rowspan="2" class="summary-table-datepicker-column">
+        <td rowspan="2" >
             <input type="text" id="date" name="date" style="display: none" onchange="this.form.datesubmit.click()" />
             <input type="submit" id="datesubmit" name="datesubmit" class="spaced" style="display: none"/>
             <div id="calendar_div" class="jttp-calendar">
@@ -50,22 +50,22 @@
         <td align="right" class="summaty-table-summary-column">
             $i18n.getText("plugin.summary")
         </td>
-        <td align="right" class="label-row">
+        <td align="right">
              $i18n.getText("plugin.day")
         </td>
-        <td align="left" class="value-row">
+        <td align="left">
             ($daySummary)
         </td>
-        <td align="right" class="label-row">
+        <td align="right">
             $i18n.getText("plugin.week")
         </td>
-        <td align="left" class="value-row">
+        <td align="left">
             ($weekSummary)
         </td>
-        <td align="right" class="label-row">
+        <td align="right">
             $i18n.getText("plugin.month")
         </td>
-        <td align="left" class="value-row">
+        <td align="left">
             ($monthSummary)
         </td>
     </tr>
@@ -74,22 +74,22 @@
             #if($issuesRegex.size() != 0)
                     $i18n.getText("plugin.real.work") $i18n.getText("plugin.summary")
                 </td>
-                <td align="right" class="label-row">
+                <td align="right">
                     $i18n.getText("plugin.day")
                 </td>
-                <td align="left" class="value-row">
+                <td align="left">
                     ($dayFilteredSummary)
                 </td>
-                <td align="right" class="label-row">
+                <td align="right">
                     $i18n.getText("plugin.week")
                 </td>
-                <td align="left" class="value-row">
+                <td align="left">
                     ($weekFilteredSummary)
                 </td>
-                <td align="right" class="label-row">
+                <td align="right">
                     $i18n.getText("plugin.month")
                 </td>
-                <td align="left" class="value-row">
+                <td align="left">
                     ($monthFilteredSummary)
             #end
         </td>

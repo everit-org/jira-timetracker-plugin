@@ -108,20 +108,6 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:chart_re
 								<input type="text" id="dateFrom" name="dateFrom" tabindex="1" onkeydown="return everit.jttp.report_common_scripts.checkEnter(event);" value="$dateFromFormated"/>
 								<img id="date_trigger_from" src="$contextPath/images/icons/cal.gif" width="16" height="16" border="0"
 									alt="Pick a date" style="vertical-align: sub;" title="$i18n.getText('plugin.choose.date')"/>
-								<script>
-									var cal= Calendar.setup({
-										firstDay : $firstDay,
-										inputField : 'dateFrom',
-										button : 'date_trigger_from',
-										date : '$dateFromFormated',
-										align : 'Br',
-										electric: false,
-										singleClick : true,
-										showOthers: true,
-										useISO8601WeekNumbers : $currentCalendar.useISO8601,
-										ifFormat : '%Y-%m-%d'
-									});
-								</script>
 							</td>
 						</tr>
 						<tr>
@@ -132,20 +118,6 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:chart_re
 								<input type="text" id="dateTo" name="dateTo" tabindex="1" onkeydown="return everit.jttp.report_common_scripts.checkToEnter(event);" value="$dateToFormated"/>
 								<img id="date_trigger_to" src="$contextPath/images/icons/cal.gif" width="16" height="16" border="0"
 									alt="Pick a date" style="vertical-align: sub;" title="$i18n.getText('plugin.choose.date')"/>
-								<script>
-									var cal= Calendar.setup({
-										firstDay : $firstDay,
-										inputField : 'dateTo',
-										button : 'date_trigger_to',
-										date : '$dateToFormated',
-										align : 'Br',
-										electric: false,
-										singleClick : true,
-										showOthers: true,
-										useISO8601WeekNumbers : $currentCalendar.useISO8601,
-										ifFormat : '%Y-%m-%d'
-									});
-								</script>
 							</td>
 						</tr>
 						<tr>

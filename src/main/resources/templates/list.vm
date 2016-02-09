@@ -24,6 +24,9 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 	                       <td width="10%" class="center-text" title="$i18n.getText('jttp.list.title.issue')">
 	                           Issue
 	                        </td>
+	                        <td class="label-row"> 
+	                          $i18n.getText("plugin.remaining")
+	                        </td>
 	                        <td class="label-row">
 	                           $i18n.getText("plugin.start")
 	                        </td>
@@ -32,9 +35,6 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 	                        </td>
 	                        <td class="label-row"> 
 	                          $i18n.getText("plugin.duration")
-	                        </td>
-	                        <td class="label-row"> 
-	                          $i18n.getText("plugin.remaining")
 	                        </td>
 	                        <td width="60%">
 	                          $i18n.getText("plugin.note")
@@ -46,7 +46,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
                     </thead>
                     #if($worklogs.size() == 0)
             			</table>
-            			<div id="message" style="center-text padding: 3px; font-size: 14px;">
+            			<div id="message" class="center-text" style="padding: 3px; font-size: 14px;">
 				 			$i18n.getText("plugin.no.worklogs")
 					  	</div>
                     #else
@@ -83,7 +83,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 		                    	 	<td class="vertically-middle" style="white-space: nowrap;">
 		                    	 		$worklog.duration
 		                    	 	</td>
-		                    	 	<td id="commentRow_$rowCount" name="commentRow_$rowCount" class="table-comment wiki-edit-content" class="vertically-middle">
+		                    	 	<td id="commentRow_$rowCount" name="commentRow_$rowCount" class="table-comment wiki-edit-content" class="vertically-middle align_left">
 		                    	 		<input id="hiddenWorklogBody" type="hidden" value="$worklog.body">
 		                    	 	</td>
 		                    	 	<script>
@@ -100,7 +100,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 	                								data = data.replace('<p>','');
 	                								data = data.replace('</p>','');
 			                    	 				AJS.$("#commentRow_$rowCount").append(data);
-			                    	 				AJS.$("#commentRow_$rowCount").attr("class","vertically-middle");
+			                    	 				AJS.$("#commentRow_$rowCount").attr("class","vertically-middle align_left");
 			                    	 			}
 	            								}); 
 	            					</script>

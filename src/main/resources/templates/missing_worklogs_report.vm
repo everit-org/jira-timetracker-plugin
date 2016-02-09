@@ -95,38 +95,10 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:missing_
 	            <td>$i18n.getText("plugin.from") <input type="text" id="dateFrom" name="dateFrom" tabindex="1"
 	              onkeydown="return everit.jttp.report_common_scripts.checkEnter(event);" value="$dateFromFormated" /> 
 					<img id="date_trigger_from" src="$contextPath/images/icons/cal.gif" width="16" height="16" border="0" alt="Pick a date" class="jttp-calendar-img" title="$i18n.getText('plugin.choose.date')"/> 
-	            	<script>
-						Calendar.setup({
-							firstDay : $firstDay,
-							inputField : 'dateFrom',
-							button : 'date_trigger_from',
-							date : '$dateFormatted',
-							align : 'Br',
-							electric: false,
-							singleClick : true,
-							showOthers: true,
-							useISO8601WeekNumbers : $currentCalendar.useISO8601,
-							ifFormat : '%Y-%m-%d'
-						});
-					</script>
 	            </td>
 	            <td>$i18n.getText("plugin.to") <input type="text" id="dateTo" name="dateTo" tabindex="2"
 	              onkeydown="return everit.jttp.report_common_scripts.checkToEnter(event);" value="$dateToFormated" /> 
 				  <img id="date_trigger_to" src="$contextPath/images/icons/cal.gif" width="16" height="16" border="0" alt="Pick a date" class="jttp-calendar-img" title="$i18n.getText('plugin.choose.date')"/> 
-	                 <script>
-					 	Calendar.setup({
-							firstDay : $firstDay,
-							inputField : 'dateTo',
-							button : 'date_trigger_to',
-							date : '$dateToFormated',
-							align : 'Br',
-							electric : false,
-							singleClick : true,
-							showOthers : true,
-							useISO8601WeekNumbers : $currentCalendar.useISO8601,
-							ifFormat : '%Y-%m-%d'
-						});
-					</script>
 	            </td>
 	          </tr>
 	        </tbody>
