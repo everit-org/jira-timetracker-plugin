@@ -150,7 +150,14 @@ public class EveritWorklog implements Serializable {
     if (issueObject.getParentObject() != null) {
       issueParent = issueObject.getParentObject().getKey();
     }
-    isMoreEstimatedTime = issueObject.getEstimate() == 0 ? false : true;
+    Long issueEstimate = issueObject.getEstimate();
+    if ((issueEstimate != null) && (issueEstimate > 0)) {
+      isMoreEstimatedTime = true;
+    } else {
+      isMoreEstimatedTime = false;
+      // fix issueObject.getEstimate(); null or negative value problem.
+      issueEstimate = 0L;
+    }
     body = worklogGv.getString("body");
     if (body != null) {
       body = body.replace("\"", "\\\"");
@@ -166,8 +173,8 @@ public class EveritWorklog implements Serializable {
     endTime = DateTimeConverterUtil.countEndTime(startTime, milliseconds);
 
     roundedRemaining =
-        DateTimeConverterUtil.secondConvertToRoundedDuration(issueObject.getEstimate());
-    exactRemaining = DateTimeConverterUtil.secondConvertToString(issueObject.getEstimate());
+        DateTimeConverterUtil.secondConvertToRoundedDuration(issueEstimate);
+    exactRemaining = DateTimeConverterUtil.secondConvertToString(issueEstimate);
   }
 
   /**
