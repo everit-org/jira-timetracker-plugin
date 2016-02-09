@@ -29,12 +29,12 @@ everit.jttp.main = everit.jttp.main || {};
     jQuery('.aui-ss.aui-ss-editing .aui-ss-field').attr("style", "width: 250px;");
     jttpReportDialogShow();
     
-    eventBinding();
     durationSelectionSetup();
     issuePickerSetup(jttp.options.isPopup);
+    eventBinding();
     commentsCSSFormat(jttp.options.isPopup);
 
-    var isEditAll = jttp.options.isEditAll === "true";
+    var isEditAll = jttp.options.isEditAll === true;
     if (isEditAll) {
       disableInputFields();
     }
