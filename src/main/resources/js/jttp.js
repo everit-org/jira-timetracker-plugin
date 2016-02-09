@@ -27,7 +27,8 @@ everit.jttp.main = everit.jttp.main || {};
     document.getElementById("startTime").focus();
     jQuery('.aui-ss-editing').attr("style", "width: 250px;");
     jQuery('.aui-ss.aui-ss-editing .aui-ss-field').attr("style", "width: 250px;");
-
+    jttpReportDialogShow();
+    
     eventBinding();
     durationSelectionSetup();
     issuePickerSetup(jttp.options.isPopup);
@@ -111,7 +112,7 @@ everit.jttp.main = everit.jttp.main || {};
     }
   }
   
-  jttp.jttpReportDialogShow function() {
+  function jttpReportDialogShow() {
     var currentHash = window.location.hash;
     if (currentHash == "#reporting-dialog") {
       window.location.hash = "";
