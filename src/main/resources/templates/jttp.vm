@@ -143,7 +143,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
                                                       </span>
                                                  </td>
                                                  <td class="worklog-table-header-column">
-                                                   <input id="endNow"  type="button" name="endNow" value="$i18n.getText('plugin.now')" class="button" onclick="everit.jttp.main.endNowClick();"/>
+                                                   <input id="endNow"  type="button" name="endNow" value="$i18n.getText('plugin.now')" class="button" onclick="everit.jttp.main.endNowClick($endTimeChange);"/>
                                                  </td>
                                                  <td class="worklog-table-header-column" >
                                                   <span class="time-input-span">

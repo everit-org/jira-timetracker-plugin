@@ -64,14 +64,14 @@ everit.jttp.report_common_scripts = everit.jttp.report_common_scripts || {};
     }
   }
 
- jttp.checkToEnter function(event) {
+ jttp.checkToEnter = function(event) {
     if (event.keyCode == 13) {
       jQuery("#search").click();
       return false;
     }
   }
 
- jttp.checkEnter function(event) {
+ jttp.checkEnter = function(event) {
     if (event.keyCode == 13) {
       jQuery("#dateTo").focus();
       return false;

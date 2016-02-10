@@ -45,19 +45,21 @@ everit.jttp.main = everit.jttp.main || {};
       setLoggedDaysDesign(jttp.options.isColoring, jttp.options.loggedDays);
     }
   });
-
+  
+  jttp.startState = 0;
+  jttp.endState = 0;
+  
   jttp.dateChanged = function(calendar) {
     jQuery("date").val(calendar.date.print(calendar.params.ifFormat));
     jQuery("date").change();
   }
 
   jttp.startNowClick = function(startTimeChange) {
-    var startState = 0;
-    if (startState == 0) {
+    if (jttp.startState == 0) {
       setStartNow();
-    } else if (startState == 1) {
+    } else if (jttp.startState == 1) {
       setStartInc(startTimeChange);
-    } else if (startState == 2) {
+    } else if (jttp.startState == 2) {
       setStartDecTemporary(startTimeChange);
     }
   }
@@ -72,14 +74,13 @@ everit.jttp.main = everit.jttp.main || {};
     }
   }
 
-  jttp.endNowClick = function() {
-    var endState = 0;
-    if (endState == 0) {
+  jttp.endNowClick = function(endTimeChange) {
+    if (jttp.endState == 0) {
       setEndNow();
-    } else if (endState == 1) {
-      setEndInc($endTimeChange);
-    } else if (endState == 2) {
-      setEndDecTemporary($endTimeChange);
+    } else if (jttp.endState == 1) {
+      setEndInc(endTimeChange);
+    } else if (jttp.endState == 2) {
+      setEndDecTemporary(endTimeChange);
     }
   }
 
@@ -306,7 +307,7 @@ everit.jttp.main = everit.jttp.main || {};
     var currentTime = new Date();
     var hour = currentTime.getHours();
     var minute = currentTime.getMinutes();
-    startState = 1;
+    jttp.startState = 1;
     var now = calculateTimeForInputfileds(hour, minute);
     jQuery("#startTime").val(now);
   }
@@ -325,7 +326,7 @@ everit.jttp.main = everit.jttp.main || {};
       } else if (minSubInt > 5) {
         min = min + (10 - minSubInt);
       }
-      startState = 0;
+      jttp.startState = 0;
     }
     var time = calculateTimeForInputfileds(hour, min);
     jQuery("#startTime").val(time);
@@ -356,7 +357,7 @@ everit.jttp.main = everit.jttp.main || {};
     } else {
       min = min - minSubInt;
     }
-    startState = 2;
+    jttp.startState = 2;
     var time = calculateTimeForInputfileds(hour, min);
     jQuery("#startTime").val(time);
   }
@@ -365,7 +366,7 @@ everit.jttp.main = everit.jttp.main || {};
     var currentTime = new Date();
     var hour = currentTime.getHours();
     var minute = currentTime.getMinutes();
-    endState = 1;
+    jttp.endState = 1;
     var now = calculateTimeForInputfileds(hour, minute);
     jQuery("#endTime").val(now);
   }
@@ -401,7 +402,7 @@ everit.jttp.main = everit.jttp.main || {};
           min = 0;
         }
       }
-      endState = 0;
+      jttp.endState = 0;
     }
     var time = calculateTimeForInputfileds(hour, min);
     jQuery("#endTime").val(time);
@@ -432,7 +433,7 @@ everit.jttp.main = everit.jttp.main || {};
     } else {
       min = min - minSubInt;
     }
-    endState = 2;
+    jttp.endState = 2;
     var time = calculateTimeForInputfileds(hour, min);
     jQuery("#endTime").val(time);
   }
