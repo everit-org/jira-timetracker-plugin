@@ -48,7 +48,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 			{
 				firstDay : ${firstDay},
 				useISO8601 : ${currentCalendar.useISO8601},
-				dateFormatted : ${dateFormatted},
+				dateFormatted : "$dateFormatted",
 				excludeDays : ${excludeDays},
 				isColoring : ${isColoring},
 				loggedDays : ${loggedDays},
@@ -187,28 +187,10 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
                                 </td>
                                 <td>
                                     <div id="not_popup_calendar" class="not_popup_calendar">
-									#if($isPopup != 1)
-						            		<script>
-											##This is the not popup calendar. Works but not nice
-											Calendar.setup({
-												firstDay : $firstDay,
-												date : '$dateFormatted',
-												align : 'Br',
-												singleClick : true,
-												showOthers: true,
-												flat: 'not_popup_calendar',
-												flatCallback: dateChanged,
-												useISO8601WeekNumbers : $currentCalendar.useISO8601,
-												ifFormat : '%Y-%m-%d'
-											});
-											function dateChanged(calendar)
-											  {
-											      document.getElementById("date").value=calendar.date.print(calendar.params.ifFormat);
-											      jQuery(document.getElementById("date")).change();
-											  };
-											</script>
-									#end
-									</div>
+                                    <script>
+                                    	everit.jttp.main.standCalendarSetup($isPopup);
+                                    </script>
+                                    </div>
                                 </td>
                 </tbody>
             </table>

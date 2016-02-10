@@ -22,22 +22,24 @@ everit.jttp.main = everit.jttp.main || {};
 
   jQuery(document).ready(function() {
     document.getElementById('inputfields').scrollIntoView(allignWithTop = false);
-    setExcludeDaysToWeekend(jttp.options.excludeDays);
-    setLoggedDaysDesign(jttp.options.isColoring, jttp.options.loggedDays);
     document.getElementById("startTime").focus();
     jQuery('.aui-ss-editing').attr("style", "width: 250px;");
     jQuery('.aui-ss.aui-ss-editing .aui-ss-field').attr("style", "width: 250px;");
+    setExcludeDaysToWeekend(jttp.options.excludeDays);
+    setLoggedDaysDesign(jttp.options.isColoring, jttp.options.loggedDays);
     jttpReportDialogShow();
-    
+
     durationSelectionSetup();
     issuePickerSetup(jttp.options.isPopup);
     eventBinding();
     commentsCSSFormat(jttp.options.isPopup);
+    popupCalendarsSetup(jttp.options.isPopup);
 
     var isEditAll = jttp.options.isEditAll === true;
     if (isEditAll) {
       disableInputFields();
     }
+    
     var original = Calendar.prototype.show;
     Calendar.prototype.show = function() {
       original.call(this);
@@ -45,13 +47,13 @@ everit.jttp.main = everit.jttp.main || {};
       setLoggedDaysDesign(jttp.options.isColoring, jttp.options.loggedDays);
     }
   });
-  
+
   jttp.startState = 0;
   jttp.endState = 0;
-  
+
   jttp.dateChanged = function(calendar) {
-    jQuery("date").val(calendar.date.print(calendar.params.ifFormat));
-    jQuery("date").change();
+    jQuery("#date").val(calendar.date.print(calendar.params.ifFormat));
+    jQuery("#date").change();
   }
 
   jttp.startNowClick = function(startTimeChange) {
@@ -112,7 +114,7 @@ everit.jttp.main = everit.jttp.main || {};
       return false;
     }
   }
-  
+
   function jttpReportDialogShow() {
     var currentHash = window.location.hash;
     if (currentHash == "#reporting-dialog") {
@@ -122,7 +124,7 @@ everit.jttp.main = everit.jttp.main || {};
       _paq.push([ 'trackEvent', 'User', 'Reporting' ]);
     }
   }
-  
+
   function disableInputFields() {
     jQuery("#startTime").prop("disabled", true);
     jQuery("#startNow").prop("disabled", true);
@@ -247,6 +249,40 @@ everit.jttp.main = everit.jttp.main || {};
     jQuery("#issueSelect-textarea").attr("tabindex", "3");
     ip.handleFreeInput();
   }
+
+  function popupCalendarsSetup(isPopup) {
+    if (isPopup != 2) {
+      var calPop = Calendar.setup({
+        firstDay : jttp.options.firstDay,
+        inputField : jQuery("#date"),
+        button : jQuery("#date_trigger"),
+        date : jttp.options.dateFormatted,
+        align : 'Br',
+        electric : false,
+        singleClick : true,
+        showOthers : true,
+        useISO8601WeekNumbers : jttp.options.useISO8601,
+        ifFormat : '%Y-%m-%d'
+      });
+    }
+  }
+  
+  jttp.standCalendarSetup = function(isPopup){
+    if (isPopup != 1) {
+      var cal = Calendar.setup({
+        firstDay : jttp.options.firstDay,
+        date : jttp.options.dateFormatted,
+        align : 'Br',
+        singleClick : true,
+        showOthers : true,
+        flat : 'not_popup_calendar',
+        flatCallback : jttp.dateChanged,
+        useISO8601WeekNumbers : jttp.options.useISO8601,
+        ifFormat : '%Y-%m-%d'
+      });
+    }
+  }
+  
 
   function commentsCSSFormat(isPopup) {
     var comment = jttp.options.comment;
