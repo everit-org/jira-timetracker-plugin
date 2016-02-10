@@ -42,6 +42,9 @@ import com.atlassian.jira.exception.DataAccessException;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
+import com.atlassian.velocity.htmlsafe.HtmlSafe;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 /**
  * The Timetracker chart report action support class.
@@ -270,8 +273,15 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     return baseUrl;
   }
 
-  public List<ChartData> getChartDataList() {
-    return chartDataList;
+  /**
+   * ChartDataList JSON representation.
+   *
+   * @return String array of chartDataList.
+   */
+  @HtmlSafe
+  public String getChartDataList() {
+    Gson gson = new GsonBuilder().create();
+    return gson.toJson(chartDataList);
   }
 
   public String getContextPath() {
