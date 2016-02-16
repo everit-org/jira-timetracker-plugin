@@ -27,6 +27,8 @@ import java.util.regex.Pattern;
 
 import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
 import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.config.properties.APKeys;
+import com.atlassian.jira.config.properties.ApplicationProperties;
 
 /**
  * The utility class of date and time conversions.
@@ -38,15 +40,15 @@ public final class DateTimeConverterUtil {
    */
   public static final int BEGIN_OF_YEAR = 1900;
 
-  /**
-   * The date format.
-   */
-  public static final String DATE_FORMAT = "yyyy-MM-dd";
+  // /**
+  // * The date format.
+  // */
+  // public static final String DATE_FORMAT = "yyyy-MM-dd";
 
   /**
    * The date time format.
    */
-  public static final String DATE_TIME_FORMAT = "yyyy-MM-dd kk:mm";
+  // public static final String DATE_TIME_FORMAT = "yyyy-MM-dd kk:mm";
 
   /**
    * The number of days per week.
@@ -151,7 +153,9 @@ public final class DateTimeConverterUtil {
    * @return The result String.
    */
   public static String dateAndTimeToString(final Date dateAndTime) {
-    DateFormat formatterDateAndTime = new SimpleDateFormat(DATE_TIME_FORMAT);
+    String dateTimeFormat =
+        getJiraDefaultDateAndTimeJavaFormat(APKeys.JIRA_LF_DATE_COMPLETE);
+    DateFormat formatterDateAndTime = new SimpleDateFormat(dateTimeFormat);
     String stringDateAndTime = formatterDateAndTime.format(dateAndTime);
     return stringDateAndTime;
   }
@@ -177,7 +181,8 @@ public final class DateTimeConverterUtil {
    * @return The result time.
    */
   public static String dateToString(final Date date) {
-    DateFormat formatterDate = new SimpleDateFormat(DATE_FORMAT);
+    String dateFormat = getJiraDefaultDateAndTimeJavaFormat(APKeys.JIRA_LF_DATE_DMY);
+    DateFormat formatterDate = new SimpleDateFormat(dateFormat);
     String dateString = formatterDate.format(date);
     return dateString;
   }
@@ -194,6 +199,12 @@ public final class DateTimeConverterUtil {
   public static long getDateDifference(final Date firstDate, final Date secondDate) {
     long diffInMillies = secondDate.getTime() - firstDate.getTime();
     return TimeUnit.SECONDS.convert(diffInMillies, TimeUnit.MILLISECONDS);
+  }
+
+  private static String getJiraDefaultDateAndTimeJavaFormat(final String formatKey) {
+    ApplicationProperties applicationProperties =
+        ComponentAccessor.getComponent(ApplicationProperties.class);
+    return applicationProperties.getDefaultBackedString(formatKey);
   }
 
   /**
@@ -382,7 +393,8 @@ public final class DateTimeConverterUtil {
    *           If can't parse the date.
    */
   public static Date stringToDate(final String dateString) throws ParseException {
-    DateFormat formatterDate = new SimpleDateFormat(DATE_FORMAT);
+    String dateFormat = getJiraDefaultDateAndTimeJavaFormat(APKeys.JIRA_LF_DATE_DMY);
+    DateFormat formatterDate = new SimpleDateFormat(dateFormat);
     Date date = formatterDate.parse(dateString);
     return date;
   }
@@ -397,7 +409,9 @@ public final class DateTimeConverterUtil {
    *           if can't parse the date.
    */
   public static Date stringToDateAndTime(final String dateAndTimeString) throws ParseException {
-    DateFormat formatterDateAndTime = new SimpleDateFormat(DATE_TIME_FORMAT);
+    String dateTimeFormat =
+        getJiraDefaultDateAndTimeJavaFormat(APKeys.JIRA_LF_DATE_COMPLETE);
+    DateFormat formatterDateAndTime = new SimpleDateFormat(dateTimeFormat);
     Date date = formatterDateAndTime.parse(dateAndTimeString);
     return date;
   }
