@@ -21,10 +21,12 @@ everit.jttp.report_common_scripts = everit.jttp.report_common_scripts || {};
 (function(jttp, jQuery) {
 
   jQuery(document).ready(function() {
-
+    
+    Date.parseDate = function(str, fmt){return new Date(str);};
+    
     var opt = jttp.options;
 
-    var calFrom = Calendar.setup({
+    jttp.calFrom = Calendar.setup({
       firstDay : opt.firstDay,
       inputField : jQuery("#dateFrom"),
       button : jQuery("#date_trigger_from"),
@@ -34,7 +36,7 @@ everit.jttp.report_common_scripts = everit.jttp.report_common_scripts || {};
       singleClick : true,
       showOthers : true,
       useISO8601WeekNumbers : opt.useISO8601,
-      onSelect: jttp.onSelect
+      onSelect: jttp.onSelect,
     });
 
     var calTo = Calendar.setup({
@@ -47,12 +49,13 @@ everit.jttp.report_common_scripts = everit.jttp.report_common_scripts || {};
       singleClick : true,
       showOthers : true,
       useISO8601WeekNumbers : opt.useISO8601,
-      onSelect: jttp.onSelect
+      onSelect: jttp.onSelect,
     });
 
     jQuery('.aui-ss, .aui-ss-editing, .aui-ss-field').attr("style", "width: 300px;");
 
   });
+  
   
   jttp.onSelect = function(cal) {
     //Copy of the original onSelect. Only chacnge not use te p.ifFormat
