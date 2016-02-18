@@ -24,6 +24,7 @@ import java.util.regex.Pattern;
 import org.everit.jira.timetracker.plugin.dto.ActionResult;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
+import org.everit.jira.timetracker.plugin.dto.ReportingSettingsValues;
 import org.ofbiz.core.entity.GenericEntityException;
 
 import com.atlassian.jira.exception.DataAccessException;
@@ -219,6 +220,13 @@ public interface JiraTimetrackerPlugin {
   PluginSettingsValues loadPluginSettings();
 
   /**
+   * Give back the reporting settings values.
+   *
+   * @return {@link ReportingSettingsValues} object what contains the settings.
+   */
+  ReportingSettingsValues loadReportingSettings();
+
+  /**
    * Set the plugin settings and save them.
    *
    * @param pluginSettingsParameter
@@ -226,6 +234,15 @@ public interface JiraTimetrackerPlugin {
    * @return {@link ActionResult} if the plugin settings was saved successful SUCCESS else FAIL.
    */
   void savePluginSettings(PluginSettingsValues pluginSettingsParameter);
+
+  /**
+   * Set the plugin reporting settings and save them.
+   *
+   * @param reportingSettingsParameter
+   *          The plugin reporting settings parameters.
+   * @return {@link ActionResult} if the plugin settings was saved successful SUCCESS else FAIL.
+   */
+  void saveReportingSettings(ReportingSettingsValues reportingSettingsParameter);
 
   /**
    * Send a email through the Jira to the given FEEDBACK_EMAIL_TO address. The address come form the

@@ -47,6 +47,7 @@ import org.everit.jira.timetracker.plugin.dto.ActionResultStatus;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklogComparator;
 import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
+import org.everit.jira.timetracker.plugin.dto.ReportingSettingsValues;
 import org.ofbiz.core.entity.EntityCondition;
 import org.ofbiz.core.entity.EntityExpr;
 import org.ofbiz.core.entity.EntityOperator;
@@ -103,10 +104,24 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   private static final String INVALID_ISSUE = "plugin.invalid_issue";
 
   /**
+   * The plugin reporting settings is use Noworks.
+   */
+  private static final String JTTP_PLUGIN_REPORTING_SETTINGS_GROUPS = "reportingGroups";
+
+  /**
+   * The plugin reporting settings is use Noworks.
+   */
+  private static final String JTTP_PLUGIN_REPORTING_SETTINGS_IS_USE_NOWORK = "isUseNowork";
+
+  /**
+   * The plugin repoting settings key prefix.
+   */
+  private static final String JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX = "jttp_report";
+
+  /**
    * The plugin settings analytics check.
    */
   private static final String JTTP_PLUGIN_SETTINGS_ANALYTICS_CHECK_CHANGE = "analyticsCheckChange";
-
   /**
    * The plugin setting is calendar popup key.
    */
@@ -116,6 +131,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
    * The plugin setting Exclude dates key.
    */
   private static final String JTTP_PLUGIN_SETTINGS_EXCLUDE_DATES = "ExcludeDates";
+
   /**
    * The plugin setting Include dates key.
    */
@@ -249,6 +265,11 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   private ScheduledFuture<?> issueEstimatedTimeCheckerFuture;
 
   /**
+   * Reporting is use noworks.
+   */
+  private boolean isUseNoWorks = true;
+
+  /**
    * The summary filter issues ids.
    */
   private List<Pattern> nonWorkingIssuePatterns;
@@ -270,6 +291,18 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
    * {@link InitializingBean#afterPropertiesSet()} method. Stored in the jira global settings.
    */
   private String pluginUUID;
+
+  private List<String> reportingGroups;
+
+  /**
+   * The plugin reporting setting form the settingsFactory.
+   */
+  private PluginSettings reportingSettings;
+
+  /**
+   * The plugin reporting setting values.
+   */
+  private ReportingSettingsValues reportingSettingsValues;
 
   /**
    * The plugin Scheduled Executor Service.
@@ -966,6 +999,16 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     return pluginSettingsValues;
   }
 
+  @Override
+  public ReportingSettingsValues loadReportingSettings() {
+    reportingSettings = settingsFactory
+        .createSettingsForKey(JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX);
+    setIsUseNoWork();
+    setReportingGroups();
+    reportingSettingsValues.isUseNoWorks(isUseNoWorks).reportingGroups(reportingGroups);
+    return reportingSettingsValues;
+  }
+
   private void readObject(final java.io.ObjectInputStream stream) throws IOException,
       ClassNotFoundException {
     stream.close();
@@ -1034,6 +1077,20 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   }
 
   @Override
+  public void saveReportingSettings(final ReportingSettingsValues reportingSettingsParameter) {
+    reportingSettings = settingsFactory
+        .createSettingsForKey(JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX);
+
+    reportingSettings.put(JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX
+        + JTTP_PLUGIN_REPORTING_SETTINGS_GROUPS,
+        reportingSettingsParameter.reportingGroups);
+    reportingSettings.put(JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX
+        + JTTP_PLUGIN_REPORTING_SETTINGS_IS_USE_NOWORK,
+        Boolean.toString(reportingSettingsParameter.isUseNoWorks));
+
+  }
+
+  @Override
   public void sendEmail(final String mailSubject, final String mailBody) {
     String defaultFrom = getFromMail();
     if (!FEEDBACK_EMAIL_DEFAULT_VALUE.equals(feedBackEmailTo) && (defaultFrom != null)) {
@@ -1049,7 +1106,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
           "Feedback not sent, beacause To mail address is not defined. \n"
               + "The message: \n" + mailBody);
     }
-
   }
 
   private void setAnalyticsCheck() {
@@ -1117,6 +1173,15 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     }
   }
 
+  private void setIsUseNoWork() {
+    isUseNoWorks = true;
+    if ("false".equals(reportingSettings
+        .get(JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX
+            + JTTP_PLUGIN_REPORTING_SETTINGS_IS_USE_NOWORK))) {
+      isUseNoWorks = false;
+    }
+  }
+
   private void setNonWorkingIssuePatterns() {
     List<String> tempIssuePatternList = (List<String>) globalSettings
         .get(JTTP_PLUGIN_SETTINGS_KEY_PREFIX + JTTP_PLUGIN_SETTINGS_SUMMARY_FILTERS);
@@ -1135,6 +1200,15 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   private void setPluginUUID() {
     pluginUUID = (String) globalSettings
         .get(JTTP_PLUGIN_SETTINGS_KEY_PREFIX + JTTP_PLUGIN_UUID);
+  }
+
+  private void setReportingGroups() {
+    List<String> reportingGroupsNames = (List<String>) reportingSettings
+        .get(JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX + JTTP_PLUGIN_REPORTING_SETTINGS_GROUPS);
+    reportingGroups = new ArrayList<String>();
+    if (reportingGroupsNames != null) {
+      reportingGroups = reportingGroupsNames;
+    }
   }
 
   @Override

@@ -1,0 +1,136 @@
+#*
+ * Copyright (C) 2011 Everit Kft. (http://www.everit.org)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *#
+<html>
+<head>
+<title>Timetracker Global Settings</title>
+</head>
+<body>
+$webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-resources")
+<div id="plugin_head" class="item-header">
+		<div class="logo-img">
+			#parse("templates/feedback_reporting_settings.vm")
+			<a href="http://www.everit.biz/" target="_blank">
+				<img src="$contextPath/download/resources/org.everit.jira.timetracker.plugin:jttp-resources/everit_tt_logo.png" alt="Everit logo" height="42" width="42">
+			</a>
+		</div>
+		<h1 class="item-summary">Timetracker Reporting Settings</h1>
+</div>
+<form name="adminSettingForm"  method="post" action="JiraTimetrackerReportingSettingsWebAction.jspa"/>	
+  	<div id="main-content" class="content rounded" >
+		<div class="inside-content">
+		#if(!$message.isEmpty())
+			  	<div id="error_message">
+			 			$i18n.getText($message)
+			  	</div>
+		  	#end
+			<table  class="summaty-table">
+				<tbody>
+					<tr>
+		              <td style="text-align: right; vertical-align: top;" width="15%">
+		                <strong>$i18n.getText("jwcp.setting.staff.groups")</strong>
+		              </td>
+		              <td class="admin-settings-value-column">
+		                <div id="groupSelect_container"
+		                  class="ajax_autocomplete atlassian-autocomplete aui-ss field-group"
+		                  style="margin-bottom: 35px">
+	                      <select multiple="multiple"
+		                    name="reportingGroupSelect" 
+		                    id="reportingGroupSelect" 
+		                    data-popup-link-message="" 
+		                    data-popup-width="620" 
+		                    data-popup-height="500" 
+		                    data-remove-on-un-select="true" 
+		                    data-ajax-options.query="-" 
+		                    data-ajax-options.url="${req.contextPath}/rest/api/2/groups/picker" 
+		                    data-ajax-options.data.query="-" 
+		                    #if (${action.currentJQL})
+		                      data-ajax-options.data.current_jql=${action.currentJQL}
+		                    #end>
+		                  </select>
+		                  <script>
+		                    var gp = new AJS.MultiSelect({
+		                      element : AJS.$("#reportingGroupSelect"),
+		                      itemAttrDisplayed : "label",
+		                      showDropdownButton : false,
+		                      ajaxOptions : {
+		                        url : "${req.contextPath}/rest/api/2/groups/picker",
+		                        query : true, // keep going back to the sever for each keystroke
+		                        formatResponse : JIRA.GroupPickerUtil.formatResponse
+		                      }
+		                    });
+		                    #if($reportingGroups.size() != 0)
+		                      var list =[];
+		                      #foreach ($reportingGroup in $reportingGroups)
+		                        list.push("$reportingGroup");
+		                      #end
+		                      var groups = jQuery.map(list, function(value) {
+		                        return { value: value, label: value };
+		                      });
+		                      gp._addMultipleItems(groups,true);
+		                    #end
+		                  </script>
+		                 </div>
+		                <div class="description">
+		                  $i18n.getText("jwcp.setting.staff.groups.help")
+		                </div>
+		              </td>
+		            </tr>
+					<tr>
+		              <td style="text-align: right; vertical-align: top;" width="15%">
+		                <strong>$i18n.getText("jwcp.setting.staff.groups")</strong>
+		              </td>
+		              <td class="admin-settings-value-column">
+		                <div>
+		                  <a href="#dropdown2-checkbox-radio-interactive-trigger" aria-owns="dropdown2-checkbox-radio-interactive" aria-haspopup="true" class="aui-button aui-style-default aui-dropdown2-trigger">
+                    		Dropdown trigger
+                          </a>
+			                <!-- Dropdown -->
+			                <div id="dropdown2-checkbox-radio-interactive" class="aui-dropdown2 aui-style-default">
+			                    <div class="aui-dropdown2-section">
+			                        <ul>
+			                            <li><a class="aui-dropdown2-radio interactive checked">5</a></li>
+			                            <li><a class="aui-dropdown2-radio interactive">10</a></li>
+			                            <li><a class="aui-dropdown2-radio interactive">15</a></li>
+			                            <li><a class="aui-dropdown2-radio interactive">20</a></li>
+			                            <li><a class="aui-dropdown2-radio interactive">25</a></li>
+			                            <li><a class="aui-dropdown2-radio interactive">30</a></li>
+			                            <li><a class="aui-dropdown2-radio interactive">35</a></li>
+			                            <li><a class="aui-dropdown2-radio interactive">40</a></li>
+			                        </ul>
+			                    </div>
+			                </div>
+		                </div>
+		                <div class="description">
+		                  $i18n.getText("jwcp.setting.staff.groups.help")
+		                </div>
+		              </td>
+		            </tr>
+				    <tr>
+						<td class="settings-label-column">
+							$i18n.getText("plugin.setting.exclude.dates")
+						</td>
+						<td class="admin-settings-value-column">
+							<input type="checkbox" id="noWorkUse" name="noWorkUse" #if($isUseNoWorks) checked #end />
+						</td>		
+					</tr>
+				</tbody>
+			</table>
+			
+		</div>
+	</div>
+</form>
+</body>
+</html>

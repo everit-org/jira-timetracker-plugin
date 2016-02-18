@@ -67,7 +67,7 @@
     <link linkId="jttp_admin_link"><![CDATA[/secure/admin/JiraTimetrackerAdminSettingsWebAction!default.jspa]]></link>
     <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition" />
   </web-item>
-
+  
   <web-resource name="JTTP Resources" key="jttp-resources">
     <dependency>com.atlassian.auiplugin:ajs</dependency>
     <dependency>com.atlassian.auiplugin:dialog2</dependency>
@@ -148,7 +148,12 @@
         <view name="input">/templates/adminsettings.vm</view>
         <view name="error">/templates/error.vm</view>
       </action>
-
+      <action name="org.everit.jira.timetracker.plugin.ReportingSettingsWebAction" alias="JiraTimetrackerReportingSettingsWebAction">
+        <view name="success">/templates/reportingsettings.vm</view>
+        <view name="input">/templates/reportingsettings.vm</view>
+        <view name="error">/templates/error.vm</view>
+      </action>
+      
       <action name="org.everit.jira.timetracker.plugin.JiraTimetrackerTableWebAction" alias="JiraTimetrackerTableWebAction">
         <view name="success">/templates/table_report.vm</view>
         <view name="input">/templates/table_report.vm</view>
@@ -172,5 +177,10 @@
     weight="47">
     <label>Global Settings</label>
     <link linkId="my_jttp_settings_link"><![CDATA[/secure/admin/JiraTimetrackerAdminSettingsWebAction!default.jspa]]></link>
+  </web-item>
+  <web-item key="jttp__reporting_settings_link" name="Jttp Reporting Settings Link" section="admin_plugins_menu/jttp_admin_section"
+    weight="47">
+    <label>Reporting Settings</label>
+    <link linkId="my_jttp__reporting_settings_link"><![CDATA[/secure/admin/JiraTimetrackerReportingSettingsWebAction!default.jspa]]></link>
   </web-item>
 </atlassian-plugin>
