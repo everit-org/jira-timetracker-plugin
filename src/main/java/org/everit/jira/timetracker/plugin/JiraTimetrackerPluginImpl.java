@@ -358,13 +358,12 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
       return new ActionResult(ActionResultStatus.FAIL,
           NOPERMISSION_ISSUE, issueId);
     }
-    String dateAndTime = dateFormatted + " " + startTime;
     Date date;
     try {
-      date = DateTimeConverterUtil.stringToDateAndTime(dateAndTime);
+      date = DateTimeConverterUtil.stringToDateAndTime(dateFormatted, startTime);
     } catch (ParseException e) {
       return new ActionResult(ActionResultStatus.FAIL,
-          DATE_PARSE, dateAndTime);
+          DATE_PARSE, dateFormatted + " " + startTime);
     }
 
     WorklogNewEstimateInputParameters params = WorklogInputParametersImpl
@@ -501,23 +500,19 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
       if (deleteResult.getStatus() == ActionResultStatus.FAIL) {
         return deleteResult;
       }
-      // String dateCreate =
-      // DateTimeConverterUtil.dateToString(worklog.getStartDate());
-      // String dateCreate = date;
       ActionResult createResult = createWorklog(issueId, comment,
           dateFormatted, time, timeSpent);
       if (createResult.getStatus() == ActionResultStatus.FAIL) {
         return createResult;
       }
     } else {
-      String dateAndTime = dateFormatted + " " + time;
       Date dateCreate;
       try {
         dateCreate = DateTimeConverterUtil
-            .stringToDateAndTime(dateAndTime);
+            .stringToDateAndTime(dateFormatted, time);
       } catch (ParseException e) {
         return new ActionResult(ActionResultStatus.FAIL,
-            DATE_PARSE + dateAndTime);
+            DATE_PARSE + dateFormatted + " " + time);
       }
       WorklogInputParameters params = WorklogInputParametersImpl
           .issue(issue).startDate(dateCreate).timeSpent(timeSpent)

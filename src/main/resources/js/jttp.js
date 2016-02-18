@@ -256,7 +256,6 @@ everit.jttp.main = everit.jttp.main || {};
     var p = cal.params;
     var update = (cal.dateClicked || p.electric);
     if (update && p.inputField) {
-//      p.inputField.value = cal.date.print(p.ifFormat);
       var dmy = AJS.Meta.get("date-dmy").toUpperCase();
       p.inputField.value = cal.date.format(dmy);
       jQuery(p.inputField).change();            
@@ -291,7 +290,6 @@ everit.jttp.main = everit.jttp.main || {};
         showOthers : true,
         useISO8601WeekNumbers : jttp.options.useISO8601,
         onSelect: jttp.onSelect
-//        ifFormat : jQuery("meta[name=ajs-date-dmy]").attr("content")
       });
     }
   }

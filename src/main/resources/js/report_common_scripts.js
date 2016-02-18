@@ -62,7 +62,6 @@ everit.jttp.report_common_scripts = everit.jttp.report_common_scripts || {};
     var p = cal.params;
     var update = (cal.dateClicked || p.electric);
     if (update && p.inputField) {
-//      p.inputField.value = cal.date.print(p.ifFormat);
       var dmy = AJS.Meta.get("date-dmy").toUpperCase();
       p.inputField.value = cal.date.format(dmy);
       jQuery(p.inputField).change();            
