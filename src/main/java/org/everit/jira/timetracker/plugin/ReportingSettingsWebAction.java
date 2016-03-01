@@ -22,7 +22,6 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.log4j.Logger;
 import org.everit.jira.timetracker.plugin.dto.ReportingSettingsValues;
 
 import com.atlassian.jira.component.ComponentAccessor;
@@ -33,14 +32,11 @@ import com.atlassian.jira.web.action.JiraWebActionSupport;
  */
 public class ReportingSettingsWebAction extends JiraWebActionSupport {
 
+  private static final int DEFAULT_PAGE_SIZE = 20;
+
   private static final String FREQUENT_FEEDBACK = "jttp.plugin.frequent.feedback";
 
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
-
-  /**
-   * Logger.
-   */
-  private static final Logger LOGGER = Logger.getLogger(ReportingSettingsWebAction.class);
 
   private static final String NOT_RATED = "Not rated";
 
@@ -64,6 +60,8 @@ public class ReportingSettingsWebAction extends JiraWebActionSupport {
    * The message.
    */
   private String message = "";
+
+  private int pageSize;
 
   private List<String> reportingGroups;
 
@@ -141,6 +139,10 @@ public class ReportingSettingsWebAction extends JiraWebActionSupport {
     return message;
   }
 
+  public int getPageSize() {
+    return pageSize;
+  }
+
   public List<String> getReportingGroups() {
     return reportingGroups;
   }
@@ -153,7 +155,7 @@ public class ReportingSettingsWebAction extends JiraWebActionSupport {
         .loadReportingSettings();
     isUseNoWorks = pluginSettingsValues.isUseNoWorks;
     reportingGroups = pluginSettingsValues.reportingGroups;
-
+    pageSize = pluginSettingsValues.pageSize;
   }
 
   private void normalizeContextPath() {
@@ -200,6 +202,14 @@ public class ReportingSettingsWebAction extends JiraWebActionSupport {
     }
   }
 
+  private void parsePageSizeInput(final String pageSizeInputValuse) {
+    if (pageSizeInputValuse == null) {
+      pageSize = DEFAULT_PAGE_SIZE; // FIXME 20 can be the default?
+    } else {
+      pageSize = Integer.parseInt(pageSizeInputValuse);
+    }
+  }
+
   private void parseReportingGroups(final String[] reportingGroupsValue) {
     if (reportingGroupsValue == null) {
       reportingGroups = new ArrayList<String>();
@@ -217,10 +227,10 @@ public class ReportingSettingsWebAction extends JiraWebActionSupport {
   public String parseSaveSettings(final HttpServletRequest request) {
     String noWorkUse = request.getParameter("noWorkUse");
     String[] reportingGroupSelectValue = request.getParameterValues("reportingGroupSelect");
-
+    String pageSizeValue = request.getParameter("pageSizeInput");
     parseReportingGroups(reportingGroupSelectValue);
     parseNoWorkUse(noWorkUse);
-
+    parsePageSizeInput(pageSizeValue);
     return null;
   }
 
@@ -229,7 +239,8 @@ public class ReportingSettingsWebAction extends JiraWebActionSupport {
    */
   public void savePluginSettings() {
     ReportingSettingsValues reportingSettingsValues =
-        new ReportingSettingsValues().isUseNoWorks(isUseNoWorks).reportingGroups(reportingGroups);
+        new ReportingSettingsValues().isUseNoWorks(isUseNoWorks).reportingGroups(reportingGroups)
+            .pageSize(pageSize);
     jiraTimetrackerPlugin.saveReportingSettings(reportingSettingsValues);
   }
 
@@ -247,6 +258,10 @@ public class ReportingSettingsWebAction extends JiraWebActionSupport {
 
   public void setMessage(final String message) {
     this.message = message;
+  }
+
+  public void setPageSize(final int pageSize) {
+    this.pageSize = pageSize;
   }
 
   public void setReportingGroups(final List<String> reportingGroups) {

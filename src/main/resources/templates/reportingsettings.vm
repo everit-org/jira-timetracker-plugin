@@ -18,7 +18,24 @@
 <title>Timetracker Global Settings</title>
 </head>
 <body>
-$webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-resources")
+$webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reporting-admin-resources")
+
+<script type="text/javascript">
+	window.everit = window.everit || {};
+	everit.jttp = everit.jttp || {};
+	everit.jttp.reporting_admin = everit.jttp.reporting_admin || {};
+
+	(function(jttp, jQuery) {
+		jttp.options = jQuery.extend( 
+			{},
+			jttp.options,
+			{
+				pageSize : ${pageSize}
+			}
+		);
+	})(everit.jttp.reporting_admin, AJS.$);
+</script>
+
 <div id="plugin_head" class="item-header">
 		<div class="logo-img">
 			#parse("templates/feedback_reporting_settings.vm")
@@ -94,23 +111,24 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 		              </td>
 		              <td class="admin-settings-value-column">
 		                <div>
-		                  <a href="#dropdown2-checkbox-radio-interactive-trigger" aria-owns="dropdown2-checkbox-radio-interactive" aria-haspopup="true" class="aui-button aui-style-default aui-dropdown2-trigger">
+		                  <input type="hidden" id="pageSizeInput" name="pageSizeInput"/>
+		                  <a id="pageSizeButton" href="#pagesize-dropdown2-checkbox-radio-interactive-trigger" aria-owns="pagesize-dropdown2-checkbox-radio-interactive" aria-haspopup="true" class="aui-button aui-style-default aui-dropdown2-trigger">
                     		Dropdown trigger
                           </a>
 			                <!-- Dropdown -->
-			                <div id="dropdown2-checkbox-radio-interactive" class="aui-dropdown2 aui-style-default">
-			                    <div class="aui-dropdown2-section">
-			                        <ul>
-			                            <li><a class="aui-dropdown2-radio interactive checked">5</a></li>
-			                            <li><a class="aui-dropdown2-radio interactive">10</a></li>
-			                            <li><a class="aui-dropdown2-radio interactive">15</a></li>
-			                            <li><a class="aui-dropdown2-radio interactive">20</a></li>
-			                            <li><a class="aui-dropdown2-radio interactive">25</a></li>
-			                            <li><a class="aui-dropdown2-radio interactive">30</a></li>
-			                            <li><a class="aui-dropdown2-radio interactive">35</a></li>
-			                            <li><a class="aui-dropdown2-radio interactive">40</a></li>
+			                <div id="pagesize-dropdown2-checkbox-radio-interactive" class="aui-dropdown2 aui-style-default">
+								   <div class="aui-dropdown2-section">
+									  <ul>
+			                            <li><a id="pages_5" class="aui-dropdown2-radio interactive">5</a></li>
+			                            <li><a id="pages_10" class="aui-dropdown2-radio interactive">10</a></li>
+			                            <li><a id="pages_15" class="aui-dropdown2-radio interactive">15</a></li>
+			                            <li><a id="pages_20" class="aui-dropdown2-radio interactive">20</a></li>
+			                            <li><a id="pages_25" class="aui-dropdown2-radio interactive">25</a></li>
+			                            <li><a id="pages_30" class="aui-dropdown2-radio interactive">30</a></li>
+			                            <li><a id="pages_35" class="aui-dropdown2-radio interactive">35</a></li>
+			                            <li><a id="pages_40" class="aui-dropdown2-radio interactive">40</a></li>
 			                        </ul>
-			                    </div>
+			                      </div>
 			                </div>
 		                </div>
 		                <div class="description">
@@ -123,8 +141,15 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 							$i18n.getText("plugin.setting.exclude.dates")
 						</td>
 						<td class="admin-settings-value-column">
-							<input type="checkbox" id="noWorkUse" name="noWorkUse" #if($isUseNoWorks) checked #end />
+							<input type="checkbox" id="noWorkUse" name="noWorkUse" #if($isUseNoWork) checked #end />
 						</td>		
+					</tr>
+					<tr class="buttons-container">
+						<td colspan="2">
+							<input id="savesettings"  type="submit" name="savesettings" value="$i18n.getText('plugin.save')" class="button"/>
+							<input id="resetButton"  type="button" name="reset" value="$i18n.getText('plugin.reset')" onclick="location.href='JiraTimetrackerReportingSettingsWebAction!default.jspa'" class="button"/>
+							<input id="cancelButton"  type="button" name="cancel" value="$i18n.getText('plugin.cancel')" onclick="location.href='JiraTimetrackerWebAction!default.jspa'" class="button"/>
+						</td>
 					</tr>
 				</tbody>
 			</table>

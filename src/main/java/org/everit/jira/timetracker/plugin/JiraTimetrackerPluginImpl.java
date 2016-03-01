@@ -93,6 +93,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
 
   private static final int DEFAULT_CHECK_TIME_IN_MINUTES = 1200;
 
+  private static final int DEFAULT_PAGE_SIZE = 20;
+
   private static final String FEEDBACK_EMAIL_DEFAULT_VALUE = "${jttp.feedback.email}";
 
   private static final String FEEDBACK_EMAIL_TO = "FEEDBACK_EMAIL_TO";
@@ -112,11 +114,14 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
    * The plugin reporting settings is use Noworks.
    */
   private static final String JTTP_PLUGIN_REPORTING_SETTINGS_IS_USE_NOWORK = "isUseNowork";
-
   /**
    * The plugin repoting settings key prefix.
    */
   private static final String JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX = "jttp_report";
+  /**
+   * The plugin reporting settings is use Noworks.
+   */
+  private static final String JTTP_PLUGIN_REPORTING_SETTINGS_PAGER_SIZE = "pagerSize";
 
   /**
    * The plugin settings analytics check.
@@ -274,6 +279,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
    */
   private List<Pattern> nonWorkingIssuePatterns;
 
+  private int pageSize;
+
   private Map<String, String> piwikPorpeties;
 
   /**
@@ -293,7 +300,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   private String pluginUUID;
 
   private List<String> reportingGroups;
-
   /**
    * The plugin reporting setting form the settingsFactory.
    */
@@ -1005,7 +1011,9 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
         .createSettingsForKey(JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX);
     setIsUseNoWork();
     setReportingGroups();
-    reportingSettingsValues.isUseNoWorks(isUseNoWorks).reportingGroups(reportingGroups);
+    setPageSize();
+    reportingSettingsValues = new ReportingSettingsValues().isUseNoWorks(isUseNoWorks)
+        .reportingGroups(reportingGroups).pageSize(pageSize);
     return reportingSettingsValues;
   }
 
@@ -1080,14 +1088,14 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   public void saveReportingSettings(final ReportingSettingsValues reportingSettingsParameter) {
     reportingSettings = settingsFactory
         .createSettingsForKey(JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX);
-
     reportingSettings.put(JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX
-        + JTTP_PLUGIN_REPORTING_SETTINGS_GROUPS,
-        reportingSettingsParameter.reportingGroups);
+        + JTTP_PLUGIN_REPORTING_SETTINGS_PAGER_SIZE,
+        String.valueOf(reportingSettingsParameter.pageSize));
+    reportingSettings.put(JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX
+        + JTTP_PLUGIN_REPORTING_SETTINGS_GROUPS, reportingSettingsParameter.reportingGroups);
     reportingSettings.put(JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX
         + JTTP_PLUGIN_REPORTING_SETTINGS_IS_USE_NOWORK,
         Boolean.toString(reportingSettingsParameter.isUseNoWorks));
-
   }
 
   @Override
@@ -1194,6 +1202,16 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     } else {
       // default! from properties load default issues!!
       nonWorkingIssuePatterns = defaultNonWorkingIssueIds;
+    }
+  }
+
+  private void setPageSize() {
+    pageSize = DEFAULT_PAGE_SIZE; // DEFAULT
+    String pageSizeValue =
+        (String) reportingSettings.get(JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX
+            + JTTP_PLUGIN_REPORTING_SETTINGS_PAGER_SIZE);
+    if (pageSizeValue != null) {
+      pageSize = Integer.parseInt(pageSizeValue);
     }
   }
 

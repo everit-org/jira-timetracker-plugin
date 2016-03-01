@@ -34,6 +34,11 @@ public class ReportingSettingsValues implements Serializable {
   public boolean isUseNoWorks;
 
   /**
+   * The reporting pager size.
+   */
+  public int pageSize;
+
+  /**
    * The reporting groups.
    */
   public List<String> reportingGroups;
@@ -43,6 +48,11 @@ public class ReportingSettingsValues implements Serializable {
 
   public ReportingSettingsValues isUseNoWorks(final boolean isUseNoWorks) {
     this.isUseNoWorks = isUseNoWorks;
+    return this;
+  }
+
+  public ReportingSettingsValues pageSize(final int pageSize) {
+    this.pageSize = pageSize;
     return this;
   }
 
