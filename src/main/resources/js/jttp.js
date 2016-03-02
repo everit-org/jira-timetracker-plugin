@@ -52,7 +52,8 @@ everit.jttp.main = everit.jttp.main || {};
   jttp.endState = 0;
 
   jttp.dateChanged = function(calendar) {
-    jQuery("#date").val(calendar.date.print(calendar.params.ifFormat));
+    var dmy = AJS.Meta.get("date-dmy").toUpperCase();
+    jQuery("#date").val(calendar.date.format(dmy));
     jQuery("#date").change();
   }
 
@@ -249,7 +250,33 @@ everit.jttp.main = everit.jttp.main || {};
     jQuery("#issueSelect-textarea").attr("tabindex", "3");
     ip.handleFreeInput();
   }
-
+  
+  jttp.onSelect = function(cal) {
+    //Copy of the original onSelect. Only chacnge not use te p.ifFormat
+    var p = cal.params;
+    var update = (cal.dateClicked || p.electric);
+    if (update && p.inputField) {
+      var dmy = AJS.Meta.get("date-dmy").toUpperCase();
+      p.inputField.value = cal.date.format(dmy);
+      jQuery(p.inputField).change();            
+    }
+    if (update && p.displayArea)
+      p.displayArea.innerHTML = cal.date.print(p.daFormat);
+    if (update && typeof p.onUpdate == "function")
+      p.onUpdate(cal);
+    if (update && p.flat) {
+      if (typeof p.flatCallback == "function")
+        p.flatCallback(cal);
+    }
+        if (p.singleClick === "true") {
+            p.singleClick = true;
+        } else if (p.singleClick === "false") {
+            p.singleClick = false;
+        }
+    if (update && p.singleClick && cal.dateClicked)
+      cal.callCloseHandler();
+  }
+  
   function popupCalendarsSetup(isPopup) {
     if (isPopup != 2) {
       var calPop = Calendar.setup({
@@ -262,7 +289,7 @@ everit.jttp.main = everit.jttp.main || {};
         singleClick : true,
         showOthers : true,
         useISO8601WeekNumbers : jttp.options.useISO8601,
-        ifFormat : '%Y-%m-%d'
+        onSelect: jttp.onSelect
       });
     }
   }
@@ -278,7 +305,8 @@ everit.jttp.main = everit.jttp.main || {};
         flat : 'not_popup_calendar',
         flatCallback : jttp.dateChanged,
         useISO8601WeekNumbers : jttp.options.useISO8601,
-        ifFormat : '%Y-%m-%d'
+        onSelect: jttp.onSelect
+//        ifFormat : '%Y-%m-%d'
       });
     }
   }

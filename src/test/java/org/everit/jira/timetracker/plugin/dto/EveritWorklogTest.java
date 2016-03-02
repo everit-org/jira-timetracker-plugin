@@ -36,6 +36,7 @@ import org.ofbiz.core.entity.GenericValue;
 import org.ofbiz.core.entity.model.ModelEntity;
 
 import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
+import com.atlassian.jira.config.properties.ApplicationProperties;
 import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.mock.component.MockComponentWorker;
 
@@ -113,6 +114,16 @@ public class EveritWorklogTest {
         .getSimpleStatus().getStatusCategory().getKey()).thenReturn("done");
     mockComponentWorker.addMock(IssueManager.class, mockIssueManager);
 
+    ApplicationProperties mockApplicationProperties =
+        Mockito.mock(ApplicationProperties.class, Mockito.RETURNS_DEEP_STUBS);
+    Mockito.when(
+        mockApplicationProperties.getDefaultBackedString(Matchers.matches("jira.lf.date.complete")))
+        .thenReturn("yy-MM-dd h:mm");
+    Mockito.when(
+        mockApplicationProperties.getDefaultBackedString(Matchers.matches("jira.lf.date.dmy")))
+        .thenReturn("yy-MM-dd");
+    mockComponentWorker.addMock(ApplicationProperties.class, mockApplicationProperties);
+
     BigDecimal daysPerWeek = new BigDecimal(5);
     BigDecimal hoursPerDay = new BigDecimal(8);
     TimeTrackingConfiguration ttConfig = EasyMock.createNiceMock(TimeTrackingConfiguration.class);
@@ -122,7 +133,6 @@ public class EveritWorklogTest {
         .anyTimes();
     EasyMock.replay(ttConfig);
     mockComponentWorker.addMock(TimeTrackingConfiguration.class, ttConfig).init();
-
   }
 
   @Test

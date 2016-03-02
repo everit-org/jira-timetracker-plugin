@@ -21,10 +21,12 @@ everit.jttp.report_common_scripts = everit.jttp.report_common_scripts || {};
 (function(jttp, jQuery) {
 
   jQuery(document).ready(function() {
-
+    
+    Date.parseDate = function(str, fmt){return new Date(str);};
+    
     var opt = jttp.options;
 
-    var calFrom = Calendar.setup({
+    jttp.calFrom = Calendar.setup({
       firstDay : opt.firstDay,
       inputField : jQuery("#dateFrom"),
       button : jQuery("#date_trigger_from"),
@@ -34,7 +36,7 @@ everit.jttp.report_common_scripts = everit.jttp.report_common_scripts || {};
       singleClick : true,
       showOthers : true,
       useISO8601WeekNumbers : opt.useISO8601,
-      ifFormat : '%Y-%m-%d'
+      onSelect: jttp.onSelect,
     });
 
     var calTo = Calendar.setup({
@@ -47,13 +49,40 @@ everit.jttp.report_common_scripts = everit.jttp.report_common_scripts || {};
       singleClick : true,
       showOthers : true,
       useISO8601WeekNumbers : opt.useISO8601,
-      ifFormat : '%Y-%m-%d'
+      onSelect: jttp.onSelect,
     });
 
     jQuery('.aui-ss, .aui-ss-editing, .aui-ss-field').attr("style", "width: 300px;");
 
   });
-
+  
+  
+  jttp.onSelect = function(cal) {
+    //Copy of the original onSelect. Only chacnge not use te p.ifFormat
+    var p = cal.params;
+    var update = (cal.dateClicked || p.electric);
+    if (update && p.inputField) {
+      var dmy = AJS.Meta.get("date-dmy").toUpperCase();
+      p.inputField.value = cal.date.format(dmy);
+      jQuery(p.inputField).change();            
+    }
+    if (update && p.displayArea)
+      p.displayArea.innerHTML = cal.date.print(p.daFormat);
+    if (update && typeof p.onUpdate == "function")
+      p.onUpdate(cal);
+    if (update && p.flat) {
+      if (typeof p.flatCallback == "function")
+        p.flatCallback(cal);
+    }
+        if (p.singleClick === "true") {
+            p.singleClick = true;
+        } else if (p.singleClick === "false") {
+            p.singleClick = false;
+        }
+    if (update && p.singleClick && cal.dateClicked)
+      cal.callCloseHandler();
+  }
+  
   jttp.jttpSearchOnClick = function(reportName) {
     var loggedUserIn = AJS.params.loggedInUser;
     var selectedUser = document.getElementById("userPicker").value;
