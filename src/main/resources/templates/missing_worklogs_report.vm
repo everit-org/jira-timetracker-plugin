@@ -67,8 +67,8 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:missing_
 	      <a href="http://www.everit.biz/" target="_blank">
 			<img src="$contextPath/download/resources/org.everit.jira.timetracker.plugin:missing_days_report-resources/everit_tt_logo.png" alt="Everit logo" height="42" width="42" style:"float: right">
 		  </a>
-	   <h1 class="item-summary">Timetracker</h1>
-	 </div>
+	  </div>
+	  <h1 class="item-summary">Timetracker</h1>
    </div>	
   <div id="main-content" class="content rounded">
     <form name="myForm" method="post"action="JiraTimetrackerWorklogsWebAction.jspa?dateFromFormated=$dateFromFormated&dateToFormated=$dateToFormated&actualPage=$actualPage" />
