@@ -57,7 +57,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
 				<tbody>
 					<tr>
 		              <td style="text-align: right; vertical-align: top;" width="15%">
-		                <strong>$i18n.getText("jwcp.setting.staff.groups")</strong>
+		                <strong>$i18n.getText("jtrp.plugin.reporting.permission")</strong>
 		              </td>
 		              <td class="admin-settings-value-column">
 		                <div id="groupSelect_container"
@@ -101,13 +101,13 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
 		                  </script>
 		                 </div>
 		                <div class="description">
-		                  $i18n.getText("jwcp.setting.staff.groups.help")
+		                  $i18n.getText("jtrp.plugin.reporting.permission.desc")
 		                </div>
 		              </td>
 		            </tr>
 					<tr>
 		              <td style="text-align: right; vertical-align: top;" width="15%">
-		                <strong>$i18n.getText("jwcp.setting.staff.groups")</strong>
+		                <strong>$i18n.getText("jtrp.plugin.reporting.pagination")</strong>
 		              </td>
 		              <td class="admin-settings-value-column">
 		                <div>
@@ -132,16 +132,21 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
 			                </div>
 		                </div>
 		                <div class="description">
-		                  $i18n.getText("jwcp.setting.staff.groups.help")
+		                  $i18n.getText("jtrp.plugin.reporting.pagination.desc")
 		                </div>
 		              </td>
 		            </tr>
 				    <tr>
 						<td class="settings-label-column">
-							$i18n.getText("plugin.setting.exclude.dates")
+							$i18n.getText("jtrp.plugin.reporting.non.working")
 						</td>
 						<td class="admin-settings-value-column">
-							<input type="checkbox" id="noWorkUse" name="noWorkUse" #if($isUseNoWork) checked #end />
+						  <div>
+						    <input type="checkbox" id="noWorkUse" name="noWorkUse" #if($isUseNoWork) checked #end />
+						  </div>
+						  <div class="description">
+		                    $i18n.getText("jtrp.plugin.reporting.non.working.desc")
+		                  </div>
 						</td>		
 					</tr>
 					<tr class="buttons-container">

@@ -132,6 +132,7 @@
 
   <webwork1 key="jttp-webaction" name="JTTP Webwork actions" class="java.lang.Object">
     <resource type="i18n" name="i18n-jttp-vm" location="i18n/jttp" />
+    <resource type="i18n" name="i18n-jttp_feedback-vm" location="i18n/jttp_feedback" />
     <actions>
       <action name="org.everit.jira.timetracker.plugin.JiraTimetrackerWebAction" alias="JiraTimetrackerWebAction">
         <view name="success">/templates/jttp.vm</view>
@@ -160,11 +161,6 @@
         <view name="input">/templates/adminsettings.vm</view>
         <view name="error">/templates/error.vm</view>
       </action>
-      <action name="org.everit.jira.timetracker.plugin.ReportingSettingsWebAction" alias="JiraTimetrackerReportingSettingsWebAction">
-        <view name="success">/templates/reportingsettings.vm</view>
-        <view name="input">/templates/reportingsettings.vm</view>
-        <view name="error">/templates/error.vm</view>
-      </action>
       
       <action name="org.everit.jira.timetracker.plugin.JiraTimetrackerTableWebAction" alias="JiraTimetrackerTableWebAction">
         <view name="success">/templates/table_report.vm</view>
@@ -174,6 +170,18 @@
       <action name="org.everit.jira.timetracker.plugin.JiraReportingPopupWebAction" alias="JiraReportingPopupWebAction">
         <view name="success">/templates/reporting_popup.vm</view>
         <view name="input">/templates/reporting_popup.vm</view>
+        <view name="error">/templates/error.vm</view>
+      </action>
+    </actions>
+  </webwork1>
+  
+  <webwork1 key="jtrp-webaction" name="JTRP Webwork actions" class="java.lang.Object">
+    <resource type="i18n" name="i18n-jtrp-vm" location="i18n/jtrp" />
+    <resource type="i18n" name="i18n-jttp_feedback-vm" location="i18n/jttp_feedback" />
+    <actions>
+      <action name="org.everit.jira.timetracker.plugin.ReportingSettingsWebAction" alias="JiraTimetrackerReportingSettingsWebAction">
+        <view name="success">/templates/reportingsettings.vm</view>
+        <view name="input">/templates/reportingsettings.vm</view>
         <view name="error">/templates/error.vm</view>
       </action>
     </actions>
