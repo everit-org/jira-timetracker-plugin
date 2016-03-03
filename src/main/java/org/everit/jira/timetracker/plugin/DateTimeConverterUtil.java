@@ -412,7 +412,7 @@ public final class DateTimeConverterUtil {
     date.setTime(stringToDate(dateString));
     Calendar time = Calendar.getInstance();
     time.setTime(stringTimeToDateTime(timeString));
-    date.set(Calendar.HOUR, time.get(Calendar.HOUR));
+    date.set(Calendar.HOUR_OF_DAY, time.get(Calendar.HOUR_OF_DAY));
     date.set(Calendar.MINUTE, time.get(Calendar.MINUTE));
     return date.getTime();
   }
