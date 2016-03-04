@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.jira.timetracker.plugin;
+package org.everit.jira.timetracker.plugin.web;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -28,10 +28,15 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
+import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
+import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
 import org.everit.jira.timetracker.plugin.dto.ActionResult;
 import org.everit.jira.timetracker.plugin.dto.ActionResultStatus;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
+import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
+import org.everit.jira.timetracker.plugin.util.JiraTimetrackerPiwikPropertiesUtil;
+import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.ofbiz.core.entity.GenericEntityException;
 
 import com.atlassian.jira.avatar.Avatar;
@@ -1113,7 +1118,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   /**
    * Parses the {@link #editAllIds} string to a list of {@code Long} values.
    */
-  List<Long> parseEditAllIds() {
+  public List<Long> parseEditAllIds() {
     List<Long> editWorklogIds = new ArrayList<Long>();
     String editAllIdsCopy = editAllIds;
     editAllIdsCopy = editAllIdsCopy.replace("[", "");

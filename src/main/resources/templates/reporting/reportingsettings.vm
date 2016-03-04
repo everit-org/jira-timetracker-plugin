@@ -38,7 +38,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
 
 <div id="plugin_head" class="item-header">
 		<div class="logo-img">
-			#parse("templates/feedback_reporting_settings.vm")
+			#parse("templates/feedback/feedback_reporting_settings.vm")
 			<a href="http://www.everit.biz/" target="_blank">
 				<img src="$contextPath/download/resources/org.everit.jira.timetracker.plugin:jttp-resources/everit_tt_logo.png" alt="Everit logo" height="42" width="42">
 			</a>

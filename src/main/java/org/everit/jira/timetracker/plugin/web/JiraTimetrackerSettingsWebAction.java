@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.jira.timetracker.plugin;
+package org.everit.jira.timetracker.plugin.web;
 
 import java.text.ParseException;
 import java.util.List;
@@ -22,7 +22,9 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
+import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
 import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
+import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 
 import com.atlassian.jira.web.action.JiraWebActionSupport;
 

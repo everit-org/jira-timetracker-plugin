@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.easymock.EasyMock;
+import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

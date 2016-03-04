@@ -17,6 +17,7 @@ package org.everit.jira.timetracker.plugin;
 
 import java.util.ArrayList;
 
+import org.everit.jira.timetracker.plugin.web.JiraTimetrackerWebAction;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
