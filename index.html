@@ -127,6 +127,9 @@ Easier, faster time tracking, and timelog reporting." charset="utf-8">
           the worklog table part and the input fields.</p>
         <img class="img-responsive img-thumbnail" src="images/jttp_timetracker.png"
           alt="Timetracker" />
+          
+        <h3 id="date_modification">Date format</h3>
+        <p>Timetracker plugin use the JIRA Look and feel settings (Complete Date/Time Format and Day/Month/Year Format) to display dates.</p>
 
         <h3 id="date_modification">Date modification</h3>
         <p>Based on the user settings, there are more options to modify the date. The pop-up
@@ -511,11 +514,27 @@ Easier, faster time tracking, and timelog reporting." charset="utf-8">
 	  
       <div class="bs-docs-featurette cookbook" id="release_notes">
         <h2>Release notes</h2>
+        <h3>Timetracker version 2.3.2</h3>
+		<h4 style="margin-left: 20px;">Bugfix</h4>
+        <ul>
+          <li>Use the fractions correctly if they were specified in the JIRA Time
+              Tracking Configuration. (<a
+            href="https://github.com/everit-org/jira-timetracker-plugin/issues/133">#133</a>)
+          </li>
+            <li>EveritWorklog NullPointerException. (<a
+            href="https://github.com/everit-org/jira-timetracker-plugin/issues/162">#162</a>)
+          </li>
+            <li>Use Jira Look and feel Complete Date/Time Format and Day/Month/Year
+                Format. (<a
+            href=" https://github.com/everit-org/jira-timetracker-plugin/issues/169">#169</a>)
+          </li>
+        </ul>
 		<h3>Timetracker version 2.3.1</h3>
 		<h4 style="margin-left: 20px;">Bugfix</h4>
         <ul>
           <li>Use the fractions if they were specified in the JIRA Time Tracking Configuration. (<a
-            href=" https://github.com/everit-org/jira-timetracker-plugin/issues/133">#133</a>)		  
+            href=" https://github.com/everit-org/jira-timetracker-plugin/issues/133">#133</a>)
+          </li>
         </ul>
 		<h4 style="margin-left: 20px;">Changes</h4>
         <ul>		
