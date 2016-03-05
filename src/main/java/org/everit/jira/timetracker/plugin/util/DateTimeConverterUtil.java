@@ -27,6 +27,8 @@ import java.util.regex.Pattern;
 
 import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
 import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.config.properties.APKeys;
+import com.atlassian.jira.config.properties.ApplicationProperties;
 
 /**
  * The utility class of date and time conversions.
@@ -37,11 +39,6 @@ public final class DateTimeConverterUtil {
    * The begin of year.
    */
   public static final int BEGIN_OF_YEAR = 1900;
-
-  /**
-   * The date format.
-   */
-  public static final String DATE_FORMAT = "yyyy-MM-dd";
 
   /**
    * The date time format.
@@ -144,14 +141,16 @@ public final class DateTimeConverterUtil {
   }
 
   /**
-   * Convert date to string ({@value #DATE_TIME_FORMAT}).
+   * Convert date to string use the {@link APKeys#JIRA_LF_DATE_COMPLETE}.
    *
    * @param dateAndTime
    *          The date to convert.
    * @return The result String.
    */
   public static String dateAndTimeToString(final Date dateAndTime) {
-    DateFormat formatterDateAndTime = new SimpleDateFormat(DATE_TIME_FORMAT);
+    String dateTimeFormat =
+        getJiraDefaultDateAndTimeJavaFormat(APKeys.JIRA_LF_DATE_COMPLETE);
+    DateFormat formatterDateAndTime = new SimpleDateFormat(dateTimeFormat);
     String stringDateAndTime = formatterDateAndTime.format(dateAndTime);
     return stringDateAndTime;
   }
@@ -170,14 +169,15 @@ public final class DateTimeConverterUtil {
   }
 
   /**
-   * Convert the date to String ({@value #DATE_FORMAT}).
+   * Convert the date to String use the {@link APKeys#JIRA_LF_DATE_DMY}.
    *
    * @param date
    *          The Date to convert.
    * @return The result time.
    */
   public static String dateToString(final Date date) {
-    DateFormat formatterDate = new SimpleDateFormat(DATE_FORMAT);
+    String dateFormat = getJiraDefaultDateAndTimeJavaFormat(APKeys.JIRA_LF_DATE_DMY);
+    DateFormat formatterDate = new SimpleDateFormat(dateFormat);
     String dateString = formatterDate.format(date);
     return dateString;
   }
@@ -194,6 +194,12 @@ public final class DateTimeConverterUtil {
   public static long getDateDifference(final Date firstDate, final Date secondDate) {
     long diffInMillies = secondDate.getTime() - firstDate.getTime();
     return TimeUnit.SECONDS.convert(diffInMillies, TimeUnit.MILLISECONDS);
+  }
+
+  private static String getJiraDefaultDateAndTimeJavaFormat(final String formatKey) {
+    ApplicationProperties applicationProperties =
+        ComponentAccessor.getComponent(ApplicationProperties.class);
+    return applicationProperties.getDefaultBackedString(formatKey);
   }
 
   /**
@@ -310,21 +316,6 @@ public final class DateTimeConverterUtil {
   }
 
   /**
-   * Convert String Date to String Time.
-   *
-   * @param dateString
-   *          The String date.
-   * @return The String Time.
-   * @throws ParseException
-   *           If can't parse the date.
-   */
-  public static String stringDateToStringTime(final String dateString) throws ParseException {
-    Date date = DateTimeConverterUtil.stringToDateAndTime(dateString);
-    String time = DateTimeConverterUtil.dateTimeToString(date);
-    return time;
-  }
-
-  /**
    * Convert String ({@value #TIME_FORMAT}) to Time.
    *
    * @param time
@@ -373,7 +364,7 @@ public final class DateTimeConverterUtil {
   }
 
   /**
-   * Convert String ({@value #DATE_FORMAT}) to Date.
+   * Convert String to Date use the {@link APKeys#JIRA_LF_DATE_DMY}.
    *
    * @param dateString
    *          The String date to convert.
@@ -382,7 +373,8 @@ public final class DateTimeConverterUtil {
    *           If can't parse the date.
    */
   public static Date stringToDate(final String dateString) throws ParseException {
-    DateFormat formatterDate = new SimpleDateFormat(DATE_FORMAT);
+    String dateFormat = getJiraDefaultDateAndTimeJavaFormat(APKeys.JIRA_LF_DATE_DMY);
+    DateFormat formatterDate = new SimpleDateFormat(dateFormat);
     Date date = formatterDate.parse(dateString);
     return date;
   }
@@ -400,6 +392,29 @@ public final class DateTimeConverterUtil {
     DateFormat formatterDateAndTime = new SimpleDateFormat(DATE_TIME_FORMAT);
     Date date = formatterDateAndTime.parse(dateAndTimeString);
     return date;
+  }
+
+  /**
+   * Convert String to date and time and merge them. Use the stringToDate and stringTimeToDateTime
+   * methods.
+   *
+   * @param dateString
+   *          The date string to convert.
+   * @param timeString
+   *          The time string to convert.
+   * @return The result Date.
+   * @throws ParseException
+   *           if can't parse the date.
+   */
+  public static Date stringToDateAndTime(final String dateString, final String timeString)
+      throws ParseException {
+    Calendar date = Calendar.getInstance();
+    date.setTime(stringToDate(dateString));
+    Calendar time = Calendar.getInstance();
+    time.setTime(stringTimeToDateTime(timeString));
+    date.set(Calendar.HOUR_OF_DAY, time.get(Calendar.HOUR_OF_DAY));
+    date.set(Calendar.MINUTE, time.get(Calendar.MINUTE));
+    return date.getTime();
   }
 
   /**

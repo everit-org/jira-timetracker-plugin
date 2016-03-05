@@ -75,6 +75,7 @@
     <dependency>com.atlassian.auiplugin:aui-date-picker</dependency>
     <resource type="download" name="jttp_feedback.css" location="/css/jttp_feedback.css"/>
     <resource type="download" name="jttp.js" location="/js/jttp.js"/>
+    <resource type="download" name="js-date-format.js" location="/js/js-date-format.js"/>
     <resource type="download" name="everit_tt_logo.png" location="/icons/everit_tt_logo.png">
       <param name="content-type" value="image/png" />
     </resource>
@@ -89,6 +90,7 @@
     <resource type="download" name="everit_tt_logo.png" location="/icons/everit_tt_logo.png">
       <param name="content-type" value="image/png" />
     </resource>
+    <resource type="download" name="js-date-format.js" location="/js/js-date-format.js"/>
     <resource type="download" name="jttp.css" location="/css/jttp.css"/>
 	<resource type="download" name="report_common_scripts.js" location="/js/report_common_scripts.js"/>
   </web-resource>
@@ -101,6 +103,7 @@
     <resource type="download" name="everit_tt_logo.png" location="/icons/everit_tt_logo.png">
       <param name="content-type" value="image/png" />
     </resource>
+    <resource type="download" name="js-date-format.js" location="/js/js-date-format.js"/>
     <resource type="download" name="jttp.css" location="/css/jttp.css"/>
 	<resource type="download" name="report_common_scripts.js" location="/js/report_common_scripts.js"/>
     <resource type="download" name="missing_days_report.js" location="/js/missing_days_report.js"/>
@@ -125,6 +128,7 @@
     <resource type="download" name="everit_tt_logo.png" location="/icons/everit_tt_logo.png">
       <param name="content-type" value="image/png" />
     </resource>
+    <resource type="download" name="js-date-format.js" location="/js/js-date-format.js"/>
     <resource type="download" name="jttp.css" location="/css/jttp.css"/>
 	<resource type="download" name="report_common_scripts.js" location="/js/report_common_scripts.js"/>
     <resource type="download" name="chart_report.js" location="/js/chart_report.js"/>
