@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.easymock.EasyMock;
@@ -39,6 +40,7 @@ import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
 import com.atlassian.jira.config.properties.ApplicationProperties;
 import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.mock.component.MockComponentWorker;
+import com.atlassian.jira.security.JiraAuthenticationContext;
 
 @RunWith(Parameterized.class)
 public class EveritWorklogTest {
@@ -124,13 +126,17 @@ public class EveritWorklogTest {
         .thenReturn("yy-MM-dd");
     mockComponentWorker.addMock(ApplicationProperties.class, mockApplicationProperties);
 
+    JiraAuthenticationContext mockJiraAuthenticationContext =
+        Mockito.mock(JiraAuthenticationContext.class, Mockito.RETURNS_DEEP_STUBS);
+    Mockito.when(mockJiraAuthenticationContext.getI18nHelper().getLocale())
+        .thenReturn(new Locale("en", "US"));
+    mockComponentWorker.addMock(JiraAuthenticationContext.class, mockJiraAuthenticationContext);
+
     BigDecimal daysPerWeek = new BigDecimal(5);
     BigDecimal hoursPerDay = new BigDecimal(8);
     TimeTrackingConfiguration ttConfig = EasyMock.createNiceMock(TimeTrackingConfiguration.class);
-    EasyMock.expect(ttConfig.getDaysPerWeek()).andReturn(daysPerWeek)
-        .anyTimes();
-    EasyMock.expect(ttConfig.getHoursPerDay()).andReturn(hoursPerDay)
-        .anyTimes();
+    EasyMock.expect(ttConfig.getDaysPerWeek()).andReturn(daysPerWeek).anyTimes();
+    EasyMock.expect(ttConfig.getHoursPerDay()).andReturn(hoursPerDay).anyTimes();
     EasyMock.replay(ttConfig);
     mockComponentWorker.addMock(TimeTrackingConfiguration.class, ttConfig).init();
   }

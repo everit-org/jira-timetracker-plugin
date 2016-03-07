@@ -26,6 +26,9 @@ import org.springframework.beans.factory.InitializingBean;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
+/**
+ * The implementation of the {@link ReportingPlugin}.
+ */
 public class ReportingPluginImpl implements ReportingPlugin, InitializingBean,
     DisposableBean, Serializable {
 

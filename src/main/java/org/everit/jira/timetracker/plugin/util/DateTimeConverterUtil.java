@@ -20,6 +20,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -29,6 +30,7 @@ import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.config.properties.APKeys;
 import com.atlassian.jira.config.properties.ApplicationProperties;
+import com.atlassian.jira.security.JiraAuthenticationContext;
 
 /**
  * The utility class of date and time conversions.
@@ -150,7 +152,7 @@ public final class DateTimeConverterUtil {
   public static String dateAndTimeToString(final Date dateAndTime) {
     String dateTimeFormat =
         getJiraDefaultDateAndTimeJavaFormat(APKeys.JIRA_LF_DATE_COMPLETE);
-    DateFormat formatterDateAndTime = new SimpleDateFormat(dateTimeFormat);
+    DateFormat formatterDateAndTime = new SimpleDateFormat(dateTimeFormat, getLoggedUserLocal());
     String stringDateAndTime = formatterDateAndTime.format(dateAndTime);
     return stringDateAndTime;
   }
@@ -163,7 +165,7 @@ public final class DateTimeConverterUtil {
    * @return The result string.
    */
   public static String dateTimeToString(final Date date) {
-    DateFormat formatterTime = new SimpleDateFormat(TIME_FORMAT);
+    DateFormat formatterTime = new SimpleDateFormat(TIME_FORMAT, getLoggedUserLocal());
     String timeString = formatterTime.format(date);
     return timeString;
   }
@@ -177,7 +179,7 @@ public final class DateTimeConverterUtil {
    */
   public static String dateToString(final Date date) {
     String dateFormat = getJiraDefaultDateAndTimeJavaFormat(APKeys.JIRA_LF_DATE_DMY);
-    DateFormat formatterDate = new SimpleDateFormat(dateFormat);
+    DateFormat formatterDate = new SimpleDateFormat(dateFormat, getLoggedUserLocal());
     String dateString = formatterDate.format(date);
     return dateString;
   }
@@ -200,6 +202,12 @@ public final class DateTimeConverterUtil {
     ApplicationProperties applicationProperties =
         ComponentAccessor.getComponent(ApplicationProperties.class);
     return applicationProperties.getDefaultBackedString(formatKey);
+  }
+
+  private static Locale getLoggedUserLocal() {
+    JiraAuthenticationContext authenticationContext = ComponentAccessor
+        .getJiraAuthenticationContext();
+    return authenticationContext.getI18nHelper().getLocale();
   }
 
   /**
@@ -260,7 +268,7 @@ public final class DateTimeConverterUtil {
    * @return The result String.
    */
   public static String millisecondConvertToStringTime(final long milliseconds) {
-    DateFormat formatterTimeGMT = new SimpleDateFormat(TIME_FORMAT);
+    DateFormat formatterTimeGMT = new SimpleDateFormat(TIME_FORMAT, getLoggedUserLocal());
     formatterTimeGMT.setTimeZone(TimeZone.getTimeZone(TIME_ZONE_GMT));
     Date date = new Date();
     date.setTime(milliseconds);
@@ -325,7 +333,7 @@ public final class DateTimeConverterUtil {
    *           If can't parse the date.
    */
   public static Date stringTimeToDateTime(final String time) throws ParseException {
-    DateFormat formatterTime = new SimpleDateFormat(TIME_FORMAT);
+    DateFormat formatterTime = new SimpleDateFormat(TIME_FORMAT, getLoggedUserLocal());
     Date dateTime = formatterTime.parse(time);
     return dateTime;
   }
@@ -340,7 +348,7 @@ public final class DateTimeConverterUtil {
    *           If can't parse the date.
    */
   public static Date stringTimeToDateTimeGMT(final String time) throws ParseException {
-    DateFormat formatterTime = new SimpleDateFormat(TIME_FORMAT);
+    DateFormat formatterTime = new SimpleDateFormat(TIME_FORMAT, getLoggedUserLocal());
     formatterTime.setTimeZone(TimeZone.getTimeZone(TIME_ZONE_GMT));
     Date dateTime = formatterTime.parse(time);
     return dateTime;
@@ -374,7 +382,7 @@ public final class DateTimeConverterUtil {
    */
   public static Date stringToDate(final String dateString) throws ParseException {
     String dateFormat = getJiraDefaultDateAndTimeJavaFormat(APKeys.JIRA_LF_DATE_DMY);
-    DateFormat formatterDate = new SimpleDateFormat(dateFormat);
+    DateFormat formatterDate = new SimpleDateFormat(dateFormat, getLoggedUserLocal());
     Date date = formatterDate.parse(dateString);
     return date;
   }
@@ -389,7 +397,7 @@ public final class DateTimeConverterUtil {
    *           if can't parse the date.
    */
   public static Date stringToDateAndTime(final String dateAndTimeString) throws ParseException {
-    DateFormat formatterDateAndTime = new SimpleDateFormat(DATE_TIME_FORMAT);
+    DateFormat formatterDateAndTime = new SimpleDateFormat(DATE_TIME_FORMAT, getLoggedUserLocal());
     Date date = formatterDateAndTime.parse(dateAndTimeString);
     return date;
   }
