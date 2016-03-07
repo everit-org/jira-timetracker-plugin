@@ -21,6 +21,7 @@ import java.security.NoSuchAlgorithmException;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
+import org.everit.jira.timetracker.plugin.util.HashUtil;
 
 import com.atlassian.jira.component.ComponentAccessor;
 

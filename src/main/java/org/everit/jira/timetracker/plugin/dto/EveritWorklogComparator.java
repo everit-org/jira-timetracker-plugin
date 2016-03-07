@@ -20,7 +20,7 @@ import java.text.ParseException;
 import java.util.Comparator;
 import java.util.Date;
 
-import org.everit.jira.timetracker.plugin.DateTimeConverterUtil;
+import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 
 /**
  * The comparator of the {@link EveritWorklog}.

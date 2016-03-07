@@ -160,11 +160,11 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:missing_
 	  </div>
     </form>
     <div id="feedbackfooter" class="feedback_footer">
-      #parse("templates/feedback_worklogs.vm")
+      #parse("templates/feedback/feedback_worklogs.vm")
     </div>
   </div>
   #if($analyticsCheck)
-	#parse("templates/analytics.vm")
+	#parse("templates/common/analytics.vm")
   #end
 </body>
 </html>
