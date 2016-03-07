@@ -15,6 +15,7 @@
  */
 package org.everit.jira.reporting.plugin;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +39,7 @@ public class ReportingPluginImpl implements ReportingPlugin, InitializingBean,
    * The plugin reporting settings is use Noworks.
    */
   private static final String JTTP_PLUGIN_REPORTING_SETTINGS_GROUPS = "reportingGroups";
+
   /**
    * The plugin reporting settings is use Noworks.
    */
@@ -50,6 +52,10 @@ public class ReportingPluginImpl implements ReportingPlugin, InitializingBean,
    * The plugin reporting settings is use Noworks.
    */
   private static final String JTTP_PLUGIN_REPORTING_SETTINGS_PAGER_SIZE = "pagerSize";
+  /**
+   * Serial Version UID.
+   */
+  private static final long serialVersionUID = -3872710932298672883L;
 
   /**
    * Reporting is use noworks.
@@ -106,6 +112,12 @@ public class ReportingPluginImpl implements ReportingPlugin, InitializingBean,
     return reportingSettingsValues;
   }
 
+  private void readObject(final java.io.ObjectInputStream stream) throws IOException,
+      ClassNotFoundException {
+    stream.close();
+    throw new java.io.NotSerializableException(getClass().getName());
+  }
+
   @Override
   public void saveReportingSettings(final ReportingSettingsValues reportingSettingsParameter) {
     reportingSettings = settingsFactory
@@ -146,5 +158,10 @@ public class ReportingPluginImpl implements ReportingPlugin, InitializingBean,
     if (reportingGroupsNames != null) {
       reportingGroups = reportingGroupsNames;
     }
+  }
+
+  private void writeObject(final java.io.ObjectOutputStream stream) throws IOException {
+    stream.close();
+    throw new java.io.NotSerializableException(getClass().getName());
   }
 }

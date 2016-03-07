@@ -64,6 +64,7 @@ public class ReportingSettingsWebAction extends JiraWebActionSupport {
    * The message.
    */
   private String message = "";
+
   private int pageSize;
 
   private List<String> reportingGroups;
