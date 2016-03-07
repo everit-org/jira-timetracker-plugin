@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.jira.timetracker.plugin;
+package org.everit.jira.reporting.plugin;
 
 import java.util.Collection;
 import java.util.List;
@@ -32,15 +32,15 @@ import com.atlassian.jira.user.ApplicationUser;
  */
 public class ReportingCondition extends AbstractWebCondition {
 
-  private JiraTimetrackerPlugin jiraTimetrackerPlugin;
+  private ReportingPlugin reportingPlugin;
 
-  public ReportingCondition(final JiraTimetrackerPlugin jiraTimetrackerPlugin) {
-    this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
+  public ReportingCondition(final ReportingPlugin reportingPlugin) {
+    this.reportingPlugin = reportingPlugin;
   }
 
   @Override
   public boolean shouldDisplay(final ApplicationUser user, final JiraHelper jiraHelper) {
-    ReportingSettingsValues loadReportingSettings = jiraTimetrackerPlugin.loadReportingSettings();
+    ReportingSettingsValues loadReportingSettings = reportingPlugin.loadReportingSettings();
     List<String> reportingGroups = loadReportingSettings.reportingGroups;
     if ((reportingGroups == null) || reportingGroups.isEmpty()) {
       return true;

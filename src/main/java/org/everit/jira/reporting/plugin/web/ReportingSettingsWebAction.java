@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.jira.timetracker.plugin.web;
+package org.everit.jira.reporting.plugin.web;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -22,6 +22,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.everit.jira.reporting.plugin.ReportingPlugin;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
 import org.everit.jira.timetracker.plugin.dto.ReportingSettingsValues;
@@ -63,14 +64,16 @@ public class ReportingSettingsWebAction extends JiraWebActionSupport {
    * The message.
    */
   private String message = "";
-
   private int pageSize;
 
   private List<String> reportingGroups;
 
+  private ReportingPlugin reportingPlugin;
+
   public ReportingSettingsWebAction(
-      final JiraTimetrackerPlugin jiraTimetrackerPlugin) {
+      final JiraTimetrackerPlugin jiraTimetrackerPlugin, final ReportingPlugin reportingPlugin) {
     this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
+    this.reportingPlugin = reportingPlugin;
   }
 
   private void checkMailServer() {
@@ -154,7 +157,7 @@ public class ReportingSettingsWebAction extends JiraWebActionSupport {
    * Load the plugin settings and set the variables.
    */
   public void loadPluginSettingAndParseResult() {
-    ReportingSettingsValues pluginSettingsValues = jiraTimetrackerPlugin
+    ReportingSettingsValues pluginSettingsValues = reportingPlugin
         .loadReportingSettings();
     isUseNoWorks = pluginSettingsValues.isUseNoWorks;
     reportingGroups = pluginSettingsValues.reportingGroups;
@@ -244,7 +247,7 @@ public class ReportingSettingsWebAction extends JiraWebActionSupport {
     ReportingSettingsValues reportingSettingsValues =
         new ReportingSettingsValues().isUseNoWorks(isUseNoWorks).reportingGroups(reportingGroups)
             .pageSize(pageSize);
-    jiraTimetrackerPlugin.saveReportingSettings(reportingSettingsValues);
+    reportingPlugin.saveReportingSettings(reportingSettingsValues);
   }
 
   public void setContextPath(final String contextPath) {

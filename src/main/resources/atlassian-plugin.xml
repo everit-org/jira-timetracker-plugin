@@ -34,6 +34,10 @@
     <interface>org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin</interface>
   </component>
   
+   <component key="JTRP" name="Reporting" class="org.everit.jira.reporting.plugin.ReportingPluginImpl">
+    <interface>org.everit.jira.reporting.plugin.ReportingPlugin</interface>
+  </component>
+  
    <web-item key="jttp_menu_item" name="JTTP Item" section="system.top.navigation.bar" weight="47">
     <label>Timetracker</label>
     <link linkId="jttp_menu"></link>
@@ -54,7 +58,7 @@
     <label>Reporting</label>
     <link linkId="jttp_reporting_link"><![CDATA[/secure/JiraTimetrackerWebAction!default.jspa#reporting-dialog]]></link>
     <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserLoggedInCondition" />
-    <condition class="org.everit.jira.timetracker.plugin.ReportingCondition" />
+    <condition class="org.everit.jira.reporting.plugin.ReportingCondition" />
   </web-item>
   
   <web-item key="jttp_documentation_link" name="JTTP Documentaion Link" section="jttp_menu/jttp_doc_section" weight="47">
@@ -183,7 +187,7 @@
     <resource type="i18n" name="i18n-jtrp-vm" location="i18n/jtrp" />
     <resource type="i18n" name="i18n-feedback-vm" location="i18n/feedback" />
     <actions>
-      <action name="org.everit.jira.timetracker.plugin.web.ReportingSettingsWebAction" alias="JiraTimetrackerReportingSettingsWebAction">
+      <action name="org.everit.jira.reporting.plugin.web.ReportingSettingsWebAction" alias="JiraTimetrackerReportingSettingsWebAction">
         <view name="success">/templates/reporting/reportingsettings.vm</view>
         <view name="input">/templates/reporting/reportingsettings.vm</view>
         <view name="error">/templates/common/error.vm</view>

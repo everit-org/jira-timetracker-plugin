@@ -47,7 +47,6 @@ import org.everit.jira.timetracker.plugin.dto.ActionResultStatus;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklogComparator;
 import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
-import org.everit.jira.timetracker.plugin.dto.ReportingSettingsValues;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerPiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
@@ -96,8 +95,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
 
   private static final int DEFAULT_CHECK_TIME_IN_MINUTES = 1200;
 
-  private static final int DEFAULT_PAGE_SIZE = 20;
-
   private static final String FEEDBACK_EMAIL_DEFAULT_VALUE = "${jttp.feedback.email}";
 
   private static final String FEEDBACK_EMAIL_TO = "FEEDBACK_EMAIL_TO";
@@ -107,24 +104,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   private static final int FIVE_MINUTES = 5;
 
   private static final String INVALID_ISSUE = "plugin.invalid_issue";
-
-  /**
-   * The plugin reporting settings is use Noworks.
-   */
-  private static final String JTTP_PLUGIN_REPORTING_SETTINGS_GROUPS = "reportingGroups";
-
-  /**
-   * The plugin reporting settings is use Noworks.
-   */
-  private static final String JTTP_PLUGIN_REPORTING_SETTINGS_IS_USE_NOWORK = "isUseNowork";
-  /**
-   * The plugin repoting settings key prefix.
-   */
-  private static final String JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX = "jttp_report";
-  /**
-   * The plugin reporting settings is use Noworks.
-   */
-  private static final String JTTP_PLUGIN_REPORTING_SETTINGS_PAGER_SIZE = "pagerSize";
 
   /**
    * The plugin settings analytics check.
@@ -273,16 +252,9 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   private ScheduledFuture<?> issueEstimatedTimeCheckerFuture;
 
   /**
-   * Reporting is use noworks.
-   */
-  private boolean isUseNoWorks = true;
-
-  /**
    * The summary filter issues ids.
    */
   private List<Pattern> nonWorkingIssuePatterns;
-
-  private int pageSize;
 
   private Map<String, String> piwikPorpeties;
 
@@ -301,17 +273,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
    * {@link InitializingBean#afterPropertiesSet()} method. Stored in the jira global settings.
    */
   private String pluginUUID;
-
-  private List<String> reportingGroups;
-  /**
-   * The plugin reporting setting form the settingsFactory.
-   */
-  private PluginSettings reportingSettings;
-
-  /**
-   * The plugin reporting setting values.
-   */
-  private ReportingSettingsValues reportingSettingsValues;
 
   /**
    * The plugin Scheduled Executor Service.
@@ -1003,18 +964,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     return pluginSettingsValues;
   }
 
-  @Override
-  public ReportingSettingsValues loadReportingSettings() {
-    reportingSettings = settingsFactory
-        .createSettingsForKey(JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX);
-    setIsUseNoWork();
-    setReportingGroups();
-    setPageSize();
-    reportingSettingsValues = new ReportingSettingsValues().isUseNoWorks(isUseNoWorks)
-        .reportingGroups(reportingGroups).pageSize(pageSize);
-    return reportingSettingsValues;
-  }
-
   private void readObject(final java.io.ObjectInputStream stream) throws IOException,
       ClassNotFoundException {
     stream.close();
@@ -1080,20 +1029,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     globalSettings.put(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
         + JTTP_PLUGIN_SETTINGS_ANALYTICS_CHECK_CHANGE,
         Boolean.toString(pluginSettingsParameters.analyticsCheck));
-  }
-
-  @Override
-  public void saveReportingSettings(final ReportingSettingsValues reportingSettingsParameter) {
-    reportingSettings = settingsFactory
-        .createSettingsForKey(JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX);
-    reportingSettings.put(JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX
-        + JTTP_PLUGIN_REPORTING_SETTINGS_PAGER_SIZE,
-        String.valueOf(reportingSettingsParameter.pageSize));
-    reportingSettings.put(JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX
-        + JTTP_PLUGIN_REPORTING_SETTINGS_GROUPS, reportingSettingsParameter.reportingGroups);
-    reportingSettings.put(JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX
-        + JTTP_PLUGIN_REPORTING_SETTINGS_IS_USE_NOWORK,
-        Boolean.toString(reportingSettingsParameter.isUseNoWorks));
   }
 
   @Override
@@ -1179,15 +1114,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     }
   }
 
-  private void setIsUseNoWork() {
-    isUseNoWorks = true;
-    if ("false".equals(reportingSettings
-        .get(JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX
-            + JTTP_PLUGIN_REPORTING_SETTINGS_IS_USE_NOWORK))) {
-      isUseNoWorks = false;
-    }
-  }
-
   private void setNonWorkingIssuePatterns() {
     List<String> tempIssuePatternList = (List<String>) globalSettings
         .get(JTTP_PLUGIN_SETTINGS_KEY_PREFIX + JTTP_PLUGIN_SETTINGS_SUMMARY_FILTERS);
@@ -1203,28 +1129,9 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     }
   }
 
-  private void setPageSize() {
-    pageSize = DEFAULT_PAGE_SIZE; // DEFAULT
-    String pageSizeValue =
-        (String) reportingSettings.get(JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX
-            + JTTP_PLUGIN_REPORTING_SETTINGS_PAGER_SIZE);
-    if (pageSizeValue != null) {
-      pageSize = Integer.parseInt(pageSizeValue);
-    }
-  }
-
   private void setPluginUUID() {
     pluginUUID = (String) globalSettings
         .get(JTTP_PLUGIN_SETTINGS_KEY_PREFIX + JTTP_PLUGIN_UUID);
-  }
-
-  private void setReportingGroups() {
-    List<String> reportingGroupsNames = (List<String>) reportingSettings
-        .get(JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX + JTTP_PLUGIN_REPORTING_SETTINGS_GROUPS);
-    reportingGroups = new ArrayList<String>();
-    if (reportingGroupsNames != null) {
-      reportingGroups = reportingGroupsNames;
-    }
   }
 
   @Override
