@@ -1146,7 +1146,9 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   }
 
   private String redirectWithDateFormattedParameterOnly(final String action) {
-    setReturnUrl(String.format(SELF_WITH_DATE_URL_FORMAT, dateFormatted));
+    setReturnUrl(
+        String.format(SELF_WITH_DATE_URL_FORMAT,
+            JiraTimetrackerUtil.urlEndcodeHandleException(dateFormatted)));
     return getRedirect(action);
   }
 

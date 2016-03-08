@@ -15,6 +15,8 @@
  */
 package org.everit.jira.timetracker.plugin;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -302,6 +304,22 @@ public final class JiraTimetrackerUtil {
    */
   public static void saveFeedBackTimeStampToSession(final HttpSession session) {
     session.setAttribute(SESSION_DATE_KEY, new Date());
+  }
+
+  /**
+   * URL encode the given String with UTF-8 charset.
+   *
+   * @param encode
+   *          The string to encode.
+   * @return The encoded String or the original if there was an exception.
+   */
+  public static String urlEndcodeHandleException(final String encode) {
+    try {
+      return URLEncoder.encode(encode, "UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      return encode;
+    }
+
   }
 
   private JiraTimetrackerUtil() {

@@ -313,8 +313,8 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     }
     return String.format(
         SELF_WITH_DATE_AND_USER_URL_FORMAT,
-        dateFromFormated,
-        dateToFormated,
+        JiraTimetrackerUtil.urlEndcodeHandleException(dateFromFormated),
+        JiraTimetrackerUtil.urlEndcodeHandleException(dateToFormated),
         currentUserEncoded);
   }
 
