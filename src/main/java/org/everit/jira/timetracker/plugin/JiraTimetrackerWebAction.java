@@ -452,7 +452,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       return ERROR;
     }
 
-    excludeDays = jiraTimetrackerPlugin.getExcludeDaysOfTheMonth(dateFormatted);
+    excludeDays = jiraTimetrackerPlugin.getExcludeDaysOfTheMonth(date);
     try {
       loggedDays = jiraTimetrackerPlugin.getLoggedDaysOfTheMonth(selectedUser, date);
     } catch (GenericEntityException e1) {
@@ -519,7 +519,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     dateSwitcherAction();
 
     try {
-      excludeDays = jiraTimetrackerPlugin.getExcludeDaysOfTheMonth(dateFormatted);
+      excludeDays = jiraTimetrackerPlugin.getExcludeDaysOfTheMonth(date);
       loadWorklogsAndMakeSummary();
       projectsId = jiraTimetrackerPlugin.getProjectsId();
     } catch (GenericEntityException | ParseException | DataAccessException | SQLException e) {

@@ -173,10 +173,9 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
     normalizeContextPath();
     checkMailServer();
-    jiraTimetrackerPlugin.loadPluginSettings();
 
-    setPiwikProperties();
     loadPluginSettingAndParseResult();
+    setPiwikProperties();
     boolean loadedFromSession = loadDataFromSession();
     initDatesIfNecessary();
     initCurrentUserIfNecessary();
@@ -200,10 +199,9 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
     normalizeContextPath();
     checkMailServer();
-    jiraTimetrackerPlugin.loadPluginSettings();
 
-    setPiwikProperties();
     loadPluginSettingAndParseResult();
+    setPiwikProperties();
 
     if (parseFeedback()) {
       loadDataFromSession();

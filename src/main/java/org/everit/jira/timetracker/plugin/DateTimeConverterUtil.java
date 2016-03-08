@@ -52,6 +52,11 @@ public final class DateTimeConverterUtil {
    */
   public static final int DAYS_PER_WEEK = 7;
 
+  /**
+   * The fix date time format for exclude and include dates.
+   */
+  public static final String FIX_DATE_TIME_FORMAT = "yyyy-MM-dd";
+
   private static final int HOURS_GROUP = 8;
 
   private static final int HOURS_GROUP_2 = 2;
@@ -171,6 +176,19 @@ public final class DateTimeConverterUtil {
   }
 
   /**
+   * Convert the date to String use the fix date format "YYYY-MM-DD".
+   *
+   * @param date
+   *          The Date to convert.
+   * @return The result time.
+   */
+  public static String dateToFixFormatString(final Date date) {
+    DateFormat formatterDate = new SimpleDateFormat(FIX_DATE_TIME_FORMAT);
+    String dateString = formatterDate.format(date);
+    return dateString;
+  }
+
+  /**
    * Convert the date to String use the {@link APKeys#JIRA_LF_DATE_DMY}.
    *
    * @param date
@@ -182,6 +200,21 @@ public final class DateTimeConverterUtil {
     DateFormat formatterDate = new SimpleDateFormat(dateFormat, getLoggedUserLocal());
     String dateString = formatterDate.format(date);
     return dateString;
+  }
+
+  /**
+   * Convert String to Date use the fix date format "YYYY-MM-DD".
+   *
+   * @param dateString
+   *          The String date to convert.
+   * @return The result Date.
+   * @throws ParseException
+   *           If can't parse the date.
+   */
+  public static Date fixFormatStringToDate(final String dateString) throws ParseException {
+    DateFormat formatterDate = new SimpleDateFormat(FIX_DATE_TIME_FORMAT);
+    Date date = formatterDate.parse(dateString);
+    return date;
   }
 
   /**
