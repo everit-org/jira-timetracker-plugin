@@ -276,10 +276,9 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
     normalizeContextPath();
     checkMailServer();
-    jiraTimetrackerPlugin.loadPluginSettings();
 
-    setPiwikProperties();
     loadPluginSettingAndParseResult();
+    setPiwikProperties();
     boolean loadedFromSession = loadDataFromSession();
     initDatesIfNecessary();
     initCurrentUserIfNecessary();
@@ -302,10 +301,8 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
     normalizeContextPath();
     checkMailServer();
-    setPiwikProperties();
     loadPluginSettingAndParseResult();
-    PluginSettingsValues pluginSettings = jiraTimetrackerPlugin.loadPluginSettings();
-    setIssuesRegex(pluginSettings.filteredSummaryIssues);
+    setPiwikProperties();
 
     if (parseFeedback()) {
       loadDataFromSession();
@@ -523,6 +520,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
         .loadPluginSettings();
     analyticsCheck = pluginSettingsValues.analyticsCheck;
     installedPluginId = pluginSettingsValues.pluginUUID;
+    setIssuesRegex(pluginSettingsValues.filteredSummaryIssues);
   }
 
   private void normalizeContextPath() {
