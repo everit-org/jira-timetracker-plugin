@@ -95,6 +95,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   private String baseUrl;
 
+  private String calendarDate;
+
   /**
    * The worklog comment.
    */
@@ -131,7 +133,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The summary of day.
    */
   private String daySummary = "";
-
   private String debugMessage = "";
   /**
    * The deleted worklog id.
@@ -141,6 +142,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The worklog duration.
    */
   private String durationTime = "";
+
   /**
    * The all edit worklogs ids.
    */
@@ -201,16 +203,15 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The calendar isPopup.
    */
   private int isPopup;
-
   /**
    * The issue key.
    */
   private String issueKey = "";
+
   /**
    * The issues.
    */
   private transient List<Issue> issues = new ArrayList<Issue>();
-
   /**
    * The filtered Issues id.
    */
@@ -227,6 +228,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The jira version.
    */
   private String jiraVersion;
+
   /**
    * List of the logged days of the date variable current months.
    */
@@ -255,8 +257,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private String piwikHost;
 
   private String piwikSiteId;
-
   private String pluginVersion;
+
   /**
    * The IDs of the projects.
    */
@@ -642,6 +644,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   public String getBaseUrl() {
     return baseUrl;
+  }
+
+  public String getCalendarDate() {
+    return calendarDate;
   }
 
   public String getComment() {
@@ -1240,6 +1246,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   public void setBaseUrl(final String baseUrl) {
     this.baseUrl = baseUrl;
+  }
+
+  public void setCalendarDate(final String calendarDate) {
+    this.calendarDate = calendarDate;
   }
 
   public void setColoring(final boolean isColoring) {

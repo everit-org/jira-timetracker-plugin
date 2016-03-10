@@ -46,6 +46,7 @@
     return (new Date(this.getFullYear(), this.getMonth() + 1, 0)).getDate();
   };
   
+   
   Date.prototype.format = function (formatString) {
 
     var addPadding = function (value, length) {
