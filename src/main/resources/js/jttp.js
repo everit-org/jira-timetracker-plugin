@@ -19,14 +19,38 @@ everit.jttp = everit.jttp || {};
 everit.jttp.main = everit.jttp.main || {};
 
 (function(jttp, jQuery) {
-
+  
+  Calendar.prototype.parseDate = function(str, fmt) {
+    this.setDate(fecha.parse(str, AJS.Meta.get("date-dmy").toUpperCase()));
+  };
+  Date.parseDate = function(str, fmt){
+    return fecha.parse(str, AJS.Meta.get("date-dmy").toUpperCase());
+  };
+  
+  Date.prototype.format = function (formatString) {
+    return fecha.format(this, formatString);
+  };
+  
   jQuery(document).ready(function() {
+    
+    fecha.i18n = {
+        dayNamesShort: Calendar._SDN,
+        dayNames: Calendar._DN,
+        monthNamesShort: Calendar._SMN,
+        monthNames: Calendar._MN,
+        amPm: ['am', 'pm'],
+        // D is the day of the month, function returns something like...  3rd or 11th
+        DoFn: function (D) {
+            return D + [ 'th', 'st', 'nd', 'rd' ][ D % 10 > 3 ? 0 : (D - D % 10 !== 10) * D % 10 ];
+        }
+    }
+    
     document.getElementById('inputfields').scrollIntoView(allignWithTop = false);
     document.getElementById("startTime").focus();
     jQuery('.aui-ss-editing').attr("style", "width: 250px;");
     jQuery('.aui-ss.aui-ss-editing .aui-ss-field').attr("style", "width: 250px;");
-    setExcludeDaysToWeekend(jttp.options.excludeDays);
-    setLoggedDaysDesign(jttp.options.isColoring, jttp.options.loggedDays);
+//    setExcludeDaysToWeekend(jttp.options.excludeDays);
+//    setLoggedDaysDesign(jttp.options.isColoring, jttp.options.loggedDays);
     jttpReportDialogShow();
 
     durationSelectionSetup();
@@ -46,6 +70,7 @@ everit.jttp.main = everit.jttp.main || {};
       setExcludeDaysToWeekend(jttp.options.excludeDays);
       setLoggedDaysDesign(jttp.options.isColoring, jttp.options.loggedDays);
     }
+  
   });
 
   jttp.startState = 0;
@@ -296,9 +321,27 @@ everit.jttp.main = everit.jttp.main || {};
   
   jttp.standCalendarSetup = function(isPopup){
     if (isPopup != 1) {
+      fecha.i18n = {
+          dayNamesShort: Calendar._SDN,
+          dayNames: Calendar._DN,
+          monthNamesShort: Calendar._SMN,
+          monthNames: Calendar._MN,
+      }
+      
+      Calendar.prototype.parseDate = function(str, fmt) {
+       this.setDate(fecha.parse(str, AJS.Meta.get("date-dmy").toUpperCase()));
+      };
+      
+      var original = Calendar.prototype.show;
+      Calendar.prototype.show = function() {
+        original.call(this);
+        setExcludeDaysToWeekend(jttp.options.excludeDays);
+        setLoggedDaysDesign(jttp.options.isColoring, jttp.options.loggedDays);
+      }
+      
       var cal = Calendar.setup({
         firstDay : jttp.options.firstDay,
-        date : jttp.options.dateFormatted,
+        date : fecha.parse(jttp.options.dateFormatted, AJS.Meta.get("date-dmy").toUpperCase()),
         align : 'Br',
         singleClick : true,
         showOthers : true,
@@ -306,7 +349,6 @@ everit.jttp.main = everit.jttp.main || {};
         flatCallback : jttp.dateChanged,
         useISO8601WeekNumbers : jttp.options.useISO8601,
         onSelect: jttp.onSelect
-//        ifFormat : '%Y-%m-%d'
       });
     }
   }

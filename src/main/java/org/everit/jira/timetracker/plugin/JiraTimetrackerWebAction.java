@@ -133,6 +133,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The summary of day.
    */
   private String daySummary = "";
+
   private String debugMessage = "";
   /**
    * The deleted worklog id.
@@ -257,6 +258,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private String piwikHost;
 
   private String piwikSiteId;
+
   private String pluginVersion;
 
   /**

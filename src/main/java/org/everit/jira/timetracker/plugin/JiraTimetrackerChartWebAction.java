@@ -291,7 +291,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
   }
 
   public String getDateFromFormated() {
-    return JiraTimetrackerUtil.urlEndcodeHandleException(dateFromFormated);
+    return dateFromFormated;
   }
 
   public String getDateToFormated() {
