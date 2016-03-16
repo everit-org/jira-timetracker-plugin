@@ -465,7 +465,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     if ("".equals(currentUser)) {
       JiraAuthenticationContext authenticationContext = ComponentAccessor
           .getJiraAuthenticationContext();
-      currentUser = authenticationContext.getUser().getKey();
+      currentUser = authenticationContext.getUser().getUsername();
       setUserPickerObjectBasedOnCurrentUser();
     }
   }
@@ -694,7 +694,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   private void setUserPickerObjectBasedOnCurrentUser() {
     if ((currentUser != null) && !"".equals(currentUser)) {
-      userPickerObject = ComponentAccessor.getUserUtil().getUserByKey(currentUser);
+      userPickerObject = ComponentAccessor.getUserUtil().getUserByName(currentUser);
       AvatarService avatarService = ComponentAccessor.getComponent(AvatarService.class);
       setAvatarURL(avatarService.getAvatarURL(
           ComponentAccessor.getJiraAuthenticationContext().getUser(),
