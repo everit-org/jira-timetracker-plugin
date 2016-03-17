@@ -49,8 +49,8 @@ everit.jttp.main = everit.jttp.main || {};
     document.getElementById("startTime").focus();
     jQuery('.aui-ss-editing').attr("style", "width: 250px;");
     jQuery('.aui-ss.aui-ss-editing .aui-ss-field').attr("style", "width: 250px;");
-//    setExcludeDaysToWeekend(jttp.options.excludeDays);
-//    setLoggedDaysDesign(jttp.options.isColoring, jttp.options.loggedDays);
+    setExcludeDaysToWeekend(jttp.options.excludeDays);
+    setLoggedDaysDesign(jttp.options.isColoring, jttp.options.loggedDays);
     jttpReportDialogShow();
 
     durationSelectionSetup();
