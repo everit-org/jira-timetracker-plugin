@@ -35,7 +35,7 @@
     monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
     amPm = ['am', 'pm'],
     twoDigits = /\d\d?/, threeDigits = /\d{3}/, fourDigits = /\d{4}/,
-    word = /[0-9]*['a-z\u00A0-\u05FF\u0700-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+|[\u0600-\u06FF\/]+(\s*?[\u0600-\u06FF]+){1,2}/i,
+    word = /[0-9]*['a-z\u00A0-\u05FF\u0700-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF\u002E]+|[\u0600-\u06FF\/]+(\s*?[\u0600-\u06FF]+){1,2}/i,
     noop = function () {},
     dayNamesShort, monthNamesShort,
     parseFlags = {
