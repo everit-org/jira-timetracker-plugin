@@ -106,7 +106,11 @@
 
   function monthUpdate(arrName) {
     return function (d, v) {
-      var index = fecha.i18n[arrName].indexOf(v.charAt(0).toLowerCase() + v.substr(1).toLowerCase());
+      var lowerArray = fecha.i18n[arrName];
+      lowerArray.forEach(function(part, index, theArray) {
+         theArray[index] = theArray[index].toLowerCase();
+      });
+      var index = lowerArray.indexOf(v.toLowerCase());
       if (~index) {
         d.month = index;
       }
