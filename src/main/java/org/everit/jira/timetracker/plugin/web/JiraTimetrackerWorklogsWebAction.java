@@ -202,10 +202,9 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
     normalizeContextPath();
     checkMailServer();
-    jiraTimetrackerPlugin.loadPluginSettings();
-    setPiwikProperties();
 
     loadPluginSettingAndParseResult();
+    setPiwikProperties();
     if ("".equals(dateToFormated)) {
       dateToDefaultInit();
     }
@@ -248,10 +247,9 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
     normalizeContextPath();
     checkMailServer();
-    jiraTimetrackerPlugin.loadPluginSettings();
 
-    setPiwikProperties();
     loadPluginSettingAndParseResult();
+    setPiwikProperties();
 
     message = "";
     messageParameter = "";

@@ -129,7 +129,7 @@ public interface JiraTimetrackerPlugin {
    *          The date.
    * @return The list of the days in String format. (Eg. ["12","15"])
    */
-  List<String> getExcludeDaysOfTheMonth(String date);
+  List<String> getExcludeDaysOfTheMonth(Date date);
 
   /**
    * Give back the Issues.

@@ -19,10 +19,26 @@ everit.jttp = everit.jttp || {};
 everit.jttp.report_common_scripts = everit.jttp.report_common_scripts || {};
 
 (function(jttp, jQuery) {
-
+    
+  Date.prototype.format = function (formatString) {
+    return fecha.format(this, formatString);
+  };
+  
   jQuery(document).ready(function() {
     
-    Date.parseDate = function(str, fmt){return new Date(str);};
+    fecha.i18n = {
+        dayNamesShort: Calendar._SDN,
+        dayNames: Calendar._DN,
+        monthNamesShort: Calendar._SMN,
+        monthNames: Calendar._MN,
+        amPm: ['am', 'pm'],
+        // D is the day of the month, function returns something like...  3rd or 11th
+        DoFn: function (D) {
+            return D + [ 'th', 'st', 'nd', 'rd' ][ D % 10 > 3 ? 0 : (D - D % 10 !== 10) * D % 10 ];
+        }
+    }
+    
+    Date.parseDate = function(str, fmt){return fecha.parse(str, AJS.Meta.get("date-dmy").toUpperCase());};
     
     var opt = jttp.options;
 
