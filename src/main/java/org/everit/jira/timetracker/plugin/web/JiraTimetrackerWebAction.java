@@ -457,7 +457,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       return ERROR;
     }
 
-    excludeDays = jiraTimetrackerPlugin.getExcludeDaysOfTheMonth(dateFormatted);
+    excludeDays = jiraTimetrackerPlugin.getExcludeDaysOfTheMonth(date);
     try {
       loggedDays = jiraTimetrackerPlugin.getLoggedDaysOfTheMonth(selectedUser, date);
     } catch (GenericEntityException e1) {
@@ -524,7 +524,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     dateSwitcherAction();
 
     try {
-      excludeDays = jiraTimetrackerPlugin.getExcludeDaysOfTheMonth(dateFormatted);
+      excludeDays = jiraTimetrackerPlugin.getExcludeDaysOfTheMonth(date);
       loadWorklogsAndMakeSummary();
       projectsId = jiraTimetrackerPlugin.getProjectsId();
     } catch (GenericEntityException | ParseException | DataAccessException | SQLException e) {
@@ -1151,7 +1151,9 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   }
 
   private String redirectWithDateFormattedParameterOnly(final String action) {
-    setReturnUrl(String.format(SELF_WITH_DATE_URL_FORMAT, dateFormatted));
+    setReturnUrl(
+        String.format(SELF_WITH_DATE_URL_FORMAT,
+            JiraTimetrackerUtil.urlEndcodeHandleException(dateFormatted)));
     return getRedirect(action);
   }
 

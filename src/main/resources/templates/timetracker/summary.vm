@@ -17,7 +17,7 @@
 <table id="summary_table" class="summaty-table">
     <tr>
         <td rowspan="2" >
-            <input type="text" id="date" name="date" style="display: none" onchange="this.form.datesubmit.click()" />
+            <input type="text" id="date" name="date" style="display: none" value="$dateFormatted" onchange="this.form.datesubmit.click()" />
             <input type="submit" id="datesubmit" name="datesubmit" class="spaced" style="display: none"/>
             <div id="calendar_div" class="jttp-calendar">
                 #if($isPopup != 2)

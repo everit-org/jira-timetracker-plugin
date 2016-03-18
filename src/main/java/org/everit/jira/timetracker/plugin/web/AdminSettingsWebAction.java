@@ -305,7 +305,7 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
             .replace(" ", "").replace("\r", "").replace("\n", "");
         for (String dateString : excludeDatesValueString.split(",")) {
           try {
-            DateTimeConverterUtil.stringToDate(dateString);
+            DateTimeConverterUtil.fixFormatStringToDate(dateString);
           } catch (ParseException e) {
             parseExcludeException = true;
             messageExclude = "plugin.parse.exception.exclude";
@@ -360,7 +360,7 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
             .replace(" ", "").replace("\r", "").replace("\n", "");
         for (String dateString : excludeDatesValueString.split(",")) {
           try {
-            DateTimeConverterUtil.stringToDate(dateString);
+            DateTimeConverterUtil.fixFormatStringToDate(dateString);
           } catch (ParseException e) {
             parseExcludeException = true;
             messageExclude = "plugin.parse.exception.exclude";

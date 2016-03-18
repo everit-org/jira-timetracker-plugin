@@ -550,7 +550,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     for (int i = 0; i < DateTimeConverterUtil.DAYS_PER_WEEK; i++) {
       // convert date to String
       Date scanedDateDate = scannedDate.getTime();
-      String scanedDateString = DateTimeConverterUtil.dateToString(scanedDateDate);
+      String scanedDateString = DateTimeConverterUtil.dateToFixFormatString(scanedDateDate);
       // check excludse - pass
       if (excludeDatesSet.contains(scanedDateString)) {
         scannedDate.set(Calendar.DAY_OF_YEAR, scannedDate.get(Calendar.DAY_OF_YEAR) + 1);
@@ -605,7 +605,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     Calendar toDate = Calendar.getInstance();
     toDate.setTime(to);
     while (!fromDate.after(toDate)) {
-      String currentDateString = DateTimeConverterUtil.dateToString(fromDate.getTime());
+      String currentDateString = DateTimeConverterUtil.dateToFixFormatString(fromDate.getTime());
       if (excludeDatesSet.contains(currentDateString)) {
         fromDate.add(Calendar.DATE, 1);
         continue;
@@ -654,12 +654,13 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   }
 
   @Override
-  public List<String> getExcludeDaysOfTheMonth(final String date) {
+  public List<String> getExcludeDaysOfTheMonth(final Date date) {
+    String fixDate = DateTimeConverterUtil.dateToFixFormatString(date);
     List<String> resultexcludeDays = new ArrayList<String>();
     for (String exludeDate : excludeDatesSet) {
       // TODO this if not handle the 2013-4-04 date..... this is wrong or
       // not? .... think about it.
-      if (exludeDate.startsWith(date.substring(0, DATE_LENGTH))) {
+      if (exludeDate.startsWith(fixDate.substring(0, DATE_LENGTH))) {
         resultexcludeDays.add(exludeDate.substring(exludeDate.length() - 2));
       }
     }

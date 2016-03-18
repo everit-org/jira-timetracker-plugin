@@ -129,12 +129,12 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:chart_re
 									<select  id="userPicker" class="js-default-user-picker single-user-picker" name="userPicker">
 										#if($userPickerObject)
 										<option selected="selected" 
-										 value="$userPickerObject.getKey()"
+										 value="$userPickerObject.getUsername()"
 										   data-field-text="$userPickerObject.getDisplayName()"
 										   style="background-image:url('$avatarURL')" >
 										  $userPickerObject.getDisplayName()
 										 </option>
-										#end   
+										#end
 									</select>
 								</div>
 							</td>
