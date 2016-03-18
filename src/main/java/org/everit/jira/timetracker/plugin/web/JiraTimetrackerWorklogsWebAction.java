@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.jira.timetracker.plugin;
+package org.everit.jira.timetracker.plugin.web;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -22,7 +22,12 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
+import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
 import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
+import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
+import org.everit.jira.timetracker.plugin.util.JiraTimetrackerPiwikPropertiesUtil;
+import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.ofbiz.core.entity.GenericEntityException;
 
 import com.atlassian.jira.component.ComponentAccessor;
@@ -197,9 +202,9 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
     normalizeContextPath();
     checkMailServer();
+
     loadPluginSettingAndParseResult();
     setPiwikProperties();
-
     if ("".equals(dateToFormated)) {
       dateToDefaultInit();
     }
@@ -242,6 +247,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
     normalizeContextPath();
     checkMailServer();
+
     loadPluginSettingAndParseResult();
     setPiwikProperties();
 

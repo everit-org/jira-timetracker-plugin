@@ -47,6 +47,9 @@ import org.everit.jira.timetracker.plugin.dto.ActionResultStatus;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklogComparator;
 import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
+import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
+import org.everit.jira.timetracker.plugin.util.JiraTimetrackerPiwikPropertiesUtil;
+import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.ofbiz.core.entity.EntityCondition;
 import org.ofbiz.core.entity.EntityExpr;
 import org.ofbiz.core.entity.EntityOperator;
@@ -106,7 +109,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
    * The plugin settings analytics check.
    */
   private static final String JTTP_PLUGIN_SETTINGS_ANALYTICS_CHECK_CHANGE = "analyticsCheckChange";
-
   /**
    * The plugin setting is calendar popup key.
    */
@@ -116,6 +118,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
    * The plugin setting Exclude dates key.
    */
   private static final String JTTP_PLUGIN_SETTINGS_EXCLUDE_DATES = "ExcludeDates";
+
   /**
    * The plugin setting Include dates key.
    */
@@ -1045,7 +1048,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
           "Feedback not sent, beacause To mail address is not defined. \n"
               + "The message: \n" + mailBody);
     }
-
   }
 
   private void setAnalyticsCheck() {

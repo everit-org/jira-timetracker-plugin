@@ -34,6 +34,10 @@
     <interface>org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin</interface>
   </component>
   
+   <component key="JTRP" name="Reporting" class="org.everit.jira.reporting.plugin.ReportingPluginImpl">
+    <interface>org.everit.jira.reporting.plugin.ReportingPlugin</interface>
+  </component>
+  
    <web-item key="jttp_menu_item" name="JTTP Item" section="system.top.navigation.bar" weight="47">
     <label>Timetracker</label>
     <link linkId="jttp_menu"></link>
@@ -54,6 +58,7 @@
     <label>Reporting</label>
     <link linkId="jttp_reporting_link"><![CDATA[/secure/JiraTimetrackerWebAction!default.jspa#reporting-dialog]]></link>
     <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserLoggedInCondition" />
+    <condition class="org.everit.jira.reporting.plugin.ReportingCondition" />
   </web-item>
   
   <web-item key="jttp_documentation_link" name="JTTP Documentaion Link" section="jttp_menu/jttp_doc_section" weight="47">
@@ -67,7 +72,7 @@
     <link linkId="jttp_admin_link"><![CDATA[/secure/admin/JiraTimetrackerAdminSettingsWebAction!default.jspa]]></link>
     <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition" />
   </web-item>
-
+  
   <web-resource name="JTTP Resources" key="jttp-resources">
     <dependency>com.atlassian.auiplugin:ajs</dependency>
     <dependency>com.atlassian.auiplugin:dialog2</dependency>
@@ -108,6 +113,17 @@
     <resource type="download" name="missing_days_report.js" location="/js/missing_days_report.js"/>
   </web-resource>
   
+  <web-resource name="JTTP Resources" key="reporting-admin-resources">
+    <dependency>com.atlassian.auiplugin:ajs</dependency>
+    <dependency>com.atlassian.auiplugin:dialog2</dependency>
+    <resource type="download" name="jttp_feedback.css" location="/css/jttp_feedback.css"/>
+    <resource type="download" name="everit_tt_logo.png" location="/icons/everit_tt_logo.png">
+      <param name="content-type" value="image/png" />
+    </resource>
+    <resource type="download" name="jttp.css" location="/css/jttp.css"/>
+    <resource type="download" name="reporting_admin.js" location="/js/reporting_admin.js"/>
+  </web-resource>
+  
   <web-resource name="JTTP Resources" key="chart_report-resources">
     <dependency>com.atlassian.auiplugin:ajs</dependency>
     <dependency>com.atlassian.auiplugin:dialog2</dependency>
@@ -124,44 +140,57 @@
 
   <webwork1 key="jttp-webaction" name="JTTP Webwork actions" class="java.lang.Object">
     <resource type="i18n" name="i18n-jttp-vm" location="i18n/jttp" />
+    <resource type="i18n" name="i18n-feedback-vm" location="i18n/feedback" />
     <actions>
-      <action name="org.everit.jira.timetracker.plugin.JiraTimetrackerWebAction" alias="JiraTimetrackerWebAction">
-        <view name="success">/templates/jttp.vm</view>
-        <view name="input">/templates/jttp.vm</view>
-        <view name="error">/templates/error.vm</view>
+      <action name="org.everit.jira.timetracker.plugin.web.JiraTimetrackerWebAction" alias="JiraTimetrackerWebAction">
+        <view name="success">/templates/timetracker/jttp.vm</view>
+        <view name="input">/templates/timetracker/jttp.vm</view>
+        <view name="error">/templates/common/error.vm</view>
       </action>
-      <action name="org.everit.jira.timetracker.plugin.JiraTimetrackerWorklogsWebAction" alias="JiraTimetrackerWorklogsWebAction">
-        <view name="success">/templates/missing_worklogs_report.vm</view>
-        <view name="input">/templates/missing_worklogs_report.vm</view>
-        <view name="error">/templates/error.vm</view>
-      </action>
-
-      <action name="org.everit.jira.timetracker.plugin.JiraTimetrackerChartWebAction" alias="JiraTimetrackerChartWebAction">
-        <view name="success">/templates/chart_report.vm</view>
-        <view name="input">/templates/chart_report.vm</view>
-        <view name="error">/templates/error.vm</view>
+      <action name="org.everit.jira.timetracker.plugin.web.JiraTimetrackerWorklogsWebAction" alias="JiraTimetrackerWorklogsWebAction">
+        <view name="success">/templates/timetracker/missing_worklogs_report.vm</view>
+        <view name="input">/templates/timetracker/missing_worklogs_report.vm</view>
+        <view name="error">/templates/common/error.vm</view>
       </action>
 
-      <action name="org.everit.jira.timetracker.plugin.JiraTimetrackerSettingsWebAction" alias="JiraTimetrackerSettingsWebAction">
-        <view name="success">/templates/settings.vm</view>
-        <view name="input">/templates/settings.vm</view>
-        <view name="error">/templates/error.vm</view>
-      </action>
-      <action name="org.everit.jira.timetracker.plugin.AdminSettingsWebAction" alias="JiraTimetrackerAdminSettingsWebAction">
-        <view name="success">/templates/adminsettings.vm</view>
-        <view name="input">/templates/adminsettings.vm</view>
-        <view name="error">/templates/error.vm</view>
+      <action name="org.everit.jira.timetracker.plugin.web.JiraTimetrackerChartWebAction" alias="JiraTimetrackerChartWebAction">
+        <view name="success">/templates/timetracker/chart_report.vm</view>
+        <view name="input">/templates/timetracker/chart_report.vm</view>
+        <view name="error">/templates/common/error.vm</view>
       </action>
 
-      <action name="org.everit.jira.timetracker.plugin.JiraTimetrackerTableWebAction" alias="JiraTimetrackerTableWebAction">
-        <view name="success">/templates/table_report.vm</view>
-        <view name="input">/templates/table_report.vm</view>
-        <view name="error">/templates/error.vm</view>
+      <action name="org.everit.jira.timetracker.plugin.web.JiraTimetrackerSettingsWebAction" alias="JiraTimetrackerSettingsWebAction">
+        <view name="success">/templates/timetracker/settings.vm</view>
+        <view name="input">/templates/timetracker/settings.vm</view>
+        <view name="error">/templates/common/error.vm</view>
       </action>
-      <action name="org.everit.jira.timetracker.plugin.JiraReportingPopupWebAction" alias="JiraReportingPopupWebAction">
-        <view name="success">/templates/reporting_popup.vm</view>
-        <view name="input">/templates/reporting_popup.vm</view>
-        <view name="error">/templates/error.vm</view>
+      <action name="org.everit.jira.timetracker.plugin.web.AdminSettingsWebAction" alias="JiraTimetrackerAdminSettingsWebAction">
+        <view name="success">/templates/timetracker/adminsettings.vm</view>
+        <view name="input">/templates/timetracker/adminsettings.vm</view>
+        <view name="error">/templates/common/error.vm</view>
+      </action>
+      
+      <action name="org.everit.jira.timetracker.plugin.web.JiraTimetrackerTableWebAction" alias="JiraTimetrackerTableWebAction">
+        <view name="success">/templates/timetracker/table_report.vm</view>
+        <view name="input">/templates/timetracker/table_report.vm</view>
+        <view name="error">/templates/common/error.vm</view>
+      </action>
+      <action name="org.everit.jira.timetracker.plugin.web.JiraReportingPopupWebAction" alias="JiraReportingPopupWebAction">
+        <view name="success">/templates/reporting/reporting_popup.vm</view>
+        <view name="input">/templates/reporting/reporting_popup.vm</view>
+        <view name="error">/templates/common/error.vm</view>
+      </action>
+    </actions>
+  </webwork1>
+  
+  <webwork1 key="jtrp-webaction" name="JTRP Webwork actions" class="java.lang.Object">
+    <resource type="i18n" name="i18n-jtrp-vm" location="i18n/jtrp" />
+    <resource type="i18n" name="i18n-feedback-vm" location="i18n/feedback" />
+    <actions>
+      <action name="org.everit.jira.reporting.plugin.web.ReportingSettingsWebAction" alias="JiraTimetrackerReportingSettingsWebAction">
+        <view name="success">/templates/reporting/reportingsettings.vm</view>
+        <view name="input">/templates/reporting/reportingsettings.vm</view>
+        <view name="error">/templates/common/error.vm</view>
       </action>
     </actions>
   </webwork1>
@@ -176,5 +205,10 @@
     weight="47">
     <label>Global Settings</label>
     <link linkId="my_jttp_settings_link"><![CDATA[/secure/admin/JiraTimetrackerAdminSettingsWebAction!default.jspa]]></link>
+  </web-item>
+  <web-item key="jttp__reporting_settings_link" name="Jttp Reporting Settings Link" section="admin_plugins_menu/jttp_admin_section"
+    weight="47">
+    <label>Reporting Settings</label>
+    <link linkId="my_jttp__reporting_settings_link"><![CDATA[/secure/admin/JiraTimetrackerReportingSettingsWebAction!default.jspa]]></link>
   </web-item>
 </atlassian-plugin>

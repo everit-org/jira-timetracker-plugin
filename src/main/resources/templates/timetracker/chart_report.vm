@@ -174,12 +174,12 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:chart_re
 		</div>
 	</form>
 	<div id="feedbackfooter" class="feedback_footer">
-		#parse("templates/feedback_chart.vm")
+		#parse("templates/feedback/feedback_chart.vm")
 	</div>
 </div>
 
 #if($analyticsCheck)
-	#parse("templates/analytics.vm")
+	#parse("templates/common/analytics.vm")
 #end
 </body>
 </html>

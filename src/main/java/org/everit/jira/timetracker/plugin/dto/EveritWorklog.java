@@ -22,7 +22,7 @@ import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 
-import org.everit.jira.timetracker.plugin.DateTimeConverterUtil;
+import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.ofbiz.core.entity.GenericValue;
 
 import com.atlassian.jira.component.ComponentAccessor;
