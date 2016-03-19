@@ -766,7 +766,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     if ((selectedUser == null) || "".equals(selectedUser)) {
       userKey = loggedInUser.getKey();
     } else {
-      userKey = selectedUser;
+      userKey = ComponentAccessor.getUserUtil().getUserByName(selectedUser).getKey();
     }
 
     List<EntityCondition> exprList = createWorklogQueryExprListWithPermissionCheck(userKey,
