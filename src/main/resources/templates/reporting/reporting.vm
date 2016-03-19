@@ -24,10 +24,10 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
       everit.reporting = everit.reporting || {};
       everit.reporting.main = everit.reporting.main || {};
 
-      (function(jttp, jQuery) {
-        jttp.options = jQuery.extend( 
+      (function(reporting, jQuery) {
+        reporting.options = jQuery.extend( 
           {},
-          jttp.options,
+          reporting.options,
           {
           }
         );
@@ -58,7 +58,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
 			     <div class="form-body">
                      <div class="aui-group">
                         <div class="aui-item search-wrap basic"> <!-- Search wrap class from issue search -->
-                            <div class="search-container basic">                                
+                            <div class="search-container basic">
                                  <div class="search-criteria-container">
                                      <div class="search-criteria">
                                          <button type="button" data-id="group" aria-owns="dropdown2-checkbox-project" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle aui-dropdown2-trigger" title="JIRA plugin development, DEMO 2, DEMO 3">
@@ -103,9 +103,9 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                          <button type="button" class="aui-button aui-button-link" onclick="everit.reporting.main.changeFilterType('filter')">Filter</button>  <!-- switch to filter -->
                                      </div>
                                      <div class="search-criteria-extended">
-                                         <!-- placeholder for criterias with more button !!! -->                                         
+                                         <!-- placeholder for criterias with more button !!! -->
                                      </div>
-                                 </div>                                    
+                                 </div>
                             </div>
                             <div class="search-container filter"> <!-- This will be hidden if Basic is picked -->
                                 <div class="search-criteria-container">
@@ -119,8 +119,8 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                         </button>
                                         <button type="button" class="aui-button aui-button-link" onclick="everit.reporting.main.changeFilterType('basic')">Basic</button> <!-- switch to basic -->
                                     </div>
-                                </div>                                    
-                            </div>                            
+                                </div>
+                            </div>
                         </div> 
                     </div>
                     <div class="aui-group">
@@ -143,7 +143,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                              </div>
                                         </button>
                                     </div>
-                                </div>                                    
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -153,20 +153,20 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                 <div class="search-criteria-container">
                                     <div class="search-criteria">
                                         <div class="from-date inline-calendar">
-                                            <input class="text medium-field datepicker-input" placeholder="From" type="text" value="">
+                                            <input id="dateFrom" name="dateFrom" class="text medium-field datepicker-input" placeholder="From" type="text" value="">
                                                 <a href="#" title="Select a date">
                                                     <span class="aui-icon icon-date">Select a date</span>
                                                 </a>
                                         </div>
                                         <div class="to-date inline-calendar">
-                                            <input class="text medium-field datepicker-input" placeholder="To" type="text" value="">
+                                            <input id="dateTo" name="dateTo" class="text medium-field datepicker-input" placeholder="To" type="text" value="">
                                                 <a href="#" title="Select a date">
                                                     <span class="aui-icon icon-date">Select a date</span>
                                                 </a>
                                         </div>
                                         <button class="aui-button aui-button-primary">Create Report</button> <!-- Submit the search form -->
                                     </div>
-                                </div>                                    
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -174,8 +174,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                 <input type="hidden" name="formType" value="basic"
             </form>
         </div>
-        <!-- ---- -->
-            
+        <!-- -- FROM HERE the table part have to refactor in to an other vm file-- -->
         <div class="aui-page-panel">
           <div class="aui-page-panel-inner">
             <section class="aui-page-panel-content">                

@@ -20,6 +20,84 @@ everit.reporting.main = everit.reporting.main || {};
 
 (function(reporting, jQuery) {
 
+  Date.prototype.format = function (formatString) {
+    return fecha.format(this, formatString);
+  };
+  
+  jQuery(document).ready(function() {
+    fecha.i18n = {
+        dayNamesShort: Calendar._SDN,
+        dayNames: Calendar._DN,
+        monthNamesShort: Calendar._SMN,
+        monthNames: Calendar._MN,
+        amPm: ['am', 'pm'],
+        // D is the day of the month, function returns something like...  3rd or 11th
+        DoFn: function (D) {
+            return D + [ 'th', 'st', 'nd', 'rd' ][ D % 10 > 3 ? 0 : (D - D % 10 !== 10) * D % 10 ];
+        }
+    }
+    
+    Date.parseDate = function(str, fmt){return fecha.parse(str, AJS.Meta.get("date-dmy").toUpperCase());};
+    
+    var opt = reporting.options;
+
+    var calFrom = Calendar.setup({
+      firstDay : opt.firstDay,
+      inputField : jQuery("#dateFrom"),
+      button : jQuery("#date_trigger_from"),
+      date : opt.dateFromFormated,
+      align : 'Br',
+      electric : false,
+      singleClick : true,
+      showOthers : true,
+      useISO8601WeekNumbers : opt.useISO8601,
+      onSelect: reporting.onSelect,
+    });
+
+    var calTo = Calendar.setup({
+      firstDay : opt.firstDay,
+      inputField : jQuery("#dateTo"),
+      button : jQuery("#date_trigger_to"),
+      date : opt.dateToFormated,
+      align : 'Br',
+      electric : false,
+      singleClick : true,
+      showOthers : true,
+      useISO8601WeekNumbers : opt.useISO8601,
+      onSelect: reporting.onSelect,
+    });
+
+    jQuery('.aui-ss, .aui-ss-editing, .aui-ss-field').attr("style", "width: 300px;");
+
+  });
+
+
+  reporting.onSelect = function(cal) {
+    //Copy of the original onSelect. Only chacnge not use te p.ifFormat
+    var p = cal.params;
+    var update = (cal.dateClicked || p.electric);
+    if (update && p.inputField) {
+      var dmy = AJS.Meta.get("date-dmy").toUpperCase();
+      p.inputField.value = cal.date.format(dmy);
+      jQuery(p.inputField).change();            
+    }
+    if (update && p.displayArea)
+      p.displayArea.innerHTML = cal.date.print(p.daFormat);
+    if (update && typeof p.onUpdate == "function")
+      p.onUpdate(cal);
+    if (update && p.flat) {
+      if (typeof p.flatCallback == "function")
+        p.flatCallback(cal);
+    }
+        if (p.singleClick === "true") {
+            p.singleClick = true;
+        } else if (p.singleClick === "false") {
+            p.singleClick = false;
+        }
+    if (update && p.singleClick && cal.dateClicked)
+      cal.callCloseHandler();
+  }
+  
   reporting.toggleModContent = function(type) {
     var module = jQuery("#" + type + "Module");
     var icon  = jQuery(".mod-header .aui-icon", module);
