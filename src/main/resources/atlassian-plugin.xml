@@ -119,6 +119,7 @@
     <resource type="download" name="E_logo.png" location="/icons/E_logo.png">
       <param name="content-type" value="image/png" />
     </resource>
+    <resource type="download" name="js-fecha.js" location="/js/js-fecha.js"/>
     <resource type="download" name="reporting.css" location="/css/reporting.css"/>
     <resource type="download" name="reporting.js" location="/js/reporting.js"/>
   </web-resource>

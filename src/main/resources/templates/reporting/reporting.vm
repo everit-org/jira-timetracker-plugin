@@ -54,8 +54,13 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
             
         <!-- Search criterias -->
         <div class="reporting-search-criteria-container">
-            <form action="" class="aui top-label reporting-form" id="reporting-form" method="get">
+            <form action="ReportingWebAction.jspa" class="aui top-label reporting-form" name="reporting-form" id="reporting-form" method="get">
 			     <div class="form-body">
+                     #if(!$message.isEmpty())
+                       	<div id="error_message">
+                           $i18n.getText($message)
+                        </div>
+                     #end
                      <div class="aui-group">
                         <div class="aui-item search-wrap basic"> <!-- Search wrap class from issue search -->
                             <div class="search-container basic">
@@ -153,18 +158,18 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                 <div class="search-criteria-container">
                                     <div class="search-criteria">
                                         <div class="from-date inline-calendar">
-                                            <input id="dateFrom" name="dateFrom" class="text medium-field datepicker-input" placeholder="From" type="text" value="">
+                                            <input id="dateFrom" name="dateFrom" class="text medium-field datepicker-input" placeholder="From" type="text" value="$dateFromFormated">
                                                 <a href="#" title="Select a date">
-                                                    <span class="aui-icon icon-date">Select a date</span>
+                                                    <span id="date_trigger_from" class="aui-icon icon-date">Select a date</span>
                                                 </a>
                                         </div>
                                         <div class="to-date inline-calendar">
-                                            <input id="dateTo" name="dateTo" class="text medium-field datepicker-input" placeholder="To" type="text" value="">
+                                            <input id="dateTo" name="dateTo" class="text medium-field datepicker-input" placeholder="To" type="text" value="$dateToFormated">
                                                 <a href="#" title="Select a date">
-                                                    <span class="aui-icon icon-date">Select a date</span>
+                                                    <span id="date_trigger_to" class="aui-icon icon-date">Select a date</span>
                                                 </a>
                                         </div>
-                                        <button class="aui-button aui-button-primary">Create Report</button> <!-- Submit the search form -->
+                                        <button type="submit" class="aui-button aui-button-primary">Create Report</button> <!-- Submit the search form -->
                                     </div>
                                 </div>
                             </div>
