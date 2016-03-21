@@ -68,9 +68,35 @@ everit.reporting.main = everit.reporting.main || {};
     });
 
     jQuery('.aui-ss, .aui-ss-editing, .aui-ss-field').attr("style", "width: 300px;");
-
+    
+    var ip = new AJS.CheckboxMultiSelect({
+      element: AJS.$("#project-select"),
+    });
+    
+    reporting.rendererProject();
   });
+  
 
+  reporting.rendererProject = function(){
+    var select = AJS.$("#project-select");
+    if (select.data("checkboxmultiselect")){
+      AJS.$("#project-select-multi-select").remove();
+    }
+    select.data("checkboxmultiselect", new AJS.CheckboxMultiSelect({element: select}));
+
+    // add change handler functions to every custom criteria field available in the "more-select" dropdown
+    // checking an item adds the custom criteria field to the reporting criteria header
+    AJS.$("#more-select-suggestions").find('input').each(function(){
+      AJS.$(this).unbind("change");
+      AJS.$(this).change(function(){
+        var checkBox = AJS.$(this);
+        var customCriteriaId = checkBox.val();
+        var checkedValue = checkBox.attr("checked");
+        var name = checkBox.parent("label").text();
+      });
+    });
+  }
+  
 
   reporting.onSelect = function(cal) {
     //Copy of the original onSelect. Only chacnge not use te p.ifFormat

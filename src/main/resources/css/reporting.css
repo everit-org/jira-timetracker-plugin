@@ -169,3 +169,12 @@ p {
     margin: 0;
 }
 
+#error_message{
+    color: white;
+    text-align: center;
+    border: 1px solid;
+    border-color: #d04437;
+    border-radius: 3px;
+    background-color: #d04437;
+}
+

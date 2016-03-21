@@ -74,6 +74,32 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                              </div>
                                          </button>
                                          <!-- Project Dropdown -->
+							<div class="field-group">
+								<div class="criteria-list" criteria="project">
+							  		<div criteria="project">
+							        		<button id="jttr-project-select-button"  aria-owns="project-select" aria-haspopup="true" class="aui-button-subtle criteria-selector aui-button drop-arrow" type="button">
+							        			<div class="criteria-wrap">
+							        				<span class="fieldLabel">Projects:</span>
+							        			</div>
+							        		</button>
+							   		</div>
+									<div class="jttr-filter-field">
+								    	<div class='ajs-layer box-shadow'>
+											<div>
+												<div class='form-body'>
+													<div class='field-group aui-field-issuetype'>
+														<select id="project-select" class="hidden js-default-checkboxmultiselect" name="projectSelection" style="width: 200px" multiple='multiple'>
+													        	<option value="10100">example-project (EX)</option> 
+														</select>
+													</div>
+												</div>>
+											</div>
+										</div>
+							       	</div>
+							     </div>
+						     </div>
+                                         
+                                         
                                          <div id="dropdown2-checkbox-project" class="aui-dropdown2 aui-style-default">
                                              <div class="aui-dropdown2-section">
                                                  <ul>
@@ -179,329 +205,8 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                 <input type="hidden" name="formType" value="basic"
             </form>
         </div>
+        #parse("templates/reporting/reporting_result.vm")
         <!-- -- FROM HERE the table part have to refactor in to an other vm file-- -->
-        <div class="aui-page-panel">
-          <div class="aui-page-panel-inner">
-            <section class="aui-page-panel-content">                
-                <div id="detailsModule" class="module toggle-wrap expanded">
-                    <div id="detailsModuleHeading" class="mod-header">
-                        <span class="aui-icon aui-icon-small aui-iconfont-expanded"></span>
-                        <h2 class="toggle-title"  onclick="everit.reporting.main.toggleModContent('details')">Work Log Details</h2>
-                    </div>
-                    <div class="mod-content">
-                        <div class="aui-group aui-group-split action-button-container">
-                            <div class="aui-item">
-                                <button class="aui-button aui-button-subtle aui-dropdown2-trigger" id="details-groupby">Group by</button>                        
-                            </div>
-                            <div class="aui-item">
-                                <button class="aui-button aui-button-subtle aui-dropdown2-trigger" id="details-columns">Columns</button>
-                                <button class="aui-button aui-button-subtle" id="detials-export">
-								    <span class="aui-icon aui-icon-small aui-iconfont-export"></span>
-                                    <span class="button-label">Export</span>
-                                </button>
-							</div>								
-                        </div>
-                        <div class="details-tale-container">
-                            <table class="aui reporting-table">
-                                <thead>
-                                    <tr class="rowHeader">
-                                        <th>Date</th>
-                                        <th id="details-project-key">Project</th>
-                                        <th>Type</th>
-                                        <th>Issue</th>
-                                        <th>Summary</th>
-                                        <th>Reporter</th>
-                                        <th>Status</th>                                        
-                                        <th>Description</th>
-                                        <th>User</th>
-                                        <th>Duration</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>03/Feb/16</td>
-                                        <td headers="details-project-key">JIRA plugin development</td>
-                                        <td>Bug</td>
-                                        <td>
-                                            <a class="issue-link" data-issue-key="JIRAPLUGIN-194" href="/browse/JIRAPLUGIN-194">JIRAPLUGIN-194</a>
-                                        </td>
-                                        <td>[JTTP] Reporting email - kérdés válaszok nélkül</td>
-                                        <td>daniel.toth</td>
-                                        <td>Closed</td>                                       
-                                        <td>Bugfix mindenen</td>
-                                        <td>daniel.toth</td>
-                                        <td>2h</td>
-                                    </tr>
-                                    <tr>
-                                        <td>03/Feb/16</td>
-                                        <td>JIRA plugin development</td>
-                                        <td>Bug</td>
-                                        <td>
-                                            <a class="issue-link">JIRAPLUGIN-194</a>
-                                        </td>
-                                        <td>[JTTP] Reporting email - kérdés válaszok nélkül</td>
-                                        <td>daniel.toth</td>
-                                        <td>Closed</td>                                        
-                                        <td>Bugfix mindenen</td>
-                                        <td>daniel.toth</td>
-                                        <td>2h</td>
-                                    </tr>
-                                    <tr>
-                                        <td>03/Feb/16</td>
-                                        <td>JIRA plugin development</td>
-                                        <td>Bug</td>
-                                        <td>
-                                            <a class="issue-link">JIRAPLUGIN-194</a>
-                                        </td>
-                                        <td>[JTTP] Reporting email - kérdés válaszok nélkül</td>
-                                        <td>daniel.toth</td>
-                                        <td>Closed</td>                                        
-                                        <td>Bugfix mindenen</td>
-                                        <td>daniel.toth</td>
-                                        <td>2h</td>
-                                    </tr>
-                                    <tr>
-                                        <td>03/Feb/16</td>
-                                        <td>JIRA plugin development</td>
-                                        <td>Bug</td>
-                                        <td>
-                                            <a class="issue-link">JIRAPLUGIN-194</a>
-                                        </td>
-                                        <td>[JTTP] Reporting email - kérdés válaszok nélkül</td>
-                                        <td>daniel.toth</td>
-                                        <td>Closed</td>                                        
-                                        <td>Bugfix mindenen</td>
-                                        <td>daniel.toth</td>
-                                        <td>2h</td>
-                                    </tr>
-                                    <tr>
-                                        <td>03/Feb/16</td>
-                                        <td>JIRA plugin development</td>
-                                        <td>Bug</td>
-                                        <td>
-                                            <a class="issue-link">JIRAPLUGIN-194</a>
-                                        </td>
-                                        <td>[JTTP] Reporting email - kérdés válaszok nélkül</td>
-                                        <td>daniel.toth</td>
-                                        <td>Closed</td>                                        
-                                        <td>Bugfix mindenen</td>
-                                        <td>daniel.toth</td>
-                                        <td>2h</td>
-                                    </tr>
-                                    <tr>
-                                        <td>03/Feb/16</td>
-                                        <td>JIRA plugin development</td>
-                                        <td>Bug</td>
-                                        <td>
-                                            <a class="issue-link">JIRAPLUGIN-194</a>
-                                        </td>
-                                        <td>[JTTP] Reporting email - kérdés válaszok nélkül</td>
-                                        <td>daniel.toth</td>
-                                        <td>Closed</td>                                        
-                                        <td>Bugfix mindenen</td>
-                                        <td>daniel.toth</td>
-                                        <td>2h</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="aui-group aui-group-split count-pagination">
-                            <div class="aui-item">
-                                <span class="results-count-text">
-                                    <span class="results-count results-count-start">1</span> –
-                                    <span class="results-count results-count-end">50</span> of 
-                                    <span class="results-count results-count-total results-count-link">100</span>
-                                </span>
-                            </div>
-                            <div class="aui-item">
-                                <div class="pagination" data-displayable-total="100"> 
-                                    <strong title="Issues 1 - 50">1</strong> 
-                                    <a href="/issues/?jql=&amp;startIndex=50" data-page="2" data-start-index="50" title="Issues 51 - 100">2</a>
-                                    <a href="/issues/?jql=&amp;startIndex=50" data-start-index="50" class="icon icon-next" title="Go to page 2 of 59">
-                                        <span class="aui-icon aui-icon-small aui-iconfont-arrows-right"></span>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>            
-                </div>
-                <div id="summaryModule" class="module summary-module toggle-wrap expanded">
-                    <div id="summaryModuleHeading" class="mod-header">
-                        <span class="aui-icon aui-icon-small aui-iconfont-expanded"></span>
-                        <h2 class="toggle-title" onclick="everit.reporting.main.toggleModContent('summary')">Quick Summary</h2>
-                    </div>
-                    <div class="mod-content">
-                        <div class="summary-export-container action-button-container">
-                            <div class="summary-export">
-                                <button class="aui-button aui-button-subtle" id="detials-export">
-                                <span class="aui-icon aui-icon-small aui-iconfont-export"></span>
-                                    <span class="button-label">Export</span>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="aui-tabs horizontal-tabs" data-aui-responsive>
-                            <ul class="tabs-menu">
-                                <li class="menu-item active-tab">
-                                    <a href="#tabs-project">Project</a>
-                                </li>
-                                <li class="menu-item">
-                                    <a href="#tabs-issue">Issue</a>
-                                </li>
-                                <li class="menu-item">
-                                    <a href="#tabs-user">User</a>
-                                </li>
-                            </ul>
-                            <div class="tabs-pane active-pane" id="tabs-project">
-                                <table class="aui reporting-table">
-                                    <thead>
-                                        <tr>
-                                            <th id="summary-project-key">Project</th>
-                                            <th>Summary</th>
-                                            <th>Estimated</th>
-                                            <th>Total Logged</th>
-                                            <th>Remaining</th>
-                                            <th>Logged vs. Estimated</th>
-                                            <th>Expected Total (Logged + Remaining)</th>
-                                            <th>Expected Total vs. Estimated</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td headers="summary-project-key">JIRA plugin development</td>
-                                            <td>Jiraplguin dev</td>
-                                            <td>200h</td>
-                                            <td>150h</td>
-                                            <td style="color: green;">50h</td>
-                                            <td style="color: green;">-50h</td>
-                                            <td>200h</td>
-                                            <td style="color: green;">0h</td>
-                                        </tr>                                        
-                                    </tbody>
-                                </table>
-                                <div class="aui-group aui-group-split count-pagination">
-                                    <!-- No content if lesser item than the paganisation limit -->
-                                </div>
-                            </div>
-                            <div class="tabs-pane" id="tabs-issue">
-                                <table class="aui reporting-table">
-                                    <thead>
-                                        <tr>
-                                            <th id="summary-issue-key">Issue</th>
-                                            <th>Summary</th>
-                                            <th>Type</th>
-                                            <th>Priority</th>
-                                            <th>Status</th>
-                                            <th>Assigne</th>
-                                            <th>Estimated</th>
-                                            <th>Remaining</th>
-                                            <th>Total Logged</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td headers="summary-issue-key">JIRAPLUGIN-1</td>
-                                            <td>Jiraplguin dev</td>
-                                            <td>Bug</td>
-                                            <td>Major</td>
-                                            <td>Open</td>
-                                            <td>daniel.toth</td>
-                                            <td>200h</td>
-                                            <td>200h</td>
-                                            <td>200h</td>
-                                        </tr>
-                                        <tr>
-                                            <td headers="summary-issue-key">JIRAPLUGIN-2</td>
-                                            <td>Jiraplguin dev</td>
-                                            <td>Bug</td>
-                                            <td>Major</td>
-                                            <td>Open</td>
-                                            <td>daniel.toth</td>
-                                            <td>200h</td>
-                                            <td>200h</td>
-                                            <td>200h</td>
-                                        </tr>
-                                        <tr>
-                                            <td headers="summary-issue-key">JIRAPLUGIN-2</td>
-                                            <td>Jiraplguin dev</td>
-                                            <td>Bug</td>
-                                            <td>Major</td>
-                                            <td>Open</td>
-                                            <td>daniel.toth</td>
-                                            <td>200h</td>
-                                            <td>200h</td>
-                                            <td>200h</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                                <div class="aui-group aui-group-split count-pagination">
-                                    <div class="aui-item">
-                                        <span class="results-count-text">
-                                            <span class="results-count results-count-start">1</span> –
-                                            <span class="results-count results-count-end">50</span> of 
-                                            <span class="results-count results-count-total results-count-link">100</span>
-                                        </span>
-                                    </div>
-                                    <div class="aui-item">
-                                        <div class="pagination" data-displayable-total="100"> 
-                                            <strong title="Issues 1 - 50">1</strong> 
-                                            <a href="/issues/?jql=&amp;startIndex=50" data-page="2" data-start-index="50" title="Issues 51 - 100">2</a>
-                                            <a href="/issues/?jql=&amp;startIndex=50" data-start-index="50" class="icon icon-next" title="Go to page 2 of 59">
-                                                <span class="aui-icon aui-icon-small aui-iconfont-arrows-right"></span>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="tabs-pane" id="tabs-user">
-                                <table class="aui reporting-table">
-                                    <thead>
-                                        <tr>
-                                            <th id="summary-user-key">Username</th>
-                                            <th>Total Logged</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td headers="summary-user-key">Tóth Dániel</td>
-                                            <td>20h</td>
-                                        </tr>
-                                        <tr>
-                                            <td headers="summary-user-key">Bordás Attila</td>
-                                            <td>20h</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                                <div class="aui-group aui-group-split count-pagination">
-                                    <div class="aui-item">
-                                        <span class="results-count-text">
-                                            <span class="results-count results-count-start">1</span> –
-                                            <span class="results-count results-count-end">50</span> of 
-                                            <span class="results-count results-count-total results-count-link">100</span>
-                                        </span>
-                                    </div>
-                                    <div class="aui-item">
-                                        <div class="pagination" data-displayable-total="100"> 
-                                            <strong title="Issues 1 - 50">1</strong> 
-                                            <a href="/issues/?jql=&amp;startIndex=50" data-page="2" data-start-index="50" title="Issues 51 - 100">2</a>
-                                            <a href="/issues/?jql=&amp;startIndex=50" data-start-index="50" class="icon icon-next" title="Go to page 2 of 59">
-                                                <span class="aui-icon aui-icon-small aui-iconfont-arrows-right"></span>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="grand-total-container">
-                            <div class="grand-total">
-                                <p class="grand-total-item grand-total-header">Grand Total Logged</p>
-                                <p class="grand-total-item grand-total-value">1000h 380m</p>
-                            </div>
-                        </div>
-                    </div>                    
-                </div>
-            </section>              
-          </div>
-        </div>          
     </section>
   </body>
 </html>
