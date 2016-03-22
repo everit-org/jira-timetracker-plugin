@@ -213,7 +213,47 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 	</div>
 	#parse("templates/reporting/reporting_popup.vm")
 </div>
-
+<table><tbody>
+#foreach ($wd in $worklogDetails)
+ <tr>
+  <td>
+   #foreach ($iav in $wd.issueAffectedVersion)
+     $iav
+   #end
+  </td>
+  <td>$wd.issueAssigne</td>
+  <td>
+   #foreach ($ic in $wd.issueComponents)
+     $ic
+   #end
+  </td>
+  <td>$wd.issueCreated</td>
+  <td>
+   #foreach ($ifv in $wd.issueFixedVersions)
+     $ifv
+   #end
+  </td>
+  <td>$wd.issueId</td>
+  <td>$wd.issueKey</td>
+  <td>$wd.issueOriginalEstimate</td>
+  <td>$wd.issueRemainingEstimate</td>
+  <td>$wd.issueReporter</td>
+  <td>$wd.issueStatusName</td>
+  <td>$wd.issueSummary</td>
+  <td>$wd.issueTypeName</td>
+  <td>$wd.issueUpdated</td>
+  <td>$wd.priorityName</td>
+  <td>$wd.projectDescription</td>
+  <td>$wd.projectKey</td>
+  <td>$wd.resolutionName</td>
+  <td>$wd.worklogBody</td>
+  <td>$wd.worklogCreated</td>
+  <td>$wd.worklogStartDate</td>
+  <td>$wd.worklogTimeWorked</td>
+  <td>$wd.worklogUpdated</td>
+ </tr>
+#end
+</table></tbody>
 #if($analyticsCheck)
 	#parse("templates/common/analytics.vm")
 #end
