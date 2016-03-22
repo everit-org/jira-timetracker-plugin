@@ -16,8 +16,11 @@
 package org.everit.jira.reporting.plugin.web;
 
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import org.everit.jira.reporting.plugin.ReportingPlugin;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
@@ -70,13 +73,22 @@ public class ReportingWebAction extends JiraWebActionSupport {
    * The formated date.
    */
   private String dateToFormated = "";
-
   /**
    * The message.
    */
   private String message = "";
 
   private ReportingPlugin reportingPlugin;
+
+  private List<String> selectedPriorities;
+
+  private List<String> selectedProjects;
+
+  private List<String> selectedResolutions;
+
+  private List<String> selectedStatus;
+
+  private List<String> selectedTypes;
 
   public ReportingWebAction(final ReportingPlugin reportingPlugin) {
     this.reportingPlugin = reportingPlugin;
@@ -90,6 +102,7 @@ public class ReportingWebAction extends JiraWebActionSupport {
       return getRedirect(NONE);
     }
     // TODO ReportingCondition check!
+    initPickersValues();
     normalizeContextPath();
     initDatesIfNecessary();
 
@@ -112,6 +125,7 @@ public class ReportingWebAction extends JiraWebActionSupport {
     Calendar startDate = null;
     Calendar lastDate = null;
     try {
+      pickersParsers();
       startDate = parseDateFrom();
       lastDate = parseDateTo();
     } catch (IllegalArgumentException e) {
@@ -151,6 +165,26 @@ public class ReportingWebAction extends JiraWebActionSupport {
     return message;
   }
 
+  public List<String> getSelectedPriorities() {
+    return selectedPriorities;
+  }
+
+  public List<String> getSelectedProjects() {
+    return selectedProjects;
+  }
+
+  public List<String> getSelectedResolutions() {
+    return selectedResolutions;
+  }
+
+  public List<String> getSelectedStatus() {
+    return selectedStatus;
+  }
+
+  public List<String> getSelectedTypes() {
+    return selectedTypes;
+  }
+
   private void initDatesIfNecessary() {
     if ("".equals(dateFromFormated)) {
       Calendar calendarFrom = Calendar.getInstance();
@@ -163,6 +197,14 @@ public class ReportingWebAction extends JiraWebActionSupport {
       dateTo = calendarTo.getTime();
       dateToFormated = DateTimeConverterUtil.dateToString(dateTo);
     }
+  }
+
+  private void initPickersValues() {
+    selectedProjects = new ArrayList<String>();
+    selectedStatus = new ArrayList<String>();
+    selectedTypes = new ArrayList<String>();
+    selectedPriorities = new ArrayList<String>();
+    selectedResolutions = new ArrayList<String>();
   }
 
   private void normalizeContextPath() {
@@ -208,6 +250,41 @@ public class ReportingWebAction extends JiraWebActionSupport {
     return parsedCalendarTo;
   }
 
+  private void pickersParsers() {
+    projectPickerParse();
+    statusPickerParse();
+    typePickerParse();
+    priorityPickerParse();
+    resolutionPickerParse();
+  }
+
+  private void priorityPickerParse() throws IllegalArgumentException {
+    String[] selectedPrioritiesValues = getHttpRequest().getParameterValues("priorityPicker");
+    if (selectedPrioritiesValues != null) {
+      selectedPriorities = Arrays.asList(selectedPrioritiesValues);
+    } else {
+      selectedPriorities = new ArrayList<String>();
+    }
+  }
+
+  private void projectPickerParse() throws IllegalArgumentException {
+    String[] selectedProjectsValues = getHttpRequest().getParameterValues("projectPicker");
+    if (selectedProjectsValues != null) {
+      selectedProjects = Arrays.asList(selectedProjectsValues);
+    } else {
+      selectedProjects = new ArrayList<String>();
+    }
+  }
+
+  private void resolutionPickerParse() {
+    String[] selectedResolutionsValues = getHttpRequest().getParameterValues("resolutionPicker");
+    if (selectedResolutionsValues != null) {
+      selectedResolutions = Arrays.asList(selectedResolutionsValues);
+    } else {
+      selectedResolutions = new ArrayList<String>();
+    }
+  }
+
   public void setContextPath(final String contextPath) {
     this.contextPath = contextPath;
   }
@@ -230,6 +307,44 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   public void setMessage(final String message) {
     this.message = message;
+  }
+
+  public void setSelectedPriorities(final List<String> selectedPriorities) {
+    this.selectedPriorities = selectedPriorities;
+  }
+
+  public void setSelectedProjects(final List<String> selectedProjects) {
+    this.selectedProjects = selectedProjects;
+  }
+
+  public void setSelectedResolutions(final List<String> selectedResolutions) {
+    this.selectedResolutions = selectedResolutions;
+  }
+
+  public void setSelectedStatus(final List<String> selectedStatus) {
+    this.selectedStatus = selectedStatus;
+  }
+
+  public void setSelectedTypes(final List<String> selectedTypes) {
+    this.selectedTypes = selectedTypes;
+  }
+
+  private void statusPickerParse() {
+    String[] selectedStatusValues = getHttpRequest().getParameterValues("statusPicker");
+    if (selectedStatusValues != null) {
+      selectedStatus = Arrays.asList(selectedStatusValues);
+    } else {
+      selectedStatus = new ArrayList<String>();
+    }
+  }
+
+  private void typePickerParse() {
+    String[] typePickerValues = getHttpRequest().getParameterValues("typePicker");
+    if (typePickerValues != null) {
+      selectedTypes = Arrays.asList(typePickerValues);
+    } else {
+      selectedTypes = new ArrayList<String>();
+    }
   }
 
 }

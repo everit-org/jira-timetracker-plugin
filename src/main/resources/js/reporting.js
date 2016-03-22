@@ -37,10 +37,10 @@ everit.reporting.main = everit.reporting.main || {};
         }
     }
     
+    var opt = reporting.values;
+     
     Date.parseDate = function(str, fmt){return fecha.parse(str, AJS.Meta.get("date-dmy").toUpperCase());};
     
-    var opt = reporting.options;
-
     var calFrom = Calendar.setup({
       firstDay : opt.firstDay,
       inputField : jQuery("#dateFrom"),
@@ -69,35 +69,180 @@ everit.reporting.main = everit.reporting.main || {};
 
     jQuery('.aui-ss, .aui-ss-editing, .aui-ss-field').attr("style", "width: 300px;");
     
-    var ip = new AJS.CheckboxMultiSelect({
-      element: AJS.$("#project-select"),
-    });
-    
-    reporting.rendererProject();
+    initProjectSelect();
+    initStatusSelect();
+    initTypeSelect();
+    initPrioritySelect();
+    initResolutionSelect();
   });
   
-
-  reporting.rendererProject = function(){
-    var select = AJS.$("#project-select");
-    if (select.data("checkboxmultiselect")){
-      AJS.$("#project-select-multi-select").remove();
-    }
-    select.data("checkboxmultiselect", new AJS.CheckboxMultiSelect({element: select}));
-
-    // add change handler functions to every custom criteria field available in the "more-select" dropdown
-    // checking an item adds the custom criteria field to the reporting criteria header
-    AJS.$("#more-select-suggestions").find('input').each(function(){
-      AJS.$(this).unbind("change");
-      AJS.$(this).change(function(){
-        var checkBox = AJS.$(this);
-        var customCriteriaId = checkBox.val();
-        var checkedValue = checkBox.attr("checked");
-        var name = checkBox.parent("label").text();
-      });
-    });
-  }
   
+  function initPrioritySelect(){
+    var selectedArray =  jQuery.makeArray( reporting.values.selectedPriorities ); 
+    jQuery.ajax({
+      async: true,
+      type: 'GET',
+      url : contextPath + "/rest/api/2/priority",
+      data : [],
+      success : function(result){
+        for( var i in result) {
+          var obj = result[i];
+          var selected = checkSelected(obj.id, selectedArray);
+          var avatarId =  obj.iconUrl;
+          jQuery("#priorityPicker").append("<option data-icon=" + avatarId + " value="+obj.id + " "+ selected + ">" +obj.name +"</option>");
 
+        }
+        var pp = new AJS.CheckboxMultiSelect({
+            element:  jQuery("#priorityPicker"),
+            submitInputVal: true,
+        });
+        updatePickerButtonText("#priorityPicker" , "#priorityPickerButton", "Priority: All");
+        jQuery("#priorityPicker").on("change unselect", function() {
+          updatePickerButtonText("#priorityPicker" , "#priorityPickerButton", "Priority: All");
+        });
+      },
+      error : function(XMLHttpRequest, status, error){
+      }
+    });
+  };
+  
+  function initProjectSelect(){
+    var selectedArray =  jQuery.makeArray( reporting.values.selectedProjects ); 
+    jQuery.ajax({
+      async: true,
+      type: 'GET',
+      url : contextPath + "/rest/api/2/project",
+      data : [],
+      success : function(result){
+        for( var i in result) {
+          var obj = result[i];
+          var selected = checkSelected(obj.id, selectedArray);
+          var avatarId =  obj.avatarUrls["16x16"];
+          jQuery("#projectPicker").append("<option data-icon=" + avatarId + " value=" + obj.id + " "+ selected +">" +obj.name+ "(" + obj.key + " )" +"</option>");
+        }
+        var pp = new AJS.CheckboxMultiSelect({
+            element:  jQuery("#projectPicker"),
+            submitInputVal: true,
+        });
+        updatePickerButtonText("#projectPicker" , "#projectPickerButton", "Project: All");
+        jQuery("#projectPicker").on("change unselect", function() {
+          updatePickerButtonText("#projectPicker" , "#projectPickerButton", "Project: All");
+        });
+      },
+      error : function(XMLHttpRequest, status, error){
+      }
+    });
+  };
+  
+  function initTypeSelect(){
+    var selectedArray =  jQuery.makeArray( reporting.values.selectedTypes ); 
+    jQuery.ajax({
+      async: true,
+      type: 'GET',
+      url : contextPath + "/rest/api/2/issuetype",
+      data : [],
+      success : function(result){
+        for( var i in result) {
+          var obj = result[i];
+          var avatarId =  obj.iconUrl;
+          var selected = checkSelected(obj.id, selectedArray);
+          jQuery("#typePicker").append("<option data-icon=" + avatarId + " value="+obj.id + " "+ selected + ">" +obj.name +"</option>");
+        }
+        var pp = new AJS.CheckboxMultiSelect({
+              element:  AJS.$("#typePicker"),
+              submitInputVal: true,
+        });
+        updatePickerButtonText("#typePicker" , "#typePickerButton", "Type: All");
+        jQuery("#typePicker").on("change unselect", function() {
+          updatePickerButtonText("#typePicker" , "#typePickerButton", "Type: All");
+        });
+      },
+      error : function(XMLHttpRequest, status, error){
+      }
+    });
+  };
+  
+  function initResolutionSelect(){
+    var selectedArray =  jQuery.makeArray( reporting.values.selectedResolutions ); 
+    jQuery.ajax({
+      async: true,
+      type: 'GET',
+      url : contextPath + "/rest/api/2/resolution",
+      data : [],
+      success : function(result){
+        for( var i in result) {
+          var obj = result[i];
+          var selected = checkSelected(obj.id, selectedArray);
+          jQuery("#resolutionPicker").append("<option value="+obj.id+ " "+ selected + ">" +obj.name +"</option>");
+        }
+        var pp = new AJS.CheckboxMultiSelect({
+              element:  AJS.$("#resolutionPicker"),
+              submitInputVal: true,
+        });
+        updatePickerButtonText("#resolutionPicker" , "#resolutionPickerButton", "Resolution: All");
+        jQuery("#resolutionPicker").on("change unselect", function() {
+          updatePickerButtonText("#resolutionPicker" , "#resolutionPickerButton", "Resolution: All");
+        });
+      },
+      error : function(XMLHttpRequest, status, error){
+      }
+    });
+  };
+  
+  function initStatusSelect(){
+    var selectedArray =  jQuery.makeArray( reporting.values.selectedStatus ); 
+    jQuery.ajax({
+      async: true,
+      type: 'GET',
+      url : contextPath + "/rest/api/2/status",
+      data : [],
+      success : function(result){
+        for( var i in result) {
+          var obj = result[i];
+          var selected = checkSelected(obj.id, selectedArray);
+          jQuery("#statusPicker").append("<option value="+obj.id+ " "+ selected + ">" +obj.name +"</option>");
+        }
+        var pp = new AJS.CheckboxMultiSelect({
+              element:  AJS.$("#statusPicker"),
+              submitInputVal: true,
+        });
+        updatePickerButtonText("#statusPicker" , "#statusPickerButton", "Status: All");
+        jQuery("#statusPicker").on("change unselect", function() {
+          updatePickerButtonText("#statusPicker" , "#statusPickerButton", "Status: All");
+        });
+      },
+      error : function(XMLHttpRequest, status, error){
+      }
+    });
+  };
+  
+  
+  function checkSelected(id , selectedArray){
+    var selected = "";
+    for(var i in selectedArray){
+      if(selectedArray[i] == id) selected = "selected";
+    }
+    return selected;
+  };
+  
+  function updatePickerButtonText(picker, button, defaultText){ //Example vallues: "#projectPicker" , "#projectPickerButton", "Project: All"
+    var newButtonText = "";
+    jQuery(picker).find("option:selected").each(function() {
+      var optionText = AJS.$(this).text();
+      if (newButtonText === '') {
+        newButtonText = optionText;
+      } else {
+        newButtonText = newButtonText + "," + optionText;
+      }
+    });
+    if (newButtonText === '') {
+      newButtonText = defaultText;
+    }else if(newButtonText.length > 16){
+      newButtonText = newButtonText.substring(0, 12) + "...";
+    }
+    jQuery(button).text(newButtonText);
+  };
+  
   reporting.onSelect = function(cal) {
     //Copy of the original onSelect. Only chacnge not use te p.ifFormat
     var p = cal.params;
