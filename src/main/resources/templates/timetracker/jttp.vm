@@ -213,49 +213,43 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 	</div>
 	#parse("templates/reporting/reporting_popup.vm")
 </div>
+<br/><p>----------------------------------WORKLOG_DETAILS--------------------------------------</p></br>
+<p>$worklogDetails.size()</p>
+<br/><p>--------------------------------------PROJECT_SUMMARY------------------------</p><br/>
 <table><tbody>
-#foreach ($wd in $worklogDetails)
+#foreach ($ps in $projectsSummary)
  <tr>
-  <td>
-   #foreach ($iav in $wd.issueAffectedVersion)
-     $iav
-   #end
-  </td>
-  <td>$wd.issueAssigne</td>
-  <td>
-   #foreach ($ic in $wd.issueComponents)
-     $ic
-   #end
-  </td>
-  <td>$wd.issueCreated</td>
-  <td>
-   #foreach ($ifv in $wd.issueFixedVersions)
-     $ifv
-   #end
-  </td>
-  <td>$wd.issueId</td>
-  <td>$wd.issueKey</td>
-  <td>$wd.issueOriginalEstimate</td>
-  <td>$wd.issueRemainingEstimate</td>
-  <td>$wd.issueReporter</td>
-  <td>$wd.issueStatusName</td>
-  <td>$wd.issueSummary</td>
-  <td>$wd.issueTypeName</td>
-  <td>$wd.issueUpdated</td>
-  <td>$wd.priorityName</td>
-  <td>$wd.projectDescription</td>
-  <td>$wd.projectKey</td>
-  <td>$wd.resolutionName</td>
-  <td>$wd.worklogBody</td>
-  <td>$wd.worklogCreated</td>
-  <td>$wd.worklogStartDate</td>
-  <td>$wd.worklogTimeWorked</td>
-  <td>$wd.worklogUpdated</td>
+  <td>$ps.projectKey</td>
+  <td>$ps.projectName</td>
+  <td>$ps.projectSummary</td>
+  <td>$ps.issuesOrginalEstimatedSum</td>
+  <td>$ps.issuesReaminingTimeSum</td>
+  <td>$ps.workloggedTimeSum</td>
  </tr>
 #end
-</table></tbody>
-#if($analyticsCheck)
-	#parse("templates/common/analytics.vm")
+</tbody></table>
+<br/><p>--------------------------------------ISSUES_SUMMARY------------------------</p><br/>
+<table><tbody>
+#foreach ($is in $issuesSummary)
+ <tr>
+  <td>$is.issueKey</td>
+  <td>$is.issueSummary</td>
+  <td>$is.issueTypeName</td>
+  <td>$is.priorityName</td>
+  <td>$is.assignee</td>
+  <td>$is.orginalEstimatedSum</td>
+  <td>$is.reaminingTimeSum</td>
+  <td>$is.workloggedTimeSum</td>
+ </tr>
+#end
+</tbody></table>
+<br/><p>--------------------------------------USERS_SUMMARY------------------------</p><br/>
+<table><tbody>
+#foreach ($us in $usersSummary)
+ <tr>
+  <td>$us.userDisplayName</td>
+  <td>$us.workloggedTimeSum</td>
+ </tr>
 #end
 </body>
 </html>

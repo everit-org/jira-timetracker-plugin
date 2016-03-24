@@ -13,15 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.jira.reporting.plugin.query;
+package org.everit.jira.reporting.plugin.dto;
 
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
 public class WorklogDetailsSearchParam {
-
-  public List<String> groups = Collections.emptyList();
 
   public List<String> issueAffectedVersions = Collections.emptyList();
 

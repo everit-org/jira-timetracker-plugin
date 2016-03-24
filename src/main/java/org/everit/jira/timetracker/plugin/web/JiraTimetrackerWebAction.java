@@ -30,9 +30,15 @@ import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.everit.jira.querydsl.support.QuerydslSupport;
 import org.everit.jira.querydsl.support.ri.QuerydslSupportImpl;
-import org.everit.jira.reporting.plugin.query.WorklogDetailsDTO;
+import org.everit.jira.reporting.plugin.dto.IssueSummaryDTO;
+import org.everit.jira.reporting.plugin.dto.ProjectSummaryDTO;
+import org.everit.jira.reporting.plugin.dto.UserSummaryDTO;
+import org.everit.jira.reporting.plugin.dto.WorklogDetailsDTO;
+import org.everit.jira.reporting.plugin.dto.WorklogDetailsSearchParam;
+import org.everit.jira.reporting.plugin.query.IssueSummaryQuery;
+import org.everit.jira.reporting.plugin.query.ProjectSummaryQuery;
+import org.everit.jira.reporting.plugin.query.UserSummaryQuery;
 import org.everit.jira.reporting.plugin.query.WorklogDetailsQuery;
-import org.everit.jira.reporting.plugin.query.WorklogDetailsSearchParam;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
 import org.everit.jira.timetracker.plugin.dto.ActionResult;
@@ -225,6 +231,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The filtered Issues id.
    */
   private List<Pattern> issuesRegex;
+  private List<IssueSummaryDTO> issuesSummary = Collections.emptyList();
   /**
    * The jira main version.
    */
@@ -237,6 +244,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The jira version.
    */
   private String jiraVersion;
+
   /**
    * List of the logged days of the date variable current months.
    */
@@ -265,12 +273,14 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private String piwikHost;
 
   private String piwikSiteId;
-
   private String pluginVersion;
+
   /**
    * The IDs of the projects.
    */
   private List<String> projectsId;
+
+  private List<ProjectSummaryDTO> projectsSummary;
 
   /**
    * The selected User for get Worklogs.
@@ -299,6 +309,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private String userId;
 
   private transient ApplicationUser userPickerObject;
+
+  private List<UserSummaryDTO> usersSummary = Collections.emptyList();
 
   /**
    * The summary of week.
@@ -760,6 +772,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return issuesRegex;
   }
 
+  public List<IssueSummaryDTO> getIssuesSummary() {
+    return issuesSummary;
+  }
+
   public int getJiraMainVersion() {
     return jiraMainVersion;
   }
@@ -816,6 +832,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return projectsId;
   }
 
+  public List<ProjectSummaryDTO> getProjectsSummary() {
+    return projectsSummary;
+  }
+
   public String getSelectedeUser() {
     return selectedUser;
   }
@@ -834,6 +854,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   public ApplicationUser getUserPickerObject() {
     return userPickerObject;
+  }
+
+  public List<UserSummaryDTO> getUsersSummary() {
+    return usersSummary;
   }
 
   public String getWeekFilteredSummary() {
@@ -1426,6 +1450,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     this.issuesRegex = issuesRegex;
   }
 
+  public void setIssuesSummary(final List<IssueSummaryDTO> issuesSummary) {
+    this.issuesSummary = issuesSummary;
+  }
+
   public void setJiraMainVersion(final int jiraMainVersion) {
     this.jiraMainVersion = jiraMainVersion;
   }
@@ -1489,6 +1517,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     this.projectsId = projectsId;
   }
 
+  public void setProjectsSummary(final List<ProjectSummaryDTO> projectsSummary) {
+    this.projectsSummary = projectsSummary;
+  }
+
   public void setSelectedeUser(final String selectedeUser) {
     selectedUser = selectedeUser;
   }
@@ -1531,6 +1563,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     }
   }
 
+  public void setUsersSummary(final List<UserSummaryDTO> usersSummary) {
+    this.usersSummary = usersSummary;
+  }
+
   public void setWeekFilteredSummary(final String weekFilteredSummary) {
     this.weekFilteredSummary = weekFilteredSummary;
   }
@@ -1555,118 +1591,126 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     try {
       QuerydslSupport querydslSupport = new QuerydslSupportImpl();
       WorklogDetailsSearchParam worklogDetailsSearchParam = new WorklogDetailsSearchParam();
-      ArrayList<Long> projectIds = new ArrayList<Long>();
-      projectIds.add(10000L);
-      projectIds.add(10100L);
-      worklogDetailsSearchParam.projectIds = projectIds;
-
-      ArrayList<Long> issueIds = new ArrayList<Long>();
-      issueIds.add(10000L);
-      issueIds.add(10001L);
-      issueIds.add(10002L);
-      issueIds.add(10003L);
-      issueIds.add(10004L);
-      issueIds.add(10100L);
-      issueIds.add(10101L);
-      issueIds.add(10102L);
-      issueIds.add(10103L);
-      issueIds.add(10200L);
-      issueIds.add(10201L);
-      issueIds.add(10300L);
-      issueIds.add(10301L);
-      issueIds.add(10302L);
-      worklogDetailsSearchParam.issueIds = issueIds;
-
-      ArrayList<String> issueTypeIds = new ArrayList<String>();
-      issueTypeIds.add("1");
-      issueTypeIds.add("10000");
-      issueTypeIds.add("10001");
-      issueTypeIds.add("2");
-      issueTypeIds.add("3");
-      issueTypeIds.add("4");
-      issueTypeIds.add("5");
-      worklogDetailsSearchParam.issueTypeIds = issueTypeIds;
-
-      ArrayList<String> issueAffectedVersions = new ArrayList<String>();
-      issueAffectedVersions.add("v1");
-      issueAffectedVersions.add("v2");
-      issueAffectedVersions.add("v3");
-      worklogDetailsSearchParam.issueAffectedVersions = issueAffectedVersions;
-      worklogDetailsSearchParam.selectNoAffectedVersionIssue = true;
-
+      // ArrayList<Long> projectIds = new ArrayList<Long>();
+      // projectIds.add(10000L);
+      // projectIds.add(10100L);
+      // worklogDetailsSearchParam.projectIds = projectIds;
+      //
+      // ArrayList<Long> issueIds = new ArrayList<Long>();
+      // issueIds.add(10000L);
+      // issueIds.add(10001L);
+      // issueIds.add(10002L);
+      // issueIds.add(10003L);
+      // issueIds.add(10004L);
+      // issueIds.add(10100L);
+      // issueIds.add(10101L);
+      // issueIds.add(10102L);
+      // issueIds.add(10103L);
+      // issueIds.add(10200L);
+      // issueIds.add(10201L);
+      // issueIds.add(10300L);
+      // issueIds.add(10301L);
+      // issueIds.add(10302L);
+      // worklogDetailsSearchParam.issueIds = issueIds;
+      //
+      // ArrayList<String> issueTypeIds = new ArrayList<String>();
+      // issueTypeIds.add("1");
+      // issueTypeIds.add("10000");
+      // issueTypeIds.add("10001");
+      // issueTypeIds.add("2");
+      // issueTypeIds.add("3");
+      // issueTypeIds.add("4");
+      // issueTypeIds.add("5");
+      // worklogDetailsSearchParam.issueTypeIds = issueTypeIds;
+      //
+      // ArrayList<String> issueAffectedVersions = new ArrayList<String>();
+      // issueAffectedVersions.add("v1");
+      // issueAffectedVersions.add("v2");
+      // issueAffectedVersions.add("v3");
+      // worklogDetailsSearchParam.issueAffectedVersions = issueAffectedVersions;
+      // worklogDetailsSearchParam.selectNoAffectedVersionIssue = true;
+      //
       // ArrayList<String> issueFixedVersion = new ArrayList<String>();
       // issueFixedVersion.add("v1");
       // issueFixedVersion.add("v2");
       // issueFixedVersion.add("v3");
       // worklogDetailsSearchParam.issueFixedVersions = issueFixedVersion;
-      worklogDetailsSearchParam.selectNoFixedVersionIssue = true;
-
-      ArrayList<String> issueAssignees = new ArrayList<String>();
-      issueAssignees.add("");
-      issueAssignees.add("zsigmond.czine@everit.biz");
-      worklogDetailsSearchParam.issueAssignees = issueAssignees;
-      worklogDetailsSearchParam.selectUnassgined = true;
-
+      // worklogDetailsSearchParam.selectNoFixedVersionIssue = true;
+      // worklogDetailsSearchParam.selectUnreleasedFixVersion = true;
+      // worklogDetailsSearchParam.selectReleasedFixVersion = true;
+      //
+      // ArrayList<String> issueAssignees = new ArrayList<String>();
+      // issueAssignees.add("");
+      // issueAssignees.add("zsigmond.czine@everit.biz");
+      // worklogDetailsSearchParam.issueAssignees = issueAssignees;
+      // worklogDetailsSearchParam.selectUnassgined = true;
+      //
       // ArrayList<String> issueComponents = new ArrayList<String>();
       // issueComponents.add("c1");
       // issueComponents.add("c2");
       // issueComponents.add("c3");
       // worklogDetailsSearchParam.issueComponents = issueComponents;
-
-      ArrayList<Long> issueEpicLinkIssueId = new ArrayList<Long>();
-      worklogDetailsSearchParam.issueEpicLinkIssueIds = issueEpicLinkIssueId;
-
-      worklogDetailsSearchParam.issueEpicName = null;
-
-      worklogDetailsSearchParam.issueCreateDate = null;
+      // worklogDetailsSearchParam.selectNoComponentIssue = true;
       //
-      ArrayList<String> issuePriorityIds = new ArrayList<String>();
-      issuePriorityIds.add("1");
-      issuePriorityIds.add("2");
-      issuePriorityIds.add("3");
-      issuePriorityIds.add("4");
-      issuePriorityIds.add("5");
-      worklogDetailsSearchParam.issuePriorityIds = issuePriorityIds;
-
-      ArrayList<String> issueReporters = new ArrayList<String>();
-      issueReporters.add("");
-      issueReporters.add("zsigmond.czine@everit.biz");
-      worklogDetailsSearchParam.issueReporters = issueReporters;
-
-      ArrayList<String> issueResolutionIds = new ArrayList<String>();
-      issueResolutionIds.add("1");
-      issueResolutionIds.add("10000");
-      issueResolutionIds.add("2");
-      issueResolutionIds.add("3");
-      issueResolutionIds.add("4");
-      issueResolutionIds.add("5");
-      worklogDetailsSearchParam.issueResolutionIds = issueResolutionIds;
-      worklogDetailsSearchParam.selectUnresolvedResolution = true;
-
-      ArrayList<String> issueStatisIds = new ArrayList<String>();
-      issueStatisIds.add("1");
-      issueStatisIds.add("10000");
-      issueStatisIds.add("10001");
-      issueStatisIds.add("3");
-      issueStatisIds.add("4");
-      issueStatisIds.add("5");
-      issueStatisIds.add("6");
-      worklogDetailsSearchParam.issueStatusIds = issueStatisIds;
-
-      ArrayList<String> labels = new ArrayList<String>();
-      worklogDetailsSearchParam.labels = labels;
-
-      ArrayList<String> users = new ArrayList<String>();
-      users.add("");
-      users.add("zsigmond.czine@everit.biz");
-      worklogDetailsSearchParam.users = users;
-
-      worklogDetailsSearchParam.worklogStartDate = null;
-
-      worklogDetailsSearchParam.worklogEndDate = null;
+      // ArrayList<Long> issueEpicLinkIssueId = new ArrayList<Long>();
+      // issueEpicLinkIssueId.add(10000L);
+      // worklogDetailsSearchParam.issueEpicLinkIssueIds = issueEpicLinkIssueId;
+      //
+      // worklogDetailsSearchParam.issueEpicName = "test";
+      //
+      // worklogDetailsSearchParam.issueCreateDate = new Date();
+      //
+      // ArrayList<String> issueReporters = new ArrayList<String>();
+      // issueReporters.add("");
+      // issueReporters.add("zsigmond.czine@everit.biz");
+      // worklogDetailsSearchParam.issueReporters = issueReporters;
+      //
+      // ArrayList<String> issuePriorityIds = new ArrayList<String>();
+      // issuePriorityIds.add("1");
+      // issuePriorityIds.add("2");
+      // issuePriorityIds.add("3");
+      // issuePriorityIds.add("4");
+      // issuePriorityIds.add("5");
+      // worklogDetailsSearchParam.issuePriorityIds = issuePriorityIds;
+      //
+      // ArrayList<String> issueResolutionIds = new ArrayList<String>();
+      // issueResolutionIds.add("1");
+      // issueResolutionIds.add("10000");
+      // issueResolutionIds.add("2");
+      // issueResolutionIds.add("3");
+      // issueResolutionIds.add("4");
+      // issueResolutionIds.add("5");
+      // worklogDetailsSearchParam.issueResolutionIds = issueResolutionIds;
+      // worklogDetailsSearchParam.selectUnresolvedResolution = true;
+      //
+      // ArrayList<String> issueStatisIds = new ArrayList<String>();
+      // issueStatisIds.add("1");
+      // issueStatisIds.add("10000");
+      // issueStatisIds.add("10001");
+      // issueStatisIds.add("3");
+      // issueStatisIds.add("4");
+      // issueStatisIds.add("5");
+      // issueStatisIds.add("6");
+      // worklogDetailsSearchParam.issueStatusIds = issueStatisIds;
+      //
+      // ArrayList<String> labels = new ArrayList<String>();
+      // labels.add("label");
+      // worklogDetailsSearchParam.labels = labels;
+      //
+      // ArrayList<String> users = new ArrayList<String>();
+      // users.add("");
+      // users.add("zsigmond.czine@everit.biz");
+      // worklogDetailsSearchParam.users = users;
+      //
+      // worklogDetailsSearchParam.worklogStartDate = new Date();
+      //
+      // worklogDetailsSearchParam.worklogEndDate = new Date();
 
       worklogDetails =
           querydslSupport.execute(new WorklogDetailsQuery(worklogDetailsSearchParam));
+      projectsSummary = querydslSupport.execute(new ProjectSummaryQuery(worklogDetailsSearchParam));
+      issuesSummary = querydslSupport.execute(new IssueSummaryQuery(worklogDetailsSearchParam));
+      usersSummary = querydslSupport.execute(new UserSummaryQuery(worklogDetailsSearchParam));
     } catch (Exception e2) {
       e2.printStackTrace();
     }

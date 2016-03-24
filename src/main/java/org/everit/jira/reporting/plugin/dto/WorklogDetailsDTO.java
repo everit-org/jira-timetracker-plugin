@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.jira.reporting.plugin.query;
+package org.everit.jira.reporting.plugin.dto;
 
 import java.sql.Timestamp;
 import java.util.Collections;
@@ -31,15 +31,15 @@ public class WorklogDetailsDTO {
 
     public static final String ISSUE_KEY = "issueKey";
 
-    public static final String ISSUE_ORIGINAL_ESTIMATE = "issueOriginalEstimate";
-
-    public static final String ISSUE_REMAINING_ESTIMATE = "issueRemainingEstimate";
-
     public static final String ISSUE_REPORTER = "issueReporter";
 
-    public static final String ISSUE_STATUS_NAME = "issueStatusName";
+    public static final String ISSUE_STATUS_P_NAME = "issueStatusName";
 
     public static final String ISSUE_SUMMARY = "issueSummary";
+
+    public static final String ISSUE_TIME_ESTIMATE = "issueRemainingEstimate";
+
+    public static final String ISSUE_TIME_ORIGINAL_ESTIMATE = "issueOriginalEstimate";
 
     public static final String ISSUE_TYPE_NAME = "issueTypeName";
 
@@ -67,51 +67,51 @@ public class WorklogDetailsDTO {
     }
   }
 
-  public List<String> issueAffectedVersion = Collections.emptyList();
+  private List<String> issueAffectedVersion = Collections.emptyList();
 
-  public String issueAssigne;
+  private String issueAssigne;
 
-  public List<String> issueComponents = Collections.emptyList();
+  private List<String> issueComponents = Collections.emptyList();
 
-  public Timestamp issueCreated;
+  private Timestamp issueCreated;
 
-  public List<String> issueFixedVersions = Collections.emptyList();
+  private List<String> issueFixedVersions = Collections.emptyList();
 
-  public Long issueId;
+  private Long issueId;
 
-  public String issueKey;
+  private String issueKey;
 
-  public Long issueOriginalEstimate;
+  private Long issueOriginalEstimate;
 
-  public Long issueRemainingEstimate;
+  private Long issueRemainingEstimate;
 
-  public String issueReporter;
+  private String issueReporter;
 
-  public String issueStatusName;
+  private String issueStatusName;
 
-  public String issueSummary;
+  private String issueSummary;
 
-  public String issueTypeName;
+  private String issueTypeName;
 
-  public Timestamp issueUpdated;
+  private Timestamp issueUpdated;
 
-  public String priorityName;
+  private String priorityName;
 
-  public String projectDescription;
+  private String projectDescription;
 
-  public String projectKey;
+  private String projectKey;
 
-  public String resolutionName;
+  private String resolutionName;
 
-  public String worklogBody;
+  private String worklogBody;
 
-  public Timestamp worklogCreated;
+  private Timestamp worklogCreated;
 
-  public Timestamp worklogStartDate;
+  private Timestamp worklogStartDate;
 
-  public Long worklogTimeWorked;
+  private Long worklogTimeWorked;
 
-  public Timestamp worklogUpdated;
+  private Timestamp worklogUpdated;
 
   public List<String> getIssueAffectedVersion() {
     return issueAffectedVersion;
