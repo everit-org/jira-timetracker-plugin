@@ -622,10 +622,14 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   private void setCurrentUserFromParam() throws IllegalArgumentException {
     String selectedUser = getHttpRequest().getParameter(PARAM_USERPICKER);
-    if (selectedUser != null) {
-      currentUser = selectedUser;
-    } else {
+    if (selectedUser == null) {
       throw new IllegalArgumentException(INVALID_USER_PICKER);
+    }
+    currentUser = selectedUser;
+    if ("".equals(currentUser)) {
+      JiraAuthenticationContext authenticationContext = ComponentAccessor
+          .getJiraAuthenticationContext();
+      currentUser = authenticationContext.getUser().getKey();
     }
   }
 
@@ -693,8 +697,11 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   }
 
   private void setUserPickerObjectBasedOnCurrentUser() {
-    if ((currentUser != null) && !"".equals(currentUser)) {
+    if (!"".equals(currentUser)) {
       userPickerObject = ComponentAccessor.getUserUtil().getUserByName(currentUser);
+      if (userPickerObject == null) {
+        throw new IllegalArgumentException(INVALID_USER_PICKER);
+      }
       AvatarService avatarService = ComponentAccessor.getComponent(AvatarService.class);
       setAvatarURL(avatarService.getAvatarURL(
           ComponentAccessor.getJiraAuthenticationContext().getUser(),

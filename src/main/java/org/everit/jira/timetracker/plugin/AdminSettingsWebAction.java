@@ -346,31 +346,31 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
   }
 
   private boolean parseIncludeDatesValue(final String includeDatesValue) {
-    boolean parseExcludeException = false;
+    boolean parseIncludeDateException = false;
     if (includeDatesValue == null) {
       includeDates = "";
     } else {
-      String excludeDatesValueString = includeDatesValue;
-      if (!excludeDatesValueString.isEmpty()) {
-        excludeDatesValueString = excludeDatesValueString
+      String includeDatesValueString = includeDatesValue;
+      if (!includeDatesValueString.isEmpty()) {
+        includeDatesValueString = includeDatesValueString
             .replace(" ", "").replace("\r", "").replace("\n", "");
-        for (String dateString : excludeDatesValueString.split(",")) {
+        for (String dateString : includeDatesValueString.split(",")) {
           try {
             DateTimeConverterUtil.fixFormatStringToDate(dateString);
           } catch (ParseException e) {
-            parseExcludeException = true;
-            messageExclude = "plugin.parse.exception.exclude";
-            if (messageParameterExclude.isEmpty()) {
-              messageParameterExclude += dateString;
+            parseIncludeDateException = true;
+            messageInclude = "plugin.parse.exception.include";
+            if (messageParameterInclude.isEmpty()) {
+              messageParameterInclude += dateString;
             } else {
-              messageParameterExclude += ", " + dateString;
+              messageParameterInclude += ", " + dateString;
             }
           }
         }
       }
-      includeDates = excludeDatesValueString;
+      includeDates = includeDatesValueString;
     }
-    return parseExcludeException;
+    return parseIncludeDateException;
   }
 
   /**

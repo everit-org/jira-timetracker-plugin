@@ -287,8 +287,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
    */
   private TimeTrackingConfiguration timeTrackingConfiguration;
 
-  private double workHoursPerDay;
-
   /**
    * Default constructor.
    */
@@ -301,7 +299,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   @Override
   public void afterPropertiesSet() throws Exception {
     generatePluginUUID();
-    workHoursPerDay = timeTrackingConfiguration.getHoursPerDay().doubleValue();
 
     loadJttpBuildProperties();
 
@@ -819,6 +816,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     for (GenericValue worklog : worklogGVList) {
       timeSpent += worklog.getLong("timeworked").longValue();
     }
+    double workHoursPerDay = timeTrackingConfiguration.getHoursPerDay().doubleValue();
     double expectedTimeSpent = workHoursPerDay * DateTimeConverterUtil.SECONDS_PER_MINUTE
         * DateTimeConverterUtil.MINUTES_PER_HOUR;
     return timeSpent >= expectedTimeSpent;
