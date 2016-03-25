@@ -16,24 +16,41 @@
 package org.everit.jira.reporting.plugin.query;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
 import org.everit.jira.reporting.plugin.dto.IssueSummaryDTO;
-import org.everit.jira.reporting.plugin.dto.WorklogDetailsSearchParam;
+import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
 
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.QBean;
 import com.querydsl.sql.Configuration;
+import com.querydsl.sql.SQLQuery;
 
-public class IssueSummaryQuery extends AbstractReportQuery<IssueSummaryDTO> {
+/**
+ * Query for issue summary report.
+ */
+public class IssueSummaryReportQuery extends AbstractListReportQuery<IssueSummaryDTO> {
 
-  public IssueSummaryQuery(final WorklogDetailsSearchParam worklogDetailsSearchParam) {
-    super(worklogDetailsSearchParam);
+  public IssueSummaryReportQuery(final ReportSearchParam reportSearchParam) {
+    super(reportSearchParam);
   }
 
   @Override
-  protected Expression<?>[] createGroupBy() {
+  public List<IssueSummaryDTO> call(final Connection connection, final Configuration configuration)
+      throws SQLException {
+    SQLQuery<IssueSummaryDTO> query = new SQLQuery<IssueSummaryDTO>(connection, configuration)
+        .select(createSelectProjection());
+
+    appendBaseFromAndJoin(query);
+    appendBaseWhere(query);
+
+    query.groupBy(createGroupBy());
+    return query.fetch();
+  }
+
+  private Expression<?>[] createGroupBy() {
     return new Expression<?>[] {
         qProject.pkey,
         qIssue.issuenum,
@@ -44,8 +61,7 @@ public class IssueSummaryQuery extends AbstractReportQuery<IssueSummaryDTO> {
         qIssue.assignee };
   }
 
-  @Override
-  protected QBean<IssueSummaryDTO> createSelectProjection() {
+  private QBean<IssueSummaryDTO> createSelectProjection() {
     return Projections.bean(IssueSummaryDTO.class,
         createIssueKeyExpression(qIssue, qProject).as(IssueSummaryDTO.AliasNames.ISSUE_KEY),
         qIssue.summary.as(IssueSummaryDTO.AliasNames.ISSUE_SUMMARY),
@@ -57,11 +73,6 @@ public class IssueSummaryQuery extends AbstractReportQuery<IssueSummaryDTO> {
             .as(IssueSummaryDTO.AliasNames.ISSUE_ORIGINAL_ESTIMATE_SUM),
         qIssue.timeestimate.sum().as(IssueSummaryDTO.AliasNames.ISSUE_TIME_ESTIMATE_SUM),
         qWorklog.timeworked.sum().as(IssueSummaryDTO.AliasNames.WORKLOGGED_TIME_SUM));
-  }
-
-  @Override
-  protected void extendResult(final Connection connection, final Configuration configuration,
-      final List<IssueSummaryDTO> result) {
   }
 
 }

@@ -16,6 +16,7 @@
 package org.everit.jira.reporting.plugin.query;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -26,23 +27,43 @@ import org.everit.jira.querydsl.schema.QComponent;
 import org.everit.jira.querydsl.schema.QJiraissue;
 import org.everit.jira.querydsl.schema.QNodeassociation;
 import org.everit.jira.querydsl.schema.QProjectversion;
+import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
 import org.everit.jira.reporting.plugin.dto.WorklogDetailsDTO;
-import org.everit.jira.reporting.plugin.dto.WorklogDetailsSearchParam;
 
 import com.atlassian.jira.entity.Entity;
 import com.atlassian.jira.issue.IssueRelationConstants;
 import com.querydsl.core.group.GroupBy;
-import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.QBean;
 import com.querydsl.core.types.dsl.StringExpression;
 import com.querydsl.sql.Configuration;
 import com.querydsl.sql.SQLQuery;
 
-public class WorklogDetailsQuery extends AbstractReportQuery<WorklogDetailsDTO> {
+/**
+ * Query for worklog details report.
+ */
+public class WorklogDetailsReportQuery extends AbstractListReportQuery<WorklogDetailsDTO> {
 
-  public WorklogDetailsQuery(final WorklogDetailsSearchParam worklogDetailsSearchParam) {
-    super(worklogDetailsSearchParam);
+  public WorklogDetailsReportQuery(final ReportSearchParam reportSearchParam) {
+    super(reportSearchParam);
+  }
+
+  @Override
+  public List<WorklogDetailsDTO> call(final Connection connection,
+      final Configuration configuration)
+          throws SQLException {
+    SQLQuery<WorklogDetailsDTO> query = new SQLQuery<WorklogDetailsDTO>(connection, configuration)
+        .select(createSelectProjection());
+
+    appendBaseFromAndJoin(query);
+
+    appendBaseWhere(query);
+
+    List<WorklogDetailsDTO> result = query.fetch();
+
+    extendResult(connection, configuration, result);
+
+    return result;
   }
 
   private ConcurrentSkipListSet<Long> collectIssueIds(final List<WorklogDetailsDTO> result) {
@@ -53,13 +74,7 @@ public class WorklogDetailsQuery extends AbstractReportQuery<WorklogDetailsDTO> 
     return issueIds;
   }
 
-  @Override
-  protected Expression<?>[] createGroupBy() {
-    return new Expression<?>[] {};
-  }
-
-  @Override
-  protected QBean<WorklogDetailsDTO> createSelectProjection() {
+  private QBean<WorklogDetailsDTO> createSelectProjection() {
     StringExpression issueKey = createIssueKeyExpression(qIssue, qProject);
     return Projections.bean(WorklogDetailsDTO.class,
         qProject.pkey.as(WorklogDetailsDTO.AliasNames.PROJECT_KEY),
@@ -81,11 +96,11 @@ public class WorklogDetailsQuery extends AbstractReportQuery<WorklogDetailsDTO> 
         qResolution.pname.as(WorklogDetailsDTO.AliasNames.RESOLUTION_NAME),
         qWorklog.startdate.as(WorklogDetailsDTO.AliasNames.WORKLOG_START_DATE),
         qWorklog.created.as(WorklogDetailsDTO.AliasNames.WORKLOG_CREATED),
-        qWorklog.updated.as(WorklogDetailsDTO.AliasNames.WORKLOG_UPDATED));
+        qWorklog.updated.as(WorklogDetailsDTO.AliasNames.WORKLOG_UPDATED),
+        qWorklog.author.as(WorklogDetailsDTO.AliasNames.WORKLOG_AUTHOR));
   }
 
-  @Override
-  protected void extendResult(final Connection connection, final Configuration configuration,
+  private void extendResult(final Connection connection, final Configuration configuration,
       final List<WorklogDetailsDTO> result) {
     ConcurrentSkipListSet<Long> collectIssueIds = collectIssueIds(result);
 

@@ -15,8 +15,6 @@
  */
 package org.everit.jira.reporting.plugin.query;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -38,20 +36,24 @@ import org.everit.jira.querydsl.schema.QProjectversion;
 import org.everit.jira.querydsl.schema.QResolution;
 import org.everit.jira.querydsl.schema.QWorklog;
 import org.everit.jira.querydsl.support.QuerydslCallable;
-import org.everit.jira.reporting.plugin.dto.WorklogDetailsSearchParam;
+import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
 
 import com.atlassian.jira.entity.Entity;
 import com.atlassian.jira.issue.IssueRelationConstants;
-import com.querydsl.core.types.Expression;
-import com.querydsl.core.types.QBean;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.StringExpression;
-import com.querydsl.sql.Configuration;
 import com.querydsl.sql.SQLExpressions;
 import com.querydsl.sql.SQLQuery;
 
-public abstract class AbstractReportQuery<T> implements QuerydslCallable<List<T>> {
+/**
+ * Abstract implementation of {@link QuerydslCallable}. Provide source (from), joins and filter
+ * condition to report queries.
+ *
+ * @param <T>
+ *          Type of the return value
+ */
+public abstract class AbstractListReportQuery<T> implements QuerydslCallable<List<T>> {
 
   protected BooleanExpression expressionFalse;
 
@@ -75,10 +77,16 @@ public abstract class AbstractReportQuery<T> implements QuerydslCallable<List<T>
 
   protected final QWorklog qWorklog;
 
-  protected final WorklogDetailsSearchParam worklogDetailsSearchParam;
+  protected final ReportSearchParam reportSearchParam;
 
-  protected AbstractReportQuery(final WorklogDetailsSearchParam worklogDetailsSearchParam) {
-    this.worklogDetailsSearchParam = worklogDetailsSearchParam;
+  /**
+   * Simple constructor.
+   *
+   * @param reportSearchParam
+   *          the {@link ReportSearchParam} object, that contains parameters to filter condition.
+   */
+  protected AbstractListReportQuery(final ReportSearchParam reportSearchParam) {
+    this.reportSearchParam = reportSearchParam;
     qIssue = new QJiraissue("issue");
     qProject = new QProject("project");
     qIssuetype = new QIssuetype("issuetype");
@@ -92,10 +100,31 @@ public abstract class AbstractReportQuery<T> implements QuerydslCallable<List<T>
     expressionFalse = Expressions.ONE.ne(Expressions.ONE);
   }
 
-  @Override
-  public List<T> call(final Connection connection,
-      final Configuration configuration) throws SQLException {
+  /**
+   * Append base from and joins to the given query.
+   *
+   * @param query
+   *          the {@link SQLQuery}.
+   */
+  protected void appendBaseFromAndJoin(final SQLQuery<?> query) {
+    query.from(qWorklog)
+        .join(qIssue).on(qWorklog.issueid.eq(qIssue.id))
+        .join(qProject).on(qIssue.project.eq(qProject.id))
+        .join(qIssuetype).on(qIssue.issuetype.eq(qIssuetype.id))
+        .join(qIssuestatus).on(qIssue.issuestatus.eq(qIssuestatus.id))
+        .join(qPriority).on(qIssue.priority.eq(qPriority.id))
+        .leftJoin(qResolution).on(qIssue.resolution.eq(qResolution.id))
+        .leftJoin(qAppUser).on(qAppUser.userKey.eq(qWorklog.author))
+        .leftJoin(qCwdUser).on(qCwdUser.lowerUserName.eq(qAppUser.lowerUserName));
+  }
 
+  /**
+   * Append base filter condition to the given query.
+   *
+   * @param query
+   *          the {@link SQLQuery}.
+   */
+  protected void appendBaseWhere(final SQLQuery<?> query) {
     BooleanExpression where = expressionTrue;
     where = filterToProjectIds(qProject, where);
     where = filterToIssueTypeIds(qIssuetype, where);
@@ -116,38 +145,14 @@ public abstract class AbstractReportQuery<T> implements QuerydslCallable<List<T>
     where = filterToWorklogStartDate(qWorklog, where);
     where = filterToWorklogEndDate(qWorklog, where);
 
-    List<T> result = new SQLQuery<T>(connection, configuration)
-        .select(createSelectProjection())
-        .from(qWorklog)
-        .join(qIssue).on(qWorklog.issueid.eq(qIssue.id))
-        .join(qProject).on(qIssue.project.eq(qProject.id))
-        .join(qIssuetype).on(qIssue.issuetype.eq(qIssuetype.id))
-        .join(qIssuestatus).on(qIssue.issuestatus.eq(qIssuestatus.id))
-        .join(qPriority).on(qIssue.priority.eq(qPriority.id))
-        .leftJoin(qResolution).on(qIssue.resolution.eq(qResolution.id))
-        .leftJoin(qAppUser).on(qAppUser.userKey.eq(qWorklog.author))
-        .leftJoin(qCwdUser).on(qCwdUser.lowerUserName.eq(qAppUser.lowerUserName))
-        .where(where)
-        .groupBy(createGroupBy())
-        .fetch();
-
-    extendResult(connection, configuration, result);
-
-    return result;
+    query.where(where);
   }
-
-  protected abstract Expression<?>[] createGroupBy();
 
   protected StringExpression createIssueKeyExpression(final QJiraissue qIssue,
       final QProject qProject) {
     StringExpression issueKey = qProject.pkey.concat("-").concat(qIssue.issuenum.stringValue());
     return issueKey;
   }
-
-  protected abstract QBean<T> createSelectProjection();
-
-  protected abstract void extendResult(final Connection connection,
-      final Configuration configuration, final List<T> result);
 
   private BooleanExpression filterToAffectedVersions(final QJiraissue qIssue,
       final BooleanExpression where) {
@@ -157,7 +162,7 @@ public abstract class AbstractReportQuery<T> implements QuerydslCallable<List<T>
 
     BooleanExpression existsAffectedVersions = expressionFalse;
     boolean filterToAffectedVersions = false;
-    if (!worklogDetailsSearchParam.issueAffectedVersions.isEmpty()) {
+    if (!reportSearchParam.issueAffectedVersions.isEmpty()) {
       existsAffectedVersions = SQLExpressions.select(qNodeassociationAffectedVersion.sourceNodeId)
           .from(qProjectversion)
           .join(qNodeassociationAffectedVersion)
@@ -166,13 +171,13 @@ public abstract class AbstractReportQuery<T> implements QuerydslCallable<List<T>
               .and(qNodeassociationAffectedVersion.sinkNodeEntity.eq(Entity.Name.VERSION))
               .and(qNodeassociationAffectedVersion.sourceNodeEntity.eq(Entity.Name.ISSUE))
               .and(qNodeassociationAffectedVersion.sourceNodeId.eq(qIssue.id))
-              .and(qProjectversion.vname.in(worklogDetailsSearchParam.issueAffectedVersions)))
+              .and(qProjectversion.vname.in(reportSearchParam.issueAffectedVersions)))
           .exists();
       filterToAffectedVersions = true;
     }
 
     BooleanExpression notExistsNoAffectedVersions = expressionFalse;
-    if (worklogDetailsSearchParam.selectNoAffectedVersionIssue) {
+    if (reportSearchParam.selectNoAffectedVersionIssue) {
       notExistsNoAffectedVersions =
           SQLExpressions.select(qNodeassociationAffectedVersion.sourceNodeId)
               .from(qProjectversion)
@@ -201,7 +206,7 @@ public abstract class AbstractReportQuery<T> implements QuerydslCallable<List<T>
 
     BooleanExpression existsVersions = expressionFalse;
     boolean filterToFixedVersions = false;
-    if (!worklogDetailsSearchParam.issueFixedVersions.isEmpty()) {
+    if (!reportSearchParam.issueFixedVersions.isEmpty()) {
       existsVersions = SQLExpressions.select(qNodeassociationFixedVersion.sourceNodeId)
           .from(qProjectversion)
           .join(qNodeassociationFixedVersion)
@@ -210,13 +215,13 @@ public abstract class AbstractReportQuery<T> implements QuerydslCallable<List<T>
               .and(qNodeassociationFixedVersion.sinkNodeEntity.eq(Entity.Name.VERSION))
               .and(qNodeassociationFixedVersion.sourceNodeEntity.eq(Entity.Name.ISSUE))
               .and(qNodeassociationFixedVersion.sourceNodeId.eq(qIssue.id))
-              .and(qProjectversion.vname.in(worklogDetailsSearchParam.issueFixedVersions)))
+              .and(qProjectversion.vname.in(reportSearchParam.issueFixedVersions)))
           .exists();
       filterToFixedVersions = true;
     }
 
     BooleanExpression notExistsNoVersions = expressionFalse;
-    if (worklogDetailsSearchParam.selectNoFixedVersionIssue) {
+    if (reportSearchParam.selectNoFixedVersionIssue) {
       notExistsNoVersions = SQLExpressions.select(qNodeassociationFixedVersion.sourceNodeId)
           .from(qProjectversion)
           .join(qNodeassociationFixedVersion)
@@ -230,7 +235,7 @@ public abstract class AbstractReportQuery<T> implements QuerydslCallable<List<T>
     }
 
     BooleanExpression releasedVersionExpression = expressionFalse;
-    if (worklogDetailsSearchParam.selectReleasedFixVersion) {
+    if (reportSearchParam.selectReleasedFixVersion) {
       releasedVersionExpression = SQLExpressions
           .select(qNodeassociationFixedVersion.sourceNodeId)
           .from(qProjectversion)
@@ -246,7 +251,7 @@ public abstract class AbstractReportQuery<T> implements QuerydslCallable<List<T>
     }
 
     BooleanExpression unreleasedVersionExpression = expressionFalse;
-    if (worklogDetailsSearchParam.selectUnreleasedFixVersion) {
+    if (reportSearchParam.selectUnreleasedFixVersion) {
       unreleasedVersionExpression = SQLExpressions
           .select(qNodeassociationFixedVersion.sourceNodeId)
           .from(qProjectversion)
@@ -274,13 +279,13 @@ public abstract class AbstractReportQuery<T> implements QuerydslCallable<List<T>
       final BooleanExpression where) {
     boolean filterToIssueAssignees = false;
     BooleanExpression assignedExpressions = expressionFalse;
-    if (!worklogDetailsSearchParam.issueAssignees.isEmpty()) {
-      assignedExpressions = qIssue.assignee.in(worklogDetailsSearchParam.issueAssignees);
+    if (!reportSearchParam.issueAssignees.isEmpty()) {
+      assignedExpressions = qIssue.assignee.in(reportSearchParam.issueAssignees);
       filterToIssueAssignees = true;
     }
 
     BooleanExpression unassignedExpressions = expressionFalse;
-    if (worklogDetailsSearchParam.selectUnassgined) {
+    if (reportSearchParam.selectUnassgined) {
       unassignedExpressions = qIssue.assignee.isNull();
       filterToIssueAssignees = true;
     }
@@ -299,7 +304,7 @@ public abstract class AbstractReportQuery<T> implements QuerydslCallable<List<T>
 
     BooleanExpression existsComponents = expressionFalse;
     boolean filterToIssueComponent = false;
-    if (!worklogDetailsSearchParam.issueComponents.isEmpty()) {
+    if (!reportSearchParam.issueComponents.isEmpty()) {
       existsComponents = SQLExpressions.select(qNodeassociationComponents.sourceNodeId)
           .from(qComponent)
           .join(qNodeassociationComponents)
@@ -308,13 +313,13 @@ public abstract class AbstractReportQuery<T> implements QuerydslCallable<List<T>
               .and(qNodeassociationComponents.sinkNodeEntity.eq(Entity.Name.COMPONENT))
               .and(qNodeassociationComponents.sourceNodeEntity.eq(Entity.Name.ISSUE))
               .and(qNodeassociationComponents.sourceNodeId.eq(qIssue.id))
-              .and(qComponent.cname.in(worklogDetailsSearchParam.issueComponents)))
+              .and(qComponent.cname.in(reportSearchParam.issueComponents)))
           .exists();
       filterToIssueComponent = true;
     }
 
     BooleanExpression notExistsNoComponents = expressionFalse;
-    if (worklogDetailsSearchParam.selectNoComponentIssue) {
+    if (reportSearchParam.selectNoComponentIssue) {
       notExistsNoComponents = SQLExpressions.select(qNodeassociationComponents.sourceNodeId)
           .from(qComponent)
           .join(qNodeassociationComponents)
@@ -335,10 +340,10 @@ public abstract class AbstractReportQuery<T> implements QuerydslCallable<List<T>
 
   private BooleanExpression filterToIssueCreatedDate(final QJiraissue qIssue,
       final BooleanExpression where) {
-    if (worklogDetailsSearchParam.issueCreateDate != null) {
+    if (reportSearchParam.issueCreateDate != null) {
       return where
           .and(qIssue.created.eq(
-              new Timestamp(worklogDetailsSearchParam.issueCreateDate
+              new Timestamp(reportSearchParam.issueCreateDate
                   .getTime())));
     }
     return where;
@@ -349,12 +354,12 @@ public abstract class AbstractReportQuery<T> implements QuerydslCallable<List<T>
     QIssuelinktype qIssuelinktype = new QIssuelinktype("epic_issuelinktype");
     QIssuelink qIssuelink = new QIssuelink("epic_issuelink");
 
-    if (!worklogDetailsSearchParam.issueEpicLinkIssueIds.isEmpty()) {
+    if (!reportSearchParam.issueEpicLinkIssueIds.isEmpty()) {
       return where.and(SQLExpressions.select(qIssuelink.id)
           .from(qIssuelink)
           .join(qIssuelinktype).on(qIssuelink.linktype.eq(qIssuelinktype.id))
           .where(qIssuelink.source.eq(qIssue.id)
-              .and(qIssuelink.source.in(worklogDetailsSearchParam.issueEpicLinkIssueIds))
+              .and(qIssuelink.source.in(reportSearchParam.issueEpicLinkIssueIds))
               .and(qIssuelinktype.linkname.eq("Epic-Story Link")))
           .exists());
     }
@@ -366,13 +371,13 @@ public abstract class AbstractReportQuery<T> implements QuerydslCallable<List<T>
     QCustomfieldvalue qCustomfieldValue = new QCustomfieldvalue("customfieldvalue");
     QCustomfield qCustomfield = new QCustomfield("customfield");
 
-    if (worklogDetailsSearchParam.issueEpicName != null) {
+    if (reportSearchParam.issueEpicName != null) {
       return where.and(SQLExpressions.select(qCustomfield.id)
           .from(qCustomfield)
           .leftJoin(qCustomfieldValue).on(qCustomfield.id.eq(qCustomfieldValue.customfield))
           .where(qCustomfieldValue.issue.eq(qIssue.id)
               .and(qCustomfieldValue.stringvalue.toLowerCase()
-                  .like(worklogDetailsSearchParam.issueEpicName.toLowerCase() + "%"))
+                  .like(reportSearchParam.issueEpicName.toLowerCase() + "%"))
               .and(qCustomfield.cfname.eq("Epic Name")))
           .exists());
     }
@@ -381,8 +386,8 @@ public abstract class AbstractReportQuery<T> implements QuerydslCallable<List<T>
 
   private BooleanExpression filterToIssueIds(final QJiraissue qIssue,
       final BooleanExpression where) {
-    if (!worklogDetailsSearchParam.issueIds.isEmpty()) {
-      return where.and(qIssue.id.in(worklogDetailsSearchParam.issueIds));
+    if (!reportSearchParam.issueIds.isEmpty()) {
+      return where.and(qIssue.id.in(reportSearchParam.issueIds));
     }
     return where;
   }
@@ -390,11 +395,11 @@ public abstract class AbstractReportQuery<T> implements QuerydslCallable<List<T>
   private BooleanExpression filterToIssueLabels(final QJiraissue qIssue,
       final BooleanExpression where) {
     QLabel qLabel = new QLabel("label");
-    if (!worklogDetailsSearchParam.labels.isEmpty()) {
+    if (!reportSearchParam.labels.isEmpty()) {
       return where.and(SQLExpressions.select(qLabel.id)
           .from(qLabel)
           .where(qLabel.issue.eq(qIssue.id)
-              .and(qLabel.label.in(worklogDetailsSearchParam.labels)))
+              .and(qLabel.label.in(reportSearchParam.labels)))
           .exists());
     }
     return where;
@@ -402,16 +407,16 @@ public abstract class AbstractReportQuery<T> implements QuerydslCallable<List<T>
 
   private BooleanExpression filterToIssuePriorityIds(final QPriority qPriority,
       final BooleanExpression where) {
-    if (!worklogDetailsSearchParam.issuePriorityIds.isEmpty()) {
-      return where.and(qPriority.id.in(worklogDetailsSearchParam.issuePriorityIds));
+    if (!reportSearchParam.issuePriorityIds.isEmpty()) {
+      return where.and(qPriority.id.in(reportSearchParam.issuePriorityIds));
     }
     return where;
   }
 
   private BooleanExpression filterToIssueReporters(final QJiraissue qIssue,
       final BooleanExpression where) {
-    if (!worklogDetailsSearchParam.issueReporters.isEmpty()) {
-      return where.and(qIssue.reporter.in(worklogDetailsSearchParam.issueReporters));
+    if (!reportSearchParam.issueReporters.isEmpty()) {
+      return where.and(qIssue.reporter.in(reportSearchParam.issueReporters));
     }
     return where;
   }
@@ -421,13 +426,13 @@ public abstract class AbstractReportQuery<T> implements QuerydslCallable<List<T>
     boolean filterToIssueResolution = false;
 
     BooleanExpression resolutionIssuesExpression = expressionFalse;
-    if (!worklogDetailsSearchParam.issueResolutionIds.isEmpty()) {
-      resolutionIssuesExpression = qResolution.id.in(worklogDetailsSearchParam.issueResolutionIds);
+    if (!reportSearchParam.issueResolutionIds.isEmpty()) {
+      resolutionIssuesExpression = qResolution.id.in(reportSearchParam.issueResolutionIds);
       filterToIssueResolution = true;
     }
 
     BooleanExpression unresolvedResolutionExpression = expressionFalse;
-    if (worklogDetailsSearchParam.selectUnresolvedResolution) {
+    if (reportSearchParam.selectUnresolvedResolution) {
       unresolvedResolutionExpression = qIssue.resolution.isNull();
       filterToIssueResolution = true;
     }
@@ -440,41 +445,41 @@ public abstract class AbstractReportQuery<T> implements QuerydslCallable<List<T>
 
   private BooleanExpression filterToIssueStatusIds(final QIssuestatus qIssuestatus,
       final BooleanExpression where) {
-    if (!worklogDetailsSearchParam.issueStatusIds.isEmpty()) {
-      return where.and(qIssuestatus.id.in(worklogDetailsSearchParam.issueStatusIds));
+    if (!reportSearchParam.issueStatusIds.isEmpty()) {
+      return where.and(qIssuestatus.id.in(reportSearchParam.issueStatusIds));
     }
     return where;
   }
 
   private BooleanExpression filterToIssueTypeIds(final QIssuetype qIssuetype,
       final BooleanExpression where) {
-    if (!worklogDetailsSearchParam.issueTypeIds.isEmpty()) {
-      return where.and(qIssuetype.id.in(worklogDetailsSearchParam.issueTypeIds));
+    if (!reportSearchParam.issueTypeIds.isEmpty()) {
+      return where.and(qIssuetype.id.in(reportSearchParam.issueTypeIds));
     }
     return where;
   }
 
   private BooleanExpression filterToProjectIds(final QProject qProject,
       final BooleanExpression where) {
-    if (!worklogDetailsSearchParam.projectIds.isEmpty()) {
-      return where.and(qProject.id.in(worklogDetailsSearchParam.projectIds));
+    if (!reportSearchParam.projectIds.isEmpty()) {
+      return where.and(qProject.id.in(reportSearchParam.projectIds));
     }
     return where;
   }
 
   private BooleanExpression filterToWorklogAuhtors(final QWorklog qWorklog,
       final BooleanExpression where) {
-    if (!worklogDetailsSearchParam.users.isEmpty()) {
-      return where.and(qWorklog.author.in(worklogDetailsSearchParam.users));
+    if (!reportSearchParam.users.isEmpty()) {
+      return where.and(qWorklog.author.in(reportSearchParam.users));
     }
     return where;
   }
 
   private BooleanExpression filterToWorklogEndDate(final QWorklog qWorklog,
       final BooleanExpression where) {
-    if (worklogDetailsSearchParam.worklogEndDate != null) {
+    if (reportSearchParam.worklogEndDate != null) {
       return where.and(qWorklog.startdate.lt(
-          new Timestamp(worklogDetailsSearchParam.worklogEndDate
+          new Timestamp(reportSearchParam.worklogEndDate
               .getTime())));
     }
     return where;
@@ -482,9 +487,9 @@ public abstract class AbstractReportQuery<T> implements QuerydslCallable<List<T>
 
   private BooleanExpression filterToWorklogStartDate(final QWorklog qWorklog,
       final BooleanExpression where) {
-    if (worklogDetailsSearchParam.worklogStartDate != null) {
+    if (reportSearchParam.worklogStartDate != null) {
       return where.and(qWorklog.startdate.goe(
-          new Timestamp(worklogDetailsSearchParam.worklogStartDate
+          new Timestamp(reportSearchParam.worklogStartDate
               .getTime())));
     }
     return where;

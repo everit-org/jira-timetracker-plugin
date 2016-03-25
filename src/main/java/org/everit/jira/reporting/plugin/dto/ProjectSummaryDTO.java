@@ -15,8 +15,14 @@
  */
 package org.everit.jira.reporting.plugin.dto;
 
+/**
+ * Representation of the project summary query result.
+ */
 public class ProjectSummaryDTO {
 
+  /**
+   * Alias names to projections bean.
+   */
   public final class AliasNames {
 
     public static final String ISSUE_TIME_ESTIMATE_SUM = "issuesReaminingTimeSum";

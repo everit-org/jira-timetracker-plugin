@@ -19,8 +19,14 @@ import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Representation of the worklog details query result.
+ */
 public class WorklogDetailsDTO {
 
+  /**
+   * Alias names to projections bean.
+   */
   public final class AliasNames {
 
     public static final String ISSUE_ASSIGNE = "issueAssigne";
@@ -52,6 +58,8 @@ public class WorklogDetailsDTO {
     public static final String PROJECT_KEY = "projectKey";
 
     public static final String RESOLUTION_NAME = "resolutionName";
+
+    public static final String WORKLOG_AUTHOR = "worklogAuthor";
 
     public static final String WORKLOG_BODY = "worklogBody";
 
@@ -102,6 +110,8 @@ public class WorklogDetailsDTO {
   private String projectKey;
 
   private String resolutionName;
+
+  private String worklogAuthor;
 
   private String worklogBody;
 
@@ -183,6 +193,10 @@ public class WorklogDetailsDTO {
 
   public String getResolutionName() {
     return resolutionName;
+  }
+
+  public String getWorklogAuthor() {
+    return worklogAuthor;
   }
 
   public String getWorklogBody() {
@@ -275,6 +289,10 @@ public class WorklogDetailsDTO {
 
   public void setResolutionName(final String resolutionName) {
     this.resolutionName = resolutionName;
+  }
+
+  public void setWorklogAuthor(final String worklogAuthor) {
+    this.worklogAuthor = worklogAuthor;
   }
 
   public void setWorklogBody(final String worklogBody) {

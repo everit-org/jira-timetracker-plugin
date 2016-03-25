@@ -15,8 +15,14 @@
  */
 package org.everit.jira.reporting.plugin.dto;
 
+/**
+ * Representation of the issue summary query result.
+ */
 public class IssueSummaryDTO {
 
+  /**
+   * Alias names to projections bean.
+   */
   public final class AliasNames {
 
     public static final String ASSIGNEE = "assignee";

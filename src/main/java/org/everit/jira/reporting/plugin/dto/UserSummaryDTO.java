@@ -15,8 +15,14 @@
  */
 package org.everit.jira.reporting.plugin.dto;
 
+/**
+ * Representation of the user summary query result.
+ */
 public class UserSummaryDTO {
 
+  /**
+   * Alias names to projections bean.
+   */
   public final class AliasNames {
 
     public static final String USER_DISPLAY_NAME = "userDisplayName";

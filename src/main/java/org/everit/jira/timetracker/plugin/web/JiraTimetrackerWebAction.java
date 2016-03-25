@@ -34,11 +34,11 @@ import org.everit.jira.reporting.plugin.dto.IssueSummaryDTO;
 import org.everit.jira.reporting.plugin.dto.ProjectSummaryDTO;
 import org.everit.jira.reporting.plugin.dto.UserSummaryDTO;
 import org.everit.jira.reporting.plugin.dto.WorklogDetailsDTO;
-import org.everit.jira.reporting.plugin.dto.WorklogDetailsSearchParam;
-import org.everit.jira.reporting.plugin.query.IssueSummaryQuery;
-import org.everit.jira.reporting.plugin.query.ProjectSummaryQuery;
-import org.everit.jira.reporting.plugin.query.UserSummaryQuery;
-import org.everit.jira.reporting.plugin.query.WorklogDetailsQuery;
+import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
+import org.everit.jira.reporting.plugin.query.IssueSummaryReportQuery;
+import org.everit.jira.reporting.plugin.query.ProjectSummaryReportQuery;
+import org.everit.jira.reporting.plugin.query.UserSummaryReportQuery;
+import org.everit.jira.reporting.plugin.query.WorklogDetailsReportQuery;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
 import org.everit.jira.timetracker.plugin.dto.ActionResult;
@@ -1590,7 +1590,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private void testWorklogDetailsQuery() {
     try {
       QuerydslSupport querydslSupport = new QuerydslSupportImpl();
-      WorklogDetailsSearchParam worklogDetailsSearchParam = new WorklogDetailsSearchParam();
+      ReportSearchParam reportSearchParam = new ReportSearchParam();
       // ArrayList<Long> projectIds = new ArrayList<Long>();
       // projectIds.add(10000L);
       // projectIds.add(10100L);
@@ -1707,10 +1707,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       // worklogDetailsSearchParam.worklogEndDate = new Date();
 
       worklogDetails =
-          querydslSupport.execute(new WorklogDetailsQuery(worklogDetailsSearchParam));
-      projectsSummary = querydslSupport.execute(new ProjectSummaryQuery(worklogDetailsSearchParam));
-      issuesSummary = querydslSupport.execute(new IssueSummaryQuery(worklogDetailsSearchParam));
-      usersSummary = querydslSupport.execute(new UserSummaryQuery(worklogDetailsSearchParam));
+          querydslSupport.execute(new WorklogDetailsReportQuery(reportSearchParam));
+      projectsSummary = querydslSupport.execute(new ProjectSummaryReportQuery(reportSearchParam));
+      issuesSummary = querydslSupport.execute(new IssueSummaryReportQuery(reportSearchParam));
+      usersSummary = querydslSupport.execute(new UserSummaryReportQuery(reportSearchParam));
     } catch (Exception e2) {
       e2.printStackTrace();
     }
