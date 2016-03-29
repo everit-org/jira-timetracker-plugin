@@ -31,6 +31,7 @@ import org.apache.log4j.Logger;
 import org.everit.jira.querydsl.support.QuerydslSupport;
 import org.everit.jira.querydsl.support.ri.QuerydslSupportImpl;
 import org.everit.jira.reporting.plugin.dto.IssueSummaryDTO;
+import org.everit.jira.reporting.plugin.dto.PickerComponentDTO;
 import org.everit.jira.reporting.plugin.dto.PickerUserDTO;
 import org.everit.jira.reporting.plugin.dto.PickerVersionDTO;
 import org.everit.jira.reporting.plugin.dto.ProjectSummaryDTO;
@@ -38,6 +39,7 @@ import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
 import org.everit.jira.reporting.plugin.dto.UserSummaryDTO;
 import org.everit.jira.reporting.plugin.dto.WorklogDetailsDTO;
 import org.everit.jira.reporting.plugin.query.IssueSummaryReportQuery;
+import org.everit.jira.reporting.plugin.query.PickerComponentQuery;
 import org.everit.jira.reporting.plugin.query.PickerUserQuery;
 import org.everit.jira.reporting.plugin.query.PickerUserQuery.PickerUserQueryType;
 import org.everit.jira.reporting.plugin.query.PickerVersionQuery;
@@ -127,6 +129,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    */
   private String commentForActions = "";
 
+  private List<PickerComponentDTO> components;
+
   private String contextPath;
 
   /**
@@ -153,7 +157,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The summary of day.
    */
   private String daySummary = "";
-
   private String debugMessage = "";
   /**
    * The deleted worklog id.
@@ -163,6 +166,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The worklog duration.
    */
   private String durationTime = "";
+
   /**
    * The all edit worklogs ids.
    */
@@ -223,16 +227,15 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The calendar isPopup.
    */
   private int isPopup;
-
   /**
    * The issue key.
    */
   private String issueKey = "";
+
   /**
    * The issues.
    */
   private transient List<Issue> issues = new ArrayList<Issue>();
-
   /**
    * The filtered Issues id.
    */
@@ -246,6 +249,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The {@link JiraTimetrackerPlugin}.
    */
   private transient JiraTimetrackerPlugin jiraTimetrackerPlugin;
+
   /**
    * The jira version.
    */
@@ -277,8 +281,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private String monthSummary = "";
 
   private String piwikHost;
-
   private String piwikSiteId;
+
   private String pluginVersion;
 
   /**
@@ -680,6 +684,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   public String getComment() {
     return comment;
+  }
+
+  public List<PickerComponentDTO> getComponents() {
+    return components;
   }
 
   public String getContextPath() {
@@ -1732,6 +1740,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       users = querydslSupport.execute(new PickerUserQuery(PickerUserQueryType.ASSIGNEE));
       versions =
           querydslSupport.execute(new PickerVersionQuery(PickerVersionQueryType.FIX_VERSION));
+
+      components = querydslSupport.execute(new PickerComponentQuery());
     } catch (Exception e2) {
       e2.printStackTrace();
     }
