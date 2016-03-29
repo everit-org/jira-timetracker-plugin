@@ -32,12 +32,15 @@ import org.everit.jira.querydsl.support.QuerydslSupport;
 import org.everit.jira.querydsl.support.ri.QuerydslSupportImpl;
 import org.everit.jira.reporting.plugin.dto.IssueSummaryDTO;
 import org.everit.jira.reporting.plugin.dto.ProjectSummaryDTO;
+import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
+import org.everit.jira.reporting.plugin.dto.PickerUserDTO;
 import org.everit.jira.reporting.plugin.dto.UserSummaryDTO;
 import org.everit.jira.reporting.plugin.dto.WorklogDetailsDTO;
-import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
 import org.everit.jira.reporting.plugin.query.IssueSummaryReportQuery;
 import org.everit.jira.reporting.plugin.query.ProjectSummaryReportQuery;
 import org.everit.jira.reporting.plugin.query.UserSummaryReportQuery;
+import org.everit.jira.reporting.plugin.query.PickerUserQuery;
+import org.everit.jira.reporting.plugin.query.PickerUserQuery.UserQueryType;
 import org.everit.jira.reporting.plugin.query.WorklogDetailsReportQuery;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
@@ -309,6 +312,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private String userId;
 
   private transient ApplicationUser userPickerObject;
+
+  private List<PickerUserDTO> users;
 
   private List<UserSummaryDTO> usersSummary = Collections.emptyList();
 
@@ -854,6 +859,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   public ApplicationUser getUserPickerObject() {
     return userPickerObject;
+  }
+
+  public List<PickerUserDTO> getUsers() {
+    return users;
   }
 
   public List<UserSummaryDTO> getUsersSummary() {
@@ -1711,6 +1720,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       projectsSummary = querydslSupport.execute(new ProjectSummaryReportQuery(reportSearchParam));
       issuesSummary = querydslSupport.execute(new IssueSummaryReportQuery(reportSearchParam));
       usersSummary = querydslSupport.execute(new UserSummaryReportQuery(reportSearchParam));
+      users = querydslSupport.execute(new PickerUserQuery(UserQueryType.ASSIGNEE));
     } catch (Exception e2) {
       e2.printStackTrace();
     }

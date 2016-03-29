@@ -251,5 +251,15 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
   <td>$us.workloggedTimeSum</td>
  </tr>
 #end
+</tbody></table>
+<br/><p>--------------------------------------USERS------------------------</p><br/>
+<table><tbody>
+#foreach ($u in $users)
+ <tr>
+  <td>$u.displayName</td>
+  <td>$u.userName</td>
+ </tr>
+#end
+</tbody></table>
 </body>
 </html>
