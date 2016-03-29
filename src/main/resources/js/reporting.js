@@ -74,6 +74,13 @@ everit.reporting.main = everit.reporting.main || {};
     initTypeSelect();
     initPrioritySelect();
     initResolutionSelect();
+    initGroupSelect();
+    initUserSelect();
+    initAssigneSelect();
+    initReporterSelect();
+    initAffectedVersionSelect();
+    initFixVersionSelect();
+    initComponentSelect();
   });
   
   
@@ -127,6 +134,117 @@ everit.reporting.main = everit.reporting.main || {};
         updatePickerButtonText("#projectPicker" , "#projectPickerButton", "Project: All");
         jQuery("#projectPicker").on("change unselect", function() {
           updatePickerButtonText("#projectPicker" , "#projectPickerButton", "Project: All");
+        });
+      },
+      error : function(XMLHttpRequest, status, error){
+      }
+    });
+  };
+  
+  function initAssigneSelect(){
+    var selectedArray =  jQuery.makeArray( reporting.values.selectedAssignes ); 
+    jQuery.ajax({
+      async: true,
+      type: 'GET',
+      url : contextPath + "/rest/api/2/user/picker?query=daniel.toth@everit.biz",
+      data : [],
+      success : function(result){
+        for( var i in result.users) {
+          var obj = result.users[i];
+          var avatarId =  obj.avatarUrl;
+          var selected = checkSelected(obj.id, selectedArray);
+          jQuery("#assignePicker").append("<option data-icon=" + avatarId + " value="+obj.name + " "+ selected + ">" +obj.displayName +"</option>");
+        }
+        var pp = new AJS.CheckboxMultiSelect({
+          element:  AJS.$("#assignePicker"),
+          submitInputVal: true,
+        });
+        updatePickerButtonText("#assignePicker" , "#assignePickerButton", "Assigne: All");
+        jQuery("#assignePicker").on("change unselect", function() {
+          updatePickerButtonText("#assignePicker" , "#assignePickerButton", "Assigne: All");
+        });
+      },
+      error : function(XMLHttpRequest, status, error){
+      }
+    });
+  };
+  
+  function initReporterSelect(){
+    var selectedArray =  jQuery.makeArray( reporting.values.selectedReportes ); 
+    jQuery.ajax({
+      async: true,
+      type: 'GET',
+      url : contextPath + "/rest/api/2/user/picker?query=daniel.toth@everit.biz",
+      data : [],
+      success : function(result){
+        for( var i in result.users) {
+          var obj = result.users[i];
+          var avatarId =  obj.avatarUrl;
+          var selected = checkSelected(obj.id, selectedArray);
+          jQuery("#reporterPicker").append("<option data-icon=" + avatarId + " value="+obj.name + " "+ selected + ">" +obj.displayName +"</option>");
+        }
+        var pp = new AJS.CheckboxMultiSelect({
+          element:  AJS.$("#reporterPicker"),
+          submitInputVal: true,
+        });
+        updatePickerButtonText("#reporterPicker" , "#reporterPickerButton", "Reporter: All");
+        jQuery("#reporterPicker").on("change unselect", function() {
+          updatePickerButtonText("#reporterPicker" , "#reporterPickerButton", "Reporter: All");
+        });
+      },
+      error : function(XMLHttpRequest, status, error){
+      }
+    });
+  };
+  
+  function initUserSelect(){
+    var selectedArray =  jQuery.makeArray( reporting.values.selectedUsers ); 
+    jQuery.ajax({
+      async: true,
+      type: 'GET',
+      url : contextPath + "/rest/api/2/user/picker?query=test",
+      data : [],
+      success : function(result){
+        for( var i in result.users) {
+          var obj = result.users[i];
+          var avatarId =  obj.avatarUrl;
+          var selected = checkSelected(obj.id, selectedArray);
+          jQuery("#userPicker").append("<option data-icon=" + avatarId + " value="+obj.name + " "+ selected + ">" +obj.displayName +"</option>");
+        }
+        var pp = new AJS.CheckboxMultiSelect({
+          element:  AJS.$("#userPicker"),
+          submitInputVal: true,
+        });
+        updatePickerButtonText("#userPicker" , "#userPickerButton", "User: All");
+        jQuery("#userPicker").on("change unselect", function() {
+          updatePickerButtonText("#userPicker" , "#userPickerButton", "User: All");
+        });
+      },
+      error : function(XMLHttpRequest, status, error){
+      }
+    });
+  };
+  
+  function initGroupSelect(){
+    var selectedArray =  jQuery.makeArray( reporting.values.selectedGroups ); 
+    jQuery.ajax({
+      async: true,
+      type: 'GET',
+      url : contextPath + "/rest/api/2/groups/picker",
+      data : [],
+      success : function(result){
+        for( var i in result.groups) {
+          var obj = result.groups[i];
+          var selected = checkSelected(obj.id, selectedArray);
+          jQuery("#groupPicker").append("<option value="+obj.name + " "+ selected + ">" +obj.name +"</option>");
+        }
+        var pp = new AJS.CheckboxMultiSelect({
+              element:  AJS.$("#groupPicker"),
+              submitInputVal: true,
+        });
+        updatePickerButtonText("#groupPicker" , "#groupPickerButton", "Group: All");
+        jQuery("#groupPicker").on("change unselect", function() {
+          updatePickerButtonText("#groupPicker" , "#groupPickerButton", "Group: All");
         });
       },
       error : function(XMLHttpRequest, status, error){
@@ -216,6 +334,86 @@ everit.reporting.main = everit.reporting.main || {};
     });
   };
   
+  function initAffectedVersionSelect(){
+    var selectedArray =  jQuery.makeArray( reporting.values.selectedAffectedVersions ); 
+    jQuery.ajax({
+      async: true,
+      type: 'GET',
+      url : contextPath + "/rest/api/2/status", //TODO set the right rest api
+      data : [],
+      success : function(result){
+        for( var i in result) {
+          var obj = result[i];
+          var selected = checkSelected(obj.id, selectedArray);
+          jQuery("#affectedVersionPicker").append("<option value="+obj.id+ " "+ selected + ">" +obj.name +"</option>");
+        }
+        var pp = new AJS.CheckboxMultiSelect({
+              element:  AJS.$("#affectedVersionPicker"),
+              submitInputVal: true,
+        });
+        updatePickerButtonText("#affectedVersionPicker" , "#affectedVersionPickerButton", "Affects Version: All");
+        jQuery("#affectedVersionPicker").on("change unselect", function() {
+          updatePickerButtonText("#affectedVersionPicker" , "#affectedVersionPickerButton", "Affects Version: All");
+        });
+      },
+      error : function(XMLHttpRequest, status, error){
+      }
+    });
+  };
+  
+  function initFixVersionSelect(){
+    var selectedArray =  jQuery.makeArray( reporting.values.selectedFixVersions ); 
+    jQuery.ajax({
+      async: true,
+      type: 'GET',
+      url : contextPath + "/rest/api/2/status", //TODO set the right rest api
+      data : [],
+      success : function(result){
+        for( var i in result) {
+          var obj = result[i];
+          var selected = checkSelected(obj.id, selectedArray);
+          jQuery("#fixVersionPicker").append("<option value="+obj.id+ " "+ selected + ">" +obj.name +"</option>");
+        }
+        var pp = new AJS.CheckboxMultiSelect({
+              element:  AJS.$("#fixVersionPicker"),
+              submitInputVal: true,
+        });
+        updatePickerButtonText("#fixVersionPicker" , "#fixVersionPickerButton", "Fix Version: All");
+        jQuery("#fixVersionPicker").on("change unselect", function() {
+          updatePickerButtonText("#fixVersionPicker" , "#fixVersionPickerButton", "Fix Version: All");
+        });
+      },
+      error : function(XMLHttpRequest, status, error){
+      }
+    });
+  };
+  
+  function initComponentSelect(){
+    var selectedArray =  jQuery.makeArray( reporting.values.selectedComponent ); 
+    jQuery.ajax({
+      async: true,
+      type: 'GET',
+      url : contextPath + "/rest/api/2/status", //TODO set the right rest api
+      data : [],
+      success : function(result){
+        for( var i in result) {
+          var obj = result[i];
+          var selected = checkSelected(obj.id, selectedArray);
+          jQuery("#componentPicker").append("<option value="+obj.id+ " "+ selected + ">" +obj.name +"</option>");
+        }
+        var pp = new AJS.CheckboxMultiSelect({
+              element:  AJS.$("#componentPicker"),
+              submitInputVal: true,
+        });
+        updatePickerButtonText("#componentPicker" , "#componentPickerButton", "Component: All");
+        jQuery("#componentPicker").on("change unselect", function() {
+          updatePickerButtonText("#componentPicker" , "#componentPickerButton", "Component: All");
+        });
+      },
+      error : function(XMLHttpRequest, status, error){
+      }
+    });
+  };
   
   function checkSelected(id , selectedArray){
     var selected = "";

@@ -39,7 +39,14 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
             selectedStatus: ${selectedStatus},
             selectedTypes: ${selectedTypes},
             selectedPriorities: ${selectedPriorities},
-            selectedResolutions: ${selectedResolutions}
+            selectedResolutions: ${selectedResolutions},
+            selectedGroups: ${selectedGroups},
+            selectedUsers: ${selectedUsers},
+            selectedAssignes: ${selectedAssignes},
+            selectedReportes: ${selectedReportes},
+            selectedAffectedVersions: ${selectedAffectedVersions},
+            selectedFixVersions: ${selectedFixVersions},
+            selectedComponents: ${selectedComponents}
           }
         );
       })(everit.reporting.main, AJS.$);
@@ -178,6 +185,96 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                            </div>
                                          </div>
                                          <!-- Resolution Dropdown End-->
+                                         <!-- Assigne Dropdown  BUTTON-->
+                                         <a id="assignePickerButton" href="#assignePickerDropDown" aria-owns="assignePickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger"></a>
+                                         <!-- Assigne Dropdown -->
+                                         <div id="assignePickerDropDown" class="aui-style-default aui-dropdown2">
+                                           <div class="jttr-filter-field">
+                                             <div class='ajs-layer box-shadow'>
+                                               <div data-query>
+                                                 <div class='form-body checkboxmultiselect-container'>
+                                                   <div class='field-group aui-field-issuetype'>
+                                                     <select  id="assignePicker" name="assignePicker" multiple="multiple" >
+                                                     </select>
+                                                   </div>
+                                                 </div>
+                                               </div>
+                                             </div>
+                                           </div>
+                                         </div>
+                                         <!-- Assigne Dropdown End-->
+                                         <!-- Reporter Dropdown  BUTTON-->
+                                         <a id="reporterPickerButton" href="#reporterPickerDropDown" aria-owns="reporterPickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger"></a>
+                                         <!-- Reporter Dropdown -->
+                                         <div id="reporterPickerDropDown" class="aui-style-default aui-dropdown2">
+                                           <div class="jttr-filter-field">
+                                             <div class='ajs-layer box-shadow'>
+                                               <div data-query>
+                                                 <div class='form-body checkboxmultiselect-container'>
+                                                   <div class='field-group aui-field-issuetype'>
+                                                     <select  id="reporterPicker" name="reporterPicker" multiple="multiple" >
+                                                     </select>
+                                                   </div>
+                                                 </div>
+                                               </div>
+                                             </div>
+                                           </div>
+                                         </div>
+                                         <!-- Reporter Dropdown End-->
+                                         <!-- Affected Version Dropdown  BUTTON-->
+                                         <a id="affectedVersionPickerButton" href="#affectedVersionPickerDropDown" aria-owns="affectedVersionPickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger"></a>
+                                         <!-- AffectedV ersion Dropdown -->
+                                         <div id="affectedVersionPickerDropDown" class="aui-style-default aui-dropdown2">
+                                           <div class="jttr-filter-field">
+                                             <div class='ajs-layer box-shadow'>
+                                               <div data-query>
+                                                 <div class='form-body checkboxmultiselect-container'>
+                                                   <div class='field-group aui-field-issuetype'>
+                                                     <select  id="affectedVersionPicker" name="affectedVersionPicker" multiple="multiple" >
+                                                     </select>
+                                                   </div>
+                                                 </div>
+                                               </div>
+                                             </div>
+                                           </div>
+                                         </div>
+                                         <!-- Affected Version Dropdown End-->
+                                         <!-- Fix Version Dropdown  BUTTON-->
+                                         <a id="fixVersionPickerButton" href="#fixVersionPickerDropDown" aria-owns="fixVersionPickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger"></a>
+                                         <!-- Fix Version Dropdown -->
+                                         <div id="fixVersionPickerDropDown" class="aui-style-default aui-dropdown2">
+                                           <div class="jttr-filter-field">
+                                             <div class='ajs-layer box-shadow'>
+                                               <div data-query>
+                                                 <div class='form-body checkboxmultiselect-container'>
+                                                   <div class='field-group aui-field-issuetype'>
+                                                     <select  id="fixVersionPicker" name="fixVersionPicker" multiple="multiple" >
+                                                     </select>
+                                                   </div>
+                                                 </div>
+                                               </div>
+                                             </div>
+                                           </div>
+                                         </div>
+                                         <!-- Fix Version Dropdown End-->
+                                         <!-- Component Dropdown  BUTTON-->
+                                         <a id="componentPickerButton" href="#componentPickerDropDown" aria-owns="componentPickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger"></a>
+                                         <!-- Component Dropdown -->
+                                         <div id="componentPickerDropDown" class="aui-style-default aui-dropdown2">
+                                           <div class="jttr-filter-field">
+                                             <div class='ajs-layer box-shadow'>
+                                               <div data-query>
+                                                 <div class='form-body checkboxmultiselect-container'>
+                                                   <div class='field-group aui-field-issuetype'>
+                                                     <select  id="componentPicker" name="componentPicker" multiple="multiple" >
+                                                     </select>
+                                                   </div>
+                                                 </div>
+                                               </div>
+                                             </div>
+                                           </div>
+                                         </div>
+                                         <!-- Component Dropdown End-->
                                      </div>
                                  </div>
                             </div>
@@ -202,20 +299,42 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                             <div class="user-search-container">
                                 <div class="search-criteria-container">
                                     <div class="search-criteria">
-                                        <button type="button" data-id="group" class="criteria-selector aui-button aui-button-subtle aui-dropdown2-trigger" title="All">
-                                            <div class="criteria-wrap">
-                                                <div class="searcherValue">
-                                                    <span id="fieldpid" class="fieldValue">Groups:</span> All
-                                                </div>
-                                            </div>
-                                        </button>
-                                         <button type="button" data-id="group"  class="criteria-selector aui-button aui-button-subtle aui-dropdown2-trigger" aria-disabled="true" title="All"> <!-- only group or user can be picked, not both, one button will be disabled -->
-                                             <div class="criteria-wrap">
-                                                 <div class="searcherValue">
-                                                     <span id="fieldpid" class="fieldValue">Users:</span> All
+                                         <!-- Group Dropdown  BUTTON-->
+                                         <a id="groupPickerButton" href="#groupPickerDropDown" aria-owns="groupPickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger"></a>
+                                         <!-- Group Dropdown -->
+                                         <div id="groupPickerDropDown" class="aui-style-default aui-dropdown2">
+                                           <div class="jttr-filter-field">
+                                             <div class='ajs-layer box-shadow'>
+                                               <div>
+                                                 <div class='form-body'>
+                                                   <div class='field-group aui-field-issuetype'>
+                                                     <select  id="groupPicker" name="groupPicker"  multiple="multiple" >
+                                                     </select>
+                                                   </div>
                                                  </div>
+                                               </div>
                                              </div>
-                                        </button>
+                                           </div>
+                                         </div>
+                                         <!-- Group Dropdown End-->
+                                         <!-- User Dropdown  BUTTON-->
+                                         <a id="userPickerButton" href="#userPickerDropDown" aria-owns="userPickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger"></a>
+                                         <!-- User Dropdown -->
+                                         <div id="userPickerDropDown" class="aui-style-default aui-dropdown2">
+                                           <div class="jttr-filter-field">
+                                             <div class='ajs-layer box-shadow'>
+                                               <div data-query>
+                                                 <div class='form-body checkboxmultiselect-container'>
+                                                   <div class='field-group aui-field-issuetype'>
+                                                     <select  id="userPicker" name="userPicker" multiple="multiple" >
+                                                     </select>
+                                                   </div>
+                                                 </div>
+                                               </div>
+                                             </div>
+                                           </div>
+                                         </div>
+                                         <!-- User Dropdown End-->
                                     </div>
                                 </div>
                             </div>

@@ -80,9 +80,21 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   private ReportingPlugin reportingPlugin;
 
+  private List<String> selectedAffectedVersions;
+
+  private List<String> selectedAssignes;
+
+  private List<String> selectedComponents;
+
+  private List<String> selectedFixVersions;
+
+  private List<String> selectedGroups;
+
   private List<String> selectedPriorities;
 
   private List<String> selectedProjects;
+
+  private List<String> selectedReportes;
 
   private List<String> selectedResolutions;
 
@@ -90,8 +102,39 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   private List<String> selectedTypes;
 
+  private List<String> selectedUsers;
+
   public ReportingWebAction(final ReportingPlugin reportingPlugin) {
     this.reportingPlugin = reportingPlugin;
+  }
+
+  private void affectedVersionPickerParse() {
+    String[] selectedAffectedVersionsValues =
+        getHttpRequest().getParameterValues("affectedVersionPicker");
+    if (selectedAffectedVersionsValues != null) {
+      selectedAffectedVersions = Arrays.asList(selectedAffectedVersionsValues);
+    } else {
+      selectedAffectedVersions = new ArrayList<String>();
+    }
+  }
+
+  private void assignePickerParse() {
+    String[] selectedAssignesValues = getHttpRequest().getParameterValues("assignePicker");
+    if (selectedAssignesValues != null) {
+      selectedAssignes = Arrays.asList(selectedAssignesValues);
+    } else {
+      selectedAssignes = new ArrayList<String>();
+    }
+  }
+
+  private void componentsPickerParse() {
+    String[] selectedComponentsValues =
+        getHttpRequest().getParameterValues("componentPicker");
+    if (selectedComponentsValues != null) {
+      selectedComponents = Arrays.asList(selectedComponentsValues);
+    } else {
+      selectedComponents = new ArrayList<String>();
+    }
   }
 
   @Override
@@ -141,6 +184,16 @@ public class ReportingWebAction extends JiraWebActionSupport {
     return SUCCESS;
   }
 
+  private void fixVersionPickerParse() {
+    String[] selectedFixVersionsValues =
+        getHttpRequest().getParameterValues("fixVersionPicker");
+    if (selectedFixVersionsValues != null) {
+      selectedFixVersions = Arrays.asList(selectedFixVersionsValues);
+    } else {
+      selectedFixVersions = new ArrayList<String>();
+    }
+  }
+
   public String getContextPath() {
     return contextPath;
   }
@@ -165,12 +218,36 @@ public class ReportingWebAction extends JiraWebActionSupport {
     return message;
   }
 
+  public List<String> getSelectedAffectedVersions() {
+    return selectedAffectedVersions;
+  }
+
+  public List<String> getSelectedAssignes() {
+    return selectedAssignes;
+  }
+
+  public List<String> getSelectedComponents() {
+    return selectedComponents;
+  }
+
+  public List<String> getSelectedFixVersions() {
+    return selectedFixVersions;
+  }
+
+  public List<String> getSelectedGroups() {
+    return selectedGroups;
+  }
+
   public List<String> getSelectedPriorities() {
     return selectedPriorities;
   }
 
   public List<String> getSelectedProjects() {
     return selectedProjects;
+  }
+
+  public List<String> getSelectedReportes() {
+    return selectedReportes;
   }
 
   public List<String> getSelectedResolutions() {
@@ -183,6 +260,19 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   public List<String> getSelectedTypes() {
     return selectedTypes;
+  }
+
+  public List<String> getSelectedUsers() {
+    return selectedUsers;
+  }
+
+  private void groupPickerParse() {
+    String[] selectedGroupsValues = getHttpRequest().getParameterValues("groupPicker");
+    if (selectedGroupsValues != null) {
+      selectedGroups = Arrays.asList(selectedGroupsValues);
+    } else {
+      selectedGroups = new ArrayList<String>();
+    }
   }
 
   private void initDatesIfNecessary() {
@@ -205,6 +295,13 @@ public class ReportingWebAction extends JiraWebActionSupport {
     selectedTypes = new ArrayList<String>();
     selectedPriorities = new ArrayList<String>();
     selectedResolutions = new ArrayList<String>();
+    selectedGroups = new ArrayList<String>();
+    selectedUsers = new ArrayList<String>();
+    selectedAssignes = new ArrayList<String>();
+    selectedReportes = new ArrayList<String>();
+    selectedAffectedVersions = new ArrayList<String>();
+    selectedFixVersions = new ArrayList<String>();
+    selectedComponents = new ArrayList<String>();
   }
 
   private void normalizeContextPath() {
@@ -256,6 +353,13 @@ public class ReportingWebAction extends JiraWebActionSupport {
     typePickerParse();
     priorityPickerParse();
     resolutionPickerParse();
+    groupPickerParse();
+    userPickerParse();
+    assignePickerParse();
+    reporterPickerParse();
+    affectedVersionPickerParse();
+    fixVersionPickerParse();
+    componentsPickerParse();
   }
 
   private void priorityPickerParse() throws IllegalArgumentException {
@@ -273,6 +377,15 @@ public class ReportingWebAction extends JiraWebActionSupport {
       selectedProjects = Arrays.asList(selectedProjectsValues);
     } else {
       selectedProjects = new ArrayList<String>();
+    }
+  }
+
+  private void reporterPickerParse() {
+    String[] selectedReportesValues = getHttpRequest().getParameterValues("reporterPicker");
+    if (selectedReportesValues != null) {
+      selectedReportes = Arrays.asList(selectedReportesValues);
+    } else {
+      selectedReportes = new ArrayList<String>();
     }
   }
 
@@ -309,12 +422,36 @@ public class ReportingWebAction extends JiraWebActionSupport {
     this.message = message;
   }
 
+  public void setSelectedAffectedVersions(final List<String> selectedAffectedVersions) {
+    this.selectedAffectedVersions = selectedAffectedVersions;
+  }
+
+  public void setSelectedAssignes(final List<String> selectedAssignes) {
+    this.selectedAssignes = selectedAssignes;
+  }
+
+  public void setSelectedComponents(final List<String> selectedComponents) {
+    this.selectedComponents = selectedComponents;
+  }
+
+  public void setSelectedFixVersions(final List<String> selectedFixVersions) {
+    this.selectedFixVersions = selectedFixVersions;
+  }
+
+  public void setSelectedGroups(final List<String> selectedGroups) {
+    this.selectedGroups = selectedGroups;
+  }
+
   public void setSelectedPriorities(final List<String> selectedPriorities) {
     this.selectedPriorities = selectedPriorities;
   }
 
   public void setSelectedProjects(final List<String> selectedProjects) {
     this.selectedProjects = selectedProjects;
+  }
+
+  public void setSelectedReportes(final List<String> selectedReportes) {
+    this.selectedReportes = selectedReportes;
   }
 
   public void setSelectedResolutions(final List<String> selectedResolutions) {
@@ -327,6 +464,10 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   public void setSelectedTypes(final List<String> selectedTypes) {
     this.selectedTypes = selectedTypes;
+  }
+
+  public void setSelectedUsers(final List<String> selectedUsers) {
+    this.selectedUsers = selectedUsers;
   }
 
   private void statusPickerParse() {
@@ -344,6 +485,15 @@ public class ReportingWebAction extends JiraWebActionSupport {
       selectedTypes = Arrays.asList(typePickerValues);
     } else {
       selectedTypes = new ArrayList<String>();
+    }
+  }
+
+  private void userPickerParse() {
+    String[] selectedUsersValues = getHttpRequest().getParameterValues("userPicker");
+    if (selectedUsersValues != null) {
+      selectedUsers = Arrays.asList(selectedUsersValues);
+    } else {
+      selectedUsers = new ArrayList<String>();
     }
   }
 
