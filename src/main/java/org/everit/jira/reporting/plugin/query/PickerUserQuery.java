@@ -28,41 +28,30 @@ import com.querydsl.sql.Configuration;
 import com.querydsl.sql.SQLQuery;
 
 /**
- * Query for gets JIRA users.
+ * Query for gets JIRA users to picker.
  */
 public class PickerUserQuery implements QuerydslCallable<List<PickerUserDTO>> {
 
   /**
-   * Type of user query.
+   * Type of picker user query.
    */
-  public enum UserQueryType {
+  public enum PickerUserQueryType {
 
     ASSIGNEE,
 
     DEFAULT;
   }
-  // private QAppUser qAppUser;
-  //
-  // private QAvatar qAvatar;
+
+  private PickerUserQueryType pickerUserQueryType;
 
   private QCwdUser qCwdUser;
-
-  // private QPropertyentry qPropertyentry;
-  //
-  // private QPropertynumber qPropertynumber;
-
-  private UserQueryType userQueryType;
 
   /**
    * Simple constructor.
    */
-  public PickerUserQuery(final UserQueryType userQueryType) {
+  public PickerUserQuery(final PickerUserQueryType pickerUserQueryType) {
     qCwdUser = new QCwdUser("cwd_user");
-    this.userQueryType = userQueryType;
-    // qAppUser = new QAppUser("app_user");
-    // qPropertyentry = new QPropertyentry("prop_entry");
-    // qPropertynumber = new QPropertynumber("prop_number");
-    // qAvatar = new QAvatar("avatar");
+    this.pickerUserQueryType = pickerUserQueryType;
   }
 
   @Override
@@ -72,18 +61,11 @@ public class PickerUserQuery implements QuerydslCallable<List<PickerUserDTO>> {
     List<PickerUserDTO> result = new SQLQuery<PickerUserDTO>(connection, configuration)
         .select(Projections.bean(PickerUserDTO.class,
             qCwdUser.lowerUserName.as(PickerUserDTO.AliasNames.USER_NAME),
-            // qAvatar.filename.as(UserDTO.AliasNames.AVATAR_FILE_NAME),
             qCwdUser.displayName.as(PickerUserDTO.AliasNames.DISPLAY_NAME)))
         .from(qCwdUser)
-        // .leftJoin(qAppUser).on(qAppUser.lowerUserName.eq(qCwdUser.lowerUserName))
-        // .leftJoin(qPropertyentry).on(qPropertyentry.entityId.eq(qAppUser.id)
-        // .and(qPropertyentry.entityName.eq(Entity.APPLICATION_USER.getEntityName()))
-        // .and(qPropertyentry.propertyKey.eq(AvatarManager.USER_AVATAR_ID_KEY)))
-        // .leftJoin(qPropertynumber).on(qPropertynumber.id.eq(qPropertyentry.id))
-        // .leftJoin(qAvatar).on(qAvatar.id.eq(qPropertynumber.propertyvalue))
         .fetch();
 
-    if (UserQueryType.ASSIGNEE.equals(userQueryType)) {
+    if (PickerUserQueryType.ASSIGNEE.equals(pickerUserQueryType)) {
       result.add(PickerUserDTO.createUnassignedUser());
     }
 

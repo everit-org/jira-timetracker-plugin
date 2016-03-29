@@ -25,8 +25,6 @@ public class PickerUserDTO {
    */
   public final class AliasNames {
 
-    // public static final String AVATAR_FILE_NAME = "avatarFileName";
-
     public static final String DISPLAY_NAME = "displayName";
 
     public static final String USER_NAME = "userName";
@@ -47,15 +45,9 @@ public class PickerUserDTO {
     return unassigned;
   }
 
-  // private String avatarFileName;
-
   private String displayName;
 
   private String userName;
-
-  // public String getAvatarFileName() {
-  // return avatarFileName;
-  // }
 
   public String getDisplayName() {
     return displayName;
@@ -65,16 +57,12 @@ public class PickerUserDTO {
     return userName;
   }
 
-  // public void setAvatarFileName(final String avatarFileName) {
-  // this.avatarFileName = avatarFileName;
-  // }
-
   public void setDisplayName(final String displayName) {
     this.displayName = displayName;
   }
 
-  public void setUserName(final String userKey) {
-    userName = userKey;
+  public void setUserName(final String userName) {
+    this.userName = userName;
   }
 
 }

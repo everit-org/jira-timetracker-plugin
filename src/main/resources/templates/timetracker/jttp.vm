@@ -261,5 +261,13 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
  </tr>
 #end
 </tbody></table>
+<br/><p>--------------------------------------VERSIONS------------------------</p><br/>
+<table><tbody>
+#foreach ($v in $versions)
+ <tr>
+  <td>$v.name</td>
+ </tr>
+#end
+</tbody></table>
 </body>
 </html>

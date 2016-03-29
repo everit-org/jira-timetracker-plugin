@@ -31,16 +31,19 @@ import org.apache.log4j.Logger;
 import org.everit.jira.querydsl.support.QuerydslSupport;
 import org.everit.jira.querydsl.support.ri.QuerydslSupportImpl;
 import org.everit.jira.reporting.plugin.dto.IssueSummaryDTO;
+import org.everit.jira.reporting.plugin.dto.PickerUserDTO;
+import org.everit.jira.reporting.plugin.dto.PickerVersionDTO;
 import org.everit.jira.reporting.plugin.dto.ProjectSummaryDTO;
 import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
-import org.everit.jira.reporting.plugin.dto.PickerUserDTO;
 import org.everit.jira.reporting.plugin.dto.UserSummaryDTO;
 import org.everit.jira.reporting.plugin.dto.WorklogDetailsDTO;
 import org.everit.jira.reporting.plugin.query.IssueSummaryReportQuery;
+import org.everit.jira.reporting.plugin.query.PickerUserQuery;
+import org.everit.jira.reporting.plugin.query.PickerUserQuery.PickerUserQueryType;
+import org.everit.jira.reporting.plugin.query.PickerVersionQuery;
+import org.everit.jira.reporting.plugin.query.PickerVersionQuery.PickerVersionQueryType;
 import org.everit.jira.reporting.plugin.query.ProjectSummaryReportQuery;
 import org.everit.jira.reporting.plugin.query.UserSummaryReportQuery;
-import org.everit.jira.reporting.plugin.query.PickerUserQuery;
-import org.everit.jira.reporting.plugin.query.PickerUserQuery.UserQueryType;
 import org.everit.jira.reporting.plugin.query.WorklogDetailsReportQuery;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
@@ -316,6 +319,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private List<PickerUserDTO> users;
 
   private List<UserSummaryDTO> usersSummary = Collections.emptyList();
+
+  private List<PickerVersionDTO> versions;
 
   /**
    * The summary of week.
@@ -867,6 +872,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   public List<UserSummaryDTO> getUsersSummary() {
     return usersSummary;
+  }
+
+  public List<PickerVersionDTO> getVersions() {
+    return versions;
   }
 
   public String getWeekFilteredSummary() {
@@ -1720,7 +1729,9 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       projectsSummary = querydslSupport.execute(new ProjectSummaryReportQuery(reportSearchParam));
       issuesSummary = querydslSupport.execute(new IssueSummaryReportQuery(reportSearchParam));
       usersSummary = querydslSupport.execute(new UserSummaryReportQuery(reportSearchParam));
-      users = querydslSupport.execute(new PickerUserQuery(UserQueryType.ASSIGNEE));
+      users = querydslSupport.execute(new PickerUserQuery(PickerUserQueryType.ASSIGNEE));
+      versions =
+          querydslSupport.execute(new PickerVersionQuery(PickerVersionQueryType.FIX_VERSION));
     } catch (Exception e2) {
       e2.printStackTrace();
     }
