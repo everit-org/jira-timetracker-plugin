@@ -83,7 +83,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 		                    	 	<td class="vertically-middle" style="white-space: nowrap;">
 		                    	 		$worklog.duration
 		                    	 	</td>
-		                    	 	<td id="commentRow_$rowCount" name="commentRow_$rowCount" class="table-comment wiki-edit-content" class="vertically-middle align_left">
+		                    	 	<td id="commentRow_$rowCount" name="commentRow_$rowCount" class="table-comment wiki-edit-content vertically-middle align_left">
 		                    	 		<input id="hiddenWorklogBody" type="hidden" value="$worklog.body">
 		                    	 	</td>
 		                    	 	<script>
@@ -100,7 +100,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 	                								data = data.replace('<p>','');
 	                								data = data.replace('</p>','');
 			                    	 				AJS.$("#commentRow_$rowCount").append(data);
-			                    	 				AJS.$("#commentRow_$rowCount").attr("class","vertically-middle align_left");
+			                    	 				AJS.$("#commentRow_$rowCount").attr("class","table-comment wiki-edit-content vertically-middle align_left");
 			                    	 			}
 	            								}); 
 	            					</script>
