@@ -96,8 +96,8 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
                          $i18n.getText($message) $messageParameter
                   </div>
               #end
-            #parse("templates/summary.vm")
-            #parse("templates/list.vm")
+            #parse("templates/timetracker/summary.vm")
+            #parse("templates/timetracker/list.vm")
                </br>
                <div id="inputfields" name="inputfields">
                <table id="inputfields-table" width="100%">
@@ -209,13 +209,13 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
         </div>
 	</form>
 		<div id="feedbackfooter" class="feedback_footer">
-		#parse("templates/feedback_jttp.vm")
+		#parse("templates/feedback/feedback_jttp.vm")
 	</div>
-	#parse("templates/reporting_popup.vm")
+	#parse("templates/reporting/reporting_popup.vm")
 </div>
 
 #if($analyticsCheck)
-	#parse("templates/analytics.vm")
+	#parse("templates/common/analytics.vm")
 #end
 </body>
 </html>
