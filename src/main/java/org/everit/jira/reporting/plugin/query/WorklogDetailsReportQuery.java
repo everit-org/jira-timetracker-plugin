@@ -17,7 +17,6 @@ package org.everit.jira.reporting.plugin.query;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -113,16 +112,23 @@ public class WorklogDetailsReportQuery extends AbstractListReportQuery<WorklogDe
     Map<Long, List<String>> issueAffectedVersions = selectAffectedVersions(connection,
         configuration, collectIssueIds);
 
-    List<String> emptyList = Collections.emptyList();
     for (WorklogDetailsDTO worklogDetailsDTO : result) {
       Long issueId = worklogDetailsDTO.getIssueId();
 
-      worklogDetailsDTO.setIssueComponents(issueComponents.getOrDefault(issueId, emptyList));
+      List<String> components = issueComponents.get(issueId);
+      if (components != null) {
+        worklogDetailsDTO.setIssueComponents(components);
+      }
 
-      worklogDetailsDTO.setIssueAffectedVersion(
-          issueAffectedVersions.getOrDefault(issueId, emptyList));
+      List<String> affectedVersions = issueAffectedVersions.get(issueId);
+      if (affectedVersions != null) {
+        worklogDetailsDTO.setIssueAffectedVersions(affectedVersions);
+      }
 
-      worklogDetailsDTO.setIssueFixedVersions(issueFixedVersions.getOrDefault(issueId, emptyList));
+      List<String> fixedVersions = issueFixedVersions.get(issueId);
+      if (fixedVersions != null) {
+        worklogDetailsDTO.setIssueFixedVersions(fixedVersions);
+      }
     }
 
   }

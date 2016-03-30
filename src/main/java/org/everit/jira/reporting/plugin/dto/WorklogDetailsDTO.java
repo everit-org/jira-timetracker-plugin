@@ -75,7 +75,7 @@ public class WorklogDetailsDTO {
     }
   }
 
-  private List<String> issueAffectedVersion = Collections.emptyList();
+  private List<String> issueAffectedVersions = Collections.emptyList();
 
   private String issueAssigne;
 
@@ -123,8 +123,8 @@ public class WorklogDetailsDTO {
 
   private Timestamp worklogUpdated;
 
-  public List<String> getIssueAffectedVersion() {
-    return issueAffectedVersion;
+  public List<String> getIssueAffectedVersions() {
+    return issueAffectedVersions;
   }
 
   public String getIssueAssigne() {
@@ -249,8 +249,8 @@ public class WorklogDetailsDTO {
     return (Timestamp) worklogUpdated.clone();
   }
 
-  public void setIssueAffectedVersion(final List<String> issueAffectedVersion) {
-    this.issueAffectedVersion = issueAffectedVersion;
+  public void setIssueAffectedVersions(final List<String> issueAffectedVersions) {
+    this.issueAffectedVersions = issueAffectedVersions;
   }
 
   public void setIssueAssigne(final String issueAssigne) {
