@@ -48,9 +48,10 @@ public class PickerComponentQuery implements QuerydslCallable<List<PickerCompone
             qComponent.cname.as(PickerComponentDTO.AliasNames.COMPONENT_NAME)))
         .from(qComponent)
         .groupBy(qComponent.cname)
+        .orderBy(qComponent.cname.asc())
         .fetch();
 
-    result.add(PickerComponentDTO.createNoComponent());
+    result.add(0, PickerComponentDTO.createNoComponent());
 
     return result;
   }

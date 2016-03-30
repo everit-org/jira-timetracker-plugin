@@ -25,9 +25,9 @@ import java.util.List;
 public class WorklogDetailsDTO {
 
   /**
-   * Alias names to projections bean.
+   * Alias names to projections.
    */
-  public final class AliasNames {
+  public static final class AliasNames {
 
     public static final String ISSUE_ASSIGNE = "issueAssigne";
 
@@ -135,8 +135,14 @@ public class WorklogDetailsDTO {
     return issueComponents;
   }
 
+  /**
+   * Gets issue created date.
+   */
   public Timestamp getIssueCreated() {
-    return issueCreated;
+    if (issueCreated == null) {
+      return null;
+    }
+    return (Timestamp) issueCreated.clone();
   }
 
   public List<String> getIssueFixedVersions() {
@@ -175,8 +181,14 @@ public class WorklogDetailsDTO {
     return issueTypeName;
   }
 
+  /**
+   * Gets issue updated date.
+   */
   public Timestamp getIssueUpdated() {
-    return issueUpdated;
+    if (issueUpdated == null) {
+      return null;
+    }
+    return (Timestamp) issueUpdated.clone();
   }
 
   public String getPriorityName() {
@@ -203,20 +215,38 @@ public class WorklogDetailsDTO {
     return worklogBody;
   }
 
+  /**
+   * Gets worklog created date.
+   */
   public Timestamp getWorklogCreated() {
-    return worklogCreated;
+    if (worklogCreated == null) {
+      return null;
+    }
+    return (Timestamp) worklogCreated.clone();
   }
 
+  /**
+   * Gets worklog start date.
+   */
   public Timestamp getWorklogStartDate() {
-    return worklogStartDate;
+    if (worklogStartDate == null) {
+      return null;
+    }
+    return (Timestamp) worklogStartDate.clone();
   }
 
   public Long getWorklogTimeWorked() {
     return worklogTimeWorked;
   }
 
+  /**
+   * Gets worklog updated date.
+   */
   public Timestamp getWorklogUpdated() {
-    return worklogUpdated;
+    if (worklogUpdated == null) {
+      return null;
+    }
+    return (Timestamp) worklogUpdated.clone();
   }
 
   public void setIssueAffectedVersion(final List<String> issueAffectedVersion) {

@@ -15,15 +15,19 @@
  */
 package org.everit.jira.reporting.plugin.dto;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * Representation of user to picker.
  */
+@XmlRootElement
 public class PickerUserDTO {
 
   /**
-   * Alias names to projections bean.
+   * Alias names to projections.
    */
-  public final class AliasNames {
+  public static final class AliasNames {
 
     public static final String DISPLAY_NAME = "displayName";
 
@@ -45,8 +49,10 @@ public class PickerUserDTO {
     return unassigned;
   }
 
+  @XmlElement
   private String displayName;
 
+  @XmlElement
   private String userName;
 
   public String getDisplayName() {

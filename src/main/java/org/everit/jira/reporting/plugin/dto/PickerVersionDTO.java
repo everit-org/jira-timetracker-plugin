@@ -15,15 +15,19 @@
  */
 package org.everit.jira.reporting.plugin.dto;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * Representation of version to picker.
  */
+@XmlRootElement
 public class PickerVersionDTO {
 
   /**
-   * Alias names to projections bean.
+   * Alias names to projections.
    */
-  public final class AliasNames {
+  public static final class AliasNames {
 
     public static final String VERSION_NAME = "name";
 
@@ -64,6 +68,7 @@ public class PickerVersionDTO {
     return unreleasedVersion;
   }
 
+  @XmlElement
   private String name;
 
   public String getName() {

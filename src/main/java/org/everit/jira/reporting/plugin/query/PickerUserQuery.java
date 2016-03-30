@@ -40,6 +40,22 @@ public class PickerUserQuery implements QuerydslCallable<List<PickerUserDTO>> {
     ASSIGNEE,
 
     DEFAULT;
+
+    private static final PickerUserQueryType[] PICKER_USER_QUERY_TYPES =
+        PickerUserQueryType.values();
+
+    /**
+     * Gets picker user query type based on name.
+     */
+    public static PickerUserQueryType getPickerUserQueryType(final String pickerUserQueryType) {
+      for (PickerUserQueryType type : PICKER_USER_QUERY_TYPES) {
+        if (type.name().equals(pickerUserQueryType)) {
+          return type;
+        }
+      }
+      return DEFAULT;
+    }
+
   }
 
   private PickerUserQueryType pickerUserQueryType;
@@ -60,13 +76,14 @@ public class PickerUserQuery implements QuerydslCallable<List<PickerUserDTO>> {
 
     List<PickerUserDTO> result = new SQLQuery<PickerUserDTO>(connection, configuration)
         .select(Projections.bean(PickerUserDTO.class,
-            qCwdUser.lowerUserName.as(PickerUserDTO.AliasNames.USER_NAME),
+            qCwdUser.userName.as(PickerUserDTO.AliasNames.USER_NAME),
             qCwdUser.displayName.as(PickerUserDTO.AliasNames.DISPLAY_NAME)))
         .from(qCwdUser)
+        .orderBy(qCwdUser.userName.asc())
         .fetch();
 
     if (PickerUserQueryType.ASSIGNEE.equals(pickerUserQueryType)) {
-      result.add(PickerUserDTO.createUnassignedUser());
+      result.add(0, PickerUserDTO.createUnassignedUser());
     }
 
     return result;

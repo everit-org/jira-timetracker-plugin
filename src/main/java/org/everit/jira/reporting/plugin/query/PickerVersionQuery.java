@@ -39,7 +39,25 @@ public class PickerVersionQuery implements QuerydslCallable<List<PickerVersionDT
 
     AFFECTED_VERSION,
 
+    DEFAULT,
+
     FIX_VERSION;
+
+    private static final PickerVersionQueryType[] PICKER_VERSION_QUERY_TYPES =
+        PickerVersionQueryType.values();
+
+    /**
+     * Gets picker version query type based on name.
+     */
+    public static PickerVersionQueryType getPickerVersionQueryType(
+        final String pickerVersionQueryType) {
+      for (PickerVersionQueryType type : PICKER_VERSION_QUERY_TYPES) {
+        if (type.name().equals(pickerVersionQueryType)) {
+          return type;
+        }
+      }
+      return DEFAULT;
+    }
   }
 
   private PickerVersionQueryType pickerVersionQueryType;
@@ -60,14 +78,15 @@ public class PickerVersionQuery implements QuerydslCallable<List<PickerVersionDT
             qProjectversion.vname.as(PickerVersionDTO.AliasNames.VERSION_NAME)))
         .from(qProjectversion)
         .groupBy(qProjectversion.vname)
+        .orderBy(qProjectversion.vname.asc())
         .fetch();
 
     if (PickerVersionQueryType.AFFECTED_VERSION.equals(pickerVersionQueryType)) {
-      result.add(PickerVersionDTO.createNoVersion());
+      result.add(0, PickerVersionDTO.createNoVersion());
     } else if (PickerVersionQueryType.FIX_VERSION.equals(pickerVersionQueryType)) {
-      result.add(PickerVersionDTO.createNoVersion());
-      result.add(PickerVersionDTO.createReleasedVersion());
-      result.add(PickerVersionDTO.createUnReleasedVersion());
+      result.add(0, PickerVersionDTO.createUnReleasedVersion());
+      result.add(0, PickerVersionDTO.createReleasedVersion());
+      result.add(0, PickerVersionDTO.createNoVersion());
     }
     return result;
   }

@@ -17,6 +17,7 @@ package org.everit.jira.reporting.plugin.query;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Locale;
 
 import org.everit.jira.querydsl.schema.QAppUser;
 import org.everit.jira.querydsl.schema.QComponent;
@@ -377,7 +378,7 @@ public abstract class AbstractListReportQuery<T> implements QuerydslCallable<Lis
           .leftJoin(qCustomfieldValue).on(qCustomfield.id.eq(qCustomfieldValue.customfield))
           .where(qCustomfieldValue.issue.eq(qIssue.id)
               .and(qCustomfieldValue.stringvalue.toLowerCase()
-                  .like(reportSearchParam.issueEpicName.toLowerCase() + "%"))
+                  .like(reportSearchParam.issueEpicName.toLowerCase(Locale.getDefault()) + "%"))
               .and(qCustomfield.cfname.eq("Epic Name")))
           .exists());
     }

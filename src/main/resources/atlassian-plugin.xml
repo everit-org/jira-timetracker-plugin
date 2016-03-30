@@ -211,4 +211,8 @@
     <label>Reporting Settings</label>
     <link linkId="my_jttp__reporting_settings_link"><![CDATA[/secure/admin/JiraTimetrackerReportingSettingsWebAction!default.jspa]]></link>
   </web-item>
+  
+  <rest key="JTTP-REST" path="/jttp-rest" version="1">
+    <description>Provides the REST resource for the Timetracker plugin.</description>
+  </rest>
 </atlassian-plugin>
