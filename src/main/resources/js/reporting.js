@@ -318,9 +318,10 @@ everit.reporting.main = everit.reporting.main || {};
         for( var i in result) {
           var obj = result[i];
           var selected = checkSelected(obj.id, selectedArray);
-          jQuery("#statusPicker").append("<option value="+obj.id+ " "+ selected + ">" +obj.name +"</option>");
+          var lozengeStatus = JSON.stringify(obj).replace(/"/g, "&quot;");
+          jQuery("#statusPicker").append('<option value="'+obj.id+ '" data-simple-status="' + lozengeStatus +'"  ' + selected + '>' +obj.name +'</option>');
         }
-        var pp = new AJS.CheckboxMultiSelect({
+        var pp = new AJS.CheckboxMultiSelectStatusLozenge({
               element:  AJS.$("#statusPicker"),
               submitInputVal: true,
         });

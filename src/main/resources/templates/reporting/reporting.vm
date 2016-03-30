@@ -119,7 +119,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                              </div>
                                            </div>
                                          </div>
-                                         <!-- ssue Type Dropdown End-->
+                                         <!-- Issue Type Dropdown End-->
                                          <!-- Status Dropdown  BUTTON-->
                                          <a id="statusPickerButton" href="#statusPickerDropDown" aria-owns="statusPickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger"></a>
                                          <!-- Status Dropdown -->
@@ -129,7 +129,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                                <div>
                                                  <div class='form-body'>
                                                    <div class='field-group aui-field-issuetype'>
-                                                     <select  id="statusPicker" name="statusPicker"  multiple="multiple" >
+                                                     <select class="select js-default-checkboxmultiselectstatuslozenge check-list-select-select" id="statusPicker" name="statusPicker"  multiple="multiple" >
                                                      </select>
                                                    </div>
                                                  </div>
