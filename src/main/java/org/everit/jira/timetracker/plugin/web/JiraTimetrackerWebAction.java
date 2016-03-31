@@ -28,6 +28,11 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
+import org.everit.jira.querydsl.support.ri.QuerydslSupportImpl;
+import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
+import org.everit.jira.reporting.plugin.export.ExportSummaryReportsToXLS;
+import org.everit.jira.reporting.plugin.export.ExportWorklogDetailsReportToXLS;
+import org.everit.jira.reporting.plugin.export.WorklogDetailsColumns;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
 import org.everit.jira.timetracker.plugin.dto.ActionResult;
@@ -442,6 +447,17 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   @Override
   public String doDefault() throws ParseException {
+    try {
+      QuerydslSupportImpl querydslSupport = new QuerydslSupportImpl();
+      ReportSearchParam reportSearchParam = new ReportSearchParam();
+      new ExportWorklogDetailsReportToXLS(querydslSupport,
+          WorklogDetailsColumns.ALL_COLUMNS,
+          reportSearchParam)
+              .export();
+      new ExportSummaryReportsToXLS(querydslSupport, reportSearchParam).export();
+    } catch (Exception e2) {
+      e2.printStackTrace();
+    }
     boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
     if (!isUserLogged) {
       setReturnUrl(JIRA_HOME_URL);

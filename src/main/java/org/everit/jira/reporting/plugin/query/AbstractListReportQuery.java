@@ -42,6 +42,7 @@ import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
 import com.atlassian.jira.entity.Entity;
 import com.atlassian.jira.issue.IssueRelationConstants;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.StringExpression;
 import com.querydsl.sql.SQLExpressions;
@@ -153,6 +154,17 @@ public abstract class AbstractListReportQuery<T> implements QuerydslCallable<Lis
       final QProject qProject) {
     StringExpression issueKey = qProject.pkey.concat("-").concat(qIssue.issuenum.stringValue());
     return issueKey;
+  }
+
+  /**
+   * Create user StringExpression. In SQL return worklog.author if cwd_user.displayname is null
+   * otherwise cwd_user.displayname.
+   */
+  protected StringExpression createUserExpression() {
+    StringExpression userExpression = new CaseBuilder()
+        .when(qCwdUser.displayName.isNull()).then(qWorklog.author)
+        .otherwise(qCwdUser.displayName);
+    return userExpression;
   }
 
   private BooleanExpression filterToAffectedVersions(final QJiraissue qIssue,

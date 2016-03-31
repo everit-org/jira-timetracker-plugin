@@ -23,13 +23,8 @@ import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
 import org.everit.jira.reporting.plugin.dto.UserSummaryDTO;
 
 import com.querydsl.core.types.Expression;
-import com.querydsl.core.types.PathMetadata;
-import com.querydsl.core.types.PathType;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.QBean;
-import com.querydsl.core.types.dsl.CaseBuilder;
-import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.SimplePath;
 import com.querydsl.core.types.dsl.StringExpression;
 import com.querydsl.sql.Configuration;
 import com.querydsl.sql.SQLQuery;
@@ -63,15 +58,10 @@ public class UserSummaryReportQuery extends AbstractListReportQuery<UserSummaryD
   }
 
   private QBean<UserSummaryDTO> createSelectProjection() {
-    SimplePath<String> displayNamePath = Expressions.path(String.class, new PathMetadata(null,
-        UserSummaryDTO.AliasNames.USER_DISPLAY_NAME, PathType.VARIABLE));
-
-    StringExpression displayNameExpression = new CaseBuilder()
-        .when(qCwdUser.displayName.isNull()).then(qWorklog.author)
-        .otherwise(qCwdUser.displayName);
+    StringExpression userExpression = createUserExpression();
 
     return Projections.bean(UserSummaryDTO.class,
-        displayNameExpression.as(displayNamePath),
+        userExpression.as(UserSummaryDTO.AliasNames.USER_DISPLAY_NAME),
         qWorklog.timeworked.sum().as(UserSummaryDTO.AliasNames.WORKLOGGED_TIME_SUM));
   }
 
