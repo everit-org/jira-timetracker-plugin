@@ -175,14 +175,14 @@ everit.reporting.main = everit.reporting.main || {};
     jQuery.ajax({
       async: true,
       type: 'GET',
-      url : contextPath + "/rest/api/2/user/picker?query=daniel.toth@everit.biz",
+      url : contextPath + "/rest/jttp-rest/1/picker/listUsers?pickerUserQueryType=ASSIGNEE",
       data : [],
       success : function(result){
-        for( var i in result.users) {
-          var obj = result.users[i];
-          var avatarId =  obj.avatarUrl;
-          var selected = checkSelected(obj.id, selectedArray);
-          jQuery("#assignePicker").append("<option data-icon=" + avatarId + " value="+obj.name + " "+ selected + ">" +obj.displayName +"</option>");
+        for( var i in result) {
+          var obj = result[i];
+          var avatarId =  contextPath + "/secure/useravatar?size=xsmall&ownerId=" + obj.userName;
+          var selected = checkSelected(obj.userName, selectedArray);
+          jQuery("#assignePicker").append("<option data-icon=" + avatarId + " value="+obj.userName + " "+ selected + ">" +obj.displayName +"</option>");
         }
         var pp = new AJS.CheckboxMultiSelect({
           element:  AJS.$("#assignePicker"),
@@ -203,14 +203,14 @@ everit.reporting.main = everit.reporting.main || {};
     jQuery.ajax({
       async: true,
       type: 'GET',
-      url : contextPath + "/rest/api/2/user/picker?query=daniel.toth@everit.biz",
+      url : contextPath + "/rest/jttp-rest/1/picker/listUsers",
       data : [],
       success : function(result){
-        for( var i in result.users) {
-          var obj = result.users[i];
-          var avatarId =  obj.avatarUrl;
-          var selected = checkSelected(obj.id, selectedArray);
-          jQuery("#reporterPicker").append("<option data-icon=" + avatarId + " value="+obj.name + " "+ selected + ">" +obj.displayName +"</option>");
+        for( var i in result) {
+          var obj = result[i];
+          var avatarId =  contextPath + "/secure/useravatar?size=xsmall&ownerId=" + obj.userName;
+          var selected = checkSelected(obj.userName, selectedArray);
+          jQuery("#reporterPicker").append("<option data-icon=" + avatarId + " value="+obj.userName + " "+ selected + ">" +obj.displayName +"</option>");
         }
         var pp = new AJS.CheckboxMultiSelect({
           element:  AJS.$("#reporterPicker"),
@@ -231,14 +231,14 @@ everit.reporting.main = everit.reporting.main || {};
     jQuery.ajax({
       async: true,
       type: 'GET',
-      url : contextPath + "/rest/api/2/user/picker?query=test",
+      url : contextPath + "/rest/jttp-rest/1/picker/listUsers",
       data : [],
       success : function(result){
-        for( var i in result.users) {
-          var obj = result.users[i];
-          var avatarId =  obj.avatarUrl;
-          var selected = checkSelected(obj.id, selectedArray);
-          jQuery("#userPicker").append("<option data-icon=" + avatarId + " value="+obj.name + " "+ selected + ">" +obj.displayName +"</option>");
+        for( var i in result) {
+          var obj = result[i];
+          var avatarId =  contextPath + "/secure/useravatar?size=xsmall&ownerId=" + obj.userName;
+          var selected = checkSelected(obj.userName, selectedArray);
+          jQuery("#userPicker").append("<option data-icon=" + avatarId + " value="+obj.userName + " "+ selected + ">" +obj.displayName +"</option>");
         }
         var pp = new AJS.CheckboxMultiSelect({
           element:  AJS.$("#userPicker"),
@@ -369,7 +369,7 @@ everit.reporting.main = everit.reporting.main || {};
     jQuery.ajax({
       async: true,
       type: 'GET',
-      url : contextPath + "/rest/api/2/status", //TODO set the right rest api
+      url : contextPath + "/rest/jttp-rest/1/picker/listVersions?pickerVersionQueryType=AFFECTED_VERSION",
       data : [],
       success : function(result){
         for( var i in result) {
@@ -396,7 +396,7 @@ everit.reporting.main = everit.reporting.main || {};
     jQuery.ajax({
       async: true,
       type: 'GET',
-      url : contextPath + "/rest/api/2/status", //TODO set the right rest api
+      url : contextPath + "/rest/jttp-rest/1/picker/listVersions?pickerVersionQueryType=FIX_VERSION", 
       data : [],
       success : function(result){
         for( var i in result) {
@@ -450,13 +450,13 @@ everit.reporting.main = everit.reporting.main || {};
     jQuery.ajax({
       async: true,
       type: 'GET',
-      url : contextPath + "/rest/api/2/status", //TODO set the right rest api
+      url : contextPath + "/rest/jttp-rest/1/picker/listComponents",
       data : [],
       success : function(result){
         for( var i in result) {
           var obj = result[i];
-          var selected = checkSelected(obj.id, selectedArray);
-          jQuery("#componentPicker").append("<option value="+obj.id+ " "+ selected + ">" +obj.name +"</option>");
+          var selected = checkSelected(obj.name, selectedArray);
+          jQuery("#componentPicker").append("<option value="+obj.name+ " "+ selected + ">" +obj.name +"</option>");
         }
         var pp = new AJS.CheckboxMultiSelect({
               element:  AJS.$("#componentPicker"),

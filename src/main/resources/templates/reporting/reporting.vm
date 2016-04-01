@@ -46,7 +46,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
             selectedPriorities: ${selectedPriorities},
             selectedResolutions: ${selectedResolutions},
             selectedGroups: ${selectedGroups},
-            selectedUsers: ${selectedUsers},
+            selectedUsers: "${selectedUsers}",
             selectedAssignes: ${selectedAssignes},
             selectedReportes: ${selectedReportes},
             selectedAffectedVersions: ${selectedAffectedVersions},
