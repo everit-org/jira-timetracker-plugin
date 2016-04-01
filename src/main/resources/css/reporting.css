@@ -13,6 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+ .criteria-dropdown-calendar-icon{
+    position: absolute;
+    top: 19px;
+    right: 15px;
+    z-index: 2;
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAARElEQVR4AWMoIBGANFgXr8dE927fw0TkaCDLSf/B4O7duwQZ5Gq4iwNccDGHI4gIARuA6tAYJGig1En0DyVMQFcnkQgA7103vYurRvEAAAAASUVORK5CYII=');
+ }
+ 
+ .criteria-dropdown-text-div{
+    padding: 10px;
+ }
+ 
+ .criteria-dropdown-text{
+    width: 100%;
+    min-width: 200px;
+    height: 2.1428571428571em;
+    line-height: 1.4285714285714;
+    padding: 4px 5px;
+    border: 1px solid #ccc;
+    border-radius: 3.01px;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    font-size: inherit;
+    margin: 0;
+    max-width: 250px;
+    vertical-align: baseline;
+    width: 100%;
+    background: #fff;
+    color: #333;
+    font-family: inherit;
+    font-size: 14px;
+ }
+ 
 .criteria-selector.aui-button {
     text-align: left;
     margin: 0

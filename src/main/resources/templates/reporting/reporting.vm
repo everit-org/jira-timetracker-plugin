@@ -19,7 +19,8 @@ $webResourceManager.requireResource("jira.webresources:calendar")
 $webResourceManager.requireResource("jira.webresources:calendar-en")
 $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reporting-resources")
   <body>
-    #if($currentCalendar.useISO8601 == true)
+  	#set ($useISO8601 = $currentCalendar.useISO8601)
+    #if($useISO8601 == true)
         #set ($firstDay = 1)
     #else
         #set ($firstDay = 0)
@@ -35,6 +36,10 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
           reporting.values,
           {
             firstDay : ${firstDay},
+            useISO8601: ${useISO8601},
+            dateToFormated: "${dateToFormated}",
+            dateFromFormated: "${dateFromFormated}",
+            dateFromFormated: "${dateFromFormated}",
             selectedProjects : ${selectedProjects},
             selectedStatus: ${selectedStatus},
             selectedTypes: ${selectedTypes},
@@ -46,7 +51,8 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
             selectedReportes: ${selectedReportes},
             selectedAffectedVersions: ${selectedAffectedVersions},
             selectedFixVersions: ${selectedFixVersions},
-            selectedComponents: ${selectedComponents}
+            selectedComponents: ${selectedComponents},
+            selectedLabels: ${selectedLabels}
           }
         );
       })(everit.reporting.main, AJS.$);
@@ -275,6 +281,60 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                            </div>
                                          </div>
                                          <!-- Component Dropdown End-->
+                                         <!-- Label Dropdown  BUTTON-->
+                                         <a id="labelPickerButton" href="#labelPickerDropDown" aria-owns="labelPickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger"></a>
+                                         <!-- Label Dropdown -->
+                                         <div id="labelPickerDropDown" class="aui-style-default aui-dropdown2">
+                                           <div class="jttr-filter-field">
+                                             <div class='ajs-layer box-shadow'>
+                                               <div data-query>
+                                                 <div class='form-body checkboxmultiselect-container'>
+                                                   <div class='field-group aui-field-issuetype'>
+                                                     <select  id="labelPicker" name="labelPicker" multiple="multiple" >
+                                                     </select>
+                                                   </div>
+                                                 </div>
+                                               </div>
+                                             </div>
+                                           </div>
+                                         </div>
+                                         <!-- Label Dropdown End-->
+                                         <!-- Create Date Dropdown  BUTTON-->
+                                         <a id="createdPickerButton" href="#createdPickerDropDown" aria-owns="createdPickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger"></a>
+                                         <!-- Create Date Dropdown -->
+                                         <div id="createdPickerDropDown" class="aui-style-default aui-dropdown2">
+                                           <div class="jttr-filter-field">
+                                             <div class='ajs-layer box-shadow'>
+                                               <div class="criteria-dropdown-text-div" data-query>
+                                                 <div class='form-body'>
+                                                   <div class='field-group aui-field-text'>
+                                                       <input id="createdPicker" name="createdPicker" class="text medium-field datepicker-input criteria-dropdown-text" placeholder="Created Date" type="text" value="$dateCreatedFormated">
+                                                         <span id="createdPickerTrigger" class="aui-icon criteria-dropdown-calendar-icon">Select a date</span>
+                                                       </input>
+                                                   </div>
+                                                 </div>
+                                               </div>
+                                             </div>
+                                           </div>
+                                         </div>
+                                         <!-- Create Date Dropdown End-->
+                                         <!-- Epic Name Dropdown  BUTTON-->
+                                         <a id="epicNamePickerButton" href="#epicNamePickerDropDown" aria-owns="epicNamePickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger"></a>
+                                         <!-- Epic Name Dropdown -->
+                                         <div id="epicNamePickerDropDown" class="aui-style-default aui-dropdown2">
+                                           <div class="jttr-filter-field">
+                                             <div class='ajs-layer box-shadow'>
+                                               <div class="criteria-dropdown-text-div"  data-query>
+                                                 <div class='form-body'>
+                                                   <div class='field-group aui-field-text'>
+                                                       <input id="epicNamePicker" name="epicNamePicker" class="text medium-field criteria-dropdown-text" placeholder="Epic Name" type="text" value="$selectedEpicName" />
+                                                   </div>
+                                                 </div>
+                                               </div>
+                                             </div>
+                                           </div>
+                                         </div>
+                                         <!-- Epic Name Dropdown End-->
                                      </div>
                                  </div>
                             </div>
@@ -346,13 +406,13 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                 <div class="search-criteria-container">
                                     <div class="search-criteria">
                                         <div class="from-date inline-calendar">
-                                            <input id="dateFrom" name="dateFrom" class="text medium-field datepicker-input" placeholder="From" type="text" value="$dateFromFormated">
+                                            <input id="dateFrom" name="dateFrom" class="text medium-field datepicker-input" placeholder="From" type="text" value="$dateFromFormated"/>
                                                 <a href="#" title="Select a date">
                                                     <span id="date_trigger_from" class="aui-icon icon-date">Select a date</span>
                                                 </a>
                                         </div>
                                         <div class="to-date inline-calendar">
-                                            <input id="dateTo" name="dateTo" class="text medium-field datepicker-input" placeholder="To" type="text" value="$dateToFormated">
+                                            <input id="dateTo" name="dateTo" class="text medium-field datepicker-input" placeholder="To" type="text" value="$dateToFormated" />
                                                 <a href="#" title="Select a date">
                                                     <span id="date_trigger_to" class="aui-icon icon-date">Select a date</span>
                                                 </a>
@@ -364,7 +424,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                         </div>
                     </div>
                 </div>
-                <input type="hidden" name="formType" value="basic"
+                <input type="hidden" name="formType" value="basic" />
             </form>
         </div>
         #parse("templates/reporting/reporting_result.vm")

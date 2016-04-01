@@ -55,6 +55,16 @@ public class ReportingWebAction extends JiraWebActionSupport {
   private String contextPath;
 
   /**
+   * The created picker date.
+   */
+  private Date dateCreated = null;
+
+  /**
+   * The created date formated.
+   */
+  private String dateCreatedFormated = "";
+
+  /**
    * The date.
    */
   private Date dateFrom = null;
@@ -73,6 +83,7 @@ public class ReportingWebAction extends JiraWebActionSupport {
    * The formated date.
    */
   private String dateToFormated = "";
+
   /**
    * The message.
    */
@@ -86,9 +97,13 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   private List<String> selectedComponents;
 
+  private String selectedEpicName = "";
+
   private List<String> selectedFixVersions;
 
   private List<String> selectedGroups;
+
+  private List<String> selectedLabels;
 
   private List<String> selectedPriorities;
 
@@ -134,6 +149,21 @@ public class ReportingWebAction extends JiraWebActionSupport {
       selectedComponents = Arrays.asList(selectedComponentsValues);
     } else {
       selectedComponents = new ArrayList<String>();
+    }
+  }
+
+  private void createdDatePickerParse() throws IllegalArgumentException {
+    String createdPateParam = getHttpRequest().getParameter("createdPicker");
+    if ((createdPateParam != null) && !"".equals(createdPateParam)) {
+      dateCreatedFormated = createdPateParam;
+      try {
+        dateCreated = DateTimeConverterUtil.stringToDate(createdPateParam);
+      } catch (ParseException e) {
+        throw new IllegalArgumentException(INVALID_START_TIME);
+      }
+    } else {
+      dateCreatedFormated = "";
+      dateCreated = null;
     }
   }
 
@@ -184,6 +214,15 @@ public class ReportingWebAction extends JiraWebActionSupport {
     return SUCCESS;
   }
 
+  private void epicNamePickerParse() throws IllegalArgumentException {
+    String epicNamePickerParam = getHttpRequest().getParameter("epicNamePicker");
+    if (epicNamePickerParam != null) {
+      selectedEpicName = epicNamePickerParam;
+    } else {
+      selectedEpicName = "";
+    }
+  }
+
   private void fixVersionPickerParse() {
     String[] selectedFixVersionsValues =
         getHttpRequest().getParameterValues("fixVersionPicker");
@@ -196,6 +235,14 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   public String getContextPath() {
     return contextPath;
+  }
+
+  public Date getDateCreated() {
+    return (Date) dateCreated.clone();
+  }
+
+  public String getDateCreatedFormated() {
+    return dateCreatedFormated;
   }
 
   public Date getDateFrom() {
@@ -230,12 +277,20 @@ public class ReportingWebAction extends JiraWebActionSupport {
     return selectedComponents;
   }
 
+  public String getSelectedEpicName() {
+    return selectedEpicName;
+  }
+
   public List<String> getSelectedFixVersions() {
     return selectedFixVersions;
   }
 
   public List<String> getSelectedGroups() {
     return selectedGroups;
+  }
+
+  public List<String> getSelectedLabels() {
+    return selectedLabels;
   }
 
   public List<String> getSelectedPriorities() {
@@ -302,6 +357,21 @@ public class ReportingWebAction extends JiraWebActionSupport {
     selectedAffectedVersions = new ArrayList<String>();
     selectedFixVersions = new ArrayList<String>();
     selectedComponents = new ArrayList<String>();
+    selectedLabels = new ArrayList<String>();
+    selectedEpicName = "";
+
+    dateCreatedFormated = "";
+    dateCreated = null;
+  }
+
+  private void labelPickerParse() {
+    String[] selectedLabelsValues =
+        getHttpRequest().getParameterValues("labelPicker");
+    if (selectedLabelsValues != null) {
+      selectedLabels = Arrays.asList(selectedLabelsValues);
+    } else {
+      selectedLabels = new ArrayList<String>();
+    }
   }
 
   private void normalizeContextPath() {
@@ -360,6 +430,9 @@ public class ReportingWebAction extends JiraWebActionSupport {
     affectedVersionPickerParse();
     fixVersionPickerParse();
     componentsPickerParse();
+    labelPickerParse();
+    createdDatePickerParse();
+    epicNamePickerParse();
   }
 
   private void priorityPickerParse() throws IllegalArgumentException {
@@ -402,6 +475,14 @@ public class ReportingWebAction extends JiraWebActionSupport {
     this.contextPath = contextPath;
   }
 
+  public void setDateCreated(final Date dateCreated) {
+    this.dateCreated = dateCreated;
+  }
+
+  public void setDateCreatedFormated(final String dateCreatedFormated) {
+    this.dateCreatedFormated = dateCreatedFormated;
+  }
+
   public void setDateFrom(final Date dateFrom) {
     this.dateFrom = dateFrom;
   }
@@ -434,12 +515,20 @@ public class ReportingWebAction extends JiraWebActionSupport {
     this.selectedComponents = selectedComponents;
   }
 
+  public void setSelectedEpicName(final String selectedEpicName) {
+    this.selectedEpicName = selectedEpicName;
+  }
+
   public void setSelectedFixVersions(final List<String> selectedFixVersions) {
     this.selectedFixVersions = selectedFixVersions;
   }
 
   public void setSelectedGroups(final List<String> selectedGroups) {
     this.selectedGroups = selectedGroups;
+  }
+
+  public void setSelectedLabels(final List<String> selectedLabels) {
+    this.selectedLabels = selectedLabels;
   }
 
   public void setSelectedPriorities(final List<String> selectedPriorities) {

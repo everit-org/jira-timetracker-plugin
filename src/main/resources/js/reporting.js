@@ -81,9 +81,38 @@ everit.reporting.main = everit.reporting.main || {};
     initAffectedVersionSelect();
     initFixVersionSelect();
     initComponentSelect();
+    initLabelSelect();
+    initCreatedDatePicker();
+    initEpicNameSelect();
   });
   
   
+ function initCreatedDatePicker(){
+    var createdDate = Calendar.setup({
+      firstDay : reporting.values.firstDay,
+      inputField : jQuery("#createdPicker"),
+      button : jQuery("#createdPickerTrigger"),
+      date : reporting.values.dateCreatedFormated,
+      align : 'Br',
+      electric : false,
+      singleClick : true,
+      showOthers : true,
+      useISO8601WeekNumbers : reporting.values.useISO8601,
+      onSelect: reporting.onSelect,
+    });
+    updateInputFieldPickButtonText("#createdPicker" , "#createdPickerButton", "Create Date: All");
+    jQuery("#createdPicker").on("change onblur", function() {
+      updateInputFieldPickButtonText("#createdPicker" , "#createdPickerButton", "Create Date: All");
+    });
+  }
+  
+  function initEpicNameSelect(){
+    updateInputFieldPickButtonText("#epicNamePicker" , "#epicNamePickerButton", "Epic Name: All");
+    jQuery("#epicNamePicker").on("change onblur", function() {
+      updateInputFieldPickButtonText("#epicNamePicker" , "#epicNamePickerButton", "Epic Name: All");
+    });
+  };
+ 
   function initPrioritySelect(){
     var selectedArray =  jQuery.makeArray( reporting.values.selectedPriorities ); 
     jQuery.ajax({
@@ -389,6 +418,33 @@ everit.reporting.main = everit.reporting.main || {};
     });
   };
   
+  function initLabelSelect(){
+    var selectedArray =  jQuery.makeArray( reporting.values.selectedLabels ); 
+    jQuery.ajax({
+      async: true,
+      type: 'GET',
+      url : contextPath + "/rest/api/2/status", //TODO set the right rest api
+      data : [],
+      success : function(result){
+        for( var i in result) {
+          var obj = result[i];
+          var selected = checkSelected(obj.id, selectedArray);
+          jQuery("#labelPicker").append("<option value="+obj.id+ " "+ selected + ">" +obj.name +"</option>");
+        }
+        var pp = new AJS.CheckboxMultiSelect({
+              element:  AJS.$("#labelPicker"),
+              submitInputVal: true,
+        });
+        updatePickerButtonText("#labelPicker" , "#labelPickerButton", "Label: All");
+        jQuery("#labelPicker").on("change unselect", function() {
+          updatePickerButtonText("#labelPicker" , "#labelPickerButton", "Label: All");
+        });
+      },
+      error : function(XMLHttpRequest, status, error){
+      }
+    });
+  };
+  
   function initComponentSelect(){
     var selectedArray =  jQuery.makeArray( reporting.values.selectedComponent ); 
     jQuery.ajax({
@@ -422,6 +478,16 @@ everit.reporting.main = everit.reporting.main || {};
       if(selectedArray[i] == id) selected = "selected";
     }
     return selected;
+  };
+  
+  function updateInputFieldPickButtonText(picker, button, defaultText){ //Example vallues: "#epicNamePicker" , "#epicNameButton", "Epic Name: All"
+    var newButtonText =  jQuery(picker).val();
+    if (newButtonText === '') {
+      newButtonText = defaultText;
+    }else if(newButtonText.length > 16){
+      newButtonText = newButtonText.substring(0, 12) + "...";
+    }
+    jQuery(button).text(newButtonText);
   };
   
   function updatePickerButtonText(picker, button, defaultText){ //Example vallues: "#projectPicker" , "#projectPickerButton", "Project: All"
