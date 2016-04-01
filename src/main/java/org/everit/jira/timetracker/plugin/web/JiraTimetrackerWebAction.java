@@ -146,6 +146,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The worklog duration.
    */
   private String durationTime = "";
+
   /**
    * The all edit worklogs ids.
    */
@@ -206,16 +207,15 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The calendar isPopup.
    */
   private int isPopup;
-
   /**
    * The issue key.
    */
   private String issueKey = "";
+
   /**
    * The issues.
    */
   private transient List<Issue> issues = new ArrayList<Issue>();
-
   /**
    * The filtered Issues id.
    */
@@ -228,10 +228,12 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The {@link JiraTimetrackerPlugin}.
    */
   private transient JiraTimetrackerPlugin jiraTimetrackerPlugin;
+
   /**
    * The jira version.
    */
   private String jiraVersion;
+
   /**
    * List of the logged days of the date variable current months.
    */
@@ -262,6 +264,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private String piwikSiteId;
 
   private String pluginVersion;
+
   /**
    * The IDs of the projects.
    */
@@ -439,7 +442,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   @Override
   public String doDefault() throws ParseException {
-
     boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
     if (!isUserLogged) {
       setReturnUrl(JIRA_HOME_URL);
