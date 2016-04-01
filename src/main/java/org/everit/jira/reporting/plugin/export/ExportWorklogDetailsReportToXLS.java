@@ -28,7 +28,7 @@ import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
 import org.everit.jira.reporting.plugin.dto.WorklogDetailsDTO;
 import org.everit.jira.reporting.plugin.query.WorklogDetailsReportQuery;
 
-public class ExportWorklogDetailsReportToXLS extends AbstractExportReportToXLS {
+public class ExportWorklogDetailsReportToXLS extends AbstractExportListReportToXLS {
 
   private static final String PROPERTIES_KEY_PREFIX = "jtrp.report.wd.col.";
 

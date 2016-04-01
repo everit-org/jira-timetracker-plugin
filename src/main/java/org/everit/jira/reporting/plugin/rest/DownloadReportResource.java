@@ -15,6 +15,9 @@
  */
 package org.everit.jira.reporting.plugin.rest;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -22,9 +25,12 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.everit.jira.querydsl.support.QuerydslSupport;
 import org.everit.jira.querydsl.support.ri.QuerydslSupportImpl;
 import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
+import org.everit.jira.reporting.plugin.export.ExportSummaryReportsToXLS;
+import org.everit.jira.reporting.plugin.export.ExportWorklogDetailsReportToXLS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,14 +52,41 @@ public class DownloadReportResource {
     }
   }
 
-  @POST
-  @Consumes(MediaType.APPLICATION_JSON)
-  @Produces(MediaType.APPLICATION_JSON)
-  @Path("/downloadWorklogDetailsReport")
-  public Response downloadWorklogDetailsReport(final ReportSearchParam reportSearchParam) {
-    // ArrayList<ReportSearchParam> arrayList = new ArrayList<>();
-    // arrayList.add(reportSearchParam);
-    return Response.ok(reportSearchParam).build();
+  private Response buildResponse(final HSSFWorkbook workbook, final String fileName) {
+    try (ByteArrayOutputStream bos = new ByteArrayOutputStream();) {
+      workbook.write(bos);
+      return Response.ok(bos.toByteArray(), MediaType.APPLICATION_OCTET_STREAM)
+          .header("Content-Disposition", "attachment; filename=\"" + fileName + "\"")
+          .build();
+    } catch (IOException e) {
+      return Response.serverError().build();
+    }
   }
 
+  @POST
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_OCTET_STREAM)
+  @Path("/downloadSummariesReport")
+  public Response downloadSummarisReport(final ReportSearchParam reportSearchParam) {
+    ExportSummaryReportsToXLS exportSummaryReportsToXLS =
+        new ExportSummaryReportsToXLS(querydslSupport, reportSearchParam);
+
+    HSSFWorkbook workbook = exportSummaryReportsToXLS.export();
+    return buildResponse(workbook, "worklog-details-report.xls");
+  }
+
+  @POST
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_OCTET_STREAM)
+  @Path("/downloadWorklogDetailsReport")
+  public Response downloadWorklogDetailsReport(
+      final DownloadWorklogDetailsParam downloadWorklogDetailsParam) {
+    ExportWorklogDetailsReportToXLS exportWorklogDetailsReportToXLS =
+        new ExportWorklogDetailsReportToXLS(querydslSupport,
+            downloadWorklogDetailsParam.selectedWorklogDetailsColumns,
+            downloadWorklogDetailsParam.reportSearchParam);
+
+    HSSFWorkbook workbook = exportWorklogDetailsReportToXLS.export();
+    return buildResponse(workbook, "worklog-details-report.xls");
+  }
 }

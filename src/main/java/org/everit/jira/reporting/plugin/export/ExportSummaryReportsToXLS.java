@@ -31,7 +31,7 @@ import org.everit.jira.reporting.plugin.query.IssueSummaryReportQuery;
 import org.everit.jira.reporting.plugin.query.ProjectSummaryReportQuery;
 import org.everit.jira.reporting.plugin.query.UserSummaryReportQuery;
 
-public class ExportSummaryReportsToXLS extends AbstractExportReportToXLS {
+public class ExportSummaryReportsToXLS extends AbstractExportListReportToXLS {
 
   private static final String ISSUE_SUMMARY_PREFIX = "jtrp.report.is.col.";
 
