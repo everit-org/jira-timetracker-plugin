@@ -213,7 +213,6 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 	</div>
 	#parse("templates/reporting/reporting_popup.vm")
 </div>
-
 #if($analyticsCheck)
 	#parse("templates/common/analytics.vm")
 #end
