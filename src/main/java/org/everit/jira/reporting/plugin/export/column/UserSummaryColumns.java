@@ -13,26 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.jira.reporting.plugin.export;
+package org.everit.jira.reporting.plugin.export.column;
 
-public final class ProjectSummaryColumns {
-
-  public static final String ESTIMATED = "estimated";
-
-  public static final String EXPECTED_TOTAL = "expectedTotal";
-
-  public static final String EXPECTED_TOTAL_VS_ESTIMATED = "expectedTotalVsEstimated";
-
-  public static final String LOGGED_VS_ESTIMATED = "loggedVsEstimated";
-
-  public static final String PROJECT = "project";
-
-  public static final String PROJECT_DESCRIPTION = "projectDescription";
-
-  public static final String REMAINING = "remaining";
+/**
+ * Define User Summary report columns.
+ */
+public final class UserSummaryColumns {
 
   public static final String TOTAL_LOGGED = "totalLogged";
 
-  private ProjectSummaryColumns() {
+  public static final String USER = "user";
+
+  private UserSummaryColumns() {
   }
 }

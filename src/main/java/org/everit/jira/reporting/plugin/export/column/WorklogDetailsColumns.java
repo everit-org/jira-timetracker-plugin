@@ -13,12 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.jira.reporting.plugin.export;
+package org.everit.jira.reporting.plugin.export.column;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Define Worklog Details report columns.
+ */
 public final class WorklogDetailsColumns {
 
   public static final String AFFECTED_VERIONS = "affectedVersions";
@@ -70,31 +73,32 @@ public final class WorklogDetailsColumns {
   public static final String WORKLOG_UPDATED = "worklogUpdated";
 
   static {
-    ALL_COLUMNS = new ArrayList<String>();
-    ALL_COLUMNS.add(AFFECTED_VERIONS);
-    ALL_COLUMNS.add(ASSIGNEE);
-    ALL_COLUMNS.add(COMPONENTS);
-    ALL_COLUMNS.add(CREATED);
-    ALL_COLUMNS.add(ESTIMATED);
-    ALL_COLUMNS.add(FIX_VERSIONS);
-    ALL_COLUMNS.add(ISSUE_KEY);
-    ALL_COLUMNS.add(ISSUE_SUMMARY);
-    ALL_COLUMNS.add(PRIORITY);
-    ALL_COLUMNS.add(PROJECT);
-    ALL_COLUMNS.add(PROJECT_DESCRIPTION);
-    ALL_COLUMNS.add(REMAINING);
-    ALL_COLUMNS.add(REPORTER);
-    ALL_COLUMNS.add(RESOLUTION);
-    ALL_COLUMNS.add(START_TIME);
-    ALL_COLUMNS.add(STATUS);
-    ALL_COLUMNS.add(TIME_SPENT);
-    ALL_COLUMNS.add(TYPE);
-    ALL_COLUMNS.add(UPDATED);
-    ALL_COLUMNS.add(USER);
-    ALL_COLUMNS.add(WORKLOG_CREATED);
-    ALL_COLUMNS.add(WORKLOG_DESCRIPTION);
-    ALL_COLUMNS.add(WORKLOG_UPDATED);
-    Collections.unmodifiableList(ALL_COLUMNS);
+    List<String> allColumns = new ArrayList<String>();
+    allColumns.add(AFFECTED_VERIONS);
+    allColumns.add(ASSIGNEE);
+    allColumns.add(COMPONENTS);
+    allColumns.add(CREATED);
+    allColumns.add(ESTIMATED);
+    allColumns.add(FIX_VERSIONS);
+    allColumns.add(ISSUE_KEY);
+    allColumns.add(ISSUE_SUMMARY);
+    allColumns.add(PRIORITY);
+    allColumns.add(PROJECT);
+    allColumns.add(PROJECT_DESCRIPTION);
+    allColumns.add(REMAINING);
+    allColumns.add(REPORTER);
+    allColumns.add(RESOLUTION);
+    allColumns.add(START_TIME);
+    allColumns.add(STATUS);
+    allColumns.add(TIME_SPENT);
+    allColumns.add(TYPE);
+    allColumns.add(UPDATED);
+    allColumns.add(USER);
+    allColumns.add(WORKLOG_CREATED);
+    allColumns.add(WORKLOG_DESCRIPTION);
+    allColumns.add(WORKLOG_UPDATED);
+
+    ALL_COLUMNS = Collections.unmodifiableList(allColumns);
   }
 
   private WorklogDetailsColumns() {

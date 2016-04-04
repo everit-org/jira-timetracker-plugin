@@ -19,21 +19,29 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.everit.jira.querydsl.support.QuerydslSupport;
 import org.everit.jira.querydsl.support.ri.QuerydslSupportImpl;
+import org.everit.jira.reporting.plugin.dto.DownloadWorklogDetailsParam;
 import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
-import org.everit.jira.reporting.plugin.export.ExportSummaryReportsToXLS;
-import org.everit.jira.reporting.plugin.export.ExportWorklogDetailsReportToXLS;
+import org.everit.jira.reporting.plugin.export.ExportSummariesListReports;
+import org.everit.jira.reporting.plugin.export.ExportWorklogDetailsListReport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.Gson;
+
+/**
+ * Responsible to define - and call implemented - export report process.
+ */
 @Path("/download-report")
 public class DownloadReportResource {
 
@@ -63,30 +71,53 @@ public class DownloadReportResource {
     }
   }
 
-  @POST
+  /**
+   * Download summaries reports (project-, issue-, user summary).
+   *
+   * @param json
+   *          the json string from which the object is to be deserialized to
+   *          {@link ReportSearchParam} object.
+   * @return the generated XLS document.
+   */
+  @GET
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_OCTET_STREAM)
   @Path("/downloadSummariesReport")
-  public Response downloadSummarisReport(final ReportSearchParam reportSearchParam) {
-    ExportSummaryReportsToXLS exportSummaryReportsToXLS =
-        new ExportSummaryReportsToXLS(querydslSupport, reportSearchParam);
+  public Response downloadSummariesReport(
+      @QueryParam("json") @DefaultValue("{}") final String json) {
+    ReportSearchParam reportSearchParam = new Gson()
+        .fromJson(json, ReportSearchParam.class);
 
-    HSSFWorkbook workbook = exportSummaryReportsToXLS.export();
-    return buildResponse(workbook, "worklog-details-report.xls");
+    ExportSummariesListReports exportSummariesListReports =
+        new ExportSummariesListReports(querydslSupport, reportSearchParam);
+
+    HSSFWorkbook workbook = exportSummariesListReports.exportToXLS();
+    return buildResponse(workbook, "summaries-report.xls");
   }
 
-  @POST
+  /**
+   * Download worklog details report.
+   *
+   * @param json
+   *          the json string from which the object is to be deserialized to
+   *          {@link DownloadWorklogDetailsParam} object.
+   * @return the generated XLS document.
+   */
+  @GET
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_OCTET_STREAM)
   @Path("/downloadWorklogDetailsReport")
   public Response downloadWorklogDetailsReport(
-      final DownloadWorklogDetailsParam downloadWorklogDetailsParam) {
-    ExportWorklogDetailsReportToXLS exportWorklogDetailsReportToXLS =
-        new ExportWorklogDetailsReportToXLS(querydslSupport,
+      @QueryParam("json") @DefaultValue("{}") final String json) {
+    DownloadWorklogDetailsParam downloadWorklogDetailsParam = new Gson()
+        .fromJson(json, DownloadWorklogDetailsParam.class);
+
+    ExportWorklogDetailsListReport exportWorklogDetailsListReport =
+        new ExportWorklogDetailsListReport(querydslSupport,
             downloadWorklogDetailsParam.selectedWorklogDetailsColumns,
             downloadWorklogDetailsParam.reportSearchParam);
 
-    HSSFWorkbook workbook = exportWorklogDetailsReportToXLS.export();
+    HSSFWorkbook workbook = exportWorklogDetailsListReport.exportToXLS();
     return buildResponse(workbook, "worklog-details-report.xls");
   }
 }

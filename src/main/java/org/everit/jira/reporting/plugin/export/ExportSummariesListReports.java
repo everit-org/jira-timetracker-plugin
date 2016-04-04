@@ -15,8 +15,6 @@
  */
 package org.everit.jira.reporting.plugin.export;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.List;
 
 import org.apache.poi.hssf.usermodel.HSSFRow;
@@ -27,11 +25,17 @@ import org.everit.jira.reporting.plugin.dto.IssueSummaryDTO;
 import org.everit.jira.reporting.plugin.dto.ProjectSummaryDTO;
 import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
 import org.everit.jira.reporting.plugin.dto.UserSummaryDTO;
+import org.everit.jira.reporting.plugin.export.column.IssueSummaryColumns;
+import org.everit.jira.reporting.plugin.export.column.ProjectSummaryColumns;
+import org.everit.jira.reporting.plugin.export.column.UserSummaryColumns;
 import org.everit.jira.reporting.plugin.query.IssueSummaryReportQuery;
 import org.everit.jira.reporting.plugin.query.ProjectSummaryReportQuery;
 import org.everit.jira.reporting.plugin.query.UserSummaryReportQuery;
 
-public class ExportSummaryReportsToXLS extends AbstractExportListReportToXLS {
+/**
+ * Class that export summaries list report (project summary, issue summary, user summary).
+ */
+public class ExportSummariesListReports extends AbstractExportListReport {
 
   private static final String ISSUE_SUMMARY_PREFIX = "jtrp.report.is.col.";
 
@@ -39,7 +43,7 @@ public class ExportSummaryReportsToXLS extends AbstractExportListReportToXLS {
 
   private static final String USER_SUMMARY_PREFIX = "jtrp.report.us.col.";
 
-  public ExportSummaryReportsToXLS(final QuerydslSupport querydslSupport,
+  public ExportSummariesListReports(final QuerydslSupport querydslSupport,
       final ReportSearchParam reportSearchParam) {
     super(querydslSupport, reportSearchParam);
   }
@@ -108,7 +112,7 @@ public class ExportSummaryReportsToXLS extends AbstractExportListReportToXLS {
     columnIndex = insertBodyCell(row, columnIndex, issueSummaryDTO.getAssignee());
     columnIndex = insertBodyCell(row, columnIndex, issueSummaryDTO.getOrginalEstimatedSum());
     columnIndex = insertBodyCell(row, columnIndex, issueSummaryDTO.getReaminingTimeSum());
-    columnIndex = insertBodyCell(row, columnIndex, issueSummaryDTO.getWorkloggedTimeSum());
+    insertBodyCell(row, columnIndex, issueSummaryDTO.getWorkloggedTimeSum());
 
     return newRowIndex;
   }
@@ -136,7 +140,7 @@ public class ExportSummaryReportsToXLS extends AbstractExportListReportToXLS {
         i18nHelper.getText(ISSUE_SUMMARY_PREFIX + IssueSummaryColumns.ESTIMATED));
     columnIndex = insertHeaderCell(row, columnIndex,
         i18nHelper.getText(ISSUE_SUMMARY_PREFIX + IssueSummaryColumns.REMAINING));
-    columnIndex = insertHeaderCell(row, columnIndex,
+    insertHeaderCell(row, columnIndex,
         i18nHelper.getText(ISSUE_SUMMARY_PREFIX + IssueSummaryColumns.TOTAL_LOGGED));
 
     return newRowIndex;
@@ -164,7 +168,7 @@ public class ExportSummaryReportsToXLS extends AbstractExportListReportToXLS {
     columnIndex = insertBodyCell(row, columnIndex, remainingTimeSum);
     columnIndex = insertBodyCell(row, columnIndex, loggedVsEstimated);
     columnIndex = insertBodyCell(row, columnIndex, expectedTotal);
-    columnIndex = insertBodyCell(row, columnIndex, expectedTotalVsEstimated);
+    insertBodyCell(row, columnIndex, expectedTotalVsEstimated);
 
     return newRowIndex;
   }
@@ -190,7 +194,7 @@ public class ExportSummaryReportsToXLS extends AbstractExportListReportToXLS {
         i18nHelper.getText(PROJECT_SUMMARY_PREFIX + ProjectSummaryColumns.LOGGED_VS_ESTIMATED));
     columnIndex = insertHeaderCell(row, columnIndex,
         i18nHelper.getText(PROJECT_SUMMARY_PREFIX + ProjectSummaryColumns.EXPECTED_TOTAL));
-    columnIndex = insertHeaderCell(row, columnIndex,
+    insertHeaderCell(row, columnIndex,
         i18nHelper.getText(PROJECT_SUMMARY_PREFIX
             + ProjectSummaryColumns.EXPECTED_TOTAL_VS_ESTIMATED));
 
@@ -205,7 +209,7 @@ public class ExportSummaryReportsToXLS extends AbstractExportListReportToXLS {
     HSSFRow row = userSummarySheet.createRow(newRowIndex++);
 
     columnIndex = insertBodyCell(row, columnIndex, userSummaryDTO.getUserDisplayName());
-    columnIndex = insertBodyCell(row, columnIndex, userSummaryDTO.getWorkloggedTimeSum());
+    insertBodyCell(row, columnIndex, userSummaryDTO.getWorkloggedTimeSum());
     return newRowIndex;
   }
 
@@ -218,19 +222,10 @@ public class ExportSummaryReportsToXLS extends AbstractExportListReportToXLS {
 
     columnIndex = insertHeaderCell(row, columnIndex,
         i18nHelper.getText(USER_SUMMARY_PREFIX + UserSummaryColumns.USER));
-    columnIndex = insertHeaderCell(row, columnIndex,
+    insertHeaderCell(row, columnIndex,
         i18nHelper.getText(USER_SUMMARY_PREFIX + UserSummaryColumns.TOTAL_LOGGED));
 
     return newRowIndex;
   }
 
-  @Override
-  protected void writeWorkbookToFile(final HSSFWorkbook workbook) {
-    try (FileOutputStream out = new FileOutputStream("e:\\summary.xls")) {
-      workbook.close();
-      workbook.write(out);
-    } catch (IOException e) {
-      throw new RuntimeException("Failed to save XLS file [" + "].", e);
-    }
-  }
 }

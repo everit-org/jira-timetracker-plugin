@@ -13,16 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.jira.reporting.plugin.rest;
+package org.everit.jira.reporting.plugin.dto;
 
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
-import org.everit.jira.reporting.plugin.export.WorklogDetailsColumns;
+import org.everit.jira.reporting.plugin.export.column.WorklogDetailsColumns;
 
+/**
+ * Download worklog details parameter that containt the filter condition and the showable columns.
+ */
 @XmlRootElement
 public class DownloadWorklogDetailsParam {
 

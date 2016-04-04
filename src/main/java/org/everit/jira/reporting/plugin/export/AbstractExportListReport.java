@@ -35,7 +35,7 @@ import com.atlassian.jira.util.I18nHelper;
 /**
  * Helper class to export list reports to XLS.
  */
-public abstract class AbstractExportListReportToXLS {
+public abstract class AbstractExportListReport {
 
   private HSSFCellStyle bodyCellStyle;
 
@@ -55,7 +55,7 @@ public abstract class AbstractExportListReportToXLS {
    * @param reportSearchParam
    *          the {@link ReportSearchParam} object, that contains parameters to filter condition.
    */
-  public AbstractExportListReportToXLS(final QuerydslSupport querydslSupport,
+  public AbstractExportListReport(final QuerydslSupport querydslSupport,
       final ReportSearchParam reportSearchParam) {
     this.querydslSupport = querydslSupport;
     this.reportSearchParam = reportSearchParam;
@@ -81,15 +81,12 @@ public abstract class AbstractExportListReportToXLS {
   /**
    * Export list report to Workbook (XLS).
    */
-  public HSSFWorkbook export() {
+  public HSSFWorkbook exportToXLS() {
     HSSFWorkbook workbook = new HSSFWorkbook();
     createHeaderCellStyle(workbook);
     createBodyCellStyle(workbook);
 
     appendContent(workbook);
-
-    // FIXME remove!!!
-    writeWorkbookToFile(workbook);
 
     return workbook;
   }
@@ -114,9 +111,12 @@ public abstract class AbstractExportListReportToXLS {
     if (value.size() == 1) {
       cValue = value.get(0);
     } else {
+      StringBuffer sb = new StringBuffer();
       for (String v : value) {
-        cValue += v + ", ";
+        sb.append(v);
+        sb.append(", ");
       }
+      cValue = sb.toString();
     }
     cell.setCellValue(cValue);
     return newColumnIndex;
@@ -206,5 +206,4 @@ public abstract class AbstractExportListReportToXLS {
     return newColumnIndex;
   }
 
-  protected abstract void writeWorkbookToFile(final HSSFWorkbook workbook);
 }

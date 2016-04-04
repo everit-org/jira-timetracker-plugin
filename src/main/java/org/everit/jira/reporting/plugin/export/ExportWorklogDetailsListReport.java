@@ -15,8 +15,6 @@
  */
 package org.everit.jira.reporting.plugin.export;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -26,17 +24,21 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.everit.jira.querydsl.support.QuerydslSupport;
 import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
 import org.everit.jira.reporting.plugin.dto.WorklogDetailsDTO;
+import org.everit.jira.reporting.plugin.export.column.WorklogDetailsColumns;
 import org.everit.jira.reporting.plugin.query.WorklogDetailsReportQuery;
 
-public class ExportWorklogDetailsReportToXLS extends AbstractExportListReportToXLS {
+/**
+ * Class that export worklog details list report.
+ */
+public class ExportWorklogDetailsListReport extends AbstractExportListReport {
 
-  private static final String PROPERTIES_KEY_PREFIX = "jtrp.report.wd.col.";
+  private static final String WORKLOG_DETAILS_PREFIX = "jtrp.report.wd.col.";
 
   private int rowIndex = 0;
 
   private List<String> selectedWorklogDetailsColumns;
 
-  public ExportWorklogDetailsReportToXLS(final QuerydslSupport querydslSupport,
+  public ExportWorklogDetailsListReport(final QuerydslSupport querydslSupport,
       final List<String> selectedWorklogDetailsColumns, final ReportSearchParam reportSearchParam) {
     super(querydslSupport, reportSearchParam);
     this.selectedWorklogDetailsColumns = selectedWorklogDetailsColumns;
@@ -109,7 +111,7 @@ public class ExportWorklogDetailsReportToXLS extends AbstractExportListReportToX
         WorklogDetailsColumns.TIME_SPENT, worklogDetailsDTO.getWorklogTimeWorked());
     columnIndex = insertWorklogDetailsBodyCell(row, columnIndex,
         WorklogDetailsColumns.WORKLOG_CREATED, worklogDetailsDTO.getWorklogCreated());
-    columnIndex = insertWorklogDetailsBodyCell(row, columnIndex,
+    insertWorklogDetailsBodyCell(row, columnIndex,
         WorklogDetailsColumns.WORKLOG_UPDATED, worklogDetailsDTO.getWorklogUpdated());
   }
 
@@ -149,8 +151,7 @@ public class ExportWorklogDetailsReportToXLS extends AbstractExportListReportToX
         insertWorklogDetailsHeaderCell(row, columnIndex, WorklogDetailsColumns.TIME_SPENT);
     columnIndex =
         insertWorklogDetailsHeaderCell(row, columnIndex, WorklogDetailsColumns.WORKLOG_CREATED);
-    columnIndex =
-        insertWorklogDetailsHeaderCell(row, columnIndex, WorklogDetailsColumns.WORKLOG_UPDATED);
+    insertWorklogDetailsHeaderCell(row, columnIndex, WorklogDetailsColumns.WORKLOG_UPDATED);
 
   }
 
@@ -190,18 +191,9 @@ public class ExportWorklogDetailsReportToXLS extends AbstractExportListReportToX
       final String column) {
     if (containsColumn(column)) {
       return insertHeaderCell(headerRow, columnIndex,
-          i18nHelper.getText(PROPERTIES_KEY_PREFIX + column));
+          i18nHelper.getText(WORKLOG_DETAILS_PREFIX + column));
     }
     return columnIndex;
   }
 
-  @Override
-  protected void writeWorkbookToFile(final HSSFWorkbook workbook) {
-    try (FileOutputStream out = new FileOutputStream("e:\\tmp.xls")) {
-      workbook.close();
-      workbook.write(out);
-    } catch (IOException e) {
-      throw new RuntimeException("Failed to save XLS file [" + "].", e);
-    }
-  }
 }

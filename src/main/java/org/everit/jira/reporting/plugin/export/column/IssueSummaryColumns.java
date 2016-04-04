@@ -13,14 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.jira.reporting.plugin.export;
+package org.everit.jira.reporting.plugin.export.column;
 
-public final class UserSummaryColumns {
+/**
+ * Define Issue Summary report columns.
+ */
+public final class IssueSummaryColumns {
+
+  public static final String ASSIGNEE = "assignee";
+
+  public static final String ESTIMATED = "estimated";
+
+  public static final String ISSUE = "issue";
+
+  public static final String ISSUE_SUMMARY = "issueSummary";
+
+  public static final String PRIORITY = "priority";
+
+  public static final String REMAINING = "remaining";
+
+  public static final String STATUS = "status";
 
   public static final String TOTAL_LOGGED = "totalLogged";
 
-  public static final String USER = "user";
+  public static final String TYPE = "type";
 
-  private UserSummaryColumns() {
+  private IssueSummaryColumns() {
   }
 }
