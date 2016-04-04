@@ -46,12 +46,12 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
             selectedPriorities: ${selectedPriorities},
             selectedResolutions: ${selectedResolutions},
             selectedGroups: ${selectedGroups},
-            selectedUsers: "${selectedUsers}",
-            selectedAssignes: ${selectedAssignes},
-            selectedReportes: ${selectedReportes},
-            selectedAffectedVersions: ${selectedAffectedVersions},
-            selectedFixVersions: ${selectedFixVersions},
-            selectedComponents: ${selectedComponents},
+            selectedUsers:  [ #foreach( $tmp in $selectedUsers )#if($velocityCount> 1),#end "$tmp"  #end ],
+            selectedAssignes: [ #foreach( $tmp in $selectedAssignes )#if($velocityCount> 1),#end "$tmp" #end ],
+            selectedReportes: [ #foreach( $tmp in $selectedReportes )#if($velocityCount> 1),#end "$tmp" #end ],
+            selectedAffectedVersions: [ #foreach( $tmp in $selectedAffectedVersions )#if($velocityCount> 1),#end "$tmp" #end ],
+            selectedFixVersions: [ #foreach( $tmp in $selectedFixVersions )#if($velocityCount> 1),#end "$tmp" #end ],
+            selectedComponents:[ #foreach( $tmp in $selectedComponents )#if($velocityCount> 1),#end "$tmp" #end ],
             selectedLabels: ${selectedLabels}
           }
         );

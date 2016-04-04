@@ -125,7 +125,7 @@ everit.reporting.main = everit.reporting.main || {};
           var obj = result[i];
           var selected = checkSelected(obj.id, selectedArray);
           var avatarId =  obj.iconUrl;
-          jQuery("#priorityPicker").append("<option data-icon=" + avatarId + " value="+obj.id + " "+ selected + ">" +obj.name +"</option>");
+          jQuery("#priorityPicker").append('<option data-icon="' + avatarId + '" value="'+obj.id + '" '+ selected + '>' +obj.name +'</option>');
 
         }
         var pp = new AJS.CheckboxMultiSelect({
@@ -154,7 +154,7 @@ everit.reporting.main = everit.reporting.main || {};
           var obj = result[i];
           var selected = checkSelected(obj.id, selectedArray);
           var avatarId =  obj.avatarUrls["16x16"];
-          jQuery("#projectPicker").append("<option data-icon=" + avatarId + " value=" + obj.id + " "+ selected +">" +obj.name+ "(" + obj.key + " )" +"</option>");
+          jQuery("#projectPicker").append('<option data-icon="' + avatarId + '" value="' + obj.id + '" '+ selected +'>' +obj.name+ '(' + obj.key + ' )</option>');
         }
         var pp = new AJS.CheckboxMultiSelect({
             element:  jQuery("#projectPicker"),
@@ -182,7 +182,7 @@ everit.reporting.main = everit.reporting.main || {};
           var obj = result[i];
           var avatarId =  contextPath + "/secure/useravatar?size=xsmall&ownerId=" + obj.userName;
           var selected = checkSelected(obj.userName, selectedArray);
-          jQuery("#assignePicker").append("<option data-icon=" + avatarId + " value="+obj.userName + " "+ selected + ">" +obj.displayName +"</option>");
+          jQuery("#assignePicker").append('<option data-icon="' + avatarId + '" value="'+obj.userName + '" '+ selected + '>' +obj.displayName +'</option>');
         }
         var pp = new AJS.CheckboxMultiSelect({
           element:  AJS.$("#assignePicker"),
@@ -210,7 +210,7 @@ everit.reporting.main = everit.reporting.main || {};
           var obj = result[i];
           var avatarId =  contextPath + "/secure/useravatar?size=xsmall&ownerId=" + obj.userName;
           var selected = checkSelected(obj.userName, selectedArray);
-          jQuery("#reporterPicker").append("<option data-icon=" + avatarId + " value="+obj.userName + " "+ selected + ">" +obj.displayName +"</option>");
+          jQuery("#reporterPicker").append('<option data-icon="' + avatarId + '" value="'+obj.userName + '" '+ selected + '>' +obj.displayName +'</option>');
         }
         var pp = new AJS.CheckboxMultiSelect({
           element:  AJS.$("#reporterPicker"),
@@ -238,7 +238,7 @@ everit.reporting.main = everit.reporting.main || {};
           var obj = result[i];
           var avatarId =  contextPath + "/secure/useravatar?size=xsmall&ownerId=" + obj.userName;
           var selected = checkSelected(obj.userName, selectedArray);
-          jQuery("#userPicker").append("<option data-icon=" + avatarId + " value="+obj.userName + " "+ selected + ">" +obj.displayName +"</option>");
+          jQuery("#userPicker").append('<option data-icon="' + avatarId + '" value="'+obj.userName + '" '+ selected + '>' +obj.displayName +'</option>');
         }
         var pp = new AJS.CheckboxMultiSelect({
           element:  AJS.$("#userPicker"),
@@ -265,7 +265,7 @@ everit.reporting.main = everit.reporting.main || {};
         for( var i in result.groups) {
           var obj = result.groups[i];
           var selected = checkSelected(obj.id, selectedArray);
-          jQuery("#groupPicker").append("<option value="+obj.name + " "+ selected + ">" +obj.name +"</option>");
+          jQuery("#groupPicker").append('<option value="'+obj.name + '" '+ selected + '>' +obj.name +'</option>');
         }
         var pp = new AJS.CheckboxMultiSelect({
               element:  AJS.$("#groupPicker"),
@@ -293,7 +293,7 @@ everit.reporting.main = everit.reporting.main || {};
           var obj = result[i];
           var avatarId =  obj.iconUrl;
           var selected = checkSelected(obj.id, selectedArray);
-          jQuery("#typePicker").append("<option data-icon=" + avatarId + " value="+obj.id + " "+ selected + ">" +obj.name +"</option>");
+          jQuery("#typePicker").append('<option data-icon="' + avatarId + '" value="'+obj.id + '" '+ selected + '>' +obj.name +'</option>');
         }
         var pp = new AJS.CheckboxMultiSelect({
               element:  AJS.$("#typePicker"),
@@ -320,7 +320,7 @@ everit.reporting.main = everit.reporting.main || {};
         for( var i in result) {
           var obj = result[i];
           var selected = checkSelected(obj.id, selectedArray);
-          jQuery("#resolutionPicker").append("<option value="+obj.id+ " "+ selected + ">" +obj.name +"</option>");
+          jQuery("#resolutionPicker").append('<option value="'+obj.id+ '" '+ selected + '>' +obj.name +'</option>');
         }
         var pp = new AJS.CheckboxMultiSelect({
               element:  AJS.$("#resolutionPicker"),
@@ -374,8 +374,8 @@ everit.reporting.main = everit.reporting.main || {};
       success : function(result){
         for( var i in result) {
           var obj = result[i];
-          var selected = checkSelected(obj.id, selectedArray);
-          jQuery("#affectedVersionPicker").append("<option value="+obj.id+ " "+ selected + ">" +obj.name +"</option>");
+          var selected = checkSelected(obj.name, selectedArray);
+          jQuery("#affectedVersionPicker").append('<option value="'+obj.name+ '" '+ selected + '>' +obj.name +'</option>');
         }
         var pp = new AJS.CheckboxMultiSelect({
               element:  AJS.$("#affectedVersionPicker"),
@@ -401,8 +401,8 @@ everit.reporting.main = everit.reporting.main || {};
       success : function(result){
         for( var i in result) {
           var obj = result[i];
-          var selected = checkSelected(obj.id, selectedArray);
-          jQuery("#fixVersionPicker").append("<option value="+obj.id+ " "+ selected + ">" +obj.name +"</option>");
+          var selected = checkSelected(obj.name, selectedArray);
+          jQuery("#fixVersionPicker").append('<option value="'+obj.name+ '" '+ selected + '>' +obj.name +'</option>');
         }
         var pp = new AJS.CheckboxMultiSelect({
               element:  AJS.$("#fixVersionPicker"),
@@ -429,7 +429,7 @@ everit.reporting.main = everit.reporting.main || {};
         for( var i in result) {
           var obj = result[i];
           var selected = checkSelected(obj.id, selectedArray);
-          jQuery("#labelPicker").append("<option value="+obj.id+ " "+ selected + ">" +obj.name +"</option>");
+          jQuery("#labelPicker").append('<option value="'+obj.id+ '" '+ selected + '>' +obj.name +'</option>');
         }
         var pp = new AJS.CheckboxMultiSelect({
               element:  AJS.$("#labelPicker"),
@@ -446,7 +446,7 @@ everit.reporting.main = everit.reporting.main || {};
   };
   
   function initComponentSelect(){
-    var selectedArray =  jQuery.makeArray( reporting.values.selectedComponent ); 
+    var selectedArray =  jQuery.makeArray( reporting.values.selectedComponents ); 
     jQuery.ajax({
       async: true,
       type: 'GET',
@@ -456,7 +456,7 @@ everit.reporting.main = everit.reporting.main || {};
         for( var i in result) {
           var obj = result[i];
           var selected = checkSelected(obj.name, selectedArray);
-          jQuery("#componentPicker").append("<option value="+obj.name+ " "+ selected + ">" +obj.name +"</option>");
+          jQuery("#componentPicker").append('<option value="'+obj.name+ '" '+ selected + '>' +obj.name +'</option>');
         }
         var pp = new AJS.CheckboxMultiSelect({
               element:  AJS.$("#componentPicker"),
