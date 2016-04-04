@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.jira.reporting.plugin;
+package org.everit.jira.reporting.plugin.rest;
 
 import java.util.List;
 

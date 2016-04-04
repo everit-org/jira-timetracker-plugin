@@ -29,7 +29,7 @@ public class WorklogDetailsDTO {
    */
   public static final class AliasNames {
 
-    public static final String ISSUE_ASSIGNE = "issueAssigne";
+    public static final String ISSUE_ASSIGNEE = "issueAssignee";
 
     public static final String ISSUE_CREATED = "issueCreated";
 
@@ -55,11 +55,9 @@ public class WorklogDetailsDTO {
 
     public static final String PROJECT_DESCRIPTION = "projectDescription";
 
-    public static final String PROJECT_KEY = "projectKey";
+    public static final String PROJECT_NAME = "projectName";
 
     public static final String RESOLUTION_NAME = "resolutionName";
-
-    public static final String WORKLOG_AUTHOR = "worklogAuthor";
 
     public static final String WORKLOG_BODY = "worklogBody";
 
@@ -71,13 +69,15 @@ public class WorklogDetailsDTO {
 
     public static final String WORKLOG_UPDATED = "worklogUpdated";
 
+    public static final String WORKLOG_USER = "worklogUser";
+
     private AliasNames() {
     }
   }
 
   private List<String> issueAffectedVersions = Collections.emptyList();
 
-  private String issueAssigne;
+  private String issueAssignee;
 
   private List<String> issueComponents = Collections.emptyList();
 
@@ -107,11 +107,9 @@ public class WorklogDetailsDTO {
 
   private String projectDescription;
 
-  private String projectKey;
+  private String projectName;
 
   private String resolutionName;
-
-  private String worklogAuthor;
 
   private String worklogBody;
 
@@ -123,12 +121,14 @@ public class WorklogDetailsDTO {
 
   private Timestamp worklogUpdated;
 
+  private String worklogUser;
+
   public List<String> getIssueAffectedVersions() {
     return issueAffectedVersions;
   }
 
-  public String getIssueAssigne() {
-    return issueAssigne;
+  public String getIssueAssignee() {
+    return issueAssignee;
   }
 
   public List<String> getIssueComponents() {
@@ -199,16 +199,12 @@ public class WorklogDetailsDTO {
     return projectDescription;
   }
 
-  public String getProjectKey() {
-    return projectKey;
+  public String getProjectName() {
+    return projectName;
   }
 
   public String getResolutionName() {
     return resolutionName;
-  }
-
-  public String getWorklogAuthor() {
-    return worklogAuthor;
   }
 
   public String getWorklogBody() {
@@ -249,12 +245,16 @@ public class WorklogDetailsDTO {
     return (Timestamp) worklogUpdated.clone();
   }
 
+  public String getWorklogUser() {
+    return worklogUser;
+  }
+
   public void setIssueAffectedVersions(final List<String> issueAffectedVersions) {
     this.issueAffectedVersions = issueAffectedVersions;
   }
 
-  public void setIssueAssigne(final String issueAssigne) {
-    this.issueAssigne = issueAssigne;
+  public void setIssueAssignee(final String issueAssignee) {
+    this.issueAssignee = issueAssignee;
   }
 
   public void setIssueComponents(final List<String> issueComponents) {
@@ -313,16 +313,12 @@ public class WorklogDetailsDTO {
     this.projectDescription = projectDescription;
   }
 
-  public void setProjectKey(final String projectKey) {
-    this.projectKey = projectKey;
+  public void setProjectName(final String projectName) {
+    this.projectName = projectName;
   }
 
   public void setResolutionName(final String resolutionName) {
     this.resolutionName = resolutionName;
-  }
-
-  public void setWorklogAuthor(final String worklogAuthor) {
-    this.worklogAuthor = worklogAuthor;
   }
 
   public void setWorklogBody(final String worklogBody) {
@@ -343,6 +339,10 @@ public class WorklogDetailsDTO {
 
   public void setWorklogUpdated(final Timestamp worklogUpdated) {
     this.worklogUpdated = worklogUpdated;
+  }
+
+  public void setWorklogUser(final String worklogUser) {
+    this.worklogUser = worklogUser;
   }
 
 }

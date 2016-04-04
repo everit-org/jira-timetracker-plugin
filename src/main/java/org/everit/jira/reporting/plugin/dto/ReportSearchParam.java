@@ -19,59 +19,88 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * Representation of report search param.
  */
+@XmlRootElement
 public class ReportSearchParam {
 
+  @XmlElement
   public List<String> issueAffectedVersions = Collections.emptyList();
 
+  @XmlElement
   public List<String> issueAssignees = Collections.emptyList();
 
+  @XmlElement
   public List<String> issueComponents = Collections.emptyList();
 
+  @XmlElement
   public Date issueCreateDate;
 
+  @XmlElement
   public List<Long> issueEpicLinkIssueIds = Collections.emptyList();
 
+  @XmlElement
   public String issueEpicName;
 
+  @XmlElement
   public List<String> issueFixedVersions = Collections.emptyList();
 
+  @XmlElement
   public List<Long> issueIds = Collections.emptyList();
 
+  @XmlElement
   public List<String> issuePriorityIds = Collections.emptyList();
 
+  @XmlElement
   public List<String> issueReporters = Collections.emptyList();
 
+  @XmlElement
   public List<String> issueResolutionIds = Collections.emptyList();
 
+  @XmlElement
   public List<String> issueStatusIds = Collections.emptyList();
 
+  @XmlElement
   public List<String> issueTypeIds = Collections.emptyList();
 
+  @XmlElement
   public List<String> labels = Collections.emptyList();
 
+  @XmlElement
   public List<Long> projectIds = Collections.emptyList();
 
+  @XmlElement
   public boolean selectNoAffectedVersionIssue = false;
 
+  @XmlElement
   public boolean selectNoComponentIssue = false;
 
+  @XmlElement
   public boolean selectNoFixedVersionIssue = false;
 
+  @XmlElement
   public boolean selectReleasedFixVersion = false;
 
+  @XmlElement
   public boolean selectUnassgined = false;
 
+  @XmlElement
   public boolean selectUnreleasedFixVersion = false;
 
+  @XmlElement
   public boolean selectUnresolvedResolution = false;
 
+  @XmlElement
   public List<String> users = Collections.emptyList();
 
+  @XmlElement
   public Date worklogEndDate;
 
+  @XmlElement
   public Date worklogStartDate;
 
   public ReportSearchParam issueAffectedVersions(final List<String> issueAffectedVersions) {
