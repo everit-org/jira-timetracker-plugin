@@ -282,10 +282,9 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
     normalizeContextPath();
     checkMailServer();
-    jiraTimetrackerPlugin.loadPluginSettings();
 
-    setPiwikProperties();
     loadPluginSettingAndParseResult();
+    setPiwikProperties();
     boolean loadedFromSession = loadDataFromSession();
     initDatesIfNecessary();
     initCurrentUserIfNecessary();
@@ -308,10 +307,8 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
     normalizeContextPath();
     checkMailServer();
-    setPiwikProperties();
     loadPluginSettingAndParseResult();
-    PluginSettingsValues pluginSettings = jiraTimetrackerPlugin.loadPluginSettings();
-    setIssuesRegex(pluginSettings.filteredSummaryIssues);
+    setPiwikProperties();
 
     if (parseFeedback()) {
       loadDataFromSession();
@@ -409,8 +406,8 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     }
     return String.format(
         SELF_WITH_DATE_AND_USER_URL_FORMAT,
-        dateFromFormated,
-        dateToFormated,
+        JiraTimetrackerUtil.urlEndcodeHandleException(dateFromFormated),
+        JiraTimetrackerUtil.urlEndcodeHandleException(dateToFormated),
         currentUserEncoded);
   }
 
@@ -474,7 +471,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     if ("".equals(currentUser)) {
       JiraAuthenticationContext authenticationContext = ComponentAccessor
           .getJiraAuthenticationContext();
-      currentUser = authenticationContext.getUser().getKey();
+      currentUser = authenticationContext.getUser().getUsername();
       setUserPickerObjectBasedOnCurrentUser();
     }
   }
@@ -529,6 +526,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
         .loadPluginSettings();
     analyticsCheck = pluginSettingsValues.analyticsCheck;
     installedPluginId = pluginSettingsValues.pluginUUID;
+    setIssuesRegex(pluginSettingsValues.filteredSummaryIssues);
   }
 
   private void normalizeContextPath() {
@@ -630,10 +628,14 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   private void setCurrentUserFromParam() throws IllegalArgumentException {
     String selectedUser = getHttpRequest().getParameter(PARAM_USERPICKER);
-    if (selectedUser != null) {
-      currentUser = selectedUser;
-    } else {
+    if (selectedUser == null) {
       throw new IllegalArgumentException(INVALID_USER_PICKER);
+    }
+    currentUser = selectedUser;
+    if ("".equals(currentUser)) {
+      JiraAuthenticationContext authenticationContext = ComponentAccessor
+          .getJiraAuthenticationContext();
+      currentUser = authenticationContext.getUser().getKey();
     }
   }
 
@@ -701,8 +703,11 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   }
 
   private void setUserPickerObjectBasedOnCurrentUser() {
-    if ((currentUser != null) && !"".equals(currentUser)) {
-      userPickerObject = ComponentAccessor.getUserUtil().getUserByKey(currentUser);
+    if (!"".equals(currentUser)) {
+      userPickerObject = ComponentAccessor.getUserUtil().getUserByName(currentUser);
+      if (userPickerObject == null) {
+        throw new IllegalArgumentException(INVALID_USER_PICKER);
+      }
       AvatarService avatarService = ComponentAccessor.getComponent(AvatarService.class);
       setAvatarURL(avatarService.getAvatarURL(
           ComponentAccessor.getJiraAuthenticationContext().getUser(),

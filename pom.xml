@@ -221,7 +221,7 @@
     <dependency>
       <groupId>org.everit.jira</groupId>
       <artifactId>jira-querydsl-support</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
+      <version>1.0.0</version>
     </dependency>
     <dependency>
       <groupId>com.atlassian.jira</groupId>
@@ -270,6 +270,11 @@
         <enabled>true</enabled>
         <checksumPolicy>warn</checksumPolicy>
       </releases>
+    </repository>
+     <repository>
+      <id>everit.release</id>
+      <name>everit-releases</name>
+      <url>https://repo.everit.biz/artifactory/public-release/</url>
     </repository>
   </repositories>
 
