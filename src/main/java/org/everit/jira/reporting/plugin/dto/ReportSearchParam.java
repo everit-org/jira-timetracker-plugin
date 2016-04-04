@@ -71,6 +71,12 @@ public class ReportSearchParam {
   public List<String> labels = Collections.emptyList();
 
   @XmlElement
+  public Long limit;
+
+  @XmlElement
+  public Long offset;
+
+  @XmlElement
   public List<Long> projectIds = Collections.emptyList();
 
   @XmlElement
@@ -170,6 +176,16 @@ public class ReportSearchParam {
 
   public ReportSearchParam labels(final List<String> labels) {
     this.labels = labels;
+    return this;
+  }
+
+  public ReportSearchParam limit(final Long limit) {
+    this.limit = limit;
+    return this;
+  }
+
+  public ReportSearchParam offset(final Long offset) {
+    this.offset = offset;
     return this;
   }
 

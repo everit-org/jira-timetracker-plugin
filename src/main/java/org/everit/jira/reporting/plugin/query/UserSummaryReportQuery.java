@@ -19,6 +19,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.everit.jira.querydsl.support.QuerydslCallable;
 import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
 import org.everit.jira.reporting.plugin.dto.UserSummaryDTO;
 import org.everit.jira.reporting.plugin.query.util.QueryUtil;
@@ -31,34 +32,62 @@ import com.querydsl.sql.Configuration;
 import com.querydsl.sql.SQLQuery;
 
 /**
- * Query for user summary report.
+ * Queries for user summary report.
  */
-public class UserSummaryReportQuery extends AbstractListReportQuery<UserSummaryDTO> {
+public class UserSummaryReportQuery extends AbstractReportQuery {
 
   public UserSummaryReportQuery(final ReportSearchParam reportSearchParam) {
     super(reportSearchParam);
   }
 
-  @Override
-  public List<UserSummaryDTO> call(final Connection connection, final Configuration configuration)
-      throws SQLException {
-    SQLQuery<UserSummaryDTO> query = new SQLQuery<UserSummaryDTO>(connection, configuration)
-        .select(createSelectProjection());
+  /**
+   * Build count user summary query.
+   */
+  public QuerydslCallable<Long> buildCountQuery() {
+    return new QuerydslCallable<Long>() {
+      @Override
+      public Long call(final Connection connection, final Configuration configuration)
+          throws SQLException {
+        SQLQuery<Long> query = new SQLQuery<Long>(connection, configuration)
+            .select(qIssue.id.count());
 
-    appendBaseFromAndJoin(query);
-    appendBaseWhere(query);
+        appendBaseFromAndJoin(query);
+        appendBaseWhere(query);
 
-    query.groupBy(createGroupBy());
-
-    return query.fetch();
+        return query.fetchOne();
+      }
+    };
   }
 
-  private Expression<?>[] createGroupBy() {
+  /**
+   * Build user summary query.
+   */
+  public QuerydslCallable<List<UserSummaryDTO>> buildQuery() {
+    return new QuerydslCallable<List<UserSummaryDTO>>() {
+
+      @Override
+      public List<UserSummaryDTO> call(final Connection connection,
+          final Configuration configuration) throws SQLException {
+        SQLQuery<UserSummaryDTO> query = new SQLQuery<UserSummaryDTO>(connection, configuration)
+            .select(createQuerySelectProjection());
+
+        appendBaseFromAndJoin(query);
+        appendBaseWhere(query);
+        appendQueryRange(query);
+
+        query.groupBy(createQueryGroupBy());
+
+        return query.fetch();
+      }
+    };
+  }
+
+  private Expression<?>[] createQueryGroupBy() {
     return new Expression<?>[] { qCwdUser.displayName,
         qWorklog.author };
   }
 
-  private QBean<UserSummaryDTO> createSelectProjection() {
+  private QBean<UserSummaryDTO> createQuerySelectProjection() {
     StringExpression userExpression = QueryUtil.createUserExpression(qCwdUser, qWorklog);
 
     return Projections.bean(UserSummaryDTO.class,

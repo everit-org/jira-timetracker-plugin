@@ -16,7 +16,6 @@
 package org.everit.jira.reporting.plugin.query;
 
 import java.sql.Timestamp;
-import java.util.List;
 import java.util.Locale;
 
 import org.everit.jira.querydsl.schema.QAppUser;
@@ -49,11 +48,8 @@ import com.querydsl.sql.SQLQuery;
 /**
  * Abstract implementation of {@link QuerydslCallable}. Provide source (from), joins and filter
  * condition to report queries.
- *
- * @param <T>
- *          Type of the return value
  */
-public abstract class AbstractListReportQuery<T> implements QuerydslCallable<List<T>> {
+public abstract class AbstractReportQuery {
 
   protected BooleanExpression expressionFalse;
 
@@ -85,7 +81,7 @@ public abstract class AbstractListReportQuery<T> implements QuerydslCallable<Lis
    * @param reportSearchParam
    *          the {@link ReportSearchParam} object, that contains parameters to filter condition.
    */
-  protected AbstractListReportQuery(final ReportSearchParam reportSearchParam) {
+  protected AbstractReportQuery(final ReportSearchParam reportSearchParam) {
     this.reportSearchParam = reportSearchParam;
     qIssue = new QJiraissue("issue");
     qProject = new QProject("project");
@@ -146,6 +142,22 @@ public abstract class AbstractListReportQuery<T> implements QuerydslCallable<Lis
     where = filterToWorklogEndDate(qWorklog, where);
 
     query.where(where);
+  }
+
+  /**
+   * Append query range to query. Set offset and limit.
+   *
+   * @param query
+   *          the {@link SQLQuery}.
+   */
+  protected void appendQueryRange(final SQLQuery<?> query) {
+    if (reportSearchParam.offset != null) {
+      query.offset(reportSearchParam.offset);
+    }
+
+    if (reportSearchParam.limit != null) {
+      query.limit(reportSearchParam.limit);
+    }
   }
 
   private BooleanExpression filterToAffectedVersions(final QJiraissue qIssue,

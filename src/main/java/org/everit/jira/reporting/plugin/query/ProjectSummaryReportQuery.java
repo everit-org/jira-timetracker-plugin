@@ -20,6 +20,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import org.everit.jira.querydsl.schema.QProject;
+import org.everit.jira.querydsl.support.QuerydslCallable;
 import org.everit.jira.reporting.plugin.dto.ProjectSummaryDTO;
 import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
 
@@ -34,49 +35,77 @@ import com.querydsl.sql.SQLExpressions;
 import com.querydsl.sql.SQLQuery;
 
 /**
- * Query for project summary report.
+ * Queries for project summary report.
  */
-public class ProjectSummaryReportQuery extends AbstractListReportQuery<ProjectSummaryDTO> {
+public class ProjectSummaryReportQuery extends AbstractReportQuery {
 
   public ProjectSummaryReportQuery(final ReportSearchParam reportSearchParam) {
     super(reportSearchParam);
   }
 
-  @Override
-  public List<ProjectSummaryDTO> call(final Connection connection,
-      final Configuration configuration)
+  /**
+   * Build count project summary query.
+   */
+  public QuerydslCallable<Long> buildCountQuery() {
+    return new QuerydslCallable<Long>() {
+      @Override
+      public Long call(final Connection connection, final Configuration configuration)
           throws SQLException {
-    SimplePath<Long> fromProjectIdPath =
-        Expressions.path(Long.class, new PathMetadata(null, "fromProjectId", PathType.VARIABLE));
-    SimplePath<Long> timeOriginalSumPath = Expressions.path(Long.class, new PathMetadata(null,
-        ProjectSummaryDTO.AliasNames.ISSUE_TIME_ORIGINAL_ESTIMATE_SUM, PathType.VARIABLE));
-    SimplePath<Long> timeEstimateSumPath = Expressions.path(Long.class, new PathMetadata(null,
-        ProjectSummaryDTO.AliasNames.ISSUE_TIME_ESTIMATE_SUM, PathType.VARIABLE));
-    SimplePath<Long> workloggedSumPath = Expressions.path(Long.class, new PathMetadata(null,
-        ProjectSummaryDTO.AliasNames.WORKLOGGED_TIME_SUM, PathType.VARIABLE));
+        SQLQuery<Long> query = new SQLQuery<Long>(connection, configuration)
+            .select(qProject.id.count());
 
-    SQLQuery<Tuple> fromQuery = SQLExpressions.select(
-        qProject.id.as(fromProjectIdPath),
-        qIssue.timeoriginalestimate.sum().as(timeOriginalSumPath),
-        qIssue.timeestimate.sum().as(timeEstimateSumPath),
-        qWorklog.timeworked.sum().as(workloggedSumPath));
+        appendBaseFromAndJoin(query);
+        appendBaseWhere(query);
 
-    appendBaseFromAndJoin(fromQuery);
-    appendBaseWhere(fromQuery);
-    fromQuery.groupBy(qProject.id);
+        return query.fetchOne();
+      }
+    };
+  }
 
-    QProject qProject = new QProject("m_project");
-    return new SQLQuery<ProjectSummaryDTO>(connection, configuration)
-        .select(Projections.bean(ProjectSummaryDTO.class,
-            qProject.pkey.as(ProjectSummaryDTO.AliasNames.PROJECT_KEY),
-            qProject.pname.as(ProjectSummaryDTO.AliasNames.PROJECT_NAME),
-            qProject.description.as(ProjectSummaryDTO.AliasNames.PROJECT_DESCRIPTION),
-            timeOriginalSumPath,
-            timeEstimateSumPath,
-            workloggedSumPath))
-        .from(fromQuery.as("sums"))
-        .join(qProject).on(qProject.id.eq(fromProjectIdPath))
-        .fetch();
+  /**
+   * Build project summary query.
+   */
+  public QuerydslCallable<List<ProjectSummaryDTO>> buildQuery() {
+    return new QuerydslCallable<List<ProjectSummaryDTO>>() {
+
+      @Override
+      public List<ProjectSummaryDTO> call(final Connection connection,
+          final Configuration configuration) throws SQLException {
+        SimplePath<Long> fromProjectIdPath =
+            Expressions.path(Long.class,
+                new PathMetadata(null, "fromProjectId", PathType.VARIABLE));
+        SimplePath<Long> timeOriginalSumPath = Expressions.path(Long.class, new PathMetadata(null,
+            ProjectSummaryDTO.AliasNames.ISSUE_TIME_ORIGINAL_ESTIMATE_SUM, PathType.VARIABLE));
+        SimplePath<Long> timeEstimateSumPath = Expressions.path(Long.class, new PathMetadata(null,
+            ProjectSummaryDTO.AliasNames.ISSUE_TIME_ESTIMATE_SUM, PathType.VARIABLE));
+        SimplePath<Long> workloggedSumPath = Expressions.path(Long.class, new PathMetadata(null,
+            ProjectSummaryDTO.AliasNames.WORKLOGGED_TIME_SUM, PathType.VARIABLE));
+
+        SQLQuery<Tuple> fromQuery = SQLExpressions.select(
+            qProject.id.as(fromProjectIdPath),
+            qIssue.timeoriginalestimate.sum().as(timeOriginalSumPath),
+            qIssue.timeestimate.sum().as(timeEstimateSumPath),
+            qWorklog.timeworked.sum().as(workloggedSumPath));
+
+        appendBaseFromAndJoin(fromQuery);
+        appendBaseWhere(fromQuery);
+        appendQueryRange(fromQuery);
+        fromQuery.groupBy(qProject.id);
+
+        QProject qProject = new QProject("m_project");
+        return new SQLQuery<ProjectSummaryDTO>(connection, configuration)
+            .select(Projections.bean(ProjectSummaryDTO.class,
+                qProject.pkey.as(ProjectSummaryDTO.AliasNames.PROJECT_KEY),
+                qProject.pname.as(ProjectSummaryDTO.AliasNames.PROJECT_NAME),
+                qProject.description.as(ProjectSummaryDTO.AliasNames.PROJECT_DESCRIPTION),
+                timeOriginalSumPath,
+                timeEstimateSumPath,
+                workloggedSumPath))
+            .from(fromQuery.as("sums"))
+            .join(qProject).on(qProject.id.eq(fromProjectIdPath))
+            .fetch();
+      }
+    };
   }
 
 }

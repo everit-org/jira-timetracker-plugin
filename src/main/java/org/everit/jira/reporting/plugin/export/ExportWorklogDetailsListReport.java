@@ -51,7 +51,8 @@ public class ExportWorklogDetailsListReport extends AbstractExportListReport {
     insertHeaderRow(worklogDetailsSheet);
 
     List<WorklogDetailsDTO> worklogDetails =
-        querydslSupport.execute(new WorklogDetailsReportQuery(reportSearchParam));
+        querydslSupport.execute(new WorklogDetailsReportQuery(reportSearchParam)
+            .buildQuery());
 
     for (WorklogDetailsDTO worklogDetailsDTO : worklogDetails) {
       insertBodyRow(worklogDetailsSheet, worklogDetailsDTO);
