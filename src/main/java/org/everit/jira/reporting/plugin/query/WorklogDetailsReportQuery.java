@@ -28,6 +28,7 @@ import org.everit.jira.querydsl.schema.QNodeassociation;
 import org.everit.jira.querydsl.schema.QProjectversion;
 import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
 import org.everit.jira.reporting.plugin.dto.WorklogDetailsDTO;
+import org.everit.jira.reporting.plugin.query.util.QueryUtil;
 
 import com.atlassian.jira.entity.Entity;
 import com.atlassian.jira.issue.IssueRelationConstants;
@@ -74,8 +75,8 @@ public class WorklogDetailsReportQuery extends AbstractListReportQuery<WorklogDe
   }
 
   private QBean<WorklogDetailsDTO> createSelectProjection() {
-    StringExpression issueKey = createIssueKeyExpression(qIssue, qProject);
-    StringExpression userExpression = createUserExpression();
+    StringExpression issueKey = QueryUtil.createIssueKeyExpression(qIssue, qProject);
+    StringExpression userExpression = QueryUtil.createUserExpression(qCwdUser, qWorklog);
     return Projections.bean(WorklogDetailsDTO.class,
         qProject.pname.as(WorklogDetailsDTO.AliasNames.PROJECT_NAME),
         issueKey.as(WorklogDetailsDTO.AliasNames.ISSUE_KEY),

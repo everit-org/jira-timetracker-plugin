@@ -35,7 +35,7 @@ import org.everit.jira.reporting.plugin.query.UserSummaryReportQuery;
 /**
  * Class that export summaries list report (project summary, issue summary, user summary).
  */
-public class ExportSummariesListReports extends AbstractExportListReport {
+public class ExportSummariesListReport extends AbstractExportListReport {
 
   private static final String ISSUE_SUMMARY_PREFIX = "jtrp.report.is.col.";
 
@@ -43,7 +43,7 @@ public class ExportSummariesListReports extends AbstractExportListReport {
 
   private static final String USER_SUMMARY_PREFIX = "jtrp.report.us.col.";
 
-  public ExportSummariesListReports(final QuerydslSupport querydslSupport,
+  public ExportSummariesListReport(final QuerydslSupport querydslSupport,
       final ReportSearchParam reportSearchParam) {
     super(querydslSupport, reportSearchParam);
   }
