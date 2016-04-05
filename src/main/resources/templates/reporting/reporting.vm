@@ -53,7 +53,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
             selectedFixVersions: [ #foreach( $tmp in $selectedFixVersions )#if($velocityCount> 1),#end "$tmp" #end ],
             selectedComponents:[ #foreach( $tmp in $selectedComponents )#if($velocityCount> 1),#end "$tmp" #end ],
             selectedLabels: [ #foreach( $tmp in $selectedLabels )#if($velocityCount> 1),#end "$tmp" #end ],
-            selectedEpicLinks: [ #foreach( $tmp in $selectedEpicLinks )#if($velocityCount> 1),#end "$tmp" #end ]
+            selectedEpicLinks: ${selectedEpicLinks},
           }
         );
       })(everit.reporting.main, AJS.$);
@@ -161,7 +161,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                          <!-- Issue Dropdown -->
                                          <div id="issuePickerDropDown" class="aui-style-default aui-dropdown2">
                                            <div class="jttr-filter-field">
-                                              <!--  <div class='ajs-layer box-shadow'> -->
+                                             <div class='ajs-layer box-shadow'>
                                                <div class="criteria-dropdown-text-div" >
                                                  <div class='form-body'>
                                                    <div class='field-group aui-field-issuetype'>
@@ -181,7 +181,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                                    </div>
                                                  </div>
                                                </div>
-                                             <!--  </div>  --> 
+                                             </div>
                                            </div>
                                          </div>
                                          <!-- Issue Dropdown End-->
@@ -190,7 +190,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                          <!-- Priority Dropdown -->
                                          <div id="priorityPickerDropDown" class="aui-style-default aui-dropdown2">
                                            <div class="jttr-filter-field">
-                                             <!--  <div class='ajs-layer box-shadow'> -->
+                                             <div class='ajs-layer box-shadow'>
                                                <div>
                                                  <div class='form-body'>
                                                    <div class='field-group aui-field-issuetype'>
@@ -199,7 +199,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                                    </div>
                                                  </div>
                                                </div>
-                                             <!--  </div>  --> 
+                                             </div>
                                            </div>
                                          </div>
                                          <!-- Priority Dropdown End-->

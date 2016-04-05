@@ -425,14 +425,13 @@ everit.reporting.main = everit.reporting.main || {};
     jQuery.ajax({
       async: true,
       type: 'GET',
-      url : contextPath + "/rest/api/2/status", //TODO set the right rest api
+      url : contextPath + "/rest/jttp-rest/1/picker/listLabels",
       data : [],
       success : function(result){
         for( var i in result) {
           var obj = result[i];
-          //TODO Fix id-name
-          var selected = checkSelected(obj.id, selectedArray);
-          jQuery("#labelPicker").append('<option value="'+obj.id+ '" '+ selected + '>' +obj.name +'</option>');
+          var selected = checkSelected(obj.name, selectedArray);
+          jQuery("#labelPicker").append('<option value="'+obj.name+ '" '+ selected + '>' +obj.name +'</option>');
         }
         var pp = new AJS.CheckboxMultiSelect({
               element:  AJS.$("#labelPicker"),
@@ -479,14 +478,13 @@ everit.reporting.main = everit.reporting.main || {};
     jQuery.ajax({
       async: true,
       type: 'GET',
-      url : contextPath + "/rest/api/2/status", //TODO set the right rest api
+      url : contextPath + "/rest/jttp-rest/1/picker/listEpicLinks", 
       data : [],
       success : function(result){
         for( var i in result) {
           var obj = result[i];
-          //TODO Fix id-name
-          var selected = checkSelected(obj.id, selectedArray);
-          jQuery("#epicLinkPicker").append('<option value="'+obj.id+ '" '+ selected + '>' +obj.name +'</option>');
+          var selected = checkSelected(obj.epicLinkId, selectedArray);
+          jQuery("#epicLinkPicker").append('<option value="'+obj.epicLinkId+ '" '+ selected + '>' +obj.epicName + ' - ('+ obj.issueKey +') </option>');
         }
         var pp = new AJS.CheckboxMultiSelect({
               element:  AJS.$("#epicLinkPicker"),
