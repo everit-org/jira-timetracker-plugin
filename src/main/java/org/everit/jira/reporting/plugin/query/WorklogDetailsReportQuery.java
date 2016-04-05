@@ -28,6 +28,7 @@ import org.everit.jira.querydsl.schema.QNodeassociation;
 import org.everit.jira.querydsl.schema.QProjectversion;
 import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
 import org.everit.jira.reporting.plugin.dto.WorklogDetailsDTO;
+import org.everit.jira.reporting.plugin.query.util.QueryUtil;
 
 import com.atlassian.jira.entity.Entity;
 import com.atlassian.jira.issue.IssueRelationConstants;
@@ -74,15 +75,16 @@ public class WorklogDetailsReportQuery extends AbstractListReportQuery<WorklogDe
   }
 
   private QBean<WorklogDetailsDTO> createSelectProjection() {
-    StringExpression issueKey = createIssueKeyExpression(qIssue, qProject);
+    StringExpression issueKey = QueryUtil.createIssueKeyExpression(qIssue, qProject);
+    StringExpression userExpression = QueryUtil.createUserExpression(qCwdUser, qWorklog);
     return Projections.bean(WorklogDetailsDTO.class,
-        qProject.pkey.as(WorklogDetailsDTO.AliasNames.PROJECT_KEY),
+        qProject.pname.as(WorklogDetailsDTO.AliasNames.PROJECT_NAME),
         issueKey.as(WorklogDetailsDTO.AliasNames.ISSUE_KEY),
         qIssue.summary.as(WorklogDetailsDTO.AliasNames.ISSUE_SUMMARY),
         qIssue.id.as(WorklogDetailsDTO.AliasNames.ISSUE_ID),
         qIssuetype.pname.as(WorklogDetailsDTO.AliasNames.ISSUE_TYPE_NAME),
         qIssuestatus.pname.as(WorklogDetailsDTO.AliasNames.ISSUE_STATUS_P_NAME),
-        qIssue.assignee.as(WorklogDetailsDTO.AliasNames.ISSUE_ASSIGNE),
+        qIssue.assignee.as(WorklogDetailsDTO.AliasNames.ISSUE_ASSIGNEE),
         qIssue.timeoriginalestimate.as(WorklogDetailsDTO.AliasNames.ISSUE_TIME_ORIGINAL_ESTIMATE),
         qIssue.timeestimate.as(WorklogDetailsDTO.AliasNames.ISSUE_TIME_ESTIMATE),
         qWorklog.worklogbody.as(WorklogDetailsDTO.AliasNames.WORKLOG_BODY),
@@ -96,7 +98,7 @@ public class WorklogDetailsReportQuery extends AbstractListReportQuery<WorklogDe
         qWorklog.startdate.as(WorklogDetailsDTO.AliasNames.WORKLOG_START_DATE),
         qWorklog.created.as(WorklogDetailsDTO.AliasNames.WORKLOG_CREATED),
         qWorklog.updated.as(WorklogDetailsDTO.AliasNames.WORKLOG_UPDATED),
-        qWorklog.author.as(WorklogDetailsDTO.AliasNames.WORKLOG_AUTHOR));
+        userExpression.as(WorklogDetailsDTO.AliasNames.WORKLOG_USER));
   }
 
   private void extendResult(final Connection connection, final Configuration configuration,

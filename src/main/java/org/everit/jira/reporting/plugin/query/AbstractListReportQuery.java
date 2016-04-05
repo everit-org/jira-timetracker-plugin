@@ -43,7 +43,6 @@ import com.atlassian.jira.entity.Entity;
 import com.atlassian.jira.issue.IssueRelationConstants;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.StringExpression;
 import com.querydsl.sql.SQLExpressions;
 import com.querydsl.sql.SQLQuery;
 
@@ -147,12 +146,6 @@ public abstract class AbstractListReportQuery<T> implements QuerydslCallable<Lis
     where = filterToWorklogEndDate(qWorklog, where);
 
     query.where(where);
-  }
-
-  protected StringExpression createIssueKeyExpression(final QJiraissue qIssue,
-      final QProject qProject) {
-    StringExpression issueKey = qProject.pkey.concat("-").concat(qIssue.issuenum.stringValue());
-    return issueKey;
   }
 
   private BooleanExpression filterToAffectedVersions(final QJiraissue qIssue,
