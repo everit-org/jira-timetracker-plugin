@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
 import org.everit.jira.reporting.plugin.dto.UserSummaryDTO;
+import org.everit.jira.reporting.plugin.query.util.QueryUtil;
 
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Projections;
@@ -58,7 +59,7 @@ public class UserSummaryReportQuery extends AbstractListReportQuery<UserSummaryD
   }
 
   private QBean<UserSummaryDTO> createSelectProjection() {
-    StringExpression userExpression = createUserExpression();
+    StringExpression userExpression = QueryUtil.createUserExpression(qCwdUser, qWorklog);
 
     return Projections.bean(UserSummaryDTO.class,
         userExpression.as(UserSummaryDTO.AliasNames.USER_DISPLAY_NAME),

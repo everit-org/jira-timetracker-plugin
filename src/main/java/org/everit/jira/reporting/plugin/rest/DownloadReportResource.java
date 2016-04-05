@@ -32,7 +32,7 @@ import org.everit.jira.querydsl.support.QuerydslSupport;
 import org.everit.jira.querydsl.support.ri.QuerydslSupportImpl;
 import org.everit.jira.reporting.plugin.dto.DownloadWorklogDetailsParam;
 import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
-import org.everit.jira.reporting.plugin.export.ExportSummariesListReports;
+import org.everit.jira.reporting.plugin.export.ExportSummariesListReport;
 import org.everit.jira.reporting.plugin.export.ExportWorklogDetailsListReport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,10 +88,10 @@ public class DownloadReportResource {
     ReportSearchParam reportSearchParam = new Gson()
         .fromJson(json, ReportSearchParam.class);
 
-    ExportSummariesListReports exportSummariesListReports =
-        new ExportSummariesListReports(querydslSupport, reportSearchParam);
+    ExportSummariesListReport exportSummariesListReport =
+        new ExportSummariesListReport(querydslSupport, reportSearchParam);
 
-    HSSFWorkbook workbook = exportSummariesListReports.exportToXLS();
+    HSSFWorkbook workbook = exportSummariesListReport.exportToXLS();
     return buildResponse(workbook, "summaries-report.xls");
   }
 

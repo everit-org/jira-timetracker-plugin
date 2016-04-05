@@ -27,9 +27,13 @@ import javax.ws.rs.core.Response;
 import org.everit.jira.querydsl.support.QuerydslSupport;
 import org.everit.jira.querydsl.support.ri.QuerydslSupportImpl;
 import org.everit.jira.reporting.plugin.dto.PickerComponentDTO;
+import org.everit.jira.reporting.plugin.dto.PickerEpicLinkDTO;
+import org.everit.jira.reporting.plugin.dto.PickerLabelDTO;
 import org.everit.jira.reporting.plugin.dto.PickerUserDTO;
 import org.everit.jira.reporting.plugin.dto.PickerVersionDTO;
 import org.everit.jira.reporting.plugin.query.PickerComponentQuery;
+import org.everit.jira.reporting.plugin.query.PickerEpicLinkQuery;
+import org.everit.jira.reporting.plugin.query.PickerLabelQuery;
 import org.everit.jira.reporting.plugin.query.PickerUserQuery;
 import org.everit.jira.reporting.plugin.query.PickerUserQuery.PickerUserQueryType;
 import org.everit.jira.reporting.plugin.query.PickerVersionQuery;
@@ -73,6 +77,30 @@ public class PickerResource {
     List<PickerComponentDTO> components = querydslSupport.execute(new PickerComponentQuery());
 
     return buildResponse(components);
+  }
+
+  /**
+   * List epic links.
+   */
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  @Path("/listEpicLinks")
+  public Response listEpicLinks() {
+    List<PickerEpicLinkDTO> epicLinks = querydslSupport.execute(new PickerEpicLinkQuery());
+
+    return buildResponse(epicLinks);
+  }
+
+  /**
+   * List labels.
+   */
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  @Path("/listLabels")
+  public Response listLables() {
+    List<PickerLabelDTO> labels = querydslSupport.execute(new PickerLabelQuery());
+
+    return buildResponse(labels);
   }
 
   /**

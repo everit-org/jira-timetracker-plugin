@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.everit.jira.reporting.plugin.dto.IssueSummaryDTO;
 import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
+import org.everit.jira.reporting.plugin.query.util.QueryUtil;
 
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Projections;
@@ -63,7 +64,8 @@ public class IssueSummaryReportQuery extends AbstractListReportQuery<IssueSummar
 
   private QBean<IssueSummaryDTO> createSelectProjection() {
     return Projections.bean(IssueSummaryDTO.class,
-        createIssueKeyExpression(qIssue, qProject).as(IssueSummaryDTO.AliasNames.ISSUE_KEY),
+        QueryUtil.createIssueKeyExpression(qIssue, qProject)
+            .as(IssueSummaryDTO.AliasNames.ISSUE_KEY),
         qIssue.summary.as(IssueSummaryDTO.AliasNames.ISSUE_SUMMARY),
         qIssuetype.pname.as(IssueSummaryDTO.AliasNames.ISSUE_TYPE_NAME),
         qPriority.pname.as(IssueSummaryDTO.AliasNames.PRIORITY_NAME),
