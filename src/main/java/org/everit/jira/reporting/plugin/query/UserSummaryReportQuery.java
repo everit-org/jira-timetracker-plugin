@@ -25,8 +25,12 @@ import org.everit.jira.reporting.plugin.dto.UserSummaryDTO;
 import org.everit.jira.reporting.plugin.query.util.QueryUtil;
 
 import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.PathMetadata;
+import com.querydsl.core.types.PathType;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.QBean;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberPath;
 import com.querydsl.core.types.dsl.StringExpression;
 import com.querydsl.sql.Configuration;
 import com.querydsl.sql.SQLQuery;
@@ -48,11 +52,19 @@ public class UserSummaryReportQuery extends AbstractReportQuery {
       @Override
       public Long call(final Connection connection, final Configuration configuration)
           throws SQLException {
-        SQLQuery<Long> query = new SQLQuery<Long>(connection, configuration)
-            .select(qIssue.id.count());
+        NumberPath<Long> authorCountPath = Expressions.numberPath(Long.class,
+            new PathMetadata(null, "authorCount", PathType.VARIABLE));
 
-        appendBaseFromAndJoin(query);
-        appendBaseWhere(query);
+        SQLQuery<Long> fromQuery = new SQLQuery<Long>(connection, configuration)
+            .select(qWorklog.author.count().as(authorCountPath));
+
+        appendBaseFromAndJoin(fromQuery);
+        appendBaseWhere(fromQuery);
+        fromQuery.groupBy(qWorklog.author);
+
+        SQLQuery<Long> query = new SQLQuery<Long>(connection, configuration)
+            .select(authorCountPath.count())
+            .from(fromQuery.as("fromCount"));
 
         return query.fetchOne();
       }

@@ -25,8 +25,12 @@ import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
 import org.everit.jira.reporting.plugin.query.util.QueryUtil;
 
 import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.PathMetadata;
+import com.querydsl.core.types.PathType;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.QBean;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberPath;
 import com.querydsl.sql.Configuration;
 import com.querydsl.sql.SQLQuery;
 
@@ -47,11 +51,19 @@ public class IssueSummaryReportQuery extends AbstractReportQuery {
       @Override
       public Long call(final Connection connection, final Configuration configuration)
           throws SQLException {
-        SQLQuery<Long> query = new SQLQuery<Long>(connection, configuration)
-            .select(qIssue.id.count());
+        NumberPath<Long> issueCountPath = Expressions.numberPath(Long.class,
+            new PathMetadata(null, "issueCount", PathType.VARIABLE));
 
-        appendBaseFromAndJoin(query);
-        appendBaseWhere(query);
+        SQLQuery<Long> fromQuery = new SQLQuery<Long>(connection, configuration)
+            .select(qIssue.id.count().as(issueCountPath));
+
+        appendBaseFromAndJoin(fromQuery);
+        appendBaseWhere(fromQuery);
+        fromQuery.groupBy(qIssue.id);
+
+        SQLQuery<Long> query = new SQLQuery<Long>(connection, configuration)
+            .select(issueCountPath.count())
+            .from(fromQuery.as("fromCount"));
 
         return query.fetchOne();
       }

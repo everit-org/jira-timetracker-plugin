@@ -29,7 +29,7 @@ import com.querydsl.core.types.PathMetadata;
 import com.querydsl.core.types.PathType;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.SimplePath;
+import com.querydsl.core.types.dsl.NumberPath;
 import com.querydsl.sql.Configuration;
 import com.querydsl.sql.SQLExpressions;
 import com.querydsl.sql.SQLQuery;
@@ -51,11 +51,19 @@ public class ProjectSummaryReportQuery extends AbstractReportQuery {
       @Override
       public Long call(final Connection connection, final Configuration configuration)
           throws SQLException {
-        SQLQuery<Long> query = new SQLQuery<Long>(connection, configuration)
-            .select(qProject.id.count());
+        NumberPath<Long> projectCountPath = Expressions.numberPath(Long.class,
+            new PathMetadata(null, "projectCount", PathType.VARIABLE));
 
-        appendBaseFromAndJoin(query);
-        appendBaseWhere(query);
+        SQLQuery<Long> fromQuery = new SQLQuery<Long>(connection, configuration)
+            .select(qProject.id.count().as(projectCountPath));
+
+        appendBaseFromAndJoin(fromQuery);
+        appendBaseWhere(fromQuery);
+        fromQuery.groupBy(qProject.id);
+
+        SQLQuery<Long> query = new SQLQuery<Long>(connection, configuration)
+            .select(projectCountPath.count())
+            .from(fromQuery.as("fromCount"));
 
         return query.fetchOne();
       }
@@ -71,15 +79,20 @@ public class ProjectSummaryReportQuery extends AbstractReportQuery {
       @Override
       public List<ProjectSummaryDTO> call(final Connection connection,
           final Configuration configuration) throws SQLException {
-        SimplePath<Long> fromProjectIdPath =
-            Expressions.path(Long.class,
-                new PathMetadata(null, "fromProjectId", PathType.VARIABLE));
-        SimplePath<Long> timeOriginalSumPath = Expressions.path(Long.class, new PathMetadata(null,
-            ProjectSummaryDTO.AliasNames.ISSUE_TIME_ORIGINAL_ESTIMATE_SUM, PathType.VARIABLE));
-        SimplePath<Long> timeEstimateSumPath = Expressions.path(Long.class, new PathMetadata(null,
-            ProjectSummaryDTO.AliasNames.ISSUE_TIME_ESTIMATE_SUM, PathType.VARIABLE));
-        SimplePath<Long> workloggedSumPath = Expressions.path(Long.class, new PathMetadata(null,
-            ProjectSummaryDTO.AliasNames.WORKLOGGED_TIME_SUM, PathType.VARIABLE));
+        NumberPath<Long> fromProjectIdPath = Expressions.numberPath(Long.class,
+            new PathMetadata(null, "fromProjectId", PathType.VARIABLE));
+        NumberPath<Long> timeOriginalSumPath = Expressions.numberPath(Long.class,
+            new PathMetadata(null,
+                ProjectSummaryDTO.AliasNames.ISSUE_TIME_ORIGINAL_ESTIMATE_SUM,
+                PathType.VARIABLE));
+        NumberPath<Long> timeEstimateSumPath = Expressions.numberPath(Long.class,
+            new PathMetadata(null,
+                ProjectSummaryDTO.AliasNames.ISSUE_TIME_ESTIMATE_SUM,
+                PathType.VARIABLE));
+        NumberPath<Long> workloggedSumPath = Expressions.numberPath(Long.class,
+            new PathMetadata(null,
+                ProjectSummaryDTO.AliasNames.WORKLOGGED_TIME_SUM,
+                PathType.VARIABLE));
 
         SQLQuery<Tuple> fromQuery = SQLExpressions.select(
             qProject.id.as(fromProjectIdPath),

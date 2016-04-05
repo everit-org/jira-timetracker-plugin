@@ -34,8 +34,12 @@ import org.everit.jira.reporting.plugin.query.util.QueryUtil;
 import com.atlassian.jira.entity.Entity;
 import com.atlassian.jira.issue.IssueRelationConstants;
 import com.querydsl.core.group.GroupBy;
+import com.querydsl.core.types.PathMetadata;
+import com.querydsl.core.types.PathType;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.QBean;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberPath;
 import com.querydsl.core.types.dsl.StringExpression;
 import com.querydsl.sql.Configuration;
 import com.querydsl.sql.SQLQuery;
@@ -57,11 +61,19 @@ public class WorklogDetailsReportQuery extends AbstractReportQuery {
       @Override
       public Long call(final Connection connection, final Configuration configuration)
           throws SQLException {
-        SQLQuery<Long> query = new SQLQuery<Long>(connection, configuration)
-            .select(qIssue.id.count());
+        NumberPath<Long> worklogCountPath = Expressions.numberPath(Long.class,
+            new PathMetadata(null, "worklogCount", PathType.VARIABLE));
 
-        appendBaseFromAndJoin(query);
-        appendBaseWhere(query);
+        SQLQuery<Long> fromQuery = new SQLQuery<Long>(connection, configuration)
+            .select(qWorklog.id.count().as(worklogCountPath));
+
+        appendBaseFromAndJoin(fromQuery);
+        appendBaseWhere(fromQuery);
+        fromQuery.groupBy(qWorklog.id);
+
+        SQLQuery<Long> query = new SQLQuery<Long>(connection, configuration)
+            .select(worklogCountPath.count())
+            .from(fromQuery.as("fromCount"));
 
         return query.fetchOne();
       }

@@ -15,6 +15,8 @@
  */
 package org.everit.jira.reporting.plugin.query;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Locale;
 
@@ -40,8 +42,12 @@ import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
 
 import com.atlassian.jira.entity.Entity;
 import com.atlassian.jira.issue.IssueRelationConstants;
+import com.querydsl.core.types.PathMetadata;
+import com.querydsl.core.types.PathType;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberPath;
+import com.querydsl.sql.Configuration;
 import com.querydsl.sql.SQLExpressions;
 import com.querydsl.sql.SQLQuery;
 
@@ -158,6 +164,33 @@ public abstract class AbstractReportQuery {
     if (reportSearchParam.limit != null) {
       query.limit(reportSearchParam.limit);
     }
+  }
+
+  /**
+   * Build grand total query.
+   */
+  public QuerydslCallable<Long> buildGrandTotalQuery() {
+    return new QuerydslCallable<Long>() {
+      @Override
+      public Long call(final Connection connection, final Configuration configuration)
+          throws SQLException {
+        NumberPath<Long> worklogTimeSumPath = Expressions.numberPath(Long.class,
+            new PathMetadata(null, "worklogTimeSum", PathType.VARIABLE));
+
+        SQLQuery<Long> fromQuery = new SQLQuery<Long>(connection, configuration)
+            .select(qWorklog.timeworked.sum().as(worklogTimeSumPath));
+
+        appendBaseFromAndJoin(fromQuery);
+        appendBaseWhere(fromQuery);
+        fromQuery.groupBy(qWorklog.id);
+
+        SQLQuery<Long> query = new SQLQuery<Long>(connection, configuration)
+            .select(worklogTimeSumPath.sum())
+            .from(fromQuery.as("fromSum"));
+
+        return query.fetchOne();
+      }
+    };
   }
 
   private BooleanExpression filterToAffectedVersions(final QJiraissue qIssue,
