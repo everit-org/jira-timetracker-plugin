@@ -52,7 +52,8 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
             selectedAffectedVersions: [ #foreach( $tmp in $selectedAffectedVersions )#if($velocityCount> 1),#end "$tmp" #end ],
             selectedFixVersions: [ #foreach( $tmp in $selectedFixVersions )#if($velocityCount> 1),#end "$tmp" #end ],
             selectedComponents:[ #foreach( $tmp in $selectedComponents )#if($velocityCount> 1),#end "$tmp" #end ],
-            selectedLabels: ${selectedLabels}
+            selectedLabels: [ #foreach( $tmp in $selectedLabels )#if($velocityCount> 1),#end "$tmp" #end ],
+            selectedEpicLinks: [ #foreach( $tmp in $selectedEpicLinks )#if($velocityCount> 1),#end "$tmp" #end ]
           }
         );
       })(everit.reporting.main, AJS.$);
@@ -155,12 +156,41 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                      </div>
                                      <div class="search-criteria-extended">
                                      <!-- placeholder for EXTENDED criterias with more button !!! -->
+                                         <!-- Issue Dropdown  BUTTON-->
+                                         <a id="issuePickerButton" href="#issuePickerDropDown" aria-owns="issuePickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger"></a>
+                                         <!-- Issue Dropdown -->
+                                         <div id="issuePickerDropDown" class="aui-style-default aui-dropdown2">
+                                           <div class="jttr-filter-field">
+                                              <!--  <div class='ajs-layer box-shadow'> -->
+                                               <div class="criteria-dropdown-text-div" >
+                                                 <div class='form-body'>
+                                                   <div class='field-group aui-field-issuetype'>
+                                                     <select class="hidden"
+                                                        multiple="multiple" 
+                                                        name="issuePicker" 
+                                                        id="issuePicker" 
+                                                        data-popup-link-message="" 
+                                                        data-popup-height="500" 
+                                                        data-ajax-options.query="true" 
+                                                        data-ajax-options.url="${req.contextPath}/rest/api/1.0/issues/picker" 
+                                                        data-ajax-options.data.query="-" 
+                                                        data-ajax-options.data.current-issue-key=""
+                                                        data-ajax-options.data.show-sub-tasks="true" 
+                                                        data-ajax-options.data.show-sub-task-parent="true">
+                                                    </select> 
+                                                   </div>
+                                                 </div>
+                                               </div>
+                                             <!--  </div>  --> 
+                                           </div>
+                                         </div>
+                                         <!-- Issue Dropdown End-->
                                          <!-- Priority Dropdown  BUTTON-->
                                          <a id="priorityPickerButton" href="#priorityPickerDropDown" aria-owns="priorityPickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger"></a>
                                          <!-- Priority Dropdown -->
                                          <div id="priorityPickerDropDown" class="aui-style-default aui-dropdown2">
                                            <div class="jttr-filter-field">
-                                             <div class='ajs-layer box-shadow'>
+                                             <!--  <div class='ajs-layer box-shadow'> -->
                                                <div>
                                                  <div class='form-body'>
                                                    <div class='field-group aui-field-issuetype'>
@@ -169,7 +199,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                                    </div>
                                                  </div>
                                                </div>
-                                             </div>
+                                             <!--  </div>  --> 
                                            </div>
                                          </div>
                                          <!-- Priority Dropdown End-->
@@ -335,6 +365,24 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                            </div>
                                          </div>
                                          <!-- Epic Name Dropdown End-->
+                                         <!-- Epic Link Dropdown  BUTTON-->
+                                         <a id="epicLinkPickerButton" href="#epicLinkPickerDropDown" aria-owns="epicLinkPickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger"></a>
+                                         <!-- Epic Link-->
+                                         <div id="epicLinkPickerDropDown" class="aui-style-default aui-dropdown2">
+                                           <div class="jttr-filter-field">
+                                             <div class='ajs-layer box-shadow'>
+                                               <div>
+                                                 <div class='form-body'>
+                                                   <div class='field-group aui-field-issuetype'>
+                                                     <select  id="epicLinkPicker" name="epicLinkPicker"  multiple="multiple" >
+                                                     </select>
+                                                   </div>
+                                                 </div>
+                                               </div>
+                                             </div>
+                                           </div>
+                                         </div>
+                                         <!-- Epic Link End-->
                                      </div>
                                  </div>
                             </div>

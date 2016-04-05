@@ -97,6 +97,8 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   private List<String> selectedComponents;
 
+  private List<String> selectedEpicLinks;
+
   private String selectedEpicName = "";
 
   private List<String> selectedFixVersions;
@@ -214,6 +216,16 @@ public class ReportingWebAction extends JiraWebActionSupport {
     return SUCCESS;
   }
 
+  private void epicLinkPickerParse() {
+    String[] selectedEpicLinkValues =
+        getHttpRequest().getParameterValues("epicLinkPicker");
+    if (selectedEpicLinkValues != null) {
+      selectedEpicLinks = Arrays.asList(selectedEpicLinkValues);
+    } else {
+      selectedEpicLinks = new ArrayList<String>();
+    }
+  }
+
   private void epicNamePickerParse() throws IllegalArgumentException {
     String epicNamePickerParam = getHttpRequest().getParameter("epicNamePicker");
     if (epicNamePickerParam != null) {
@@ -275,6 +287,10 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   public List<String> getSelectedComponents() {
     return selectedComponents;
+  }
+
+  public List<String> getSelectedEpicLinks() {
+    return selectedEpicLinks;
   }
 
   public String getSelectedEpicName() {
@@ -359,6 +375,7 @@ public class ReportingWebAction extends JiraWebActionSupport {
     selectedComponents = new ArrayList<String>();
     selectedLabels = new ArrayList<String>();
     selectedEpicName = "";
+    selectedEpicLinks = new ArrayList<String>();
 
     dateCreatedFormated = "";
     dateCreated = null;
@@ -433,6 +450,7 @@ public class ReportingWebAction extends JiraWebActionSupport {
     labelPickerParse();
     createdDatePickerParse();
     epicNamePickerParse();
+    epicLinkPickerParse();
   }
 
   private void priorityPickerParse() throws IllegalArgumentException {
@@ -513,6 +531,10 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   public void setSelectedComponents(final List<String> selectedComponents) {
     this.selectedComponents = selectedComponents;
+  }
+
+  public void setSelectedEpicLinks(final List<String> selectedEpicLinks) {
+    this.selectedEpicLinks = selectedEpicLinks;
   }
 
   public void setSelectedEpicName(final String selectedEpicName) {

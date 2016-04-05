@@ -70,6 +70,7 @@ everit.reporting.main = everit.reporting.main || {};
     jQuery('.aui-ss, .aui-ss-editing, .aui-ss-field').attr("style", "width: 300px;");
     
     initProjectSelect();
+    initIssueSelect();
     initStatusSelect();
     initTypeSelect();
     initPrioritySelect();
@@ -84,6 +85,7 @@ everit.reporting.main = everit.reporting.main || {};
     initLabelSelect();
     initCreatedDatePicker();
     initEpicNameSelect();
+    initEpicLinkSelect();
   });
   
   
@@ -428,6 +430,7 @@ everit.reporting.main = everit.reporting.main || {};
       success : function(result){
         for( var i in result) {
           var obj = result[i];
+          //TODO Fix id-name
           var selected = checkSelected(obj.id, selectedArray);
           jQuery("#labelPicker").append('<option value="'+obj.id+ '" '+ selected + '>' +obj.name +'</option>');
         }
@@ -438,6 +441,60 @@ everit.reporting.main = everit.reporting.main || {};
         updatePickerButtonText("#labelPicker" , "#labelPickerButton", "Label: All");
         jQuery("#labelPicker").on("change unselect", function() {
           updatePickerButtonText("#labelPicker" , "#labelPickerButton", "Label: All");
+        });
+      },
+      error : function(XMLHttpRequest, status, error){
+      }
+    });
+  };
+    
+  function initIssueSelect(){
+//    var selectedArray =  jQuery.makeArray( reporting.values.selectedEpicLinks ); 
+    var ip = new AJS.IssuePicker({
+      element : jQuery("#issuePicker"),
+      userEnteredOptionsMsg : AJS.params.enterIssueKey,
+      uppercaseUserEnteredOnSelect : true,
+      singleSelectOnly : false,
+//      currentProjectId : jttp.options.projectsId,
+    });
+
+//    var issueKey = jttp.options.issueKey;
+    
+    jQuery("#issuePicker-multi-select").attr("style", "width: 250px;");
+    jQuery("#issuePicker-textarea").attr("style", "width: 250px;");
+    jQuery("#issuePicker-textarea").attr("class", "select2-choices medium-field criteria-dropdown-textarea");
+    jQuery(".issue-picker-popup").remove();
+//    jQuery("#issueSelect-textarea").append(issueKey);
+//    ip.handleFreeInput();
+    
+    
+    updatePickerButtonText("#issuePicker" , "#issuePickerButton", "Issue: All");
+    jQuery("#issuePicker-textarea").on("change onblur", function() {
+      updatePickerButtonText("#issuePicker" , "#issuePickerButton", "Issue: All");
+    });
+  };
+  
+  function initEpicLinkSelect(){
+    var selectedArray =  jQuery.makeArray( reporting.values.selectedEpicLinks ); 
+    jQuery.ajax({
+      async: true,
+      type: 'GET',
+      url : contextPath + "/rest/api/2/status", //TODO set the right rest api
+      data : [],
+      success : function(result){
+        for( var i in result) {
+          var obj = result[i];
+          //TODO Fix id-name
+          var selected = checkSelected(obj.id, selectedArray);
+          jQuery("#epicLinkPicker").append('<option value="'+obj.id+ '" '+ selected + '>' +obj.name +'</option>');
+        }
+        var pp = new AJS.CheckboxMultiSelect({
+              element:  AJS.$("#epicLinkPicker"),
+              submitInputVal: true,
+        });
+        updatePickerButtonText("#epicLinkPicker" , "#epicLinkPickerButton", "Epic Link: All");
+        jQuery("#epicLinkPicker").on("change unselect", function() {
+          updatePickerButtonText("#epicLinkPicker" , "#epicLinkPickerButton", "Epic Link: All");
         });
       },
       error : function(XMLHttpRequest, status, error){
