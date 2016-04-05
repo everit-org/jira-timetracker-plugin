@@ -19,39 +19,80 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.everit.jira.querydsl.support.QuerydslCallable;
 import org.everit.jira.reporting.plugin.dto.IssueSummaryDTO;
 import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
 import org.everit.jira.reporting.plugin.query.util.QueryUtil;
 
 import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.PathMetadata;
+import com.querydsl.core.types.PathType;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.QBean;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberPath;
 import com.querydsl.sql.Configuration;
 import com.querydsl.sql.SQLQuery;
 
 /**
- * Query for issue summary report.
+ * Queries for issue summary report.
  */
-public class IssueSummaryReportQuery extends AbstractListReportQuery<IssueSummaryDTO> {
+public class IssueSummaryReportQuery extends AbstractReportQuery {
 
   public IssueSummaryReportQuery(final ReportSearchParam reportSearchParam) {
     super(reportSearchParam);
   }
 
-  @Override
-  public List<IssueSummaryDTO> call(final Connection connection, final Configuration configuration)
-      throws SQLException {
-    SQLQuery<IssueSummaryDTO> query = new SQLQuery<IssueSummaryDTO>(connection, configuration)
-        .select(createSelectProjection());
+  /**
+   * Build count issue summary query.
+   */
+  public QuerydslCallable<Long> buildCountQuery() {
+    return new QuerydslCallable<Long>() {
+      @Override
+      public Long call(final Connection connection, final Configuration configuration)
+          throws SQLException {
+        NumberPath<Long> issueCountPath = Expressions.numberPath(Long.class,
+            new PathMetadata(null, "issueCount", PathType.VARIABLE));
 
-    appendBaseFromAndJoin(query);
-    appendBaseWhere(query);
+        SQLQuery<Long> fromQuery = new SQLQuery<Long>(connection, configuration)
+            .select(qIssue.id.count().as(issueCountPath));
 
-    query.groupBy(createGroupBy());
-    return query.fetch();
+        appendBaseFromAndJoin(fromQuery);
+        appendBaseWhere(fromQuery);
+        fromQuery.groupBy(qIssue.id);
+
+        SQLQuery<Long> query = new SQLQuery<Long>(connection, configuration)
+            .select(issueCountPath.count())
+            .from(fromQuery.as("fromCount"));
+
+        return query.fetchOne();
+      }
+    };
   }
 
-  private Expression<?>[] createGroupBy() {
+  /**
+   * Build issue summary query.
+   */
+  public QuerydslCallable<List<IssueSummaryDTO>> buildQuery() {
+    return new QuerydslCallable<List<IssueSummaryDTO>>() {
+
+      @Override
+      public List<IssueSummaryDTO> call(final Connection connection,
+          final Configuration configuration) throws SQLException {
+        SQLQuery<IssueSummaryDTO> query = new SQLQuery<IssueSummaryDTO>(connection, configuration)
+            .select(createQuerySelectProjection());
+
+        appendBaseFromAndJoin(query);
+        appendBaseWhere(query);
+        appendQueryRange(query);
+
+        query.groupBy(createQueryGroupBy());
+        return query.fetch();
+      }
+    };
+  }
+
+  private Expression<?>[] createQueryGroupBy() {
     return new Expression<?>[] {
         qProject.pkey,
         qIssue.issuenum,
@@ -62,7 +103,7 @@ public class IssueSummaryReportQuery extends AbstractListReportQuery<IssueSummar
         qIssue.assignee };
   }
 
-  private QBean<IssueSummaryDTO> createSelectProjection() {
+  private QBean<IssueSummaryDTO> createQuerySelectProjection() {
     return Projections.bean(IssueSummaryDTO.class,
         QueryUtil.createIssueKeyExpression(qIssue, qProject)
             .as(IssueSummaryDTO.AliasNames.ISSUE_KEY),

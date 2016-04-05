@@ -55,7 +55,8 @@ public class ExportSummariesListReport extends AbstractExportListReport {
     rowIndex = insertIssueSummaryHeaderRow(rowIndex, issueSummarySheet);
 
     List<IssueSummaryDTO> issueSummary =
-        querydslSupport.execute(new IssueSummaryReportQuery(reportSearchParam));
+        querydslSupport.execute(new IssueSummaryReportQuery(reportSearchParam)
+            .buildQuery());
 
     for (IssueSummaryDTO issueSummaryDTO : issueSummary) {
       rowIndex = insertIssueSummaryBodyRow(rowIndex, issueSummarySheet, issueSummaryDTO);
@@ -69,7 +70,8 @@ public class ExportSummariesListReport extends AbstractExportListReport {
     rowIndex = insertProjectSummaryHeaderRow(rowIndex, projectSummarySheet);
 
     List<ProjectSummaryDTO> projectSummary =
-        querydslSupport.execute(new ProjectSummaryReportQuery(reportSearchParam));
+        querydslSupport.execute(new ProjectSummaryReportQuery(reportSearchParam)
+            .buildQuery());
 
     for (ProjectSummaryDTO projectSummaryDTO : projectSummary) {
       rowIndex = insertProjectSummaryBodyRow(rowIndex, projectSummarySheet, projectSummaryDTO);
@@ -83,7 +85,8 @@ public class ExportSummariesListReport extends AbstractExportListReport {
     rowIndex = insertUserSummaryHeaderRow(rowIndex, userSummarySheet);
 
     List<UserSummaryDTO> userSummary =
-        querydslSupport.execute(new UserSummaryReportQuery(reportSearchParam));
+        querydslSupport.execute(new UserSummaryReportQuery(reportSearchParam)
+            .buildQuery());
     for (UserSummaryDTO userSummaryDTO : userSummary) {
       rowIndex = insertUserSummaryBodyRow(rowIndex, userSummarySheet, userSummaryDTO);
     }

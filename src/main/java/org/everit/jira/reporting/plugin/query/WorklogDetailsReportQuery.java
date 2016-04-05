@@ -26,6 +26,7 @@ import org.everit.jira.querydsl.schema.QComponent;
 import org.everit.jira.querydsl.schema.QJiraissue;
 import org.everit.jira.querydsl.schema.QNodeassociation;
 import org.everit.jira.querydsl.schema.QProjectversion;
+import org.everit.jira.querydsl.support.QuerydslCallable;
 import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
 import org.everit.jira.reporting.plugin.dto.WorklogDetailsDTO;
 import org.everit.jira.reporting.plugin.query.util.QueryUtil;
@@ -33,37 +34,76 @@ import org.everit.jira.reporting.plugin.query.util.QueryUtil;
 import com.atlassian.jira.entity.Entity;
 import com.atlassian.jira.issue.IssueRelationConstants;
 import com.querydsl.core.group.GroupBy;
+import com.querydsl.core.types.PathMetadata;
+import com.querydsl.core.types.PathType;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.QBean;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberPath;
 import com.querydsl.core.types.dsl.StringExpression;
 import com.querydsl.sql.Configuration;
 import com.querydsl.sql.SQLQuery;
 
 /**
- * Query for worklog details report.
+ * Queries for worklog details report.
  */
-public class WorklogDetailsReportQuery extends AbstractListReportQuery<WorklogDetailsDTO> {
+public class WorklogDetailsReportQuery extends AbstractReportQuery {
 
   public WorklogDetailsReportQuery(final ReportSearchParam reportSearchParam) {
     super(reportSearchParam);
   }
 
-  @Override
-  public List<WorklogDetailsDTO> call(final Connection connection,
-      final Configuration configuration)
+  /**
+   * Build countworklog details query.
+   */
+  public QuerydslCallable<Long> buildCountQuery() {
+    return new QuerydslCallable<Long>() {
+      @Override
+      public Long call(final Connection connection, final Configuration configuration)
           throws SQLException {
-    SQLQuery<WorklogDetailsDTO> query = new SQLQuery<WorklogDetailsDTO>(connection, configuration)
-        .select(createSelectProjection());
+        NumberPath<Long> worklogCountPath = Expressions.numberPath(Long.class,
+            new PathMetadata(null, "worklogCount", PathType.VARIABLE));
 
-    appendBaseFromAndJoin(query);
+        SQLQuery<Long> fromQuery = new SQLQuery<Long>(connection, configuration)
+            .select(qWorklog.id.count().as(worklogCountPath));
 
-    appendBaseWhere(query);
+        appendBaseFromAndJoin(fromQuery);
+        appendBaseWhere(fromQuery);
+        fromQuery.groupBy(qWorklog.id);
 
-    List<WorklogDetailsDTO> result = query.fetch();
+        SQLQuery<Long> query = new SQLQuery<Long>(connection, configuration)
+            .select(worklogCountPath.count())
+            .from(fromQuery.as("fromCount"));
 
-    extendResult(connection, configuration, result);
+        return query.fetchOne();
+      }
+    };
+  }
 
-    return result;
+  /**
+   * Build worklog details query.
+   */
+  public QuerydslCallable<List<WorklogDetailsDTO>> buildQuery() {
+    return new QuerydslCallable<List<WorklogDetailsDTO>>() {
+
+      @Override
+      public List<WorklogDetailsDTO> call(final Connection connection,
+          final Configuration configuration) throws SQLException {
+        SQLQuery<WorklogDetailsDTO> query =
+            new SQLQuery<WorklogDetailsDTO>(connection, configuration)
+                .select(createQuerySelectProjection());
+
+        appendBaseFromAndJoin(query);
+        appendBaseWhere(query);
+        appendQueryRange(query);
+
+        List<WorklogDetailsDTO> result = query.fetch();
+
+        extendResult(connection, configuration, result);
+
+        return result;
+      }
+    };
   }
 
   private ConcurrentSkipListSet<Long> collectIssueIds(final List<WorklogDetailsDTO> result) {
@@ -74,7 +114,7 @@ public class WorklogDetailsReportQuery extends AbstractListReportQuery<WorklogDe
     return issueIds;
   }
 
-  private QBean<WorklogDetailsDTO> createSelectProjection() {
+  private QBean<WorklogDetailsDTO> createQuerySelectProjection() {
     StringExpression issueKey = QueryUtil.createIssueKeyExpression(qIssue, qProject);
     StringExpression userExpression = QueryUtil.createUserExpression(qCwdUser, qWorklog);
     return Projections.bean(WorklogDetailsDTO.class,

@@ -15,8 +15,9 @@
  */
 package org.everit.jira.reporting.plugin.query;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.List;
 import java.util.Locale;
 
 import org.everit.jira.querydsl.schema.QAppUser;
@@ -41,19 +42,20 @@ import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
 
 import com.atlassian.jira.entity.Entity;
 import com.atlassian.jira.issue.IssueRelationConstants;
+import com.querydsl.core.types.PathMetadata;
+import com.querydsl.core.types.PathType;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberPath;
+import com.querydsl.sql.Configuration;
 import com.querydsl.sql.SQLExpressions;
 import com.querydsl.sql.SQLQuery;
 
 /**
  * Abstract implementation of {@link QuerydslCallable}. Provide source (from), joins and filter
  * condition to report queries.
- *
- * @param <T>
- *          Type of the return value
  */
-public abstract class AbstractListReportQuery<T> implements QuerydslCallable<List<T>> {
+public abstract class AbstractReportQuery {
 
   protected BooleanExpression expressionFalse;
 
@@ -85,7 +87,7 @@ public abstract class AbstractListReportQuery<T> implements QuerydslCallable<Lis
    * @param reportSearchParam
    *          the {@link ReportSearchParam} object, that contains parameters to filter condition.
    */
-  protected AbstractListReportQuery(final ReportSearchParam reportSearchParam) {
+  protected AbstractReportQuery(final ReportSearchParam reportSearchParam) {
     this.reportSearchParam = reportSearchParam;
     qIssue = new QJiraissue("issue");
     qProject = new QProject("project");
@@ -146,6 +148,49 @@ public abstract class AbstractListReportQuery<T> implements QuerydslCallable<Lis
     where = filterToWorklogEndDate(qWorklog, where);
 
     query.where(where);
+  }
+
+  /**
+   * Append query range to query. Set offset and limit.
+   *
+   * @param query
+   *          the {@link SQLQuery}.
+   */
+  protected void appendQueryRange(final SQLQuery<?> query) {
+    if (reportSearchParam.offset != null) {
+      query.offset(reportSearchParam.offset);
+    }
+
+    if (reportSearchParam.limit != null) {
+      query.limit(reportSearchParam.limit);
+    }
+  }
+
+  /**
+   * Build grand total query.
+   */
+  public QuerydslCallable<Long> buildGrandTotalQuery() {
+    return new QuerydslCallable<Long>() {
+      @Override
+      public Long call(final Connection connection, final Configuration configuration)
+          throws SQLException {
+        NumberPath<Long> worklogTimeSumPath = Expressions.numberPath(Long.class,
+            new PathMetadata(null, "worklogTimeSum", PathType.VARIABLE));
+
+        SQLQuery<Long> fromQuery = new SQLQuery<Long>(connection, configuration)
+            .select(qWorklog.timeworked.sum().as(worklogTimeSumPath));
+
+        appendBaseFromAndJoin(fromQuery);
+        appendBaseWhere(fromQuery);
+        fromQuery.groupBy(qWorklog.id);
+
+        SQLQuery<Long> query = new SQLQuery<Long>(connection, configuration)
+            .select(worklogTimeSumPath.sum())
+            .from(fromQuery.as("fromSum"));
+
+        return query.fetchOne();
+      }
+    };
   }
 
   private BooleanExpression filterToAffectedVersions(final QJiraissue qIssue,
