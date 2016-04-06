@@ -41,26 +41,19 @@ public class ReportingPluginImpl implements ReportingPlugin, InitializingBean,
   private static final String JTTP_PLUGIN_REPORTING_SETTINGS_GROUPS = "reportingGroups";
 
   /**
-   * The plugin reporting settings is use Noworks.
-   */
-  private static final String JTTP_PLUGIN_REPORTING_SETTINGS_IS_USE_NOWORK = "isUseNowork";
-  /**
    * The plugin repoting settings key prefix.
    */
   private static final String JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX = "jttp_report";
+
   /**
    * The plugin reporting settings is use Noworks.
    */
   private static final String JTTP_PLUGIN_REPORTING_SETTINGS_PAGER_SIZE = "pagerSize";
+
   /**
    * Serial Version UID.
    */
   private static final long serialVersionUID = -3872710932298672883L;
-
-  /**
-   * Reporting is use noworks.
-   */
-  private boolean isUseNoWorks = true;
 
   private int pageSize;
 
@@ -104,11 +97,10 @@ public class ReportingPluginImpl implements ReportingPlugin, InitializingBean,
   public ReportingSettingsValues loadReportingSettings() {
     reportingSettings = settingsFactory
         .createSettingsForKey(JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX);
-    setIsUseNoWork();
     setReportingGroups();
     setPageSize();
-    reportingSettingsValues = new ReportingSettingsValues().isUseNoWorks(isUseNoWorks)
-        .reportingGroups(reportingGroups).pageSize(pageSize);
+    reportingSettingsValues =
+        new ReportingSettingsValues().reportingGroups(reportingGroups).pageSize(pageSize);
     return reportingSettingsValues;
   }
 
@@ -127,22 +119,10 @@ public class ReportingPluginImpl implements ReportingPlugin, InitializingBean,
         String.valueOf(reportingSettingsParameter.pageSize));
     reportingSettings.put(JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX
         + JTTP_PLUGIN_REPORTING_SETTINGS_GROUPS, reportingSettingsParameter.reportingGroups);
-    reportingSettings.put(JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX
-        + JTTP_PLUGIN_REPORTING_SETTINGS_IS_USE_NOWORK,
-        Boolean.toString(reportingSettingsParameter.isUseNoWorks));
-  }
-
-  private void setIsUseNoWork() {
-    isUseNoWorks = true;
-    if ("false".equals(reportingSettings
-        .get(JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX
-            + JTTP_PLUGIN_REPORTING_SETTINGS_IS_USE_NOWORK))) {
-      isUseNoWorks = false;
-    }
   }
 
   private void setPageSize() {
-    pageSize = DEFAULT_PAGE_SIZE; // DEFAULT
+    pageSize = DEFAULT_PAGE_SIZE;
     String pageSizeValue =
         (String) reportingSettings.get(JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX
             + JTTP_PLUGIN_REPORTING_SETTINGS_PAGER_SIZE);

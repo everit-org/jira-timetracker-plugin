@@ -22,6 +22,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import org.everit.jira.reporting.plugin.ReportingCondition;
 import org.everit.jira.reporting.plugin.ReportingPlugin;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
@@ -89,6 +90,8 @@ public class ReportingWebAction extends JiraWebActionSupport {
    */
   private String message = "";
 
+  private ReportingCondition reportingCondition;
+
   private ReportingPlugin reportingPlugin;
 
   private List<String> selectedAffectedVersions;
@@ -125,6 +128,7 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   public ReportingWebAction(final ReportingPlugin reportingPlugin) {
     this.reportingPlugin = reportingPlugin;
+    reportingCondition = new ReportingCondition(this.reportingPlugin);
   }
 
   private void affectedVersionPickerParse() {
@@ -178,7 +182,11 @@ public class ReportingWebAction extends JiraWebActionSupport {
       setReturnUrl(JIRA_HOME_URL);
       return getRedirect(NONE);
     }
-    // TODO ReportingCondition check!
+    if (!reportingCondition.shouldDisplay(getLoggedInApplicationUser(), null)) {
+      setReturnUrl(JIRA_HOME_URL);
+      return getRedirect(NONE);
+    }
+
     initPickersValues();
     normalizeContextPath();
     initDatesIfNecessary();
@@ -193,7 +201,11 @@ public class ReportingWebAction extends JiraWebActionSupport {
       setReturnUrl(JIRA_HOME_URL);
       return getRedirect(NONE);
     }
-    // TODO ReportingCondition check!
+    if (!reportingCondition.shouldDisplay(getLoggedInApplicationUser(), null)) {
+      setReturnUrl(JIRA_HOME_URL);
+      return getRedirect(NONE);
+    }
+
     normalizeContextPath();
 
     // TODO delete this .getClass() call
