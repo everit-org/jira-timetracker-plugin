@@ -26,7 +26,7 @@ import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
 import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
-import org.everit.jira.timetracker.plugin.util.JiraTimetrackerPiwikPropertiesUtil;
+import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.ofbiz.core.entity.GenericEntityException;
 
@@ -545,9 +545,9 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     userId = JiraTimetrackerAnalytics.setUserSessionUserId(getHttpRequest().getSession());
 
     piwikHost =
-        jiraTimetrackerPlugin.getPiwikPorperty(JiraTimetrackerPiwikPropertiesUtil.PIWIK_HOST);
+        jiraTimetrackerPlugin.getPiwikPorperty(PiwikPropertiesUtil.PIWIK_HOST);
     piwikSiteId = jiraTimetrackerPlugin
-        .getPiwikPorperty(JiraTimetrackerPiwikPropertiesUtil.PIWIK_WORKLOGS_SITEID);
+        .getPiwikPorperty(PiwikPropertiesUtil.PIWIK_WORKLOGS_SITEID);
   }
 
   public void setPiwikSiteId(final String piwikSiteId) {

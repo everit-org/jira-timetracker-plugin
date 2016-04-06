@@ -15,12 +15,8 @@
  */
 package org.everit.jira.timetracker.plugin;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Serializable;
-import java.net.URL;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -48,8 +44,9 @@ import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklogComparator;
 import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
-import org.everit.jira.timetracker.plugin.util.JiraTimetrackerPiwikPropertiesUtil;
+import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
+import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 import org.ofbiz.core.entity.EntityCondition;
 import org.ofbiz.core.entity.EntityExpr;
 import org.ofbiz.core.entity.EntityOperator;
@@ -79,7 +76,6 @@ import com.atlassian.jira.security.PermissionManager;
 import com.atlassian.jira.security.Permissions;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.mail.queue.SingleMailQueueItem;
-import com.atlassian.plugin.util.ClassLoaderUtils;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
@@ -183,8 +179,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
    * A day in minutes.
    */
   private static final int ONE_DAY_IN_MINUTES = 1440;
-
-  private static final String PROPERTIES = "jttp_build.properties";
 
   /**
    * Serial version UID.
@@ -875,37 +869,21 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   }
 
   private void loadJttpBuildProperties() throws IOException {
-    InputStream inputStream = null;
-    Properties properties = new Properties();
-    try {
-      inputStream = ClassLoaderUtils
-          .getResourceAsStream(PROPERTIES, JiraTimetrackerPluginImpl.class);
-      if (inputStream == null) {
-        URL resource = ClassLoaderUtils.getResource(PROPERTIES, JiraTimetrackerPluginImpl.class);
-        File propertiesFile = new File(resource.getFile());
-        inputStream = new FileInputStream(propertiesFile);
-      }
-      properties.load(inputStream);
+    Properties properties = PropertiesUtil.getJttpBuildProperties();
 
-      feedBackEmailTo = properties.getProperty(FEEDBACK_EMAIL_TO);
+    feedBackEmailTo = properties.getProperty(FEEDBACK_EMAIL_TO);
 
-      piwikPorpeties = new HashMap<String, String>();
-      piwikPorpeties.put(JiraTimetrackerPiwikPropertiesUtil.PIWIK_HOST,
-          properties.getProperty(JiraTimetrackerPiwikPropertiesUtil.PIWIK_HOST));
-      piwikPorpeties.put(JiraTimetrackerPiwikPropertiesUtil.PIWIK_TIMETRACKER_SITEID,
-          properties.getProperty(JiraTimetrackerPiwikPropertiesUtil.PIWIK_TIMETRACKER_SITEID));
-      piwikPorpeties.put(JiraTimetrackerPiwikPropertiesUtil.PIWIK_WORKLOGS_SITEID,
-          properties.getProperty(JiraTimetrackerPiwikPropertiesUtil.PIWIK_WORKLOGS_SITEID));
-      piwikPorpeties.put(JiraTimetrackerPiwikPropertiesUtil.PIWIK_CHART_SITEID,
-          properties.getProperty(JiraTimetrackerPiwikPropertiesUtil.PIWIK_CHART_SITEID));
-      piwikPorpeties.put(JiraTimetrackerPiwikPropertiesUtil.PIWIK_TABLE_SITEID,
-          properties.getProperty(JiraTimetrackerPiwikPropertiesUtil.PIWIK_TABLE_SITEID));
-
-    } finally {
-      if (inputStream != null) {
-        inputStream.close();
-      }
-    }
+    piwikPorpeties = new HashMap<String, String>();
+    piwikPorpeties.put(PiwikPropertiesUtil.PIWIK_HOST,
+        properties.getProperty(PiwikPropertiesUtil.PIWIK_HOST));
+    piwikPorpeties.put(PiwikPropertiesUtil.PIWIK_TIMETRACKER_SITEID,
+        properties.getProperty(PiwikPropertiesUtil.PIWIK_TIMETRACKER_SITEID));
+    piwikPorpeties.put(PiwikPropertiesUtil.PIWIK_WORKLOGS_SITEID,
+        properties.getProperty(PiwikPropertiesUtil.PIWIK_WORKLOGS_SITEID));
+    piwikPorpeties.put(PiwikPropertiesUtil.PIWIK_CHART_SITEID,
+        properties.getProperty(PiwikPropertiesUtil.PIWIK_CHART_SITEID));
+    piwikPorpeties.put(PiwikPropertiesUtil.PIWIK_TABLE_SITEID,
+        properties.getProperty(PiwikPropertiesUtil.PIWIK_TABLE_SITEID));
   }
 
   @Override
