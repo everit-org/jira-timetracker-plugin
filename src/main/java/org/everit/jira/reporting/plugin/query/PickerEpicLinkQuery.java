@@ -31,6 +31,7 @@ import org.everit.jira.reporting.plugin.query.util.QueryUtil;
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.sql.Configuration;
+import com.querydsl.sql.SQLExpressions;
 import com.querydsl.sql.SQLQuery;
 
 /**
@@ -50,6 +51,8 @@ public class PickerEpicLinkQuery implements QuerydslCallable<List<PickerEpicLink
 
   private QProject qProject;
 
+  private QJiraissue qSubIssue;
+
   /**
    * Simple constructor.
    */
@@ -60,6 +63,7 @@ public class PickerEpicLinkQuery implements QuerydslCallable<List<PickerEpicLink
     qCustomfield = new QCustomfield("customfield");
     qIssue = new QJiraissue("issue");
     qProject = new QProject("project");
+    qSubIssue = new QJiraissue("s_issue");
   }
 
   @Override
@@ -69,18 +73,22 @@ public class PickerEpicLinkQuery implements QuerydslCallable<List<PickerEpicLink
 
     List<PickerEpicLinkDTO> result = new SQLQuery<PickerEpicLinkDTO>(connection, configuration)
         .select(Projections.bean(PickerEpicLinkDTO.class,
-            qIssuelink.source.as(PickerEpicLinkDTO.AliasNames.EPIC_LINK_ID),
+            qIssue.id.as(PickerEpicLinkDTO.AliasNames.EPIC_LINK_ID),
             qCustomfieldValue.stringvalue.as(PickerEpicLinkDTO.AliasNames.EPIC_NAME),
             QueryUtil.createIssueKeyExpression(qIssue, qProject)
                 .as(PickerEpicLinkDTO.AliasNames.ISSUE_KEY)))
-        .from(qIssuelink)
-        .join(qIssue).on(qIssue.id.eq(qIssuelink.source))
-        .join(qProject).on(qProject.id.eq(qIssue.project))
-        .join(qIssuelinktype).on(qIssuelinktype.id.eq(qIssuelink.linktype))
-        .join(qCustomfieldValue).on(qCustomfieldValue.issue.eq(qIssuelink.source))
-        .join(qCustomfield).on(qCustomfield.id.eq(qCustomfieldValue.customfield))
-        .where(qIssuelinktype.linkname.eq("Epic-Story Link")
+        .from(qIssue)
+        .innerJoin(qProject).on(qProject.id.eq(qIssue.project))
+        .innerJoin(qCustomfieldValue).on(qCustomfieldValue.issue.eq(qIssue.id))
+        .innerJoin(qCustomfield).on(qCustomfield.id.eq(qCustomfieldValue.customfield)
             .and(qCustomfield.cfname.eq("Epic Name")))
+        .where(SQLExpressions.select(qSubIssue.id)
+            .from(qSubIssue)
+            .innerJoin(qIssuelink).on(qSubIssue.id.eq(qIssuelink.source))
+            .innerJoin(qIssuelinktype).on(qIssuelinktype.id.eq(qIssuelink.linktype)
+                .and(qIssuelinktype.linkname.eq("Epic-Story Link")))
+            .where(qSubIssue.id.eq(qIssue.id))
+            .exists())
         .orderBy(qCustomfieldValue.stringvalue.asc())
         .fetch();
 
