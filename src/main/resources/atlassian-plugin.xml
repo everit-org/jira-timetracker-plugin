@@ -56,7 +56,7 @@
   
   <web-item key="jttp_report_link" name="JTTP Report Link" section="jttp_menu/jttp_reporting_section" weight="47">
     <label>Reporting</label>
-    <link linkId="jttp_reporting_link"><![CDATA[/secure/JiraTimetrackerWebAction!default.jspa#reporting-dialog]]></link>
+    <link linkId="jttp_reporting_link"><![CDATA[/secure/ReportingWebAction!default.jspa]]></link>
     <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserLoggedInCondition" />
     <condition class="org.everit.jira.reporting.plugin.ReportingCondition" />
   </web-item>
@@ -111,6 +111,17 @@
     <resource type="download" name="jttp.css" location="/css/jttp.css"/>
 	<resource type="download" name="report_common_scripts.js" location="/js/report_common_scripts.js"/>
     <resource type="download" name="missing_days_report.js" location="/js/missing_days_report.js"/>
+  </web-resource>
+  
+  <web-resource name="JTTP Resources" key="reporting-resources">
+    <dependency>com.atlassian.auiplugin:ajs</dependency>
+    <dependency>com.atlassian.auiplugin:dialog2</dependency>
+    <resource type="download" name="E_logo.png" location="/icons/E_logo.png">
+      <param name="content-type" value="image/png" />
+    </resource>
+    <resource type="download" name="js-fecha.js" location="/js/js-fecha.js"/>
+    <resource type="download" name="reporting.css" location="/css/reporting.css"/>
+    <resource type="download" name="reporting.js" location="/js/reporting.js"/>
   </web-resource>
   
   <web-resource name="JTTP Resources" key="reporting-admin-resources">
@@ -175,11 +186,6 @@
         <view name="input">/templates/timetracker/table_report.vm</view>
         <view name="error">/templates/common/error.vm</view>
       </action>
-      <action name="org.everit.jira.timetracker.plugin.web.JiraReportingPopupWebAction" alias="JiraReportingPopupWebAction">
-        <view name="success">/templates/reporting/reporting_popup.vm</view>
-        <view name="input">/templates/reporting/reporting_popup.vm</view>
-        <view name="error">/templates/common/error.vm</view>
-      </action>
     </actions>
   </webwork1>
   
@@ -187,6 +193,11 @@
     <resource type="i18n" name="i18n-jtrp-vm" location="i18n/jtrp" />
     <resource type="i18n" name="i18n-feedback-vm" location="i18n/feedback" />
     <actions>
+      <action name="org.everit.jira.reporting.plugin.web.ReportingWebAction" alias="ReportingWebAction">
+        <view name="success">/templates/reporting/reporting.vm</view>
+        <view name="input">/templates/reporting/reporting.vm</view>
+        <view name="error">/templates/common/error.vm</view>
+      </action>
       <action name="org.everit.jira.reporting.plugin.web.ReportingSettingsWebAction" alias="JiraTimetrackerReportingSettingsWebAction">
         <view name="success">/templates/reporting/reportingsettings.vm</view>
         <view name="input">/templates/reporting/reportingsettings.vm</view>
