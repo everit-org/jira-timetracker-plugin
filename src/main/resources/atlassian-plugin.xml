@@ -38,6 +38,10 @@
     <interface>org.everit.jira.reporting.plugin.ReportingPlugin</interface>
   </component>
   
+  <component key="jttp_analytis_sender" name="Analytics Sender" class="org.everit.jira.analytics.AnalyticsSenderImpl">
+    <interface>org.everit.jira.analytics.AnalyticsSender</interface>
+  </component>
+  
    <web-item key="jttp_menu_item" name="JTTP Item" section="system.top.navigation.bar" weight="47">
     <label>Timetracker</label>
     <link linkId="jttp_menu"></link>

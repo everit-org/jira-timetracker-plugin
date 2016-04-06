@@ -35,8 +35,8 @@ import org.everit.jira.timetracker.plugin.dto.ActionResultStatus;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
-import org.everit.jira.timetracker.plugin.util.JiraTimetrackerPiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
+import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.ofbiz.core.entity.GenericEntityException;
 
 import com.atlassian.jira.avatar.Avatar;
@@ -47,7 +47,6 @@ import com.atlassian.jira.config.properties.ApplicationProperties;
 import com.atlassian.jira.exception.DataAccessException;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.user.ApplicationUser;
-import com.atlassian.jira.util.BuildUtilsInfo;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
 
 /**
@@ -138,10 +137,12 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private String daySummary = "";
 
   private String debugMessage = "";
+
   /**
    * The deleted worklog id.
    */
   private Long deletedWorklogId = DEFAULT_WORKLOG_ID;
+
   /**
    * The worklog duration.
    */
@@ -202,16 +203,15 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The WebAction is edit all worklog or not.
    */
   private boolean isEditAll = false;
-
   /**
    * The calendar isPopup.
    */
   private int isPopup;
+
   /**
    * The issue key.
    */
   private String issueKey = "";
-
   /**
    * The issues.
    */
@@ -224,6 +224,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The jira main version.
    */
   private int jiraMainVersion;
+
   /**
    * The {@link JiraTimetrackerPlugin}.
    */
@@ -768,8 +769,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   }
 
   private void getJiraVersionFromBuildUtilsInfo() {
-    BuildUtilsInfo component = ComponentAccessor.getComponent(BuildUtilsInfo.class);
-    jiraVersion = component.getVersion();
+    jiraVersion = JiraTimetrackerAnalytics.getJiraVersionFromBuildUtilsInfo();
     String[] versionSplit = jiraVersion.split(VERSION_SPLITTER);
     jiraMainVersion = Integer.parseInt(versionSplit[0]);
 
@@ -1461,9 +1461,9 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     userId = JiraTimetrackerAnalytics.setUserSessionUserId(getHttpRequest().getSession());
 
     piwikHost = jiraTimetrackerPlugin
-        .getPiwikPorperty(JiraTimetrackerPiwikPropertiesUtil.PIWIK_HOST);
+        .getPiwikPorperty(PiwikPropertiesUtil.PIWIK_HOST);
     piwikSiteId = jiraTimetrackerPlugin
-        .getPiwikPorperty(JiraTimetrackerPiwikPropertiesUtil.PIWIK_TIMETRACKER_SITEID);
+        .getPiwikPorperty(PiwikPropertiesUtil.PIWIK_TIMETRACKER_SITEID);
   }
 
   public void setPiwikSiteId(final String piwikSiteId) {

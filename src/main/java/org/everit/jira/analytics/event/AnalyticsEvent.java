@@ -13,24 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.jira.timetracker.plugin.util;
+package org.everit.jira.analytics.event;
 
 /**
- * The util class for Piwik constats and helper methods.
+ * Describe analytics event.
  */
-public final class JiraTimetrackerPiwikPropertiesUtil {
+public interface AnalyticsEvent {
 
-  public static final String PIWIK_CHART_SITEID = "PIWIK_CHART_SITEID";
-
-  public static final String PIWIK_HOST = "PIWIK_HOST";
-
-  public static final String PIWIK_TABLE_SITEID = "PIWIK_TABLE_SITEID";
-
-  public static final String PIWIK_TIMETRACKER_SITEID = "PIWIK_TIMETRACKER_SITEID";
-
-  public static final String PIWIK_WORKLOGS_SITEID = "PIWIK_WORKLOGS_SITEID";
-
-  private JiraTimetrackerPiwikPropertiesUtil() {
-
-  }
+  /**
+   * Gets analytics application url that contains all analytics information.
+   */
+  String getUrl();
 }

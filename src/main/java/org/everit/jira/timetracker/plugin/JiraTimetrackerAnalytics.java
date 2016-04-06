@@ -24,6 +24,7 @@ import org.apache.log4j.Logger;
 import org.everit.jira.timetracker.plugin.util.HashUtil;
 
 import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.util.BuildUtilsInfo;
 
 /**
  * The Jira Timetracker plugin analytics class.
@@ -60,6 +61,15 @@ public final class JiraTimetrackerAnalytics {
       return ERROR_BASE_URL_HASH;
 
     }
+
+  }
+
+  /**
+   * Gets JIRA version.
+   */
+  public static String getJiraVersionFromBuildUtilsInfo() {
+    BuildUtilsInfo component = ComponentAccessor.getComponent(BuildUtilsInfo.class);
+    return component.getVersion();
 
   }
 
