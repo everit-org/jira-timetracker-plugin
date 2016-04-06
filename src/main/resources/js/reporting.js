@@ -266,7 +266,7 @@ everit.reporting.main = everit.reporting.main || {};
       success : function(result){
         for( var i in result.groups) {
           var obj = result.groups[i];
-          var selected = checkSelected(obj.id, selectedArray);
+          var selected = checkSelected(obj.name, selectedArray);
           jQuery("#groupPicker").append('<option value="'+obj.name + '" '+ selected + '>' +obj.name +'</option>');
         }
         var pp = new AJS.CheckboxMultiSelect({
