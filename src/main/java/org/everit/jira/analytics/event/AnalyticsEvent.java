@@ -15,8 +15,6 @@
  */
 package org.everit.jira.analytics.event;
 
-import java.io.IOException;
-
 /**
  * Describe analytics event.
  */
@@ -25,5 +23,5 @@ public interface AnalyticsEvent {
   /**
    * Gets analytics application url that contains all analytics information.
    */
-  String getUrl() throws IOException;
+  String getUrl();
 }

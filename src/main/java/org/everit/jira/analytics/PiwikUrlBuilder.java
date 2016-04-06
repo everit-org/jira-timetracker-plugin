@@ -16,10 +16,14 @@
 package org.everit.jira.analytics;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 
+import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 
@@ -28,64 +32,129 @@ import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
  */
 public class PiwikUrlBuilder {
 
+  private final String actionUrl;
+
+  private final String baseUrl;
+
+  private final String jiraVersion;
+
   private List<String> parameters = new ArrayList<String>();
+
+  private final String piwikHost;
+
+  private final String pluginId;
+
+  private final String pluginVersion;
+
+  private final String siteId;
+
+  private final String uid;
+
+  /**
+   * Simple constructor.
+   *
+   * @param actionUrl
+   *          the action url. Example:
+   *          "http://customer.jira.com/secure/admin/JiraTimetrackerAdminSettingsWebAction!default.jspa".
+   *          Cannot be <code>null</code>.
+   * @param siteIdKey
+   *          the properties key to site id. Found keys in {@link PiwikPropertiesUtil} class. Cannot
+   *          be <code>null</code>.
+   * @param pluginId
+   *          the installed plugin id. Cannot be <code>null</code>.
+   * @param hashUserId
+   *          the hash user id.Cannot be <code>null</code>.
+   */
+  public PiwikUrlBuilder(final String actionUrl, final String siteIdKey, final String pluginId,
+      final String hashUserId) {
+    this.actionUrl = Objects.requireNonNull(actionUrl);
+    uid = Objects.requireNonNull(hashUserId);
+    pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
+    baseUrl = JiraTimetrackerAnalytics.getBaseUrl();
+    this.pluginId = Objects.requireNonNull(pluginId);
+    jiraVersion = JiraTimetrackerAnalytics.getJiraVersionFromBuildUtilsInfo();
+
+    try {
+      Properties jttpBuildProperties = PropertiesUtil.getJttpBuildProperties();
+      piwikHost = jttpBuildProperties.getProperty(PiwikPropertiesUtil.PIWIK_HOST);
+      siteId = jttpBuildProperties.getProperty(siteIdKey);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private void addActionNameParam() {
+    parameters.add("action_name=" + encodeParamValue(baseUrl));
+  }
 
   private void addApivParam() {
     parameters.add("apiv=1");
   }
 
+  private void addCvarParam() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("{");
+    sb.append("\"1\":[\"UserKey\",\"" + encodeParamValue(uid) + "\"]");
+    sb.append(",");
+    sb.append("\"2\":[\"Version\",\"" + encodeParamValue(pluginVersion) + "\"]");
+    sb.append(",");
+    sb.append("\"3\":[\"BaseURL\",\"" + encodeParamValue(baseUrl) + "\"]");
+    sb.append(",");
+    sb.append("\"4\":[\"JiraVersion\",\"" + encodeParamValue(jiraVersion) + "\"]");
+    sb.append(",");
+    sb.append("\"5\":[\"InstalledPluginId\",\"" + encodeParamValue(pluginId) + "\"]");
+    sb.append("}");
+    parameters.add("cvar=" + encodeParamValue(sb.toString()));
+  }
+
   public PiwikUrlBuilder addEventAction(final String eventAction) {
-    parameters.add("e_a" + eventAction);
+    parameters.add("e_a=" + encodeParamValue(eventAction));
     return this;
   }
 
   public PiwikUrlBuilder addEventCategory(final String eventCategory) {
-    parameters.add("e_c" + eventCategory);
+    parameters.add("e_c=" + encodeParamValue(eventCategory));
     return this;
   }
 
   public PiwikUrlBuilder addEventName(final String eventName) {
-    parameters.add("e_n" + eventName);
+    parameters.add("e_n=" + encodeParamValue(eventName));
     return this;
   }
 
-  private void addIdSitedIdParam(final String siteId) {
-    parameters.add("idsite=" + siteId);
+  private void addIdSiteParam() {
+    parameters.add("idsite=" + encodeParamValue(siteId));
   }
 
   private void addRecParam() {
     parameters.add("rec=1");
   }
 
-  private void addUrlParam(final String url) {
-    parameters.add("url=" + url);
+  private void addUidParam() {
+    parameters.add("uid=" + encodeParamValue(uid));
   }
 
-  private void addVisitorIdParam(final String pluginId) {
-    parameters.add("_id=" + pluginId);
+  private void addUrlParam() {
+    parameters.add("url=" + encodeParamValue(actionUrl));
+  }
+
+  private void addVisitorIdParam() {
+    parameters.add("_id=" + encodeParamValue(uid));
   }
 
   /**
-   * Build piwik url.
+   * Build Piwik url.
    *
-   * @param currentActionUrl
-   *          the the current action url.
-   * @param pluginId
-   *          the id of the plugin.
    * @return the url.
    */
-  public String buildUrl(final String currentActionUrl, final String pluginId) throws IOException {
-    Properties jttpBuildProperties = PropertiesUtil.getJttpBuildProperties();
-    String piwikHost = jttpBuildProperties
-        .getProperty(PiwikPropertiesUtil.PIWIK_HOST);
-    String piwikAdministrationSiteId = jttpBuildProperties
-        .getProperty(PiwikPropertiesUtil.PIWIK_ADMINISTRATION_SITEID, "0");
-
-    // required and recommended parameters.
-    addIdSitedIdParam(piwikAdministrationSiteId);
+  public String buildUrl() {
+    addActionNameParam();
+    addIdSiteParam();
     addRecParam();
-    addUrlParam(currentActionUrl);
-    addVisitorIdParam(pluginId);
+    addUrlParam();
+    addUidParam();
+    addVisitorIdParam();
+    addCvarParam();
     addApivParam();
 
     StringBuffer sb = new StringBuffer();
@@ -95,6 +164,14 @@ public class PiwikUrlBuilder {
     }
     String paramters = sb.toString();
     return piwikHost + "piwik.php?" + paramters.substring(0, paramters.length() - 1);
+  }
+
+  private String encodeParamValue(final String paramValue) {
+    try {
+      return URLEncoder.encode(paramValue, "UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      return paramValue;
+    }
   }
 
 }

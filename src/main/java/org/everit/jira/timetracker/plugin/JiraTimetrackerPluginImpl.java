@@ -38,14 +38,16 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
+import org.everit.jira.analytics.AnalyticsSender;
+import org.everit.jira.analytics.event.AnalyticsStatusChangedEvent;
 import org.everit.jira.timetracker.plugin.dto.ActionResult;
 import org.everit.jira.timetracker.plugin.dto.ActionResultStatus;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklogComparator;
 import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
-import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
+import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 import org.ofbiz.core.entity.EntityCondition;
 import org.ofbiz.core.entity.EntityExpr;
@@ -197,6 +199,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
    * The parsed analytics check value.
    */
   private boolean analyticsCheckValue;
+
+  private AnalyticsSender analyticsSender;
   /**
    * The collector issues ids.
    */
@@ -213,6 +217,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
    * The parsed exclude dates.
    */
   private Set<String> excludeDatesSet = new HashSet<String>();
+
   /**
    * The exclude dates from the properties file.
    */
@@ -288,9 +293,11 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
    * Default constructor.
    */
   public JiraTimetrackerPluginImpl(final PluginSettingsFactory settingsFactory,
-      final TimeTrackingConfiguration timeTrackingConfiguration) {
+      final TimeTrackingConfiguration timeTrackingConfiguration,
+      final AnalyticsSender analyticsSender) {
     this.settingsFactory = settingsFactory;
     this.timeTrackingConfiguration = timeTrackingConfiguration;
+    this.analyticsSender = analyticsSender;
   }
 
   @Override
@@ -1003,6 +1010,18 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     globalSettings.put(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
         + JTTP_PLUGIN_SETTINGS_INCLUDE_DATES,
         pluginSettingsParameters.includeDates);
+
+    Object analyticsCheckObj = globalSettings.get(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+        + JTTP_PLUGIN_SETTINGS_ANALYTICS_CHECK_CHANGE);
+    boolean analyticsCheck = analyticsCheckObj == null
+        ? true
+        : Boolean.parseBoolean(analyticsCheckObj.toString());
+
+    if (analyticsCheck != pluginSettingsParameters.analyticsCheck) {
+      setPluginUUID();
+      analyticsSender.send(new AnalyticsStatusChangedEvent(pluginUUID,
+          pluginSettingsParameters.analyticsCheck));
+    }
     globalSettings.put(JTTP_PLUGIN_SETTINGS_KEY_PREFIX
         + JTTP_PLUGIN_SETTINGS_ANALYTICS_CHECK_CHANGE,
         Boolean.toString(pluginSettingsParameters.analyticsCheck));

@@ -15,17 +15,19 @@
  */
 package org.everit.jira.analytics.event;
 
-import java.io.IOException;
 import java.util.Objects;
 
 import org.everit.jira.analytics.PiwikUrlBuilder;
+import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
+import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 
 /**
  * Analytics status changed (disable/enable) event.
  */
 public class AnalyticsStatusChangedEvent implements AnalyticsEvent {
 
-  private static final String ACTION_URL = "JiraAdminSettingsWebAction";
+  private static final String ACTION_URL =
+      "http://customer.jira.com/secure/admin/JiraTimetrackerAdminSettingsWebAction!default.jspa";
 
   private static final String EVENT_ACTION = "Change";
 
@@ -35,24 +37,37 @@ public class AnalyticsStatusChangedEvent implements AnalyticsEvent {
 
   private static final String EVENT_NAME_ENABLED = "enabled";
 
+  private final String hashUserId;
+
   private final String pluginId;
 
   private final boolean status;
 
+  /**
+   * Simple constructor.
+   *
+   * @param pluginId
+   *          the installed plugin id.
+   * @param status
+   *          the status of analytics (enabled (true) or disabled (false)).
+   */
   public AnalyticsStatusChangedEvent(final String pluginId, final boolean status) {
     this.pluginId = Objects.requireNonNull(pluginId);
     this.status = status;
+    hashUserId = JiraTimetrackerAnalytics.getUserId();
+
   }
 
   @Override
-  public String getUrl() throws IOException {
-    return new PiwikUrlBuilder()
-        .addEventCategory(EVENT_CATEGORY)
-        .addEventAction(EVENT_ACTION)
-        .addEventName(status
-            ? EVENT_NAME_ENABLED
-            : EVENT_NAME_DISABLED)
-        .buildUrl(ACTION_URL, pluginId);
+  public String getUrl() {
+    return new PiwikUrlBuilder(ACTION_URL, PiwikPropertiesUtil.PIWIK_ADMINISTRATION_SITEID,
+        pluginId, hashUserId)
+            .addEventCategory(EVENT_CATEGORY)
+            .addEventAction(EVENT_ACTION)
+            .addEventName(status
+                ? EVENT_NAME_ENABLED
+                : EVENT_NAME_DISABLED)
+            .buildUrl();
   }
 
 }

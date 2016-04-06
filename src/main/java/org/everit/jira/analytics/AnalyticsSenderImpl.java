@@ -48,7 +48,7 @@ public class AnalyticsSenderImpl implements InitializingBean, DisposableBean, An
         GetMethod getMethod = new GetMethod(analyticsEvent.getUrl());
         httpClient.executeMethod(getMethod);
       } catch (IOException e) {
-        // do nothing TODO ????
+        // do nothing
       }
     }
   }

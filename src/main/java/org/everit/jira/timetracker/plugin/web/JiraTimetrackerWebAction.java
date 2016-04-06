@@ -47,7 +47,6 @@ import com.atlassian.jira.config.properties.ApplicationProperties;
 import com.atlassian.jira.exception.DataAccessException;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.user.ApplicationUser;
-import com.atlassian.jira.util.BuildUtilsInfo;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
 
 /**
@@ -770,8 +769,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   }
 
   private void getJiraVersionFromBuildUtilsInfo() {
-    BuildUtilsInfo component = ComponentAccessor.getComponent(BuildUtilsInfo.class);
-    jiraVersion = component.getVersion();
+    jiraVersion = JiraTimetrackerAnalytics.getJiraVersionFromBuildUtilsInfo();
     String[] versionSplit = jiraVersion.split(VERSION_SPLITTER);
     jiraMainVersion = Integer.parseInt(versionSplit[0]);
 

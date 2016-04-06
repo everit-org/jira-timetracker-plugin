@@ -37,7 +37,7 @@ public class JiraTimetrackerWebActionTest {
 
   @Before
   public void before() {
-    subject = new JiraTimetrackerWebAction(new JiraTimetrackerPluginImpl(null, null));
+    subject = new JiraTimetrackerWebAction(new JiraTimetrackerPluginImpl(null, null, null));
   }
 
   @Test
