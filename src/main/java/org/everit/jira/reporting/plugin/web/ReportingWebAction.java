@@ -105,6 +105,8 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   private List<String> selectedGroups;
 
+  private List<String> selectedIssues;
+
   private List<String> selectedLabels;
 
   private List<String> selectedPriorities;
@@ -305,6 +307,10 @@ public class ReportingWebAction extends JiraWebActionSupport {
     return selectedGroups;
   }
 
+  public List<String> getSelectedIssues() {
+    return selectedIssues;
+  }
+
   public List<String> getSelectedLabels() {
     return selectedLabels;
   }
@@ -376,9 +382,19 @@ public class ReportingWebAction extends JiraWebActionSupport {
     selectedLabels = new ArrayList<String>();
     selectedEpicName = "";
     selectedEpicLinks = new ArrayList<String>();
+    selectedIssues = new ArrayList<String>();
 
     dateCreatedFormated = "";
     dateCreated = null;
+  }
+
+  private void issuesPickerParse() {
+    String[] selectedIssuesValues = getHttpRequest().getParameterValues("issuePicker");
+    if (selectedIssuesValues != null) {
+      selectedIssues = Arrays.asList(selectedIssuesValues);
+    } else {
+      selectedIssues = new ArrayList<String>();
+    }
   }
 
   private void labelPickerParse() {
@@ -451,6 +467,7 @@ public class ReportingWebAction extends JiraWebActionSupport {
     createdDatePickerParse();
     epicNamePickerParse();
     epicLinkPickerParse();
+    issuesPickerParse();
   }
 
   private void priorityPickerParse() throws IllegalArgumentException {
@@ -547,6 +564,10 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   public void setSelectedGroups(final List<String> selectedGroups) {
     this.selectedGroups = selectedGroups;
+  }
+
+  public void setSelectedIssues(final List<String> selectedIsssues) {
+    selectedIssues = selectedIsssues;
   }
 
   public void setSelectedLabels(final List<String> selectedLabels) {

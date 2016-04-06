@@ -448,27 +448,29 @@ everit.reporting.main = everit.reporting.main || {};
   };
     
   function initIssueSelect(){
-//    var selectedArray =  jQuery.makeArray( reporting.values.selectedEpicLinks ); 
+    var selectedArray =  jQuery.makeArray( reporting.values.selectedIssues ); 
     var ip = new AJS.IssuePicker({
       element : jQuery("#issuePicker"),
       userEnteredOptionsMsg : AJS.params.enterIssueKey,
       uppercaseUserEnteredOnSelect : true,
       singleSelectOnly : false,
-//      currentProjectId : jttp.options.projectsId,
     });
 
-//    var issueKey = jttp.options.issueKey;
-    
-    jQuery("#issuePicker-multi-select").attr("style", "width: 250px;");
-    jQuery("#issuePicker-textarea").attr("style", "width: 250px;");
+    jQuery("#issuePicker-multi-select").attr("style", "width: 350px;");
+    jQuery("#issuePicker-textarea").attr("style", "width: 350px;");
     jQuery("#issuePicker-textarea").attr("class", "select2-choices medium-field criteria-dropdown-textarea");
     jQuery(".issue-picker-popup").remove();
-//    jQuery("#issueSelect-textarea").append(issueKey);
-//    ip.handleFreeInput();
+    
+    selectedArray.forEach(function(element){
+      jQuery("#issuePicker-textarea").append(element);
+      jQuery("#issuePicker-textarea").append(" ");
+    });
+    ip.handleFreeInput();
     
     
     updatePickerButtonText("#issuePicker" , "#issuePickerButton", "Issue: All");
-    jQuery("#issuePicker-textarea").on("change onblur", function() {
+    jQuery("#issuePicker").on("change unselect", function() {
+      console.log("representation");
       updatePickerButtonText("#issuePicker" , "#issuePickerButton", "Issue: All");
     });
   };

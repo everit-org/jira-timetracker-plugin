@@ -54,6 +54,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
             selectedComponents:[ #foreach( $tmp in $selectedComponents )#if($velocityCount> 1),#end "$tmp" #end ],
             selectedLabels: [ #foreach( $tmp in $selectedLabels )#if($velocityCount> 1),#end "$tmp" #end ],
             selectedEpicLinks: ${selectedEpicLinks},
+            selectedIssues: [ #foreach( $tmp in $selectedIssues )#if($velocityCount> 1),#end "$tmp" #end ],
           }
         );
       })(everit.reporting.main, AJS.$);
@@ -154,37 +155,31 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                          </button>
                                          <button type="button" class="aui-button aui-button-link" onclick="everit.reporting.main.changeFilterType('filter')">Filter</button>  <!-- switch to filter -->
                                      </div>
+                                 </div>
+                            </div>
+                        </div>
+                     </div>
+                     <div class="aui-group">
+                        <div class="aui-item search-wrap basic"> 
+                            <div class="search-container basic">
+                                 <div class="search-criteria-container">
+                                     <div class="search-criteria-issue-extended">
+                                       <select class="hidden"
+                                               multiple="multiple" 
+                                               name="issuePicker" 
+                                               id="issuePicker" 
+                                               data-popup-link-message="" 
+                                               data-popup-height="500" 
+                                               data-ajax-options.query="true" 
+                                               data-ajax-options.url="${req.contextPath}/rest/api/1.0/issues/picker" 
+                                               data-ajax-options.data.query="-" 
+                                               data-ajax-options.data.current-issue-key=""
+                                               data-ajax-options.data.show-sub-tasks="true" 
+                                               data-ajax-options.data.show-sub-task-parent="true">
+                                       </select> 
+                                     </div>
                                      <div class="search-criteria-extended">
                                      <!-- placeholder for EXTENDED criterias with more button !!! -->
-                                         <!-- Issue Dropdown  BUTTON-->
-                                         <a id="issuePickerButton" href="#issuePickerDropDown" aria-owns="issuePickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger"></a>
-                                         <!-- Issue Dropdown -->
-                                         <div id="issuePickerDropDown" class="aui-style-default aui-dropdown2">
-                                           <div class="jttr-filter-field">
-                                             <div class='ajs-layer box-shadow'>
-                                               <div class="criteria-dropdown-text-div" >
-                                                 <div class='form-body'>
-                                                   <div class='field-group aui-field-issuetype'>
-                                                     <select class="hidden"
-                                                        multiple="multiple" 
-                                                        name="issuePicker" 
-                                                        id="issuePicker" 
-                                                        data-popup-link-message="" 
-                                                        data-popup-height="500" 
-                                                        data-ajax-options.query="true" 
-                                                        data-ajax-options.url="${req.contextPath}/rest/api/1.0/issues/picker" 
-                                                        data-ajax-options.data.query="-" 
-                                                        data-ajax-options.data.current-issue-key=""
-                                                        data-ajax-options.data.show-sub-tasks="true" 
-                                                        data-ajax-options.data.show-sub-task-parent="true">
-                                                    </select> 
-                                                   </div>
-                                                 </div>
-                                               </div>
-                                             </div>
-                                           </div>
-                                         </div>
-                                         <!-- Issue Dropdown End-->
                                          <!-- Priority Dropdown  BUTTON-->
                                          <a id="priorityPickerButton" href="#priorityPickerDropDown" aria-owns="priorityPickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger"></a>
                                          <!-- Priority Dropdown -->
