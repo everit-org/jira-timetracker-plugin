@@ -56,8 +56,6 @@ public class ReportingSettingsWebAction extends JiraWebActionSupport {
 
   private boolean feedBackSendAviable;
 
-  private boolean isUseNoWorks;
-
   private JiraTimetrackerPlugin jiraTimetrackerPlugin;
 
   /**
@@ -90,7 +88,6 @@ public class ReportingSettingsWebAction extends JiraWebActionSupport {
     }
     normalizeContextPath();
     checkMailServer();
-    // TODO add Reporting settigns load part
 
     loadPluginSettingAndParseResult();
 
@@ -122,8 +119,7 @@ public class ReportingSettingsWebAction extends JiraWebActionSupport {
         return parseResult;
       }
       savePluginSettings();
-      // TODO FIXME later set Reporting
-      setReturnUrl("/secure/JiraTimetrackerWebAction!default.jspa");
+      setReturnUrl("/secure/ReportingWebAction!default.jspa");
       return getRedirect(INPUT);
     }
     setReturnUrl("/secure/admin/JiraTimetrackerReportingSettingsWebAction!default.jspa");
@@ -136,10 +132,6 @@ public class ReportingSettingsWebAction extends JiraWebActionSupport {
 
   public boolean getFeedBackSendAviable() {
     return feedBackSendAviable;
-  }
-
-  public boolean getIsUseNoWork() {
-    return isUseNoWorks;
   }
 
   public String getMessage() {
@@ -160,7 +152,6 @@ public class ReportingSettingsWebAction extends JiraWebActionSupport {
   public void loadPluginSettingAndParseResult() {
     ReportingSettingsValues pluginSettingsValues = reportingPlugin
         .loadReportingSettings();
-    isUseNoWorks = pluginSettingsValues.isUseNoWorks;
     reportingGroups = pluginSettingsValues.reportingGroups;
     pageSize = pluginSettingsValues.pageSize;
   }
@@ -201,17 +192,9 @@ public class ReportingSettingsWebAction extends JiraWebActionSupport {
     return null;
   }
 
-  private void parseNoWorkUse(final String noWorkUse) {
-    if (noWorkUse != null) {
-      isUseNoWorks = true;
-    } else {
-      isUseNoWorks = false;
-    }
-  }
-
   private void parsePageSizeInput(final String pageSizeInputValuse) {
     if (pageSizeInputValuse == null) {
-      pageSize = DEFAULT_PAGE_SIZE; // FIXME 20 can be the default?
+      pageSize = DEFAULT_PAGE_SIZE;
     } else {
       pageSize = Integer.parseInt(pageSizeInputValuse);
     }
@@ -232,11 +215,9 @@ public class ReportingSettingsWebAction extends JiraWebActionSupport {
    *          The HttpServletRequest.
    */
   public String parseSaveSettings(final HttpServletRequest request) {
-    String noWorkUse = request.getParameter("noWorkUse");
     String[] reportingGroupSelectValue = request.getParameterValues("reportingGroupSelect");
     String pageSizeValue = request.getParameter("pageSizeInput");
     parseReportingGroups(reportingGroupSelectValue);
-    parseNoWorkUse(noWorkUse);
     parsePageSizeInput(pageSizeValue);
     return null;
   }
@@ -246,7 +227,7 @@ public class ReportingSettingsWebAction extends JiraWebActionSupport {
    */
   public void savePluginSettings() {
     ReportingSettingsValues reportingSettingsValues =
-        new ReportingSettingsValues().isUseNoWorks(isUseNoWorks).reportingGroups(reportingGroups)
+        new ReportingSettingsValues().reportingGroups(reportingGroups)
             .pageSize(pageSize);
     reportingPlugin.saveReportingSettings(reportingSettingsValues);
   }
@@ -257,10 +238,6 @@ public class ReportingSettingsWebAction extends JiraWebActionSupport {
 
   public void setFeedBackSendAviable(final boolean feedBackSendAviable) {
     this.feedBackSendAviable = feedBackSendAviable;
-  }
-
-  public void setIsUseNoWork(final boolean isUseNoWorks) {
-    this.isUseNoWorks = isUseNoWorks;
   }
 
   public void setMessage(final String message) {

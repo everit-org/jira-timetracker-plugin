@@ -28,10 +28,6 @@ public class ReportingSettingsValues implements Serializable {
    * Serial Version UID.
    */
   private static final long serialVersionUID = -9056110737937671869L;
-  /**
-   * Reporting is use nowork set.
-   */
-  public boolean isUseNoWorks;
 
   /**
    * The reporting pager size.
@@ -44,11 +40,6 @@ public class ReportingSettingsValues implements Serializable {
   public List<String> reportingGroups;
 
   public ReportingSettingsValues() {
-  }
-
-  public ReportingSettingsValues isUseNoWorks(final boolean isUseNoWorks) {
-    this.isUseNoWorks = isUseNoWorks;
-    return this;
   }
 
   public ReportingSettingsValues pageSize(final int pageSize) {

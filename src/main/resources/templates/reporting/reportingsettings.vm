@@ -136,20 +136,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
 		                </div>
 		              </td>
 		            </tr>
-				    <tr>
-						<td class="settings-label-column">
-							$i18n.getText("jtrp.plugin.reporting.non.working")
-						</td>
-						<td class="admin-settings-value-column">
-						  <div>
-						    <input type="checkbox" id="noWorkUse" name="noWorkUse" #if($isUseNoWork) checked #end />
-						  </div>
-						  <div class="description">
-		                    $i18n.getText("jtrp.plugin.reporting.non.working.desc")
-		                  </div>
-						</td>		
-					</tr>
-					<tr class="buttons-container">
+		            <tr class="buttons-container">
 						<td colspan="2">
 							<input id="savesettings"  type="submit" name="savesettings" value="$i18n.getText('plugin.save')" class="button"/>
 							<input id="resetButton"  type="button" name="reset" value="$i18n.getText('plugin.reset')" onclick="location.href='JiraTimetrackerReportingSettingsWebAction!default.jspa'" class="button"/>
