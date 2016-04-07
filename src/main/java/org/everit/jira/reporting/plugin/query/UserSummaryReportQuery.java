@@ -80,12 +80,16 @@ public class UserSummaryReportQuery extends AbstractReportQuery {
       @Override
       public List<UserSummaryDTO> call(final Connection connection,
           final Configuration configuration) throws SQLException {
+        StringExpression userExpression = QueryUtil.createUserExpression(qCwdUser, qWorklog);
+
         SQLQuery<UserSummaryDTO> query = new SQLQuery<UserSummaryDTO>(connection, configuration)
-            .select(createQuerySelectProjection());
+            .select(createQuerySelectProjection(userExpression));
 
         appendBaseFromAndJoin(query);
         appendBaseWhere(query);
         appendQueryRange(query);
+
+        query.orderBy(userExpression.asc());
 
         query.groupBy(createQueryGroupBy());
 
@@ -99,9 +103,7 @@ public class UserSummaryReportQuery extends AbstractReportQuery {
         qWorklog.author };
   }
 
-  private QBean<UserSummaryDTO> createQuerySelectProjection() {
-    StringExpression userExpression = QueryUtil.createUserExpression(qCwdUser, qWorklog);
-
+  private QBean<UserSummaryDTO> createQuerySelectProjection(final StringExpression userExpression) {
     return Projections.bean(UserSummaryDTO.class,
         userExpression.as(UserSummaryDTO.AliasNames.USER_DISPLAY_NAME),
         qWorklog.timeworked.sum().as(UserSummaryDTO.AliasNames.WORKLOGGED_TIME_SUM));

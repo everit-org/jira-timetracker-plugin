@@ -89,13 +89,16 @@ public class WorklogDetailsReportQuery extends AbstractReportQuery {
       @Override
       public List<WorklogDetailsDTO> call(final Connection connection,
           final Configuration configuration) throws SQLException {
+        StringExpression issueKey = QueryUtil.createIssueKeyExpression(qIssue, qProject);
+
         SQLQuery<WorklogDetailsDTO> query =
             new SQLQuery<WorklogDetailsDTO>(connection, configuration)
-                .select(createQuerySelectProjection());
+                .select(createQuerySelectProjection(issueKey));
 
         appendBaseFromAndJoin(query);
         appendBaseWhere(query);
         appendQueryRange(query);
+        query.orderBy(issueKey.asc(), qWorklog.startdate.asc());
 
         List<WorklogDetailsDTO> result = query.fetch();
 
@@ -114,8 +117,7 @@ public class WorklogDetailsReportQuery extends AbstractReportQuery {
     return issueIds;
   }
 
-  private QBean<WorklogDetailsDTO> createQuerySelectProjection() {
-    StringExpression issueKey = QueryUtil.createIssueKeyExpression(qIssue, qProject);
+  private QBean<WorklogDetailsDTO> createQuerySelectProjection(final StringExpression issueKey) {
     StringExpression userExpression = QueryUtil.createUserExpression(qCwdUser, qWorklog);
     return Projections.bean(WorklogDetailsDTO.class,
         qProject.pname.as(WorklogDetailsDTO.AliasNames.PROJECT_NAME),

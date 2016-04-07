@@ -31,6 +31,7 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.QBean;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberPath;
+import com.querydsl.core.types.dsl.StringExpression;
 import com.querydsl.sql.Configuration;
 import com.querydsl.sql.SQLQuery;
 
@@ -79,14 +80,19 @@ public class IssueSummaryReportQuery extends AbstractReportQuery {
       @Override
       public List<IssueSummaryDTO> call(final Connection connection,
           final Configuration configuration) throws SQLException {
+        StringExpression issueKey = QueryUtil.createIssueKeyExpression(qIssue, qProject);
+
         SQLQuery<IssueSummaryDTO> query = new SQLQuery<IssueSummaryDTO>(connection, configuration)
-            .select(createQuerySelectProjection());
+            .select(createQuerySelectProjection(issueKey));
 
         appendBaseFromAndJoin(query);
         appendBaseWhere(query);
         appendQueryRange(query);
 
         query.groupBy(createQueryGroupBy());
+
+        query.orderBy(issueKey.asc());
+
         return query.fetch();
       }
     };
@@ -103,10 +109,9 @@ public class IssueSummaryReportQuery extends AbstractReportQuery {
         qIssue.assignee };
   }
 
-  private QBean<IssueSummaryDTO> createQuerySelectProjection() {
+  private QBean<IssueSummaryDTO> createQuerySelectProjection(final StringExpression issueKey) {
     return Projections.bean(IssueSummaryDTO.class,
-        QueryUtil.createIssueKeyExpression(qIssue, qProject)
-            .as(IssueSummaryDTO.AliasNames.ISSUE_KEY),
+        issueKey.as(IssueSummaryDTO.AliasNames.ISSUE_KEY),
         qIssue.summary.as(IssueSummaryDTO.AliasNames.ISSUE_SUMMARY),
         qIssuetype.pname.as(IssueSummaryDTO.AliasNames.ISSUE_TYPE_NAME),
         qPriority.pname.as(IssueSummaryDTO.AliasNames.PRIORITY_NAME),
