@@ -116,6 +116,7 @@ public class ProjectSummaryReportQuery extends AbstractReportQuery {
                 workloggedSumPath))
             .from(fromQuery.as("sums"))
             .join(qProject).on(qProject.id.eq(fromProjectIdPath))
+            .orderBy(qProject.pkey.asc())
             .fetch();
       }
     };
