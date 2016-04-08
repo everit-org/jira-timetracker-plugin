@@ -37,14 +37,16 @@ public class PickerUserDTO {
     }
   }
 
-  public static final String UNASSIGNED_USER_NAME = "Unassigned";
+  public static final String UNASSIGNED_DISPLAY_NAME = "Unassigned";
+
+  public static final String UNASSIGNED_USER_NAME = "empty";
 
   /**
    * Create unassigned 'user'.
    */
   public static PickerUserDTO createUnassignedUser() {
     PickerUserDTO unassigned = new PickerUserDTO();
-    unassigned.setDisplayName(UNASSIGNED_USER_NAME);
+    unassigned.setDisplayName(UNASSIGNED_DISPLAY_NAME);
     unassigned.setUserName(UNASSIGNED_USER_NAME);
     return unassigned;
   }
