@@ -91,7 +91,7 @@ public class DownloadReportResource {
    */
   @GET
   @Consumes(MediaType.APPLICATION_JSON)
-  @Produces(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_OCTET_STREAM)
   @Path("/downloadSummariesReport")
   public Response downloadSummariesReport(
       @QueryParam("json") @DefaultValue("{}") final String json) {
