@@ -37,7 +37,7 @@
                         <div class="details-tale-container">
                             <table class="aui reporting-table">
                                 <thead>
-                                    <tr class="rowHeader">
+                                    <tr>
                                         <th>Date</th>
                                         <th id="details-project-key">Project</th>
                                         <th>Type</th>

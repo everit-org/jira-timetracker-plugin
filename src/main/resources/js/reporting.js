@@ -86,8 +86,33 @@ everit.reporting.main = everit.reporting.main || {};
     initCreatedDatePicker();
     initEpicNameSelect();
     initEpicLinkSelect();
+    initMoreSelect();
   });
   
+  function initMoreSelect(){
+    var selectedArray =  jQuery.makeArray( reporting.values.selectedMore ); 
+    var morePickerOptions = jQuery("#morePicker option");
+    for (i = 0; i < morePickerOptions.length; i++){
+      var optionValue = jQuery(morePickerOptions[i]).val();
+      var selected = checkSelected(optionValue, selectedArray);
+      if(selected == "selected"){
+        jQuery(morePickerOptions[i]).attr("selected","selected");
+        jQuery("#" + optionValue).show();
+      }
+    }
+    var pp = new AJS.CheckboxMultiSelect({
+      element:  jQuery("#morePicker"),
+      submitInputVal: true,
+    });
+    jQuery('#morePicker-suggestions input[type="checkbox"]').on("click", function() {
+      var clickedOptionValue = jQuery(this).val();
+      if(jQuery("#" + clickedOptionValue).is(":visible")){
+        jQuery("#" + clickedOptionValue).hide();
+      }else{
+        jQuery("#" + clickedOptionValue).show();
+      }
+     });
+  };
   
  function initCreatedDatePicker(){
     var createdDate = Calendar.setup({
