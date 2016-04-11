@@ -89,6 +89,57 @@ everit.reporting.main = everit.reporting.main || {};
     initMoreSelect();
   });
   
+  var morePickerFunctions = {
+      "issuePicker-parent": function(){ 
+            jQuery("#issuePicker option").removeAttr("selected");
+            jQuery("#issuePicker-multi-select .representation ul li").remove();
+          },
+      "priorityPickerButton": function(){
+            jQuery("#priorityPicker option").removeAttr("selected");
+            jQuery("#priorityPickerButton").text("Priority: All");
+          },
+      "resolutionPickerButton": function(){
+            jQuery("#resolutionPicker option").removeAttr("selected");
+            jQuery("#resolutionPickerButton").text("Priority: All");
+          },
+      "assignePickerButton": function(){
+            jQuery("#assignePicker option").removeAttr("selected");
+            jQuery("#assignePickerButton").text("Assigne: All");
+          },
+      "reporterPickerButton": function(){
+            jQuery("#reporterPicker option").removeAttr("selected");
+            jQuery("#reporterPickerButton").text("Reporter: All");
+          },
+      "affectedVersionPickerButton": function(){
+            jQuery("#affectedVersionPicker option").removeAttr("selected");
+            jQuery("#affectedVersionPickerButton").text("Affects Version: All");
+          },
+      "fixVersionPickerButton": function(){
+            jQuery("#fixVersionPicker option").removeAttr("selected");
+            jQuery("#fixVersionPickerButton").text("Fix Version: All");
+          },
+      "componentPickerButton": function(){
+            jQuery("#componentPicker option").removeAttr("selected");
+            jQuery("#componentPickerButton").text("Component: All");
+          },
+      "labelPickerButton": function(){
+            jQuery("#labelPicker option").removeAttr("selected");
+            jQuery("#labelPickerButton").text("Label: All");
+          },
+      "createdPickerButton": function(){
+            jQuery("#createdPicker").val("");
+            jQuery("#createdPickerButton").text("Create Date: All");
+          },
+      "epicNamePickerButton": function(){
+            jQuery("#epicNamePicker").val("");
+            jQuery("#epicNamePickerButton").text("Epic Name: All");
+          },
+      "epicLinkPickerButton": function(){
+            jQuery("#epicLinkPicker option").removeAttr("selected");
+            jQuery("#epicNamePickerButton").text("Epic Link: All");
+          },
+    }
+  
   function initMoreSelect(){
     var selectedArray =  jQuery.makeArray( reporting.values.selectedMore ); 
     var morePickerOptions = jQuery("#morePicker option");
@@ -108,6 +159,7 @@ everit.reporting.main = everit.reporting.main || {};
       var clickedOptionValue = jQuery(this).val();
       if(jQuery("#" + clickedOptionValue).is(":visible")){
         jQuery("#" + clickedOptionValue).hide();
+        morePickerFunctions[clickedOptionValue]();
       }else{
         jQuery("#" + clickedOptionValue).show();
       }
@@ -493,11 +545,11 @@ everit.reporting.main = everit.reporting.main || {};
     ip.handleFreeInput();
     
     
-    updatePickerButtonText("#issuePicker" , "#issuePickerButton", "Issue: All");
-    jQuery("#issuePicker").on("change unselect", function() {
-      console.log("representation");
-      updatePickerButtonText("#issuePicker" , "#issuePickerButton", "Issue: All");
-    });
+//    updatePickerButtonText("#issuePicker" , "#issuePickerButton", "Issue: All");
+//    jQuery("#issuePicker").on("change unselect", function() {
+//      console.log("representation");
+//      updatePickerButtonText("#issuePicker" , "#issuePickerButton", "Issue: All");
+//    });
   };
   
   function initEpicLinkSelect(){
