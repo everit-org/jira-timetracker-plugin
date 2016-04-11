@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.jira.reporting.plugin.dto;
+package org.everit.jira.reporting.plugin.rest.dto;
 
 import java.util.List;
 
@@ -29,7 +29,7 @@ import org.everit.jira.reporting.plugin.export.column.WorklogDetailsColumns;
 public class DownloadWorklogDetailsParam {
 
   @XmlElement
-  public ReportSearchParam reportSearchParam = new ReportSearchParam();
+  public FilterCondition filterCondition = new FilterCondition();
 
   @XmlElement
   public List<String> selectedWorklogDetailsColumns = WorklogDetailsColumns.ALL_COLUMNS;

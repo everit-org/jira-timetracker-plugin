@@ -50,7 +50,7 @@ public class ReportSearchParam {
   public List<String> issueFixedVersions = Collections.emptyList();
 
   @XmlElement
-  public List<Long> issueIds = Collections.emptyList();
+  public List<String> issueKeys = Collections.emptyList();
 
   @XmlElement
   public List<String> issuePriorityIds = Collections.emptyList();
@@ -144,8 +144,8 @@ public class ReportSearchParam {
     return this;
   }
 
-  public ReportSearchParam issueIds(final List<Long> issueIds) {
-    this.issueIds = issueIds;
+  public ReportSearchParam issueKeys(final List<String> issueKeys) {
+    this.issueKeys = issueKeys;
     return this;
   }
 
@@ -194,38 +194,39 @@ public class ReportSearchParam {
     return this;
   }
 
-  public ReportSearchParam selectNoAffectedVersionIssue() {
-    selectNoAffectedVersionIssue = true;
+  public ReportSearchParam selectNoAffectedVersionIssue(
+      final boolean selectNoAffectedVersionIssue) {
+    this.selectNoAffectedVersionIssue = selectNoAffectedVersionIssue;
     return this;
   }
 
-  public ReportSearchParam selectNoComponentIssue() {
-    selectNoComponentIssue = true;
+  public ReportSearchParam selectNoComponentIssue(final boolean selectNoComponentIssue) {
+    this.selectNoComponentIssue = selectNoComponentIssue;
     return this;
   }
 
-  public ReportSearchParam selectNoFixedVersionIssue() {
-    selectNoFixedVersionIssue = true;
+  public ReportSearchParam selectNoFixedVersionIssue(final boolean selectNoFixedVersionIssue) {
+    this.selectNoFixedVersionIssue = selectNoFixedVersionIssue;
     return this;
   }
 
-  public ReportSearchParam selectReleasedFixVersion() {
-    selectReleasedFixVersion = true;
+  public ReportSearchParam selectReleasedFixVersion(final boolean selectReleasedFixVersion) {
+    this.selectReleasedFixVersion = selectReleasedFixVersion;
     return this;
   }
 
-  public ReportSearchParam selectUnassgined() {
-    selectUnassgined = true;
+  public ReportSearchParam selectUnassgined(final boolean selectUnassgined) {
+    this.selectUnassgined = selectUnassgined;
     return this;
   }
 
-  public ReportSearchParam selectUnreleasedFixVersion() {
-    selectUnreleasedFixVersion = true;
+  public ReportSearchParam selectUnreleasedFixVersion(final boolean selectUnreleasedFixVersion) {
+    this.selectUnreleasedFixVersion = selectUnreleasedFixVersion;
     return this;
   }
 
-  public ReportSearchParam selectUnresolvedResolution() {
-    selectUnresolvedResolution = true;
+  public ReportSearchParam selectUnresolvedResolution(final boolean selectUnreleasedFixVersion) {
+    selectUnresolvedResolution = selectUnreleasedFixVersion;
     return this;
   }
 

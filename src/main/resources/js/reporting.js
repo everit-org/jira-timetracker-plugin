@@ -644,5 +644,159 @@ everit.reporting.main = everit.reporting.main || {};
         searchWrap.removeClass("basic").addClass("filter");
     }
   }
+  
+  function getFilterConditionJson(){
+    var issueAssignees = jQuery('#assignePicker').val() || [];
+    var unassignedIndex = jQuery.inArray("empty", issueAssignees);
+    var selectUnassgined = false;
+    if(unassignedIndex > -1) {
+      issueAssignees.splice(unassignedIndex, 1);
+      selectUnassgined = true;
+    }
+    
+    var projectIds = jQuery('#projectPicker').val() || [];
+    if(projectIds){
+      projectIds = projectIds.map(function(item) {
+        return parseInt(item, 10);
+      });
+    }
+    var issueTypeIds = jQuery('#typePicker').val() || [];
+    
+    var issueStatusIds = jQuery('#statusPicker').val() || [];
+    
+    var issuePriorityIds = jQuery('#priorityPicker').val() || [];
+    
+    var issueResolutionIds = jQuery('#resolutionPicker').val() || [];
+    var unresolvedIndex = jQuery.inArray("-1", issueResolutionIds);
+    var selectUnresolvedResolution = false;
+    if(unresolvedIndex > -1) {
+      issueResolutionIds.splice(unresolvedIndex, 1);
+      selectUnresolvedResolution = true;
+    }
+    
+    var issueReporters = jQuery('#reporterPicker').val() || [];
+    
+    var issueAffectedVersions = jQuery('#affectedVersionPicker').val() || [];
+    var noVersionIndex = jQuery.inArray("No version", issueAffectedVersions);
+    var selectNoAffectedVersionIssue = false;
+    if(noVersionIndex > -1) {
+      issueAffectedVersions.splice(noVersionIndex, 1);
+      selectNoAffectedVersionIssue = true;
+    }
+    
+    var issueFixedVersions = jQuery('#fixVersionPicker').val() || [];
+    var noVersionIndex = jQuery.inArray("No version", issueFixedVersions);
+    var selectNoFixedVersionIssue = false;
+    if(noVersionIndex > -1) {
+      issueFixedVersions.splice(noVersionIndex, 1);
+      selectNoFixedVersionIssue = true;
+    }
+    var releasedIndex = jQuery.inArray("Released version", issueFixedVersions);
+    var selectReleasedFixVersion = false;
+    if(releasedIndex > -1) {
+      issueFixedVersions.splice(releasedIndex, 1);
+      selectReleasedFixVersion = true;
+    }
+    var unreleasedIndex = jQuery.inArray("Unreleased version", issueFixedVersions);
+    var selectUnreleasedFixVersion = false;
+    if(unreleasedIndex > -1) {
+      issueFixedVersions.splice(unreleasedIndex, 1);
+      selectUnreleasedFixVersion = true;
+    }
+    
+    var issueComponents = jQuery('#componentPicker').val() || [];
+    var nocomponentIndex = jQuery.inArray("No component", issueFixedVersions);
+    var selectNoComponentIssue = false;
+    if(nocomponentIndex > -1) {
+      issueFixedVersions.splice(nocomponentIndex, 1);
+      selectNoComponentIssue = true;
+    }
 
+    var labels = jQuery('#labelPicker').val() || [];
+    
+    var issueCreateDate = jQuery('#createdPicker').val();
+    
+    var issueEpicName = jQuery('#epicNamePicker').val();
+    
+    var issueEpicLinkIssueIds = jQuery('#epicLinkPicker').val() || [];
+    if(issueEpicLinkIssueIds) {
+      issueEpicLinkIssueIds = issueEpicLinkIssueIds.map(function(item) {
+        return parseInt(item, 10);
+      });
+    }
+    
+    var groups = jQuery('#groupPicker').val() || [];
+    
+    var users =jQuery('#userPicker').val() || [];
+    
+    var worklogStartDate = jQuery('#dateFrom').val();
+    
+    var worklogEndDate = jQuery('#dateTo').val();
+    
+    var issueKeys = jQuery('#issuePicker').val() || [];
+    
+    var filterCondition = {
+      "groups": groups,
+      "issueAffectedVersions": issueAffectedVersions,
+      "issueAssignees": issueAssignees,
+      "issueComponents": issueComponents,
+      "issueCreateDate": issueCreateDate,
+      "issueEpicLinkIssueIds": issueEpicLinkIssueIds,
+      "issueEpicName": issueEpicName,
+      "issueFixedVersions": issueFixedVersions,
+      "issueKeys": issueKeys,
+      "issuePriorityIds": issuePriorityIds,
+      "issueReporters": issueReporters,
+      "issueResolutionIds": issueResolutionIds,
+      "issueStatusIds": issueStatusIds,
+      "issueTypeIds": issueTypeIds,
+      "labels": labels,
+      "projectIds": projectIds,
+      "selectNoAffectedVersionIssue": selectNoAffectedVersionIssue,
+      "selectNoComponentIssue": selectNoComponentIssue,
+      "selectNoFixedVersionIssue": selectNoFixedVersionIssue,
+      "selectReleasedFixVersion": selectReleasedFixVersion,
+      "selectUnassgined": selectUnassgined,
+      "selectUnreleasedFixVersion": selectUnreleasedFixVersion,
+      "selectUnresolvedResolution": selectUnresolvedResolution,
+      "users": users,
+      "worklogEndDate": worklogEndDate,
+      "worklogStartDate": worklogStartDate,
+    }
+    return filterCondition;
+  }
+  
+  reporting.updateDetailsAllExportHref = function() {
+    var filterCondition = getFilterConditionJson();
+    var downloadWorklogDetailsParam = {
+        "filterCondition": filterCondition
+    }
+    var json = JSON.stringify(downloadWorklogDetailsParam);
+    var $detailsAllExport = jQuery('#detials-all-export')
+    var href = $detailsAllExport.attr('data-jttp-href');
+    $detailsAllExport.attr('href', href + '?json=' + json);
+    return true;
+  }
+  
+  reporting.updateDetailsCustomExportHref = function() {
+    var filterCondition = getFilterConditionJson();
+    // var selectedWorklogDetailsColumns = TODO collect selected columns
+    var downloadWorklogDetailsParam = {
+        "filterCondition": filterCondition
+    }
+    var json = JSON.stringify(downloadWorklogDetailsParam);
+    var $detailsCustomExport = jQuery('#detials-custom-export')
+    var href = $detailsCustomExport.attr('data-jttp-href');
+    $detailsCustomExport.attr('href', href + '?json=' + json);
+    return true;
+  }
+  
+  reporting.updateSummariesExportHref = function() {
+    var filterCondition = getFilterConditionJson();
+    var json = JSON.stringify(filterCondition);
+    var $detailsCustomExport = jQuery('#summaries-export')
+    var href = $detailsCustomExport.attr('data-jttp-href');
+    $detailsCustomExport.attr('href', href + '?json=' + json);
+    return true;
+  }
 })(everit.reporting.main, jQuery);

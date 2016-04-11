@@ -28,11 +28,31 @@
                             </div>
                             <div class="aui-item">
                                 <button class="aui-button aui-button-subtle aui-dropdown2-trigger" id="details-columns">Columns</button>
-                                <button class="aui-button aui-button-subtle" id="detials-export">
-								    <span class="aui-icon aui-icon-small aui-iconfont-export"></span>
-                                    <span class="button-label">Export</span>
-                                </button>
-							</div>								
+                                <a id="worklogDetailsExportButton" href="#worklogDetailsExportDropDown" aria-owns="worklogDetailsExportDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger">
+                                  <span class="aui-icon aui-icon-small aui-iconfont-export"></span>
+                                  <span class="button-label">Export</span>
+                                </a>
+	                            <div id="worklogDetailsExportDropDown" class="aui-style-default aui-dropdown2">
+	                              <div class="jttr-filter-field">
+	                                <div class='ajs-layer box-shadow'>
+	                                  <div data-query>
+	                                    <div class='form-body checkboxmultiselect-container'>
+	                                      <div class='field-group aui-field-issuetype'>
+	                                        <ul class="aui-list-section">
+	                                          <li class="aui-list-item">
+	                                            <a id="detials-all-export" class="aui-list-item-link" target="_blank" href="#" data-jttp-href="/rest/jttp-rest/1/download-report/downloadWorklogDetailsReport" onclick="everit.reporting.main.updateDetailsAllExportHref()">Export all</a>
+	                                          </li>
+	                                          <li class="aui-list-item">
+	                                            <a id="detials-custom-export" class="aui-list-item-link" target="_blank" href="#" data-jttp-href="/rest/jttp-rest/1/download-report/downloadWorklogDetailsReport" onclick="everit.reporting.main.updateDetailsCustomExportHref()">Export custom</a>
+	                                          </li>
+	                                        </ul>
+	                                      </div>
+	                                    </div>
+	                                  </div>
+	                                </div>
+	                              </div>
+	                            </div>
+                            </div>
                         </div>
                         <div class="details-tale-container">
                             <table class="aui reporting-table">
@@ -166,11 +186,11 @@
                     <div class="mod-content">
                         <div class="summary-export-container action-button-container">
                             <div class="summary-export">
-                                <button class="aui-button aui-button-subtle" id="detials-export">
-                                <span class="aui-icon aui-icon-small aui-iconfont-export"></span>
-                                    <span class="button-label">Export</span>
-                                </button>
-                            </div>
+                                <a id="summaries-export" class="criteria-selector aui-button aui-button-subtle" target="_blank" href="#" data-jttp-href="/rest/jttp-rest/1/download-report/downloadSummariesReport" onclick="everit.reporting.main.updateSummariesExportHref()">
+	                                <span class="aui-icon aui-icon-small aui-iconfont-export"></span>
+	                                <span class="button-label">Export</span>
+	                            </a>
+	                        </div>
                         </div>
                         <div class="aui-tabs horizontal-tabs" data-aui-responsive>
                             <ul class="tabs-menu">

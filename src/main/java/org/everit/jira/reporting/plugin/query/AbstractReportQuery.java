@@ -39,6 +39,7 @@ import org.everit.jira.querydsl.schema.QResolution;
 import org.everit.jira.querydsl.schema.QWorklog;
 import org.everit.jira.querydsl.support.QuerydslCallable;
 import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
+import org.everit.jira.reporting.plugin.query.util.QueryUtil;
 
 import com.atlassian.jira.entity.Entity;
 import com.atlassian.jira.issue.IssueRelationConstants;
@@ -425,8 +426,9 @@ public abstract class AbstractReportQuery {
 
   private BooleanExpression filterToIssueIds(final QJiraissue qIssue,
       final BooleanExpression where) {
-    if (!reportSearchParam.issueIds.isEmpty()) {
-      return where.and(qIssue.id.in(reportSearchParam.issueIds));
+    if (!reportSearchParam.issueKeys.isEmpty()) {
+      return where.and(
+          QueryUtil.createIssueKeyExpression(qIssue, qProject).in(reportSearchParam.issueKeys));
     }
     return where;
   }
