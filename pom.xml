@@ -34,8 +34,8 @@
   <packaging>bundle</packaging>
 
   <properties>
-    <jira.version>6.2.5</jira.version>
-    <jira.data.version>6.2.5</jira.data.version>
+    <jira.version>6.3</jira.version>
+    <jira.data.version>6.3</jira.data.version>
     <projectpath>jira-timetracker-plugin</projectpath>
     <maven.compiler.source>1.7</maven.compiler.source>
     <maven.compiler.target>1.7</maven.compiler.target>
