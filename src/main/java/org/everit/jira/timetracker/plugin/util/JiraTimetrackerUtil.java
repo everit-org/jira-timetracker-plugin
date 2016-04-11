@@ -261,6 +261,21 @@ public final class JiraTimetrackerUtil {
   }
 
   /**
+   * Give back the logged user userName.
+   *
+   * @return The logged application user userName or empty String.
+   */
+  public static String getLoggedUserName() {
+    JiraAuthenticationContext authenticationContext = ComponentAccessor
+        .getJiraAuthenticationContext();
+    ApplicationUser user = authenticationContext.getUser();
+    if (user == null) {
+      return "";
+    }
+    return user.getUsername();
+  }
+
+  /**
    * Check the user is logged or not.
    *
    * @return True if we have logged user else false.

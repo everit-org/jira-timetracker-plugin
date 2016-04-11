@@ -259,7 +259,7 @@ everit.reporting.main = everit.reporting.main || {};
       success : function(result){
         for( var i in result) {
           var obj = result[i];
-          var avatarId =  contextPath + "/secure/useravatar?size=xsmall&ownerId=" + obj.userName;
+          var avatarId =  contextPath + "/secure/useravatar?size=xsmall&ownerId=" + obj.avatarOwner;
           var selected = checkSelected(obj.userName, selectedArray);
           jQuery("#assignePicker").append('<option data-icon="' + avatarId + '" value="'+obj.userName + '" '+ selected + '>' +obj.displayName +'</option>');
         }
@@ -287,7 +287,7 @@ everit.reporting.main = everit.reporting.main || {};
       success : function(result){
         for( var i in result) {
           var obj = result[i];
-          var avatarId =  contextPath + "/secure/useravatar?size=xsmall&ownerId=" + obj.userName;
+          var avatarId =  contextPath + "/secure/useravatar?size=xsmall&ownerId=" + obj.avatarOwner;
           var selected = checkSelected(obj.userName, selectedArray);
           jQuery("#reporterPicker").append('<option data-icon="' + avatarId + '" value="'+obj.userName + '" '+ selected + '>' +obj.displayName +'</option>');
         }

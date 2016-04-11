@@ -18,6 +18,8 @@ package org.everit.jira.reporting.plugin.dto;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
+
 /**
  * Representation of user to picker.
  */
@@ -29,6 +31,8 @@ public class PickerUserDTO {
    */
   public static final class AliasNames {
 
+    public static final String AVATAR_OWNER = "avatarOwner";
+
     public static final String DISPLAY_NAME = "displayName";
 
     public static final String USER_NAME = "userName";
@@ -37,9 +41,25 @@ public class PickerUserDTO {
     }
   }
 
+  public static final String CURRENT_USER_DISPLAY_NAME = "Current User";
+
+  public static final String CURRENT_USER_NAME = "current_";
+
   public static final String UNASSIGNED_DISPLAY_NAME = "Unassigned";
 
   public static final String UNASSIGNED_USER_NAME = "empty";
+
+  /**
+   * Create current user.
+   */
+  public static PickerUserDTO createCurrentUser() {
+    PickerUserDTO currentUser = new PickerUserDTO();
+    String loggedUserName = JiraTimetrackerUtil.getLoggedUserName();
+    currentUser.setDisplayName(CURRENT_USER_DISPLAY_NAME);
+    currentUser.setUserName(CURRENT_USER_NAME + loggedUserName);
+    currentUser.setAvatarOwner(loggedUserName);
+    return currentUser;
+  }
 
   /**
    * Create unassigned 'user'.
@@ -48,8 +68,12 @@ public class PickerUserDTO {
     PickerUserDTO unassigned = new PickerUserDTO();
     unassigned.setDisplayName(UNASSIGNED_DISPLAY_NAME);
     unassigned.setUserName(UNASSIGNED_USER_NAME);
+    unassigned.setAvatarOwner(UNASSIGNED_USER_NAME);
     return unassigned;
   }
+
+  @XmlElement
+  private String avatarOwner;
 
   @XmlElement
   private String displayName;
@@ -57,12 +81,20 @@ public class PickerUserDTO {
   @XmlElement
   private String userName;
 
+  public String getAvatarOwner() {
+    return avatarOwner;
+  }
+
   public String getDisplayName() {
     return displayName;
   }
 
   public String getUserName() {
     return userName;
+  }
+
+  public void setAvatarOwner(final String avatarOwner) {
+    this.avatarOwner = avatarOwner;
   }
 
   public void setDisplayName(final String displayName) {
