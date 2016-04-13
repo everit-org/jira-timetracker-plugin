@@ -17,6 +17,8 @@ package org.everit.jira.reporting.plugin.web;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -92,6 +94,8 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   private ReportingPlugin reportingPlugin;
 
+  private List<String> selectedMore;
+
   private List<UserSummaryDTO> userSummaries;
 
   private Long userSummaryCount;
@@ -132,6 +136,7 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
     createDurationFormatter();
 
+    selectedMore = new ArrayList<String>();
     filterCondition = new FilterCondition();
     initDatesIfNecessary();
 
@@ -154,6 +159,7 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
     createDurationFormatter();
 
+    morePickerParse();
     normalizeContextPath();
     ConvertedSearchParam convertedSearchParam = null;
     filterConditionJson = getHttpRequest().getParameter(HTTP_PARAM_FILTER_CONDITION_JSON);
@@ -221,6 +227,10 @@ public class ReportingWebAction extends JiraWebActionSupport {
     return projectSummaryCount;
   }
 
+  public List<String> getSelectedMore() {
+    return selectedMore;
+  }
+
   public List<UserSummaryDTO> getUserSummaries() {
     return userSummaries;
   }
@@ -248,6 +258,15 @@ public class ReportingWebAction extends JiraWebActionSupport {
       Calendar calendarTo = Calendar.getInstance();
       Date dateTo = calendarTo.getTime();
       filterCondition.setWorklogEndDate(DateTimeConverterUtil.dateToString(dateTo));
+    }
+  }
+
+  private void morePickerParse() {
+    String[] selectedMoreValues = getHttpRequest().getParameterValues("morePicker");
+    if (selectedMoreValues != null) {
+      selectedMore = Arrays.asList(selectedMoreValues);
+    } else {
+      selectedMore = new ArrayList<String>();
     }
   }
 
@@ -334,6 +353,10 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   public void setMessage(final String message) {
     this.message = message;
+  }
+
+  public void setSelectedMore(final List<String> selectedMore) {
+    this.selectedMore = selectedMore;
   }
 
   private void writeObject(final java.io.ObjectOutputStream stream) throws IOException {

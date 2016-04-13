@@ -55,6 +55,8 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
             selectedLabels: [ #foreach( $tmp in $filterCondition.labels )#if($velocityCount> 1),#end "$tmp" #end ],
             selectedEpicLinks: ${filterCondition.issueEpicLinkIssueIds},
             selectedIssues: [ #foreach( $tmp in $filterCondition.issueKeys )#if($velocityCount> 1),#end "$tmp" #end ],
+            selectedMore: [ #foreach( $tmp in $selectedMore )#if($velocityCount> 1),#end "$tmp" #end ],
+            
           }
         );
       })(everit.reporting.main, AJS.$);
@@ -146,13 +148,36 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                            </div>
                                          </div>
                                          <!-- Status Dropdown end-->
-                                         <button type="button" data-id="group" class="criteria-selector aui-button aui-button-subtle aui-dropdown2-trigger" title="All">
-                                              <div class="criteria-wrap">
-                                                  <div class="searcherValue">
-                                                      More
-                                                  </div>
-                                              </div>
-                                         </button>
+                                         <!-- MORE dropdown button -->
+                                         <a id="morePickerButton" href="#morePickerDropDown" aria-owns="morePickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger">More</a>
+                                         <!-- MORE Dropdown -->
+                                         <div id="morePickerDropDown" class="aui-style-default aui-dropdown2">
+                                           <div class="jttr-filter-field">
+                                             <div class='ajs-layer box-shadow'>
+                                               <div>
+                                                 <div class='form-body'>
+                                                   <div class='field-group aui-field-issuetype'>
+                                                     <select  id="morePicker" name="morePicker"  multiple="multiple" >
+                                                       <option value="issuePicker-parent">Issue</option>
+                                                       <option value="priorityPickerButton">Priority</option>
+                                                       <option value="resolutionPickerButton">Resolution</option>
+                                                       <option value="assignePickerButton">Assigne</option>
+                                                       <option value="reporterPickerButton">Reporter</option>
+                                                       <option value="affectedVersionPickerButton">Affects Version</option>
+                                                       <option value="fixVersionPickerButton">Fix Version</option>
+                                                       <option value="componentPickerButton">Component</option>
+                                                       <option value="labelPickerButton">Label</option>
+                                                       <option value="createdPickerButton">Create Date</option>
+                                                       <option value="epicNamePickerButton">Epic Name</option>
+                                                       <option value="epicLinkPickerButton">Epic Link</option>
+                                                     </select>
+                                                   </div>
+                                                 </div>
+                                               </div>
+                                             </div>
+                                           </div>
+                                         </div>
+                                         <!-- MORE dropdown End-->
                                          <button type="button" class="aui-button aui-button-link" onclick="everit.reporting.main.changeFilterType('filter')">Filter</button>  <!-- switch to filter -->
                                      </div>
                                  </div>
@@ -163,7 +188,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                         <div class="aui-item search-wrap basic"> 
                             <div class="search-container basic">
                                  <div class="search-criteria-container">
-                                     <div class="search-criteria-issue-extended">
+                                     <div id="issuePicker-parent" class="search-criteria-issue-extended" style="display: none;">
                                        <select class="hidden"
                                                multiple="multiple" 
                                                name="issuePicker" 
@@ -181,7 +206,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                      <div class="search-criteria-extended">
                                      <!-- placeholder for EXTENDED criterias with more button !!! -->
                                          <!-- Priority Dropdown  BUTTON-->
-                                         <a id="priorityPickerButton" href="#priorityPickerDropDown" aria-owns="priorityPickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger"></a>
+                                         <a id="priorityPickerButton" href="#priorityPickerDropDown" aria-owns="priorityPickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger" style="display: none;"></a>
                                          <!-- Priority Dropdown -->
                                          <div id="priorityPickerDropDown" class="aui-style-default aui-dropdown2">
                                            <div class="jttr-filter-field">
@@ -199,7 +224,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                          </div>
                                          <!-- Priority Dropdown End-->
                                          <!-- Resolution Dropdown  BUTTON-->
-                                         <a id="resolutionPickerButton" href="#resolutionPickerDropDown" aria-owns="resolutionPickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger"></a>
+                                         <a id="resolutionPickerButton" href="#resolutionPickerDropDown" aria-owns="resolutionPickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger" style="display: none;"></a>
                                          <!-- Resolution Dropdown -->
                                          <div id="resolutionPickerDropDown" class="aui-style-default aui-dropdown2">
                                            <div class="jttr-filter-field">
@@ -217,7 +242,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                          </div>
                                          <!-- Resolution Dropdown End-->
                                          <!-- Assigne Dropdown  BUTTON-->
-                                         <a id="assignePickerButton" href="#assignePickerDropDown" aria-owns="assignePickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger"></a>
+                                         <a id="assignePickerButton" href="#assignePickerDropDown" aria-owns="assignePickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger" style="display: none;"></a>
                                          <!-- Assigne Dropdown -->
                                          <div id="assignePickerDropDown" class="aui-style-default aui-dropdown2">
                                            <div class="jttr-filter-field">
@@ -235,7 +260,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                          </div>
                                          <!-- Assigne Dropdown End-->
                                          <!-- Reporter Dropdown  BUTTON-->
-                                         <a id="reporterPickerButton" href="#reporterPickerDropDown" aria-owns="reporterPickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger"></a>
+                                         <a id="reporterPickerButton" href="#reporterPickerDropDown" aria-owns="reporterPickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger" style="display: none;"></a>
                                          <!-- Reporter Dropdown -->
                                          <div id="reporterPickerDropDown" class="aui-style-default aui-dropdown2">
                                            <div class="jttr-filter-field">
@@ -253,7 +278,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                          </div>
                                          <!-- Reporter Dropdown End-->
                                          <!-- Affected Version Dropdown  BUTTON-->
-                                         <a id="affectedVersionPickerButton" href="#affectedVersionPickerDropDown" aria-owns="affectedVersionPickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger"></a>
+                                         <a id="affectedVersionPickerButton" href="#affectedVersionPickerDropDown" aria-owns="affectedVersionPickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger" style="display: none;"></a>
                                          <!-- AffectedV ersion Dropdown -->
                                          <div id="affectedVersionPickerDropDown" class="aui-style-default aui-dropdown2">
                                            <div class="jttr-filter-field">
@@ -271,7 +296,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                          </div>
                                          <!-- Affected Version Dropdown End-->
                                          <!-- Fix Version Dropdown  BUTTON-->
-                                         <a id="fixVersionPickerButton" href="#fixVersionPickerDropDown" aria-owns="fixVersionPickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger"></a>
+                                         <a id="fixVersionPickerButton" href="#fixVersionPickerDropDown" aria-owns="fixVersionPickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger" style="display: none;"></a>
                                          <!-- Fix Version Dropdown -->
                                          <div id="fixVersionPickerDropDown" class="aui-style-default aui-dropdown2">
                                            <div class="jttr-filter-field">
@@ -289,7 +314,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                          </div>
                                          <!-- Fix Version Dropdown End-->
                                          <!-- Component Dropdown  BUTTON-->
-                                         <a id="componentPickerButton" href="#componentPickerDropDown" aria-owns="componentPickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger"></a>
+                                         <a id="componentPickerButton" href="#componentPickerDropDown" aria-owns="componentPickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger" style="display: none;"></a>
                                          <!-- Component Dropdown -->
                                          <div id="componentPickerDropDown" class="aui-style-default aui-dropdown2">
                                            <div class="jttr-filter-field">
@@ -307,7 +332,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                          </div>
                                          <!-- Component Dropdown End-->
                                          <!-- Label Dropdown  BUTTON-->
-                                         <a id="labelPickerButton" href="#labelPickerDropDown" aria-owns="labelPickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger"></a>
+                                         <a id="labelPickerButton" href="#labelPickerDropDown" aria-owns="labelPickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger" style="display: none;"></a>
                                          <!-- Label Dropdown -->
                                          <div id="labelPickerDropDown" class="aui-style-default aui-dropdown2">
                                            <div class="jttr-filter-field">
@@ -325,7 +350,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                          </div>
                                          <!-- Label Dropdown End-->
                                          <!-- Create Date Dropdown  BUTTON-->
-                                         <a id="createdPickerButton" href="#createdPickerDropDown" aria-owns="createdPickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger"></a>
+                                         <a id="createdPickerButton" href="#createdPickerDropDown" aria-owns="createdPickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger" style="display: none;"></a>
                                          <!-- Create Date Dropdown -->
                                          <div id="createdPickerDropDown" class="aui-style-default aui-dropdown2">
                                            <div class="jttr-filter-field">
@@ -344,7 +369,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                          </div>
                                          <!-- Create Date Dropdown End-->
                                          <!-- Epic Name Dropdown  BUTTON-->
-                                         <a id="epicNamePickerButton" href="#epicNamePickerDropDown" aria-owns="epicNamePickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger"></a>
+                                         <a id="epicNamePickerButton" href="#epicNamePickerDropDown" aria-owns="epicNamePickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger" style="display: none;"></a>
                                          <!-- Epic Name Dropdown -->
                                          <div id="epicNamePickerDropDown" class="aui-style-default aui-dropdown2">
                                            <div class="jttr-filter-field">
@@ -361,7 +386,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                          </div>
                                          <!-- Epic Name Dropdown End-->
                                          <!-- Epic Link Dropdown  BUTTON-->
-                                         <a id="epicLinkPickerButton" href="#epicLinkPickerDropDown" aria-owns="epicLinkPickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger"></a>
+                                         <a id="epicLinkPickerButton" href="#epicLinkPickerDropDown" aria-owns="epicLinkPickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger" style="display: none;"></a>
                                          <!-- Epic Link-->
                                          <div id="epicLinkPickerDropDown" class="aui-style-default aui-dropdown2">
                                            <div class="jttr-filter-field">
@@ -402,24 +427,6 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                             <div class="user-search-container">
                                 <div class="search-criteria-container">
                                     <div class="search-criteria">
-                                         <!-- Group Dropdown  BUTTON-->
-                                         <a id="groupPickerButton" href="#groupPickerDropDown" aria-owns="groupPickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger"></a>
-                                         <!-- Group Dropdown -->
-                                         <div id="groupPickerDropDown" class="aui-style-default aui-dropdown2">
-                                           <div class="jttr-filter-field">
-                                             <div class='ajs-layer box-shadow'>
-                                               <div>
-                                                 <div class='form-body'>
-                                                   <div class='field-group aui-field-issuetype'>
-                                                     <select  id="groupPicker" name="groupPicker"  multiple="multiple" >
-                                                     </select>
-                                                   </div>
-                                                 </div>
-                                               </div>
-                                             </div>
-                                           </div>
-                                         </div>
-                                         <!-- Group Dropdown End-->
                                          <!-- User Dropdown  BUTTON-->
                                          <a id="userPickerButton" href="#userPickerDropDown" aria-owns="userPickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger"></a>
                                          <!-- User Dropdown -->
@@ -438,6 +445,24 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                            </div>
                                          </div>
                                          <!-- User Dropdown End-->
+                                         <!-- Group Dropdown  BUTTON-->
+                                         <a id="groupPickerButton" href="#groupPickerDropDown" aria-owns="groupPickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger"></a>
+                                         <!-- Group Dropdown -->
+                                         <div id="groupPickerDropDown" class="aui-style-default aui-dropdown2">
+                                           <div class="jttr-filter-field">
+                                             <div class='ajs-layer box-shadow'>
+                                               <div>
+                                                 <div class='form-body'>
+                                                   <div class='field-group aui-field-issuetype'>
+                                                     <select  id="groupPicker" name="groupPicker"  multiple="multiple" >
+                                                     </select>
+                                                   </div>
+                                                 </div>
+                                               </div>
+                                             </div>
+                                           </div>
+                                         </div>
+                                         <!-- Group Dropdown End-->
                                     </div>
                                 </div>
                             </div>
@@ -472,7 +497,6 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
             </form>
         </div>
         #parse("templates/reporting/reporting_result.vm")
-        <!-- -- FROM HERE the table part have to refactor in to an other vm file-- -->
     </section>
   </body>
 </html>

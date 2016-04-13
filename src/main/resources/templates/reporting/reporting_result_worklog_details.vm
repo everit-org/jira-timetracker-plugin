@@ -54,7 +54,7 @@
                         <div class="details-tale-container">
                             <table class="aui reporting-table">
                                 <thead>
-                                    <tr class="rowHeader">
+                                    <tr>
                                         <th>Project</th>
                                         <th>Project Description</th>
                                         <th>Issue Key</th>
