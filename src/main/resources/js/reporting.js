@@ -622,12 +622,6 @@ everit.reporting.main = everit.reporting.main || {};
   
   function getFilterConditionJson(){
     var issueAssignees = jQuery('#assignePicker').val() || [];
-    var unassignedIndex = jQuery.inArray("empty", issueAssignees);
-    var selectUnassgined = false;
-    if(unassignedIndex > -1) {
-      issueAssignees.splice(unassignedIndex, 1);
-      selectUnassgined = true;
-    }
     
     var projectIds = jQuery('#projectPicker').val() || [];
     if(projectIds){
@@ -642,42 +636,12 @@ everit.reporting.main = everit.reporting.main || {};
     var issuePriorityIds = jQuery('#priorityPicker').val() || [];
     
     var issueResolutionIds = jQuery('#resolutionPicker').val() || [];
-    var unresolvedIndex = jQuery.inArray("-1", issueResolutionIds);
-    var selectUnresolvedResolution = false;
-    if(unresolvedIndex > -1) {
-      issueResolutionIds.splice(unresolvedIndex, 1);
-      selectUnresolvedResolution = true;
-    }
     
     var issueReporters = jQuery('#reporterPicker').val() || [];
     
     var issueAffectedVersions = jQuery('#affectedVersionPicker').val() || [];
-    var noVersionIndex = jQuery.inArray("No version", issueAffectedVersions);
-    var selectNoAffectedVersionIssue = false;
-    if(noVersionIndex > -1) {
-      issueAffectedVersions.splice(noVersionIndex, 1);
-      selectNoAffectedVersionIssue = true;
-    }
     
     var issueFixedVersions = jQuery('#fixVersionPicker').val() || [];
-    var noVersionIndex = jQuery.inArray("No version", issueFixedVersions);
-    var selectNoFixedVersionIssue = false;
-    if(noVersionIndex > -1) {
-      issueFixedVersions.splice(noVersionIndex, 1);
-      selectNoFixedVersionIssue = true;
-    }
-    var releasedIndex = jQuery.inArray("Released version", issueFixedVersions);
-    var selectReleasedFixVersion = false;
-    if(releasedIndex > -1) {
-      issueFixedVersions.splice(releasedIndex, 1);
-      selectReleasedFixVersion = true;
-    }
-    var unreleasedIndex = jQuery.inArray("Unreleased version", issueFixedVersions);
-    var selectUnreleasedFixVersion = false;
-    if(unreleasedIndex > -1) {
-      issueFixedVersions.splice(unreleasedIndex, 1);
-      selectUnreleasedFixVersion = true;
-    }
     
     var issueComponents = jQuery('#componentPicker').val() || [];
     var nocomponentIndex = jQuery.inArray("No component", issueFixedVersions);
@@ -727,13 +691,6 @@ everit.reporting.main = everit.reporting.main || {};
       "issueTypeIds": issueTypeIds,
       "labels": labels,
       "projectIds": projectIds,
-      "selectNoAffectedVersionIssue": selectNoAffectedVersionIssue,
-      "selectNoComponentIssue": selectNoComponentIssue,
-      "selectNoFixedVersionIssue": selectNoFixedVersionIssue,
-      "selectReleasedFixVersion": selectReleasedFixVersion,
-      "selectUnassgined": selectUnassgined,
-      "selectUnreleasedFixVersion": selectUnreleasedFixVersion,
-      "selectUnresolvedResolution": selectUnresolvedResolution,
       "users": users,
       "worklogEndDate": worklogEndDate,
       "worklogStartDate": worklogStartDate,
@@ -773,5 +730,20 @@ everit.reporting.main = everit.reporting.main || {};
     var href = $detailsCustomExport.attr('data-jttp-href');
     $detailsCustomExport.attr('href', href + '?json=' + json);
     return true;
+  }
+  
+  reporting.beforeSubmitCreateReport = function() {
+    var filterCondition = getFilterConditionJson();
+    filterCondition["limit"] = 25;
+    filterCondition["offset"] = 0;
+    var json = JSON.stringify(filterCondition);
+    var $filterConditionJson = jQuery('#filterConditionJson')
+    $filterConditionJson.val(json);
+    return true;
+  }
+  
+  reporting.getWorklogDetailsPage(offset) {
+    var url = "/rest/jttp-rest/1/paging-report/pageWorklogDetails?json="
+    jQuery.ajax()
   }
 })(everit.reporting.main, jQuery);

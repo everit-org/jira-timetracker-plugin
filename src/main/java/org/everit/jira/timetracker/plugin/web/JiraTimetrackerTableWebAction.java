@@ -32,14 +32,15 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
+import org.everit.jira.timetracker.plugin.DurationFormatter;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
 import org.everit.jira.timetracker.plugin.dto.ReportSessionData;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
-import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
+import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.ofbiz.core.entity.GenericEntityException;
 
 import com.atlassian.jira.avatar.Avatar;
@@ -144,6 +145,8 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   private HashMap<Integer, List<Object>> daySum = new HashMap<Integer, List<Object>>();
 
+  private DurationFormatter durationFormatter;
+
   private boolean feedBackSendAviable;
 
   private String installedPluginId;
@@ -200,7 +203,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
         : (Long) daySum.get(dayNo).get(0);
     Long sumSec = prevDaySum + (worklog.getMilliseconds() / MILLISEC_IN_SEC);
     list.add(sumSec);
-    list.add(DateTimeConverterUtil.secondConvertToString(sumSec));
+    list.add(durationFormatter.exactDuration(sumSec));
     daySum.put(dayNo, list);
   }
 
@@ -211,7 +214,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
         : (Long) monthSum.get(monthNo).get(0);
     Long sumSec = prevMonthSum + (worklog.getMilliseconds() / MILLISEC_IN_SEC);
     list.add(sumSec);
-    list.add(DateTimeConverterUtil.secondConvertToString(sumSec));
+    list.add(durationFormatter.exactDuration(sumSec));
     monthSum.put(monthNo, list);
   }
 
@@ -225,7 +228,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
       realSumSec += (worklog.getMilliseconds() / MILLISEC_IN_SEC);
     }
     realList.add(realSumSec);
-    realList.add(DateTimeConverterUtil.secondConvertToString(realSumSec));
+    realList.add(durationFormatter.exactDuration(realSumSec));
     realDaySum.put(dayNo, realList);
   }
 
@@ -239,7 +242,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
       realSumSec += (worklog.getMilliseconds() / MILLISEC_IN_SEC);
     }
     realList.add(realSumSec);
-    realList.add(DateTimeConverterUtil.secondConvertToString(realSumSec));
+    realList.add(durationFormatter.exactDuration(realSumSec));
     realMonthSum.put(monthNo, realList);
   }
 
@@ -253,7 +256,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
       realSumSec += (worklog.getMilliseconds() / MILLISEC_IN_SEC);
     }
     realList.add(realSumSec);
-    realList.add(DateTimeConverterUtil.secondConvertToString(realSumSec));
+    realList.add(durationFormatter.exactDuration(realSumSec));
     realWeekSum.put(weekNo, realList);
   }
 
@@ -264,12 +267,16 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
         : (Long) weekSum.get(weekNo).get(0);
     Long sumSec = prevWeekSum + (worklog.getMilliseconds() / MILLISEC_IN_SEC);
     list.add(sumSec);
-    list.add(DateTimeConverterUtil.secondConvertToString(sumSec));
+    list.add(durationFormatter.exactDuration(sumSec));
     weekSum.put(weekNo, list);
   }
 
   private void checkMailServer() {
     feedBackSendAviable = ComponentAccessor.getMailServerManager().isDefaultSMTPMailServerDefined();
+  }
+
+  private void createDurationFormatter() {
+    durationFormatter = new DurationFormatter();
   }
 
   @Override
@@ -279,6 +286,8 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
       setReturnUrl(JIRA_HOME_URL);
       return getRedirect(NONE);
     }
+
+    createDurationFormatter();
 
     normalizeContextPath();
     checkMailServer();
@@ -304,6 +313,8 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
       setReturnUrl(JIRA_HOME_URL);
       return getRedirect(NONE);
     }
+
+    createDurationFormatter();
 
     normalizeContextPath();
     checkMailServer();

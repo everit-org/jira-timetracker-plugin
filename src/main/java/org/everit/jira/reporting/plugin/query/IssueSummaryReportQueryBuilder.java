@@ -38,9 +38,9 @@ import com.querydsl.sql.SQLQuery;
 /**
  * Queries for issue summary report.
  */
-public class IssueSummaryReportQuery extends AbstractReportQuery {
+public class IssueSummaryReportQueryBuilder extends AbstractReportQuery {
 
-  public IssueSummaryReportQuery(final ReportSearchParam reportSearchParam) {
+  public IssueSummaryReportQueryBuilder(final ReportSearchParam reportSearchParam) {
     super(reportSearchParam);
   }
 
@@ -63,7 +63,7 @@ public class IssueSummaryReportQuery extends AbstractReportQuery {
         fromQuery.groupBy(qIssue.id);
 
         SQLQuery<Long> query = new SQLQuery<Long>(connection, configuration)
-            .select(issueCountPath.count())
+            .select(issueCountPath.sum())
             .from(fromQuery.as("fromCount"));
 
         return query.fetchOne();

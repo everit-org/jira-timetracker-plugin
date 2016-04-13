@@ -1180,7 +1180,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     for (GenericValue worklog : worklogs) {
       timeSpent += worklog.getLong("timeworked").longValue();
     }
-    return DateTimeConverterUtil.secondConvertToString(timeSpent);
+    return new DurationFormatter().exactDuration(timeSpent);
   }
 
   @Override

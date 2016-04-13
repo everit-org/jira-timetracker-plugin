@@ -28,9 +28,9 @@ import org.everit.jira.reporting.plugin.dto.UserSummaryDTO;
 import org.everit.jira.reporting.plugin.export.column.IssueSummaryColumns;
 import org.everit.jira.reporting.plugin.export.column.ProjectSummaryColumns;
 import org.everit.jira.reporting.plugin.export.column.UserSummaryColumns;
-import org.everit.jira.reporting.plugin.query.IssueSummaryReportQuery;
-import org.everit.jira.reporting.plugin.query.ProjectSummaryReportQuery;
-import org.everit.jira.reporting.plugin.query.UserSummaryReportQuery;
+import org.everit.jira.reporting.plugin.query.IssueSummaryReportQueryBuilder;
+import org.everit.jira.reporting.plugin.query.ProjectSummaryReportQueryBuilder;
+import org.everit.jira.reporting.plugin.query.UserSummaryReportQueryBuilder;
 
 /**
  * Class that export summaries list report (project summary, issue summary, user summary).
@@ -55,7 +55,7 @@ public class ExportSummariesListReport extends AbstractExportListReport {
     rowIndex = insertIssueSummaryHeaderRow(rowIndex, issueSummarySheet);
 
     List<IssueSummaryDTO> issueSummary =
-        querydslSupport.execute(new IssueSummaryReportQuery(reportSearchParam)
+        querydslSupport.execute(new IssueSummaryReportQueryBuilder(reportSearchParam)
             .buildQuery());
 
     for (IssueSummaryDTO issueSummaryDTO : issueSummary) {
@@ -70,7 +70,7 @@ public class ExportSummariesListReport extends AbstractExportListReport {
     rowIndex = insertProjectSummaryHeaderRow(rowIndex, projectSummarySheet);
 
     List<ProjectSummaryDTO> projectSummary =
-        querydslSupport.execute(new ProjectSummaryReportQuery(reportSearchParam)
+        querydslSupport.execute(new ProjectSummaryReportQueryBuilder(reportSearchParam)
             .buildQuery());
 
     for (ProjectSummaryDTO projectSummaryDTO : projectSummary) {
@@ -85,7 +85,7 @@ public class ExportSummariesListReport extends AbstractExportListReport {
     rowIndex = insertUserSummaryHeaderRow(rowIndex, userSummarySheet);
 
     List<UserSummaryDTO> userSummary =
-        querydslSupport.execute(new UserSummaryReportQuery(reportSearchParam)
+        querydslSupport.execute(new UserSummaryReportQueryBuilder(reportSearchParam)
             .buildQuery());
     for (UserSummaryDTO userSummaryDTO : userSummary) {
       rowIndex = insertUserSummaryBodyRow(rowIndex, userSummarySheet, userSummaryDTO);

@@ -1,4 +1,4 @@
-#*
+/*
  * Copyright (C) 2011 Everit Kft. (http://www.everit.org)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,13 +12,25 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *#
-        <div class="aui-page-panel">
-          <div class="aui-page-panel-inner">
-            <section class="aui-page-panel-content">                
-                #parse("templates/reporting/reporting_result_worklog_details.vm")
-                
-                #parse("templates/reporting/reporting_result_summaries.vm")
-            </section>              
-          </div>
-        </div>
+ */
+package org.everit.jira.reporting.plugin.dto;
+
+import java.util.List;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
+import org.everit.jira.reporting.plugin.export.column.WorklogDetailsColumns;
+
+/**
+ * Download worklog details parameter that containt the filter condition and the showable columns.
+ */
+@XmlRootElement
+public class DownloadWorklogDetailsParam {
+
+  @XmlElement
+  public FilterCondition filterCondition = new FilterCondition();
+
+  @XmlElement
+  public List<String> selectedWorklogDetailsColumns = WorklogDetailsColumns.ALL_COLUMNS;
+}

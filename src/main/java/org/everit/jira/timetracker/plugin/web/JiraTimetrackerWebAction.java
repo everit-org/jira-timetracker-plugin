@@ -28,6 +28,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
+import org.everit.jira.timetracker.plugin.DurationFormatter;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
 import org.everit.jira.timetracker.plugin.dto.ActionResult;
@@ -143,6 +144,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    */
   private Long deletedWorklogId = DEFAULT_WORKLOG_ID;
 
+  private DurationFormatter durationFormatter;
+
   /**
    * The worklog duration.
    */
@@ -198,16 +201,15 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The WebAction is edit a worklog or not.
    */
   private boolean isEdit = false;
-
   /**
    * The WebAction is edit all worklog or not.
    */
   private boolean isEditAll = false;
+
   /**
    * The calendar isPopup.
    */
   private int isPopup;
-
   /**
    * The issue key.
    */
@@ -220,6 +222,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The filtered Issues id.
    */
   private List<Pattern> issuesRegex;
+
   /**
    * The jira main version.
    */
@@ -349,6 +352,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return worklogIds;
   }
 
+  public void createDurationFormatter() {
+    durationFormatter = new DurationFormatter();
+  }
+
   private String createOrCopyAction() {
     String result;
     String validateInputFieldsResult = validateInputFields();
@@ -448,6 +455,9 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       setReturnUrl(JIRA_HOME_URL);
       return getRedirect(NONE);
     }
+
+    createDurationFormatter();
+
     normalizeContextPath();
     setPiwikProperties();
 
@@ -511,6 +521,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       setReturnUrl(JIRA_HOME_URL);
       return getRedirect(NONE);
     }
+
+    createDurationFormatter();
 
     normalizeContextPath();
     setPiwikProperties();
@@ -923,7 +935,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     long seconds = (endDateTime.getTime() - startDateTime.getTime())
         / DateTimeConverterUtil.MILLISECONDS_PER_SECOND;
     if (seconds > 0) {
-      timeSpent = DateTimeConverterUtil.secondConvertToString(seconds);
+      timeSpent = durationFormatter.exactDuration(seconds);
     } else {
       message = "plugin.invalid_timeInterval";
       return INPUT;
@@ -977,7 +989,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
     long seconds = durationDateTime.getTime()
         / DateTimeConverterUtil.MILLISECONDS_PER_SECOND;
-    timeSpent = DateTimeConverterUtil.secondConvertToString(seconds);
+    timeSpent = durationFormatter.exactDuration(seconds);
 
     // check the duration time to not exceed the present day
     Date endTime = DateUtils.addSeconds(startDateTime, (int) seconds);
