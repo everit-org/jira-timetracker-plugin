@@ -13,44 +13,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.jira.timetracker.plugin.util;
+package org.everit.jira.timetracker.plugin;
 
+import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
+
+import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
+import com.atlassian.jira.component.ComponentAccessor;
 
 /**
  * Used for creating the string representation of
  * {@link org.everit.jira.timetracker.plugin.dto.EveritWorklog#getExactRemaining()} and
  * {@link org.everit.jira.timetracker.plugin.dto.EveritWorklog#getRoundedRemaining()} properties.
  */
-public final class DurationFormatter {
+public class DurationFormatter implements Serializable {
 
-  public static String exactDuration(final long durationInSeconds, final double workDaysPerWeek,
-      final double workHoursPerDay) {
-    return new DurationFormatter(durationInSeconds, workDaysPerWeek, workHoursPerDay)
-        .buildFromFragments(false);
-  }
+  private static final long serialVersionUID = 8497858288910306739L;
 
-  public static String roundedDuration(final long durationInSeconds, final double workDaysPerWeek,
-      final double workHoursPerDay) {
-    return new DurationFormatter(durationInSeconds, workDaysPerWeek, workHoursPerDay)
-        .calculateFormattedRemaining();
-  }
-
-  private final long durationInSeconds;
+  private long durationInSeconds;
 
   private LinkedHashMap<String, Long> fragments = new LinkedHashMap<>();
 
-  private final double workDaysPerWeek;
+  private double workDaysPerWeek;
 
-  private final double workHoursPerDay;
+  private double workHoursPerDay;
 
-  private DurationFormatter(final long durationInSeconds, final double workDaysPerWeek,
-      final double workHoursPerDay) {
-    this.durationInSeconds = durationInSeconds;
-    this.workDaysPerWeek = workDaysPerWeek;
-    this.workHoursPerDay = workHoursPerDay;
-    constructFragmentsOfRemainingEstimate();
+  /**
+   * Simple constructor.
+   */
+  public DurationFormatter() {
+    TimeTrackingConfiguration timeTrackingConfiguration =
+        ComponentAccessor.getComponent(TimeTrackingConfiguration.class);
+    workDaysPerWeek = timeTrackingConfiguration.getDaysPerWeek().doubleValue();
+    workHoursPerDay = timeTrackingConfiguration.getHoursPerDay().doubleValue();
   }
 
   private String buildFromFragments(final boolean needsTilde) {
@@ -128,6 +126,32 @@ public final class DurationFormatter {
     fragments.put("d ", days);
     fragments.put("h ", hours);
     fragments.put("m ", minutes);
+  }
+
+  /**
+   * Convert the seconds to jira exact format (1h 30m) String.
+   *
+   * @param durationInSeconds
+   *          dutation in seconds.
+   * @return the formatted duration string.
+   */
+  public String exactDuration(final long durationInSeconds) {
+    this.durationInSeconds = durationInSeconds;
+    constructFragmentsOfRemainingEstimate();
+    return buildFromFragments(false);
+  }
+
+  /**
+   * Convert the seconds to jira rounded format (1h 30m) String.
+   *
+   * @param durationInSeconds
+   *          dutation in seconds.
+   * @return the formatted duration string.
+   */
+  public String roundedDuration(final long durationInSeconds) {
+    this.durationInSeconds = durationInSeconds;
+    constructFragmentsOfRemainingEstimate();
+    return calculateFormattedRemaining();
   }
 
 }

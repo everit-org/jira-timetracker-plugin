@@ -26,7 +26,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
+import org.everit.jira.timetracker.plugin.DurationFormatter;
+
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.config.properties.APKeys;
 import com.atlassian.jira.config.properties.ApplicationProperties;
@@ -156,8 +157,9 @@ public final class DateTimeConverterUtil {
    */
   public static String dateAndTimeToString(final Date dateAndTime) {
     String dateTimeFormat =
-        getJiraDefaultDateAndTimeJavaFormat(APKeys.JIRA_LF_DATE_COMPLETE);
-    DateFormat formatterDateAndTime = new SimpleDateFormat(dateTimeFormat, getLoggedUserLocal());
+        DateTimeConverterUtil.getJiraDefaultDateAndTimeJavaFormat(APKeys.JIRA_LF_DATE_COMPLETE);
+    DateFormat formatterDateAndTime =
+        new SimpleDateFormat(dateTimeFormat, DateTimeConverterUtil.getLoggedUserLocal());
     String stringDateAndTime = formatterDateAndTime.format(dateAndTime);
     return stringDateAndTime;
   }
@@ -170,7 +172,8 @@ public final class DateTimeConverterUtil {
    * @return The result string.
    */
   public static String dateTimeToString(final Date date) {
-    DateFormat formatterTime = new SimpleDateFormat(TIME_FORMAT, getLoggedUserLocal());
+    DateFormat formatterTime =
+        new SimpleDateFormat(TIME_FORMAT, DateTimeConverterUtil.getLoggedUserLocal());
     String timeString = formatterTime.format(date);
     return timeString;
   }
@@ -196,8 +199,10 @@ public final class DateTimeConverterUtil {
    * @return The result time.
    */
   public static String dateToString(final Date date) {
-    String dateFormat = getJiraDefaultDateAndTimeJavaFormat(APKeys.JIRA_LF_DATE_DMY);
-    DateFormat formatterDate = new SimpleDateFormat(dateFormat, getLoggedUserLocal());
+    String dateFormat =
+        DateTimeConverterUtil.getJiraDefaultDateAndTimeJavaFormat(APKeys.JIRA_LF_DATE_DMY);
+    DateFormat formatterDate =
+        new SimpleDateFormat(dateFormat, DateTimeConverterUtil.getLoggedUserLocal());
     String dateString = formatterDate.format(date);
     return dateString;
   }
@@ -301,42 +306,13 @@ public final class DateTimeConverterUtil {
    * @return The result String.
    */
   public static String millisecondConvertToStringTime(final long milliseconds) {
-    DateFormat formatterTimeGMT = new SimpleDateFormat(TIME_FORMAT, getLoggedUserLocal());
+    DateFormat formatterTimeGMT =
+        new SimpleDateFormat(TIME_FORMAT, DateTimeConverterUtil.getLoggedUserLocal());
     formatterTimeGMT.setTimeZone(TimeZone.getTimeZone(TIME_ZONE_GMT));
     Date date = new Date();
     date.setTime(milliseconds);
     String timeString = formatterTimeGMT.format(date);
     return timeString;
-  }
-
-  /**
-   * Convert the seconds to jira format (1h 30m) String.
-   *
-   * @param spentSeconds
-   *          The spent seconds.
-   * @return The result String.
-   */
-  public static String secondConvertToRoundedDuration(final long spentSeconds) {
-    TimeTrackingConfiguration timeTrackingConfiguration =
-        ComponentAccessor.getComponent(TimeTrackingConfiguration.class);
-    double workDaysPerWeek = timeTrackingConfiguration.getDaysPerWeek().doubleValue();
-    double workHoursPerDay = timeTrackingConfiguration.getHoursPerDay().doubleValue();
-    return DurationFormatter.roundedDuration(spentSeconds, workDaysPerWeek, workHoursPerDay);
-  }
-
-  /**
-   * Convert the seconds to jira format (1h 30m) String.
-   *
-   * @param spentSeconds
-   *          The spent seconds.
-   * @return The result String.
-   */
-  public static String secondConvertToString(final long spentSeconds) {
-    TimeTrackingConfiguration timeTrackingConfiguration =
-        ComponentAccessor.getComponent(TimeTrackingConfiguration.class);
-    double workDaysPerWeek = timeTrackingConfiguration.getDaysPerWeek().doubleValue();
-    double workHoursPerDay = timeTrackingConfiguration.getHoursPerDay().doubleValue();
-    return DurationFormatter.exactDuration(spentSeconds, workDaysPerWeek, workHoursPerDay);
   }
 
   /**
@@ -366,7 +342,8 @@ public final class DateTimeConverterUtil {
    *           If can't parse the date.
    */
   public static Date stringTimeToDateTime(final String time) throws ParseException {
-    DateFormat formatterTime = new SimpleDateFormat(TIME_FORMAT, getLoggedUserLocal());
+    DateFormat formatterTime =
+        new SimpleDateFormat(TIME_FORMAT, DateTimeConverterUtil.getLoggedUserLocal());
     Date dateTime = formatterTime.parse(time);
     return dateTime;
   }
@@ -381,7 +358,8 @@ public final class DateTimeConverterUtil {
    *           If can't parse the date.
    */
   public static Date stringTimeToDateTimeGMT(final String time) throws ParseException {
-    DateFormat formatterTime = new SimpleDateFormat(TIME_FORMAT, getLoggedUserLocal());
+    DateFormat formatterTime =
+        new SimpleDateFormat(TIME_FORMAT, DateTimeConverterUtil.getLoggedUserLocal());
     formatterTime.setTimeZone(TimeZone.getTimeZone(TIME_ZONE_GMT));
     Date dateTime = formatterTime.parse(time);
     return dateTime;
@@ -400,7 +378,7 @@ public final class DateTimeConverterUtil {
   public static String stringTimeToString(final String time) throws ParseException {
     long seconds = DateTimeConverterUtil.stringTimeToDateTimeGMT(
         time).getTime() / MILLISEC_IN_SECOND;
-    String result = DateTimeConverterUtil.secondConvertToString(seconds);
+    String result = new DurationFormatter().exactDuration(seconds);
     return result;
   }
 
@@ -414,8 +392,10 @@ public final class DateTimeConverterUtil {
    *           If can't parse the date.
    */
   public static Date stringToDate(final String dateString) throws ParseException {
-    String dateFormat = getJiraDefaultDateAndTimeJavaFormat(APKeys.JIRA_LF_DATE_DMY);
-    DateFormat formatterDate = new SimpleDateFormat(dateFormat, getLoggedUserLocal());
+    String dateFormat =
+        DateTimeConverterUtil.getJiraDefaultDateAndTimeJavaFormat(APKeys.JIRA_LF_DATE_DMY);
+    DateFormat formatterDate =
+        new SimpleDateFormat(dateFormat, DateTimeConverterUtil.getLoggedUserLocal());
     Date date = formatterDate.parse(dateString);
     return date;
   }
@@ -430,7 +410,8 @@ public final class DateTimeConverterUtil {
    *           if can't parse the date.
    */
   public static Date stringToDateAndTime(final String dateAndTimeString) throws ParseException {
-    DateFormat formatterDateAndTime = new SimpleDateFormat(DATE_TIME_FORMAT, getLoggedUserLocal());
+    DateFormat formatterDateAndTime =
+        new SimpleDateFormat(DATE_TIME_FORMAT, DateTimeConverterUtil.getLoggedUserLocal());
     Date date = formatterDateAndTime.parse(dateAndTimeString);
     return date;
   }
@@ -450,9 +431,9 @@ public final class DateTimeConverterUtil {
   public static Date stringToDateAndTime(final String dateString, final String timeString)
       throws ParseException {
     Calendar date = Calendar.getInstance();
-    date.setTime(stringToDate(dateString));
+    date.setTime(DateTimeConverterUtil.stringToDate(dateString));
     Calendar time = Calendar.getInstance();
-    time.setTime(stringTimeToDateTime(timeString));
+    time.setTime(DateTimeConverterUtil.stringTimeToDateTime(timeString));
     date.set(Calendar.HOUR_OF_DAY, time.get(Calendar.HOUR_OF_DAY));
     date.set(Calendar.MINUTE, time.get(Calendar.MINUTE));
     return date.getTime();

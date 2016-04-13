@@ -22,6 +22,7 @@ import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.everit.jira.timetracker.plugin.DurationFormatter;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.ofbiz.core.entity.GenericValue;
 
@@ -166,15 +167,15 @@ public class EveritWorklog implements Serializable {
     } else {
       body = "";
     }
+    DurationFormatter durationFormatter = new DurationFormatter();
     long timeSpentInSec = worklogGv.getLong("timeworked").longValue();
     milliseconds = timeSpentInSec
         * DateTimeConverterUtil.MILLISECONDS_PER_SECOND;
-    duration = DateTimeConverterUtil.secondConvertToString(timeSpentInSec);
+    duration = durationFormatter.exactDuration(timeSpentInSec);
     endTime = DateTimeConverterUtil.countEndTime(startTime, milliseconds);
 
-    roundedRemaining =
-        DateTimeConverterUtil.secondConvertToRoundedDuration(issueEstimate);
-    exactRemaining = DateTimeConverterUtil.secondConvertToString(issueEstimate);
+    roundedRemaining = durationFormatter.roundedDuration(issueEstimate);
+    exactRemaining = durationFormatter.exactDuration(issueEstimate);
   }
 
   /**
@@ -220,15 +221,15 @@ public class EveritWorklog implements Serializable {
     } else {
       body = "";
     }
+    DurationFormatter durationFormatter = new DurationFormatter();
     long timeSpentInSec = rs.getLong("timeworked");
     milliseconds = timeSpentInSec
         * DateTimeConverterUtil.MILLISECONDS_PER_SECOND;
-    duration = DateTimeConverterUtil.secondConvertToString(timeSpentInSec);
+    duration = durationFormatter.exactDuration(timeSpentInSec);
     endTime = DateTimeConverterUtil.countEndTime(startTime, milliseconds);
 
-    roundedRemaining =
-        DateTimeConverterUtil.secondConvertToRoundedDuration(issueObject.getEstimate());
-    exactRemaining = DateTimeConverterUtil.secondConvertToString(issueObject.getEstimate());
+    roundedRemaining = durationFormatter.roundedDuration(issueObject.getEstimate());
+    exactRemaining = durationFormatter.exactDuration(issueObject.getEstimate());
   }
 
   /**

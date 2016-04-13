@@ -25,7 +25,7 @@ import org.everit.jira.querydsl.support.QuerydslSupport;
 import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
 import org.everit.jira.reporting.plugin.dto.WorklogDetailsDTO;
 import org.everit.jira.reporting.plugin.export.column.WorklogDetailsColumns;
-import org.everit.jira.reporting.plugin.query.WorklogDetailsReportQuery;
+import org.everit.jira.reporting.plugin.query.WorklogDetailsReportQueryBuilder;
 
 /**
  * Class that export worklog details list report.
@@ -51,7 +51,7 @@ public class ExportWorklogDetailsListReport extends AbstractExportListReport {
     insertHeaderRow(worklogDetailsSheet);
 
     List<WorklogDetailsDTO> worklogDetails =
-        querydslSupport.execute(new WorklogDetailsReportQuery(reportSearchParam)
+        querydslSupport.execute(new WorklogDetailsReportQueryBuilder(reportSearchParam)
             .buildQuery());
 
     for (WorklogDetailsDTO worklogDetailsDTO : worklogDetails) {

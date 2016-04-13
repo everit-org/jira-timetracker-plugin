@@ -37,9 +37,9 @@ import com.querydsl.sql.SQLQuery;
 /**
  * Queries for project summary report.
  */
-public class ProjectSummaryReportQuery extends AbstractReportQuery {
+public class ProjectSummaryReportQueryBuilder extends AbstractReportQuery {
 
-  public ProjectSummaryReportQuery(final ReportSearchParam reportSearchParam) {
+  public ProjectSummaryReportQueryBuilder(final ReportSearchParam reportSearchParam) {
     super(reportSearchParam);
   }
 

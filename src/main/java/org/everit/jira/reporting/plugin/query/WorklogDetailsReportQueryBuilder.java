@@ -47,9 +47,9 @@ import com.querydsl.sql.SQLQuery;
 /**
  * Queries for worklog details report.
  */
-public class WorklogDetailsReportQuery extends AbstractReportQuery {
+public class WorklogDetailsReportQueryBuilder extends AbstractReportQuery {
 
-  public WorklogDetailsReportQuery(final ReportSearchParam reportSearchParam) {
+  public WorklogDetailsReportQueryBuilder(final ReportSearchParam reportSearchParam) {
     super(reportSearchParam);
   }
 

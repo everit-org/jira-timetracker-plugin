@@ -38,9 +38,9 @@ import com.querydsl.sql.SQLQuery;
 /**
  * Queries for user summary report.
  */
-public class UserSummaryReportQuery extends AbstractReportQuery {
+public class UserSummaryReportQueryBuilder extends AbstractReportQuery {
 
-  public UserSummaryReportQuery(final ReportSearchParam reportSearchParam) {
+  public UserSummaryReportQueryBuilder(final ReportSearchParam reportSearchParam) {
     super(reportSearchParam);
   }
 
