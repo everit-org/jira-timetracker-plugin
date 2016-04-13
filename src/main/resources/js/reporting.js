@@ -91,39 +91,39 @@ everit.reporting.main = everit.reporting.main || {};
   
   var morePickerFunctions = {
       "issuePicker-parent": function(){ 
-            jQuery("#issuePicker option").removeAttr("selected");
-            jQuery("#issuePicker-multi-select .representation ul li").remove();
+            jQuery("#issuePicker-multi-select .representation ul li em").click();
+            jQuery("#issuePicker-textarea").css("padding-left", "0px");
           },
       "priorityPickerButton": function(){
-            jQuery("#priorityPicker option").removeAttr("selected");
+            jQuery('#priorityPicker-suggestions input:checked').click();
             jQuery("#priorityPickerButton").text("Priority: All");
           },
       "resolutionPickerButton": function(){
-            jQuery("#resolutionPicker option").removeAttr("selected");
-            jQuery("#resolutionPickerButton").text("Priority: All");
+            jQuery('#resolutionPicker-suggestions input:checked').click();
+            jQuery("#resolutionPickerButton").text("Resulution: All");
           },
       "assignePickerButton": function(){
-            jQuery("#assignePicker option").removeAttr("selected");
+            jQuery('#assignePicker-suggestions input:checked').click();
             jQuery("#assignePickerButton").text("Assigne: All");
           },
       "reporterPickerButton": function(){
-            jQuery("#reporterPicker option").removeAttr("selected");
+            jQuery('#reporterPicker-suggestions input:checked').click();
             jQuery("#reporterPickerButton").text("Reporter: All");
           },
       "affectedVersionPickerButton": function(){
-            jQuery("#affectedVersionPicker option").removeAttr("selected");
+            jQuery('#affectedVersionPicker-suggestions input:checked').click();
             jQuery("#affectedVersionPickerButton").text("Affects Version: All");
           },
       "fixVersionPickerButton": function(){
-            jQuery("#fixVersionPicker option").removeAttr("selected");
+            jQuery('#fixVersionPicker-suggestions input:checked').click();
             jQuery("#fixVersionPickerButton").text("Fix Version: All");
           },
       "componentPickerButton": function(){
-            jQuery("#componentPicker option").removeAttr("selected");
+            jQuery('#componentPicker-suggestions input:checked').click();
             jQuery("#componentPickerButton").text("Component: All");
           },
       "labelPickerButton": function(){
-            jQuery("#labelPicker option").removeAttr("selected");
+            jQuery('#labelPicker-suggestions input:checked').click();
             jQuery("#labelPickerButton").text("Label: All");
           },
       "createdPickerButton": function(){
@@ -135,7 +135,7 @@ everit.reporting.main = everit.reporting.main || {};
             jQuery("#epicNamePickerButton").text("Epic Name: All");
           },
       "epicLinkPickerButton": function(){
-            jQuery("#epicLinkPicker option").removeAttr("selected");
+            jQuery('#epicLinkPicker-suggestions input:checked').click();
             jQuery("#epicNamePickerButton").text("Epic Link: All");
           },
     }
@@ -282,7 +282,7 @@ everit.reporting.main = everit.reporting.main || {};
     jQuery.ajax({
       async: true,
       type: 'GET',
-      url : contextPath + "/rest/jttp-rest/1/picker/listUsers",
+      url : contextPath + "/rest/jttp-rest/1/picker/listUsers?pickerUserQueryType=REPORTER",
       data : [],
       success : function(result){
         for( var i in result) {
@@ -315,7 +315,7 @@ everit.reporting.main = everit.reporting.main || {};
       success : function(result){
         for( var i in result) {
           var obj = result[i];
-          var avatarId =  contextPath + "/secure/useravatar?size=xsmall&ownerId=" + obj.userName;
+          var avatarId =  contextPath + "/secure/useravatar?size=xsmall&ownerId=" + obj.avatarOwner;
           var selected = checkSelected(obj.userName, selectedArray);
           jQuery("#userPicker").append('<option data-icon="' + avatarId + '" value="'+obj.userName + '" '+ selected + '>' +obj.displayName +'</option>');
         }
@@ -341,6 +341,12 @@ everit.reporting.main = everit.reporting.main || {};
       url : contextPath + "/rest/api/2/groups/picker",
       data : [],
       success : function(result){
+        //Add None before result parse
+        var selected = ""; 
+        if(selectedArray.length == 0){
+          selected = "selected";
+        }
+        jQuery("#groupPicker").append('<option value="-1" '+ selected + '>' +'None'+'</option>');
         for( var i in result.groups) {
           var obj = result.groups[i];
           var selected = checkSelected(obj.name, selectedArray);
@@ -396,6 +402,9 @@ everit.reporting.main = everit.reporting.main || {};
       url : contextPath + "/rest/api/2/resolution",
       data : [],
       success : function(result){
+        //Add NO RESULUTION before parse result
+        var selected = checkSelected(-1, selectedArray);
+        jQuery("#resolutionPicker").append('<option value="-1" '+ selected + '>' +'No Resulution'+ '</option>');
         for( var i in result) {
           var obj = result[i];
           var selected = checkSelected(obj.id, selectedArray);
@@ -531,6 +540,7 @@ everit.reporting.main = everit.reporting.main || {};
       userEnteredOptionsMsg : AJS.params.enterIssueKey,
       uppercaseUserEnteredOnSelect : true,
       singleSelectOnly : false,
+      removeOnUnSelect: true
     });
 
     jQuery("#issuePicker-multi-select").attr("style", "width: 350px;");
@@ -543,13 +553,6 @@ everit.reporting.main = everit.reporting.main || {};
       jQuery("#issuePicker-textarea").append(" ");
     });
     ip.handleFreeInput();
-    
-    
-//    updatePickerButtonText("#issuePicker" , "#issuePickerButton", "Issue: All");
-//    jQuery("#issuePicker").on("change unselect", function() {
-//      console.log("representation");
-//      updatePickerButtonText("#issuePicker" , "#issuePickerButton", "Issue: All");
-//    });
   };
   
   function initEpicLinkSelect(){

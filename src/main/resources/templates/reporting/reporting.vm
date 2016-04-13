@@ -426,24 +426,6 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                             <div class="user-search-container">
                                 <div class="search-criteria-container">
                                     <div class="search-criteria">
-                                         <!-- Group Dropdown  BUTTON-->
-                                         <a id="groupPickerButton" href="#groupPickerDropDown" aria-owns="groupPickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger"></a>
-                                         <!-- Group Dropdown -->
-                                         <div id="groupPickerDropDown" class="aui-style-default aui-dropdown2">
-                                           <div class="jttr-filter-field">
-                                             <div class='ajs-layer box-shadow'>
-                                               <div>
-                                                 <div class='form-body'>
-                                                   <div class='field-group aui-field-issuetype'>
-                                                     <select  id="groupPicker" name="groupPicker"  multiple="multiple" >
-                                                     </select>
-                                                   </div>
-                                                 </div>
-                                               </div>
-                                             </div>
-                                           </div>
-                                         </div>
-                                         <!-- Group Dropdown End-->
                                          <!-- User Dropdown  BUTTON-->
                                          <a id="userPickerButton" href="#userPickerDropDown" aria-owns="userPickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger"></a>
                                          <!-- User Dropdown -->
@@ -462,6 +444,24 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                            </div>
                                          </div>
                                          <!-- User Dropdown End-->
+                                         <!-- Group Dropdown  BUTTON-->
+                                         <a id="groupPickerButton" href="#groupPickerDropDown" aria-owns="groupPickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger"></a>
+                                         <!-- Group Dropdown -->
+                                         <div id="groupPickerDropDown" class="aui-style-default aui-dropdown2">
+                                           <div class="jttr-filter-field">
+                                             <div class='ajs-layer box-shadow'>
+                                               <div>
+                                                 <div class='form-body'>
+                                                   <div class='field-group aui-field-issuetype'>
+                                                     <select  id="groupPicker" name="groupPicker"  multiple="multiple" >
+                                                     </select>
+                                                   </div>
+                                                 </div>
+                                               </div>
+                                             </div>
+                                           </div>
+                                         </div>
+                                         <!-- Group Dropdown End-->
                                     </div>
                                 </div>
                             </div>

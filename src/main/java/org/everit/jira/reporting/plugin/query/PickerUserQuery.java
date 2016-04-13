@@ -39,7 +39,9 @@ public class PickerUserQuery implements QuerydslCallable<List<PickerUserDTO>> {
 
     ASSIGNEE,
 
-    DEFAULT;
+    DEFAULT,
+
+    REPORTER;
 
     private static final PickerUserQueryType[] PICKER_USER_QUERY_TYPES =
         PickerUserQueryType.values();
@@ -87,6 +89,9 @@ public class PickerUserQuery implements QuerydslCallable<List<PickerUserDTO>> {
       result.add(0, PickerUserDTO.createUnassignedUser());
     }
     result.add(0, PickerUserDTO.createCurrentUser());
+    if (PickerUserQueryType.DEFAULT.equals(pickerUserQueryType)) {
+      result.add(0, PickerUserDTO.createNoneUser());
+    }
 
     return result;
   }

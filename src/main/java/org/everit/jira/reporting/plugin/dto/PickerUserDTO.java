@@ -45,6 +45,10 @@ public class PickerUserDTO {
 
   public static final String CURRENT_USER_NAME = "current_";
 
+  public static final String NONE_DISPLAY_NAME = "None";
+
+  public static final String NONE_USER_NAME = "none";
+
   public static final String UNASSIGNED_DISPLAY_NAME = "Unassigned";
 
   public static final String UNASSIGNED_USER_NAME = "empty";
@@ -59,6 +63,17 @@ public class PickerUserDTO {
     currentUser.setUserName(CURRENT_USER_NAME + loggedUserName);
     currentUser.setAvatarOwner(loggedUserName);
     return currentUser;
+  }
+
+  /**
+   * Create None 'user'.
+   */
+  public static PickerUserDTO createNoneUser() {
+    PickerUserDTO unassigned = new PickerUserDTO();
+    unassigned.setDisplayName(NONE_DISPLAY_NAME);
+    unassigned.setUserName(NONE_USER_NAME);
+    unassigned.setAvatarOwner(NONE_USER_NAME);
+    return unassigned;
   }
 
   /**
