@@ -13,24 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.jira.reporting.plugin.rest.dto;
+package org.everit.jira.reporting.plugin.dto;
 
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
-import org.everit.jira.reporting.plugin.export.column.WorklogDetailsColumns;
-
 /**
- * Download worklog details parameter that containt the filter condition and the showable columns.
+ * Representation the converted search params.
  */
-@XmlRootElement
-public class DownloadWorklogDetailsParam {
+public class ConvertedSearchParam {
 
-  @XmlElement
-  public FilterCondition filterCondition = new FilterCondition();
+  public List<String> notBrowsableProjectKeys;
 
-  @XmlElement
-  public List<String> selectedWorklogDetailsColumns = WorklogDetailsColumns.ALL_COLUMNS;
+  public ReportSearchParam reportSearchParam;
+
+  public ConvertedSearchParam notBrowsableProjectKeys(final List<String> notBrowsableProjectKeys) {
+    this.notBrowsableProjectKeys = notBrowsableProjectKeys;
+    return this;
+  }
+
+  public ConvertedSearchParam reportSearchParam(final ReportSearchParam reportSearchParam) {
+    this.reportSearchParam = reportSearchParam;
+    return this;
+  }
+
 }

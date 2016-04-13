@@ -37,9 +37,9 @@ import com.querydsl.sql.SQLQuery;
 /**
  * Queries for project summary report.
  */
-public class ProjectSummaryReportQuery extends AbstractReportQuery {
+public class ProjectSummaryReportQueryBuilder extends AbstractReportQuery {
 
-  public ProjectSummaryReportQuery(final ReportSearchParam reportSearchParam) {
+  public ProjectSummaryReportQueryBuilder(final ReportSearchParam reportSearchParam) {
     super(reportSearchParam);
   }
 
@@ -102,22 +102,25 @@ public class ProjectSummaryReportQuery extends AbstractReportQuery {
 
         appendBaseFromAndJoin(fromQuery);
         appendBaseWhere(fromQuery);
-        appendQueryRange(fromQuery);
         fromQuery.groupBy(qProject.id);
 
         QProject qProject = new QProject("m_project");
-        return new SQLQuery<ProjectSummaryDTO>(connection, configuration)
-            .select(Projections.bean(ProjectSummaryDTO.class,
-                qProject.pkey.as(ProjectSummaryDTO.AliasNames.PROJECT_KEY),
-                qProject.pname.as(ProjectSummaryDTO.AliasNames.PROJECT_NAME),
-                qProject.description.as(ProjectSummaryDTO.AliasNames.PROJECT_DESCRIPTION),
-                timeOriginalSumPath,
-                timeEstimateSumPath,
-                workloggedSumPath))
-            .from(fromQuery.as("sums"))
-            .join(qProject).on(qProject.id.eq(fromProjectIdPath))
-            .orderBy(qProject.pkey.asc())
-            .fetch();
+        SQLQuery<ProjectSummaryDTO> query =
+            new SQLQuery<ProjectSummaryDTO>(connection, configuration)
+                .select(Projections.bean(ProjectSummaryDTO.class,
+                    qProject.pkey.as(ProjectSummaryDTO.AliasNames.PROJECT_KEY),
+                    qProject.pname.as(ProjectSummaryDTO.AliasNames.PROJECT_NAME),
+                    qProject.description.as(ProjectSummaryDTO.AliasNames.PROJECT_DESCRIPTION),
+                    timeOriginalSumPath,
+                    timeEstimateSumPath,
+                    workloggedSumPath))
+                .from(fromQuery.as("sums"))
+                .join(qProject).on(qProject.id.eq(fromProjectIdPath))
+                .orderBy(qProject.pkey.asc());
+
+        appendQueryRange(query);
+
+        return query.fetch();
       }
     };
   }

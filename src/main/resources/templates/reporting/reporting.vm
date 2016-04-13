@@ -37,25 +37,26 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
           {
             firstDay : ${firstDay},
             useISO8601: ${useISO8601},
-            dateToFormated: "${dateToFormated}",
-            dateFromFormated: "${dateFromFormated}",
-            dateFromFormated: "${dateFromFormated}",
-            selectedProjects : ${selectedProjects},
-            selectedStatus: ${selectedStatus},
-            selectedTypes: ${selectedTypes},
-            selectedPriorities: ${selectedPriorities},
-            selectedResolutions: ${selectedResolutions},
-            selectedGroups: [ #foreach( $tmp in $selectedGroups )#if($velocityCount> 1),#end "$tmp"  #end ],
-            selectedUsers:  [ #foreach( $tmp in $selectedUsers )#if($velocityCount> 1),#end "$tmp"  #end ],
-            selectedAssignes: [ #foreach( $tmp in $selectedAssignes )#if($velocityCount> 1),#end "$tmp" #end ],
-            selectedReportes: [ #foreach( $tmp in $selectedReportes )#if($velocityCount> 1),#end "$tmp" #end ],
-            selectedAffectedVersions: [ #foreach( $tmp in $selectedAffectedVersions )#if($velocityCount> 1),#end "$tmp" #end ],
-            selectedFixVersions: [ #foreach( $tmp in $selectedFixVersions )#if($velocityCount> 1),#end "$tmp" #end ],
-            selectedComponents:[ #foreach( $tmp in $selectedComponents )#if($velocityCount> 1),#end "$tmp" #end ],
-            selectedLabels: [ #foreach( $tmp in $selectedLabels )#if($velocityCount> 1),#end "$tmp" #end ],
-            selectedEpicLinks: ${selectedEpicLinks},
-            selectedIssues: [ #foreach( $tmp in $selectedIssues )#if($velocityCount> 1),#end "$tmp" #end ],
+            dateToFormated: "${filterCondition.worklogEndDate}",
+            dateFromFormated: "${filterCondition.worklogStartDate}",
+            dateCreatedFormated: "${filterCondition.issueCreateDate}",
+            selectedProjects : ${filterCondition.projectIds},
+            selectedStatus: ${filterCondition.issueStatusIds},
+            selectedTypes: ${filterCondition.issueTypeIds},
+            selectedPriorities: ${filterCondition.issuePriorityIds},
+            selectedResolutions: ${filterCondition.issueResolutionIds},
+            selectedGroups: [ #foreach( $tmp in $filterCondition.groups )#if($velocityCount> 1),#end "$tmp"  #end ],
+            selectedUsers:  [ #foreach( $tmp in $filterCondition.users )#if($velocityCount> 1),#end "$tmp"  #end ],
+            selectedAssignes: [ #foreach( $tmp in $filterCondition.issueAssignees )#if($velocityCount> 1),#end "$tmp" #end ],
+            selectedReportes: [ #foreach( $tmp in $filterCondition.issueReporters )#if($velocityCount> 1),#end "$tmp" #end ],
+            selectedAffectedVersions: [ #foreach( $tmp in $filterCondition.issueAffectedVersions )#if($velocityCount> 1),#end "$tmp" #end ],
+            selectedFixVersions: [ #foreach( $tmp in $filterCondition.issueFixedVersions )#if($velocityCount> 1),#end "$tmp" #end ],
+            selectedComponents:[ #foreach( $tmp in $filterCondition.issueComponents )#if($velocityCount> 1),#end "$tmp" #end ],
+            selectedLabels: [ #foreach( $tmp in $filterCondition.labels )#if($velocityCount> 1),#end "$tmp" #end ],
+            selectedEpicLinks: ${filterCondition.issueEpicLinkIssueIds},
+            selectedIssues: [ #foreach( $tmp in $filterCondition.issueKeys )#if($velocityCount> 1),#end "$tmp" #end ],
             selectedMore: [ #foreach( $tmp in $selectedMore )#if($velocityCount> 1),#end "$tmp" #end ],
+            
           }
         );
       })(everit.reporting.main, AJS.$);
@@ -357,7 +358,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                                <div class="criteria-dropdown-text-div" data-query>
                                                  <div class='form-body'>
                                                    <div class='field-group aui-field-text'>
-                                                       <input id="createdPicker" name="createdPicker" class="text medium-field datepicker-input criteria-dropdown-text" placeholder="Created Date" type="text" value="$dateCreatedFormated">
+                                                       <input id="createdPicker" name="createdPicker" class="text medium-field datepicker-input criteria-dropdown-text" placeholder="Created Date" type="text" value="$filterCondition.issueCreateDate">
                                                          <span id="createdPickerTrigger" class="aui-icon criteria-dropdown-calendar-icon">Select a date</span>
                                                        </input>
                                                    </div>
@@ -376,7 +377,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                                <div class="criteria-dropdown-text-div"  data-query>
                                                  <div class='form-body'>
                                                    <div class='field-group aui-field-text'>
-                                                       <input id="epicNamePicker" name="epicNamePicker" class="text medium-field criteria-dropdown-text" placeholder="Epic Name" type="text" value="$selectedEpicName" />
+                                                       <input id="epicNamePicker" name="epicNamePicker" class="text medium-field criteria-dropdown-text" placeholder="Epic Name" type="text" value="$filterCondition.issueEpicName" />
                                                    </div>
                                                  </div>
                                                </div>
@@ -473,18 +474,19 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                 <div class="search-criteria-container">
                                     <div class="search-criteria">
                                         <div class="from-date inline-calendar">
-                                            <input id="dateFrom" name="dateFrom" class="text medium-field datepicker-input" placeholder="From" type="text" value="$dateFromFormated"/>
+                                            <input id="dateFrom" name="dateFrom" class="text medium-field datepicker-input" placeholder="From" type="text" value="$filterCondition.worklogStartDate"/>
                                                 <a href="#" title="Select a date">
                                                     <span id="date_trigger_from" class="aui-icon icon-date">Select a date</span>
                                                 </a>
                                         </div>
                                         <div class="to-date inline-calendar">
-                                            <input id="dateTo" name="dateTo" class="text medium-field datepicker-input" placeholder="To" type="text" value="$dateToFormated" />
+                                            <input id="dateTo" name="dateTo" class="text medium-field datepicker-input" placeholder="To" type="text" value="$filterCondition.worklogEndDate" />
                                                 <a href="#" title="Select a date">
                                                     <span id="date_trigger_to" class="aui-icon icon-date">Select a date</span>
                                                 </a>
                                         </div>
-                                        <button type="submit" class="aui-button aui-button-primary">Create Report</button> <!-- Submit the search form -->
+                                        <input type="hidden" id="filterConditionJson" name="filterConditionJson" value=""/>
+                                        <button type="submit" class="aui-button aui-button-primary" onclick="everit.reporting.main.beforeSubmitCreateReport()">Create Report</button> <!-- Submit the search form -->
                                     </div>
                                 </div>
                             </div>

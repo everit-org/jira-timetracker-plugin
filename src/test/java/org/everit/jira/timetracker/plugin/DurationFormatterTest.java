@@ -31,7 +31,7 @@ import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
 import com.atlassian.jira.mock.component.MockComponentWorker;
 
 @RunWith(Parameterized.class)
-public class DateTimeConverterUtilTest {
+public class DurationFormatterTest {
 
   private static DurationBuilder duration(final double hoursPerDayParam,
       final double daysPerWeekParam) {
@@ -41,18 +41,19 @@ public class DateTimeConverterUtilTest {
   @Parameters
   public static List<Object[]> params() {
     return Arrays.asList(
-        new Object[] { "0m", duration(8, 5), 8, 5 },
-        new Object[] { "3m", duration(8, 5).min(3), 8, 5 },
-        new Object[] { "2h 3m", duration(8, 5).hour(2).min(3), 8, 5 },
-        new Object[] { "2h 0m", duration(8, 5).hour(2), 8, 5 },
-        new Object[] { "2d 2h 0m", duration(8, 5).day(2).hour(2), 8, 5 },
-        new Object[] { "3w 2d 0h 0m", duration(8, 5).week(3).day(2), 8, 5 },
-        new Object[] { "1d 0h 0m", duration(7, 5).hour(7), 7, 5 },
-        new Object[] { "7h 0m", duration(7.5, 5).hour(7), 7.5, 5 },
-        new Object[] { "1d 0h 0m", duration(7.5, 5).hour(7).min(30), 7.5, 5 },
-        new Object[] { "1d 0h 30m", duration(7.5, 5).hour(8), 7.5, 5 },
-        new Object[] { "1w 0d 4h 0m", duration(8, 4.5).hour(40), 8, 4.5 },
-        new Object[] { "1w 0d 6h 15m", duration(7.5, 4.5).hour(40), 7.5, 4.5 });
+        new Object[] { "0m", DurationFormatterTest.duration(8, 5), 8, 5 },
+        new Object[] { "3m", DurationFormatterTest.duration(8, 5).min(3), 8, 5 },
+        new Object[] { "2h 3m", DurationFormatterTest.duration(8, 5).hour(2).min(3), 8, 5 },
+        new Object[] { "2h 0m", DurationFormatterTest.duration(8, 5).hour(2), 8, 5 },
+        new Object[] { "2d 2h 0m", DurationFormatterTest.duration(8, 5).day(2).hour(2), 8, 5 },
+        new Object[] { "3w 2d 0h 0m", DurationFormatterTest.duration(8, 5).week(3).day(2), 8, 5 },
+        new Object[] { "1d 0h 0m", DurationFormatterTest.duration(7, 5).hour(7), 7, 5 },
+        new Object[] { "7h 0m", DurationFormatterTest.duration(7.5, 5).hour(7), 7.5, 5 },
+        new Object[] { "1d 0h 0m", DurationFormatterTest.duration(7.5, 5).hour(7).min(30), 7.5, 5 },
+        new Object[] { "1d 0h 30m", DurationFormatterTest.duration(7.5, 5).hour(8), 7.5, 5 },
+        new Object[] { "1w 0d 4h 0m", DurationFormatterTest.duration(8, 4.5).hour(40), 8, 4.5 },
+        new Object[] { "1w 0d 6h 15m", DurationFormatterTest.duration(7.5, 4.5).hour(40), 7.5,
+            4.5 });
   }
 
   private final double dayPerWeek;
@@ -63,7 +64,7 @@ public class DateTimeConverterUtilTest {
 
   private final long inputSeconds;
 
-  public DateTimeConverterUtilTest(final String expectedString,
+  public DurationFormatterTest(final String expectedString,
       final DurationBuilder inputSeconds, final double hoursPerDay, final double dayPerWeek) {
     super();
     this.expectedString = expectedString;
@@ -90,8 +91,8 @@ public class DateTimeConverterUtilTest {
   }
 
   @Test
-  public void testSecondConvertToString() {
+  public void testExactDuration() {
     setupMockTimeTrackerConfig(hoursPerDay, dayPerWeek);
-    Assert.assertEquals(expectedString, DateTimeConverterUtil.secondConvertToString(inputSeconds));
+    Assert.assertEquals(expectedString, new DurationFormatter().exactDuration(inputSeconds));
   }
 }
