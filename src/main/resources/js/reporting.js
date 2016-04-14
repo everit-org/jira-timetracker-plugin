@@ -323,14 +323,64 @@ everit.reporting.main = everit.reporting.main || {};
           element:  AJS.$("#userPicker"),
           submitInputVal: true,
         });
-        updatePickerButtonText("#userPicker" , "#userPickerButton", "User: All");
+        updatePickerButtonTextWithNone("#userPicker" , "#userPickerButton", "User: All", "User: None", "none");
         jQuery("#userPicker").on("change unselect", function() {
-          updatePickerButtonText("#userPicker" , "#userPickerButton", "User: All");
+          updatePickerButtonTextWithNone("#userPicker" , "#userPickerButton", "User: All", "User: None", "none");
         });
+       var userPickerNone = jQuery('#userPicker-suggestions [value="none"]');
+       var userPickerNotNone = jQuery('#userPicker-suggestions [value!="none"]');
+       userPickerNone.on("click", function() {
+          //Checked
+          if(userPickerNone.attr("checked") == "checked"){
+            console.log("OK");
+            jQuery('#userPicker-suggestions input[checked="checked"][value!="none"]').click();
+            
+            //group select None - disable false
+            jQuery('#groupPicker-suggestions [value="-1"]').click();
+            jQuery("#groupPickerButton").attr("aria-disabled", false);
+          }else{
+            console.log("WTAT");
+          //group unselect none - disable true
+            jQuery('#groupPicker-suggestions [value="-1"]').click();
+            jQuery("#groupPickerButton").attr("aria-disabled", true);
+          }
+//          userPickerNotNone.on("click", function(e) {
+//          if(userPickerNone.attr("checked") == "checked"){
+//            jQuery(userPickerNone).click();
+//            e.preventDefault();
+//          }
+//         });
+
+          //unChecked
+        });
+     
       },
       error : function(XMLHttpRequest, status, error){
       }
     });
+  };
+    
+  function updatePickerButtonTextWithNone(picker, button, defaultText, noneText, noneValue){ //Example vallues: "#userPicker" , "#userPickerButton", "User: All", "User: None"
+    //FIND and decide none checked
+    var newButtonText = "";
+   if(jQuery(picker+" [value="+ noneValue +"]").attr("selected") != "selected"){
+     jQuery(picker).find("option:selected").each(function() {
+       var optionText = AJS.$(this).text();
+       if (newButtonText === '') {
+         newButtonText = optionText;
+       } else {
+         newButtonText = newButtonText + "," + optionText;
+       }
+     });
+     if (newButtonText === '') {
+       newButtonText = defaultText;
+     }else if(newButtonText.length > 16){
+       newButtonText = newButtonText.substring(0, 12) + "...";
+     }
+   }else{
+     newButtonText = noneText;
+   }
+   jQuery(button).text(newButtonText);
   };
   
   function initGroupSelect(){
@@ -345,6 +395,7 @@ everit.reporting.main = everit.reporting.main || {};
         var selected = ""; 
         if(selectedArray.length == 0){
           selected = "selected";
+          jQuery("#groupPickerButton").attr("aria-disabled", true);
         }
         jQuery("#groupPicker").append('<option value="-1" '+ selected + '>' +'None'+'</option>');
         for( var i in result.groups) {
@@ -356,10 +407,23 @@ everit.reporting.main = everit.reporting.main || {};
               element:  AJS.$("#groupPicker"),
               submitInputVal: true,
         });
-        updatePickerButtonText("#groupPicker" , "#groupPickerButton", "Group: All");
+        updatePickerButtonTextWithNone("#groupPicker" , "#groupPickerButton", "Group: All", "Group: None", "-1");
         jQuery("#groupPicker").on("change unselect", function() {
-          updatePickerButtonText("#groupPicker" , "#groupPickerButton", "Group: All");
+          updatePickerButtonTextWithNone("#groupPicker" , "#groupPickerButton", "Group: All", "Group: None", "-1");
         });
+        var groupPickerNone = jQuery('#groupPicker-suggestions [value="-1"]');
+        var groupPickerNotNone = jQuery('#groupPicker-suggestions [value!="-1"]');
+        groupPickerNone.on("click", function() {
+           //Checked
+           if(groupPickerNone.attr("checked") == "checked"){
+             console.log("OK G");
+             jQuery('#groupPicker-suggestions input[checked="checked"][value!="-1"]').click();
+           }else{
+             console.log("WTAT G");
+           }
+
+           //unChecked
+         });
       },
       error : function(XMLHttpRequest, status, error){
       }
