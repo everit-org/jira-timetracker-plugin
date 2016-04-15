@@ -1,0 +1,104 @@
+#*
+ * Copyright (C) 2011 Everit Kft. (http://www.everit.org)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *#
+                              <div id="tabs-issue-content">
+                                <table class="aui reporting-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Issue Key</th>
+                                            <th>Issue Summary</th>
+                                            <th>Type</th>
+                                            <th>Priority</th>
+                                            <th>Status</th>
+                                            <th>Assignee</th>
+                                            <th>Estimated</th>
+                                            <th>Remaining</th>
+                                            <th>Total Logged</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        #foreach ( $is in $issueSummaryReport.issueSummaries )
+                                        <tr>
+                                            <td>$is.issueKey</td>
+                                            <td>$is.issueSummary</td>
+                                            <td>$is.issueTypeName</td>
+                                            <td>$is.priorityName</td>
+                                            <td>$is.statusName</td>
+                                            <td>#if ( !$is.assignee ) Unassigneed #else $is.assignee #end</td>
+                                            <td>$durationFormatter.exactDuration($is.orginalEstimatedSum)</td>
+                                            <td>$durationFormatter.exactDuration($is.reaminingTimeSum)</td>
+                                            <td>$durationFormatter.exactDuration($is.workloggedTimeSum)</td>
+                                        </tr>
+                                        #end
+                                    </tbody>
+                                </table>
+                                <div class="aui-group aui-group-split count-pagination">
+                                    <div class="aui-item">
+                                        <span class="results-count-text">
+                                            <span class="results-count results-count-start">$issueSummaryReport.paging.start</span> –
+                                            <span class="results-count results-count-end">$issueSummaryReport.paging.end</span> of 
+                                            <span class="results-count results-count-total results-count-link">$issueSummaryReport.issueSummaryCount</span>
+                                        </span>
+                                    </div>
+                                    <div class="aui-item">
+                                        <div class="pagination">
+                                            #set($isMaxPageNumber = $issueSummaryReport.paging.maxPageNumber)
+                                            
+                                            #if ( $isMaxPageNumber )
+                                              #set($isActPageNumber = $issueSummaryReport.paging.actPageNumber)
+                                              #set($filterLimit = $filterCondition.limit)
+                                              #if ( $isActPageNumber - 2 < 1 )
+                                                #set($inStart = 1)
+                                              #else
+                                                #set($inStart = $isActPageNumber - 2)
+                                              #end
+                                              #if ( $isActPageNumber + 2 > $isMaxPageNumber )
+                                                #set($inEnd = $isMaxPageNumber)
+                                              #else
+                                                #set($inEnd = $isActPageNumber + 2)
+                                              #end
+                                              #if ( $isActPageNumber < 3 )
+                                                #if ($isMaxPageNumber > 5) 
+                                                  #set($inEnd = 5) 
+                                                #else 
+                                                  #set($inEnd = $isMaxPageNumber) 
+                                                #end
+                                              #end
+                                              #if ( $isActPageNumber + 2 >= $isMaxPageNumber && $isMaxPageNumber - 4 > 0) 
+                                                  #set($inStart = $isMaxPageNumber - 4)
+                                              #end
+                                              
+                                              #if ( $isActPageNumber > 1 )
+                                            <a href="javascript:void(0);" onclick="everit.reporting.main.getIssueSummaryPage((($isActPageNumber - 1) * $filterLimit) - $filterLimit)">
+                                                <span class="aui-icon aui-icon-small aui-iconfont-arrows-left"></span>
+                                            </a>
+                                              #end
+                                              #foreach ( $page in [$inStart..$inEnd] ) 
+                                                #if ( $isActPageNumber == $page )
+                                            <strong>$page</strong>
+                                                #else
+                                            <a href="javascript:void(0);" onclick="everit.reporting.main.getIssueSummaryPage(($page * $filterLimit) - $filterLimit)">$page</a>
+                                                #end
+                                              #end
+                                              #if ( $isActPageNumber < $isMaxPageNumber )
+                                            <a href="javascript:void(0);" onclick="everit.reporting.main.getIssueSummaryPage((($isActPageNumber + 1) * $filterLimit) - $filterLimit)">
+                                                <span class="aui-icon aui-icon-small aui-iconfont-arrows-right"></span>
+                                            </a>
+                                              #end
+                                            #end 
+                                        </div>
+                                    </div>
+                                </div>
+                              </div>

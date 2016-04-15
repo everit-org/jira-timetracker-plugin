@@ -15,11 +15,11 @@
  */
 package org.everit.jira.reporting.plugin.rest;
 
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
-import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -27,17 +27,15 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.everit.jira.querydsl.support.QuerydslCallable;
-import org.everit.jira.querydsl.support.QuerydslSupport;
-import org.everit.jira.querydsl.support.ri.QuerydslSupportImpl;
+import org.everit.jira.reporting.plugin.ReportingPlugin;
 import org.everit.jira.reporting.plugin.dto.ConvertedSearchParam;
 import org.everit.jira.reporting.plugin.dto.FilterCondition;
-import org.everit.jira.reporting.plugin.dto.WorklogDetailsDTO;
-import org.everit.jira.reporting.plugin.query.WorklogDetailsReportQueryBuilder;
+import org.everit.jira.reporting.plugin.dto.IssueSummaryReportDTO;
+import org.everit.jira.reporting.plugin.dto.ProjectSummaryReportDTO;
+import org.everit.jira.reporting.plugin.dto.UserSummaryReportDTO;
+import org.everit.jira.reporting.plugin.dto.WorklogDetailsReportDTO;
 import org.everit.jira.reporting.plugin.util.ConverterUtil;
 import org.everit.jira.timetracker.plugin.DurationFormatter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.web.util.OutlookDate;
@@ -45,92 +43,172 @@ import com.atlassian.velocity.VelocityManager;
 import com.google.gson.Gson;
 
 /**
- * FIXME zs.cz add javadoc.
+ * Responsible to help table report paging.
  */
 @Path("/paging-report")
 public class PagingReport {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(PagingReport.class);
+  private static final String ENCODING = "UTF-8";
 
-  private QuerydslSupport querydslSupport;
+  private static final String TEMPLATE_DIRECTORY = "/templates/reporting/";
+
+  private Gson gson;
+
+  private ReportingPlugin reportingPlugin;
+
+  private VelocityManager velocityManager;
 
   /**
-   * Simple constructor.
+   * Simple constructor. Initialize required members.
    */
-  public PagingReport() {
-    try {
-      querydslSupport = new QuerydslSupportImpl();
-    } catch (Exception e) {
-      LOGGER.error("Problem to create querydslSupport.", e);
-    }
+  public PagingReport(final ReportingPlugin reportingPlugin) {
+    this.reportingPlugin = reportingPlugin;
+    gson = new Gson();
+    velocityManager = ComponentAccessor.getVelocityManager();
+  }
+
+  private void appendRequiredContextParameters(final Map<String, Object> contextParameters,
+      final FilterCondition filterCondition) {
+    contextParameters.put("durationFormatter", new DurationFormatter());
+    contextParameters.put("filterCondition", filterCondition);
+
+    Locale locale = ComponentAccessor.getJiraAuthenticationContext().getLocale();
+    OutlookDate outlookDate = new OutlookDate(locale);
+    contextParameters.put("outlookDate", outlookDate);
+  }
+
+  private Response buildResponse(final String templateFileName,
+      final Map<String, Object> contextParameters) {
+    String encodedBody = velocityManager.getEncodedBody(TEMPLATE_DIRECTORY,
+        templateFileName,
+        ENCODING,
+        contextParameters);
+    return Response.ok(encodedBody).build();
+  }
+
+  private FilterCondition convertJsonToFilterCondition(final String filterConditionJson) {
+    return gson.fromJson(filterConditionJson, FilterCondition.class);
   }
 
   /**
-   * FIXME zs.cz add javadoc.
+   * Paging the issue summary report table.
+   *
+   * @param filterConditionJson
+   *          the {@link FilterCondition} in JSON format.
+   *
+   * @return the page content in HTML.
    */
   @GET
   @Produces(MediaType.TEXT_HTML)
-  @Path("/pageWorklogDetails")
-  public Response pageWorklogDetails(@QueryParam("json") @DefaultValue("{}") final String json) {
-    FilterCondition filterCondition = new Gson()
-        .fromJson(json, FilterCondition.class);
+  @Path("/pageIssueSummary")
+  public Response pageIssueSummary(
+      @QueryParam("filterConditionJson") final String filterConditionJson) {
+    FilterCondition filterCondition = convertJsonToFilterCondition(filterConditionJson);
 
     ConvertedSearchParam converSearchParam = ConverterUtil
         .convertFilterConditionToConvertedSearchParam(filterCondition);
 
-    WorklogDetailsReportQueryBuilder worklogDetailsReportQueryBuilder =
-        new WorklogDetailsReportQueryBuilder(converSearchParam.reportSearchParam);
+    IssueSummaryReportDTO issueSummaryReport =
+        reportingPlugin.getIssueSummaryReport(converSearchParam.reportSearchParam);
 
-    QuerydslCallable<List<WorklogDetailsDTO>> worklogDetailsQuery = worklogDetailsReportQueryBuilder
-        .buildQuery();
+    Map<String, Object> contextParameters = new HashMap<>();
+    contextParameters.put("issueSummaryReport", issueSummaryReport);
 
-    QuerydslCallable<Long> worklogDetailsCountQuery =
-        worklogDetailsReportQueryBuilder.buildCountQuery();
+    appendRequiredContextParameters(contextParameters, filterCondition);
 
-    QuerydslCallable<Long> grandTotalQuery =
-        worklogDetailsReportQueryBuilder.buildGrandTotalQuery();
+    return buildResponse("reporting_result_issue_summary.vm", contextParameters);
+  }
 
-    List<WorklogDetailsDTO> worklogDetails = querydslSupport.execute(worklogDetailsQuery);
+  /**
+   * Paging the project summary report table.
+   *
+   * @param filterConditionJson
+   *          the {@link FilterCondition} in JSON format.
+   *
+   * @return the page content in HTML.
+   */
+  @GET
+  @Produces(MediaType.TEXT_HTML)
+  @Path("/pageProjectSummary")
+  public Response pageProjectSummary(
+      @QueryParam("filterConditionJson") final String filterConditionJson) {
+    FilterCondition filterCondition = convertJsonToFilterCondition(filterConditionJson);
 
-    Long worklogDetailsCount = querydslSupport.execute(worklogDetailsCountQuery);
+    ConvertedSearchParam converSearchParam = ConverterUtil
+        .convertFilterConditionToConvertedSearchParam(filterCondition);
 
-    Long grandTotal = querydslSupport.execute(grandTotalQuery);
+    ProjectSummaryReportDTO projectSummaryReport =
+        reportingPlugin.getProjectSummaryReport(converSearchParam.reportSearchParam);
 
-    Integer maxPageNumber = null;
-    Integer newActPageNumber = 1;
-    if ((converSearchParam.reportSearchParam.limit != null)
-        && (converSearchParam.reportSearchParam.limit != 0)) {
-      maxPageNumber = (int) Math
-          .ceil(worklogDetailsCount / converSearchParam.reportSearchParam.limit.doubleValue());
+    HashMap<String, Object> contextParameters = new HashMap<>();
+    contextParameters.put("projectSummaryReport", projectSummaryReport);
 
-      if ((converSearchParam.reportSearchParam.offset != null)
-          && (converSearchParam.reportSearchParam.offset != 0)) {
-        newActPageNumber = (int) Math
-            .ceil(converSearchParam.reportSearchParam.offset
-                / converSearchParam.reportSearchParam.limit.doubleValue())
-            + 1;
-      }
-    }
+    appendRequiredContextParameters(contextParameters, filterCondition);
 
-    VelocityManager velocityManager = ComponentAccessor.getVelocityManager();
+    return buildResponse("reporting_result_project_summary.vm", contextParameters);
+  }
 
-    HashMap<String, Object> hashMap = new HashMap<>();
-    hashMap.put("worklogDetails", worklogDetails);
-    hashMap.put("worklogDetailsCount", worklogDetailsCount);
-    hashMap.put("grandTotal", grandTotal);
-    hashMap.put("durationFormatter", new DurationFormatter());
-    hashMap.put("maxPageNumber", maxPageNumber);
-    hashMap.put("newActPageNumber", newActPageNumber);
-    hashMap.put("jsonFilterCondition", json);
-    hashMap.put("filterCondition", filterCondition);
+  /**
+   * Paging the user summary report table.
+   *
+   * @param filterConditionJson
+   *          the {@link FilterCondition} in JSON format.
+   *
+   * @return the page content in HTML.
+   */
+  @GET
+  @Produces(MediaType.TEXT_HTML)
+  @Path("/pageUserSummary")
+  public Response pageUserSummary(
+      @QueryParam("filterConditionJson") final String filterConditionJson) {
+    FilterCondition filterCondition = convertJsonToFilterCondition(filterConditionJson);
 
-    Locale locale = ComponentAccessor.getJiraAuthenticationContext().getLocale();
-    OutlookDate outlookDate = new OutlookDate(locale);
-    hashMap.put("outlookDate", outlookDate);
+    ConvertedSearchParam converSearchParam = ConverterUtil
+        .convertFilterConditionToConvertedSearchParam(filterCondition);
 
-    String encodedBody = velocityManager.getEncodedBody("/templates/reporting/",
-        "reporting_result_worklog_details.vm",
-        "UTF-8", hashMap);
-    return Response.ok(encodedBody).build();
+    UserSummaryReportDTO userSummaryReport =
+        reportingPlugin.getUserSummaryReport(converSearchParam.reportSearchParam);
+
+    HashMap<String, Object> contextParameters = new HashMap<>();
+    contextParameters.put("userSummaryReport", userSummaryReport);
+
+    appendRequiredContextParameters(contextParameters, filterCondition);
+
+    return buildResponse("reporting_result_user_summary.vm", contextParameters);
+  }
+
+  /**
+   * Paging the worklog details report table.
+   *
+   * @param filterConditionJson
+   *          the {@link FilterCondition} in JSON format.
+   * @param selectedColumnsJson
+   *          the JSON array from the selected columns.
+   *
+   * @return the page content in HTML.
+   */
+  @GET
+  @Produces(MediaType.TEXT_HTML)
+  @Path("/pageWorklogDetails")
+  public Response pageWorklogDetails(
+      @QueryParam("filterConditionJson") final String filterConditionJson,
+      @QueryParam("selectedColumnsJson") final String selectedColumnsJson) {
+    FilterCondition filterCondition = convertJsonToFilterCondition(filterConditionJson);
+
+    String[] selectedColumns = gson.fromJson(selectedColumnsJson, String[].class);
+
+    ConvertedSearchParam converSearchParam = ConverterUtil
+        .convertFilterConditionToConvertedSearchParam(filterCondition);
+
+    WorklogDetailsReportDTO worklogDetailsReport =
+        reportingPlugin.getWorklogDetailsReport(converSearchParam.reportSearchParam);
+
+    HashMap<String, Object> contextParameters = new HashMap<>();
+    contextParameters.put("worklogDetailsReport", worklogDetailsReport);
+    contextParameters.put("selectedWorklogDetailsColumns", Arrays.asList(selectedColumns));
+
+    appendRequiredContextParameters(contextParameters, filterCondition);
+
+    return buildResponse("reporting_result_worklog_details.vm", contextParameters);
   }
 }

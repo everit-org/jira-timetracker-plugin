@@ -24,53 +24,53 @@ import java.util.List;
  */
 public final class WorklogDetailsColumns {
 
-  public static final String AFFECTED_VERIONS = "affectedVersions";
+  public static final String AFFECTED_VERIONS = "jtrp_col_affectedVersions";
 
   public static final List<String> ALL_COLUMNS;
 
-  public static final String ASSIGNEE = "assignee";
+  public static final String ASSIGNEE = "jtrp_col_assignee";
 
-  public static final String COMPONENTS = "components";
+  public static final String COMPONENTS = "jtrp_col_components";
 
-  public static final String CREATED = "created";
+  public static final String CREATED = "jtrp_col_created";
 
-  public static final String ESTIMATED = "estimated";
+  public static final String ESTIMATED = "jtrp_col_estimated";
 
-  public static final String FIX_VERSIONS = "fixVersions";
+  public static final String FIX_VERSIONS = "jtrp_col_fixVersions";
 
-  public static final String ISSUE_KEY = "issueKey";
+  public static final String ISSUE_KEY = "jtrp_col_issueKey";
 
-  public static final String ISSUE_SUMMARY = "issueSummary";
+  public static final String ISSUE_SUMMARY = "jtrp_col_issueSummary";
 
-  public static final String PRIORITY = "priority";
+  public static final String PRIORITY = "jtrp_col_priority";
 
-  public static final String PROJECT = "project";
+  public static final String PROJECT = "jtrp_col_project";
 
-  public static final String PROJECT_DESCRIPTION = "projectDescription";
+  public static final String PROJECT_DESCRIPTION = "jtrp_col_projectDescription";
 
-  public static final String REMAINING = "remainingTime";
+  public static final String REMAINING = "jtrp_col_remainingTime";
 
-  public static final String REPORTER = "reporter";
+  public static final String REPORTER = "jtrp_col_reporter";
 
-  public static final String RESOLUTION = "resolution";
+  public static final String RESOLUTION = "jtrp_col_resolution";
 
-  public static final String START_TIME = "startTime";
+  public static final String START_TIME = "jtrp_col_startTime";
 
-  public static final String STATUS = "status";
+  public static final String STATUS = "jtrp_col_status";
 
-  public static final String TIME_SPENT = "timeSpent";
+  public static final String TIME_SPENT = "jtrp_col_timeSpent";
 
-  public static final String TYPE = "type";
+  public static final String TYPE = "jtrp_col_type";
 
-  public static final String UPDATED = "updated";
+  public static final String UPDATED = "jtrp_col_updated";
 
-  public static final String USER = "user";
+  public static final String USER = "jtrp_col_user";
 
-  public static final String WORKLOG_CREATED = "worklogCreated";
+  public static final String WORKLOG_CREATED = "jtrp_col_worklogCreated";
 
-  public static final String WORKLOG_DESCRIPTION = "worklogDescription";
+  public static final String WORKLOG_DESCRIPTION = "jtrp_col_worklogDescription";
 
-  public static final String WORKLOG_UPDATED = "worklogUpdated";
+  public static final String WORKLOG_UPDATED = "jtrp_col_worklogUpdated";
 
   static {
     List<String> allColumns = new ArrayList<String>();

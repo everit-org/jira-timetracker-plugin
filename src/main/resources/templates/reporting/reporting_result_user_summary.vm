@@ -1,0 +1,90 @@
+#*
+ * Copyright (C) 2011 Everit Kft. (http://www.everit.org)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *#
+                              <div class="tabs-pane" id="tabs-user-content">
+                                <table class="aui reporting-table">
+                                    <thead>
+                                        <tr>
+                                            <th>User</th>
+                                            <th>Total Logged</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        #foreach ( $us in $userSummaryReport.userSummaries )
+                                        <tr>
+                                            <td>$us.userDisplayName</td>
+                                            <td>$durationFormatter.exactDuration($us.workloggedTimeSum)</td>
+                                        </tr>
+                                        #end
+                                    </tbody>
+                                </table>
+                                <div class="aui-group aui-group-split count-pagination">
+                                    <div class="aui-item">
+                                        <span class="results-count-text">
+                                            <span class="results-count results-count-start">$userSummaryReport.paging.start</span> –
+                                            <span class="results-count results-count-end">$userSummaryReport.paging.end</span> of 
+                                            <span class="results-count results-count-total results-count-link">$userSummaryReport.userSummaryCount</span>
+                                        </span>
+                                    </div>
+                                    <div class="aui-item">
+                                        <div class="pagination">
+                                            #set($usMaxPageNumber = $userSummaryReport.paging.maxPageNumber)
+                                            
+                                            #if ( $usMaxPageNumber )
+                                              #set($usActPageNumber = $userSummaryReport.paging.actPageNumber)
+                                              #set($filterLimit = $filterCondition.limit)
+                                              #if ( $usActPageNumber - 2 < 1 )
+                                                #set($inStart = 1)
+                                              #else
+                                                #set($inStart = $usActPageNumber - 2)
+                                              #end
+                                              #if ( $usActPageNumber + 2 > $usMaxPageNumber )
+                                                #set($inEnd = $usMaxPageNumber)
+                                              #else
+                                                #set($inEnd = $usActPageNumber + 2)
+                                              #end
+                                              #if ( $usActPageNumber < 3 )
+                                                #if ($usMaxPageNumber > 5) 
+                                                  #set($inEnd = 5) 
+                                                #else 
+                                                  #set($inEnd = $usMaxPageNumber) 
+                                                #end
+                                              #end
+                                              #if ( $usActPageNumber + 2 >= $usMaxPageNumber && $usMaxPageNumber - 4 > 0 ) 
+                                                  #set($inStart = $usMaxPageNumber - 4)
+                                              #end
+    
+                                              #if ( $usActPageNumber > 1 )
+                                            <a href="javascript:void(0);" onclick="everit.reporting.main.getUserSummaryPage((($usActPageNumber - 1) * $filterLimit) - $filterLimit)">
+                                                <span class="aui-icon aui-icon-small aui-iconfont-arrows-left"></span>
+                                            </a>
+                                              #end
+                                              #foreach ( $page in [$inStart..$inEnd] ) 
+                                                #if ( $usActPageNumber == $page )
+                                            <strong>$page</strong>
+                                                #else
+                                            <a href="javascript:void(0);" onclick="everit.reporting.main.getUserSummaryPage(($page * $filterLimit) - $filterLimit)">$page</a>
+                                                #end
+                                              #end
+                                              #if ( $usActPageNumber < $usMaxPageNumber )
+                                            <a href="javascript:void(0);" onclick="everit.reporting.main.getUserSummaryPage((($usActPageNumber + 1) * $filterLimit) - $filterLimit)">
+                                                <span class="aui-icon aui-icon-small aui-iconfont-arrows-right"></span>
+                                            </a>
+                                              #end
+                                            #end 
+                                        </div>
+                                    </div>
+                                </div>
+                              </div>

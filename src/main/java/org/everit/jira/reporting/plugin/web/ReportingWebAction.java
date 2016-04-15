@@ -24,29 +24,24 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
-import org.everit.jira.querydsl.support.QuerydslCallable;
-import org.everit.jira.querydsl.support.QuerydslSupport;
-import org.everit.jira.querydsl.support.ri.QuerydslSupportImpl;
 import org.everit.jira.reporting.plugin.ReportingCondition;
 import org.everit.jira.reporting.plugin.ReportingPlugin;
 import org.everit.jira.reporting.plugin.dto.ConvertedSearchParam;
 import org.everit.jira.reporting.plugin.dto.FilterCondition;
-import org.everit.jira.reporting.plugin.dto.IssueSummaryDTO;
-import org.everit.jira.reporting.plugin.dto.ProjectSummaryDTO;
-import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
-import org.everit.jira.reporting.plugin.dto.UserSummaryDTO;
-import org.everit.jira.reporting.plugin.dto.WorklogDetailsDTO;
-import org.everit.jira.reporting.plugin.query.IssueSummaryReportQueryBuilder;
-import org.everit.jira.reporting.plugin.query.ProjectSummaryReportQueryBuilder;
-import org.everit.jira.reporting.plugin.query.UserSummaryReportQueryBuilder;
-import org.everit.jira.reporting.plugin.query.WorklogDetailsReportQueryBuilder;
+import org.everit.jira.reporting.plugin.dto.IssueSummaryReportDTO;
+import org.everit.jira.reporting.plugin.dto.ProjectSummaryReportDTO;
+import org.everit.jira.reporting.plugin.dto.UserSummaryReportDTO;
+import org.everit.jira.reporting.plugin.dto.WorklogDetailsReportDTO;
+import org.everit.jira.reporting.plugin.export.column.WorklogDetailsColumns;
 import org.everit.jira.reporting.plugin.util.ConverterUtil;
 import org.everit.jira.timetracker.plugin.DurationFormatter;
+import org.everit.jira.timetracker.plugin.dto.ReportingSettingsValues;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 
 import com.atlassian.jira.web.action.JiraWebActionSupport;
+import com.google.gson.Gson;
 
 /**
  * Repoting page web action.
@@ -67,9 +62,6 @@ public class ReportingWebAction extends JiraWebActionSupport {
    */
   private static final long serialVersionUID = 1L;
 
-  /**
-   * The first day of the week.
-   */
   private String contextPath;
 
   private Class<DateTimeConverterUtil> dateConverterUtil = DateTimeConverterUtil.class;
@@ -80,24 +72,18 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   private String filterConditionJson = "";
 
-  private Long grandTotal;
-
   private String issueCollectorSrc;
 
-  private List<IssueSummaryDTO> issueSummaries;
-
-  private Long issueSummaryCount;
+  private IssueSummaryReportDTO issueSummaryReport = new IssueSummaryReportDTO();
 
   /**
    * The message.
    */
   private String message = "";
 
-  private List<ProjectSummaryDTO> projectSummaries;
+  private int pageSizeLimit;
 
-  private Long projectSummaryCount;
-
-  private QuerydslSupport querydslSupport;
+  private ProjectSummaryReportDTO projectSummaryReport = new ProjectSummaryReportDTO();
 
   private ReportingCondition reportingCondition;
 
@@ -105,26 +91,17 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   private List<String> selectedMore;
 
-  private List<UserSummaryDTO> userSummaries;
+  private List<String> selectedWorklogDetailsColumns = new ArrayList<String>();
 
-  private Long userSummaryCount;
+  private UserSummaryReportDTO userSummaryReport = new UserSummaryReportDTO();
 
-  private List<WorklogDetailsDTO> worklogDetails;
+  private List<String> worklogDetailsAllColumns = WorklogDetailsColumns.ALL_COLUMNS;
 
-  private Long worklogDetailsCount;
+  private WorklogDetailsReportDTO worklogDetailsReport = new WorklogDetailsReportDTO();
 
-  /**
-   * Simple constructor.
-   */
   public ReportingWebAction(final ReportingPlugin reportingPlugin) {
     this.reportingPlugin = reportingPlugin;
     reportingCondition = new ReportingCondition(this.reportingPlugin);
-    try {
-      querydslSupport = new QuerydslSupportImpl();
-    } catch (Exception e) {
-      // FIXME zs.cz what happens?
-      throw new RuntimeException(e);
-    }
   }
 
   private void createDurationFormatter() {
@@ -142,6 +119,8 @@ public class ReportingWebAction extends JiraWebActionSupport {
       setReturnUrl(JIRA_HOME_URL);
       return getRedirect(NONE);
     }
+
+    loadPageSizeLimit();
 
     loadIssueCollectorSrc();
     createDurationFormatter();
@@ -167,13 +146,22 @@ public class ReportingWebAction extends JiraWebActionSupport {
       return getRedirect(NONE);
     }
 
+    loadPageSizeLimit();
+
     loadIssueCollectorSrc();
+
     createDurationFormatter();
 
     morePickerParse();
     normalizeContextPath();
     ConvertedSearchParam convertedSearchParam = null;
     filterConditionJson = getHttpRequest().getParameter(HTTP_PARAM_FILTER_CONDITION_JSON);
+    String selectedWorklogDetailsColumnsJson =
+        getHttpRequest().getParameter("selectedWorklogDetailsColumns");
+    String[] selectedWorklogDetailsColumnsArray = new Gson()
+        .fromJson(selectedWorklogDetailsColumnsJson, String[].class);
+    selectedWorklogDetailsColumns = Arrays.asList(selectedWorklogDetailsColumnsArray);
+
     try {
       filterCondition = ConverterUtil.convertJsonToFilterCondition(filterConditionJson);
       convertedSearchParam = ConverterUtil
@@ -183,13 +171,17 @@ public class ReportingWebAction extends JiraWebActionSupport {
       return INPUT;
     }
 
-    reportWorklogDetails(convertedSearchParam.reportSearchParam);
+    worklogDetailsReport =
+        reportingPlugin.getWorklogDetailsReport(convertedSearchParam.reportSearchParam);
 
-    reportProjectSummary(convertedSearchParam.reportSearchParam);
+    projectSummaryReport =
+        reportingPlugin.getProjectSummaryReport(convertedSearchParam.reportSearchParam);
 
-    reportIssueSummary(convertedSearchParam.reportSearchParam);
+    issueSummaryReport =
+        reportingPlugin.getIssueSummaryReport(convertedSearchParam.reportSearchParam);
 
-    reportUserSummary(convertedSearchParam.reportSearchParam);
+    userSummaryReport =
+        reportingPlugin.getUserSummaryReport(convertedSearchParam.reportSearchParam);
 
     return SUCCESS;
   }
@@ -214,52 +206,44 @@ public class ReportingWebAction extends JiraWebActionSupport {
     return filterConditionJson;
   }
 
-  public Long getGrandTotal() {
-    return grandTotal;
-  }
-
   public String getIssueCollectorSrc() {
     return issueCollectorSrc;
   }
 
-  public List<IssueSummaryDTO> getIssueSummaries() {
-    return issueSummaries;
-  }
-
-  public Long getIssueSummaryCount() {
-    return issueSummaryCount;
+  public IssueSummaryReportDTO getIssueSummaryReport() {
+    return issueSummaryReport;
   }
 
   public String getMessage() {
     return message;
   }
 
-  public List<ProjectSummaryDTO> getProjectSummaries() {
-    return projectSummaries;
+  public int getPageSizeLimit() {
+    return pageSizeLimit;
   }
 
-  public Long getProjectSummaryCount() {
-    return projectSummaryCount;
+  public ProjectSummaryReportDTO getProjectSummaryReport() {
+    return projectSummaryReport;
   }
 
   public List<String> getSelectedMore() {
     return selectedMore;
   }
 
-  public List<UserSummaryDTO> getUserSummaries() {
-    return userSummaries;
+  public List<String> getSelectedWorklogDetailsColumns() {
+    return selectedWorklogDetailsColumns;
   }
 
-  public Long getUserSummaryCount() {
-    return userSummaryCount;
+  public UserSummaryReportDTO getUserSummaryReport() {
+    return userSummaryReport;
   }
 
-  public List<WorklogDetailsDTO> getWorklogDetails() {
-    return worklogDetails;
+  public List<String> getWorklogDetailsAllColumns() {
+    return worklogDetailsAllColumns;
   }
 
-  public Long getWorklogDetailsCount() {
-    return worklogDetailsCount;
+  public WorklogDetailsReportDTO getWorklogDetailsReport() {
+    return worklogDetailsReport;
   }
 
   private void initDatesIfNecessary() {
@@ -287,6 +271,11 @@ public class ReportingWebAction extends JiraWebActionSupport {
     }
   }
 
+  private void loadPageSizeLimit() {
+    ReportingSettingsValues loadReportingSettings = reportingPlugin.loadReportingSettings();
+    pageSizeLimit = loadReportingSettings.pageSize;
+  }
+
   private void morePickerParse() {
     String[] selectedMoreValues = getHttpRequest().getParameterValues("morePicker");
     if (selectedMoreValues != null) {
@@ -309,68 +298,6 @@ public class ReportingWebAction extends JiraWebActionSupport {
       ClassNotFoundException {
     stream.close();
     throw new java.io.NotSerializableException(getClass().getName());
-  }
-
-  private void reportIssueSummary(final ReportSearchParam reportSearchParam) {
-    IssueSummaryReportQueryBuilder issueSummaryQueryBuilder =
-        new IssueSummaryReportQueryBuilder(reportSearchParam);
-
-    QuerydslCallable<List<IssueSummaryDTO>> issueSummaryQuery = issueSummaryQueryBuilder
-        .buildQuery();
-
-    QuerydslCallable<Long> issueSummaryCountQuery = issueSummaryQueryBuilder.buildCountQuery();
-
-    issueSummaries = querydslSupport.execute(issueSummaryQuery);
-
-    issueSummaryCount = querydslSupport.execute(issueSummaryCountQuery);
-  }
-
-  private void reportProjectSummary(final ReportSearchParam reportSearchParam) {
-    ProjectSummaryReportQueryBuilder projectSummaryQueryBuilder =
-        new ProjectSummaryReportQueryBuilder(reportSearchParam);
-
-    QuerydslCallable<List<ProjectSummaryDTO>> projectSummaryQuery = projectSummaryQueryBuilder
-        .buildQuery();
-
-    QuerydslCallable<Long> projectSummaryCountQuery = projectSummaryQueryBuilder.buildCountQuery();
-
-    projectSummaries = querydslSupport.execute(projectSummaryQuery);
-
-    projectSummaryCount = querydslSupport.execute(projectSummaryCountQuery);
-  }
-
-  private void reportUserSummary(final ReportSearchParam reportSearchParam) {
-    UserSummaryReportQueryBuilder userSummaryQueryBuilder =
-        new UserSummaryReportQueryBuilder(reportSearchParam);
-
-    QuerydslCallable<List<UserSummaryDTO>> userSummaryQuery = userSummaryQueryBuilder
-        .buildQuery();
-
-    QuerydslCallable<Long> userSummaryCountQuery = userSummaryQueryBuilder.buildCountQuery();
-
-    userSummaries = querydslSupport.execute(userSummaryQuery);
-
-    userSummaryCount = querydslSupport.execute(userSummaryCountQuery);
-  }
-
-  private void reportWorklogDetails(final ReportSearchParam reportSearchParam) {
-    WorklogDetailsReportQueryBuilder worklogDetailsReportQueryBuilder =
-        new WorklogDetailsReportQueryBuilder(reportSearchParam);
-
-    QuerydslCallable<List<WorklogDetailsDTO>> worklogDetailsQuery = worklogDetailsReportQueryBuilder
-        .buildQuery();
-
-    QuerydslCallable<Long> worklogDetailsCountQuery =
-        worklogDetailsReportQueryBuilder.buildCountQuery();
-
-    QuerydslCallable<Long> grandTotalQuery =
-        worklogDetailsReportQueryBuilder.buildGrandTotalQuery();
-
-    worklogDetails = querydslSupport.execute(worklogDetailsQuery);
-
-    worklogDetailsCount = querydslSupport.execute(worklogDetailsCountQuery);
-
-    grandTotal = querydslSupport.execute(grandTotalQuery);
   }
 
   public void setContextPath(final String contextPath) {
