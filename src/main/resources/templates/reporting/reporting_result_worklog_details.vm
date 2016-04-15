@@ -32,10 +32,6 @@
 	                                    <div class='form-body'>
 	                                      <div class='field-group aui-field-issuetype'>
 	                                        <select  id="detailsColumns" name="detailsColumns"  multiple="multiple" >
-	                                          <!-- <option value="jtrp_col_project">Project</option> -->
-	                                          <!-- <option value="jtrp_col_issueKey">Issue Key</option> -->
-	                                          <!-- <option value="jtrp_col_issueSummary">Issue Summary</option> -->
-	                                          <!-- <option value="jtrp_col_timeSpent">Time Spent</option> -->
 	                                          <option value="jtrp_col_projectDescription">Project Description</option>
 	                                          <option value="jtrp_col_type">Type</option>
 	                                          <option value="jtrp_col_status">Status</option>
@@ -140,7 +136,7 @@
                                     #foreach ( $wd in $worklogDetailsReport.worklogDetails )
                                     <tr>
                                         <td class="jtrp_col_project">$wd.projectName</td>
-                                        <td class="jtrp_col_projectDescription" style="#if( $isNotShowProjectDescription )display:none;#end">$wd.projectDescription</td>
+                                        <td class="jtrp_col_projectDescription" style="#if( $isNotShowProjectDescription )display:none;#end">#if ( $wd.projectDescription ) $wd.projectDescription #end</td>
                                         <td class="jtrp_col_issueKey">$wd.issueKey</td>
                                         <td class="jtrp_col_issueSummary">$wd.issueSummary</td>
                                         <td class="jtrp_col_type" style="#if( $isNotShowType )display:none;#end">$wd.issueTypeName</td>
@@ -177,35 +173,46 @@
                             </div>
                             <div class="aui-item">
                                 <div class="pagination">
-                                    #if ( $worklogDetailsReport.paging.maxPageNumber ) 
-                                      #if ( $worklogDetailsReport.paging.actPageNumber > 1 )
-                                    <a href="javascript:void(0);" onclick="everit.reporting.main.getWorklogDetailsPage((($worklogDetailsReport.paging.actPageNumber - 1) * $filterCondition.limit) - $filterCondition.limit)">
+                                    #set($wdMaxPageNumber = $worklogDetailsReport.paging.maxPageNumber)
+                                    
+                                    #if ( $wdMaxPageNumber )
+                                      #set($wdActPageNumber = $worklogDetailsReport.paging.actPageNumber)
+                                      #set($filterLimit = $filterCondition.limit)
+                                      #if ( $wdActPageNumber - 2 < 1 )
+                                        #set($inStart = 1)
+                                      #else
+                                        #set($inStart = $wdActPageNumber - 2)
+                                      #end
+                                      #if ( $wdActPageNumber + 2 > $wdMaxPageNumber )
+                                        #set($inEnd = $wdMaxPageNumber)
+                                      #else
+                                        #set($inEnd = $wdActPageNumber + 2)
+                                      #end
+                                      #if ( $wdActPageNumber < 3 )
+                                        #if ($wdMaxPageNumber > 5) 
+                                          #set($inEnd = 5) 
+                                        #else 
+                                          #set($inEnd = $wdMaxPageNumber) 
+                                        #end
+                                      #end
+                                      #if ( $wdActPageNumber + 2 >= $wdMaxPageNumber && $wdMaxPageNumber - 4 > 0 ) 
+                                        #set($inStart = $wdMaxPageNumber - 4)
+                                      #end
+                                    
+                                      #if ( $wdActPageNumber > 1 )
+                                    <a href="javascript:void(0);" onclick="everit.reporting.main.getWorklogDetailsPage((($wdActPageNumber - 1) * $filterLimit) - $filterLimit)">
                                         <span class="aui-icon aui-icon-small aui-iconfont-arrows-left"></span>
                                     </a>
                                       #end
-                                      #if ( $worklogDetailsReport.paging.actPageNumber < 3 )
-                                        #foreach ( $page in [1..$worklogDetailsReport.paging.maxPageNumber] ) 
-                                          #if ( $page < 6)
-                                            #if ( $worklogDetailsReport.paging.actPageNumber == $page )
+                                      #foreach ( $page in [$inStart..$inEnd] ) 
+                                        #if ( $wdActPageNumber == $page )
                                     <strong>$page</strong>
-                                            #else
-                                    <a href="javascript:void(0);" onclick="everit.reporting.main.getWorklogDetailsPage(($page * $filterCondition.limit) - $filterCondition.limit)">$page</a>
-                                            #end
-                                          #end
-                                        #end
-                                      #else
-                                        #foreach ( $page in [1..$worklogDetailsReport.paging.maxPageNumber] ) 
-                                          #if ( $worklogDetailsReport.paging.actPageNumber + 3 > $page && $page > $worklogDetailsReport.paging.actPageNumber - 3 )
-                                            #if ( $worklogDetailsReport.paging.actPageNumber == $page )
-                                    <strong>$page</strong>
-                                            #else
-                                    <a href="javascript:void(0);" onclick="everit.reporting.main.getWorklogDetailsPage(($page * $filterCondition.limit) - $filterCondition.limit)">$page</a>
-                                            #end
-                                          #end
+                                        #else
+                                    <a href="javascript:void(0);" onclick="everit.reporting.main.getWorklogDetailsPage(($page * $filterLimit) - $filterLimit)">$page</a>
                                         #end
                                       #end
-                                      #if ( $worklogDetailsReport.paging.actPageNumber < $worklogDetailsReport.paging.maxPageNumber )
-                                    <a href="javascript:void(0);" onclick="everit.reporting.main.getWorklogDetailsPage((($worklogDetailsReport.paging.actPageNumber + 1) * $filterCondition.limit) - $filterCondition.limit)">
+                                      #if ( $wdActPageNumber < $wdMaxPageNumber )
+                                    <a href="javascript:void(0);" onclick="everit.reporting.main.getWorklogDetailsPage((($wdActPageNumber + 1) * $filterLimit) - $filterLimit)">
                                         <span class="aui-icon aui-icon-small aui-iconfont-arrows-right"></span>
                                     </a>
                                       #end

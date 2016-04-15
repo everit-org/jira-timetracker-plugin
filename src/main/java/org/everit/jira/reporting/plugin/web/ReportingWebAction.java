@@ -31,8 +31,10 @@ import org.everit.jira.reporting.plugin.dto.IssueSummaryReportDTO;
 import org.everit.jira.reporting.plugin.dto.ProjectSummaryReportDTO;
 import org.everit.jira.reporting.plugin.dto.UserSummaryReportDTO;
 import org.everit.jira.reporting.plugin.dto.WorklogDetailsReportDTO;
+import org.everit.jira.reporting.plugin.export.column.WorklogDetailsColumns;
 import org.everit.jira.reporting.plugin.util.ConverterUtil;
 import org.everit.jira.timetracker.plugin.DurationFormatter;
+import org.everit.jira.timetracker.plugin.dto.ReportingSettingsValues;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 
@@ -53,9 +55,6 @@ public class ReportingWebAction extends JiraWebActionSupport {
    */
   private static final long serialVersionUID = 1L;
 
-  /**
-   * The first day of the week.
-   */
   private String contextPath;
 
   private Class<DateTimeConverterUtil> dateConverterUtil = DateTimeConverterUtil.class;
@@ -73,6 +72,8 @@ public class ReportingWebAction extends JiraWebActionSupport {
    */
   private String message = "";
 
+  private int pageSizeLimit;
+
   private ProjectSummaryReportDTO projectSummaryReport = new ProjectSummaryReportDTO();
 
   private ReportingCondition reportingCondition;
@@ -85,11 +86,10 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   private UserSummaryReportDTO userSummaryReport = new UserSummaryReportDTO();
 
+  private List<String> worklogDetailsAllColumns = WorklogDetailsColumns.ALL_COLUMNS;
+
   private WorklogDetailsReportDTO worklogDetailsReport = new WorklogDetailsReportDTO();
 
-  /**
-   * Simple constructor.
-   */
   public ReportingWebAction(final ReportingPlugin reportingPlugin) {
     this.reportingPlugin = reportingPlugin;
     reportingCondition = new ReportingCondition(this.reportingPlugin);
@@ -110,6 +110,8 @@ public class ReportingWebAction extends JiraWebActionSupport {
       setReturnUrl(JIRA_HOME_URL);
       return getRedirect(NONE);
     }
+
+    loadPageSizeLimit();
 
     createDurationFormatter();
 
@@ -133,6 +135,8 @@ public class ReportingWebAction extends JiraWebActionSupport {
       setReturnUrl(JIRA_HOME_URL);
       return getRedirect(NONE);
     }
+
+    loadPageSizeLimit();
 
     createDurationFormatter();
 
@@ -198,6 +202,10 @@ public class ReportingWebAction extends JiraWebActionSupport {
     return message;
   }
 
+  public int getPageSizeLimit() {
+    return pageSizeLimit;
+  }
+
   public ProjectSummaryReportDTO getProjectSummaryReport() {
     return projectSummaryReport;
   }
@@ -212,6 +220,10 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   public UserSummaryReportDTO getUserSummaryReport() {
     return userSummaryReport;
+  }
+
+  public List<String> getWorklogDetailsAllColumns() {
+    return worklogDetailsAllColumns;
   }
 
   public WorklogDetailsReportDTO getWorklogDetailsReport() {
@@ -230,6 +242,11 @@ public class ReportingWebAction extends JiraWebActionSupport {
       Date dateTo = calendarTo.getTime();
       filterCondition.setWorklogEndDate(DateTimeConverterUtil.dateToString(dateTo));
     }
+  }
+
+  private void loadPageSizeLimit() {
+    ReportingSettingsValues loadReportingSettings = reportingPlugin.loadReportingSettings();
+    pageSizeLimit = loadReportingSettings.pageSize;
   }
 
   private void morePickerParse() {

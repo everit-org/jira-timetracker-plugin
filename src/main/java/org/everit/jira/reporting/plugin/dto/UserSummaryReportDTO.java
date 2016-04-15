@@ -18,6 +18,9 @@ package org.everit.jira.reporting.plugin.dto;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Contains information to user summary report table.
+ */
 public class UserSummaryReportDTO {
 
   private PagingDTO paging = new PagingDTO();

@@ -101,15 +101,12 @@ public class ReportingPluginImpl implements ReportingPlugin, InitializingBean,
     try {
       querydslSupport = new QuerydslSupportImpl();
     } catch (Exception e) {
-      // FIXME zs.cz what happens?
       throw new RuntimeException(e);
     }
   }
 
   @Override
   public void afterPropertiesSet() throws Exception {
-    // TODO Auto-generated method stub
-
   }
 
   private PagingDTO createPagingDTO(final Long offset, final Long limit, final Long count) {
@@ -121,7 +118,7 @@ public class ReportingPluginImpl implements ReportingPlugin, InitializingBean,
     if ((limit != null) && (limit != 0)) {
       maxPageNumber = (int) Math.ceil(count / limit.doubleValue());
       // if no result show first page.
-      maxPageNumber = maxPageNumber == 0 ? 1 : maxPageNumber;
+      maxPageNumber = maxPageNumber == 0 ? Integer.valueOf(1) : maxPageNumber;
 
       if ((offset != null) && (offset != 0)) {
         actPageNumber = (int) Math.ceil(offset / limit.doubleValue()) + 1;
@@ -140,8 +137,6 @@ public class ReportingPluginImpl implements ReportingPlugin, InitializingBean,
 
   @Override
   public void destroy() throws Exception {
-    // TODO Auto-generated method stub
-
   }
 
   @Override

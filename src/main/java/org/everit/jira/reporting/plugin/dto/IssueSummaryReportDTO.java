@@ -18,6 +18,9 @@ package org.everit.jira.reporting.plugin.dto;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Contains information to issue summary report table.
+ */
 public class IssueSummaryReportDTO {
 
   private List<IssueSummaryDTO> issueSummaries = Collections.emptyList();

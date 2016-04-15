@@ -54,39 +54,50 @@
                                     </div>
                                     <div class="aui-item">
                                         <div class="pagination">
-                                            #if ( $issueSummaryReport.paging.maxPageNumber ) 
-                                              #if ( $issueSummaryReport.paging.actPageNumber > 1 )
-                                            <a href="javascript:void(0);" onclick="everit.reporting.main.getIssueSummaryPage((($issueSummaryReport.paging.actPageNumber - 1) * $filterCondition.limit) - $filterCondition.limit)">
+                                            #set($isMaxPageNumber = $issueSummaryReport.paging.maxPageNumber)
+                                            
+                                            #if ( $isMaxPageNumber )
+                                              #set($isActPageNumber = $issueSummaryReport.paging.actPageNumber)
+                                              #set($filterLimit = $filterCondition.limit)
+                                              #if ( $isActPageNumber - 2 < 1 )
+                                                #set($inStart = 1)
+                                              #else
+                                                #set($inStart = $isActPageNumber - 2)
+                                              #end
+                                              #if ( $isActPageNumber + 2 > $isMaxPageNumber )
+                                                #set($inEnd = $isMaxPageNumber)
+                                              #else
+                                                #set($inEnd = $isActPageNumber + 2)
+                                              #end
+                                              #if ( $isActPageNumber < 3 )
+                                                #if ($isMaxPageNumber > 5) 
+                                                  #set($inEnd = 5) 
+                                                #else 
+                                                  #set($inEnd = $isMaxPageNumber) 
+                                                #end
+                                              #end
+                                              #if ( $isActPageNumber + 2 >= $isMaxPageNumber && $isMaxPageNumber - 4 > 0) 
+                                                  #set($inStart = $isMaxPageNumber - 4)
+                                              #end
+                                              
+                                              #if ( $isActPageNumber > 1 )
+                                            <a href="javascript:void(0);" onclick="everit.reporting.main.getIssueSummaryPage((($isActPageNumber - 1) * $filterLimit) - $filterLimit)">
                                                 <span class="aui-icon aui-icon-small aui-iconfont-arrows-left"></span>
                                             </a>
                                               #end
-                                              #if ( $issueSummaryReport.paging.actPageNumber < 3 )
-                                                #foreach ( $page in [1..$issueSummaryReport.paging.maxPageNumber] ) 
-                                                  #if ( $page < 6)
-                                                    #if ( $issueSummaryReport.paging.actPageNumber == $page )
+                                              #foreach ( $page in [$inStart..$inEnd] ) 
+                                                #if ( $isActPageNumber == $page )
                                             <strong>$page</strong>
-                                                    #else
-                                            <a href="javascript:void(0);" onclick="everit.reporting.main.getIssueSummaryPage(($page * $filterCondition.limit) - $filterCondition.limit)">$page</a>
-                                                    #end
-                                                  #end
-                                                #end
-                                              #else
-                                                #foreach ( $page in [1..$issueSummaryReport.paging.maxPageNumber] ) 
-                                                  #if ( $issueSummaryReport.paging.actPageNumber + 3 > $page && $page > $issueSummaryReport.paging.actPageNumber - 3 )
-                                                    #if ( $issueSummaryReport.paging.actPageNumber == $page )
-                                            <strong>$page</strong>
-                                                    #else
-                                            <a href="javascript:void(0);" onclick="everit.reporting.main.getIssueSummaryPage(($page * $filterCondition.limit) - $filterCondition.limit)">$page</a>
-                                                    #end
-                                                  #end
+                                                #else
+                                            <a href="javascript:void(0);" onclick="everit.reporting.main.getIssueSummaryPage(($page * $filterLimit) - $filterLimit)">$page</a>
                                                 #end
                                               #end
-                                              #if ( $issueSummaryReport.paging.actPageNumber < $issueSummaryReport.paging.maxPageNumber )
-                                            <a href="javascript:void(0);" onclick="everit.reporting.main.getIssueSummaryPage((($issueSummaryReport.paging.actPageNumber + 1) * $filterCondition.limit) - $filterCondition.limit)">
+                                              #if ( $isActPageNumber < $isMaxPageNumber )
+                                            <a href="javascript:void(0);" onclick="everit.reporting.main.getIssueSummaryPage((($isActPageNumber + 1) * $filterLimit) - $filterLimit)">
                                                 <span class="aui-icon aui-icon-small aui-iconfont-arrows-right"></span>
                                             </a>
                                               #end
-                                            #end
+                                            #end 
                                         </div>
                                     </div>
                                 </div>

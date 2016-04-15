@@ -15,6 +15,9 @@
  */
 package org.everit.jira.reporting.plugin.dto;
 
+/**
+ * Contains information to paging.
+ */
 public class PagingDTO {
 
   private Integer actPageNumber = 1;

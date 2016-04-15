@@ -31,7 +31,7 @@
                                         #foreach ( $ps in $projectSummaryReport.projectSummaries )
                                         <tr>
                                             <td>$ps.projectName</td>
-                                            <td>$ps.projectSummary</td>
+                                            <td>#if ( $ps.projectSummary ) $ps.projectSummary #end</td>
                                             <td>$durationFormatter.exactDuration($ps.issuesOrginalEstimatedSum)</td>
                                             <td>$durationFormatter.exactDuration($ps.workloggedTimeSum)</td>
                                             <td>$durationFormatter.exactDuration($ps.issuesReaminingTimeSum)</td>
@@ -52,39 +52,50 @@
                                     </div>
                                     <div class="aui-item">
                                         <div class="pagination">
-                                            #if ( $projectSummaryReport.paging.maxPageNumber ) 
-                                              #if ( $projectSummaryReport.paging.actPageNumber > 1 )
-                                            <a href="javascript:void(0);" onclick="everit.reporting.main.getProjectSummaryPage((($projectSummaryReport.paging.actPageNumber - 1) * $filterCondition.limit) - $filterCondition.limit)">
+                                            #set($psMaxPageNumber = $projectSummaryReport.paging.maxPageNumber)
+                                            
+                                            #if ( $psMaxPageNumber )
+                                              #set($psActPageNumber = $projectSummaryReport.paging.actPageNumber)
+                                              #set($filterLimit = $filterCondition.limit)
+                                              #if ( $psActPageNumber - 2 < 1 )
+                                                #set($inStart = 1)
+                                              #else
+                                                #set($inStart = $psActPageNumber - 2)
+                                              #end
+                                              #if ( $psActPageNumber + 2 > $psMaxPageNumber )
+                                                #set($inEnd = $psMaxPageNumber)
+                                              #else
+                                                #set($inEnd = $psActPageNumber + 2)
+                                              #end
+                                              #if ( $psActPageNumber < 3 )
+                                                #if ($psMaxPageNumber > 5) 
+                                                  #set($inEnd = 5) 
+                                                #else 
+                                                  #set($inEnd = $psMaxPageNumber) 
+                                                #end
+                                              #end
+                                              #if ( $psActPageNumber + 2 >= $psMaxPageNumber && $psMaxPageNumber - 4 > 0 ) 
+                                                  #set($inStart = $psMaxPageNumber - 4)
+                                              #end
+                                              
+                                              #if ( $psActPageNumber > 1 )
+                                            <a href="javascript:void(0);" onclick="everit.reporting.main.getProjectSummaryPage((($psActPageNumber - 1) * $filterLimit) - $filterLimit)">
                                                 <span class="aui-icon aui-icon-small aui-iconfont-arrows-left"></span>
                                             </a>
                                               #end
-                                              #if ( $projectSummaryReport.paging.actPageNumber < 3 )
-                                                #foreach ( $page in [1..$projectSummaryReport.paging.maxPageNumber] ) 
-                                                  #if ( $page < 6)
-                                                    #if ( $projectSummaryReport.paging.actPageNumber == $page )
+                                              #foreach ( $page in [$inStart..$inEnd] )
+                                                #if ( $psActPageNumber == $page )
                                             <strong>$page</strong>
-                                                    #else
-                                            <a href="javascript:void(0);" onclick="everit.reporting.main.getProjectSummaryPage(($page * $filterCondition.limit) - $filterCondition.limit)">$page</a>
-                                                    #end
-                                                  #end
-                                                #end
-                                              #else
-                                                #foreach ( $page in [1..$projectSummaryReport.paging.maxPageNumber] ) 
-                                                  #if ( $projectSummaryReport.paging.actPageNumber + 3 > $page && $page > $projectSummaryReport.paging.actPageNumber - 3 )
-                                                    #if ( $projectSummaryReport.paging.actPageNumber == $page )
-                                            <strong>$page</strong>
-                                                    #else
-                                            <a href="javascript:void(0);" onclick="everit.reporting.main.getProjectSummaryPage(($page * $filterCondition.limit) - $filterCondition.limit)">$page</a>
-                                                    #end
-                                                  #end
+                                                #else
+                                            <a href="javascript:void(0);" onclick="everit.reporting.main.getProjectSummaryPage(($page * $filterLimit) - $filterLimit)">$page</a>
                                                 #end
                                               #end
-                                              #if ( $projectSummaryReport.paging.actPageNumber < $projectSummaryReport.paging.maxPageNumber )
-                                            <a href="javascript:void(0);" onclick="everit.reporting.main.getProjectSummaryPage((($projectSummaryReport.paging.actPageNumber + 1) * $filterCondition.limit) - $filterCondition.limit)">
+                                              #if ( $psActPageNumber < $psMaxPageNumber )
+                                            <a href="javascript:void(0);" onclick="everit.reporting.main.getProjectSummaryPage((($psActPageNumber + 1) * $filterLimit) - $filterLimit)">
                                                 <span class="aui-icon aui-icon-small aui-iconfont-arrows-right"></span>
                                             </a>
                                               #end
-                                            #end
+                                            #end 
                                         </div>
                                     </div>
                                 </div>

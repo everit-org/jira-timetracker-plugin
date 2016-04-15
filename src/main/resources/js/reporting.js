@@ -782,7 +782,8 @@ everit.reporting.main = everit.reporting.main || {};
   reporting.updateDetailsAllExportHref = function() {
     var filterCondition = getFilterConditionJson();
     var downloadWorklogDetailsParam = {
-        "filterCondition": filterCondition
+        "filterCondition": filterCondition,
+        "selectedWorklogDetailsColumns": reporting.values.worklogDetailsAllColumns
     }
     var json = JSON.stringify(downloadWorklogDetailsParam);
     var $detailsAllExport = jQuery('#detials-all-export')
@@ -793,7 +794,7 @@ everit.reporting.main = everit.reporting.main || {};
   
   reporting.updateDetailsCustomExportHref = function() {
     var filterCondition = getFilterConditionJson();
-     var selectedWorklogDetailsColumns = collectSelectedWorklogDetailsColumns();
+    var selectedWorklogDetailsColumns = collectSelectedWorklogDetailsColumns();
     var downloadWorklogDetailsParam = {
         "filterCondition": filterCondition,
         "selectedWorklogDetailsColumns": selectedWorklogDetailsColumns
@@ -816,7 +817,7 @@ everit.reporting.main = everit.reporting.main || {};
   
   reporting.beforeSubmitCreateReport = function() {
     var filterCondition = getFilterConditionJson();
-    filterCondition["limit"] = 25;
+    filterCondition["limit"] = reporting.values.pageSizeLimit;
     filterCondition["offset"] = 0;
     var json = JSON.stringify(filterCondition);
     var $filterConditionJson = jQuery('#filterConditionJson')
@@ -828,7 +829,7 @@ everit.reporting.main = everit.reporting.main || {};
   }
   
   reporting.getWorklogDetailsPage = function(offset) {
-    var url = "/rest/jttp-rest/1/paging-report/pageWorklogDetails?filterConditionJson=";
+    var url = contextPath + "/rest/jttp-rest/1/paging-report/pageWorklogDetails?filterConditionJson=";
     var filterConditionJson = jQuery('#filterConditionJson').val();
     var filterCondition = JSON.parse(filterConditionJson);
     filterCondition["offset"] = offset;
@@ -843,7 +844,7 @@ everit.reporting.main = everit.reporting.main || {};
   }
   
   reporting.getProjectSummaryPage = function(offset) {
-    var url = "/rest/jttp-rest/1/paging-report/pageProjectSummary?filterConditionJson=";
+    var url = contextPath + "/rest/jttp-rest/1/paging-report/pageProjectSummary?filterConditionJson=";
     var filterConditionJson = jQuery('#filterConditionJson').val();
     var filterCondition = JSON.parse(filterConditionJson);
     filterCondition["offset"] = offset;
@@ -854,7 +855,7 @@ everit.reporting.main = everit.reporting.main || {};
   }
   
   reporting.getIssueSummaryPage = function(offset) {
-    var url = "/rest/jttp-rest/1/paging-report/pageIssueSummary?filterConditionJson=";
+    var url = contextPath + "/rest/jttp-rest/1/paging-report/pageIssueSummary?filterConditionJson=";
     var filterConditionJson = jQuery('#filterConditionJson').val();
     var filterCondition = JSON.parse(filterConditionJson);
     filterCondition["offset"] = offset;
@@ -864,8 +865,9 @@ everit.reporting.main = everit.reporting.main || {};
     });
   }
   
+  // TODO possible to simplest solution?? (4 paging)
   reporting.getUserSummaryPage = function(offset) {
-    var url = "/rest/jttp-rest/1/paging-report/pageUserSummary?filterConditionJson=";
+    var url = contextPath + "/rest/jttp-rest/1/paging-report/pageUserSummary?filterConditionJson=";
     var filterConditionJson = jQuery('#filterConditionJson').val();
     var filterCondition = JSON.parse(filterConditionJson);
     filterCondition["offset"] = offset;
@@ -877,13 +879,13 @@ everit.reporting.main = everit.reporting.main || {};
   
   function initWorklogDetailsColumns(){
     var selectedArray =  reporting.values.worklogDetailsColumns; 
-    var options = jQuery("#detailsColumns option");
-    for (i = 0; i < options.length; i++){
-      var option = jQuery(options[i]);
-      var optionValue = option.val();
+    var $options = jQuery("#detailsColumns option");
+    for (i = 0; i < $options.length; i++){
+      var $option = jQuery($options[i]);
+      var optionValue = $option.val();
       var selected = checkSelected(optionValue, selectedArray);
       if(selected == "selected"){
-        option.attr("selected","selected");
+        $option.attr("selected","selected");
         jQuery("." + optionValue).show();
       }
     }
@@ -895,7 +897,7 @@ everit.reporting.main = everit.reporting.main || {};
     jQuery('#detailsColumns-suggestions input[type="checkbox"]').on("click", function() {
       var clickedOptionValue = jQuery(this).val();
       if(jQuery("." + clickedOptionValue).is(":visible")){
-        var index = reporting.values.worklogDetailsColumns.indexOf("jtrp_col_status");
+        var index = reporting.values.worklogDetailsColumns.indexOf(clickedOptionValue);
         if(index > 0) {
           reporting.values.worklogDetailsColumns.splice(index, 1);
         }

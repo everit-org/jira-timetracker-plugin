@@ -18,6 +18,9 @@ package org.everit.jira.reporting.plugin.dto;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Contains information to worklog details report table.
+ */
 public class WorklogDetailsReportDTO {
 
   private Long grandTotal = 0L;
