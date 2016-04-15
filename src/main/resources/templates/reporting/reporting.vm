@@ -500,6 +500,9 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
             </form>
         </div>
         #parse("templates/reporting/reporting_result.vm")
+        
+        <!-- Issue Collector script -->
+        <script type="text/javascript" src="$issueCollectorSrc"></script>
     </section>
   </body>
 </html>
