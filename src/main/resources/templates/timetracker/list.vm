@@ -63,7 +63,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 		                   		
 		                    	<tr #if(not $wl_item_class.isEmpty()) class="${wl_item_class}"#end>
 		                    	 	<td class="table-issue" class="vertically-middle" style="white-space: nowrap; #if($worklog.isClosed) text-decoration: line-through; #end">
-		                    	 		<a href="/browse/$worklog.issue" class="issue-link" title="#if($worklog.issueParent != '') $i18n.getText('plugin.parent.issue') $worklog.issueParent &#13 $worklog.issueSummary #else $worklog.issueSummary #end">$worklog.issue</a>
+		                    	 		<a href="$contextPath/browse/$worklog.issue" class="issue-link" title="#if($worklog.issueParent != '') $i18n.getText('plugin.parent.issue') $worklog.issueParent &#13 $worklog.issueSummary #else $worklog.issueSummary #end">$worklog.issue</a>
 		                    	 	</td>
 									<td class="vertically-middle">
 		                    	 		#if($worklog.isClosed)
