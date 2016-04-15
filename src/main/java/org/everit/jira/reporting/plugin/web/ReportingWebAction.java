@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 
 import org.everit.jira.querydsl.support.QuerydslCallable;
 import org.everit.jira.querydsl.support.QuerydslSupport;
@@ -43,6 +44,7 @@ import org.everit.jira.reporting.plugin.util.ConverterUtil;
 import org.everit.jira.timetracker.plugin.DurationFormatter;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
+import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 
 import com.atlassian.jira.web.action.JiraWebActionSupport;
 
@@ -52,6 +54,11 @@ import com.atlassian.jira.web.action.JiraWebActionSupport;
 public class ReportingWebAction extends JiraWebActionSupport {
 
   private static final String HTTP_PARAM_FILTER_CONDITION_JSON = "filterConditionJson";
+
+  /**
+   * The Issue Collector jttp_build.porperties key.
+   */
+  private static final String ISSUE_COLLECTOR_SRC = "ISSUE_COLLECTOR_SRC";
 
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
 
@@ -74,6 +81,8 @@ public class ReportingWebAction extends JiraWebActionSupport {
   private String filterConditionJson = "";
 
   private Long grandTotal;
+
+  private String issueCollectorSrc;
 
   private List<IssueSummaryDTO> issueSummaries;
 
@@ -134,6 +143,7 @@ public class ReportingWebAction extends JiraWebActionSupport {
       return getRedirect(NONE);
     }
 
+    loadIssueCollectorSrc();
     createDurationFormatter();
 
     selectedMore = new ArrayList<String>();
@@ -157,6 +167,7 @@ public class ReportingWebAction extends JiraWebActionSupport {
       return getRedirect(NONE);
     }
 
+    loadIssueCollectorSrc();
     createDurationFormatter();
 
     morePickerParse();
@@ -205,6 +216,10 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   public Long getGrandTotal() {
     return grandTotal;
+  }
+
+  public String getIssueCollectorSrc() {
+    return issueCollectorSrc;
   }
 
   public List<IssueSummaryDTO> getIssueSummaries() {
@@ -258,6 +273,17 @@ public class ReportingWebAction extends JiraWebActionSupport {
       Calendar calendarTo = Calendar.getInstance();
       Date dateTo = calendarTo.getTime();
       filterCondition.setWorklogEndDate(DateTimeConverterUtil.dateToString(dateTo));
+    }
+  }
+
+  private void loadIssueCollectorSrc() {
+    Properties properties;
+    try {
+      properties = PropertiesUtil.getJttpBuildProperties();
+      issueCollectorSrc = properties.getProperty(ISSUE_COLLECTOR_SRC);
+    } catch (IOException e) {
+      // TODO add logger?
+      issueCollectorSrc = "";
     }
   }
 
