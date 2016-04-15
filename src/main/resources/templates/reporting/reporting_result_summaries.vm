@@ -21,7 +21,7 @@
                     <div class="mod-content">
                         <div class="summary-export-container action-button-container">
                             <div class="summary-export">
-                                <a id="summaries-export" class="criteria-selector aui-button aui-button-subtle" target="_blank" href="#" data-jttp-href="/rest/jttp-rest/1/download-report/downloadSummariesReport" onclick="everit.reporting.main.updateSummariesExportHref()">
+                                <a id="summaries-export" class="criteria-selector aui-button aui-button-subtle" target="_blank" href="#" data-jttp-href="$contextPath/rest/jttp-rest/1/download-report/downloadSummariesReport" onclick="everit.reporting.main.updateSummariesExportHref()">
 	                                <span class="aui-icon aui-icon-small aui-iconfont-export"></span>
 	                                <span class="button-label">Export</span>
 	                            </a>
