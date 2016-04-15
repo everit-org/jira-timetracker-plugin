@@ -38,7 +38,7 @@ import com.atlassian.jira.security.groups.GroupManager;
 import com.google.gson.Gson;
 
 /**
- * FIXME zs.cz javadoc.
+ * Utility class to helps converts Object to Objects.
  */
 public final class ConverterUtil {
 

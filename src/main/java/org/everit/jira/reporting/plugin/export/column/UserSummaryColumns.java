@@ -20,9 +20,9 @@ package org.everit.jira.reporting.plugin.export.column;
  */
 public final class UserSummaryColumns {
 
-  public static final String TOTAL_LOGGED = "totalLogged";
+  public static final String TOTAL_LOGGED = "jtrp_col_totalLogged";
 
-  public static final String USER = "user";
+  public static final String USER = "jtrp_col_user";
 
   private UserSummaryColumns() {
   }

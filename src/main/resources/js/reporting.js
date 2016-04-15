@@ -87,6 +87,7 @@ everit.reporting.main = everit.reporting.main || {};
     initEpicNameSelect();
     initEpicLinkSelect();
     initMoreSelect();
+    initWorklogDetailsColumns()
   });
   
   var morePickerFunctions = {
@@ -165,7 +166,7 @@ everit.reporting.main = everit.reporting.main || {};
       }
      });
   };
-  
+
  function initCreatedDatePicker(){
     var createdDate = Calendar.setup({
       firstDay : reporting.values.firstDay,
@@ -781,7 +782,8 @@ everit.reporting.main = everit.reporting.main || {};
   reporting.updateDetailsAllExportHref = function() {
     var filterCondition = getFilterConditionJson();
     var downloadWorklogDetailsParam = {
-        "filterCondition": filterCondition
+        "filterCondition": filterCondition,
+        "selectedWorklogDetailsColumns": reporting.values.worklogDetailsAllColumns
     }
     var json = JSON.stringify(downloadWorklogDetailsParam);
     var $detailsAllExport = jQuery('#detials-all-export')
@@ -792,9 +794,10 @@ everit.reporting.main = everit.reporting.main || {};
   
   reporting.updateDetailsCustomExportHref = function() {
     var filterCondition = getFilterConditionJson();
-    // var selectedWorklogDetailsColumns = TODO collect selected columns
+    var selectedWorklogDetailsColumns = collectSelectedWorklogDetailsColumns();
     var downloadWorklogDetailsParam = {
-        "filterCondition": filterCondition
+        "filterCondition": filterCondition,
+        "selectedWorklogDetailsColumns": selectedWorklogDetailsColumns
     }
     var json = JSON.stringify(downloadWorklogDetailsParam);
     var $detailsCustomExport = jQuery('#detials-custom-export')
@@ -814,16 +817,102 @@ everit.reporting.main = everit.reporting.main || {};
   
   reporting.beforeSubmitCreateReport = function() {
     var filterCondition = getFilterConditionJson();
-    filterCondition["limit"] = 25;
+    filterCondition["limit"] = reporting.values.pageSizeLimit;
     filterCondition["offset"] = 0;
     var json = JSON.stringify(filterCondition);
     var $filterConditionJson = jQuery('#filterConditionJson')
     $filterConditionJson.val(json);
+    var selectedWorklogDetailsColumns = collectSelectedWorklogDetailsColumns();
+    var columnsJson = JSON.stringify(selectedWorklogDetailsColumns);
+    jQuery('#selectedWorklogDetailsColumns').val(columnsJson);
     return true;
   }
   
-//  reporting.getWorklogDetailsPage(offset) {
-//    var url = "/rest/jttp-rest/1/paging-report/pageWorklogDetails?json=";
-//    jQuery.ajax();
-//  }
+  reporting.getWorklogDetailsPage = function(offset) {
+    var url = contextPath + "/rest/jttp-rest/1/paging-report/pageWorklogDetails?filterConditionJson=";
+    var filterConditionJson = jQuery('#filterConditionJson').val();
+    var filterCondition = JSON.parse(filterConditionJson);
+    filterCondition["offset"] = offset;
+    var filterConditionJson = JSON.stringify(filterCondition);
+    var selectedWorklogDetailsColumns = collectSelectedWorklogDetailsColumns();
+    var selectedColumnsJson = JSON.stringify(selectedWorklogDetailsColumns);
+    jQuery.get(url + filterConditionJson + "&selectedColumnsJson=" + selectedColumnsJson, function(data) {
+      jQuery('#detailsModule').replaceWith(data);
+    }).done(function() {
+      initWorklogDetailsColumns();
+    });
+  }
+  
+  reporting.getProjectSummaryPage = function(offset) {
+    var url = contextPath + "/rest/jttp-rest/1/paging-report/pageProjectSummary?filterConditionJson=";
+    var filterConditionJson = jQuery('#filterConditionJson').val();
+    var filterCondition = JSON.parse(filterConditionJson);
+    filterCondition["offset"] = offset;
+    var filterConditionJson = JSON.stringify(filterCondition);
+    jQuery.get(url + filterConditionJson, function(data) {
+      jQuery('#tabs-project-content').replaceWith(data);
+    });
+  }
+  
+  reporting.getIssueSummaryPage = function(offset) {
+    var url = contextPath + "/rest/jttp-rest/1/paging-report/pageIssueSummary?filterConditionJson=";
+    var filterConditionJson = jQuery('#filterConditionJson').val();
+    var filterCondition = JSON.parse(filterConditionJson);
+    filterCondition["offset"] = offset;
+    var filterConditionJson = JSON.stringify(filterCondition);
+    jQuery.get(url + filterConditionJson, function(data) {
+      jQuery('#tabs-issue-content').replaceWith(data);
+    });
+  }
+  
+  // TODO possible to simplest solution?? (4 paging)
+  reporting.getUserSummaryPage = function(offset) {
+    var url = contextPath + "/rest/jttp-rest/1/paging-report/pageUserSummary?filterConditionJson=";
+    var filterConditionJson = jQuery('#filterConditionJson').val();
+    var filterCondition = JSON.parse(filterConditionJson);
+    filterCondition["offset"] = offset;
+    var filterConditionJson = JSON.stringify(filterCondition);
+    jQuery.get(url + filterConditionJson, function(data) {
+      jQuery('#tabs-user-content').replaceWith(data);
+    });
+  }
+  
+  function initWorklogDetailsColumns(){
+    var selectedArray =  reporting.values.worklogDetailsColumns; 
+    var $options = jQuery("#detailsColumns option");
+    for (i = 0; i < $options.length; i++){
+      var $option = jQuery($options[i]);
+      var optionValue = $option.val();
+      var selected = checkSelected(optionValue, selectedArray);
+      if(selected == "selected"){
+        $option.attr("selected","selected");
+        jQuery("." + optionValue).show();
+      }
+    }
+    var pp = new AJS.CheckboxMultiSelect({
+      element:  jQuery("#detailsColumns"),
+      submitInputVal: true,
+    });
+    
+    jQuery('#detailsColumns-suggestions input[type="checkbox"]').on("click", function() {
+      var clickedOptionValue = jQuery(this).val();
+      if(jQuery("." + clickedOptionValue).is(":visible")){
+        var index = reporting.values.worklogDetailsColumns.indexOf(clickedOptionValue);
+        if(index > 0) {
+          reporting.values.worklogDetailsColumns.splice(index, 1);
+        }
+        jQuery("." + clickedOptionValue).hide();
+      }else{
+        jQuery("." + clickedOptionValue).show();
+        reporting.values.worklogDetailsColumns.push(clickedOptionValue);
+      }
+     });
+  };
+  
+  function collectSelectedWorklogDetailsColumns() {
+    var requiredColumns = ['jtrp_col_project', 'jtrp_col_issueKey', 'jtrp_col_issueSummary', 'jtrp_col_timeSpent'];
+    var selectedDetailsColumns = jQuery('#detailsColumns').val();
+    return requiredColumns.concat(selectedDetailsColumns);
+  }
+  
 })(everit.reporting.main, jQuery);

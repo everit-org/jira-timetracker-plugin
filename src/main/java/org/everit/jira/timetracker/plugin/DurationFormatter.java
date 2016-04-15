@@ -94,7 +94,7 @@ public class DurationFormatter implements Serializable {
   }
 
   private String calculateFormattedRemaining() {
-    constructFragmentsOfRemainingEstimate(); // TODO do we need this
+    constructFragmentsOfRemainingEstimate();
     int firstNonzeroIdx = -1;
     int lastNonzeroIdx = 0;
     int idx = 0;

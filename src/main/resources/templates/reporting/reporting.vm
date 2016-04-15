@@ -56,7 +56,9 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
             selectedEpicLinks: ${filterCondition.issueEpicLinkIssueIds},
             selectedIssues: [ #foreach( $tmp in $filterCondition.issueKeys )#if($velocityCount> 1),#end "$tmp" #end ],
             selectedMore: [ #foreach( $tmp in $selectedMore )#if($velocityCount> 1),#end "$tmp" #end ],
-            
+            worklogDetailsColumns:  [ #foreach( $tmp in $selectedWorklogDetailsColumns )#if($velocityCount> 1),#end "$tmp" #end ],
+            worklogDetailsAllColumns: [ #foreach( $tmp in $worklogDetailsAllColumns )#if($velocityCount> 1),#end "$tmp" #end ],
+            pageSizeLimit: $pageSizeLimit,
           }
         );
       })(everit.reporting.main, AJS.$);
@@ -485,7 +487,8 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                                     <span id="date_trigger_to" class="aui-icon icon-date">Select a date</span>
                                                 </a>
                                         </div>
-                                        <input type="hidden" id="filterConditionJson" name="filterConditionJson" value=""/>
+                                        <input type="hidden" id="filterConditionJson" name="filterConditionJson" value="$filterConditionJson"/>
+                                        <input type="hidden" id="selectedWorklogDetailsColumns" name="selectedWorklogDetailsColumns" value="$selectedWorklogDetailsColumns"/>
                                         <button type="submit" class="aui-button aui-button-primary" onclick="everit.reporting.main.beforeSubmitCreateReport()">Create Report</button> <!-- Submit the search form -->
                                     </div>
                                 </div>

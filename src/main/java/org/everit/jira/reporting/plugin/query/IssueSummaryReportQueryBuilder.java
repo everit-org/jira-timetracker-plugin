@@ -63,7 +63,7 @@ public class IssueSummaryReportQueryBuilder extends AbstractReportQuery {
         fromQuery.groupBy(qIssue.id);
 
         SQLQuery<Long> query = new SQLQuery<Long>(connection, configuration)
-            .select(issueCountPath.sum())
+            .select(issueCountPath.count())
             .from(fromQuery.as("fromCount"));
 
         return query.fetchOne();

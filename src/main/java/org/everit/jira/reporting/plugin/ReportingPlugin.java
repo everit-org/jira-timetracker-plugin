@@ -15,12 +15,25 @@
  */
 package org.everit.jira.reporting.plugin;
 
+import org.everit.jira.reporting.plugin.dto.IssueSummaryReportDTO;
+import org.everit.jira.reporting.plugin.dto.ProjectSummaryReportDTO;
+import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
+import org.everit.jira.reporting.plugin.dto.UserSummaryReportDTO;
+import org.everit.jira.reporting.plugin.dto.WorklogDetailsReportDTO;
 import org.everit.jira.timetracker.plugin.dto.ReportingSettingsValues;
 
 /**
  * The ReportingPlugin interface.
  */
 public interface ReportingPlugin {
+
+  IssueSummaryReportDTO getIssueSummaryReport(ReportSearchParam reportSearchParam);
+
+  ProjectSummaryReportDTO getProjectSummaryReport(ReportSearchParam reportSearchParam);
+
+  UserSummaryReportDTO getUserSummaryReport(ReportSearchParam reportSearchParam);
+
+  WorklogDetailsReportDTO getWorklogDetailsReport(ReportSearchParam reportSearchParam);
 
   /**
    * Give back the reporting settings values.
