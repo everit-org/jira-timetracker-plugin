@@ -70,27 +70,89 @@ everit.reporting.main = everit.reporting.main || {};
     jQuery('.aui-ss, .aui-ss-editing, .aui-ss-field').attr("style", "width: 300px;");
     
     initProjectSelect();
-    initIssueSelect();
-    initStatusSelect();
     initTypeSelect();
-    initPrioritySelect();
-    initResolutionSelect();
-    initGroupSelect();
+    initStatusSelect();
+    initMoreSelect();
+    
     initUserSelect();
-    initAssigneSelect();
-    initReporterSelect();
-    initAffectedVersionSelect();
-    initFixVersionSelect();
-    initComponentSelect();
-    initLabelSelect();
+    initGroupSelect();
+    
+    initWorklogDetailsColumns();
+    
+    //this two not use rest
     initCreatedDatePicker();
     initEpicNameSelect();
-    initEpicLinkSelect();
-    initMoreSelect();
-    initWorklogDetailsColumns()
+    
+//    initIssueSelect();
+//    initPrioritySelect();
+//    initResolutionSelect();
+//    initAssigneSelect();
+//    initReporterSelect();
+//    initAffectedVersionSelect();
+//    initFixVersionSelect();
+//    initComponentSelect();
+//    initLabelSelect();
+//    initEpicLinkSelect();
   });
   
-  var morePickerFunctions = {
+  var morePickerShowFunctions = {
+      "issuePicker-parent": function(){ 
+            if(!jQuery('#issuePicker-multi-select').length){
+             initIssueSelect();
+            }
+          },
+      "priorityPickerButton": function(){
+            if(!jQuery('#priorityPicker-suggestions').length){
+              initPrioritySelect();
+            }
+          },
+      "resolutionPickerButton": function(){
+            if(!jQuery('#resolutionPicker-suggestions').length){
+              initResolutionSelect();
+            }
+          },
+      "assignePickerButton": function(){
+            if(!jQuery('#assignePicker-suggestions').length){
+              initAssigneSelect();
+            }
+          },
+      "reporterPickerButton": function(){
+            if(!jQuery('#reporterPicker-suggestions').length){
+              initReporterSelect();
+            }
+          },
+      "affectedVersionPickerButton": function(){
+            if(! jQuery('#affectedVersionPicker-suggestions').length){
+              initAffectedVersionSelect();
+            }
+          },
+      "fixVersionPickerButton": function(){
+            if(! jQuery('#fixVersionPicker-suggestions').length){
+              initFixVersionSelect();
+            }
+          },
+      "componentPickerButton": function(){
+            if(! jQuery('#componentPicker-suggestions').length){
+              initComponentSelect();
+            }
+          },
+      "labelPickerButton": function(){
+            if(! jQuery('#labelPicker-suggestions').length){
+              initLabelSelect();
+            }
+          },
+      "createdPickerButton": function(){
+          },
+      "epicNamePickerButton": function(){
+          },
+      "epicLinkPickerButton": function(){
+            if(! jQuery('#epicLinkPicker-suggestions').length){
+              initEpicLinkSelect();
+            }
+          },
+    }
+  
+  var morePickerHideFunctions = {
       "issuePicker-parent": function(){ 
             jQuery("#issuePicker-multi-select .representation ul li em").click();
             jQuery("#issuePicker-textarea").css("padding-left", "0px");
@@ -140,7 +202,7 @@ everit.reporting.main = everit.reporting.main || {};
             jQuery("#epicNamePickerButton").text("Epic Link: All");
           },
     }
-  
+    
   function initMoreSelect(){
     var selectedArray =  jQuery.makeArray( reporting.values.selectedMore ); 
     var morePickerOptions = jQuery("#morePicker option");
@@ -160,8 +222,9 @@ everit.reporting.main = everit.reporting.main || {};
       var clickedOptionValue = jQuery(this).val();
       if(jQuery("#" + clickedOptionValue).is(":visible")){
         jQuery("#" + clickedOptionValue).hide();
-        morePickerFunctions[clickedOptionValue]();
+        morePickerHideFunctions[clickedOptionValue]();
       }else{
+        morePickerShowFunctions[clickedOptionValue]();
         jQuery("#" + clickedOptionValue).show();
       }
      });
@@ -324,14 +387,64 @@ everit.reporting.main = everit.reporting.main || {};
           element:  AJS.$("#userPicker"),
           submitInputVal: true,
         });
-        updatePickerButtonText("#userPicker" , "#userPickerButton", "User: All");
+        updatePickerButtonTextWithNone("#userPicker" , "#userPickerButton", "User: All", "User: None", "none");
         jQuery("#userPicker").on("change unselect", function() {
-          updatePickerButtonText("#userPicker" , "#userPickerButton", "User: All");
+          updatePickerButtonTextWithNone("#userPicker" , "#userPickerButton", "User: All", "User: None", "none");
         });
+       var userPickerNone = jQuery('#userPicker-suggestions [value="none"]');
+       var userPickerNotNone = jQuery('#userPicker-suggestions [value!="none"]');
+       userPickerNone.on("click", function() {
+          //Checked
+          if(userPickerNone.attr("checked") == "checked"){
+            console.log("OK");
+            jQuery('#userPicker-suggestions input[checked="checked"][value!="none"]').click();
+            
+            //group select None - disable false
+            jQuery('#groupPicker-suggestions [value="-1"]').click();
+            jQuery("#groupPickerButton").attr("aria-disabled", false);
+          }else{
+            console.log("WTAT");
+          //group unselect none - disable true
+            jQuery('#groupPicker-suggestions [value="-1"]').click();
+            jQuery("#groupPickerButton").attr("aria-disabled", true);
+          }
+//          userPickerNotNone.on("click", function(e) {
+//          if(userPickerNone.attr("checked") == "checked"){
+//            jQuery(userPickerNone).click();
+//            e.preventDefault();
+//          }
+//         });
+
+          //unChecked
+        });
+     
       },
       error : function(XMLHttpRequest, status, error){
       }
     });
+  };
+    
+  function updatePickerButtonTextWithNone(picker, button, defaultText, noneText, noneValue){ //Example vallues: "#userPicker" , "#userPickerButton", "User: All", "User: None"
+    //FIND and decide none checked
+    var newButtonText = "";
+   if(jQuery(picker+" [value="+ noneValue +"]").attr("selected") != "selected"){
+     jQuery(picker).find("option:selected").each(function() {
+       var optionText = AJS.$(this).text();
+       if (newButtonText === '') {
+         newButtonText = optionText;
+       } else {
+         newButtonText = newButtonText + "," + optionText;
+       }
+     });
+     if (newButtonText === '') {
+       newButtonText = defaultText;
+     }else if(newButtonText.length > 16){
+       newButtonText = newButtonText.substring(0, 12) + "...";
+     }
+   }else{
+     newButtonText = noneText;
+   }
+   jQuery(button).text(newButtonText);
   };
   
   function initGroupSelect(){
@@ -346,6 +459,7 @@ everit.reporting.main = everit.reporting.main || {};
         var selected = ""; 
         if(selectedArray.length == 0){
           selected = "selected";
+          jQuery("#groupPickerButton").attr("aria-disabled", true);
         }
         jQuery("#groupPicker").append('<option value="-1" '+ selected + '>' +'None'+'</option>');
         for( var i in result.groups) {
@@ -357,10 +471,23 @@ everit.reporting.main = everit.reporting.main || {};
               element:  AJS.$("#groupPicker"),
               submitInputVal: true,
         });
-        updatePickerButtonText("#groupPicker" , "#groupPickerButton", "Group: All");
+        updatePickerButtonTextWithNone("#groupPicker" , "#groupPickerButton", "Group: All", "Group: None", "-1");
         jQuery("#groupPicker").on("change unselect", function() {
-          updatePickerButtonText("#groupPicker" , "#groupPickerButton", "Group: All");
+          updatePickerButtonTextWithNone("#groupPicker" , "#groupPickerButton", "Group: All", "Group: None", "-1");
         });
+        var groupPickerNone = jQuery('#groupPicker-suggestions [value="-1"]');
+        var groupPickerNotNone = jQuery('#groupPicker-suggestions [value!="-1"]');
+        groupPickerNone.on("click", function() {
+           //Checked
+           if(groupPickerNone.attr("checked") == "checked"){
+             console.log("OK G");
+             jQuery('#groupPicker-suggestions input[checked="checked"][value!="-1"]').click();
+           }else{
+             console.log("WTAT G");
+           }
+
+           //unChecked
+         });
       },
       error : function(XMLHttpRequest, status, error){
       }
@@ -674,17 +801,8 @@ everit.reporting.main = everit.reporting.main || {};
   
   reporting.toggleModContent = function(type) {
     var module = jQuery("#" + type + "Module");
-    var icon  = jQuery(".mod-header .aui-icon", module);
-    
     jQuery(".mod-content", module).toggle(0, function() {
         module.toggleClass("collapsed");
-        
-        if(module.hasClass("collapsed")) {
-            icon.removeClass("aui-iconfont-expanded").addClass("aui-iconfont-collapsed");
-        } else {
-            icon.removeClass("aui-iconfont-collapsed").addClass("aui-iconfont-expanded");
-        }
-        
     });
   }
 
