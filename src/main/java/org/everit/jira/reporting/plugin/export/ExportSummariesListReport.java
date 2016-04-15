@@ -159,19 +159,13 @@ public class ExportSummariesListReport extends AbstractExportListReport {
     columnIndex = insertBodyCell(row, columnIndex, projectSummaryDTO.getProjectName());
     columnIndex = insertBodyCell(row, columnIndex, projectSummaryDTO.getProjectSummary());
 
-    long estimateTimeSum = projectSummaryDTO.getIssuesOrginalEstimatedSum();
-    long loggedTimeSum = projectSummaryDTO.getWorkloggedTimeSum();
-    long remainingTimeSum = projectSummaryDTO.getIssuesReaminingTimeSum();
-    long loggedVsEstimated = loggedTimeSum - estimateTimeSum;
-    long expectedTotal = loggedTimeSum + remainingTimeSum;
-    long expectedTotalVsEstimated = expectedTotal - estimateTimeSum;
-
-    columnIndex = insertBodyCell(row, columnIndex, estimateTimeSum);
-    columnIndex = insertBodyCell(row, columnIndex, loggedTimeSum);
-    columnIndex = insertBodyCell(row, columnIndex, remainingTimeSum);
-    columnIndex = insertBodyCell(row, columnIndex, loggedVsEstimated);
-    columnIndex = insertBodyCell(row, columnIndex, expectedTotal);
-    insertBodyCell(row, columnIndex, expectedTotalVsEstimated);
+    columnIndex =
+        insertBodyCell(row, columnIndex, projectSummaryDTO.getIssuesOrginalEstimatedSum());
+    columnIndex = insertBodyCell(row, columnIndex, projectSummaryDTO.getWorkloggedTimeSum());
+    columnIndex = insertBodyCell(row, columnIndex, projectSummaryDTO.getIssuesReaminingTimeSum());
+    columnIndex = insertBodyCell(row, columnIndex, projectSummaryDTO.getLoggedVsEstimated());
+    columnIndex = insertBodyCell(row, columnIndex, projectSummaryDTO.getExpectedTotal());
+    insertBodyCell(row, columnIndex, projectSummaryDTO.getExpectedTotalVsEstimated());
 
     return newRowIndex;
   }

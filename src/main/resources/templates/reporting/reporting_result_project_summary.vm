@@ -1,0 +1,91 @@
+#*
+ * Copyright (C) 2011 Everit Kft. (http://www.everit.org)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *#
+                              <div id="tabs-project-content">
+                                <table class="aui reporting-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Project</th>
+                                            <th>Project Description</th>
+                                            <th>Estimated</th>
+                                            <th>Total Logged</th>
+                                            <th>Remaining</th>
+                                            <th>Logged vs. Estimated</th>
+                                            <th>Expected Total (Logged + Remaining)</th>
+                                            <th>Expected Total vs. Estimated</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        #foreach ( $ps in $projectSummaryReport.projectSummaries )
+                                        <tr>
+                                            <td>$ps.projectName</td>
+                                            <td>$ps.projectSummary</td>
+                                            <td>$durationFormatter.exactDuration($ps.issuesOrginalEstimatedSum)</td>
+                                            <td>$durationFormatter.exactDuration($ps.workloggedTimeSum)</td>
+                                            <td>$durationFormatter.exactDuration($ps.issuesReaminingTimeSum)</td>
+                                            <td>$durationFormatter.exactDuration($ps.loggedVsEstimated)</td>
+                                            <td>$durationFormatter.exactDuration($ps.expectedTotal)</td>
+                                            <td>$durationFormatter.exactDuration($ps.expectedTotalVsEstimated)</td>
+                                        </tr>
+                                        #end
+                                    </tbody>
+                                </table>
+                                <div class="aui-group aui-group-split count-pagination">
+                                    <div class="aui-item">
+                                        <span class="results-count-text">
+                                            <span class="results-count results-count-start">$projectSummaryReport.paging.start</span> –
+                                            <span class="results-count results-count-end">$projectSummaryReport.paging.end</span> of 
+                                            <span class="results-count results-count-total results-count-link">$projectSummaryReport.projectSummaryCount</span>
+                                        </span>
+                                    </div>
+                                    <div class="aui-item">
+                                        <div class="pagination">
+                                            #if ( $projectSummaryReport.paging.maxPageNumber ) 
+                                              #if ( $projectSummaryReport.paging.actPageNumber > 1 )
+                                            <a href="javascript:void(0);" onclick="everit.reporting.main.getProjectSummaryPage((($projectSummaryReport.paging.actPageNumber - 1) * $filterCondition.limit) - $filterCondition.limit)">
+                                                <span class="aui-icon aui-icon-small aui-iconfont-arrows-left"></span>
+                                            </a>
+                                              #end
+                                              #if ( $projectSummaryReport.paging.actPageNumber < 3 )
+                                                #foreach ( $page in [1..$projectSummaryReport.paging.maxPageNumber] ) 
+                                                  #if ( $page < 6)
+                                                    #if ( $projectSummaryReport.paging.actPageNumber == $page )
+                                            <strong>$page</strong>
+                                                    #else
+                                            <a href="javascript:void(0);" onclick="everit.reporting.main.getProjectSummaryPage(($page * $filterCondition.limit) - $filterCondition.limit)">$page</a>
+                                                    #end
+                                                  #end
+                                                #end
+                                              #else
+                                                #foreach ( $page in [1..$projectSummaryReport.paging.maxPageNumber] ) 
+                                                  #if ( $projectSummaryReport.paging.actPageNumber + 3 > $page && $page > $projectSummaryReport.paging.actPageNumber - 3 )
+                                                    #if ( $projectSummaryReport.paging.actPageNumber == $page )
+                                            <strong>$page</strong>
+                                                    #else
+                                            <a href="javascript:void(0);" onclick="everit.reporting.main.getProjectSummaryPage(($page * $filterCondition.limit) - $filterCondition.limit)">$page</a>
+                                                    #end
+                                                  #end
+                                                #end
+                                              #end
+                                              #if ( $projectSummaryReport.paging.actPageNumber < $projectSummaryReport.paging.maxPageNumber )
+                                            <a href="javascript:void(0);" onclick="everit.reporting.main.getProjectSummaryPage((($projectSummaryReport.paging.actPageNumber + 1) * $filterCondition.limit) - $filterCondition.limit)">
+                                                <span class="aui-icon aui-icon-small aui-iconfont-arrows-right"></span>
+                                            </a>
+                                              #end
+                                            #end
+                                        </div>
+                                    </div>
+                                </div>
+                              </div>

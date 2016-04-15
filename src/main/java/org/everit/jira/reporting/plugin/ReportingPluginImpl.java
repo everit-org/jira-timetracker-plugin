@@ -20,6 +20,23 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.everit.jira.querydsl.support.QuerydslCallable;
+import org.everit.jira.querydsl.support.QuerydslSupport;
+import org.everit.jira.querydsl.support.ri.QuerydslSupportImpl;
+import org.everit.jira.reporting.plugin.dto.IssueSummaryDTO;
+import org.everit.jira.reporting.plugin.dto.IssueSummaryReportDTO;
+import org.everit.jira.reporting.plugin.dto.PagingDTO;
+import org.everit.jira.reporting.plugin.dto.ProjectSummaryDTO;
+import org.everit.jira.reporting.plugin.dto.ProjectSummaryReportDTO;
+import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
+import org.everit.jira.reporting.plugin.dto.UserSummaryDTO;
+import org.everit.jira.reporting.plugin.dto.UserSummaryReportDTO;
+import org.everit.jira.reporting.plugin.dto.WorklogDetailsDTO;
+import org.everit.jira.reporting.plugin.dto.WorklogDetailsReportDTO;
+import org.everit.jira.reporting.plugin.query.IssueSummaryReportQueryBuilder;
+import org.everit.jira.reporting.plugin.query.ProjectSummaryReportQueryBuilder;
+import org.everit.jira.reporting.plugin.query.UserSummaryReportQueryBuilder;
+import org.everit.jira.reporting.plugin.query.WorklogDetailsReportQueryBuilder;
 import org.everit.jira.timetracker.plugin.dto.ReportingSettingsValues;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -57,6 +74,8 @@ public class ReportingPluginImpl implements ReportingPlugin, InitializingBean,
 
   private int pageSize;
 
+  private QuerydslSupport querydslSupport;
+
   private List<String> reportingGroups;
 
   /**
@@ -79,6 +98,12 @@ public class ReportingPluginImpl implements ReportingPlugin, InitializingBean,
    */
   public ReportingPluginImpl(final PluginSettingsFactory settingsFactory) {
     this.settingsFactory = settingsFactory;
+    try {
+      querydslSupport = new QuerydslSupportImpl();
+    } catch (Exception e) {
+      // FIXME zs.cz what happens?
+      throw new RuntimeException(e);
+    }
   }
 
   @Override
@@ -87,10 +112,141 @@ public class ReportingPluginImpl implements ReportingPlugin, InitializingBean,
 
   }
 
+  private PagingDTO createPagingDTO(final Long offset, final Long limit, final Long count) {
+    Integer maxPageNumber = null;
+    Integer actPageNumber = 1;
+    Long start = count == 0 ? 0L : 1L;
+    Long end = count;
+
+    if ((limit != null) && (limit != 0)) {
+      maxPageNumber = (int) Math.ceil(count / limit.doubleValue());
+      // if no result show first page.
+      maxPageNumber = maxPageNumber == 0 ? 1 : maxPageNumber;
+
+      if ((offset != null) && (offset != 0)) {
+        actPageNumber = (int) Math.ceil(offset / limit.doubleValue()) + 1;
+        start = offset + 1;
+      }
+      end = (start + limit) - 1;
+    }
+    end = count < end ? count : end;
+
+    return new PagingDTO()
+        .actPageNumber(actPageNumber)
+        .end(end)
+        .start(start)
+        .maxPageNumber(maxPageNumber);
+  }
+
   @Override
   public void destroy() throws Exception {
     // TODO Auto-generated method stub
 
+  }
+
+  @Override
+  public IssueSummaryReportDTO getIssueSummaryReport(final ReportSearchParam reportSearchParam) {
+    IssueSummaryReportQueryBuilder issueSummaryQueryBuilder =
+        new IssueSummaryReportQueryBuilder(reportSearchParam);
+
+    QuerydslCallable<List<IssueSummaryDTO>> issueSummaryQuery = issueSummaryQueryBuilder
+        .buildQuery();
+
+    QuerydslCallable<Long> issueSummaryCountQuery = issueSummaryQueryBuilder.buildCountQuery();
+
+    List<IssueSummaryDTO> issueSummaries = querydslSupport.execute(issueSummaryQuery);
+
+    Long issueSummaryCount = querydslSupport.execute(issueSummaryCountQuery);
+
+    PagingDTO paging = createPagingDTO(reportSearchParam.offset,
+        reportSearchParam.limit,
+        issueSummaryCount);
+
+    return new IssueSummaryReportDTO()
+        .issueSummaries(issueSummaries)
+        .issueSummaryCount(issueSummaryCount)
+        .paging(paging);
+  }
+
+  @Override
+  public ProjectSummaryReportDTO getProjectSummaryReport(
+      final ReportSearchParam reportSearchParam) {
+    ProjectSummaryReportQueryBuilder projectSummaryQueryBuilder =
+        new ProjectSummaryReportQueryBuilder(reportSearchParam);
+
+    QuerydslCallable<List<ProjectSummaryDTO>> projectSummaryQuery = projectSummaryQueryBuilder
+        .buildQuery();
+
+    QuerydslCallable<Long> projectSummaryCountQuery = projectSummaryQueryBuilder.buildCountQuery();
+
+    List<ProjectSummaryDTO> projectSummaries = querydslSupport.execute(projectSummaryQuery);
+
+    Long projectSummaryCount = querydslSupport.execute(projectSummaryCountQuery);
+
+    PagingDTO paging = createPagingDTO(reportSearchParam.offset,
+        reportSearchParam.limit,
+        projectSummaryCount);
+
+    return new ProjectSummaryReportDTO()
+        .paging(paging)
+        .projectSummaries(projectSummaries)
+        .projectSummaryCount(projectSummaryCount);
+  }
+
+  @Override
+  public UserSummaryReportDTO getUserSummaryReport(final ReportSearchParam reportSearchParam) {
+    UserSummaryReportQueryBuilder userSummaryQueryBuilder =
+        new UserSummaryReportQueryBuilder(reportSearchParam);
+
+    QuerydslCallable<List<UserSummaryDTO>> userSummaryQuery = userSummaryQueryBuilder
+        .buildQuery();
+
+    QuerydslCallable<Long> userSummaryCountQuery = userSummaryQueryBuilder.buildCountQuery();
+
+    List<UserSummaryDTO> userSummaries = querydslSupport.execute(userSummaryQuery);
+
+    Long userSummaryCount = querydslSupport.execute(userSummaryCountQuery);
+
+    PagingDTO paging = createPagingDTO(reportSearchParam.offset,
+        reportSearchParam.limit,
+        userSummaryCount);
+
+    return new UserSummaryReportDTO()
+        .paging(paging)
+        .userSummaries(userSummaries)
+        .userSummaryCount(userSummaryCount);
+  }
+
+  @Override
+  public WorklogDetailsReportDTO getWorklogDetailsReport(
+      final ReportSearchParam reportSearchParam) {
+    WorklogDetailsReportQueryBuilder worklogDetailsReportQueryBuilder =
+        new WorklogDetailsReportQueryBuilder(reportSearchParam);
+
+    QuerydslCallable<List<WorklogDetailsDTO>> worklogDetailsQuery = worklogDetailsReportQueryBuilder
+        .buildQuery();
+
+    QuerydslCallable<Long> worklogDetailsCountQuery =
+        worklogDetailsReportQueryBuilder.buildCountQuery();
+
+    QuerydslCallable<Long> grandTotalQuery =
+        worklogDetailsReportQueryBuilder.buildGrandTotalQuery();
+
+    List<WorklogDetailsDTO> worklogDetails = querydslSupport.execute(worklogDetailsQuery);
+
+    Long worklogDetailsCount = querydslSupport.execute(worklogDetailsCountQuery);
+
+    Long grandTotal = querydslSupport.execute(grandTotalQuery);
+
+    PagingDTO paging = createPagingDTO(reportSearchParam.offset,
+        reportSearchParam.limit,
+        worklogDetailsCount);
+
+    return new WorklogDetailsReportDTO()
+        .worklogDetails(worklogDetails)
+        .worklogDetailsCount(worklogDetailsCount)
+        .grandTotal(grandTotal)
+        .paging(paging);
   }
 
   @Override

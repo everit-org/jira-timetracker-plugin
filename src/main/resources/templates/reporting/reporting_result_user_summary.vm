@@ -1,0 +1,79 @@
+#*
+ * Copyright (C) 2011 Everit Kft. (http://www.everit.org)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *#
+                              <div class="tabs-pane" id="tabs-user-content">
+                                <table class="aui reporting-table">
+                                    <thead>
+                                        <tr>
+                                            <th>User</th>
+                                            <th>Total Logged</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        #foreach ( $us in $userSummaryReport.userSummaries )
+                                        <tr>
+                                            <td>$us.userDisplayName</td>
+                                            <td>$durationFormatter.exactDuration($us.workloggedTimeSum)</td>
+                                        </tr>
+                                        #end
+                                    </tbody>
+                                </table>
+                                <div class="aui-group aui-group-split count-pagination">
+                                    <div class="aui-item">
+                                        <span class="results-count-text">
+                                            <span class="results-count results-count-start">$userSummaryReport.paging.start</span> –
+                                            <span class="results-count results-count-end">$userSummaryReport.paging.end</span> of 
+                                            <span class="results-count results-count-total results-count-link">$userSummaryReport.userSummaryCount</span>
+                                        </span>
+                                    </div>
+                                    <div class="aui-item">
+                                        <div class="pagination"> 
+                                            #if ( $userSummaryReport.paging.maxPageNumber )
+                                              #if ( $userSummaryReport.paging.actPageNumber > 1 )
+                                            <a href="javascript:void(0);" onclick="everit.reporting.main.getUserSummaryPage((($userSummaryReport.paging.actPageNumber - 1) * $filterCondition.limit) - $filterCondition.limit)">
+                                                <span class="aui-icon aui-icon-small aui-iconfont-arrows-left"></span>
+                                            </a>
+                                              #end
+                                              #if ( $userSummaryReport.paging.actPageNumber < 3 )
+                                                #foreach ( $page in [1..$userSummaryReport.paging.maxPageNumber] ) 
+                                                  #if ( $page < 6)
+                                                    #if ( $userSummaryReport.paging.actPageNumber == $page )
+                                            <strong>$page</strong>
+                                                    #else
+                                            <a href="javascript:void(0);" onclick="everit.reporting.main.getUserSummaryPage(($page * $filterCondition.limit) - $filterCondition.limit)">$page</a>
+                                                    #end
+                                                  #end
+                                                #end
+                                              #else
+                                                #foreach ( $page in [1..$userSummaryReport.paging.maxPageNumber] ) 
+                                                  #if ( $userSummaryReport.paging.actPageNumber + 3 > $page && $page > $userSummaryReport.paging.actPageNumber - 3 )
+                                                    #if ( $userSummaryReport.paging.actPageNumber == $page )
+                                            <strong>$page</strong>
+                                                    #else
+                                            <a href="javascript:void(0);" onclick="everit.reporting.main.getUserSummaryPage(($page * $filterCondition.limit) - $filterCondition.limit)">$page</a>
+                                                    #end
+                                                  #end
+                                                #end
+                                              #end
+                                              #if ( $userSummaryReport.paging.actPageNumber < $userSummaryReport.paging.maxPageNumber )
+                                            <a href="javascript:void(0);" onclick="everit.reporting.main.getUserSummaryPage((($userSummaryReport.paging.actPageNumber + 1) * $filterCondition.limit) - $filterCondition.limit)">
+                                                <span class="aui-icon aui-icon-small aui-iconfont-arrows-right"></span>
+                                            </a>
+                                              #end
+                                            #end
+                                        </div>
+                                    </div>
+                                </div>
+                              </div>

@@ -24,7 +24,44 @@
                                 <button class="aui-button aui-button-subtle aui-dropdown2-trigger" id="details-groupby">Group by</button>                        
                             </div>
                             <div class="aui-item">
-                                <button class="aui-button aui-button-subtle aui-dropdown2-trigger" id="details-columns">Columns</button>
+                                <a id="detailsColumnsButton" href="#detailsColumnsDropDown" aria-owns="detailsColumnsDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger">Columns</a>
+	                            <div id="detailsColumnsDropDown" class="aui-style-default aui-dropdown2">
+	                              <div class="jttr-filter-field">
+	                                <div class='ajs-layer box-shadow'>
+	                                  <div>
+	                                    <div class='form-body'>
+	                                      <div class='field-group aui-field-issuetype'>
+	                                        <select  id="detailsColumns" name="detailsColumns"  multiple="multiple" >
+	                                          <!-- <option value="jtrp_col_project">Project</option> -->
+	                                          <!-- <option value="jtrp_col_issueKey">Issue Key</option> -->
+	                                          <!-- <option value="jtrp_col_issueSummary">Issue Summary</option> -->
+	                                          <!-- <option value="jtrp_col_timeSpent">Time Spent</option> -->
+	                                          <option value="jtrp_col_projectDescription">Project Description</option>
+	                                          <option value="jtrp_col_type">Type</option>
+	                                          <option value="jtrp_col_status">Status</option>
+	                                          <option value="jtrp_col_priority">Priority</option>                                        
+	                                          <option value="jtrp_col_assignee">Assignee</option>
+	                                          <option value="jtrp_col_reporter">Reporter</option>
+	                                          <option value="jtrp_col_estimated">Estimated</option>
+	                                          <option value="jtrp_col_remainingTime">Remaining</option>
+	                                          <option value="jtrp_col_created">Created</option>
+	                                          <option value="jtrp_col_updated">Updated</option>
+	                                          <option value="jtrp_col_components">Component/s</option>
+	                                          <option value="jtrp_col_affectedVersions">Affected version/s</option>
+	                                          <option value="jtrp_col_fixVersions">Fix version/s</option>
+	                                          <option value="jtrp_col_resolution">Resolution</option>
+	                                          <option value="jtrp_col_worklogDescription">Work Description</option>
+	                                          <option value="jtrp_col_user">User</option>
+	                                          <option value="jtrp_col_startTime">Start time</option>
+	                                          <option value="jtrp_col_worklogCreated">Worklog Created</option>
+	                                          <option value="jtrp_col_worklogUpdated">Worklog Updated</option>
+	                                        </select>
+	                                      </div>
+	                                    </div>
+	                                  </div>
+	                                </div>
+	                              </div>
+	                            </div>
                                 <a id="worklogDetailsExportButton" href="#worklogDetailsExportDropDown" aria-owns="worklogDetailsExportDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger">
                                   <span class="aui-icon aui-icon-small aui-iconfont-export"></span>
                                   <span class="button-label">Export</span>
@@ -53,59 +90,78 @@
                         </div>
                         <div class="details-tale-container">
                             <table class="aui reporting-table">
+                                #set($isNotShowProjectDescription = !$selectedWorklogDetailsColumns.contains("jtrp_col_projectDescription"))
+                                #set($isNotShowType = !$selectedWorklogDetailsColumns.contains("jtrp_col_type"))
+                                #set($isNotShowStatus = !$selectedWorklogDetailsColumns.contains("jtrp_col_status"))
+                                #set($isNotShowPriority = !$selectedWorklogDetailsColumns.contains("jtrp_col_priority"))
+                                #set($isNotShowAssignee = !$selectedWorklogDetailsColumns.contains("jtrp_col_assignee"))
+                                #set($isNotShowReporter = !$selectedWorklogDetailsColumns.contains("jtrp_col_reporter"))
+                                #set($isNotShowEstimated = !$selectedWorklogDetailsColumns.contains("jtrp_col_estimated"))
+                                #set($isNotShowRemainingTime = !$selectedWorklogDetailsColumns.contains("jtrp_col_remainingTime"))
+                                #set($isNotShowCreated = !$selectedWorklogDetailsColumns.contains("jtrp_col_created"))
+                                #set($isNotShowUpdated = !$selectedWorklogDetailsColumns.contains("jtrp_col_updated"))
+                                #set($isNotShowComponents = !$selectedWorklogDetailsColumns.contains("jtrp_col_components"))
+                                #set($isNotShowAffectedVersions = !$selectedWorklogDetailsColumns.contains("jtrp_col_affectedVersions"))
+                                #set($isNotShowFixVersions = !$selectedWorklogDetailsColumns.contains("jtrp_col_fixVersions"))
+                                #set($isNotShowResolution = !$selectedWorklogDetailsColumns.contains("jtrp_col_resolution"))
+                                #set($isNotShowWorklogDescription = !$selectedWorklogDetailsColumns.contains("jtrp_col_worklogDescription"))
+                                #set($isNotShowUser = !$selectedWorklogDetailsColumns.contains("jtrp_col_user"))
+                                #set($isNotShowStartTime = !$selectedWorklogDetailsColumns.contains("jtrp_col_startTime"))
+                                #set($isNotShowWorklogCreated = !$selectedWorklogDetailsColumns.contains("jtrp_col_worklogCreated"))
+                                #set($isNotShowWorklogUpdated = !$selectedWorklogDetailsColumns.contains("jtrp_col_worklogUpdated"))
                                 <thead>
                                     <tr>
-                                        <th>Project</th>
-                                        <th>Project Description</th>
-                                        <th>Issue Key</th>
-                                        <th>Issue Summary</th>
-                                        <th>Type</th>
-                                        <th>Status</th>
-                                        <th>Priority</th>                                        
-                                        <th>Assignee</th>
-                                        <th>Reporter</th>
-                                        <th>Estimated</th>
-                                        <th>Remaining</th>
-                                        <th>Created</th>
-                                        <th>Updated</th>
-                                        <th>Component/s</th>
-                                        <th>Affected version/s</th>
-                                        <th>Fix version/s</th>
-                                        <th>Resolution</th>
-                                        <th>Work Description</th>
-                                        <th>User</th>
-                                        <th>Start time</th>
-                                        <th>Time Spent</th>
-                                        <th>Worklog Created</th>
-                                        <th>Worklog Updated</th>
+                                        <th class="jtrp_col_project">Project</th>
+                                        <th class="jtrp_col_projectDescription" style="#if( $isNotShowProjectDescription )display:none;#end">Project Description</th>
+                                        <th class="jtrp_col_issueKey">Issue Key</th>
+                                        <th class="jtrp_col_issueSummary">Issue Summary</th>
+                                        <th class="jtrp_col_type" style="#if( $isNotShowType )display:none;#end">Type</th>
+                                        <th class="jtrp_col_status" style="#if( $isNotShowStatus )display:none;#end">Status</th>
+                                        <th class="jtrp_col_priority" style="#if( $isNotShowPriority )display:none;#end">Priority</th>                                        
+                                        <th class="jtrp_col_assignee" style="#if( $isNotShowAssignee )display:none;#end">Assignee</th>
+                                        <th class="jtrp_col_reporter" style="#if( $isNotShowReporter )display:none;#end">Reporter</th>
+                                        <th class="jtrp_col_estimated" style="#if( $isNotShowEstimated )display:none;#end">Estimated</th>
+                                        <th class="jtrp_col_remainingTime" style="#if( $isNotShowRemainingTime )display:none;#end">Remaining</th>
+                                        <th class="jtrp_col_created" style="#if( $isNotShowCreated )display:none;#end">Created</th>
+                                        <th class="jtrp_col_updated" style="#if( $isNotShowUpdated )display:none;#end">Updated</th>
+                                        <th class="jtrp_col_components" style="#if( $isNotShowComponents )display:none;#end">Component/s</th>
+                                        <th class="jtrp_col_affectedVersions" style="#if( $isNotShowAffectedVersions )display:none;#end">Affected version/s</th>
+                                        <th class="jtrp_col_fixVersions" style="#if( $isNotShowFixVersions )display:none;#end">Fix version/s</th>
+                                        <th class="jtrp_col_resolution" style="#if( $isNotShowResolution )display:none;#end">Resolution</th>
+                                        <th class="jtrp_col_worklogDescription" style="#if( $isNotShowWorklogDescription )display:none;#end">Work Description</th>
+                                        <th class="jtrp_col_user" style="#if( $isNotShowUser )display:none;#end">User</th>
+                                        <th class="jtrp_col_startTime" style="#if( $isNotShowStartTime )display:none;#end">Start time</th>
+                                        <th class="jtrp_col_timeSpent">Time Spent</th>
+                                        <th class="jtrp_col_worklogCreated" style="#if( $isNotShowWorklogCreated )display:none;#end">Worklog Created</th>
+                                        <th class="jtrp_col_worklogUpdated" style="#if( $isNotShowWorklogUpdated )display:none;#end">Worklog Updated</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    #foreach ( $wd in $worklogDetails )
+                                    #foreach ( $wd in $worklogDetailsReport.worklogDetails )
                                     <tr>
-                                        <td>$wd.projectName</td>
-                                        <td>$wd.projectDescription</td>
-                                        <td>$wd.issueKey</td>
-                                        <td>$wd.issueSummary</td>
-                                        <td>$wd.issueTypeName</td>
-                                        <td>$wd.issueStatusName</td>
-                                        <td>$wd.priorityName</td>
-                                        <td>#if ( !$wd.issueAssignee ) Unassigneed #else $wd.issueAssignee #end</td>
-                                        <td>$wd.issueReporter</td>
-                                        <td>#if ( !$wd.issueOriginalEstimate ) #else $durationFormatter.exactDuration($wd.issueOriginalEstimate) #end</td>
-                                        <td>#if ( !$wd.issueRemainingEstimate ) #else $durationFormatter.exactDuration($wd.issueRemainingEstimate) #end</td>
-                                        <td>$outlookDate.formatDMY($wd.issueCreated)</td>
-                                        <td>$outlookDate.formatDMY($wd.issueUpdated)</td>
-                                        <td>#if ( !$wd.issueComponents.isEmpty() ) #foreach ( $component in $wd.issueComponents )#if($velocityCount> 1),#end $component#end #end</td>
-                                        <td>#if ( !$wd.issueAffectedVersions.isEmpty() ) #foreach ( $affectedVersion in $wd.issueAffectedVersions )#if($velocityCount> 1),#end $affectedVersion #end #end</td>
-                                        <td>#if ( !$wd.issueFixedVersions.isEmpty() ) #foreach ( $fixedVersion in $wd.issueFixedVersions )#if($velocityCount> 1),#end $fixedVersion #end #end</td>
-                                        <td>#if ( !$wd.resolutionName ) Unresolved #else $wd.resolutionName #end</td>
-                                        <td>$wd.worklogBody</td>
-                                        <td>$wd.worklogUser</td>
-                                        <td>$outlookDate.formatDMYHMS($wd.worklogStartDate)</td>
-                                        <td>$durationFormatter.exactDuration($wd.worklogTimeWorked)</td>
-                                        <td>$outlookDate.formatDMY($wd.worklogCreated)</td>
-                                        <td>$outlookDate.formatDMY($wd.worklogUpdated)</td>
+                                        <td class="jtrp_col_project">$wd.projectName</td>
+                                        <td class="jtrp_col_projectDescription" style="#if( $isNotShowProjectDescription )display:none;#end">$wd.projectDescription</td>
+                                        <td class="jtrp_col_issueKey">$wd.issueKey</td>
+                                        <td class="jtrp_col_issueSummary">$wd.issueSummary</td>
+                                        <td class="jtrp_col_type" style="#if( $isNotShowType )display:none;#end">$wd.issueTypeName</td>
+                                        <td class="jtrp_col_status" style="#if( $isNotShowStatus )display:none;#end">$wd.issueStatusName</td>
+                                        <td class="jtrp_col_priority" style="#if( $isNotShowPriority )display:none;#end">$wd.priorityName</td>
+                                        <td class="jtrp_col_assignee" style="#if( $isNotShowAssignee )display:none;#end">#if ( !$wd.issueAssignee ) Unassigneed #else $wd.issueAssignee #end</td>
+                                        <td class="jtrp_col_reporter" style="#if( $isNotShowReporter )display:none;#end">$wd.issueReporter</td>
+                                        <td class="jtrp_col_estimated" style="#if( $isNotShowEstimated )display:none;#end">#if ( !$wd.issueOriginalEstimate ) #else $durationFormatter.exactDuration($wd.issueOriginalEstimate) #end</td>
+                                        <td class="jtrp_col_remainingTime" style="#if( $isNotShowRemainingTime )display:none;#end">#if ( !$wd.issueRemainingEstimate ) #else $durationFormatter.exactDuration($wd.issueRemainingEstimate) #end</td>
+                                        <td class="jtrp_col_created" style="#if( $isNotShowCreated )display:none;#end">$outlookDate.formatDMY($wd.issueCreated)</td>
+                                        <td class="jtrp_col_updated" style="#if( $isNotShowUpdated )display:none;#end">$outlookDate.formatDMY($wd.issueUpdated)</td>
+                                        <td class="jtrp_col_components" style="#if( $isNotShowComponents )display:none;#end">#if ( !$wd.issueComponents.isEmpty() ) #foreach ( $component in $wd.issueComponents )#if($velocityCount> 1),#end $component#end #end</td>
+                                        <td class="jtrp_col_affectedVersions" style="#if( $isNotShowAffectedVersions )display:none;#end">#if ( !$wd.issueAffectedVersions.isEmpty() ) #foreach ( $affectedVersion in $wd.issueAffectedVersions )#if($velocityCount> 1),#end $affectedVersion #end #end</td>
+                                        <td class="jtrp_col_fixVersions" style="#if( $isNotShowFixVersions )display:none;#end">#if ( !$wd.issueFixedVersions.isEmpty() ) #foreach ( $fixedVersion in $wd.issueFixedVersions )#if($velocityCount> 1),#end $fixedVersion #end #end</td>
+                                        <td class="jtrp_col_resolution" style="#if( $isNotShowResolution )display:none;#end">#if ( !$wd.resolutionName ) Unresolved #else $wd.resolutionName #end</td>
+                                        <td class="jtrp_col_worklogDescription" style="#if( $isNotShowWorklogDescription )display:none;#end">$wd.worklogBody</td>
+                                        <td class="jtrp_col_user" style="#if( $isNotShowUser )display:none;#end">$wd.worklogUser</td>
+                                        <td class="jtrp_col_startTime" style="#if( $isNotShowStartTime )display:none;#end">$outlookDate.formatDMYHMS($wd.worklogStartDate)</td>
+                                        <td class="jtrp_col_timeSpent">$durationFormatter.exactDuration($wd.worklogTimeWorked)</td>
+                                        <td class="jtrp_col_worklogCreated" style="#if( $isNotShowWorklogCreated )display:none;#end">$outlookDate.formatDMY($wd.worklogCreated)</td>
+                                        <td class="jtrp_col_worklogUpdated" style="#if( $isNotShowWorklogUpdated )display:none;#end">$outlookDate.formatDMY($wd.worklogUpdated)</td>
                                     </tr>
                                     #end
                                 </tbody>
@@ -114,44 +170,45 @@
                         <div class="aui-group aui-group-split count-pagination">
                             <div class="aui-item">
                                 <span class="results-count-text">
-                                    <span class="results-count results-count-start">1</span> –
-                                    <span class="results-count results-count-end">50</span> of 
-                                    <span class="results-count results-count-total results-count-link">100</span>
-                                    <span>$jsonFilterCondition</span>
+                                    <span class="results-count results-count-start">$worklogDetailsReport.paging.start</span> –
+                                    <span class="results-count results-count-end">$worklogDetailsReport.paging.end</span> of 
+                                    <span class="results-count results-count-total results-count-link">$worklogDetailsReport.worklogDetailsCount</span>
                                 </span>
                             </div>
                             <div class="aui-item">
-                                <div class="pagination"> 
-                                    #if ( $newActPageNumber > 1 )
-                                    <a href="javascript:void(0);">
+                                <div class="pagination">
+                                    #if ( $worklogDetailsReport.paging.maxPageNumber ) 
+                                      #if ( $worklogDetailsReport.paging.actPageNumber > 1 )
+                                    <a href="javascript:void(0);" onclick="everit.reporting.main.getWorklogDetailsPage((($worklogDetailsReport.paging.actPageNumber - 1) * $filterCondition.limit) - $filterCondition.limit)">
                                         <span class="aui-icon aui-icon-small aui-iconfont-arrows-left"></span>
                                     </a>
-                                    #end
-                                    #if ( $newActPageNumber < 3 )
-                                      #foreach ( $page in [1..$maxPageNumber] ) 
-                                        #if ( $page < 6)
-                                          #if ( $newActPageNumber == $page )
-                                    <b>$page</b>
-                                          #else
-                                    <a href="javascript:void(0);" onclick="getPage(($page * $filterCondition.limit) - $filterCondition.limit)">$page</a>
+                                      #end
+                                      #if ( $worklogDetailsReport.paging.actPageNumber < 3 )
+                                        #foreach ( $page in [1..$worklogDetailsReport.paging.maxPageNumber] ) 
+                                          #if ( $page < 6)
+                                            #if ( $worklogDetailsReport.paging.actPageNumber == $page )
+                                    <strong>$page</strong>
+                                            #else
+                                    <a href="javascript:void(0);" onclick="everit.reporting.main.getWorklogDetailsPage(($page * $filterCondition.limit) - $filterCondition.limit)">$page</a>
+                                            #end
+                                          #end
+                                        #end
+                                      #else
+                                        #foreach ( $page in [1..$worklogDetailsReport.paging.maxPageNumber] ) 
+                                          #if ( $worklogDetailsReport.paging.actPageNumber + 3 > $page && $page > $worklogDetailsReport.paging.actPageNumber - 3 )
+                                            #if ( $worklogDetailsReport.paging.actPageNumber == $page )
+                                    <strong>$page</strong>
+                                            #else
+                                    <a href="javascript:void(0);" onclick="everit.reporting.main.getWorklogDetailsPage(($page * $filterCondition.limit) - $filterCondition.limit)">$page</a>
+                                            #end
                                           #end
                                         #end
                                       #end
-                                    #else
-                                      #foreach ( $page in [1..$maxPageNumber] ) 
-                                        #if ( $newActPageNumber + 3 > $page && $page > $newActPageNumber - 3 )
-                                          #if ( $newActPageNumber == $page )
-                                    <b>$page</b>
-                                          #else
-                                    <a href="javascript:void(0);" onclick="getPage(($page * $filterCondition.limit) - $filterCondition.limit)">$page</a>
-                                          #end
-                                        #end
-                                      #end
-                                    #end
-                                    #if ( $newActPageNumber < $maxPageNumber )
-                                    <a href="javascript:void(0);">
+                                      #if ( $worklogDetailsReport.paging.actPageNumber < $worklogDetailsReport.paging.maxPageNumber )
+                                    <a href="javascript:void(0);" onclick="everit.reporting.main.getWorklogDetailsPage((($worklogDetailsReport.paging.actPageNumber + 1) * $filterCondition.limit) - $filterCondition.limit)">
                                         <span class="aui-icon aui-icon-small aui-iconfont-arrows-right"></span>
                                     </a>
+                                      #end
                                     #end
                                 </div>
                             </div>

@@ -20,21 +20,21 @@ package org.everit.jira.reporting.plugin.export.column;
  */
 public final class ProjectSummaryColumns {
 
-  public static final String ESTIMATED = "estimated";
+  public static final String ESTIMATED = "jtrp_col_estimated";
 
-  public static final String EXPECTED_TOTAL = "expectedTotal";
+  public static final String EXPECTED_TOTAL = "jtrp_col_expectedTotal";
 
-  public static final String EXPECTED_TOTAL_VS_ESTIMATED = "expectedTotalVsEstimated";
+  public static final String EXPECTED_TOTAL_VS_ESTIMATED = "jtrp_col_expectedTotalVsEstimated";
 
-  public static final String LOGGED_VS_ESTIMATED = "loggedVsEstimated";
+  public static final String LOGGED_VS_ESTIMATED = "jtrp_col_loggedVsEstimated";
 
-  public static final String PROJECT = "project";
+  public static final String PROJECT = "jtrp_col_project";
 
-  public static final String PROJECT_DESCRIPTION = "projectDescription";
+  public static final String PROJECT_DESCRIPTION = "jtrp_col_projectDescription";
 
-  public static final String REMAINING = "remaining";
+  public static final String REMAINING = "jtrp_col_remaining";
 
-  public static final String TOTAL_LOGGED = "totalLogged";
+  public static final String TOTAL_LOGGED = "jtrp_col_totalLogged";
 
   private ProjectSummaryColumns() {
   }
