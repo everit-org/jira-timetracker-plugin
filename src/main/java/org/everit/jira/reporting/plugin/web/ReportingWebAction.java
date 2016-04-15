@@ -32,6 +32,7 @@ import org.everit.jira.reporting.plugin.dto.IssueSummaryReportDTO;
 import org.everit.jira.reporting.plugin.dto.ProjectSummaryReportDTO;
 import org.everit.jira.reporting.plugin.dto.UserSummaryReportDTO;
 import org.everit.jira.reporting.plugin.dto.WorklogDetailsReportDTO;
+import org.everit.jira.reporting.plugin.exception.JTRPException;
 import org.everit.jira.reporting.plugin.export.column.WorklogDetailsColumns;
 import org.everit.jira.reporting.plugin.util.ConverterUtil;
 import org.everit.jira.timetracker.plugin.DurationFormatter;
@@ -171,17 +172,22 @@ public class ReportingWebAction extends JiraWebActionSupport {
       return INPUT;
     }
 
-    worklogDetailsReport =
-        reportingPlugin.getWorklogDetailsReport(convertedSearchParam.reportSearchParam);
+    try {
+      worklogDetailsReport =
+          reportingPlugin.getWorklogDetailsReport(convertedSearchParam.reportSearchParam);
 
-    projectSummaryReport =
-        reportingPlugin.getProjectSummaryReport(convertedSearchParam.reportSearchParam);
+      projectSummaryReport =
+          reportingPlugin.getProjectSummaryReport(convertedSearchParam.reportSearchParam);
 
-    issueSummaryReport =
-        reportingPlugin.getIssueSummaryReport(convertedSearchParam.reportSearchParam);
+      issueSummaryReport =
+          reportingPlugin.getIssueSummaryReport(convertedSearchParam.reportSearchParam);
 
-    userSummaryReport =
-        reportingPlugin.getUserSummaryReport(convertedSearchParam.reportSearchParam);
+      userSummaryReport =
+          reportingPlugin.getUserSummaryReport(convertedSearchParam.reportSearchParam);
+    } catch (JTRPException e) {
+      message = e.getMessage();
+      return INPUT;
+    }
 
     return SUCCESS;
   }

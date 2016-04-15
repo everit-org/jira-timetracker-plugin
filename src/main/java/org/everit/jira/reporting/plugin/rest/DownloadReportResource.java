@@ -93,9 +93,9 @@ public class DownloadReportResource {
     ConvertedSearchParam converSearchParam = ConverterUtil
         .convertFilterConditionToConvertedSearchParam(filterCondition);
 
-    // FIXME zs.cz show notBrowsable projects!!!
     ExportSummariesListReport exportSummariesListReport =
-        new ExportSummariesListReport(querydslSupport, converSearchParam.reportSearchParam);
+        new ExportSummariesListReport(querydslSupport, converSearchParam.reportSearchParam,
+            converSearchParam.notBrowsableProjectKeys);
 
     HSSFWorkbook workbook = exportSummariesListReport.exportToXLS();
     return buildResponse(workbook, "summaries-report.xls");
@@ -120,11 +120,11 @@ public class DownloadReportResource {
     ConvertedSearchParam converSearchParam = ConverterUtil
         .convertFilterConditionToConvertedSearchParam(downloadWorklogDetailsParam.filterCondition);
 
-    // FIXME zs.cz show notBrowsable projects!!!
     ExportWorklogDetailsListReport exportWorklogDetailsListReport =
         new ExportWorklogDetailsListReport(querydslSupport,
             downloadWorklogDetailsParam.selectedWorklogDetailsColumns,
-            converSearchParam.reportSearchParam);
+            converSearchParam.reportSearchParam,
+            converSearchParam.notBrowsableProjectKeys);
 
     HSSFWorkbook workbook = exportWorklogDetailsListReport.exportToXLS();
     return buildResponse(workbook, "worklog-details-report.xls");

@@ -44,8 +44,8 @@ public class ExportSummariesListReport extends AbstractExportListReport {
   private static final String USER_SUMMARY_PREFIX = "jtrp.report.us.col.";
 
   public ExportSummariesListReport(final QuerydslSupport querydslSupport,
-      final ReportSearchParam reportSearchParam) {
-    super(querydslSupport, reportSearchParam);
+      final ReportSearchParam reportSearchParam, final List<String> notBrowsableProjectKeys) {
+    super(querydslSupport, reportSearchParam, notBrowsableProjectKeys);
   }
 
   private void addIssueSummarySheet(final HSSFWorkbook workbook) {

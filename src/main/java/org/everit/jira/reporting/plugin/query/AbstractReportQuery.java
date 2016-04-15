@@ -39,6 +39,7 @@ import org.everit.jira.querydsl.schema.QResolution;
 import org.everit.jira.querydsl.schema.QWorklog;
 import org.everit.jira.querydsl.support.QuerydslCallable;
 import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
+import org.everit.jira.reporting.plugin.exception.JTRPException;
 import org.everit.jira.reporting.plugin.query.util.QueryUtil;
 
 import com.atlassian.jira.entity.Entity;
@@ -87,9 +88,16 @@ public abstract class AbstractReportQuery {
    *
    * @param reportSearchParam
    *          the {@link ReportSearchParam} object, that contains parameters to filter condition.
+   *
+   * @throws JTRPException
+   *           if {@link ReportSearchParam#projectIds} is empty.
    */
   protected AbstractReportQuery(final ReportSearchParam reportSearchParam) {
     this.reportSearchParam = reportSearchParam;
+    if (reportSearchParam.projectIds.isEmpty()) {
+      // TODO zs.cz check exception in paging and export???
+      throw new JTRPException("no_browsable_project_ids");
+    }
     qIssue = new QJiraissue("issue");
     qProject = new QProject("project");
     qIssuetype = new QIssuetype("issuetype");
