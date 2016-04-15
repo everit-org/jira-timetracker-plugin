@@ -70,27 +70,89 @@ everit.reporting.main = everit.reporting.main || {};
     jQuery('.aui-ss, .aui-ss-editing, .aui-ss-field').attr("style", "width: 300px;");
     
     initProjectSelect();
-    initIssueSelect();
-    initStatusSelect();
     initTypeSelect();
-    initPrioritySelect();
-    initResolutionSelect();
-    initGroupSelect();
+    initStatusSelect();
+    initMoreSelect();
+    
     initUserSelect();
-    initAssigneSelect();
-    initReporterSelect();
-    initAffectedVersionSelect();
-    initFixVersionSelect();
-    initComponentSelect();
-    initLabelSelect();
+    initGroupSelect();
+    
+    initWorklogDetailsColumns();
+    
+    //this two not use rest
     initCreatedDatePicker();
     initEpicNameSelect();
-    initEpicLinkSelect();
-    initMoreSelect();
-    initWorklogDetailsColumns()
+    
+//    initIssueSelect();
+//    initPrioritySelect();
+//    initResolutionSelect();
+//    initAssigneSelect();
+//    initReporterSelect();
+//    initAffectedVersionSelect();
+//    initFixVersionSelect();
+//    initComponentSelect();
+//    initLabelSelect();
+//    initEpicLinkSelect();
   });
   
-  var morePickerFunctions = {
+  var morePickerShowFunctions = {
+      "issuePicker-parent": function(){ 
+            if(!jQuery('#issuePicker-multi-select').length){
+             initIssueSelect();
+            }
+          },
+      "priorityPickerButton": function(){
+            if(!jQuery('#priorityPicker-suggestions').length){
+              initPrioritySelect();
+            }
+          },
+      "resolutionPickerButton": function(){
+            if(!jQuery('#resolutionPicker-suggestions').length){
+              initResolutionSelect();
+            }
+          },
+      "assignePickerButton": function(){
+            if(!jQuery('#assignePicker-suggestions').length){
+              initAssigneSelect();
+            }
+          },
+      "reporterPickerButton": function(){
+            if(!jQuery('#reporterPicker-suggestions').length){
+              initReporterSelect();
+            }
+          },
+      "affectedVersionPickerButton": function(){
+            if(! jQuery('#affectedVersionPicker-suggestions').length){
+              initAffectedVersionSelect();
+            }
+          },
+      "fixVersionPickerButton": function(){
+            if(! jQuery('#fixVersionPicker-suggestions').length){
+              initFixVersionSelect();
+            }
+          },
+      "componentPickerButton": function(){
+            if(! jQuery('#componentPicker-suggestions').length){
+              initComponentSelect();
+            }
+          },
+      "labelPickerButton": function(){
+            if(! jQuery('#labelPicker-suggestions').length){
+              initLabelSelect();
+            }
+          },
+      "createdPickerButton": function(){
+          },
+      "epicNamePickerButton": function(){
+          },
+      "epicLinkPickerButton": function(){
+            if(! jQuery('#epicLinkPicker-suggestions').length){
+              initEpicLinkSelect();
+            }
+          },
+    }
+  
+  var morePickerHideFunctions = {
       "issuePicker-parent": function(){ 
             jQuery("#issuePicker-multi-select .representation ul li em").click();
             jQuery("#issuePicker-textarea").css("padding-left", "0px");
@@ -140,7 +202,7 @@ everit.reporting.main = everit.reporting.main || {};
             jQuery("#epicNamePickerButton").text("Epic Link: All");
           },
     }
-  
+    
   function initMoreSelect(){
     var selectedArray =  jQuery.makeArray( reporting.values.selectedMore ); 
     var morePickerOptions = jQuery("#morePicker option");
@@ -160,8 +222,9 @@ everit.reporting.main = everit.reporting.main || {};
       var clickedOptionValue = jQuery(this).val();
       if(jQuery("#" + clickedOptionValue).is(":visible")){
         jQuery("#" + clickedOptionValue).hide();
-        morePickerFunctions[clickedOptionValue]();
+        morePickerHideFunctions[clickedOptionValue]();
       }else{
+        morePickerShowFunctions[clickedOptionValue]();
         jQuery("#" + clickedOptionValue).show();
       }
      });
