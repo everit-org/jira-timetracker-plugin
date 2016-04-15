@@ -737,17 +737,8 @@ everit.reporting.main = everit.reporting.main || {};
   
   reporting.toggleModContent = function(type) {
     var module = jQuery("#" + type + "Module");
-    var icon  = jQuery(".mod-header .aui-icon", module);
-    
     jQuery(".mod-content", module).toggle(0, function() {
         module.toggleClass("collapsed");
-        
-        if(module.hasClass("collapsed")) {
-            icon.removeClass("aui-iconfont-expanded").addClass("aui-iconfont-collapsed");
-        } else {
-            icon.removeClass("aui-iconfont-collapsed").addClass("aui-iconfont-expanded");
-        }
-        
     });
   }
 
