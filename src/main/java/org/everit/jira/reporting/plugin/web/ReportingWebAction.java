@@ -20,9 +20,12 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.everit.jira.reporting.plugin.ReportingCondition;
 import org.everit.jira.reporting.plugin.ReportingPlugin;
@@ -49,7 +52,18 @@ import com.google.gson.Gson;
  */
 public class ReportingWebAction extends JiraWebActionSupport {
 
+  private static final String HTTP_PARAM_COLLAPSED_DETAILS_MODULE = "collapsedDetailsModule";
+
+  private static final String HTTP_PARAM_COLLAPSED_SUMMARY_MODULE = "collapsedSummaryModule";
+
   private static final String HTTP_PARAM_FILTER_CONDITION_JSON = "filterConditionJson";
+
+  private static final String HTTP_PARAM_SELECTED_ACTIVE_TAB = "selectedActiveTab";
+
+  private static final String HTTP_PARAM_SELECTED_MORE_JSON = "selectedMoreJson";
+
+  private static final String HTTP_PARAM_SELECTED_WORKLOG_DETAILS_COLUMNS =
+      "selectedWorklogDetailsColumns";
 
   /**
    * The Issue Collector jttp_build.porperties key.
@@ -63,6 +77,10 @@ public class ReportingWebAction extends JiraWebActionSupport {
    */
   private static final long serialVersionUID = 1L;
 
+  private boolean collapsedDetailsModule = false;
+
+  private boolean collapsedSummaryModule = false;
+
   private String contextPath;
 
   private Class<DateTimeConverterUtil> dateConverterUtil = DateTimeConverterUtil.class;
@@ -72,6 +90,8 @@ public class ReportingWebAction extends JiraWebActionSupport {
   private FilterCondition filterCondition;
 
   private String filterConditionJson = "";
+
+  private Gson gson;
 
   private String issueCollectorSrc;
 
@@ -90,9 +110,11 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   private ReportingPlugin reportingPlugin;
 
-  private List<String> selectedMore;
+  private String selectedActiveTab = "tabs-project";
 
-  private List<String> selectedWorklogDetailsColumns = new ArrayList<String>();
+  private List<String> selectedMore = Collections.emptyList();
+
+  private List<String> selectedWorklogDetailsColumns = Collections.emptyList();
 
   private UserSummaryReportDTO userSummaryReport = new UserSummaryReportDTO();
 
@@ -100,9 +122,13 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   private WorklogDetailsReportDTO worklogDetailsReport = new WorklogDetailsReportDTO();
 
+  /**
+   * Simple constructor.
+   */
   public ReportingWebAction(final ReportingPlugin reportingPlugin) {
     this.reportingPlugin = reportingPlugin;
     reportingCondition = new ReportingCondition(this.reportingPlugin);
+    gson = new Gson();
   }
 
   private void createDurationFormatter() {
@@ -147,20 +173,26 @@ public class ReportingWebAction extends JiraWebActionSupport {
       return getRedirect(NONE);
     }
 
+    HttpServletRequest httpRequest = getHttpRequest();
+
     loadPageSizeLimit();
 
     loadIssueCollectorSrc();
 
     createDurationFormatter();
 
-    morePickerParse();
+    morePickerParse(httpRequest);
+
     normalizeContextPath();
+
+    setParametersActiveTab(httpRequest);
+
     ConvertedSearchParam convertedSearchParam = null;
-    filterConditionJson = getHttpRequest().getParameter(HTTP_PARAM_FILTER_CONDITION_JSON);
+    filterConditionJson = httpRequest.getParameter(HTTP_PARAM_FILTER_CONDITION_JSON);
     String selectedWorklogDetailsColumnsJson =
-        getHttpRequest().getParameter("selectedWorklogDetailsColumns");
-    String[] selectedWorklogDetailsColumnsArray = new Gson()
-        .fromJson(selectedWorklogDetailsColumnsJson, String[].class);
+        httpRequest.getParameter(HTTP_PARAM_SELECTED_WORKLOG_DETAILS_COLUMNS);
+    String[] selectedWorklogDetailsColumnsArray =
+        gson.fromJson(selectedWorklogDetailsColumnsJson, String[].class);
     selectedWorklogDetailsColumns = Arrays.asList(selectedWorklogDetailsColumnsArray);
 
     try {
@@ -232,6 +264,10 @@ public class ReportingWebAction extends JiraWebActionSupport {
     return projectSummaryReport;
   }
 
+  public String getSelectedActiveTab() {
+    return selectedActiveTab;
+  }
+
   public List<String> getSelectedMore() {
     return selectedMore;
   }
@@ -266,6 +302,14 @@ public class ReportingWebAction extends JiraWebActionSupport {
     }
   }
 
+  public boolean isCollapsedDetailsModule() {
+    return collapsedDetailsModule;
+  }
+
+  public boolean isCollapsedSummaryModule() {
+    return collapsedSummaryModule;
+  }
+
   private void loadIssueCollectorSrc() {
     Properties properties;
     try {
@@ -282,12 +326,11 @@ public class ReportingWebAction extends JiraWebActionSupport {
     pageSizeLimit = loadReportingSettings.pageSize;
   }
 
-  private void morePickerParse() {
-    String[] selectedMoreValues = getHttpRequest().getParameterValues("morePicker");
-    if (selectedMoreValues != null) {
-      selectedMore = Arrays.asList(selectedMoreValues);
-    } else {
-      selectedMore = new ArrayList<String>();
+  private void morePickerParse(final HttpServletRequest httpRequest) {
+    String selectedMoreJson = httpRequest.getParameter(HTTP_PARAM_SELECTED_MORE_JSON);
+    if (selectedMoreJson != null) {
+      String[] selectedMore = gson.fromJson(selectedMoreJson, String[].class);
+      this.selectedMore = Arrays.asList(selectedMore);
     }
   }
 
@@ -312,6 +355,21 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   public void setMessage(final String message) {
     this.message = message;
+  }
+
+  private void setParametersActiveTab(final HttpServletRequest httpRequest) {
+    String selectedActiveTab = httpRequest.getParameter(HTTP_PARAM_SELECTED_ACTIVE_TAB);
+    if (selectedActiveTab != null) {
+      this.selectedActiveTab = selectedActiveTab;
+    }
+
+    String collapsedDetailsModuleVal =
+        httpRequest.getParameter(HTTP_PARAM_COLLAPSED_DETAILS_MODULE);
+    collapsedDetailsModule = Boolean.parseBoolean(collapsedDetailsModuleVal);
+
+    String collapsedSummaryModuleVal =
+        httpRequest.getParameter(HTTP_PARAM_COLLAPSED_SUMMARY_MODULE);
+    collapsedSummaryModule = Boolean.parseBoolean(collapsedSummaryModuleVal);
   }
 
   public void setSelectedMore(final List<String> selectedMore) {

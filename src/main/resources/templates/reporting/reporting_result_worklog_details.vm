@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *#
-                <div id="detailsModule" class="module toggle-wrap expanded">
+                <div id="detailsModule" class="module toggle-wrap expanded #if( $collapsedDetailsModule )collapsed#end">
                     <div id="detailsModuleHeading" class="mod-header">
                         <h2 class="toggle-title"  onclick="everit.reporting.main.toggleModContent('details')">Work Log Details</h2>
                     </div>

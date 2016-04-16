@@ -197,7 +197,8 @@ public abstract class AbstractReportQuery {
             .select(worklogTimeSumPath.sum())
             .from(fromQuery.as("fromSum"));
 
-        return query.fetchOne();
+        Long grandTotal = query.fetchOne();
+        return grandTotal == null ? Long.valueOf(0L) : grandTotal;
       }
     };
   }
