@@ -430,7 +430,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                 <div class="search-criteria-container">
                                     <div class="search-criteria">
                                          <!-- User Dropdown  BUTTON-->
-                                         <a id="userPickerButton" href="#userPickerDropDown" aria-owns="userPickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger"></a>
+                                         <a id="userPickerButton" href="#userPickerDropDown" aria-disabled="false" aria-owns="userPickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger"></a>
                                          <!-- User Dropdown -->
                                          <div id="userPickerDropDown" class="aui-style-default aui-dropdown2">
                                            <div class="jttr-filter-field">

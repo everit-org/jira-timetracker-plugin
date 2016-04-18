@@ -83,16 +83,6 @@ everit.reporting.main = everit.reporting.main || {};
     initCreatedDatePicker();
     initEpicNameSelect();
     
-//    initIssueSelect();
-//    initPrioritySelect();
-//    initResolutionSelect();
-//    initAssigneSelect();
-//    initReporterSelect();
-//    initAffectedVersionSelect();
-//    initFixVersionSelect();
-//    initComponentSelect();
-//    initLabelSelect();
-//    initEpicLinkSelect();
   });
   
   var morePickerShowFunctions = {
@@ -211,6 +201,7 @@ everit.reporting.main = everit.reporting.main || {};
       var selected = checkSelected(optionValue, selectedArray);
       if(selected == "selected"){
         jQuery(morePickerOptions[i]).attr("selected","selected");
+        morePickerShowFunctions[optionValue]();
         jQuery("#" + optionValue).show();
       }
     }
@@ -392,30 +383,17 @@ everit.reporting.main = everit.reporting.main || {};
           updatePickerButtonTextWithNone("#userPicker" , "#userPickerButton", "User: All", "User: None", "none");
         });
        var userPickerNone = jQuery('#userPicker-suggestions [value="none"]');
-       var userPickerNotNone = jQuery('#userPicker-suggestions [value!="none"]');
        userPickerNone.on("click", function() {
-          //Checked
-          if(userPickerNone.attr("checked") == "checked"){
-            console.log("OK");
-            jQuery('#userPicker-suggestions input[checked="checked"][value!="none"]').click();
-            
-            //group select None - disable false
-            jQuery('#groupPicker-suggestions [value="-1"]').click();
-            jQuery("#groupPickerButton").attr("aria-disabled", false);
-          }else{
-            console.log("WTAT");
-          //group unselect none - disable true
-            jQuery('#groupPicker-suggestions [value="-1"]').click();
-            jQuery("#groupPickerButton").attr("aria-disabled", true);
-          }
-//          userPickerNotNone.on("click", function(e) {
-//          if(userPickerNone.attr("checked") == "checked"){
-//            jQuery(userPickerNone).click();
-//            e.preventDefault();
-//          }
-//         });
-
-          //unChecked
+         if(typeof event.fakeClick === 'undefined'){
+           var triggerData = {type:"click",name:"UserSelectClick",fakeClick:true};
+           jQuery('#userPicker-suggestions input[checked="checked"][value!="none"]').click();
+           //group select None fake click- disable false
+           jQuery('#groupPicker-suggestions [value="-1"]').trigger(triggerData);
+           //group select disable false
+           jQuery("#groupPickerButton").attr("aria-disabled", false);
+           //user select disable true
+           jQuery("#userPickerButton").attr("aria-disabled", true);
+         }
         });
      
       },
@@ -476,18 +454,15 @@ everit.reporting.main = everit.reporting.main || {};
           updatePickerButtonTextWithNone("#groupPicker" , "#groupPickerButton", "Group: All", "Group: None", "-1");
         });
         var groupPickerNone = jQuery('#groupPicker-suggestions [value="-1"]');
-        var groupPickerNotNone = jQuery('#groupPicker-suggestions [value!="-1"]');
-        groupPickerNone.on("click", function() {
-           //Checked
-           if(groupPickerNone.attr("checked") == "checked"){
-             console.log("OK G");
-             jQuery('#groupPicker-suggestions input[checked="checked"][value!="-1"]').click();
-           }else{
-             console.log("WTAT G");
-           }
-
-           //unChecked
-         });
+        groupPickerNone.on("click", function(event) {
+          if(typeof event.fakeClick === 'undefined'){
+            jQuery('#groupPicker-suggestions input[checked="checked"][value!="-1"]').click();
+            var triggerData = {type:"click",name:"GroupSelectClick",fakeClick:true};
+            jQuery('#userPicker-suggestions [value="none"]').trigger(triggerData);
+            jQuery("#userPickerButton").attr("aria-disabled", false);
+            jQuery("#groupPickerButton").attr("aria-disabled", true);
+          }
+        });
       },
       error : function(XMLHttpRequest, status, error){
       }
