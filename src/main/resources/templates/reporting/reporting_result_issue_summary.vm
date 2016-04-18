@@ -25,7 +25,8 @@
                                             <th>Assignee</th>
                                             <th>Estimated</th>
                                             <th>Remaining</th>
-                                            <th>Total Logged</th>
+                                            <th>Logged</th>
+                                            <th>Expected <span id="issue-expected-tooltip" class="aui-icon aui-icon-small aui-iconfont-help" title="Logged + Remaining"></span></th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -40,6 +41,7 @@
                                             <td>$durationFormatter.exactDuration($is.orginalEstimatedSum)</td>
                                             <td>$durationFormatter.exactDuration($is.reaminingTimeSum)</td>
                                             <td>$durationFormatter.exactDuration($is.workloggedTimeSum)</td>
+                                            <td>$durationFormatter.exactDuration($is.expected)</td>
                                         </tr>
                                         #end
                                     </tbody>

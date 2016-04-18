@@ -39,8 +39,9 @@ public class ExportWorklogDetailsListReport extends AbstractExportListReport {
   private List<String> selectedWorklogDetailsColumns;
 
   public ExportWorklogDetailsListReport(final QuerydslSupport querydslSupport,
-      final List<String> selectedWorklogDetailsColumns, final ReportSearchParam reportSearchParam) {
-    super(querydslSupport, reportSearchParam);
+      final List<String> selectedWorklogDetailsColumns, final ReportSearchParam reportSearchParam,
+      final List<String> notBrowsableProjectKeys) {
+    super(querydslSupport, reportSearchParam, notBrowsableProjectKeys);
     this.selectedWorklogDetailsColumns = selectedWorklogDetailsColumns;
   }
 

@@ -33,8 +33,10 @@ import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.permission.ProjectPermissions;
 import com.atlassian.jira.project.Project;
+import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.PermissionManager;
 import com.atlassian.jira.security.groups.GroupManager;
+import com.atlassian.jira.user.ApplicationUser;
 import com.google.gson.Gson;
 
 /**
@@ -129,8 +131,11 @@ public final class ConverterUtil {
       final List<Long> projectIds) {
     Map<Long, String> projectIdProjectKeys = new HashMap<Long, String>();
     PermissionManager permissionManager = ComponentAccessor.getPermissionManager();
+    JiraAuthenticationContext jiraAuthenticationContext =
+        ComponentAccessor.getJiraAuthenticationContext();
+    ApplicationUser user = jiraAuthenticationContext.getUser();
     Collection<Project> projects =
-        permissionManager.getProjects(ProjectPermissions.BROWSE_PROJECTS, null);
+        permissionManager.getProjects(ProjectPermissions.BROWSE_PROJECTS, user);
     List<Long> allBrowsableProjectIds = new ArrayList<Long>();
     for (Project project : projects) {
       Long projectId = project.getId();
@@ -154,7 +159,8 @@ public final class ConverterUtil {
 
     List<String> notBrowsableProjectKeys = new ArrayList<String>();
     for (Long projectId : notBrowsableProjectIds) {
-      notBrowsableProjectKeys.add(projectIdProjectKeys.get(projectId));
+      String projectKey = projectIdProjectKeys.get(projectId);
+      notBrowsableProjectKeys.add(projectKey == null ? projectId.toString() : projectKey);
     }
     return notBrowsableProjectKeys;
   }

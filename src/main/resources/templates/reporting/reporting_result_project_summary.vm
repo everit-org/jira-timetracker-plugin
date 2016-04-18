@@ -22,9 +22,7 @@
                                             <th>Estimated</th>
                                             <th>Total Logged</th>
                                             <th>Remaining</th>
-                                            <th>Logged vs. Estimated</th>
-                                            <th>Expected Total (Logged + Remaining)</th>
-                                            <th>Expected Total vs. Estimated</th>
+                                            <th>Total Expected <span id="project-expected-tooltip" class="aui-icon aui-icon-small aui-iconfont-help" title="Total Logged + Remaining"></span></th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -35,9 +33,7 @@
                                             <td>$durationFormatter.exactDuration($ps.issuesOrginalEstimatedSum)</td>
                                             <td>$durationFormatter.exactDuration($ps.workloggedTimeSum)</td>
                                             <td>$durationFormatter.exactDuration($ps.issuesReaminingTimeSum)</td>
-                                            <td>$durationFormatter.exactDuration($ps.loggedVsEstimated)</td>
                                             <td>$durationFormatter.exactDuration($ps.expectedTotal)</td>
-                                            <td>$durationFormatter.exactDuration($ps.expectedTotalVsEstimated)</td>
                                         </tr>
                                         #end
                                     </tbody>

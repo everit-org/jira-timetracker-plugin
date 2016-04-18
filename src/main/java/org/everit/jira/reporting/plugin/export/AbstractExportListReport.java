@@ -22,6 +22,7 @@ import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
@@ -43,6 +44,8 @@ public abstract class AbstractExportListReport {
 
   protected I18nHelper i18nHelper;
 
+  protected List<String> notBrowsableProjectKeys;
+
   protected QuerydslSupport querydslSupport;
 
   protected ReportSearchParam reportSearchParam;
@@ -54,15 +57,31 @@ public abstract class AbstractExportListReport {
    *          the {@link QuerydslSupport} instance.
    * @param reportSearchParam
    *          the {@link ReportSearchParam} object, that contains parameters to filter condition.
+   * @param notBrowsableProjectKeys
+   *          the list of not browsable project keys.
    */
   public AbstractExportListReport(final QuerydslSupport querydslSupport,
-      final ReportSearchParam reportSearchParam) {
+      final ReportSearchParam reportSearchParam, final List<String> notBrowsableProjectKeys) {
     this.querydslSupport = querydslSupport;
     this.reportSearchParam = reportSearchParam;
+    this.notBrowsableProjectKeys = notBrowsableProjectKeys;
     i18nHelper = ComponentAccessor.getJiraAuthenticationContext().getI18nHelper();
   }
 
   protected abstract void appendContent(HSSFWorkbook workbook);
+
+  private void appendNotBrowsalbeProjectsSheet(final HSSFWorkbook workbook) {
+    if (!notBrowsableProjectKeys.isEmpty()) {
+      HSSFSheet noBrowsableProjectsSheet = workbook.createSheet("No Browsable Projects");
+      int rowIndex = 0;
+      HSSFRow headerRow = noBrowsableProjectsSheet.createRow(rowIndex++);
+      insertHeaderCell(headerRow, 0, i18nHelper.getText("jtrp.report.projectKeys"));
+      for (String projectKey : notBrowsableProjectKeys) {
+        HSSFRow bodyRow = noBrowsableProjectsSheet.createRow(rowIndex++);
+        insertBodyCell(bodyRow, 0, projectKey);
+      }
+    }
+  }
 
   private void createBodyCellStyle(final HSSFWorkbook workbook) {
     bodyCellStyle = workbook.createCellStyle();
@@ -87,6 +106,8 @@ public abstract class AbstractExportListReport {
     createBodyCellStyle(workbook);
 
     appendContent(workbook);
+
+    appendNotBrowsalbeProjectsSheet(workbook);
 
     return workbook;
   }
