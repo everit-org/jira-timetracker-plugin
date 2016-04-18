@@ -400,7 +400,7 @@ everit.reporting.main = everit.reporting.main || {};
           updatePickerButtonTextWithNone("#userPicker" , "#userPickerButton", "User: All", "User: None", "none");
         });
        var userPickerNone = jQuery('#userPicker-suggestions [value="none"]');
-       userPickerNone.on("click", function() {
+       userPickerNone.on("click", function(event) {
          if(typeof event.fakeClick === 'undefined'){
            var triggerData = {type:"click",name:"UserSelectClick",fakeClick:true};
            jQuery('#userPicker-suggestions input[checked="checked"][value!="none"]').click();
@@ -408,8 +408,6 @@ everit.reporting.main = everit.reporting.main || {};
            jQuery('#groupPicker-suggestions [value="-1"]').trigger(triggerData);
            //group select disable false
            jQuery("#groupPickerButton").attr("aria-disabled", false);
-           //user select disable true
-           jQuery("#userPickerButton").attr("aria-disabled", true);
          }
         });
      
@@ -438,6 +436,7 @@ everit.reporting.main = everit.reporting.main || {};
      }
    }else{
      newButtonText = noneText;
+     jQuery(button).attr("aria-disabled", true);
    }
    jQuery(button).text(newButtonText);
   };
@@ -451,11 +450,7 @@ everit.reporting.main = everit.reporting.main || {};
       data : [],
       success : function(result){
         //Add None before result parse
-        var selected = ""; 
-        if(selectedArray.length == 0){
-          selected = "selected";
-          jQuery("#groupPickerButton").attr("aria-disabled", true);
-        }
+        var selected = checkSelected("-1", selectedArray);
         jQuery("#groupPicker").append('<option value="-1" '+ selected + '>' +'None'+'</option>');
         for( var i in result.groups) {
           var obj = result.groups[i];
@@ -477,7 +472,6 @@ everit.reporting.main = everit.reporting.main || {};
             var triggerData = {type:"click",name:"GroupSelectClick",fakeClick:true};
             jQuery('#userPicker-suggestions [value="none"]').trigger(triggerData);
             jQuery("#userPickerButton").attr("aria-disabled", false);
-            jQuery("#groupPickerButton").attr("aria-disabled", true);
           }
         });
       },

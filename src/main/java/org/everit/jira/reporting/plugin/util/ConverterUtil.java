@@ -225,6 +225,7 @@ public final class ConverterUtil {
 
     List<String> users = filterCondition.getUsers();
     if (users.isEmpty() && !filterCondition.getGroups().isEmpty()) {
+      // TODO add none to group and user checks
       users = ConverterUtil.getUserNamesFromGroup(filterCondition.getGroups());
     }
     reportSearchParam.users(users);
