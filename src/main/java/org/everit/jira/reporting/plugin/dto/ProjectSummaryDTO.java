@@ -43,13 +43,9 @@ public class ProjectSummaryDTO {
 
   private long expectedTotal;
 
-  private long expectedTotalVsEstimated;
-
   private long issuesOrginalEstimatedSum;
 
   private long issuesReaminingTimeSum;
-
-  private long loggedVsEstimated;
 
   private String projectKey;
 
@@ -64,22 +60,12 @@ public class ProjectSummaryDTO {
     return expectedTotal;
   }
 
-  public long getExpectedTotalVsEstimated() {
-    expectedTotalVsEstimated = getExpectedTotal() - getIssuesOrginalEstimatedSum();
-    return expectedTotalVsEstimated;
-  }
-
   public long getIssuesOrginalEstimatedSum() {
     return issuesOrginalEstimatedSum;
   }
 
   public long getIssuesReaminingTimeSum() {
     return issuesReaminingTimeSum;
-  }
-
-  public long getLoggedVsEstimated() {
-    loggedVsEstimated = getWorkloggedTimeSum() - getIssuesOrginalEstimatedSum();
-    return loggedVsEstimated;
   }
 
   public String getProjectKey() {

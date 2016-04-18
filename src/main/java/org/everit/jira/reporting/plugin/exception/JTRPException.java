@@ -13,19 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.jira.reporting.plugin.rest.exception;
+package org.everit.jira.reporting.plugin.exception;
 
 /**
- * The exception to handle Jira TimeTracker Plguin exceptions.
+ * Reporting exception.
  */
-public class JTTPException extends RuntimeException {
+public class JTRPException extends RuntimeException {
 
-  /**
-   * The generated serial version UID.
-   */
-  private static final long serialVersionUID = -6122536081966260945L;
+  private static final long serialVersionUID = 3267914704266213736L;
 
-  public JTTPException(final String message, final Throwable cause) {
-    super(message, cause);
+  public JTRPException(final String errorMsgKey) {
+    super(errorMsgKey);
   }
 }

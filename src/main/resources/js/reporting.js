@@ -83,6 +83,23 @@ everit.reporting.main = everit.reporting.main || {};
     initCreatedDatePicker();
     initEpicNameSelect();
     
+    if( reporting.values.notBrowsableProjectKeys.length ) {
+      var keys = "";
+      var length = reporting.values.notBrowsableProjectKeys.length;
+      for( var i in reporting.values.notBrowsableProjectKeys ) {
+        keys += reporting.values.notBrowsableProjectKeys[i];
+        if( i < length - 1 ) {
+          keys += ", ";
+        }
+      }
+      AJS.messages.warning({
+        title: "Some worklogs cannot be displayed",
+        body: "You don't have the permission to browse the following projects: " + keys +"."
+      });
+    }
+
+    AJS.$('#project-expected-tooltip').tooltip();
+    AJS.$('#issue-expected-tooltip').tooltip();
   });
   
   var morePickerShowFunctions = {
@@ -915,9 +932,22 @@ everit.reporting.main = everit.reporting.main || {};
     var json = JSON.stringify(filterCondition);
     var $filterConditionJson = jQuery('#filterConditionJson')
     $filterConditionJson.val(json);
+    
     var selectedWorklogDetailsColumns = collectSelectedWorklogDetailsColumns();
     var columnsJson = JSON.stringify(selectedWorklogDetailsColumns);
     jQuery('#selectedWorklogDetailsColumns').val(columnsJson);
+    
+    var selectedMore = jQuery('#morePicker').val();
+    jQuery('#selectedMoreJson').val('[' + selectedMore + ']');
+    
+    var activeTabId = jQuery('.active-pane').attr('id');
+    jQuery('#selectedActiveTab').val(activeTabId);
+    
+    var collapsedDetailsModuleVal = jQuery('#detailsModule').hasClass('collapsed');
+    jQuery('#collapsedDetailsModule').val(collapsedDetailsModuleVal);
+    
+    var collapsedSummaryModuleVal = jQuery('#summaryModule').hasClass('collapsed');
+    jQuery('#collapsedSummaryModule').val(collapsedSummaryModuleVal);
     return true;
   }
   

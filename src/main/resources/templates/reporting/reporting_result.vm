@@ -15,10 +15,12 @@
  *#
         <div class="aui-page-panel">
           <div class="aui-page-panel-inner">
-            <section class="aui-page-panel-content">                
+            <section class="aui-page-panel-content">
+                <div id="aui-message-bar"></div>
+
                 #parse("templates/reporting/reporting_result_worklog_details.vm")
-                
+
                 #parse("templates/reporting/reporting_result_summaries.vm")
-            </section>              
+            </section>
           </div>
         </div>

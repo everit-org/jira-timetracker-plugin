@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *#
-                <div id="summaryModule" class="module summary-module toggle-wrap expanded">
+                <div id="summaryModule" class="module summary-module toggle-wrap expanded #if( $collapsedSummaryModule )collapsed#end">
                     <div id="summaryModuleHeading" class="mod-header">
                         <h2 class="toggle-title" onclick="everit.reporting.main.toggleModContent('summary')">Quick Summary</h2>
                     </div>
@@ -27,24 +27,28 @@
 	                        </div>
                         </div>
                         <div class="aui-tabs horizontal-tabs" data-aui-responsive>
+                            #set($isTabsProjectActive = $selectedActiveTab == "tabs-project")
+                            #set($isTabsIssueActive = $selectedActiveTab == "tabs-issue")
+                            #set($isTabsUserActive = $selectedActiveTab == "tabs-user")
+
                             <ul class="tabs-menu">
-                                <li class="menu-item active-tab">
+                                <li class="menu-item #if( $isTabsProjectActive )active-tab#end">
                                     <a href="#tabs-project">Project</a>
                                 </li>
-                                <li class="menu-item">
+                                <li class="menu-item #if( $isTabsIssueActive )active-tab#end">
                                     <a href="#tabs-issue">Issue</a>
                                 </li>
-                                <li class="menu-item">
+                                <li class="menu-item #if( $isTabsUserActive )active-tab#end">
                                     <a href="#tabs-user">User</a>
                                 </li>
                             </ul>
-                            <div class="tabs-pane active-pane" id="tabs-project">
+                            <div class="tabs-pane #if( $isTabsProjectActive )active-pane#end" id="tabs-project">
                             #parse("templates/reporting/reporting_result_project_summary.vm")
                             </div>
-                            <div class="tabs-pane" id="tabs-issue">
+                            <div class="tabs-pane #if( $isTabsIssueActive )active-pane#end" id="tabs-issue">
                             #parse("templates/reporting/reporting_result_issue_summary.vm")
                             </div>
-                            <div class="tabs-pane" id="tabs-user">
+                            <div class="tabs-pane #if( $isTabsUserActive )active-pane#end" id="tabs-user">
                             #parse("templates/reporting/reporting_result_user_summary.vm")
                             </div>
                         </div>

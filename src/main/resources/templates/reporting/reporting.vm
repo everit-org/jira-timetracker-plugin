@@ -59,6 +59,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
             worklogDetailsColumns:  [ #foreach( $tmp in $selectedWorklogDetailsColumns )#if($velocityCount> 1),#end "$tmp" #end ],
             worklogDetailsAllColumns: [ #foreach( $tmp in $worklogDetailsAllColumns )#if($velocityCount> 1),#end "$tmp" #end ],
             pageSizeLimit: $pageSizeLimit,
+            notBrowsableProjectKeys: [ #foreach( $tmp in $notBrowsableProjectKeys )#if($velocityCount> 1),#end "$tmp" #end ],
           }
         );
       })(everit.reporting.main, AJS.$);
@@ -84,7 +85,6 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
             
         <!-- Search criterias -->
         <div class="reporting-search-criteria-container">
-            <form action="ReportingWebAction.jspa" class="aui top-label reporting-form" name="reporting-form" id="reporting-form" method="get">
 			     <div class="form-body">
                      #if(!$message.isEmpty())
                        	<div id="error_message">
@@ -475,32 +475,39 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                             <div class="date-search-container">
                                 <div class="search-criteria-container">
                                     <div class="search-criteria">
-                                        <div class="from-date inline-calendar">
-                                            <input id="dateFrom" name="dateFrom" class="text medium-field datepicker-input" placeholder="From" type="text" value="$filterCondition.worklogStartDate"/>
-                                                <a href="#" title="Select a date">
-                                                    <span id="date_trigger_from" class="aui-icon icon-date">Select a date</span>
-                                                </a>
-                                        </div>
-                                        <div class="to-date inline-calendar">
-                                            <input id="dateTo" name="dateTo" class="text medium-field datepicker-input" placeholder="To" type="text" value="$filterCondition.worklogEndDate" />
-                                                <a href="#" title="Select a date">
-                                                    <span id="date_trigger_to" class="aui-icon icon-date">Select a date</span>
-                                                </a>
-                                        </div>
-                                        <input type="hidden" id="filterConditionJson" name="filterConditionJson" value="$filterConditionJson"/>
-                                        <input type="hidden" id="selectedWorklogDetailsColumns" name="selectedWorklogDetailsColumns" value="$selectedWorklogDetailsColumns"/>
-                                        <button type="submit" class="aui-button aui-button-primary" onclick="everit.reporting.main.beforeSubmitCreateReport()">Create Report</button> <!-- Submit the search form -->
+                                        <form action="ReportingWebAction.jspa" class="aui top-label reporting-form" name="reporting-form" id="reporting-form" method="get">
+                                            <div class="from-date inline-calendar">
+                                                <input id="dateFrom" name="dateFrom" class="text medium-field datepicker-input" placeholder="From" type="text" value="$filterCondition.worklogStartDate"/>
+                                                    <a href="#" title="Select a date">
+                                                        <span id="date_trigger_from" class="aui-icon icon-date">Select a date</span>
+                                                    </a>
+                                            </div>
+                                            <div class="to-date inline-calendar">
+                                                <input id="dateTo" name="dateTo" class="text medium-field datepicker-input" placeholder="To" type="text" value="$filterCondition.worklogEndDate" />
+                                                    <a href="#" title="Select a date">
+                                                        <span id="date_trigger_to" class="aui-icon icon-date">Select a date</span>
+                                                    </a>
+                                            </div>
+                                            <input type="hidden" id="filterConditionJson" name="filterConditionJson" value="$filterConditionJson"/>
+                                            <input type="hidden" id="selectedWorklogDetailsColumns" name="selectedWorklogDetailsColumns" value="$selectedWorklogDetailsColumns"/>
+                                            <input type="hidden" name="formType" value="basic" />
+                                            <input type="hidden" id="selectedMoreJson" name="selectedMoreJson" value="" />
+                                            <input type="hidden" id="selectedActiveTab" name="selectedActiveTab" value="" />
+                                            <input type="hidden" id="collapsedDetailsModule" name="collapsedDetailsModule" value=""/>
+                                            <input type="hidden" id="collapsedSummaryModule" name="collapsedSummaryModule" value=""/>
+                                            <button type="submit" class="aui-button aui-button-primary" onclick="everit.reporting.main.beforeSubmitCreateReport()">Create Report</button> <!-- Submit the search form -->
+                                        </form>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <input type="hidden" name="formType" value="basic" />
-            </form>
+
+
         </div>
         #parse("templates/reporting/reporting_result.vm")
-        
+
         <!-- Issue Collector script -->
         <script type="text/javascript" src="$issueCollectorSrc"></script>
     </section>
