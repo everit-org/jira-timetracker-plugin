@@ -83,6 +83,24 @@ everit.reporting.main = everit.reporting.main || {};
     initCreatedDatePicker();
     initEpicNameSelect();
     
+    if( reporting.values.notBrowsableProjectKeys.length ) {
+      var keys = "";
+      var length = reporting.values.notBrowsableProjectKeys.length;
+      for( var i in reporting.values.notBrowsableProjectKeys ) {
+        keys += reporting.values.notBrowsableProjectKeys[i];
+        if( i < length - 1 ) {
+          keys += ", ";
+        }
+      }
+      AJS.messages.warning({
+        title: "Some worklogs cannot be displayed",
+        body: "You don't have the permission to browse the following projects: " + keys +"."
+      });
+    }
+
+    AJS.$('#project-expected-tooltip').tooltip();
+    AJS.$('#issue-expected-tooltip').tooltip();
+
 //    initIssueSelect();
 //    initPrioritySelect();
 //    initResolutionSelect();

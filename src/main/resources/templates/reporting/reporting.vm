@@ -59,6 +59,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
             worklogDetailsColumns:  [ #foreach( $tmp in $selectedWorklogDetailsColumns )#if($velocityCount> 1),#end "$tmp" #end ],
             worklogDetailsAllColumns: [ #foreach( $tmp in $worklogDetailsAllColumns )#if($velocityCount> 1),#end "$tmp" #end ],
             pageSizeLimit: $pageSizeLimit,
+            notBrowsableProjectKeys: [ #foreach( $tmp in $notBrowsableProjectKeys )#if($velocityCount> 1),#end "$tmp" #end ],
           }
         );
       })(everit.reporting.main, AJS.$);
@@ -502,11 +503,11 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                         </div>
                     </div>
                 </div>
-                
-            
+
+
         </div>
         #parse("templates/reporting/reporting_result.vm")
-        
+
         <!-- Issue Collector script -->
         <script type="text/javascript" src="$issueCollectorSrc"></script>
     </section>

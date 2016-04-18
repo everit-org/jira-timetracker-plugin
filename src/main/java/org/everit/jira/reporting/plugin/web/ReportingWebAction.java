@@ -102,6 +102,8 @@ public class ReportingWebAction extends JiraWebActionSupport {
    */
   private String message = "";
 
+  private List<String> notBrowsableProjectKeys = Collections.emptyList();
+
   private int pageSizeLimit;
 
   private ProjectSummaryReportDTO projectSummaryReport = new ProjectSummaryReportDTO();
@@ -216,6 +218,8 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
       userSummaryReport =
           reportingPlugin.getUserSummaryReport(convertedSearchParam.reportSearchParam);
+
+      notBrowsableProjectKeys = convertedSearchParam.notBrowsableProjectKeys;
     } catch (JTRPException e) {
       message = e.getMessage();
       return INPUT;
@@ -254,6 +258,10 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   public String getMessage() {
     return message;
+  }
+
+  public List<String> getNotBrowsableProjectKeys() {
+    return notBrowsableProjectKeys;
   }
 
   public int getPageSizeLimit() {

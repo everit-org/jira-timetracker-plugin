@@ -24,6 +24,8 @@ public final class IssueSummaryColumns {
 
   public static final String ESTIMATED = "jtrp_col_estimated";
 
+  public static final String EXPECTED = "jtrp_col_expected";
+
   public static final String ISSUE = "jtrp_col_issue";
 
   public static final String ISSUE_SUMMARY = "jtrp_col_issueSummary";

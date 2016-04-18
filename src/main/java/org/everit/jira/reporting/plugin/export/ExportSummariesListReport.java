@@ -115,7 +115,8 @@ public class ExportSummariesListReport extends AbstractExportListReport {
     columnIndex = insertBodyCell(row, columnIndex, issueSummaryDTO.getAssignee());
     columnIndex = insertBodyCell(row, columnIndex, issueSummaryDTO.getOrginalEstimatedSum());
     columnIndex = insertBodyCell(row, columnIndex, issueSummaryDTO.getReaminingTimeSum());
-    insertBodyCell(row, columnIndex, issueSummaryDTO.getWorkloggedTimeSum());
+    columnIndex = insertBodyCell(row, columnIndex, issueSummaryDTO.getWorkloggedTimeSum());
+    insertBodyCell(row, columnIndex, issueSummaryDTO.getExpected());
 
     return newRowIndex;
   }
@@ -143,8 +144,10 @@ public class ExportSummariesListReport extends AbstractExportListReport {
         i18nHelper.getText(ISSUE_SUMMARY_PREFIX + IssueSummaryColumns.ESTIMATED));
     columnIndex = insertHeaderCell(row, columnIndex,
         i18nHelper.getText(ISSUE_SUMMARY_PREFIX + IssueSummaryColumns.REMAINING));
-    insertHeaderCell(row, columnIndex,
+    columnIndex = insertHeaderCell(row, columnIndex,
         i18nHelper.getText(ISSUE_SUMMARY_PREFIX + IssueSummaryColumns.TOTAL_LOGGED));
+    insertHeaderCell(row, columnIndex,
+        i18nHelper.getText(ISSUE_SUMMARY_PREFIX + IssueSummaryColumns.EXPECTED));
 
     return newRowIndex;
   }
@@ -163,9 +166,7 @@ public class ExportSummariesListReport extends AbstractExportListReport {
         insertBodyCell(row, columnIndex, projectSummaryDTO.getIssuesOrginalEstimatedSum());
     columnIndex = insertBodyCell(row, columnIndex, projectSummaryDTO.getWorkloggedTimeSum());
     columnIndex = insertBodyCell(row, columnIndex, projectSummaryDTO.getIssuesReaminingTimeSum());
-    columnIndex = insertBodyCell(row, columnIndex, projectSummaryDTO.getLoggedVsEstimated());
-    columnIndex = insertBodyCell(row, columnIndex, projectSummaryDTO.getExpectedTotal());
-    insertBodyCell(row, columnIndex, projectSummaryDTO.getExpectedTotalVsEstimated());
+    insertBodyCell(row, columnIndex, projectSummaryDTO.getExpectedTotal());
 
     return newRowIndex;
   }
@@ -187,13 +188,8 @@ public class ExportSummariesListReport extends AbstractExportListReport {
         i18nHelper.getText(PROJECT_SUMMARY_PREFIX + ProjectSummaryColumns.TOTAL_LOGGED));
     columnIndex = insertHeaderCell(row, columnIndex,
         i18nHelper.getText(PROJECT_SUMMARY_PREFIX + ProjectSummaryColumns.REMAINING));
-    columnIndex = insertHeaderCell(row, columnIndex,
-        i18nHelper.getText(PROJECT_SUMMARY_PREFIX + ProjectSummaryColumns.LOGGED_VS_ESTIMATED));
-    columnIndex = insertHeaderCell(row, columnIndex,
-        i18nHelper.getText(PROJECT_SUMMARY_PREFIX + ProjectSummaryColumns.EXPECTED_TOTAL));
     insertHeaderCell(row, columnIndex,
-        i18nHelper.getText(PROJECT_SUMMARY_PREFIX
-            + ProjectSummaryColumns.EXPECTED_TOTAL_VS_ESTIMATED));
+        i18nHelper.getText(PROJECT_SUMMARY_PREFIX + ProjectSummaryColumns.EXPECTED_TOTAL));
 
     return newRowIndex;
   }

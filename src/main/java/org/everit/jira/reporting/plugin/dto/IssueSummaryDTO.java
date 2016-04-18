@@ -49,6 +49,8 @@ public class IssueSummaryDTO {
 
   private String assignee;
 
+  private long expected;
+
   private String issueKey;
 
   private String issueSummary;
@@ -67,6 +69,11 @@ public class IssueSummaryDTO {
 
   public String getAssignee() {
     return assignee;
+  }
+
+  public long getExpected() {
+    expected = workloggedTimeSum + reaminingTimeSum;
+    return expected;
   }
 
   public String getIssueKey() {
