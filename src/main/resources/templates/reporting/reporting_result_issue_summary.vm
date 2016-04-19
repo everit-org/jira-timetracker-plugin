@@ -17,16 +17,16 @@
                                 <table class="aui reporting-table">
                                     <thead>
                                         <tr>
-                                            <th>Issue Key</th>
-                                            <th>Issue Summary</th>
-                                            <th>Type</th>
-                                            <th>Priority</th>
-                                            <th>Status</th>
-                                            <th>Assignee</th>
-                                            <th>Estimated</th>
-                                            <th>Remaining</th>
-                                            <th>Logged</th>
-                                            <th>Expected <span id="issue-expected-tooltip" class="aui-icon aui-icon-small aui-iconfont-help" title="Logged + Remaining"></span></th>
+                                            <th>$i18n.getText("jtrp.report.is.col.jtrp_col_issue")</th>
+                                            <th>$i18n.getText("jtrp.report.is.col.jtrp_col_issueSummary")</th>
+                                            <th>$i18n.getText("jtrp.report.is.col.jtrp_col_type")</th>
+                                            <th>$i18n.getText("jtrp.report.is.col.jtrp_col_priority")</th>
+                                            <th>$i18n.getText("jtrp.report.is.col.jtrp_col_status")</th>
+                                            <th>$i18n.getText("jtrp.report.is.col.jtrp_col_assignee")</th>
+                                            <th>$i18n.getText("jtrp.report.is.col.jtrp_col_estimated")</th>
+                                            <th>$i18n.getText("jtrp.report.is.col.jtrp_col_remaining")</th>
+                                            <th>$i18n.getText("jtrp.report.is.col.jtrp_col_totalLogged")</th>
+                                            <th>$i18n.getText("jtrp.report.is.col.jtrp_col_expected") <span id="issue-expected-tooltip" class="aui-icon aui-icon-small aui-iconfont-help" title="$i18n.getText('jtrp.report.is.col.jtrp_col_expected.help')"></span></th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -37,7 +37,7 @@
                                             <td>$is.issueTypeName</td>
                                             <td>$is.priorityName</td>
                                             <td>$is.statusName</td>
-                                            <td>#if ( !$is.assignee ) Unassigneed #else $is.assignee #end</td>
+                                            <td>#if ( !$is.assignee ) $i18n.getText("jtrp.picker.unassigned.value") #else $is.assignee #end</td>
                                             <td>$durationFormatter.exactDuration($is.orginalEstimatedSum)</td>
                                             <td>$durationFormatter.exactDuration($is.reaminingTimeSum)</td>
                                             <td>$durationFormatter.exactDuration($is.workloggedTimeSum)</td>

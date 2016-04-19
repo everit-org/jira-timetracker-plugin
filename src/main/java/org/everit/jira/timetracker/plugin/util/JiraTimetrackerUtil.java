@@ -49,6 +49,7 @@ public final class JiraTimetrackerUtil {
       ComponentAccessor.getI18nHelperFactory().getInstance(Locale.getDefault());
 
   private static final String FEEDBACK_EMAIL_SUBJECT = "[JTTP] feedback";
+
   /**
    * The plugin calendar inline code.
    */
@@ -258,6 +259,21 @@ public final class JiraTimetrackerUtil {
       return defaultLocalI18n.getText(i18nKey);
     }
     return answerKey;
+  }
+
+  /**
+   * Get the i18nKey property value in default locale language or if the key not defined give back
+   * the key.
+   *
+   * @param i18nKey
+   *          The property key.
+   * @return The property value or the key.
+   */
+  public static String getI18nText(final String i18nKey) {
+    if (defaultLocalI18n.isKeyDefined(i18nKey)) {
+      return defaultLocalI18n.getText(i18nKey);
+    }
+    return i18nKey;
   }
 
   /**

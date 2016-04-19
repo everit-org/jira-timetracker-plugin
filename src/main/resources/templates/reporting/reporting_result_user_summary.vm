@@ -17,8 +17,8 @@
                                 <table class="aui reporting-table">
                                     <thead>
                                         <tr>
-                                            <th>User</th>
-                                            <th>Total Logged</th>
+                                            <th>$i18n.getText("jtrp.report.us.col.jtrp_col_user")</th>
+                                            <th>$i18n.getText("jtrp.report.us.col.jtrp_col_totalLogged")</th>
                                         </tr>
                                     </thead>
                                     <tbody>
