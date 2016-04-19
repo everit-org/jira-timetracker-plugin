@@ -74,6 +74,8 @@ public final class ConverterUtil {
     for (String assignee : issueAssignees) {
       if (PickerUserDTO.UNASSIGNED_USER_NAME.equals(assignee)) {
         reportSearchParam.selectUnassgined(true);
+      } else if (PickerUserDTO.CURRENT_USER_NAME.equals(assignee)) {
+        assignees.add(JiraTimetrackerUtil.getLoggedUserName());
       } else {
         assignees.add(assignee);
       }
@@ -109,6 +111,19 @@ public final class ConverterUtil {
       }
     }
     reportSearchParam.issueFixedVersions(fixedVersions);
+  }
+
+  private static void appendIssueReportes(final ReportSearchParam reportSearchParam,
+      final List<String> issueReporters) {
+    ArrayList<String> reporters = new ArrayList<String>();
+    for (String reporter : issueReporters) {
+      if (PickerUserDTO.CURRENT_USER_NAME.equals(reporter)) {
+        reporters.add(JiraTimetrackerUtil.getLoggedUserName());
+      } else {
+        reporters.add(reporter);
+      }
+    }
+    reportSearchParam.issueReporters(reporters);
   }
 
   private static void appendIssueResolution(final ReportSearchParam reportSearchParam,
@@ -189,7 +204,6 @@ public final class ConverterUtil {
             ConverterUtil.getDate(filterCondition.getIssueCreateDate(), KEY_INVALID_START_TIME))
         .issueEpicLinkIssueIds(filterCondition.getIssueEpicLinkIssueIds())
         .issuePriorityIds(filterCondition.getIssuePriorityIds())
-        .issueReporters(filterCondition.getIssueReporters())
         .issueStatusIds(filterCondition.getIssueStatusIds())
         .issueTypeIds(filterCondition.getIssueTypeIds())
         .labels(filterCondition.getLabels())
@@ -202,6 +216,8 @@ public final class ConverterUtil {
         .issueKeys(filterCondition.getIssueKeys());
 
     ConverterUtil.appendIssueAssignees(reportSearchParam, filterCondition.getIssueAssignees());
+
+    ConverterUtil.appendIssueReportes(reportSearchParam, filterCondition.getIssueReporters());
 
     ConverterUtil.appendIssueResolution(reportSearchParam, filterCondition.getIssueResolutionIds());
 
