@@ -17,12 +17,12 @@
                                 <table class="aui reporting-table">
                                     <thead>
                                         <tr>
-                                            <th>Project</th>
-                                            <th>Project Description</th>
-                                            <th>Estimated</th>
-                                            <th>Total Logged</th>
-                                            <th>Remaining</th>
-                                            <th>Total Expected <span id="project-expected-tooltip" class="aui-icon aui-icon-small aui-iconfont-help" title="Total Logged + Remaining"></span></th>
+                                            <th>$i18n.getText("jtrp.report.ps.col.jtrp_col_project")</th>
+                                            <th>$i18n.getText("jtrp.report.ps.col.jtrp_col_projectDescription")</th>
+                                            <th>$i18n.getText("jtrp.report.ps.col.jtrp_col_estimated")</th>
+                                            <th>$i18n.getText("jtrp.report.ps.col.jtrp_col_totalLogged")</th>
+                                            <th>$i18n.getText("jtrp.report.ps.col.jtrp_col_remaining")</th>
+                                            <th>$i18n.getText("jtrp.report.ps.col.jtrp_col_expectedTotal") <span id="project-expected-tooltip" class="aui-icon aui-icon-small aui-iconfont-help" title="$i18n.getText('jtrp.report.ps.col.jtrp_col_expectedTotal.help')"></span></th>
                                         </tr>
                                     </thead>
                                     <tbody>

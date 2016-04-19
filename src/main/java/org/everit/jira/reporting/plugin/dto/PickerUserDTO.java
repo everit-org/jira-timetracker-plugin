@@ -41,15 +41,15 @@ public class PickerUserDTO {
     }
   }
 
-  public static final String CURRENT_USER_DISPLAY_NAME = "Current User";
+  public static final String CURRENT_USER_DISPLAY_NAME = "jtrp.picker.current.user.value";
 
-  public static final String CURRENT_USER_NAME = "current_";
+  public static final String CURRENT_USER_NAME = "currentUser";
 
-  public static final String NONE_DISPLAY_NAME = "None";
+  public static final String NONE_DISPLAY_NAME = "jtrp.picker.value.none";
 
   public static final String NONE_USER_NAME = "none";
 
-  public static final String UNASSIGNED_DISPLAY_NAME = "Unassigned";
+  public static final String UNASSIGNED_DISPLAY_NAME = "jtrp.picker.unassigned.value";
 
   public static final String UNASSIGNED_USER_NAME = "empty";
 
@@ -59,8 +59,8 @@ public class PickerUserDTO {
   public static PickerUserDTO createCurrentUser() {
     PickerUserDTO currentUser = new PickerUserDTO();
     String loggedUserName = JiraTimetrackerUtil.getLoggedUserName();
-    currentUser.setDisplayName(CURRENT_USER_DISPLAY_NAME);
-    currentUser.setUserName(CURRENT_USER_NAME + loggedUserName);
+    currentUser.setDisplayName(JiraTimetrackerUtil.getI18nText(CURRENT_USER_DISPLAY_NAME));
+    currentUser.setUserName(CURRENT_USER_NAME);
     currentUser.setAvatarOwner(loggedUserName);
     return currentUser;
   }
@@ -70,7 +70,7 @@ public class PickerUserDTO {
    */
   public static PickerUserDTO createNoneUser() {
     PickerUserDTO unassigned = new PickerUserDTO();
-    unassigned.setDisplayName(NONE_DISPLAY_NAME);
+    unassigned.setDisplayName(JiraTimetrackerUtil.getI18nText(NONE_DISPLAY_NAME));
     unassigned.setUserName(NONE_USER_NAME);
     unassigned.setAvatarOwner(NONE_USER_NAME);
     return unassigned;
@@ -81,7 +81,7 @@ public class PickerUserDTO {
    */
   public static PickerUserDTO createUnassignedUser() {
     PickerUserDTO unassigned = new PickerUserDTO();
-    unassigned.setDisplayName(UNASSIGNED_DISPLAY_NAME);
+    unassigned.setDisplayName(JiraTimetrackerUtil.getI18nText(UNASSIGNED_DISPLAY_NAME));
     unassigned.setUserName(UNASSIGNED_USER_NAME);
     unassigned.setAvatarOwner(UNASSIGNED_USER_NAME);
     return unassigned;

@@ -18,6 +18,8 @@ package org.everit.jira.reporting.plugin.dto;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
+
 /**
  * Representation of component to picker.
  */
@@ -35,14 +37,14 @@ public class PickerComponentDTO {
     }
   }
 
-  public static final String NO_COMPONENT = "No component";
+  public static final String NO_COMPONENT = "jtrp.picker.no.componenet.value";
 
   /**
    * Create no component {@link PickerComponentDTO}.
    */
   public static PickerComponentDTO createNoComponent() {
     PickerComponentDTO nocomponent = new PickerComponentDTO();
-    nocomponent.setName(NO_COMPONENT);
+    nocomponent.setName(JiraTimetrackerUtil.getI18nText(NO_COMPONENT));
     return nocomponent;
   }
 

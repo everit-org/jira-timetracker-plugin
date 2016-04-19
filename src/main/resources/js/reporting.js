@@ -100,17 +100,6 @@ everit.reporting.main = everit.reporting.main || {};
 
     AJS.$('#project-expected-tooltip').tooltip();
     AJS.$('#issue-expected-tooltip').tooltip();
-
-//    initIssueSelect();
-//    initPrioritySelect();
-//    initResolutionSelect();
-//    initAssigneSelect();
-//    initReporterSelect();
-//    initAffectedVersionSelect();
-//    initFixVersionSelect();
-//    initComponentSelect();
-//    initLabelSelect();
-//    initEpicLinkSelect();
   });
   
   var morePickerShowFunctions = {
@@ -177,47 +166,47 @@ everit.reporting.main = everit.reporting.main || {};
           },
       "priorityPickerButton": function(){
             jQuery('#priorityPicker-suggestions input:checked').click();
-            jQuery("#priorityPickerButton").text("Priority: All");
+            jQuery("#priorityPickerButton").text(AJS.I18n.getText("jtrp.picker.all.priority"));
           },
       "resolutionPickerButton": function(){
             jQuery('#resolutionPicker-suggestions input:checked').click();
-            jQuery("#resolutionPickerButton").text("Resulution: All");
+            jQuery("#resolutionPickerButton").text(AJS.I18n.getText("jtrp.picker.all.resulution"));
           },
       "assignePickerButton": function(){
             jQuery('#assignePicker-suggestions input:checked').click();
-            jQuery("#assignePickerButton").text("Assigne: All");
+            jQuery("#assignePickerButton").text(AJS.I18n.getText("jtrp.picker.all.assigne"));
           },
       "reporterPickerButton": function(){
             jQuery('#reporterPicker-suggestions input:checked').click();
-            jQuery("#reporterPickerButton").text("Reporter: All");
+            jQuery("#reporterPickerButton").text(AJS.I18n.getText("jtrp.picker.all.reporter"));
           },
       "affectedVersionPickerButton": function(){
             jQuery('#affectedVersionPicker-suggestions input:checked').click();
-            jQuery("#affectedVersionPickerButton").text("Affects Version: All");
+            jQuery("#affectedVersionPickerButton").text(AJS.I18n.getText("jtrp.picker.all.affects.version"));
           },
       "fixVersionPickerButton": function(){
             jQuery('#fixVersionPicker-suggestions input:checked').click();
-            jQuery("#fixVersionPickerButton").text("Fix Version: All");
+            jQuery("#fixVersionPickerButton").text(AJS.I18n.getText("jtrp.picker.all.fix.version"));
           },
       "componentPickerButton": function(){
             jQuery('#componentPicker-suggestions input:checked').click();
-            jQuery("#componentPickerButton").text("Component: All");
+            jQuery("#componentPickerButton").text(AJS.I18n.getText("jtrp.picker.all.component"));
           },
       "labelPickerButton": function(){
             jQuery('#labelPicker-suggestions input:checked').click();
-            jQuery("#labelPickerButton").text("Label: All");
+            jQuery("#labelPickerButton").text(AJS.I18n.getText("jtrp.picker.all.label"));
           },
       "createdPickerButton": function(){
             jQuery("#createdPicker").val("");
-            jQuery("#createdPickerButton").text("Create Date: All");
+            jQuery("#createdPickerButton").text(AJS.I18n.getText("jtrp.picker.all.create.date"));
           },
       "epicNamePickerButton": function(){
             jQuery("#epicNamePicker").val("");
-            jQuery("#epicNamePickerButton").text("Epic Name: All");
+            jQuery("#epicNamePickerButton").text(AJS.I18n.getText("jtrp.picker.all.epic.name"));
           },
       "epicLinkPickerButton": function(){
             jQuery('#epicLinkPicker-suggestions input:checked').click();
-            jQuery("#epicNamePickerButton").text("Epic Link: All");
+            jQuery("#epicNamePickerButton").text(AJS.I18n.getText("jtrp.picker.all.epic.link"));
           },
     }
     
@@ -229,6 +218,7 @@ everit.reporting.main = everit.reporting.main || {};
       var selected = checkSelected(optionValue, selectedArray);
       if(selected == "selected"){
         jQuery(morePickerOptions[i]).attr("selected","selected");
+        morePickerShowFunctions[optionValue]();
         jQuery("#" + optionValue).show();
       }
     }
@@ -261,16 +251,16 @@ everit.reporting.main = everit.reporting.main || {};
       useISO8601WeekNumbers : reporting.values.useISO8601,
       onSelect: reporting.onSelect,
     });
-    updateInputFieldPickButtonText("#createdPicker" , "#createdPickerButton", "Create Date: All");
+    updateInputFieldPickButtonText("#createdPicker" , "#createdPickerButton",AJS.I18n.getText("jtrp.picker.all.create.date"));
     jQuery("#createdPicker").on("change onblur", function() {
-      updateInputFieldPickButtonText("#createdPicker" , "#createdPickerButton", "Create Date: All");
+      updateInputFieldPickButtonText("#createdPicker" , "#createdPickerButton",AJS.I18n.getText("jtrp.picker.all.create.date"));
     });
   }
   
   function initEpicNameSelect(){
-    updateInputFieldPickButtonText("#epicNamePicker" , "#epicNamePickerButton", "Epic Name: All");
+    updateInputFieldPickButtonText("#epicNamePicker" , "#epicNamePickerButton", AJS.I18n.getText("jtrp.picker.all.epic.name"));
     jQuery("#epicNamePicker").on("change onblur", function() {
-      updateInputFieldPickButtonText("#epicNamePicker" , "#epicNamePickerButton", "Epic Name: All");
+      updateInputFieldPickButtonText("#epicNamePicker" , "#epicNamePickerButton", AJS.I18n.getText("jtrp.picker.all.epic.name"));
     });
   };
  
@@ -293,9 +283,9 @@ everit.reporting.main = everit.reporting.main || {};
             element:  jQuery("#priorityPicker"),
             submitInputVal: true,
         });
-        updatePickerButtonText("#priorityPicker" , "#priorityPickerButton", "Priority: All");
+        updatePickerButtonText("#priorityPicker" , "#priorityPickerButton", AJS.I18n.getText("jtrp.picker.all.priority"));
         jQuery("#priorityPicker").on("change unselect", function() {
-          updatePickerButtonText("#priorityPicker" , "#priorityPickerButton", "Priority: All");
+          updatePickerButtonText("#priorityPicker" , "#priorityPickerButton", AJS.I18n.getText("jtrp.picker.all.priority"));
         });
       },
       error : function(XMLHttpRequest, status, error){
@@ -321,9 +311,9 @@ everit.reporting.main = everit.reporting.main || {};
             element:  jQuery("#projectPicker"),
             submitInputVal: true,
         });
-        updatePickerButtonText("#projectPicker" , "#projectPickerButton", "Project: All");
+        updatePickerButtonText("#projectPicker" , "#projectPickerButton", AJS.I18n.getText("jtrp.picker.all.project"));
         jQuery("#projectPicker").on("change unselect", function() {
-          updatePickerButtonText("#projectPicker" , "#projectPickerButton", "Project: All");
+          updatePickerButtonText("#projectPicker" , "#projectPickerButton", AJS.I18n.getText("jtrp.picker.all.project"));
         });
       },
       error : function(XMLHttpRequest, status, error){
@@ -349,9 +339,9 @@ everit.reporting.main = everit.reporting.main || {};
           element:  AJS.$("#assignePicker"),
           submitInputVal: true,
         });
-        updatePickerButtonText("#assignePicker" , "#assignePickerButton", "Assigne: All");
+        updatePickerButtonText("#assignePicker" , "#assignePickerButton", AJS.I18n.getText("jtrp.picker.all.assigne"));
         jQuery("#assignePicker").on("change unselect", function() {
-          updatePickerButtonText("#assignePicker" , "#assignePickerButton", "Assigne: All");
+          updatePickerButtonText("#assignePicker" , "#assignePickerButton", AJS.I18n.getText("jtrp.picker.all.assigne"));
         });
       },
       error : function(XMLHttpRequest, status, error){
@@ -377,9 +367,9 @@ everit.reporting.main = everit.reporting.main || {};
           element:  AJS.$("#reporterPicker"),
           submitInputVal: true,
         });
-        updatePickerButtonText("#reporterPicker" , "#reporterPickerButton", "Reporter: All");
+        updatePickerButtonText("#reporterPicker" , "#reporterPickerButton", AJS.I18n.getText("jtrp.picker.all.reporter"));
         jQuery("#reporterPicker").on("change unselect", function() {
-          updatePickerButtonText("#reporterPicker" , "#reporterPickerButton", "Reporter: All");
+          updatePickerButtonText("#reporterPicker" , "#reporterPickerButton", AJS.I18n.getText("jtrp.picker.all.reporter"));
         });
       },
       error : function(XMLHttpRequest, status, error){
@@ -405,35 +395,20 @@ everit.reporting.main = everit.reporting.main || {};
           element:  AJS.$("#userPicker"),
           submitInputVal: true,
         });
-        updatePickerButtonTextWithNone("#userPicker" , "#userPickerButton", "User: All", "User: None", "none");
+        updatePickerButtonTextWithNone("#userPicker" , "#userPickerButton",  AJS.I18n.getText("jtrp.picker.all.user"),  AJS.I18n.getText("jtrp.picker.none.user"), "none");
         jQuery("#userPicker").on("change unselect", function() {
-          updatePickerButtonTextWithNone("#userPicker" , "#userPickerButton", "User: All", "User: None", "none");
+          updatePickerButtonTextWithNone("#userPicker" , "#userPickerButton", AJS.I18n.getText("jtrp.picker.all.user"),  AJS.I18n.getText("jtrp.picker.none.user"), "none");
         });
        var userPickerNone = jQuery('#userPicker-suggestions [value="none"]');
-       var userPickerNotNone = jQuery('#userPicker-suggestions [value!="none"]');
-       userPickerNone.on("click", function() {
-          //Checked
-          if(userPickerNone.attr("checked") == "checked"){
-            console.log("OK");
-            jQuery('#userPicker-suggestions input[checked="checked"][value!="none"]').click();
-            
-            //group select None - disable false
-            jQuery('#groupPicker-suggestions [value="-1"]').click();
-            jQuery("#groupPickerButton").attr("aria-disabled", false);
-          }else{
-            console.log("WTAT");
-          //group unselect none - disable true
-            jQuery('#groupPicker-suggestions [value="-1"]').click();
-            jQuery("#groupPickerButton").attr("aria-disabled", true);
-          }
-//          userPickerNotNone.on("click", function(e) {
-//          if(userPickerNone.attr("checked") == "checked"){
-//            jQuery(userPickerNone).click();
-//            e.preventDefault();
-//          }
-//         });
-
-          //unChecked
+       userPickerNone.on("click", function(event) {
+         if(typeof event.fakeClick === 'undefined'){
+           var triggerData = {type:"click",name:"UserSelectClick",fakeClick:true};
+           jQuery('#userPicker-suggestions input[checked="checked"][value!="none"]').click();
+           //group select None fake click- disable false
+           jQuery('#groupPicker-suggestions [value="-1"]').trigger(triggerData);
+           //group select disable false
+           jQuery("#groupPickerButton").attr("aria-disabled", false);
+         }
         });
      
       },
@@ -460,7 +435,9 @@ everit.reporting.main = everit.reporting.main || {};
        newButtonText = newButtonText.substring(0, 12) + "...";
      }
    }else{
+    
      newButtonText = noneText;
+     jQuery(button).attr("aria-disabled", true);
    }
    jQuery(button).text(newButtonText);
   };
@@ -474,12 +451,8 @@ everit.reporting.main = everit.reporting.main || {};
       data : [],
       success : function(result){
         //Add None before result parse
-        var selected = ""; 
-        if(selectedArray.length == 0){
-          selected = "selected";
-          jQuery("#groupPickerButton").attr("aria-disabled", true);
-        }
-        jQuery("#groupPicker").append('<option value="-1" '+ selected + '>' +'None'+'</option>');
+        var selected = checkSelected("-1", selectedArray);
+        jQuery("#groupPicker").append('<option value="-1" '+ selected + '>' + AJS.I18n.getText('jtrp.picker.value.none') +'</option>');
         for( var i in result.groups) {
           var obj = result.groups[i];
           var selected = checkSelected(obj.name, selectedArray);
@@ -489,23 +462,19 @@ everit.reporting.main = everit.reporting.main || {};
               element:  AJS.$("#groupPicker"),
               submitInputVal: true,
         });
-        updatePickerButtonTextWithNone("#groupPicker" , "#groupPickerButton", "Group: All", "Group: None", "-1");
+        updatePickerButtonTextWithNone("#groupPicker" , "#groupPickerButton",  AJS.I18n.getText("jtrp.picker.all.group"),  AJS.I18n.getText("jtrp.picker.none.group"), "-1");
         jQuery("#groupPicker").on("change unselect", function() {
-          updatePickerButtonTextWithNone("#groupPicker" , "#groupPickerButton", "Group: All", "Group: None", "-1");
+          updatePickerButtonTextWithNone("#groupPicker" , "#groupPickerButton", AJS.I18n.getText("jtrp.picker.all.group"),  AJS.I18n.getText("jtrp.picker.none.group"), "-1");
         });
         var groupPickerNone = jQuery('#groupPicker-suggestions [value="-1"]');
-        var groupPickerNotNone = jQuery('#groupPicker-suggestions [value!="-1"]');
-        groupPickerNone.on("click", function() {
-           //Checked
-           if(groupPickerNone.attr("checked") == "checked"){
-             console.log("OK G");
-             jQuery('#groupPicker-suggestions input[checked="checked"][value!="-1"]').click();
-           }else{
-             console.log("WTAT G");
-           }
-
-           //unChecked
-         });
+        groupPickerNone.on("click", function(event) {
+          if(typeof event.fakeClick === 'undefined'){
+            jQuery('#groupPicker-suggestions input[checked="checked"][value!="-1"]').click();
+            var triggerData = {type:"click",name:"GroupSelectClick",fakeClick:true};
+            jQuery('#userPicker-suggestions [value="none"]').trigger(triggerData);
+            jQuery("#userPickerButton").attr("aria-disabled", false);
+          }
+        });
       },
       error : function(XMLHttpRequest, status, error){
       }
@@ -530,9 +499,9 @@ everit.reporting.main = everit.reporting.main || {};
               element:  AJS.$("#typePicker"),
               submitInputVal: true,
         });
-        updatePickerButtonText("#typePicker" , "#typePickerButton", "Type: All");
+        updatePickerButtonText("#typePicker" , "#typePickerButton", AJS.I18n.getText("jtrp.picker.all.type"));
         jQuery("#typePicker").on("change unselect", function() {
-          updatePickerButtonText("#typePicker" , "#typePickerButton", "Type: All");
+          updatePickerButtonText("#typePicker" , "#typePickerButton", AJS.I18n.getText("jtrp.picker.all.type"));
         });
       },
       error : function(XMLHttpRequest, status, error){
@@ -550,7 +519,7 @@ everit.reporting.main = everit.reporting.main || {};
       success : function(result){
         //Add NO RESULUTION before parse result
         var selected = checkSelected(-1, selectedArray);
-        jQuery("#resolutionPicker").append('<option value="-1" '+ selected + '>' +'No Resulution'+ '</option>');
+        jQuery("#resolutionPicker").append('<option value="-1" '+ selected + '>' + AJS.I18n.getText('jtrp.picker.no.resulution.value') + '</option>');
         for( var i in result) {
           var obj = result[i];
           var selected = checkSelected(obj.id, selectedArray);
@@ -560,9 +529,9 @@ everit.reporting.main = everit.reporting.main || {};
               element:  AJS.$("#resolutionPicker"),
               submitInputVal: true,
         });
-        updatePickerButtonText("#resolutionPicker" , "#resolutionPickerButton", "Resolution: All");
+        updatePickerButtonText("#resolutionPicker" , "#resolutionPickerButton", AJS.I18n.getText("jtrp.picker.all.resolution"));
         jQuery("#resolutionPicker").on("change unselect", function() {
-          updatePickerButtonText("#resolutionPicker" , "#resolutionPickerButton", "Resolution: All");
+          updatePickerButtonText("#resolutionPicker" , "#resolutionPickerButton", AJS.I18n.getText("jtrp.picker.all.resolution"));
         });
       },
       error : function(XMLHttpRequest, status, error){
@@ -588,9 +557,9 @@ everit.reporting.main = everit.reporting.main || {};
               element:  AJS.$("#statusPicker"),
               submitInputVal: true,
         });
-        updatePickerButtonText("#statusPicker" , "#statusPickerButton", "Status: All");
+        updatePickerButtonText("#statusPicker" , "#statusPickerButton", AJS.I18n.getText("jtrp.picker.all.status"));
         jQuery("#statusPicker").on("change unselect", function() {
-          updatePickerButtonText("#statusPicker" , "#statusPickerButton", "Status: All");
+          updatePickerButtonText("#statusPicker" , "#statusPickerButton", AJS.I18n.getText("jtrp.picker.all.status"));
         });
       },
       error : function(XMLHttpRequest, status, error){
@@ -615,9 +584,9 @@ everit.reporting.main = everit.reporting.main || {};
               element:  AJS.$("#affectedVersionPicker"),
               submitInputVal: true,
         });
-        updatePickerButtonText("#affectedVersionPicker" , "#affectedVersionPickerButton", "Affects Version: All");
+        updatePickerButtonText("#affectedVersionPicker" , "#affectedVersionPickerButton", AJS.I18n.getText("jtrp.picker.all.affects.version"));
         jQuery("#affectedVersionPicker").on("change unselect", function() {
-          updatePickerButtonText("#affectedVersionPicker" , "#affectedVersionPickerButton", "Affects Version: All");
+          updatePickerButtonText("#affectedVersionPicker" , "#affectedVersionPickerButton", AJS.I18n.getText("jtrp.picker.all.affects.version"));
         });
       },
       error : function(XMLHttpRequest, status, error){
@@ -642,9 +611,9 @@ everit.reporting.main = everit.reporting.main || {};
               element:  AJS.$("#fixVersionPicker"),
               submitInputVal: true,
         });
-        updatePickerButtonText("#fixVersionPicker" , "#fixVersionPickerButton", "Fix Version: All");
+        updatePickerButtonText("#fixVersionPicker" , "#fixVersionPickerButton", AJS.I18n.getText("jtrp.picker.all.fix.version"));
         jQuery("#fixVersionPicker").on("change unselect", function() {
-          updatePickerButtonText("#fixVersionPicker" , "#fixVersionPickerButton", "Fix Version: All");
+          updatePickerButtonText("#fixVersionPicker" , "#fixVersionPickerButton", AJS.I18n.getText("jtrp.picker.all.fix.version"));
         });
       },
       error : function(XMLHttpRequest, status, error){
@@ -669,9 +638,9 @@ everit.reporting.main = everit.reporting.main || {};
               element:  AJS.$("#labelPicker"),
               submitInputVal: true,
         });
-        updatePickerButtonText("#labelPicker" , "#labelPickerButton", "Label: All");
+        updatePickerButtonText("#labelPicker" , "#labelPickerButton",AJS.I18n.getText("jtrp.picker.all.label"));
         jQuery("#labelPicker").on("change unselect", function() {
-          updatePickerButtonText("#labelPicker" , "#labelPickerButton", "Label: All");
+          updatePickerButtonText("#labelPicker" , "#labelPickerButton", AJS.I18n.getText("jtrp.picker.all.label"));
         });
       },
       error : function(XMLHttpRequest, status, error){
@@ -718,9 +687,9 @@ everit.reporting.main = everit.reporting.main || {};
               element:  AJS.$("#epicLinkPicker"),
               submitInputVal: true,
         });
-        updatePickerButtonText("#epicLinkPicker" , "#epicLinkPickerButton", "Epic Link: All");
+        updatePickerButtonText("#epicLinkPicker" , "#epicLinkPickerButton", AJS.I18n.getText("jtrp.picker.all.epic.link"));
         jQuery("#epicLinkPicker").on("change unselect", function() {
-          updatePickerButtonText("#epicLinkPicker" , "#epicLinkPickerButton", "Epic Link: All");
+          updatePickerButtonText("#epicLinkPicker" , "#epicLinkPickerButton", AJS.I18n.getText("jtrp.picker.all.epic.link"));
         });
       },
       error : function(XMLHttpRequest, status, error){
@@ -745,9 +714,9 @@ everit.reporting.main = everit.reporting.main || {};
               element:  AJS.$("#componentPicker"),
               submitInputVal: true,
         });
-        updatePickerButtonText("#componentPicker" , "#componentPickerButton", "Component: All");
+        updatePickerButtonText("#componentPicker" , "#componentPickerButton", AJS.I18n.getText("jtrp.picker.all.component"));
         jQuery("#componentPicker").on("change unselect", function() {
-          updatePickerButtonText("#componentPicker" , "#componentPickerButton", "Component: All");
+          updatePickerButtonText("#componentPicker" , "#componentPickerButton", AJS.I18n.getText("jtrp.picker.all.component"));
         });
       },
       error : function(XMLHttpRequest, status, error){

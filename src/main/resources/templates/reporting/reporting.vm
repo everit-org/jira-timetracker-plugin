@@ -159,19 +159,19 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                                <div>
                                                  <div class='form-body'>
                                                    <div class='field-group aui-field-issuetype'>
-                                                     <select  id="morePicker" name="morePicker"  multiple="multiple" >
-                                                       <option value="issuePicker-parent">Issue</option>
-                                                       <option value="priorityPickerButton">Priority</option>
-                                                       <option value="resolutionPickerButton">Resolution</option>
-                                                       <option value="assignePickerButton">Assigne</option>
-                                                       <option value="reporterPickerButton">Reporter</option>
-                                                       <option value="affectedVersionPickerButton">Affects Version</option>
-                                                       <option value="fixVersionPickerButton">Fix Version</option>
-                                                       <option value="componentPickerButton">Component</option>
-                                                       <option value="labelPickerButton">Label</option>
-                                                       <option value="createdPickerButton">Create Date</option>
-                                                       <option value="epicNamePickerButton">Epic Name</option>
-                                                       <option value="epicLinkPickerButton">Epic Link</option>
+                                                     <select  id="morePicker" name="morePicker" multiple="multiple" >
+                                                       <option value="issuePicker-parent">$i18n.getText("jtrp.picker.more.issue")</option>
+                                                       <option value="priorityPickerButton">$i18n.getText("jtrp.picker.more.priority")</option>
+                                                       <option value="resolutionPickerButton">$i18n.getText("jtrp.picker.more.resulution")</option>
+                                                       <option value="assignePickerButton">$i18n.getText("jtrp.picker.more.assigne")</option>
+                                                       <option value="reporterPickerButton">$i18n.getText("jtrp.picker.more.reporter")</option>
+                                                       <option value="affectedVersionPickerButton">$i18n.getText("jtrp.picker.more.affects.version")</option>
+                                                       <option value="fixVersionPickerButton">$i18n.getText("jtrp.picker.more.fix.version")</option>
+                                                       <option value="componentPickerButton">$i18n.getText("jtrp.picker.more.component")</option>
+                                                       <option value="labelPickerButton">$i18n.getText("jtrp.picker.more.label")</option>
+                                                       <option value="createdPickerButton">$i18n.getText("jtrp.picker.more.create.date")</option>
+                                                       <option value="epicNamePickerButton">$i18n.getText("jtrp.picker.more.epic.name")</option>
+                                                       <option value="epicLinkPickerButton">$i18n.getText("jtrp.picker.more.epic.link")</option>
                                                      </select>
                                                    </div>
                                                  </div>
@@ -430,7 +430,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                 <div class="search-criteria-container">
                                     <div class="search-criteria">
                                          <!-- User Dropdown  BUTTON-->
-                                         <a id="userPickerButton" href="#userPickerDropDown" aria-owns="userPickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger"></a>
+                                         <a id="userPickerButton" href="#userPickerDropDown" aria-disabled="false" aria-owns="userPickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger"></a>
                                          <!-- User Dropdown -->
                                          <div id="userPickerDropDown" class="aui-style-default aui-dropdown2">
                                            <div class="jttr-filter-field">
@@ -495,7 +495,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                             <input type="hidden" id="selectedActiveTab" name="selectedActiveTab" value="" />
                                             <input type="hidden" id="collapsedDetailsModule" name="collapsedDetailsModule" value=""/>
                                             <input type="hidden" id="collapsedSummaryModule" name="collapsedSummaryModule" value=""/>
-                                            <button type="submit" class="aui-button aui-button-primary" onclick="everit.reporting.main.beforeSubmitCreateReport()">Create Report</button> <!-- Submit the search form -->
+                                            <button type="submit" class="aui-button aui-button-primary" onclick="everit.reporting.main.beforeSubmitCreateReport()">$i18n.getText("jtrp.report.btn.create.report")</button> <!-- Submit the search form -->
                                         </form>
                                     </div>
                                 </div>

@@ -117,10 +117,13 @@
     <resource type="download" name="missing_days_report.js" location="/js/missing_days_report.js"/>
   </web-resource>
   
-  <web-resource name="JTTP Resources" key="reporting-resources">
+  <web-resource name="JTRP Resources" key="reporting-resources" i18n-name-key="admin.web.resources.plugin.labels.editor.name">
     <dependency>com.atlassian.auiplugin:ajs</dependency>
     <dependency>com.atlassian.auiplugin:dialog2</dependency>
     <dependency>com.atlassian.auiplugin:aui-experimental-tooltips</dependency>
+    <transformation extension="js">
+        <transformer key="jsI18n"/>
+    </transformation>
     <resource type="download" name="E_logo.png" location="/icons/E_logo.png">
       <param name="content-type" value="image/png" />
     </resource>
@@ -129,7 +132,7 @@
     <resource type="download" name="reporting.js" location="/js/reporting.js"/>
   </web-resource>
   
-  <web-resource name="JTTP Resources" key="reporting-admin-resources">
+  <web-resource name="JTRP Resources" key="reporting-admin-resources">
     <dependency>com.atlassian.auiplugin:ajs</dependency>
     <dependency>com.atlassian.auiplugin:dialog2</dependency>
     <resource type="download" name="jttp_feedback.css" location="/css/jttp_feedback.css"/>

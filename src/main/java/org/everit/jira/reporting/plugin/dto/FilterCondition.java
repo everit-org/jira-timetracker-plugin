@@ -15,11 +15,15 @@
  */
 package org.everit.jira.reporting.plugin.dto;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import org.everit.jira.reporting.plugin.util.ConverterUtil;
 
 /**
  * Contains filter values to ReportSearchParam.
@@ -28,7 +32,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class FilterCondition {
 
   @XmlElement
-  private List<String> groups = Collections.emptyList();
+  private List<String> groups =
+      new ArrayList<String>(Arrays.asList(ConverterUtil.VALUE_NEGATIVE_ONE));
 
   @XmlElement
   private List<String> issueAffectedVersions = Collections.emptyList();
