@@ -43,7 +43,7 @@ public class PickerUserDTO {
 
   public static final String CURRENT_USER_DISPLAY_NAME = "Current User";
 
-  public static final String CURRENT_USER_NAME = "current_";
+  public static final String CURRENT_USER_NAME = "currentUser";
 
   public static final String NONE_DISPLAY_NAME = "None";
 
@@ -60,7 +60,7 @@ public class PickerUserDTO {
     PickerUserDTO currentUser = new PickerUserDTO();
     String loggedUserName = JiraTimetrackerUtil.getLoggedUserName();
     currentUser.setDisplayName(CURRENT_USER_DISPLAY_NAME);
-    currentUser.setUserName(CURRENT_USER_NAME + loggedUserName);
+    currentUser.setUserName(CURRENT_USER_NAME);
     currentUser.setAvatarOwner(loggedUserName);
     return currentUser;
   }

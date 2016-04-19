@@ -29,6 +29,7 @@ import org.everit.jira.reporting.plugin.dto.PickerUserDTO;
 import org.everit.jira.reporting.plugin.dto.PickerVersionDTO;
 import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
+import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.permission.ProjectPermissions;
@@ -50,7 +51,7 @@ public final class ConverterUtil {
 
   private static final String KEY_WRONG_DATES = "plugin.wrong.dates";
 
-  private static final String VALUE_NEGATIVE_ONE = "-1";
+  public static final String VALUE_NEGATIVE_ONE = "-1";
 
   private static final String VALUE_NO_COMPONENT = "No component";
 
@@ -224,9 +225,11 @@ public final class ConverterUtil {
     }
 
     List<String> users = filterCondition.getUsers();
-    if (users.isEmpty() && !filterCondition.getGroups().isEmpty()) {
-      // TODO add none to group and user checks
+    if (!users.isEmpty() && users.contains(PickerUserDTO.NONE_USER_NAME)) {
       users = ConverterUtil.getUserNamesFromGroup(filterCondition.getGroups());
+    } else if (users.contains(PickerUserDTO.CURRENT_USER_NAME)) {
+      users.remove(PickerUserDTO.CURRENT_USER_NAME);
+      users.add(JiraTimetrackerUtil.getLoggedUserName());
     }
     reportSearchParam.users(users);
 

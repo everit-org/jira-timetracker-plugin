@@ -156,8 +156,6 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
     selectedMore = new ArrayList<String>();
     filterCondition = new FilterCondition();
-    // TODO deafult groups set to NONE
-    filterCondition.setGroups(Arrays.asList("-1"));
     initDatesIfNecessary();
 
     normalizeContextPath();
