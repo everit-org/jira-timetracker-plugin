@@ -127,7 +127,7 @@
     line-height: 1.42857142857143;
 }
 
-.summary-export {
+.jtrp-export {
     float:right;
 }
 
@@ -174,19 +174,19 @@
     display: inline-block;
 }
 
-
 /* from Atlassian AUI */
-
-.aui-group {
-    margin-top: 10px;
-}
 
 .module {
     margin-top: 15px;
 }
 
-.mod-content {
-    margin-top: 10px;
+.jira-multi-select>.icon.drop-menu{
+    bottom: 6px;
+}
+
+.module+.module {
+  border-top: 0px;
+  padding-top: 25px;
 }
 
 .count-pagination {
@@ -213,14 +213,6 @@
 
 .aui-button[aria-disabled="true"], .aui-button[aria-disabled="true"]:active, .aui-button[aria-disabled="true"]:focus, .aui-button[aria-disabled="true"]:hover {
     cursor: not-allowed;
-}
-
-h2 {    
-    margin: 10px 0 0;
-}
-
-p:first-child{
-    margin: 0;
 }
 
 p {

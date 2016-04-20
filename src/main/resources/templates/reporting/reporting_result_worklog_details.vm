@@ -19,10 +19,7 @@
                     </div>
                     <div class="mod-content">
                         <div class="aui-group aui-group-split action-button-container">
-                            <div class="aui-item">
-                                <button class="aui-button aui-button-subtle aui-dropdown2-trigger" id="details-groupby">Group by</button>                        
-                            </div>
-                            <div class="aui-item">
+                            <div class="aui-item jtrp-export">
                                 <a id="detailsColumnsButton" href="#detailsColumnsDropDown" aria-owns="detailsColumnsDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger">$i18n.getText("jtrp.report.btn.columns")</a>
 	                            <div id="detailsColumnsDropDown" class="aui-style-default aui-dropdown2">
 	                              <div class="jttr-filter-field">
@@ -46,7 +43,6 @@
 	                                          <option value="jtrp_col_fixVersions">$i18n.getText("jtrp.report.wd.col.jtrp_col_fixVersions")</option>
 	                                          <option value="jtrp_col_resolution">$i18n.getText("jtrp.report.wd.col.jtrp_col_resolution")</option>
 	                                          <option value="jtrp_col_worklogDescription">$i18n.getText("jtrp.report.wd.col.jtrp_col_worklogDescription")</option>
-	                                          <option value="jtrp_col_user">$i18n.getText("jtrp.report.wd.col.jtrp_col_user")</option>
 	                                          <option value="jtrp_col_startTime">$i18n.getText("jtrp.report.wd.col.jtrp_col_startTime")</option>
 	                                          <option value="jtrp_col_worklogCreated">$i18n.getText("jtrp.report.wd.col.jtrp_col_worklogCreated")</option>
 	                                          <option value="jtrp_col_worklogUpdated">$i18n.getText("jtrp.report.wd.col.jtrp_col_worklogUpdated")</option>
@@ -100,7 +96,6 @@
                                 #set($isNotShowFixVersions = !$selectedWorklogDetailsColumns.contains("jtrp_col_fixVersions"))
                                 #set($isNotShowResolution = !$selectedWorklogDetailsColumns.contains("jtrp_col_resolution"))
                                 #set($isNotShowWorklogDescription = !$selectedWorklogDetailsColumns.contains("jtrp_col_worklogDescription"))
-                                #set($isNotShowUser = !$selectedWorklogDetailsColumns.contains("jtrp_col_user"))
                                 #set($isNotShowStartTime = !$selectedWorklogDetailsColumns.contains("jtrp_col_startTime"))
                                 #set($isNotShowWorklogCreated = !$selectedWorklogDetailsColumns.contains("jtrp_col_worklogCreated"))
                                 #set($isNotShowWorklogUpdated = !$selectedWorklogDetailsColumns.contains("jtrp_col_worklogUpdated"))
@@ -124,7 +119,7 @@
                                         <th class="jtrp_col_fixVersions" style="#if( $isNotShowFixVersions )display:none;#end">$i18n.getText("jtrp.report.wd.col.jtrp_col_fixVersions")</th>
                                         <th class="jtrp_col_resolution" style="#if( $isNotShowResolution )display:none;#end">$i18n.getText("jtrp.report.wd.col.jtrp_col_resolution")</th>
                                         <th class="jtrp_col_worklogDescription" style="#if( $isNotShowWorklogDescription )display:none;#end">$i18n.getText("jtrp.report.wd.col.jtrp_col_worklogDescription")</th>
-                                        <th class="jtrp_col_user" style="#if( $isNotShowUser )display:none;#end">$i18n.getText("jtrp.report.wd.col.jtrp_col_user")</th>
+                                        <th class="jtrp_col_user">$i18n.getText("jtrp.report.wd.col.jtrp_col_user")</th>
                                         <th class="jtrp_col_startTime" style="#if( $isNotShowStartTime )display:none;#end">$i18n.getText("jtrp.report.wd.col.jtrp_col_startTime")</th>
                                         <th class="jtrp_col_timeSpent">$i18n.getText("jtrp.report.wd.col.jtrp_col_timeSpent")</th>
                                         <th class="jtrp_col_worklogCreated" style="#if( $isNotShowWorklogCreated )display:none;#end">$i18n.getText("jtrp.report.wd.col.jtrp_col_worklogCreated")</th>
@@ -152,7 +147,7 @@
                                         <td class="jtrp_col_fixVersions" style="#if( $isNotShowFixVersions )display:none;#end">#if ( !$wd.issueFixedVersions.isEmpty() ) #foreach ( $fixedVersion in $wd.issueFixedVersions )#if($velocityCount> 1),#end $fixedVersion #end #end</td>
                                         <td class="jtrp_col_resolution" style="#if( $isNotShowResolution )display:none;#end">#if ( !$wd.resolutionName )$i18n.getText("jtrp.picker.unresolved.value") #else $wd.resolutionName #end</td>
                                         <td class="jtrp_col_worklogDescription" style="#if( $isNotShowWorklogDescription )display:none;#end">$wd.worklogBody</td>
-                                        <td class="jtrp_col_user" style="#if( $isNotShowUser )display:none;#end">$wd.worklogUser</td>
+                                        <td class="jtrp_col_user">$wd.worklogUser</td>
                                         <td class="jtrp_col_startTime" style="#if( $isNotShowStartTime )display:none;#end">$outlookDate.formatDMYHMS($wd.worklogStartDate)</td>
                                         <td class="jtrp_col_timeSpent">$durationFormatter.exactDuration($wd.worklogTimeWorked)</td>
                                         <td class="jtrp_col_worklogCreated" style="#if( $isNotShowWorklogCreated )display:none;#end">$outlookDate.formatDMY($wd.worklogCreated)</td>

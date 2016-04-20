@@ -19,7 +19,7 @@
                     </div>
                     <div class="mod-content">
                         <div class="summary-export-container action-button-container">
-                            <div class="summary-export">
+                            <div class="jtrp-export">
                                 <a id="summaries-export" class="criteria-selector aui-button aui-button-subtle" target="_blank" href="#" data-jttp-href="$contextPath/rest/jttp-rest/1/download-report/downloadSummariesReport" onclick="everit.reporting.main.updateSummariesExportHref()">
 	                                <span class="aui-icon aui-icon-small aui-iconfont-export"></span>
 	                                <span class="button-label">$i18n.getText("jtrp.report.btn.export")</span>

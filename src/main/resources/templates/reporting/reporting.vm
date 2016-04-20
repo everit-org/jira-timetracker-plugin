@@ -186,11 +186,11 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                             </div>
                         </div>
                      </div>
-                     <div class="aui-group">
+                     <div class="aui-group" id="issuePicker-parent" style="display: none;">
                         <div class="aui-item search-wrap basic"> 
                             <div class="search-container basic">
                                  <div class="search-criteria-container">
-                                     <div id="issuePicker-parent" class="search-criteria-issue-extended" style="display: none;">
+                                     <div class="search-criteria-issue-extended">
                                        <select class="hidden"
                                                multiple="multiple" 
                                                name="issuePicker" 
@@ -205,6 +205,14 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                                data-ajax-options.data.show-sub-task-parent="true">
                                        </select> 
                                      </div>
+                                </div>
+                            </div>
+                        </div> 
+                    </div>
+                     <div class="aui-group" id="morePicker-parent">
+                        <div class="aui-item search-wrap basic"> 
+                            <div class="search-container basic">
+                                 <div class="search-criteria-container">
                                      <div class="search-criteria-extended">
                                      <!-- placeholder for EXTENDED criterias with more button !!! -->
                                          <!-- Priority Dropdown  BUTTON-->

@@ -222,6 +222,7 @@ everit.reporting.main = everit.reporting.main || {};
         jQuery("#" + optionValue).show();
       }
     }
+    setMorePickerParentVisibility();
     var pp = new AJS.CheckboxMultiSelect({
       element:  jQuery("#morePicker"),
       submitInputVal: true,
@@ -231,13 +232,25 @@ everit.reporting.main = everit.reporting.main || {};
       if(jQuery("#" + clickedOptionValue).is(":visible")){
         jQuery("#" + clickedOptionValue).hide();
         morePickerHideFunctions[clickedOptionValue]();
+        setMorePickerParentVisibility();
       }else{
         morePickerShowFunctions[clickedOptionValue]();
         jQuery("#" + clickedOptionValue).show();
+        if(clickedOptionValue != "issuePicker-parent"){ 
+          jQuery("#morePicker-parent").show();
+        }
       }
      });
   };
 
+  function setMorePickerParentVisibility(){
+     if(jQuery("#morePicker-parent .search-container.basic").find("a:visible").length > 0){
+       jQuery("#morePicker-parent").show();
+     }else{
+       jQuery("#morePicker-parent").hide();
+     }
+  }
+  
  function initCreatedDatePicker(){
     var createdDate = Calendar.setup({
       firstDay : reporting.values.firstDay,
@@ -801,8 +814,10 @@ everit.reporting.main = everit.reporting.main || {};
     
     if(type === "basic") {
         searchWrap.removeClass("filter").addClass("basic");
+        setMorePickerParentVisibility();
     } else {
         searchWrap.removeClass("basic").addClass("filter");
+        jQuery("#morePicker-parent").show();
     }
   }
   
