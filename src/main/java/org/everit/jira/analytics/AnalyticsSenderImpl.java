@@ -45,6 +45,7 @@ public class AnalyticsSenderImpl implements InitializingBean, DisposableBean, An
     public void run() {
       try {
         HttpClient httpClient = new HttpClient();
+        // FIMXE zs.cz if no http in url must be add!!
         GetMethod getMethod = new GetMethod(analyticsEvent.getUrl());
         httpClient.executeMethod(getMethod);
       } catch (IOException e) {
