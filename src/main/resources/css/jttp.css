@@ -133,8 +133,8 @@ div.calendar {
 */
 .jira-multi-select>.icon.drop-menu{
     bottom: 6px;
-    /*right: 6px;*/
 }
+
 #error_message{
     color: white;
     text-align: center;
