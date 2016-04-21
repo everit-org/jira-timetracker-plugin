@@ -15,7 +15,6 @@
  */
 package org.everit.jira.timetracker.plugin;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Properties;
@@ -51,6 +50,13 @@ public final class JiraTimetrackerAnalytics {
 
   private static final String USER_ID = "org.everit.jira.timetracker.plugin.user.id.hash";
 
+  /**
+   * Gets analytics check value.
+   *
+   * @param globalSettings
+   *          the global {@link PluginSettings} instance.
+   * @return the analytics check value.
+   */
   public static boolean getAnalyticsCheck(final PluginSettings globalSettings) {
     boolean analyticsCheckValue = true;
     if ("false".equals(globalSettings.get(
@@ -61,9 +67,17 @@ public final class JiraTimetrackerAnalytics {
     return analyticsCheckValue;
   }
 
+  /**
+   * Gets {@link AnalyticsDTO} that contains all required detail to collect usage.
+   *
+   * @param pluginSettingsFactory
+   *          the {@link PluginSettingsFactory} instance.
+   * @param siteIdPropertyKey
+   *          the site id property key.
+   * @return the {@link AnalyticsDTO} object.
+   */
   public static AnalyticsDTO getAnalyticsDTO(final PluginSettingsFactory pluginSettingsFactory,
-      final String siteIdPropertyKey)
-          throws IOException {
+      final String siteIdPropertyKey) {
     Properties jttpBuildProperties = PropertiesUtil.getJttpBuildProperties();
 
     String piwikHost =

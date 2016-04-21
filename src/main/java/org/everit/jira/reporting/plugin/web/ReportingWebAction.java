@@ -27,6 +27,7 @@ import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.everit.jira.analytics.AnalyticsDTO;
 import org.everit.jira.analytics.AnalyticsSender;
 import org.everit.jira.analytics.event.CreateReportEvent;
 import org.everit.jira.reporting.plugin.ReportingCondition;
@@ -45,6 +46,7 @@ import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.dto.ReportingSettingsValues;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
+import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 
 import com.atlassian.jira.web.action.JiraWebActionSupport;
@@ -80,6 +82,8 @@ public class ReportingWebAction extends JiraWebActionSupport {
    * Serial version UID.
    */
   private static final long serialVersionUID = 1L;
+
+  private AnalyticsDTO analyticsDTO;
 
   private AnalyticsSender analyticsSender;
 
@@ -156,6 +160,9 @@ public class ReportingWebAction extends JiraWebActionSupport {
       return getRedirect(NONE);
     }
 
+    analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(settingsFactory,
+        PiwikPropertiesUtil.PIWIK_REPORTING_SITEID);
+
     loadPageSizeLimit();
 
     loadIssueCollectorSrc();
@@ -180,6 +187,9 @@ public class ReportingWebAction extends JiraWebActionSupport {
       setReturnUrl(JIRA_HOME_URL);
       return getRedirect(NONE);
     }
+
+    analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(settingsFactory,
+        PiwikPropertiesUtil.PIWIK_REPORTING_SITEID);
 
     HttpServletRequest httpRequest = getHttpRequest();
 
@@ -236,6 +246,10 @@ public class ReportingWebAction extends JiraWebActionSupport {
     analyticsSender.send(analyticsEvent);
 
     return SUCCESS;
+  }
+
+  public AnalyticsDTO getAnalyticsDTO() {
+    return analyticsDTO;
   }
 
   public String getContextPath() {
@@ -329,14 +343,8 @@ public class ReportingWebAction extends JiraWebActionSupport {
   }
 
   private void loadIssueCollectorSrc() {
-    Properties properties;
-    try {
-      properties = PropertiesUtil.getJttpBuildProperties();
-      issueCollectorSrc = properties.getProperty(ISSUE_COLLECTOR_SRC);
-    } catch (IOException e) {
-      // TODO add logger?
-      issueCollectorSrc = "";
-    }
+    Properties properties = PropertiesUtil.getJttpBuildProperties();
+    issueCollectorSrc = properties.getProperty(ISSUE_COLLECTOR_SRC);
   }
 
   private void loadPageSizeLimit() {

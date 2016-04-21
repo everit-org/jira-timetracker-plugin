@@ -820,7 +820,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     return endTime;
   }
 
-  private void loadJttpBuildProperties() throws IOException {
+  private void loadJttpBuildProperties() {
     Properties properties = PropertiesUtil.getJttpBuildProperties();
 
     feedBackEmailTo = properties.getProperty(FEEDBACK_EMAIL_TO);

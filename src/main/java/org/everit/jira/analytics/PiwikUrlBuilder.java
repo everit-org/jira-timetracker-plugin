@@ -15,14 +15,16 @@
  */
 package org.everit.jira.analytics;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Random;
+
+import javax.ws.rs.core.UriBuilder;
 
 import org.everit.jira.reporting.plugin.export.column.WorklogDetailsColumns;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
@@ -88,23 +90,23 @@ public class PiwikUrlBuilder {
     this.pluginId = Objects.requireNonNull(pluginId);
     jiraVersion = JiraTimetrackerAnalytics.getJiraVersionFromBuildUtilsInfo();
 
-    try {
-      Properties jttpBuildProperties = PropertiesUtil.getJttpBuildProperties();
-      piwikHost = jttpBuildProperties.getProperty(PiwikPropertiesUtil.PIWIK_HOST);
-      siteId = jttpBuildProperties.getProperty(siteIdKey);
-      activeFilterCondtionParam = DIMENSION + jttpBuildProperties
-          .getProperty(PiwikPropertiesUtil.PIWIK_ACTIVE_FILTER_CONDITION_CUSTOM_DIMENSION_INDEX);
-      searcherValueParam = DIMENSION + jttpBuildProperties
-          .getProperty(PiwikPropertiesUtil.PIWIK_SEARCHER_VALUE_CUSTOM_DIMENSION_INDEX);
-      selectedActiveTabParam = DIMENSION + jttpBuildProperties
-          .getProperty(PiwikPropertiesUtil.PIWIK_SELECTED_ACTIVE_TAB_CUSTOM_DIMENSION_INDEX);
-      selectedWorklogDetailColumnsParam = DIMENSION + jttpBuildProperties.getProperty(
-          PiwikPropertiesUtil.PIWIK_SELECTED_WORKLOG_DETAIL_COLUMNS_CUSTOM_DIMENSION_INDEX);
-      userSelectionParam = DIMENSION + jttpBuildProperties
-          .getProperty(PiwikPropertiesUtil.PIWIK_USER_SELECTION_CUSTOM_DIMENSION_INDEX);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    Properties jttpBuildProperties = PropertiesUtil.getJttpBuildProperties();
+    String piwikHost = jttpBuildProperties.getProperty(PiwikPropertiesUtil.PIWIK_HOST);
+    URI uri = UriBuilder.fromPath(piwikHost)
+        .scheme("http")
+        .build();
+    this.piwikHost = uri.toString();
+    siteId = jttpBuildProperties.getProperty(siteIdKey);
+    activeFilterCondtionParam = DIMENSION + jttpBuildProperties
+        .getProperty(PiwikPropertiesUtil.PIWIK_ACTIVE_FILTER_CONDITION_CUSTOM_DIMENSION_INDEX);
+    searcherValueParam = DIMENSION + jttpBuildProperties
+        .getProperty(PiwikPropertiesUtil.PIWIK_SEARCHER_VALUE_CUSTOM_DIMENSION_INDEX);
+    selectedActiveTabParam = DIMENSION + jttpBuildProperties
+        .getProperty(PiwikPropertiesUtil.PIWIK_SELECTED_ACTIVE_TAB_CUSTOM_DIMENSION_INDEX);
+    selectedWorklogDetailColumnsParam = DIMENSION + jttpBuildProperties.getProperty(
+        PiwikPropertiesUtil.PIWIK_SELECTED_WORKLOG_DETAIL_COLUMNS_CUSTOM_DIMENSION_INDEX);
+    userSelectionParam = DIMENSION + jttpBuildProperties
+        .getProperty(PiwikPropertiesUtil.PIWIK_USER_SELECTION_CUSTOM_DIMENSION_INDEX);
   }
 
   private void addActionNameParam() {
