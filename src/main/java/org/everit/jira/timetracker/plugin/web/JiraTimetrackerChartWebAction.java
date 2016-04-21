@@ -36,7 +36,7 @@ import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
 import org.everit.jira.timetracker.plugin.dto.ChartData;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
-import org.everit.jira.timetracker.plugin.dto.ReportSessionData;
+import org.everit.jira.timetracker.plugin.dto.TimetrackerReportsSessionData;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
@@ -350,14 +350,15 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     HttpSession session = getHttpSession();
     Object data = session.getAttribute(SESSION_KEY);
 
-    if (!(data instanceof ReportSessionData)) {
+    if (!(data instanceof TimetrackerReportsSessionData)) {
       return false;
     }
-    ReportSessionData reportSessionData = (ReportSessionData) data;
-    currentUser = reportSessionData.currentUser;
-    dateFrom = reportSessionData.dateFrom;
+    TimetrackerReportsSessionData timetrackerReportsSessionData =
+        (TimetrackerReportsSessionData) data;
+    currentUser = timetrackerReportsSessionData.currentUser;
+    dateFrom = timetrackerReportsSessionData.dateFrom;
     dateFromFormated = DateTimeConverterUtil.dateToString(dateFrom);
-    dateTo = reportSessionData.dateTo;
+    dateTo = timetrackerReportsSessionData.dateTo;
     dateToFormated = DateTimeConverterUtil.dateToString(dateTo);
     return true;
   }
@@ -443,7 +444,8 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
   private void saveDataToSession() {
     HttpSession session = getHttpSession();
     session.setAttribute(SESSION_KEY,
-        new ReportSessionData().currentUser(currentUser).dateFrom(dateFrom).dateTo(dateTo));
+        new TimetrackerReportsSessionData().currentUser(currentUser).dateFrom(dateFrom)
+            .dateTo(dateTo));
   }
 
   public void setAvatarURL(final String avatarURL) {
