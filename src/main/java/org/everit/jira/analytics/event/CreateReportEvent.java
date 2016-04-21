@@ -32,6 +32,46 @@ import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
  */
 public class CreateReportEvent implements AnalyticsEvent {
 
+  /**
+   * The active filter condition name.
+   */
+  private enum ActiveFilterConditionName {
+
+    AFFECTED_VERSION,
+
+    ASSIGNEE,
+
+    COMPONENT,
+
+    CREATED,
+
+    EPIC_LINK,
+
+    EPIC_NAME,
+
+    FIXED_VERSION,
+
+    GROUP,
+
+    ISSUE,
+
+    LABEL,
+
+    PRIORITY,
+
+    PROJECT,
+
+    REPORTER,
+
+    RESOLUTION,
+
+    STATUS,
+
+    TYPE,
+
+    USER;
+  }
+
   private static final String ACTION_URL =
       "http://customer.jira.com/secure/ReportingWebAction!default.jspa";
 
@@ -71,16 +111,16 @@ public class CreateReportEvent implements AnalyticsEvent {
   }
 
   private void appendActiveFilterCondition(final StringBuilder sb, final List<?> condition,
-      final String msg) {
+      final ActiveFilterConditionName activeFilterConditionName) {
     if (!condition.isEmpty()) {
-      sb.append(msg + ",");
+      sb.append(activeFilterConditionName.name() + ",");
     }
   }
 
   private void appendActiveFilterCondition(final StringBuilder sb, final String condition,
-      final String msg) {
+      final ActiveFilterConditionName activeFilterConditionName) {
     if ((condition != null) && !condition.isEmpty()) {
-      sb.append(msg + ",");
+      sb.append(activeFilterConditionName.name() + ",");
     }
   }
 
@@ -89,29 +129,44 @@ public class CreateReportEvent implements AnalyticsEvent {
     // TODO zs.cz check SearcherValue! Maybe jql string not null or empty???
     StringBuilder sb = new StringBuilder();
 
-    appendActiveFilterCondition(sb, filterCondition.getProjectIds(), "project");
-    appendActiveFilterCondition(sb, filterCondition.getIssueAffectedVersions(), "affectedVersion");
-    appendActiveFilterCondition(sb, filterCondition.getIssueAssignees(), "assignee");
-    appendActiveFilterCondition(sb, filterCondition.getIssueComponents(), "component");
-    appendActiveFilterCondition(sb, filterCondition.getIssueEpicLinkIssueIds(), "epicLink");
-    appendActiveFilterCondition(sb, filterCondition.getIssueFixedVersions(), "fixedVersion");
-    appendActiveFilterCondition(sb, filterCondition.getIssueKeys(), "issue");
-    appendActiveFilterCondition(sb, filterCondition.getIssuePriorityIds(), "priority");
-    appendActiveFilterCondition(sb, filterCondition.getIssueReporters(), "reporter");
-    appendActiveFilterCondition(sb, filterCondition.getIssueResolutionIds(), "resolution");
-    appendActiveFilterCondition(sb, filterCondition.getIssueStatusIds(), "status");
-    appendActiveFilterCondition(sb, filterCondition.getIssueTypeIds(), "type");
-    appendActiveFilterCondition(sb, filterCondition.getLabels(), "label");
-    appendActiveFilterCondition(sb, filterCondition.getIssueCreateDate(), "created");
-    appendActiveFilterCondition(sb, filterCondition.getIssueEpicName(), "epicName");
+    appendActiveFilterCondition(sb, filterCondition.getProjectIds(),
+        ActiveFilterConditionName.PROJECT);
+    appendActiveFilterCondition(sb, filterCondition.getIssueAffectedVersions(),
+        ActiveFilterConditionName.AFFECTED_VERSION);
+    appendActiveFilterCondition(sb, filterCondition.getIssueAssignees(),
+        ActiveFilterConditionName.ASSIGNEE);
+    appendActiveFilterCondition(sb, filterCondition.getIssueComponents(),
+        ActiveFilterConditionName.COMPONENT);
+    appendActiveFilterCondition(sb, filterCondition.getIssueEpicLinkIssueIds(),
+        ActiveFilterConditionName.EPIC_LINK);
+    appendActiveFilterCondition(sb, filterCondition.getIssueFixedVersions(),
+        ActiveFilterConditionName.FIXED_VERSION);
+    appendActiveFilterCondition(sb, filterCondition.getIssueKeys(),
+        ActiveFilterConditionName.ISSUE);
+    appendActiveFilterCondition(sb, filterCondition.getIssuePriorityIds(),
+        ActiveFilterConditionName.PRIORITY);
+    appendActiveFilterCondition(sb, filterCondition.getIssueReporters(),
+        ActiveFilterConditionName.REPORTER);
+    appendActiveFilterCondition(sb, filterCondition.getIssueResolutionIds(),
+        ActiveFilterConditionName.RESOLUTION);
+    appendActiveFilterCondition(sb, filterCondition.getIssueStatusIds(),
+        ActiveFilterConditionName.STATUS);
+    appendActiveFilterCondition(sb, filterCondition.getIssueTypeIds(),
+        ActiveFilterConditionName.TYPE);
+    appendActiveFilterCondition(sb, filterCondition.getLabels(),
+        ActiveFilterConditionName.LABEL);
+    appendActiveFilterCondition(sb, filterCondition.getIssueCreateDate(),
+        ActiveFilterConditionName.CREATED);
+    appendActiveFilterCondition(sb, filterCondition.getIssueEpicName(),
+        ActiveFilterConditionName.EPIC_NAME);
 
     List<String> users = new ArrayList<>(filterCondition.getUsers());
     boolean removedNoneUser = users.remove(PickerUserDTO.NONE_USER_NAME);
-    appendActiveFilterCondition(sb, users, "user");
+    appendActiveFilterCondition(sb, users, ActiveFilterConditionName.USER);
 
     List<String> groups = new ArrayList<>(filterCondition.getGroups());
     groups.remove("-1"); // FIXME zs.cz read from constants ConverterUtil after merge!
-    appendActiveFilterCondition(sb, groups, "group");
+    appendActiveFilterCondition(sb, groups, ActiveFilterConditionName.GROUP);
 
     String activeFilterCondition = sb.toString();
 
