@@ -21,7 +21,7 @@ import java.util.Date;
 /**
  * Session data for the reports.
  */
-public class ReportSessionData implements Serializable {
+public class TimetrackerReportsSessionData implements Serializable {
 
   private static final long serialVersionUID = 7694409127990223607L;
 
@@ -31,17 +31,17 @@ public class ReportSessionData implements Serializable {
 
   public String currentUser;
 
-  public ReportSessionData currentUser(final String currentUser) {
+  public TimetrackerReportsSessionData currentUser(final String currentUser) {
     this.currentUser = currentUser;
     return this;
   }
 
-  public ReportSessionData dateFrom(final Date dateFrom) {
+  public TimetrackerReportsSessionData dateFrom(final Date dateFrom) {
     this.dateFrom = dateFrom;
     return this;
   }
 
-  public ReportSessionData dateTo(final Date dateTo) {
+  public TimetrackerReportsSessionData dateTo(final Date dateTo) {
     this.dateTo = dateTo;
     return this;
   }

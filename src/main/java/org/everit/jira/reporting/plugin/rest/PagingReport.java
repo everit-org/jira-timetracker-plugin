@@ -38,6 +38,7 @@ import org.everit.jira.reporting.plugin.util.ConverterUtil;
 import org.everit.jira.timetracker.plugin.DurationFormatter;
 
 import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.util.I18nHelper;
 import com.atlassian.jira.web.util.OutlookDate;
 import com.atlassian.velocity.VelocityManager;
 import com.google.gson.Gson;
@@ -75,6 +76,9 @@ public class PagingReport {
     Locale locale = ComponentAccessor.getJiraAuthenticationContext().getLocale();
     OutlookDate outlookDate = new OutlookDate(locale);
     contextParameters.put("outlookDate", outlookDate);
+
+    I18nHelper i18nHelper = ComponentAccessor.getI18nHelperFactory().getInstance(locale);
+    contextParameters.put("i18n", i18nHelper);
   }
 
   private Response buildResponse(final String templateFileName,
