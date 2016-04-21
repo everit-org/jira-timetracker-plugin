@@ -146,7 +146,7 @@
                                         <td class="jtrp_col_affectedVersions" style="#if( $isNotShowAffectedVersions )display:none;#end">#if ( !$wd.issueAffectedVersions.isEmpty() ) #foreach ( $affectedVersion in $wd.issueAffectedVersions )#if($velocityCount> 1),#end $affectedVersion #end #end</td>
                                         <td class="jtrp_col_fixVersions" style="#if( $isNotShowFixVersions )display:none;#end">#if ( !$wd.issueFixedVersions.isEmpty() ) #foreach ( $fixedVersion in $wd.issueFixedVersions )#if($velocityCount> 1),#end $fixedVersion #end #end</td>
                                         <td class="jtrp_col_resolution" style="#if( $isNotShowResolution )display:none;#end">#if ( !$wd.resolutionName )$i18n.getText("jtrp.picker.unresolved.value") #else $wd.resolutionName #end</td>
-                                        <td class="jtrp_col_worklogDescription" style="#if( $isNotShowWorklogDescription )display:none;#end">$wd.worklogBody</td>
+                                        <td class="jtrp_col_worklogDescription" style="#if( $isNotShowWorklogDescription )display:none;#end">$atlassianWikiRenderer.render($wd.worklogBody, $issueRenderContext)</td>
                                         <td class="jtrp_col_user">$wd.worklogUser</td>
                                         <td class="jtrp_col_startTime" style="#if( $isNotShowStartTime )display:none;#end">$outlookDate.formatDMYHMS($wd.worklogStartDate)</td>
                                         <td class="jtrp_col_timeSpent">$durationFormatter.exactDuration($wd.worklogTimeWorked)</td>

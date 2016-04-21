@@ -44,6 +44,10 @@ import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 
+import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.issue.RendererManager;
+import com.atlassian.jira.issue.fields.renderer.IssueRenderContext;
+import com.atlassian.jira.issue.fields.renderer.JiraRendererPlugin;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
 import com.google.gson.Gson;
 
@@ -77,6 +81,8 @@ public class ReportingWebAction extends JiraWebActionSupport {
    */
   private static final long serialVersionUID = 1L;
 
+  private JiraRendererPlugin atlassianWikiRenderer;
+
   private boolean collapsedDetailsModule = false;
 
   private boolean collapsedSummaryModule = false;
@@ -94,6 +100,8 @@ public class ReportingWebAction extends JiraWebActionSupport {
   private Gson gson;
 
   private String issueCollectorSrc;
+
+  private IssueRenderContext issueRenderContext;
 
   private IssueSummaryReportDTO issueSummaryReport = new IssueSummaryReportDTO();
 
@@ -131,6 +139,9 @@ public class ReportingWebAction extends JiraWebActionSupport {
     this.reportingPlugin = reportingPlugin;
     reportingCondition = new ReportingCondition(this.reportingPlugin);
     gson = new Gson();
+    issueRenderContext = new IssueRenderContext(null);
+    RendererManager rendererManager = ComponentAccessor.getRendererManager();
+    atlassianWikiRenderer = rendererManager.getRendererForType("atlassian-wiki-renderer");
   }
 
   private void createDurationFormatter() {
@@ -228,6 +239,10 @@ public class ReportingWebAction extends JiraWebActionSupport {
     return SUCCESS;
   }
 
+  public JiraRendererPlugin getAtlassianWikiRenderer() {
+    return atlassianWikiRenderer;
+  }
+
   public String getContextPath() {
     return contextPath;
   }
@@ -250,6 +265,10 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   public String getIssueCollectorSrc() {
     return issueCollectorSrc;
+  }
+
+  public IssueRenderContext getIssueRenderContext() {
+    return issueRenderContext;
   }
 
   public IssueSummaryReportDTO getIssueSummaryReport() {

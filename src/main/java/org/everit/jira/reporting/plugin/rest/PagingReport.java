@@ -38,6 +38,9 @@ import org.everit.jira.reporting.plugin.util.ConverterUtil;
 import org.everit.jira.timetracker.plugin.DurationFormatter;
 
 import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.issue.RendererManager;
+import com.atlassian.jira.issue.fields.renderer.IssueRenderContext;
+import com.atlassian.jira.issue.fields.renderer.JiraRendererPlugin;
 import com.atlassian.jira.web.util.OutlookDate;
 import com.atlassian.velocity.VelocityManager;
 import com.google.gson.Gson;
@@ -75,6 +78,14 @@ public class PagingReport {
     Locale locale = ComponentAccessor.getJiraAuthenticationContext().getLocale();
     OutlookDate outlookDate = new OutlookDate(locale);
     contextParameters.put("outlookDate", outlookDate);
+
+    IssueRenderContext issueRenderContext = new IssueRenderContext(null);
+    contextParameters.put("issueRenderContext", issueRenderContext);
+
+    RendererManager rendererManager = ComponentAccessor.getRendererManager();
+    JiraRendererPlugin atlassianWikiRenderer =
+        rendererManager.getRendererForType("atlassian-wiki-renderer");
+    contextParameters.put("atlassianWikiRenderer", atlassianWikiRenderer);
   }
 
   private Response buildResponse(final String templateFileName,
