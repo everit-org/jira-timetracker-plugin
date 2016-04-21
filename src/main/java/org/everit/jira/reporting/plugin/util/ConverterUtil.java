@@ -17,6 +17,7 @@ package org.everit.jira.reporting.plugin.util;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -199,6 +200,15 @@ public final class ConverterUtil {
       throw new NullPointerException("filterCondition parameter is null");
     }
 
+    Date worklogEndDate = ConverterUtil.getRequiredDate(filterCondition.getWorklogEndDate(),
+        KEY_INVALID_END_TIME);
+    Calendar worklogEndDateCalendar = DateTimeConverterUtil.setDateToDayStart(worklogEndDate);
+    worklogEndDateCalendar.add(Calendar.DAY_OF_MONTH, 1);
+    worklogEndDate = worklogEndDateCalendar.getTime();
+
+    Date worklogStartDate = ConverterUtil.getRequiredDate(filterCondition.getWorklogStartDate(),
+        KEY_INVALID_START_TIME);
+
     ReportSearchParam reportSearchParam = new ReportSearchParam()
         .issueCreateDate(
             ConverterUtil.getDate(filterCondition.getIssueCreateDate(), KEY_INVALID_START_TIME))
@@ -207,12 +217,8 @@ public final class ConverterUtil {
         .issueStatusIds(filterCondition.getIssueStatusIds())
         .issueTypeIds(filterCondition.getIssueTypeIds())
         .labels(filterCondition.getLabels())
-        .worklogEndDate(
-            ConverterUtil.getRequiredDate(filterCondition.getWorklogEndDate(),
-                KEY_INVALID_END_TIME))
-        .worklogStartDate(
-            ConverterUtil.getRequiredDate(filterCondition.getWorklogStartDate(),
-                KEY_INVALID_START_TIME))
+        .worklogEndDate(worklogEndDate)
+        .worklogStartDate(worklogStartDate)
         .issueKeys(filterCondition.getIssueKeys());
 
     ConverterUtil.appendIssueAssignees(reportSearchParam, filterCondition.getIssueAssignees());
