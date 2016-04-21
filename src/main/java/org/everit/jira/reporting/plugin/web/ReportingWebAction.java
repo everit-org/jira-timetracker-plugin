@@ -27,6 +27,9 @@ import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.everit.jira.analytics.AnalyticsDTO;
+import org.everit.jira.analytics.AnalyticsSender;
+import org.everit.jira.analytics.event.CreateReportEvent;
 import org.everit.jira.reporting.plugin.ReportingCondition;
 import org.everit.jira.reporting.plugin.ReportingPlugin;
 import org.everit.jira.reporting.plugin.dto.ConvertedSearchParam;
@@ -39,12 +42,15 @@ import org.everit.jira.reporting.plugin.exception.JTRPException;
 import org.everit.jira.reporting.plugin.export.column.WorklogDetailsColumns;
 import org.everit.jira.reporting.plugin.util.ConverterUtil;
 import org.everit.jira.timetracker.plugin.DurationFormatter;
+import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.dto.ReportingSettingsValues;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
+import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 
 import com.atlassian.jira.web.action.JiraWebActionSupport;
+import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.google.gson.Gson;
 
 /**
@@ -77,6 +83,10 @@ public class ReportingWebAction extends JiraWebActionSupport {
    */
   private static final long serialVersionUID = 1L;
 
+  private AnalyticsDTO analyticsDTO;
+
+  private AnalyticsSender analyticsSender;
+
   private boolean collapsedDetailsModule = false;
 
   private boolean collapsedSummaryModule = false;
@@ -85,7 +95,7 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   private Class<DateTimeConverterUtil> dateConverterUtil = DateTimeConverterUtil.class;
 
-  private DurationFormatter durationFormatter;
+  private DurationFormatter durationFormatter = new DurationFormatter();
 
   private FilterCondition filterCondition;
 
@@ -118,6 +128,8 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   private List<String> selectedWorklogDetailsColumns = Collections.emptyList();
 
+  private PluginSettingsFactory settingsFactory;
+
   private UserSummaryReportDTO userSummaryReport = new UserSummaryReportDTO();
 
   private List<String> worklogDetailsAllColumns = WorklogDetailsColumns.ALL_COLUMNS;
@@ -127,14 +139,13 @@ public class ReportingWebAction extends JiraWebActionSupport {
   /**
    * Simple constructor.
    */
-  public ReportingWebAction(final ReportingPlugin reportingPlugin) {
+  public ReportingWebAction(final ReportingPlugin reportingPlugin,
+      final PluginSettingsFactory settingsFactory, final AnalyticsSender analyticsSender) {
     this.reportingPlugin = reportingPlugin;
     reportingCondition = new ReportingCondition(this.reportingPlugin);
     gson = new Gson();
-  }
-
-  private void createDurationFormatter() {
-    durationFormatter = new DurationFormatter();
+    this.settingsFactory = settingsFactory;
+    this.analyticsSender = analyticsSender;
   }
 
   @Override
@@ -149,10 +160,12 @@ public class ReportingWebAction extends JiraWebActionSupport {
       return getRedirect(NONE);
     }
 
+    analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(settingsFactory,
+        PiwikPropertiesUtil.PIWIK_REPORTING_SITEID);
+
     loadPageSizeLimit();
 
     loadIssueCollectorSrc();
-    createDurationFormatter();
 
     selectedMore = new ArrayList<String>();
     filterCondition = new FilterCondition();
@@ -175,13 +188,14 @@ public class ReportingWebAction extends JiraWebActionSupport {
       return getRedirect(NONE);
     }
 
+    analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(settingsFactory,
+        PiwikPropertiesUtil.PIWIK_REPORTING_SITEID);
+
     HttpServletRequest httpRequest = getHttpRequest();
 
     loadPageSizeLimit();
 
     loadIssueCollectorSrc();
-
-    createDurationFormatter();
 
     morePickerParse(httpRequest);
 
@@ -225,7 +239,17 @@ public class ReportingWebAction extends JiraWebActionSupport {
       return INPUT;
     }
 
+    String pluginUUID =
+        JiraTimetrackerAnalytics.getPluginUUID(settingsFactory.createGlobalSettings());
+    CreateReportEvent analyticsEvent = new CreateReportEvent(pluginUUID, filterCondition,
+        selectedWorklogDetailsColumns, selectedActiveTab);
+    analyticsSender.send(analyticsEvent);
+
     return SUCCESS;
+  }
+
+  public AnalyticsDTO getAnalyticsDTO() {
+    return analyticsDTO;
   }
 
   public String getContextPath() {
@@ -319,14 +343,8 @@ public class ReportingWebAction extends JiraWebActionSupport {
   }
 
   private void loadIssueCollectorSrc() {
-    Properties properties;
-    try {
-      properties = PropertiesUtil.getJttpBuildProperties();
-      issueCollectorSrc = properties.getProperty(ISSUE_COLLECTOR_SRC);
-    } catch (IOException e) {
-      // TODO add logger?
-      issueCollectorSrc = "";
-    }
+    Properties properties = PropertiesUtil.getJttpBuildProperties();
+    issueCollectorSrc = properties.getProperty(ISSUE_COLLECTOR_SRC);
   }
 
   private void loadPageSizeLimit() {

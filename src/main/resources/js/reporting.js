@@ -1044,7 +1044,7 @@ everit.reporting.main = everit.reporting.main || {};
   
   function collectSelectedWorklogDetailsColumns() {
     var requiredColumns = ['jtrp_col_project', 'jtrp_col_issueKey', 'jtrp_col_issueSummary', 'jtrp_col_timeSpent'];
-    var selectedDetailsColumns = jQuery('#detailsColumns').val();
+    var selectedDetailsColumns = jQuery('#detailsColumns').val() || [];
     return requiredColumns.concat(selectedDetailsColumns);
   }
   
