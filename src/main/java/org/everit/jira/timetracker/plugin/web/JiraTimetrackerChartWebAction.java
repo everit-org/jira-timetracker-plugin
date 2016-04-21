@@ -15,6 +15,7 @@
  */
 package org.everit.jira.timetracker.plugin.web;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.sql.SQLException;
@@ -30,11 +31,11 @@ import java.util.Map.Entry;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
+import org.everit.jira.analytics.AnalyticsDTO;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
 import org.everit.jira.timetracker.plugin.dto.ChartData;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
-import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
 import org.everit.jira.timetracker.plugin.dto.TimetrackerReportsSessionData;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
@@ -48,6 +49,7 @@ import com.atlassian.jira.exception.DataAccessException;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
+import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.velocity.htmlsafe.HtmlSafe;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -98,11 +100,9 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
   private static final String WRONG_DATES = "plugin.wrong.dates";
 
-  private boolean analyticsCheck;
+  private AnalyticsDTO analyticsDTO;
 
   private String avatarURL = "";
-
-  private String baseUrl;
 
   private List<ChartData> chartDataList;
 
@@ -132,8 +132,6 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
   private boolean feedBackSendAviable;
 
-  private String installedPluginId;
-
   /**
    * The {@link JiraTimetrackerPlugin}.
    */
@@ -144,13 +142,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
    */
   private String message = "";
 
-  private String piwikHost;
-
-  private String piwikSiteId;
-
-  private String pluginVersion;
-
-  private String userId;
+  private final PluginSettingsFactory pluginSettingsFactory;
 
   private transient ApplicationUser userPickerObject;
 
@@ -159,10 +151,14 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
    *
    * @param jiraTimetrackerPlugin
    *          The {@link JiraTimetrackerPlugin}.
+   * @param pluginSettingsFactory
+   *          the {@link PluginSettingsFactory}.
    */
   public JiraTimetrackerChartWebAction(
-      final JiraTimetrackerPlugin jiraTimetrackerPlugin) {
+      final JiraTimetrackerPlugin jiraTimetrackerPlugin,
+      final PluginSettingsFactory pluginSettingsFactory) {
     this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
+    this.pluginSettingsFactory = pluginSettingsFactory;
   }
 
   private void checkMailServer() {
@@ -180,8 +176,9 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     normalizeContextPath();
     checkMailServer();
 
-    loadPluginSettingAndParseResult();
-    setPiwikProperties();
+    analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(pluginSettingsFactory,
+        PiwikPropertiesUtil.PIWIK_CHART_SITEID);
+
     boolean loadedFromSession = loadDataFromSession();
     initDatesIfNecessary();
     initCurrentUserIfNecessary();
@@ -206,8 +203,8 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     normalizeContextPath();
     checkMailServer();
 
-    loadPluginSettingAndParseResult();
-    setPiwikProperties();
+    analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(pluginSettingsFactory,
+        PiwikPropertiesUtil.PIWIK_CHART_SITEID);
 
     if (parseFeedback()) {
       loadDataFromSession();
@@ -265,16 +262,12 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     return SUCCESS;
   }
 
-  public boolean getAnalyticsCheck() {
-    return analyticsCheck;
+  public AnalyticsDTO getAnalyticsDTO() {
+    return analyticsDTO;
   }
 
   public String getAvatarURL() {
     return avatarURL;
-  }
-
-  public String getBaseUrl() {
-    return baseUrl;
   }
 
   /**
@@ -322,28 +315,8 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
         currentUserEncoded);
   }
 
-  public String getInstalledPluginId() {
-    return installedPluginId;
-  }
-
   public String getMessage() {
     return message;
-  }
-
-  public String getPiwikHost() {
-    return piwikHost;
-  }
-
-  public String getPiwikSiteId() {
-    return piwikSiteId;
-  }
-
-  public String getPluginVersion() {
-    return pluginVersion;
-  }
-
-  public String getUserId() {
-    return userId;
   }
 
   public ApplicationUser getUserPickerObject() {
@@ -388,13 +361,6 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     dateTo = timetrackerReportsSessionData.dateTo;
     dateToFormated = DateTimeConverterUtil.dateToString(dateTo);
     return true;
-  }
-
-  private void loadPluginSettingAndParseResult() {
-    PluginSettingsValues pluginSettingsValues = jiraTimetrackerPlugin
-        .loadPluginSettings();
-    analyticsCheck = pluginSettingsValues.analyticsCheck;
-    installedPluginId = pluginSettingsValues.pluginUUID;
   }
 
   private void normalizeContextPath() {
@@ -469,6 +435,12 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     return false;
   }
 
+  private void readObject(final java.io.ObjectInputStream stream) throws IOException,
+      ClassNotFoundException {
+    stream.close();
+    throw new java.io.NotSerializableException(getClass().getName());
+  }
+
   private void saveDataToSession() {
     HttpSession session = getHttpSession();
     session.setAttribute(SESSION_KEY,
@@ -476,16 +448,8 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
             .dateTo(dateTo));
   }
 
-  public void setAnalyticsCheck(final boolean analyticsCheck) {
-    this.analyticsCheck = analyticsCheck;
-  }
-
   public void setAvatarURL(final String avatarURL) {
     this.avatarURL = avatarURL;
-  }
-
-  public void setBaseUrl(final String baseUrl) {
-    this.baseUrl = baseUrl;
   }
 
   public void setChartDataList(final List<ChartData> chartDataList) {
@@ -525,39 +489,8 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     this.feedBackSendAviable = feedBackSendAviable;
   }
 
-  public void setInstalledPluginId(final String installedPluginId) {
-    this.installedPluginId = installedPluginId;
-  }
-
   public void setMessage(final String message) {
     this.message = message;
-  }
-
-  public void setPiwikHost(final String piwikHost) {
-    this.piwikHost = piwikHost;
-  }
-
-  private void setPiwikProperties() {
-    pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
-    baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(getHttpRequest().getSession());
-    userId = JiraTimetrackerAnalytics.setUserSessionUserId(getHttpRequest().getSession());
-
-    piwikHost = jiraTimetrackerPlugin
-        .getPiwikPorperty(PiwikPropertiesUtil.PIWIK_HOST);
-    piwikSiteId = jiraTimetrackerPlugin
-        .getPiwikPorperty(PiwikPropertiesUtil.PIWIK_CHART_SITEID);
-  }
-
-  public void setPiwikSiteId(final String piwikSiteId) {
-    this.piwikSiteId = piwikSiteId;
-  }
-
-  public void setPluginVersion(final String pluginVersion) {
-    this.pluginVersion = pluginVersion;
-  }
-
-  public void setUserId(final String userId) {
-    this.userId = userId;
   }
 
   public void setUserPickerObject(final ApplicationUser userPickerObject) {
@@ -577,5 +510,10 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     } else {
       userPickerObject = null;
     }
+  }
+
+  private void writeObject(final java.io.ObjectOutputStream stream) throws IOException {
+    stream.close();
+    throw new java.io.NotSerializableException(getClass().getName());
   }
 }

@@ -28,6 +28,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.everit.jira.analytics.AnalyticsSender;
+import org.everit.jira.analytics.event.ExportSummaryReportEvent;
+import org.everit.jira.analytics.event.ExportWorklogDetailsReportEvent;
 import org.everit.jira.querydsl.support.QuerydslSupport;
 import org.everit.jira.querydsl.support.ri.QuerydslSupportImpl;
 import org.everit.jira.reporting.plugin.dto.ConvertedSearchParam;
@@ -35,10 +38,11 @@ import org.everit.jira.reporting.plugin.dto.DownloadWorklogDetailsParam;
 import org.everit.jira.reporting.plugin.dto.FilterCondition;
 import org.everit.jira.reporting.plugin.export.ExportSummariesListReport;
 import org.everit.jira.reporting.plugin.export.ExportWorklogDetailsListReport;
+import org.everit.jira.reporting.plugin.export.column.WorklogDetailsColumns;
 import org.everit.jira.reporting.plugin.util.ConverterUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 
+import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.google.gson.Gson;
 
 /**
@@ -47,18 +51,23 @@ import com.google.gson.Gson;
 @Path("/download-report")
 public class DownloadReportResource {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(PickerResource.class);
+  private final AnalyticsSender analyticsSender;
 
-  private QuerydslSupport querydslSupport;
+  private String pluginId;
+
+  private final QuerydslSupport querydslSupport;
 
   /**
    * Simple constructor.
    */
-  public DownloadReportResource() {
+  public DownloadReportResource(final PluginSettingsFactory pluginSettingsFactory,
+      final AnalyticsSender analyticsSender) {
+    pluginId = JiraTimetrackerAnalytics.getPluginUUID(pluginSettingsFactory.createGlobalSettings());
+    this.analyticsSender = analyticsSender;
     try {
       querydslSupport = new QuerydslSupportImpl();
     } catch (Exception e) {
-      LOGGER.error("Problem to create querydslSupport.", e);
+      throw new RuntimeException(e);
     }
   }
 
@@ -98,6 +107,10 @@ public class DownloadReportResource {
             converSearchParam.notBrowsableProjectKeys);
 
     HSSFWorkbook workbook = exportSummariesListReport.exportToXLS();
+
+    ExportSummaryReportEvent exportSummaryReportEvent = new ExportSummaryReportEvent(pluginId);
+    analyticsSender.send(exportSummaryReportEvent);
+
     return buildResponse(workbook, "summaries-report.xls");
   }
 
@@ -127,6 +140,13 @@ public class DownloadReportResource {
             converSearchParam.notBrowsableProjectKeys);
 
     HSSFWorkbook workbook = exportWorklogDetailsListReport.exportToXLS();
+
+    boolean allFields = downloadWorklogDetailsParam.selectedWorklogDetailsColumns
+        .containsAll(WorklogDetailsColumns.ALL_COLUMNS);
+    ExportWorklogDetailsReportEvent exportWorklogDetailsReportEvent =
+        new ExportWorklogDetailsReportEvent(pluginId, allFields);
+    analyticsSender.send(exportWorklogDetailsReportEvent);
+
     return buildResponse(workbook, "worklog-details-report.xls");
   }
 

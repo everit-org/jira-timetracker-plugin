@@ -28,6 +28,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
+import org.everit.jira.analytics.AnalyticsDTO;
 import org.everit.jira.timetracker.plugin.DurationFormatter;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
@@ -49,6 +50,7 @@ import com.atlassian.jira.exception.DataAccessException;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
+import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
 /**
  * The timetracker web action support class.
@@ -94,11 +96,9 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   private static final String VERSION_SPLITTER = "\\.";
 
-  private boolean analyticsCheck;
+  private AnalyticsDTO analyticsDTO;
 
   private String avatarURL = "";
-
-  private String baseUrl;
 
   /**
    * The worklog comment.
@@ -144,7 +144,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    */
   private Long deletedWorklogId = DEFAULT_WORKLOG_ID;
 
-  private DurationFormatter durationFormatter;
+  private DurationFormatter durationFormatter = new DurationFormatter();
 
   /**
    * The worklog duration.
@@ -196,16 +196,15 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private boolean isCopy = false;
 
   private boolean isDurationSelected = false;
-
   /**
    * The WebAction is edit a worklog or not.
    */
   private boolean isEdit = false;
+
   /**
    * The WebAction is edit all worklog or not.
    */
   private boolean isEditAll = false;
-
   /**
    * The calendar isPopup.
    */
@@ -218,6 +217,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The issues.
    */
   private transient List<Issue> issues = new ArrayList<Issue>();
+
   /**
    * The filtered Issues id.
    */
@@ -232,11 +232,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The {@link JiraTimetrackerPlugin}.
    */
   private transient JiraTimetrackerPlugin jiraTimetrackerPlugin;
-
-  /**
-   * The jira version.
-   */
-  private String jiraVersion;
 
   /**
    * List of the logged days of the date variable current months.
@@ -263,11 +258,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    */
   private String monthSummary = "";
 
-  private String piwikHost;
-
-  private String piwikSiteId;
-
-  private String pluginVersion;
+  private final PluginSettingsFactory pluginSettingsFactory;
 
   /**
    * The IDs of the projects.
@@ -298,8 +289,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    */
   private String timeSpent = "";
 
-  private String userId;
-
   private transient ApplicationUser userPickerObject;
 
   /**
@@ -327,10 +316,14 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    *
    * @param jiraTimetrackerPlugin
    *          The {@link JiraTimetrackerPlugin}.
+   * @param pluginSettingsFactory
+   *          the {@link PluginSettingsFactory}.
    */
   public JiraTimetrackerWebAction(
-      final JiraTimetrackerPlugin jiraTimetrackerPlugin) {
+      final JiraTimetrackerPlugin jiraTimetrackerPlugin,
+      final PluginSettingsFactory pluginSettingsFactory) {
     this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
+    this.pluginSettingsFactory = pluginSettingsFactory;
   }
 
   private void checkMailServer() {
@@ -350,10 +343,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       worklogIds.add(worklog.getWorklogId());
     }
     return worklogIds;
-  }
-
-  public void createDurationFormatter() {
-    durationFormatter = new DurationFormatter();
   }
 
   private String createOrCopyAction() {
@@ -456,10 +445,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       return getRedirect(NONE);
     }
 
-    createDurationFormatter();
+    analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(pluginSettingsFactory,
+        PiwikPropertiesUtil.PIWIK_TIMETRACKER_SITEID);
 
     normalizeContextPath();
-    setPiwikProperties();
 
     getJiraVersionFromBuildUtilsInfo();
 
@@ -522,10 +511,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       return getRedirect(NONE);
     }
 
-    createDurationFormatter();
+    analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(pluginSettingsFactory,
+        PiwikPropertiesUtil.PIWIK_TIMETRACKER_SITEID);
 
     normalizeContextPath();
-    setPiwikProperties();
 
     getJiraVersionFromBuildUtilsInfo();
 
@@ -652,16 +641,12 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return SUCCESS;
   }
 
-  public boolean getAnalyticsCheck() {
-    return analyticsCheck;
+  public AnalyticsDTO getAnalyticsDTO() {
+    return analyticsDTO;
   }
 
   public String getAvatarURL() {
     return avatarURL;
-  }
-
-  public String getBaseUrl() {
-    return baseUrl;
   }
 
   public String getComment() {
@@ -776,12 +761,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return jiraTimetrackerPlugin;
   }
 
-  public String getJiraVersion() {
-    return jiraVersion;
-  }
-
   private void getJiraVersionFromBuildUtilsInfo() {
-    jiraVersion = JiraTimetrackerAnalytics.getJiraVersionFromBuildUtilsInfo();
+    String jiraVersion = analyticsDTO.getJiraVersion();
     String[] versionSplit = jiraVersion.split(VERSION_SPLITTER);
     jiraMainVersion = Integer.parseInt(versionSplit[0]);
 
@@ -807,18 +788,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return monthSummary;
   }
 
-  public String getPiwikHost() {
-    return piwikHost;
-  }
-
-  public String getPiwikSiteId() {
-    return piwikSiteId;
-  }
-
-  public String getPluginVersion() {
-    return pluginVersion;
-  }
-
   public List<String> getProjectsId() {
     return projectsId;
   }
@@ -833,10 +802,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   public int getStartTimeChange() {
     return startTimeChange;
-  }
-
-  public String getUserId() {
-    return userId;
   }
 
   public ApplicationUser getUserPickerObject() {
@@ -1009,7 +974,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     startTimeChange = pluginSettingsValues.startTimeChange;
     endTimeChange = pluginSettingsValues.endTimeChange;
     isColoring = pluginSettingsValues.isColoring;
-    analyticsCheck = pluginSettingsValues.analyticsCheck;
     installedPluginId = pluginSettingsValues.pluginUUID;
   }
 
@@ -1185,7 +1149,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       if (ratingValue != null) {
         rating = ratingValue;
       }
-      String mailSubject = JiraTimetrackerUtil.createFeedbackMailSubject(pluginVersion);
+      String mailSubject =
+          JiraTimetrackerUtil.createFeedbackMailSubject(analyticsDTO.getPluginVersion());
       String mailBody = JiraTimetrackerUtil.createFeedbackMailBody(customerMail, rating, feedBack);
       jiraTimetrackerPlugin.sendEmail(mailSubject, mailBody);
       try {
@@ -1218,7 +1183,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       String reportinginput8 = getHttpRequest().getParameter("reportinginput8");
       String customerMail =
           JiraTimetrackerUtil.getCheckCustomerMail(getHttpRequest().getParameter("customerMail"));
-      String mailSubject = JiraTimetrackerUtil.createReportingMailSubject(pluginVersion);
+      String mailSubject =
+          JiraTimetrackerUtil.createReportingMailSubject(analyticsDTO.getPluginVersion());
 
       JiraTimetrackerUtil.createReportMailBody(customerMail);
       JiraTimetrackerUtil.addAnswersToReportingMailBody("answer.1", answer1);
@@ -1249,16 +1215,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     }
   }
 
-  public void setAnalyticsCheck(final boolean analyticsCheck) {
-    this.analyticsCheck = analyticsCheck;
-  }
-
   public void setAvatarURL(final String avatarURL) {
     this.avatarURL = avatarURL;
-  }
-
-  public void setBaseUrl(final String baseUrl) {
-    this.baseUrl = baseUrl;
   }
 
   public void setColoring(final boolean isColoring) {
@@ -1439,10 +1397,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
   }
 
-  public void setJiraVersion(final String jiraVersion) {
-    this.jiraVersion = jiraVersion;
-  }
-
   public void setLoggedDays(final List<String> loggedDays) {
     this.loggedDays = loggedDays;
   }
@@ -1461,29 +1415,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   public void setMonthSummary(final String monthSummary) {
     this.monthSummary = monthSummary;
-  }
-
-  public void setPiwikHost(final String piwikHost) {
-    this.piwikHost = piwikHost;
-  }
-
-  private void setPiwikProperties() {
-    pluginVersion = JiraTimetrackerAnalytics.getPluginVersion();
-    baseUrl = JiraTimetrackerAnalytics.setUserSessionBaseUrl(getHttpRequest().getSession());
-    userId = JiraTimetrackerAnalytics.setUserSessionUserId(getHttpRequest().getSession());
-
-    piwikHost = jiraTimetrackerPlugin
-        .getPiwikPorperty(PiwikPropertiesUtil.PIWIK_HOST);
-    piwikSiteId = jiraTimetrackerPlugin
-        .getPiwikPorperty(PiwikPropertiesUtil.PIWIK_TIMETRACKER_SITEID);
-  }
-
-  public void setPiwikSiteId(final String piwikSiteId) {
-    this.piwikSiteId = piwikSiteId;
-  }
-
-  public void setPluginVersion(final String pluginVersion) {
-    this.pluginVersion = pluginVersion;
   }
 
   public void setPopup(final int isPopup) {
@@ -1513,10 +1444,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   public void setStartTimeChange(final int startTimeChange) {
     this.startTimeChange = startTimeChange;
-  }
-
-  public void setUserId(final String userId) {
-    this.userId = userId;
   }
 
   public void setUserPickerObject(final ApplicationUser userPickerObject) {
@@ -1586,6 +1513,11 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       }
     }
     return SUCCESS;
+  }
+
+  private void writeObject(final java.io.ObjectOutputStream stream) throws IOException {
+    stream.close();
+    throw new java.io.NotSerializableException(getClass().getName());
   }
 
 }

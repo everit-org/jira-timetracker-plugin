@@ -519,5 +519,8 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
         <!-- Issue Collector script -->
         <script type="text/javascript" src="$issueCollectorSrc"></script>
     </section>
+    #if($analyticsDTO.analyticsCheck)
+      #parse("templates/common/analytics.vm")
+    #end
   </body>
 </html>

@@ -17,20 +17,20 @@
 <script type="text/javascript">    
   var customURL = 'http://customer.jira.com' + window.location.pathname;
   var _paq = _paq || [];
-    _paq.push(['setUserId', '$userId']);
-    _paq.push(['setCustomVariable', 1, 'UserKey', '$userId', 'visit']);
-    _paq.push(['setCustomVariable', 2, 'Version', '$pluginVersion', 'visit']);
-    _paq.push(['setCustomVariable', 3, 'BaseURL', '$baseUrl', 'visit']);
-    _paq.push(['setCustomVariable', 4, 'JiraVersion', '$jiraVersion', 'visit']);
-    _paq.push(['setCustomVariable', 5, 'InstalledPluginId', '$installedPluginId', 'visit']);
-    _paq.push(['setDocumentTitle', '$baseUrl']);
+    _paq.push(['setUserId', '$analyticsDTO.userId']);
+    _paq.push(['setCustomVariable', 1, 'UserKey', '$analyticsDTO.userId', 'visit']);
+    _paq.push(['setCustomVariable', 2, 'Version', '$analyticsDTO.pluginVersion', 'visit']);
+    _paq.push(['setCustomVariable', 3, 'BaseURL', '$analyticsDTO.baseUrl', 'visit']);
+    _paq.push(['setCustomVariable', 4, 'JiraVersion', '$analyticsDTO.jiraVersion', 'visit']);
+    _paq.push(['setCustomVariable', 5, 'InstalledPluginId', '$analyticsDTO.installedPluginId', 'visit']);
+    _paq.push(['setDocumentTitle', '$analyticsDTO.baseUrl']);
     _paq.push(['setCustomUrl', customURL]);
     _paq.push(['trackPageView']);
     _paq.push(['enableLinkTracking']);
   (function() {
-    var u='$piwikHost';
+    var u='$analyticsDTO.piwikHost';
     _paq.push(['setTrackerUrl', u+'piwik.php']);
-    _paq.push(['setSiteId', $piwikSiteId]);
+    _paq.push(['setSiteId', $analyticsDTO.piwikSiteId]);
     var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
     g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
   })();

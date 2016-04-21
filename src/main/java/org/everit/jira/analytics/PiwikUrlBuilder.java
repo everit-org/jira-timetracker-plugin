@@ -15,24 +15,32 @@
  */
 package org.everit.jira.analytics;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.Random;
 
+import javax.ws.rs.core.UriBuilder;
+
+import org.everit.jira.reporting.plugin.export.column.WorklogDetailsColumns;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 
 /**
- * Builder for constructing Piwik url.
+ * Builder for constructing Piwik URL.
  */
 public class PiwikUrlBuilder {
 
+  private static final String DIMENSION = "dimension";
+
   private final String actionUrl;
+
+  private String activeFilterCondtionParam;
 
   private final String baseUrl;
 
@@ -46,15 +54,23 @@ public class PiwikUrlBuilder {
 
   private final String pluginVersion;
 
+  private String searcherValueParam;
+
+  private String selectedActiveTabParam;
+
+  private String selectedWorklogDetailColumnsParam;
+
   private final String siteId;
 
   private final String uid;
+
+  private String userSelectionParam;
 
   /**
    * Simple constructor.
    *
    * @param actionUrl
-   *          the action url. Example:
+   *          the action URL. Example:
    *          "http://customer.jira.com/secure/admin/JiraTimetrackerAdminSettingsWebAction!default.jspa".
    *          Cannot be <code>null</code>.
    * @param siteIdKey
@@ -74,13 +90,23 @@ public class PiwikUrlBuilder {
     this.pluginId = Objects.requireNonNull(pluginId);
     jiraVersion = JiraTimetrackerAnalytics.getJiraVersionFromBuildUtilsInfo();
 
-    try {
-      Properties jttpBuildProperties = PropertiesUtil.getJttpBuildProperties();
-      piwikHost = jttpBuildProperties.getProperty(PiwikPropertiesUtil.PIWIK_HOST);
-      siteId = jttpBuildProperties.getProperty(siteIdKey);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    Properties jttpBuildProperties = PropertiesUtil.getJttpBuildProperties();
+    String piwikHost = jttpBuildProperties.getProperty(PiwikPropertiesUtil.PIWIK_HOST);
+    URI uri = UriBuilder.fromPath(piwikHost)
+        .scheme("http")
+        .build();
+    this.piwikHost = uri.toString();
+    siteId = jttpBuildProperties.getProperty(siteIdKey);
+    activeFilterCondtionParam = DIMENSION + jttpBuildProperties
+        .getProperty(PiwikPropertiesUtil.PIWIK_ACTIVE_FILTER_CONDITION_CUSTOM_DIMENSION_INDEX);
+    searcherValueParam = DIMENSION + jttpBuildProperties
+        .getProperty(PiwikPropertiesUtil.PIWIK_SEARCHER_VALUE_CUSTOM_DIMENSION_INDEX);
+    selectedActiveTabParam = DIMENSION + jttpBuildProperties
+        .getProperty(PiwikPropertiesUtil.PIWIK_SELECTED_ACTIVE_TAB_CUSTOM_DIMENSION_INDEX);
+    selectedWorklogDetailColumnsParam = DIMENSION + jttpBuildProperties.getProperty(
+        PiwikPropertiesUtil.PIWIK_SELECTED_WORKLOG_DETAIL_COLUMNS_CUSTOM_DIMENSION_INDEX);
+    userSelectionParam = DIMENSION + jttpBuildProperties
+        .getProperty(PiwikPropertiesUtil.PIWIK_USER_SELECTION_CUSTOM_DIMENSION_INDEX);
   }
 
   private void addActionNameParam() {
@@ -89,6 +115,62 @@ public class PiwikUrlBuilder {
 
   private void addApivParam() {
     parameters.add("apiv=1");
+  }
+
+  /**
+   * Add active filter condition custom dimension parameter to URL.
+   */
+  public PiwikUrlBuilder addCustomDimesionActiveFilterCondition(
+      final String activeFilterCondition) {
+    parameters.add(activeFilterCondtionParam + "=" + encodeParamValue(activeFilterCondition));
+    return this;
+  }
+
+  /**
+   * Add searcher value custom dimension parameter to URL.
+   */
+  public PiwikUrlBuilder addCustomDimesionSearcherValue(final SearcherValue searcherValue) {
+    parameters.add(searcherValueParam + "=" + encodeParamValue(searcherValue.name()));
+    return this;
+  }
+
+  /**
+   * Add selected active tab custom dimension parameter to URL.
+   */
+  public PiwikUrlBuilder addCustomDimesionSelectedActiveTab(final String selectedActiveTab) {
+    parameters.add(selectedActiveTabParam + "=" + encodeParamValue(selectedActiveTab));
+    return this;
+  }
+
+  /**
+   * Add selected worklog detail columns custom dimension parameter to URL.
+   */
+  public PiwikUrlBuilder addCustomDimesionSelectedWorklogDetailColumns(
+      final List<String> selectedWorklogDetailColumns) {
+    StringBuilder sb = new StringBuilder();
+    for (String column : selectedWorklogDetailColumns) {
+      if (!(WorklogDetailsColumns.PROJECT.equals(column)
+          || WorklogDetailsColumns.ISSUE_KEY.equals(column)
+          || WorklogDetailsColumns.ISSUE_SUMMARY.equals(column)
+          || WorklogDetailsColumns.TIME_SPENT.equals(column))) {
+        // only append not required columns
+        sb.append(column.replace("jtrp_col_", ""));
+        sb.append(",");
+      }
+    }
+    String columns = sb.toString();
+    if (!columns.isEmpty()) {
+      parameters.add(selectedWorklogDetailColumnsParam + "=" + encodeParamValue(columns));
+    }
+    return this;
+  }
+
+  /**
+   * Add user selection custom dimension parameter to URL.
+   */
+  public PiwikUrlBuilder addCustomDimesionUserSelecton(final UserSelection userSelection) {
+    parameters.add(userSelectionParam + "=" + encodeParamValue(userSelection.name()));
+    return this;
   }
 
   private void addCvarParam() {
@@ -107,16 +189,25 @@ public class PiwikUrlBuilder {
     parameters.add("cvar=" + encodeParamValue(sb.toString()));
   }
 
+  /**
+   * Add event action parameter to URL.
+   */
   public PiwikUrlBuilder addEventAction(final String eventAction) {
     parameters.add("e_a=" + encodeParamValue(eventAction));
     return this;
   }
 
+  /**
+   * Add event category parameter to URL.
+   */
   public PiwikUrlBuilder addEventCategory(final String eventCategory) {
     parameters.add("e_c=" + encodeParamValue(eventCategory));
     return this;
   }
 
+  /**
+   * Add event name parameter to URL.
+   */
   public PiwikUrlBuilder addEventName(final String eventName) {
     parameters.add("e_n=" + encodeParamValue(eventName));
     return this;
@@ -143,9 +234,9 @@ public class PiwikUrlBuilder {
   }
 
   /**
-   * Build Piwik url.
+   * Build Piwik URL.
    *
-   * @return the url.
+   * @return the URL.
    */
   public String buildUrl() {
     addActionNameParam();
@@ -157,6 +248,9 @@ public class PiwikUrlBuilder {
     addCvarParam();
     addApivParam();
 
+    Random random = new Random();
+    long nextLong = random.nextLong();
+    parameters.add("rand=" + nextLong);
     StringBuffer sb = new StringBuffer();
     for (String string : parameters) {
       sb.append(string);
