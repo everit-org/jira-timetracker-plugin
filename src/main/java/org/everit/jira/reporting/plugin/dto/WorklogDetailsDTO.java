@@ -51,6 +51,8 @@ public class WorklogDetailsDTO {
 
     public static final String ISSUE_UPDATED = "issueUpdated";
 
+    public static final String PRIORITY_ICON_URL = "priorityIconUrl";
+
     public static final String PRIORITY_NAME = "priorityName";
 
     public static final String PROJECT_DESCRIPTION = "projectDescription";
@@ -102,6 +104,8 @@ public class WorklogDetailsDTO {
   private String issueTypeName;
 
   private Timestamp issueUpdated;
+
+  private String priorityIconUrl;
 
   private String priorityName;
 
@@ -189,6 +193,10 @@ public class WorklogDetailsDTO {
       return null;
     }
     return (Timestamp) issueUpdated.clone();
+  }
+
+  public String getPriorityIconUrl() {
+    return priorityIconUrl;
   }
 
   public String getPriorityName() {
@@ -303,6 +311,10 @@ public class WorklogDetailsDTO {
 
   public void setIssueUpdated(final Timestamp issueUpdated) {
     this.issueUpdated = issueUpdated;
+  }
+
+  public void setPriorityIconUrl(final String priorityIconUrl) {
+    this.priorityIconUrl = priorityIconUrl;
   }
 
   public void setPriorityName(final String priorityName) {

@@ -232,3 +232,12 @@ p {
     opacity: .5;
     pointer-events: none;
 }
+
+table.aui > thead > tr > th{
+    color: #707070;
+}
+.create-report-button-spinner{
+    display:inline;
+    width:16px;
+    padding-left:32px;
+}

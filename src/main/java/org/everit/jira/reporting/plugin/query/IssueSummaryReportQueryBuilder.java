@@ -105,6 +105,7 @@ public class IssueSummaryReportQueryBuilder extends AbstractReportQuery {
         qIssue.summary,
         qIssuetype.pname,
         qPriority.pname,
+        qPriority.iconurl,
         qIssuestatus.pname,
         qIssue.assignee };
   }
@@ -115,6 +116,7 @@ public class IssueSummaryReportQueryBuilder extends AbstractReportQuery {
         qIssue.summary.as(IssueSummaryDTO.AliasNames.ISSUE_SUMMARY),
         qIssuetype.pname.as(IssueSummaryDTO.AliasNames.ISSUE_TYPE_NAME),
         qPriority.pname.as(IssueSummaryDTO.AliasNames.PRIORITY_NAME),
+        qPriority.iconurl.as(IssueSummaryDTO.AliasNames.PRIORITY_ICON_URL),
         qIssuestatus.pname.as(IssueSummaryDTO.AliasNames.STATUS_NAME),
         qIssue.assignee.as(IssueSummaryDTO.AliasNames.ASSIGNEE),
         qIssue.timeoriginalestimate.sum()

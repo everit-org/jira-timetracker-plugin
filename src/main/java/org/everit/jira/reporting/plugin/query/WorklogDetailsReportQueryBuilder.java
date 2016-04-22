@@ -133,6 +133,7 @@ public class WorklogDetailsReportQueryBuilder extends AbstractReportQuery {
         qWorklog.timeworked.as(WorklogDetailsDTO.AliasNames.WORKLOG_TIME_WORKED),
         qProject.description.as(WorklogDetailsDTO.AliasNames.PROJECT_DESCRIPTION),
         qPriority.pname.as(WorklogDetailsDTO.AliasNames.PRIORITY_NAME),
+        qPriority.iconurl.as(WorklogDetailsDTO.AliasNames.PRIORITY_ICON_URL),
         qIssue.reporter.as(WorklogDetailsDTO.AliasNames.ISSUE_REPORTER),
         qIssue.created.as(WorklogDetailsDTO.AliasNames.ISSUE_CREATED),
         qIssue.updated.as(WorklogDetailsDTO.AliasNames.ISSUE_UPDATED),

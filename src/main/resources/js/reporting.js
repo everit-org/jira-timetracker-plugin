@@ -963,7 +963,7 @@ everit.reporting.main = everit.reporting.main || {};
     var $createReportButton = jQuery('#create-report-button');
     $createReportButton.attr('disabled', 'disabled');
     $createReportButton.attr('aria-disabled', 'true');
-    jQuery('.create-report-button-spinner').spin('large');
+    jQuery('.create-report-button-spinner').spin('small');
     return true;
   }
   
@@ -991,7 +991,7 @@ everit.reporting.main = everit.reporting.main || {};
     var filterCondition = JSON.parse(filterConditionJson);
     filterCondition["offset"] = offset;
     var filterConditionJson = JSON.stringify(filterCondition);
-    var $summaryModule = jQuery("summaryModule");
+    var $summaryModule = jQuery("#summaryModule");
     $summaryModule.addClass("pending");
     jQuery.get(url + filterConditionJson, function(data) {
       jQuery('#tabs-project-content').replaceWith(data);
@@ -1064,9 +1064,7 @@ everit.reporting.main = everit.reporting.main || {};
   };
   
   function collectSelectedWorklogDetailsColumns() {
-    var requiredColumns = ['jtrp_col_project', 'jtrp_col_issueKey', 'jtrp_col_issueSummary', 'jtrp_col_timeSpent'];
-    var selectedDetailsColumns = jQuery('#detailsColumns').val();
-    return requiredColumns.concat(selectedDetailsColumns);
+   return jQuery('#detailsColumns').val();
   }
   
 })(everit.reporting.main, jQuery);

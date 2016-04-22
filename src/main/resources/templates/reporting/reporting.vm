@@ -487,13 +487,13 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                             <div class="from-date inline-calendar">
                                                 <input id="dateFrom" name="dateFrom" class="text medium-field datepicker-input" placeholder="From" type="text" value="$filterCondition.worklogStartDate"/>
                                                     <a href="#" title="Select a date">
-                                                        <span id="date_trigger_from" class="aui-icon icon-date">Select a date</span>
+                                                        <span id="date_trigger_from" class="aui-icon aui-icon-small aui-iconfont-calendar">Select a date</span>
                                                     </a>
                                             </div>
                                             <div class="to-date inline-calendar">
                                                 <input id="dateTo" name="dateTo" class="text medium-field datepicker-input" placeholder="To" type="text" value="$filterCondition.worklogEndDate" />
                                                     <a href="#" title="Select a date">
-                                                        <span id="date_trigger_to" class="aui-icon icon-date">Select a date</span>
+                                                        <span id="date_trigger_to" class="aui-icon aui-icon-small aui-iconfont-calendar">Select a date</span>
                                                     </a>
                                             </div>
                                             <input type="hidden" id="filterConditionJson" name="filterConditionJson" value="$filterConditionJson"/>

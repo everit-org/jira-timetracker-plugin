@@ -18,7 +18,7 @@
                                     <thead>
                                         <tr>
                                             <th>$i18n.getText("jtrp.report.ps.col.jtrp_col_project")</th>
-                                            <th>$i18n.getText("jtrp.report.ps.col.jtrp_col_projectDescription")</th>
+                                            <th>$i18n.getText("jtrp.report.ps.col.jtrp_col_projectKey")</th>
                                             <th>$i18n.getText("jtrp.report.ps.col.jtrp_col_estimated")</th>
                                             <th>$i18n.getText("jtrp.report.ps.col.jtrp_col_totalLogged")</th>
                                             <th>$i18n.getText("jtrp.report.ps.col.jtrp_col_remaining")</th>
@@ -29,7 +29,7 @@
                                         #foreach ( $ps in $projectSummaryReport.projectSummaries )
                                         <tr>
                                             <td>$ps.projectName</td>
-                                            <td>#if ( $ps.projectSummary ) $ps.projectSummary #end</td>
+                                            <td>$ps.projectKey</td>
                                             <td>$durationFormatter.exactDuration($ps.issuesOrginalEstimatedSum)</td>
                                             <td>$durationFormatter.exactDuration($ps.workloggedTimeSum)</td>
                                             <td>$durationFormatter.exactDuration($ps.issuesReaminingTimeSum)</td>

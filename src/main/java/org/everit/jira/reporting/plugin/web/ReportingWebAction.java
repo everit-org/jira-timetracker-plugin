@@ -167,6 +167,7 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
     selectedMore = new ArrayList<String>();
     filterCondition = new FilterCondition();
+    selectedWorklogDetailsColumns = WorklogDetailsColumns.DEFAULT_COLUMNS;
     initDatesIfNecessary();
 
     normalizeContextPath();

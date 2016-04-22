@@ -28,7 +28,10 @@
 	                                    <div class='form-body'>
 	                                      <div class='field-group aui-field-issuetype'>
 	                                        <select  id="detailsColumns" name="detailsColumns"  multiple="multiple" >
+	                                          <option value="jtrp_col_project">$i18n.getText("jtrp.report.wd.col.jtrp_col_project")</option>
 	                                          <option value="jtrp_col_projectDescription">$i18n.getText("jtrp.report.wd.col.jtrp_col_projectDescription")</option>
+	                                          <option value="jtrp_col_issueKey">$i18n.getText("jtrp.report.wd.col.jtrp_col_issueKey")</option>
+	                                          <option value="jtrp_col_issueSummary">$i18n.getText("jtrp.report.wd.col.jtrp_col_issueSummary")</option>
 	                                          <option value="jtrp_col_type">$i18n.getText("jtrp.report.wd.col.jtrp_col_type")</option>
 	                                          <option value="jtrp_col_status">$i18n.getText("jtrp.report.wd.col.jtrp_col_status")</option>
 	                                          <option value="jtrp_col_priority">$i18n.getText("jtrp.report.wd.col.jtrp_col_priority")</option>
@@ -43,7 +46,9 @@
 	                                          <option value="jtrp_col_fixVersions">$i18n.getText("jtrp.report.wd.col.jtrp_col_fixVersions")</option>
 	                                          <option value="jtrp_col_resolution">$i18n.getText("jtrp.report.wd.col.jtrp_col_resolution")</option>
 	                                          <option value="jtrp_col_worklogDescription">$i18n.getText("jtrp.report.wd.col.jtrp_col_worklogDescription")</option>
+	                                          <option value="jtrp_col_user">$i18n.getText("jtrp.report.wd.col.jtrp_col_user")</option>
 	                                          <option value="jtrp_col_startTime">$i18n.getText("jtrp.report.wd.col.jtrp_col_startTime")</option>
+	                                          <option value="jtrp_col_timeSpent">$i18n.getText("jtrp.report.wd.col.jtrp_col_timeSpent")</option>
 	                                          <option value="jtrp_col_worklogCreated">$i18n.getText("jtrp.report.wd.col.jtrp_col_worklogCreated")</option>
 	                                          <option value="jtrp_col_worklogUpdated">$i18n.getText("jtrp.report.wd.col.jtrp_col_worklogUpdated")</option>
 	                                        </select>
@@ -81,6 +86,7 @@
                         </div>
                         <div class="details-tale-container">
                             <table class="aui reporting-table">
+                                #set($isNotShowProject = !$selectedWorklogDetailsColumns.contains("jtrp_col_project"))
                                 #set($isNotShowProjectDescription = !$selectedWorklogDetailsColumns.contains("jtrp_col_projectDescription"))
                                 #set($isNotShowType = !$selectedWorklogDetailsColumns.contains("jtrp_col_type"))
                                 #set($isNotShowStatus = !$selectedWorklogDetailsColumns.contains("jtrp_col_status"))
@@ -99,12 +105,16 @@
                                 #set($isNotShowStartTime = !$selectedWorklogDetailsColumns.contains("jtrp_col_startTime"))
                                 #set($isNotShowWorklogCreated = !$selectedWorklogDetailsColumns.contains("jtrp_col_worklogCreated"))
                                 #set($isNotShowWorklogUpdated = !$selectedWorklogDetailsColumns.contains("jtrp_col_worklogUpdated"))
+                                #set($isNotShowIssueKey = !$selectedWorklogDetailsColumns.contains("jtrp_col_issueKey"))
+                                #set($isNotShowIssueSummary = !$selectedWorklogDetailsColumns.contains("jtrp_col_issueSummary"))
+                                #set($isNotShowUser = !$selectedWorklogDetailsColumns.contains("jtrp_col_user"))
+                                #set($isNotShowTimeSpent = !$selectedWorklogDetailsColumns.contains("jtrp_col_timeSpent"))
                                 <thead>
                                     <tr>
-                                        <th class="jtrp_col_project">$i18n.getText("jtrp.report.wd.col.jtrp_col_project")</th>
+                                        <th class="jtrp_col_project" style="#if( $isNotShowProject )display:none;#end">$i18n.getText("jtrp.report.wd.col.jtrp_col_project")</th>
                                         <th class="jtrp_col_projectDescription" style="#if( $isNotShowProjectDescription )display:none;#end">$i18n.getText("jtrp.report.wd.col.jtrp_col_projectDescription")</th>
-                                        <th class="jtrp_col_issueKey">$i18n.getText("jtrp.report.wd.col.jtrp_col_issueKey")</th>
-                                        <th class="jtrp_col_issueSummary">$i18n.getText("jtrp.report.wd.col.jtrp_col_issueSummary")</th>
+                                        <th class="jtrp_col_issueKey" style="#if( $isNotShowIssueKey )display:none;#end">$i18n.getText("jtrp.report.wd.col.jtrp_col_issueKey")</th>
+                                        <th class="jtrp_col_issueSummary" style="#if( $isNotShowIssueSummary )display:none;#end">$i18n.getText("jtrp.report.wd.col.jtrp_col_issueSummary")</th>
                                         <th class="jtrp_col_type" style="#if( $isNotShowType )display:none;#end">$i18n.getText("jtrp.report.wd.col.jtrp_col_type")</th>
                                         <th class="jtrp_col_status" style="#if( $isNotShowStatus )display:none;#end">$i18n.getText("jtrp.report.wd.col.jtrp_col_status")</th>
                                         <th class="jtrp_col_priority" style="#if( $isNotShowPriority )display:none;#end">$i18n.getText("jtrp.report.wd.col.jtrp_col_priority")</th>                                        
@@ -119,9 +129,9 @@
                                         <th class="jtrp_col_fixVersions" style="#if( $isNotShowFixVersions )display:none;#end">$i18n.getText("jtrp.report.wd.col.jtrp_col_fixVersions")</th>
                                         <th class="jtrp_col_resolution" style="#if( $isNotShowResolution )display:none;#end">$i18n.getText("jtrp.report.wd.col.jtrp_col_resolution")</th>
                                         <th class="jtrp_col_worklogDescription" style="#if( $isNotShowWorklogDescription )display:none;#end">$i18n.getText("jtrp.report.wd.col.jtrp_col_worklogDescription")</th>
-                                        <th class="jtrp_col_user">$i18n.getText("jtrp.report.wd.col.jtrp_col_user")</th>
+                                        <th class="jtrp_col_user" style="#if( $isNotShowUser )display:none;#end">$i18n.getText("jtrp.report.wd.col.jtrp_col_user")</th>
                                         <th class="jtrp_col_startTime" style="#if( $isNotShowStartTime )display:none;#end">$i18n.getText("jtrp.report.wd.col.jtrp_col_startTime")</th>
-                                        <th class="jtrp_col_timeSpent">$i18n.getText("jtrp.report.wd.col.jtrp_col_timeSpent")</th>
+                                        <th class="jtrp_col_timeSpent" style="#if( $isNotShowTimeSpent )display:none;#end">$i18n.getText("jtrp.report.wd.col.jtrp_col_timeSpent")</th>
                                         <th class="jtrp_col_worklogCreated" style="#if( $isNotShowWorklogCreated )display:none;#end">$i18n.getText("jtrp.report.wd.col.jtrp_col_worklogCreated")</th>
                                         <th class="jtrp_col_worklogUpdated" style="#if( $isNotShowWorklogUpdated )display:none;#end">$i18n.getText("jtrp.report.wd.col.jtrp_col_worklogUpdated")</th>
                                     </tr>
@@ -129,13 +139,19 @@
                                 <tbody>
                                     #foreach ( $wd in $worklogDetailsReport.worklogDetails )
                                     <tr>
-                                        <td class="jtrp_col_project">$wd.projectName</td>
+                                        <td class="jtrp_col_project" style="#if( $isNotShowProject )display:none;#end">$wd.projectName</td>
                                         <td class="jtrp_col_projectDescription" style="#if( $isNotShowProjectDescription )display:none;#end">#if ( $wd.projectDescription ) $wd.projectDescription #end</td>
-                                        <td class="jtrp_col_issueKey">$wd.issueKey</td>
-                                        <td class="jtrp_col_issueSummary">$wd.issueSummary</td>
+                                        <td class="jtrp_col_issueKey" style="#if( $isNotShowIssueKey )display:none;#end">$wd.issueKey</td>
+                                        <td class="jtrp_col_issueSummary" style="#if( $isNotShowIssueSummary )display:none;#end">$wd.issueSummary</td>
                                         <td class="jtrp_col_type" style="#if( $isNotShowType )display:none;#end">$wd.issueTypeName</td>
-                                        <td class="jtrp_col_status" style="#if( $isNotShowStatus )display:none;#end">$wd.issueStatusName</td>
-                                        <td class="jtrp_col_priority" style="#if( $isNotShowPriority )display:none;#end">$wd.priorityName</td>
+                                        <td class="jtrp_col_status" style="#if( $isNotShowStatus )display:none;#end">
+                                          #set($issueStatus = $constantsManager.getStatusByTranslatedName($wd.issueStatusName))
+                                          #set($statusCategory = $issueStatus.getStatusCategory())
+                                          <span original-title="" class=" jira-issue-status-lozenge aui-lozenge jira-issue-status-lozenge-$statusCategory.colorName jira-issue-status-lozenge-$statusCategory.key aui-lozenge-subtle jira-issue-status-lozenge-max-width-medium" data-tooltip="<span class=&quot;jira-issue-status-tooltip-title&quot;>$wd.issueStatusName</span>">$wd.issueStatusName</span>
+                                        </td>
+                                        <td class="jtrp_col_priority" style="#if( $isNotShowPriority )display:none;#end">
+                                          <img src="#if( $wd.priorityIconUrl.startsWith("http") )$wd.priorityIconUrl#else$contextPath$wd.priorityIconUrl#end" alt="$wd.priorityName"></img>
+                                        </td>
                                         <td class="jtrp_col_assignee" style="#if( $isNotShowAssignee )display:none;#end">#if ( !$wd.issueAssignee ) $i18n.getText("jtrp.picker.unassigned.value") #else $wd.issueAssignee #end</td>
                                         <td class="jtrp_col_reporter" style="#if( $isNotShowReporter )display:none;#end">$wd.issueReporter</td>
                                         <td class="jtrp_col_estimated" style="#if( $isNotShowEstimated )display:none;#end">#if ( !$wd.issueOriginalEstimate ) #else $durationFormatter.exactDuration($wd.issueOriginalEstimate) #end</td>
@@ -147,9 +163,9 @@
                                         <td class="jtrp_col_fixVersions" style="#if( $isNotShowFixVersions )display:none;#end">#if ( !$wd.issueFixedVersions.isEmpty() ) #foreach ( $fixedVersion in $wd.issueFixedVersions )#if($velocityCount> 1),#end $fixedVersion #end #end</td>
                                         <td class="jtrp_col_resolution" style="#if( $isNotShowResolution )display:none;#end">#if ( !$wd.resolutionName )$i18n.getText("jtrp.picker.unresolved.value") #else $wd.resolutionName #end</td>
                                         <td class="jtrp_col_worklogDescription" style="#if( $isNotShowWorklogDescription )display:none;#end">$atlassianWikiRenderer.render($wd.worklogBody, $issueRenderContext)</td>
-                                        <td class="jtrp_col_user">$wd.worklogUser</td>
+                                        <td class="jtrp_col_user" style="#if( $isNotShowUser )display:none;#end">$wd.worklogUser</td>
                                         <td class="jtrp_col_startTime" style="#if( $isNotShowStartTime )display:none;#end">$outlookDate.formatDMYHMS($wd.worklogStartDate)</td>
-                                        <td class="jtrp_col_timeSpent">$durationFormatter.exactDuration($wd.worklogTimeWorked)</td>
+                                        <td class="jtrp_col_timeSpent" style="#if( $isNotShowTimeSpent )display:none;#end">$durationFormatter.exactDuration($wd.worklogTimeWorked)</td>
                                         <td class="jtrp_col_worklogCreated" style="#if( $isNotShowWorklogCreated )display:none;#end">$outlookDate.formatDMY($wd.worklogCreated)</td>
                                         <td class="jtrp_col_worklogUpdated" style="#if( $isNotShowWorklogUpdated )display:none;#end">$outlookDate.formatDMY($wd.worklogUpdated)</td>
                                     </tr>
