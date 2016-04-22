@@ -228,3 +228,7 @@ p {
     background-color: #d04437;
 }
 
+.pending {
+    opacity: .5;
+    pointer-events: none;
+}

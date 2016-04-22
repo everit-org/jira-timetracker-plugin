@@ -65,7 +65,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
       })(everit.reporting.main, AJS.$);
     </script>
 
-   <section id="content" role="main">	  
+   <section id="content" role="main">
         <header class="aui-page-header">
             <div class="aui-page-header-inner">
                 <div class="aui-page-header-image">
@@ -503,7 +503,8 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                             <input type="hidden" id="selectedActiveTab" name="selectedActiveTab" value="" />
                                             <input type="hidden" id="collapsedDetailsModule" name="collapsedDetailsModule" value=""/>
                                             <input type="hidden" id="collapsedSummaryModule" name="collapsedSummaryModule" value=""/>
-                                            <button type="submit" class="aui-button aui-button-primary" onclick="everit.reporting.main.beforeSubmitCreateReport()">$i18n.getText("jtrp.report.btn.create.report")</button> <!-- Submit the search form -->
+                                            <button id="create-report-button" type="submit" class="aui-button aui-button-primary" onclick="everit.reporting.main.beforeSubmitCreateReport()">$i18n.getText("jtrp.report.btn.create.report")</button> <!-- Submit the search form -->
+                                            <div class="create-report-button-spinner"></div>
                                         </form>
                                     </div>
                                 </div>

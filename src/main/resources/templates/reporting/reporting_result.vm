@@ -15,7 +15,7 @@
  *#
         <div class="aui-page-panel">
           <div class="aui-page-panel-inner">
-            <section class="aui-page-panel-content">
+            <section id="reporting-result" class="aui-page-panel-content">
                 <div id="aui-message-bar"></div>
 
                 #parse("templates/reporting/reporting_result_worklog_details.vm")

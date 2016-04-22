@@ -958,6 +958,12 @@ everit.reporting.main = everit.reporting.main || {};
     
     var collapsedSummaryModuleVal = jQuery('#summaryModule').hasClass('collapsed');
     jQuery('#collapsedSummaryModule').val(collapsedSummaryModuleVal);
+    
+    jQuery('#reporting-result').addClass('pending');
+    var $createReportButton = jQuery('#create-report-button');
+    $createReportButton.attr('disabled', 'disabled');
+    $createReportButton.attr('aria-disabled', 'true');
+    jQuery('.create-report-button-spinner').spin('large');
     return true;
   }
   
@@ -969,10 +975,13 @@ everit.reporting.main = everit.reporting.main || {};
     var filterConditionJson = JSON.stringify(filterCondition);
     var selectedWorklogDetailsColumns = collectSelectedWorklogDetailsColumns();
     var selectedColumnsJson = JSON.stringify(selectedWorklogDetailsColumns);
+    var $detailsModule = jQuery('#detailsModule');
+    $detailsModule.addClass("pending");
     jQuery.get(url + filterConditionJson + "&selectedColumnsJson=" + selectedColumnsJson, function(data) {
-      jQuery('#detailsModule').replaceWith(data);
+      $detailsModule.replaceWith(data);
     }).done(function() {
       initWorklogDetailsColumns();
+      $detailsModule.removeClass("pending");
     });
   }
   
@@ -982,8 +991,12 @@ everit.reporting.main = everit.reporting.main || {};
     var filterCondition = JSON.parse(filterConditionJson);
     filterCondition["offset"] = offset;
     var filterConditionJson = JSON.stringify(filterCondition);
+    var $summaryModule = jQuery("summaryModule");
+    $summaryModule.addClass("pending");
     jQuery.get(url + filterConditionJson, function(data) {
       jQuery('#tabs-project-content').replaceWith(data);
+    }).done(function(){
+      $summaryModule.removeClass("pending");
     });
   }
   
@@ -993,8 +1006,12 @@ everit.reporting.main = everit.reporting.main || {};
     var filterCondition = JSON.parse(filterConditionJson);
     filterCondition["offset"] = offset;
     var filterConditionJson = JSON.stringify(filterCondition);
+    var $summaryModule = jQuery("summaryModule");
+    $summaryModule.addClass("pending");
     jQuery.get(url + filterConditionJson, function(data) {
       jQuery('#tabs-issue-content').replaceWith(data);
+    }).done(function(){
+      $summaryModule.removeClass("pending");
     });
   }
   
@@ -1005,8 +1022,12 @@ everit.reporting.main = everit.reporting.main || {};
     var filterCondition = JSON.parse(filterConditionJson);
     filterCondition["offset"] = offset;
     var filterConditionJson = JSON.stringify(filterCondition);
+    var $summaryModule = jQuery("summaryModule");
+    $summaryModule.addClass("pending");
     jQuery.get(url + filterConditionJson, function(data) {
       jQuery('#tabs-user-content').replaceWith(data);
+    }).done(function(){
+      $summaryModule.removeClass("pending");
     });
   }
   
