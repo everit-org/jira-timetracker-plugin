@@ -22,50 +22,50 @@ import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 
 /**
- * Analytics status changed (disable/enable) event.
+ * Export worklog details report event.
  */
-public class AnalyticsStatusChangedEvent implements AnalyticsEvent {
+public class ExportWorklogDetailsReportEvent implements AnalyticsEvent {
 
   private static final String ACTION_URL =
-      "http://customer.jira.com/secure/admin/JiraTimetrackerAdminSettingsWebAction!default.jspa";
+      "http://customer.jira.com/secure/ReportingWebAction!default.jspa";
 
-  private static final String EVENT_ACTION = "Change";
+  private static final String EVENT_ACTION = "Export Worklog Details";
 
-  private static final String EVENT_CATEGORY = "Analytics Status";
+  private static final String EVENT_CATEGORY = "Reporting";
 
-  private static final String EVENT_NAME_DISABLED = "disabled";
+  private static final String EVENT_NAME_ALL_FIELDS = "all-fields";
 
-  private static final String EVENT_NAME_ENABLED = "enabled";
+  private static final String EVENT_NAME_CUSTOM_FIELDS = "custom-fields";
+
+  private final boolean allColumns;
 
   private final String hashUserId;
 
   private final String pluginId;
-
-  private final boolean status;
 
   /**
    * Simple constructor.
    *
    * @param pluginId
    *          the installed plugin id.
-   * @param status
-   *          the status of analytics (enabled (true) or disabled (false)).
+   * @param allColumns
+   *          selected all columns or not.
    */
-  public AnalyticsStatusChangedEvent(final String pluginId, final boolean status) {
+  public ExportWorklogDetailsReportEvent(final String pluginId, final boolean allColumns) {
     this.pluginId = Objects.requireNonNull(pluginId);
-    this.status = status;
     hashUserId = JiraTimetrackerAnalytics.getUserId();
+    this.allColumns = allColumns;
   }
 
   @Override
   public String getUrl() {
-    return new PiwikUrlBuilder(ACTION_URL, PiwikPropertiesUtil.PIWIK_ADMINISTRATION_SITEID,
+    return new PiwikUrlBuilder(ACTION_URL, PiwikPropertiesUtil.PIWIK_REPORTING_SITEID,
         pluginId, hashUserId)
             .addEventCategory(EVENT_CATEGORY)
             .addEventAction(EVENT_ACTION)
-            .addEventName(status
-                ? EVENT_NAME_ENABLED
-                : EVENT_NAME_DISABLED)
+            .addEventName(allColumns
+                ? EVENT_NAME_ALL_FIELDS
+                : EVENT_NAME_CUSTOM_FIELDS)
             .buildUrl();
   }
 

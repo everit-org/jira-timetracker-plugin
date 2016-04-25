@@ -34,10 +34,8 @@ public final class PropertiesUtil {
   /**
    * Gets jttp_buil.properties.
    *
-   * @throws IOException
-   *           if an error occurred when try to read properties.
    */
-  public static Properties getJttpBuildProperties() throws IOException {
+  public static Properties getJttpBuildProperties() {
     InputStream inputStream = null;
     Properties properties = new Properties();
     try {
@@ -52,9 +50,15 @@ public final class PropertiesUtil {
 
       properties.load(inputStream);
 
+    } catch (IOException e) {
+      return new Properties();
     } finally {
       if (inputStream != null) {
-        inputStream.close();
+        try {
+          inputStream.close();
+        } catch (IOException e) {
+          // do nothing
+        }
       }
     }
     return properties;

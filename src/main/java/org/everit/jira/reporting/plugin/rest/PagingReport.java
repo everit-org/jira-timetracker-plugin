@@ -41,6 +41,7 @@ import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.issue.RendererManager;
 import com.atlassian.jira.issue.fields.renderer.IssueRenderContext;
 import com.atlassian.jira.issue.fields.renderer.JiraRendererPlugin;
+import com.atlassian.jira.util.I18nHelper;
 import com.atlassian.jira.web.util.OutlookDate;
 import com.atlassian.velocity.VelocityManager;
 import com.google.gson.Gson;
@@ -89,7 +90,8 @@ public class PagingReport {
 
     contextParameters.put("contextPath", getContextPath());
 
-    contextParameters.put("i18n", ComponentAccessor.getJiraAuthenticationContext().getI18nHelper());
+    I18nHelper i18nHelper = ComponentAccessor.getI18nHelperFactory().getInstance(locale);
+    contextParameters.put("i18n", i18nHelper);
   }
 
   private Response buildResponse(final String templateFileName,

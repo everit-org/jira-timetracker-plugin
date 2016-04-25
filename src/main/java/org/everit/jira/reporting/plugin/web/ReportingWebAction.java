@@ -26,22 +26,29 @@ import java.util.List;
 import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
+import org.everit.jira.analytics.AnalyticsDTO;
+import org.everit.jira.analytics.AnalyticsSender;
+import org.everit.jira.analytics.event.CreateReportEvent;
 import org.everit.jira.reporting.plugin.ReportingCondition;
 import org.everit.jira.reporting.plugin.ReportingPlugin;
 import org.everit.jira.reporting.plugin.dto.ConvertedSearchParam;
 import org.everit.jira.reporting.plugin.dto.FilterCondition;
 import org.everit.jira.reporting.plugin.dto.IssueSummaryReportDTO;
 import org.everit.jira.reporting.plugin.dto.ProjectSummaryReportDTO;
+import org.everit.jira.reporting.plugin.dto.ReportingSessionData;
 import org.everit.jira.reporting.plugin.dto.UserSummaryReportDTO;
 import org.everit.jira.reporting.plugin.dto.WorklogDetailsReportDTO;
 import org.everit.jira.reporting.plugin.exception.JTRPException;
 import org.everit.jira.reporting.plugin.export.column.WorklogDetailsColumns;
 import org.everit.jira.reporting.plugin.util.ConverterUtil;
 import org.everit.jira.timetracker.plugin.DurationFormatter;
+import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.dto.ReportingSettingsValues;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
+import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 
 import com.atlassian.jira.component.ComponentAccessor;
@@ -49,6 +56,7 @@ import com.atlassian.jira.issue.RendererManager;
 import com.atlassian.jira.issue.fields.renderer.IssueRenderContext;
 import com.atlassian.jira.issue.fields.renderer.JiraRendererPlugin;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
+import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.google.gson.Gson;
 
 /**
@@ -81,6 +89,12 @@ public class ReportingWebAction extends JiraWebActionSupport {
    */
   private static final long serialVersionUID = 1L;
 
+  private static final String SESSION_KEY = "jtrpSessionDataKey";
+
+  private AnalyticsDTO analyticsDTO;
+
+  private AnalyticsSender analyticsSender;
+
   private JiraRendererPlugin atlassianWikiRenderer;
 
   private boolean collapsedDetailsModule = false;
@@ -91,7 +105,7 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   private Class<DateTimeConverterUtil> dateConverterUtil = DateTimeConverterUtil.class;
 
-  private DurationFormatter durationFormatter;
+  private DurationFormatter durationFormatter = new DurationFormatter();
 
   private FilterCondition filterCondition;
 
@@ -126,6 +140,8 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   private List<String> selectedWorklogDetailsColumns = Collections.emptyList();
 
+  private PluginSettingsFactory settingsFactory;
+
   private UserSummaryReportDTO userSummaryReport = new UserSummaryReportDTO();
 
   private List<String> worklogDetailsAllColumns = WorklogDetailsColumns.ALL_COLUMNS;
@@ -135,76 +151,27 @@ public class ReportingWebAction extends JiraWebActionSupport {
   /**
    * Simple constructor.
    */
-  public ReportingWebAction(final ReportingPlugin reportingPlugin) {
+  public ReportingWebAction(final ReportingPlugin reportingPlugin,
+      final PluginSettingsFactory settingsFactory, final AnalyticsSender analyticsSender) {
     this.reportingPlugin = reportingPlugin;
     reportingCondition = new ReportingCondition(this.reportingPlugin);
     gson = new Gson();
     issueRenderContext = new IssueRenderContext(null);
     RendererManager rendererManager = ComponentAccessor.getRendererManager();
     atlassianWikiRenderer = rendererManager.getRendererForType("atlassian-wiki-renderer");
+    this.settingsFactory = settingsFactory;
+    this.analyticsSender = analyticsSender;
   }
 
-  private void createDurationFormatter() {
-    durationFormatter = new DurationFormatter();
-  }
+  private String createReport(final String selectedMoreJson, final String selectedActiveTab,
+      final String filterConditionJsonValue, final String selectedWorklogDetailsColumnsJson,
+      final String collapsedDetailsModuleVal, final String collapsedSummaryModuleVal) {
 
-  @Override
-  public String doDefault() throws ParseException {
-    boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
-    if (!isUserLogged) {
-      setReturnUrl(JIRA_HOME_URL);
-      return getRedirect(NONE);
-    }
-    if (!reportingCondition.shouldDisplay(getLoggedInApplicationUser(), null)) {
-      setReturnUrl(JIRA_HOME_URL);
-      return getRedirect(NONE);
-    }
-
-    loadPageSizeLimit();
-
-    loadIssueCollectorSrc();
-    createDurationFormatter();
-
-    selectedMore = new ArrayList<String>();
-    filterCondition = new FilterCondition();
-    selectedWorklogDetailsColumns = WorklogDetailsColumns.DEFAULT_COLUMNS;
-    initDatesIfNecessary();
-
-    normalizeContextPath();
-
-    return INPUT;
-  }
-
-  @Override
-  public String doExecute() throws ParseException {
-    boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
-    if (!isUserLogged) {
-      setReturnUrl(JIRA_HOME_URL);
-      return getRedirect(NONE);
-    }
-    if (!reportingCondition.shouldDisplay(getLoggedInApplicationUser(), null)) {
-      setReturnUrl(JIRA_HOME_URL);
-      return getRedirect(NONE);
-    }
-
-    HttpServletRequest httpRequest = getHttpRequest();
-
-    loadPageSizeLimit();
-
-    loadIssueCollectorSrc();
-
-    createDurationFormatter();
-
-    morePickerParse(httpRequest);
-
-    normalizeContextPath();
-
-    setParametersActiveTab(httpRequest);
+    morePickerParse(selectedMoreJson);
+    setParametersActiveTab(selectedActiveTab, collapsedDetailsModuleVal, collapsedSummaryModuleVal);
 
     ConvertedSearchParam convertedSearchParam = null;
-    filterConditionJson = httpRequest.getParameter(HTTP_PARAM_FILTER_CONDITION_JSON);
-    String selectedWorklogDetailsColumnsJson =
-        httpRequest.getParameter(HTTP_PARAM_SELECTED_WORKLOG_DETAILS_COLUMNS);
+    filterConditionJson = filterConditionJsonValue;
     String[] selectedWorklogDetailsColumnsArray =
         gson.fromJson(selectedWorklogDetailsColumnsJson, String[].class);
     selectedWorklogDetailsColumns = Arrays.asList(selectedWorklogDetailsColumnsArray);
@@ -238,6 +205,95 @@ public class ReportingWebAction extends JiraWebActionSupport {
     }
 
     return SUCCESS;
+  }
+
+  @Override
+  public String doDefault() throws ParseException {
+    boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
+    if (!isUserLogged) {
+      setReturnUrl(JIRA_HOME_URL);
+      return getRedirect(NONE);
+    }
+    if (!reportingCondition.shouldDisplay(getLoggedInApplicationUser(), null)) {
+      setReturnUrl(JIRA_HOME_URL);
+      return getRedirect(NONE);
+    }
+
+    loadPageSizeLimit();
+
+    loadIssueCollectorSrc();
+    normalizeContextPath();
+
+    analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(settingsFactory,
+        PiwikPropertiesUtil.PIWIK_REPORTING_SITEID);
+
+    ReportingSessionData loadDataFromSession = loadDataFromSession();
+    if (loadDataFromSession != null) {
+      createReport(loadDataFromSession.selectedMoreJson, loadDataFromSession.selectedActiveTab,
+          loadDataFromSession.filterConditionJson,
+          loadDataFromSession.selectedWorklogDetailsColumnsJson,
+          loadDataFromSession.collapsedDetailsModuleVal,
+          loadDataFromSession.collapsedSummaryModuleVal);
+    } else {
+      selectedMore = new ArrayList<String>();
+      filterCondition = new FilterCondition();
+      selectedWorklogDetailsColumns = WorklogDetailsColumns.DEFAULT_COLUMNS;
+      initDatesIfNecessary();
+    }
+
+    return INPUT;
+  }
+
+  @Override
+  public String doExecute() throws ParseException {
+    boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
+    if (!isUserLogged) {
+      setReturnUrl(JIRA_HOME_URL);
+      return getRedirect(NONE);
+    }
+    if (!reportingCondition.shouldDisplay(getLoggedInApplicationUser(), null)) {
+      setReturnUrl(JIRA_HOME_URL);
+      return getRedirect(NONE);
+    }
+
+    normalizeContextPath();
+
+    loadPageSizeLimit();
+    loadIssueCollectorSrc();
+
+    analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(settingsFactory,
+        PiwikPropertiesUtil.PIWIK_REPORTING_SITEID);
+
+    HttpServletRequest httpRequest = getHttpRequest();
+
+    String selectedMoreJson = httpRequest.getParameter(HTTP_PARAM_SELECTED_MORE_JSON);
+    String selectedActiveTab = httpRequest.getParameter(HTTP_PARAM_SELECTED_ACTIVE_TAB);
+    String filterConditionJsonValue = httpRequest.getParameter(HTTP_PARAM_FILTER_CONDITION_JSON);
+    String selectedWorklogDetailsColumnsJson =
+        httpRequest.getParameter(HTTP_PARAM_SELECTED_WORKLOG_DETAILS_COLUMNS);
+    String collapsedDetailsModuleVal =
+        httpRequest.getParameter(HTTP_PARAM_COLLAPSED_DETAILS_MODULE);
+    String collapsedSummaryModuleVal =
+        httpRequest.getParameter(HTTP_PARAM_COLLAPSED_SUMMARY_MODULE);
+
+    String createReportResult =
+        createReport(selectedMoreJson, selectedActiveTab, filterConditionJsonValue,
+            selectedWorklogDetailsColumnsJson, collapsedDetailsModuleVal,
+            collapsedSummaryModuleVal);
+    if (SUCCESS.equals(createReportResult)) {
+      saveDataToSession(selectedMoreJson, selectedActiveTab, filterConditionJsonValue,
+          selectedWorklogDetailsColumnsJson, collapsedDetailsModuleVal,
+          collapsedSummaryModuleVal);
+      CreateReportEvent analyticsEvent =
+          new CreateReportEvent(analyticsDTO.getInstalledPluginId(), filterCondition,
+              selectedWorklogDetailsColumns, selectedActiveTab);
+      analyticsSender.send(analyticsEvent);
+    }
+    return createReportResult;
+  }
+
+  public AnalyticsDTO getAnalyticsDTO() {
+    return analyticsDTO;
   }
 
   public JiraRendererPlugin getAtlassianWikiRenderer() {
@@ -338,15 +394,19 @@ public class ReportingWebAction extends JiraWebActionSupport {
     return collapsedSummaryModule;
   }
 
-  private void loadIssueCollectorSrc() {
-    Properties properties;
-    try {
-      properties = PropertiesUtil.getJttpBuildProperties();
-      issueCollectorSrc = properties.getProperty(ISSUE_COLLECTOR_SRC);
-    } catch (IOException e) {
-      // TODO add logger?
-      issueCollectorSrc = "";
+  private ReportingSessionData loadDataFromSession() {
+    HttpSession session = getHttpSession();
+    Object data = session.getAttribute(SESSION_KEY);
+
+    if (!(data instanceof ReportingSessionData)) {
+      return null;
     }
+    return (ReportingSessionData) data;
+  }
+
+  private void loadIssueCollectorSrc() {
+    Properties properties = PropertiesUtil.getJttpBuildProperties();
+    issueCollectorSrc = properties.getProperty(ISSUE_COLLECTOR_SRC);
   }
 
   private void loadPageSizeLimit() {
@@ -354,8 +414,7 @@ public class ReportingWebAction extends JiraWebActionSupport {
     pageSizeLimit = loadReportingSettings.pageSize;
   }
 
-  private void morePickerParse(final HttpServletRequest httpRequest) {
-    String selectedMoreJson = httpRequest.getParameter(HTTP_PARAM_SELECTED_MORE_JSON);
+  private void morePickerParse(final String selectedMoreJson) {
     if (selectedMoreJson != null) {
       String[] selectedMore = gson.fromJson(selectedMoreJson, String[].class);
       this.selectedMore = Arrays.asList(selectedMore);
@@ -377,6 +436,18 @@ public class ReportingWebAction extends JiraWebActionSupport {
     throw new java.io.NotSerializableException(getClass().getName());
   }
 
+  private void saveDataToSession(final String selectedMoreJson, final String selectedActiveTab,
+      final String filterConditionJsonValue, final String selectedWorklogDetailsColumnsJson,
+      final String collapsedDetailsModuleVal, final String collapsedSummaryModuleVal) {
+    HttpSession session = getHttpSession();
+    session.setAttribute(SESSION_KEY,
+        new ReportingSessionData().selectedMoreJson(selectedMoreJson)
+            .selectedActiveTab(selectedActiveTab).filterConditionJson(filterConditionJsonValue)
+            .selectedWorklogDetailsColumnsJson(selectedWorklogDetailsColumnsJson)
+            .collapsedDetailsModuleVal(collapsedDetailsModuleVal)
+            .collapsedSummaryModuleVal(collapsedSummaryModuleVal));
+  }
+
   public void setContextPath(final String contextPath) {
     this.contextPath = contextPath;
   }
@@ -385,18 +456,13 @@ public class ReportingWebAction extends JiraWebActionSupport {
     this.message = message;
   }
 
-  private void setParametersActiveTab(final HttpServletRequest httpRequest) {
-    String selectedActiveTab = httpRequest.getParameter(HTTP_PARAM_SELECTED_ACTIVE_TAB);
+  private void setParametersActiveTab(final String selectedActiveTab,
+      final String collapsedDetailsModuleVal, final String collapsedSummaryModuleVal) {
     if (selectedActiveTab != null) {
       this.selectedActiveTab = selectedActiveTab;
     }
 
-    String collapsedDetailsModuleVal =
-        httpRequest.getParameter(HTTP_PARAM_COLLAPSED_DETAILS_MODULE);
     collapsedDetailsModule = Boolean.parseBoolean(collapsedDetailsModuleVal);
-
-    String collapsedSummaryModuleVal =
-        httpRequest.getParameter(HTTP_PARAM_COLLAPSED_SUMMARY_MODULE);
     collapsedSummaryModule = Boolean.parseBoolean(collapsedSummaryModuleVal);
   }
 

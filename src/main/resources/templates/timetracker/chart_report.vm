@@ -178,7 +178,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:chart_re
 	</div>
 </div>
 
-#if($analyticsCheck)
+#if($analyticsDTO.analyticsCheck)
 	#parse("templates/common/analytics.vm")
 #end
 </body>
