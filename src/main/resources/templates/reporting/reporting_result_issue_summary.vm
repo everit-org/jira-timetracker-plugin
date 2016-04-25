@@ -32,11 +32,15 @@
                                     <tbody>
                                         #foreach ( $is in $issueSummaryReport.issueSummaries )
                                         <tr>
-                                            <td>$is.issueKey</td>
-                                            <td>$is.issueSummary</td>
-                                            <td>$is.issueTypeName</td>
                                             <td>
-                                              <img src="#if( $is.priorityIconUrl.startsWith("http") )$wd.priorityIconUrl#else$contextPath$is.priorityIconUrl#end" alt="$is.priorityName"></img>
+                                              <a href="$contextPath/browse/$is.issueKey" class="issue-link">$is.issueKey</a>
+                                            </td>
+                                            <td>$is.issueSummary</td>
+                                            <td>
+                                              <img class="img-tooltip" src="#if( $is.issueTypeIconUrl.startsWith("http") )$is.issueTypeIconUrl#else$contextPath$is.issueTypeIconUrl#end" alt="$is.issueTypeName" title="$is.issueTypeName"></img>
+                                            </td>
+                                            <td>
+                                              <img class="img-tooltip" src="#if( $is.priorityIconUrl.startsWith("http") )$is.priorityIconUrl#else$contextPath$is.priorityIconUrl#end" alt="$is.priorityName" title="$is.priorityName"></img>
                                             </td>
                                             <td>
                                               #set($issueStatus = $constantsManager.getStatusByTranslatedName($is.statusName))

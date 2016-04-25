@@ -233,10 +233,10 @@ p {
     pointer-events: none;
 }
 
-table.aui > thead > tr > th{
+table.aui > thead > tr > th, div.grand-total p.grand-total-header {
     color: #707070;
 }
-.create-report-button-spinner{
+.create-report-button-spinner {
     display:inline;
     width:16px;
     padding-left:32px;

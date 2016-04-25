@@ -29,7 +29,9 @@
                                         #foreach ( $ps in $projectSummaryReport.projectSummaries )
                                         <tr>
                                             <td>$ps.projectName</td>
-                                            <td>$ps.projectKey</td>
+                                            <td>
+                                              <a href="$contextPath/browse/$ps.projectKey" class="tinylink">$ps.projectKey</a>
+                                            </td>
                                             <td>$durationFormatter.exactDuration($ps.issuesOrginalEstimatedSum)</td>
                                             <td>$durationFormatter.exactDuration($ps.workloggedTimeSum)</td>
                                             <td>$durationFormatter.exactDuration($ps.issuesReaminingTimeSum)</td>

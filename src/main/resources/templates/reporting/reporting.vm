@@ -71,7 +71,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                 <div class="aui-page-header-image">
                     <span class="aui-avatar aui-avatar-large">
                         <span class="aui-avatar-inner">
-                          <a href="http://www.everit.org/jira-timetracker-plugin/" target="_blank">
+                          <a href="http://www.everit.biz" target="_blank">
                             <img src="$contextPath/download/resources/org.everit.jira.timetracker.plugin:reporting-resources/E_logo.png" alt="Everit reporting logo">
                           </a>
                         </span>

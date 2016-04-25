@@ -47,6 +47,8 @@ public class WorklogDetailsDTO {
 
     public static final String ISSUE_TIME_ORIGINAL_ESTIMATE = "issueOriginalEstimate";
 
+    public static final String ISSUE_TYPE_ICON_URL = "issueTypeIconUrl";
+
     public static final String ISSUE_TYPE_NAME = "issueTypeName";
 
     public static final String ISSUE_UPDATED = "issueUpdated";
@@ -100,6 +102,8 @@ public class WorklogDetailsDTO {
   private String issueStatusName;
 
   private String issueSummary;
+
+  private String issueTypeIconUrl;
 
   private String issueTypeName;
 
@@ -179,6 +183,10 @@ public class WorklogDetailsDTO {
 
   public String getIssueSummary() {
     return issueSummary;
+  }
+
+  public String getIssueTypeIconUrl() {
+    return issueTypeIconUrl;
   }
 
   public String getIssueTypeName() {
@@ -303,6 +311,10 @@ public class WorklogDetailsDTO {
 
   public void setIssueSummary(final String issueSummary) {
     this.issueSummary = issueSummary;
+  }
+
+  public void setIssueTypeIconUrl(final String issueTypeIconUrl) {
+    this.issueTypeIconUrl = issueTypeIconUrl;
   }
 
   public void setIssueTypeName(final String issueTypeName) {

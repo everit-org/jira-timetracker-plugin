@@ -86,6 +86,10 @@ public class PagingReport {
     JiraRendererPlugin atlassianWikiRenderer =
         rendererManager.getRendererForType("atlassian-wiki-renderer");
     contextParameters.put("atlassianWikiRenderer", atlassianWikiRenderer);
+
+    contextParameters.put("contextPath", getContextPath());
+
+    contextParameters.put("i18n", ComponentAccessor.getJiraAuthenticationContext().getI18nHelper());
   }
 
   private Response buildResponse(final String templateFileName,
@@ -99,6 +103,11 @@ public class PagingReport {
 
   private FilterCondition convertJsonToFilterCondition(final String filterConditionJson) {
     return gson.fromJson(filterConditionJson, FilterCondition.class);
+  }
+
+  private String getContextPath() {
+    // FIXME zs.cz get correct context path!
+    return "";
   }
 
   /**
