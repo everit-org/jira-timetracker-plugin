@@ -56,7 +56,7 @@ public class ProjectSummaryDTO {
   private long workloggedTimeSum;
 
   public long getExpectedTotal() {
-    expectedTotal = getWorkloggedTimeSum() - getIssuesReaminingTimeSum();
+    expectedTotal = getWorkloggedTimeSum() + getIssuesReaminingTimeSum();
     return expectedTotal;
   }
 

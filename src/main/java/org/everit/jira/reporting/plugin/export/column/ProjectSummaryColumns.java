@@ -26,7 +26,7 @@ public final class ProjectSummaryColumns {
 
   public static final String PROJECT = "jtrp_col_project";
 
-  public static final String PROJECT_DESCRIPTION = "jtrp_col_projectDescription";
+  public static final String PROJECT_KEY = "jtrp_col_projectKey";
 
   public static final String REMAINING = "jtrp_col_remaining";
 

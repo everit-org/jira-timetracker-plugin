@@ -98,8 +98,7 @@ everit.reporting.main = everit.reporting.main || {};
       });
     }
 
-    AJS.$('#project-expected-tooltip').tooltip();
-    AJS.$('#issue-expected-tooltip').tooltip();
+    addTooltips();
   });
   
   var morePickerShowFunctions = {
@@ -958,6 +957,14 @@ everit.reporting.main = everit.reporting.main || {};
     
     var collapsedSummaryModuleVal = jQuery('#summaryModule').hasClass('collapsed');
     jQuery('#collapsedSummaryModule').val(collapsedSummaryModuleVal);
+    
+    jQuery('#reporting-result').addClass('pending');
+    var $createReportButton = jQuery('#create-report-button');
+    // FIXME zs.cz check send form again if click button again!!! 
+    // in chrome not send from if add disabled button check  
+    // $createReportButton.attr('disabled', 'disabled');
+    $createReportButton.attr('aria-disabled', 'true');
+    jQuery('.create-report-button-spinner').spin('small');
     return true;
   }
   
@@ -969,10 +976,14 @@ everit.reporting.main = everit.reporting.main || {};
     var filterConditionJson = JSON.stringify(filterCondition);
     var selectedWorklogDetailsColumns = collectSelectedWorklogDetailsColumns();
     var selectedColumnsJson = JSON.stringify(selectedWorklogDetailsColumns);
+    var $detailsModule = jQuery('#detailsModule');
+    $detailsModule.addClass("pending");
     jQuery.get(url + filterConditionJson + "&selectedColumnsJson=" + selectedColumnsJson, function(data) {
-      jQuery('#detailsModule').replaceWith(data);
+      $detailsModule.replaceWith(data);
     }).done(function() {
       initWorklogDetailsColumns();
+      $detailsModule.removeClass("pending");
+      addTooltips();
     });
   }
   
@@ -982,8 +993,13 @@ everit.reporting.main = everit.reporting.main || {};
     var filterCondition = JSON.parse(filterConditionJson);
     filterCondition["offset"] = offset;
     var filterConditionJson = JSON.stringify(filterCondition);
+    var $summaryModule = jQuery("#summaryModule");
+    $summaryModule.addClass("pending");
     jQuery.get(url + filterConditionJson, function(data) {
       jQuery('#tabs-project-content').replaceWith(data);
+    }).done(function(){
+      $summaryModule.removeClass("pending");
+      addTooltips();
     });
   }
   
@@ -993,20 +1009,30 @@ everit.reporting.main = everit.reporting.main || {};
     var filterCondition = JSON.parse(filterConditionJson);
     filterCondition["offset"] = offset;
     var filterConditionJson = JSON.stringify(filterCondition);
+    var $summaryModule = jQuery("summaryModule");
+    $summaryModule.addClass("pending");
     jQuery.get(url + filterConditionJson, function(data) {
       jQuery('#tabs-issue-content').replaceWith(data);
+    }).done(function(){
+      $summaryModule.removeClass("pending");
+      addTooltips();
     });
   }
   
-  // TODO possible to simplest solution?? (4 paging)
   reporting.getUserSummaryPage = function(offset) {
+    // FIXME zs.cz possible to simplest solution?? (4 paging)
     var url = contextPath + "/rest/jttp-rest/1/paging-report/pageUserSummary?filterConditionJson=";
     var filterConditionJson = jQuery('#filterConditionJson').val();
     var filterCondition = JSON.parse(filterConditionJson);
     filterCondition["offset"] = offset;
     var filterConditionJson = JSON.stringify(filterCondition);
+    var $summaryModule = jQuery("summaryModule");
+    $summaryModule.addClass("pending");
     jQuery.get(url + filterConditionJson, function(data) {
       jQuery('#tabs-user-content').replaceWith(data);
+    }).done(function(){
+      $summaryModule.removeClass("pending");
+      addTooltips();
     });
   }
   
@@ -1043,9 +1069,37 @@ everit.reporting.main = everit.reporting.main || {};
   };
   
   function collectSelectedWorklogDetailsColumns() {
-    var requiredColumns = ['jtrp_col_project', 'jtrp_col_issueKey', 'jtrp_col_issueSummary', 'jtrp_col_timeSpent'];
-    var selectedDetailsColumns = jQuery('#detailsColumns').val() || [];
-    return requiredColumns.concat(selectedDetailsColumns);
+   return jQuery('#detailsColumns').val();
+  }
+  
+  function addTooltips(){
+    var $projectExpectedTooltip = AJS.$('#project-expected-tooltip');
+    if($projectExpectedTooltip.hasClass('jtrp-tooltipped')) {
+      $projectExpectedTooltip.tooltip();
+      $projectExpectedTooltip.addClass('jtrp-tooltipped');
+    }
+    
+    var $issueExpectedTooltip = AJS.$('#issue-expected-tooltip');
+    if($issueExpectedTooltip.hasClass('jtrp-tooltipped')) {
+      $issueExpectedTooltip.tooltip();
+      $issueExpectedTooltip.addClass('jtrp-tooltipped');
+    }
+    
+    AJS.$('.img-tooltip').each(function() {
+      var $element = AJS.$(this);
+      if(!$element.hasClass('jtrp-tooltipped')) {
+        $element.tooltip();
+        $element.addClass('jtrp-tooltipped');
+      }
+    });
+    
+    AJS.$('.user-tooltip').each(function() {
+      var $element = AJS.$(this);
+      if(!$element.hasClass('jtrp-tooltipped')) {
+        $element.tooltip();
+        $element.addClass('jtrp-tooltipped');
+      }
+    });
   }
   
 })(everit.reporting.main, jQuery);

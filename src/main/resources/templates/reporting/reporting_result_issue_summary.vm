@@ -32,11 +32,21 @@
                                     <tbody>
                                         #foreach ( $is in $issueSummaryReport.issueSummaries )
                                         <tr>
-                                            <td>$is.issueKey</td>
+                                            <td>
+                                              <a href="$contextPath/browse/$is.issueKey" class="issue-link">$is.issueKey</a>
+                                            </td>
                                             <td>$is.issueSummary</td>
-                                            <td>$is.issueTypeName</td>
-                                            <td>$is.priorityName</td>
-                                            <td>$is.statusName</td>
+                                            <td>
+                                              <img class="img-tooltip" src="#if( $is.issueTypeIconUrl.startsWith("http") )$is.issueTypeIconUrl#else$contextPath$is.issueTypeIconUrl#end" alt="$is.issueTypeName" title="$is.issueTypeName"></img>
+                                            </td>
+                                            <td>
+                                              <img class="img-tooltip" src="#if( $is.priorityIconUrl.startsWith("http") )$is.priorityIconUrl#else$contextPath$is.priorityIconUrl#end" alt="$is.priorityName" title="$is.priorityName"></img>
+                                            </td>
+                                            <td>
+                                              #set($issueStatus = $constantsManager.getStatusByTranslatedName($is.statusName))
+                                              #set($statusCategory = $issueStatus.getStatusCategory())
+                                              <span original-title="" class=" jira-issue-status-lozenge aui-lozenge jira-issue-status-lozenge-$statusCategory.colorName jira-issue-status-lozenge-$statusCategory.key aui-lozenge-subtle jira-issue-status-lozenge-max-width-medium" data-tooltip="<span class=&quot;jira-issue-status-tooltip-title&quot;>$is.statusName</span>">$is.statusName</span>
+                                            </td>
                                             <td>#if ( !$is.assignee ) $i18n.getText("jtrp.picker.unassigned.value") #else $is.assignee #end</td>
                                             <td>$durationFormatter.exactDuration($is.orginalEstimatedSum)</td>
                                             <td>$durationFormatter.exactDuration($is.reaminingTimeSum)</td>

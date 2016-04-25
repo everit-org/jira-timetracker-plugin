@@ -160,7 +160,7 @@ public class ExportSummariesListReport extends AbstractExportListReport {
     HSSFRow row = projectSummarySheet.createRow(newRowIndex++);
 
     columnIndex = insertBodyCell(row, columnIndex, projectSummaryDTO.getProjectName());
-    columnIndex = insertBodyCell(row, columnIndex, projectSummaryDTO.getProjectSummary());
+    columnIndex = insertBodyCell(row, columnIndex, projectSummaryDTO.getProjectKey());
 
     columnIndex =
         insertBodyCell(row, columnIndex, projectSummaryDTO.getIssuesOrginalEstimatedSum());
@@ -181,7 +181,7 @@ public class ExportSummariesListReport extends AbstractExportListReport {
     columnIndex = insertHeaderCell(row, columnIndex,
         i18nHelper.getText(PROJECT_SUMMARY_PREFIX + ProjectSummaryColumns.PROJECT));
     columnIndex = insertHeaderCell(row, columnIndex,
-        i18nHelper.getText(PROJECT_SUMMARY_PREFIX + ProjectSummaryColumns.PROJECT_DESCRIPTION));
+        i18nHelper.getText(PROJECT_SUMMARY_PREFIX + ProjectSummaryColumns.PROJECT_KEY));
     columnIndex = insertHeaderCell(row, columnIndex,
         i18nHelper.getText(PROJECT_SUMMARY_PREFIX + ProjectSummaryColumns.ESTIMATED));
     columnIndex = insertHeaderCell(row, columnIndex,

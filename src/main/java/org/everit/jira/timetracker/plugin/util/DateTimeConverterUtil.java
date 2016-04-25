@@ -74,26 +74,6 @@ public final class DateTimeConverterUtil {
    */
   public static final int LAST_DAY_OF_MONTH = 31;
 
-  /**
-   * The last hour of a day.
-   */
-  public static final int LAST_HOUR_OF_DAY = 23;
-
-  /**
-   * The last millisecond of a second.
-   */
-  public static final int LAST_MILLISECOND_OF_SECOND = 0;
-
-  /**
-   * The last minute of an hour.
-   */
-  public static final int LAST_MINUTE_OF_HOUR = 59;
-
-  /**
-   * The last second of a minute.
-   */
-  public static final int LAST_SECOND_OF_MINUTE = 59;
-
   private static final int MILLISEC_IN_SECOND = 1000;
 
   /**

@@ -34,6 +34,8 @@ public final class WorklogDetailsColumns {
 
   public static final String CREATED = "jtrp_col_created";
 
+  public static final List<String> DEFAULT_COLUMNS;
+
   public static final String ESTIMATED = "jtrp_col_estimated";
 
   public static final String FIX_VERSIONS = "jtrp_col_fixVersions";
@@ -73,6 +75,12 @@ public final class WorklogDetailsColumns {
   public static final String WORKLOG_UPDATED = "jtrp_col_worklogUpdated";
 
   static {
+    ALL_COLUMNS = Collections.unmodifiableList(WorklogDetailsColumns.createAllColumnsList());
+    DEFAULT_COLUMNS =
+        Collections.unmodifiableList(WorklogDetailsColumns.createDefaultColumnsList());
+  }
+
+  private static List<String> createAllColumnsList() {
     List<String> allColumns = new ArrayList<String>();
     allColumns.add(AFFECTED_VERIONS);
     allColumns.add(ASSIGNEE);
@@ -97,8 +105,20 @@ public final class WorklogDetailsColumns {
     allColumns.add(WORKLOG_CREATED);
     allColumns.add(WORKLOG_DESCRIPTION);
     allColumns.add(WORKLOG_UPDATED);
+    return allColumns;
+  }
 
-    ALL_COLUMNS = Collections.unmodifiableList(allColumns);
+  private static List<String> createDefaultColumnsList() {
+    List<String> requiredColumns = new ArrayList<String>();
+    requiredColumns.add(ISSUE_KEY);
+    requiredColumns.add(ISSUE_SUMMARY);
+    requiredColumns.add(TYPE);
+    requiredColumns.add(STATUS);
+    requiredColumns.add(ASSIGNEE);
+    requiredColumns.add(WORKLOG_DESCRIPTION);
+    requiredColumns.add(USER);
+    requiredColumns.add(TIME_SPENT);
+    return requiredColumns;
   }
 
   private WorklogDetailsColumns() {

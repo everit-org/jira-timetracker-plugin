@@ -65,13 +65,13 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
       })(everit.reporting.main, AJS.$);
     </script>
 
-   <section id="content" role="main">	  
+   <section id="content" role="main">
         <header class="aui-page-header">
             <div class="aui-page-header-inner">
                 <div class="aui-page-header-image">
                     <span class="aui-avatar aui-avatar-large">
                         <span class="aui-avatar-inner">
-                          <a href="http://www.everit.org/jira-timetracker-plugin/" target="_blank">
+                          <a href="http://www.everit.biz" target="_blank">
                             <img src="$contextPath/download/resources/org.everit.jira.timetracker.plugin:reporting-resources/E_logo.png" alt="Everit reporting logo">
                           </a>
                         </span>
@@ -487,13 +487,13 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                             <div class="from-date inline-calendar">
                                                 <input id="dateFrom" name="dateFrom" class="text medium-field datepicker-input" placeholder="From" type="text" value="$filterCondition.worklogStartDate"/>
                                                     <a href="#" title="Select a date">
-                                                        <span id="date_trigger_from" class="aui-icon icon-date">Select a date</span>
+                                                        <span id="date_trigger_from" class="aui-icon aui-icon-small aui-iconfont-calendar">Select a date</span>
                                                     </a>
                                             </div>
                                             <div class="to-date inline-calendar">
                                                 <input id="dateTo" name="dateTo" class="text medium-field datepicker-input" placeholder="To" type="text" value="$filterCondition.worklogEndDate" />
                                                     <a href="#" title="Select a date">
-                                                        <span id="date_trigger_to" class="aui-icon icon-date">Select a date</span>
+                                                        <span id="date_trigger_to" class="aui-icon aui-icon-small aui-iconfont-calendar">Select a date</span>
                                                     </a>
                                             </div>
                                             <input type="hidden" id="filterConditionJson" name="filterConditionJson" value="$filterConditionJson"/>
@@ -503,7 +503,8 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                             <input type="hidden" id="selectedActiveTab" name="selectedActiveTab" value="" />
                                             <input type="hidden" id="collapsedDetailsModule" name="collapsedDetailsModule" value=""/>
                                             <input type="hidden" id="collapsedSummaryModule" name="collapsedSummaryModule" value=""/>
-                                            <button type="submit" class="aui-button aui-button-primary" onclick="everit.reporting.main.beforeSubmitCreateReport()">$i18n.getText("jtrp.report.btn.create.report")</button> <!-- Submit the search form -->
+                                            <button id="create-report-button" type="submit" class="aui-button aui-button-primary" onclick="everit.reporting.main.beforeSubmitCreateReport()">$i18n.getText("jtrp.report.btn.create.report")</button> <!-- Submit the search form -->
+                                            <div class="create-report-button-spinner"></div>
                                         </form>
                                     </div>
                                 </div>
