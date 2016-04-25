@@ -53,6 +53,9 @@ import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 
 import com.atlassian.jira.bc.filter.DefaultSearchRequestService;
 import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.issue.RendererManager;
+import com.atlassian.jira.issue.fields.renderer.IssueRenderContext;
+import com.atlassian.jira.issue.fields.renderer.JiraRendererPlugin;
 import com.atlassian.jira.issue.search.SearchRequest;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
@@ -94,6 +97,8 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   private AnalyticsSender analyticsSender;
 
+  private JiraRendererPlugin atlassianWikiRenderer;
+
   private boolean collapsedDetailsModule = false;
 
   private boolean collapsedSummaryModule = false;
@@ -113,6 +118,8 @@ public class ReportingWebAction extends JiraWebActionSupport {
   private Gson gson;
 
   private String issueCollectorSrc;
+
+  private IssueRenderContext issueRenderContext;
 
   private IssueSummaryReportDTO issueSummaryReport = new IssueSummaryReportDTO();
 
@@ -153,6 +160,9 @@ public class ReportingWebAction extends JiraWebActionSupport {
     this.reportingPlugin = reportingPlugin;
     reportingCondition = new ReportingCondition(this.reportingPlugin);
     gson = new Gson();
+    issueRenderContext = new IssueRenderContext(null);
+    RendererManager rendererManager = ComponentAccessor.getRendererManager();
+    atlassianWikiRenderer = rendererManager.getRendererForType("atlassian-wiki-renderer");
     this.settingsFactory = settingsFactory;
     this.analyticsSender = analyticsSender;
   }
@@ -235,6 +245,7 @@ public class ReportingWebAction extends JiraWebActionSupport {
     } else {
       selectedMore = new ArrayList<String>();
       filterCondition = new FilterCondition();
+      selectedWorklogDetailsColumns = WorklogDetailsColumns.DEFAULT_COLUMNS;
       initDatesIfNecessary();
     }
 
@@ -295,6 +306,10 @@ public class ReportingWebAction extends JiraWebActionSupport {
     return analyticsDTO;
   }
 
+  public JiraRendererPlugin getAtlassianWikiRenderer() {
+    return atlassianWikiRenderer;
+  }
+
   public String getContextPath() {
     return contextPath;
   }
@@ -321,6 +336,10 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   public String getIssueCollectorSrc() {
     return issueCollectorSrc;
+  }
+
+  public IssueRenderContext getIssueRenderContext() {
+    return issueRenderContext;
   }
 
   public IssueSummaryReportDTO getIssueSummaryReport() {

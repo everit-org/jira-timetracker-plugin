@@ -35,7 +35,11 @@ public class IssueSummaryDTO {
 
     public static final String ISSUE_TIME_ESTIMATE_SUM = "reaminingTimeSum";
 
+    public static final String ISSUE_TYPE_ICON_URL = "issueTypeIconUrl";
+
     public static final String ISSUE_TYPE_NAME = "issueTypeName";
+
+    public static final String PRIORITY_ICON_URL = "priorityIconUrl";
 
     public static final String PRIORITY_NAME = "priorityName";
 
@@ -55,9 +59,13 @@ public class IssueSummaryDTO {
 
   private String issueSummary;
 
+  private String issueTypeIconUrl;
+
   private String issueTypeName;
 
   private long orginalEstimatedSum;
+
+  private String priorityIconUrl;
 
   private String priorityName;
 
@@ -84,12 +92,20 @@ public class IssueSummaryDTO {
     return issueSummary;
   }
 
+  public String getIssueTypeIconUrl() {
+    return issueTypeIconUrl;
+  }
+
   public String getIssueTypeName() {
     return issueTypeName;
   }
 
   public long getOrginalEstimatedSum() {
     return orginalEstimatedSum;
+  }
+
+  public String getPriorityIconUrl() {
+    return priorityIconUrl;
   }
 
   public String getPriorityName() {
@@ -120,12 +136,20 @@ public class IssueSummaryDTO {
     this.issueSummary = issueSummary;
   }
 
+  public void setIssueTypeIconUrl(final String issueTypeIconUrl) {
+    this.issueTypeIconUrl = issueTypeIconUrl;
+  }
+
   public void setIssueTypeName(final String issueTypeName) {
     this.issueTypeName = issueTypeName;
   }
 
   public void setOrginalEstimatedSum(final long orginalEstimatedSum) {
     this.orginalEstimatedSum = orginalEstimatedSum;
+  }
+
+  public void setPriorityIconUrl(final String priorityIconUrl) {
+    this.priorityIconUrl = priorityIconUrl;
   }
 
   public void setPriorityName(final String priorityName) {

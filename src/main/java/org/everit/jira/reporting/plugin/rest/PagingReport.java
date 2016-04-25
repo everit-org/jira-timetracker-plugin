@@ -38,6 +38,9 @@ import org.everit.jira.reporting.plugin.util.ConverterUtil;
 import org.everit.jira.timetracker.plugin.DurationFormatter;
 
 import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.issue.RendererManager;
+import com.atlassian.jira.issue.fields.renderer.IssueRenderContext;
+import com.atlassian.jira.issue.fields.renderer.JiraRendererPlugin;
 import com.atlassian.jira.util.I18nHelper;
 import com.atlassian.jira.web.util.OutlookDate;
 import com.atlassian.velocity.VelocityManager;
@@ -77,6 +80,16 @@ public class PagingReport {
     OutlookDate outlookDate = new OutlookDate(locale);
     contextParameters.put("outlookDate", outlookDate);
 
+    IssueRenderContext issueRenderContext = new IssueRenderContext(null);
+    contextParameters.put("issueRenderContext", issueRenderContext);
+
+    RendererManager rendererManager = ComponentAccessor.getRendererManager();
+    JiraRendererPlugin atlassianWikiRenderer =
+        rendererManager.getRendererForType("atlassian-wiki-renderer");
+    contextParameters.put("atlassianWikiRenderer", atlassianWikiRenderer);
+
+    contextParameters.put("contextPath", getContextPath());
+
     I18nHelper i18nHelper = ComponentAccessor.getI18nHelperFactory().getInstance(locale);
     contextParameters.put("i18n", i18nHelper);
   }
@@ -92,6 +105,11 @@ public class PagingReport {
 
   private FilterCondition convertJsonToFilterCondition(final String filterConditionJson) {
     return gson.fromJson(filterConditionJson, FilterCondition.class);
+  }
+
+  private String getContextPath() {
+    // FIXME zs.cz get correct context path!
+    return "";
   }
 
   /**
