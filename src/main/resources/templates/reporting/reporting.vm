@@ -60,7 +60,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
             worklogDetailsAllColumns: [ #foreach( $tmp in $worklogDetailsAllColumns )#if($velocityCount> 1),#end "$tmp" #end ],
             pageSizeLimit: $pageSizeLimit,
             notBrowsableProjectKeys: [ #foreach( $tmp in $notBrowsableProjectKeys )#if($velocityCount> 1),#end "$tmp" #end ],
-          }
+            selectedFilter:  ${filterCondition.filter},
         );
       })(everit.reporting.main, AJS.$);
     </script>
@@ -419,13 +419,27 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                             <div class="search-container filter"> <!-- This will be hidden if Basic is picked -->
                                 <div class="search-criteria-container">
                                     <div class="search-criteria">
-                                        <button type="button" data-id="group" class="criteria-selector aui-button aui-button-subtle aui-dropdown2-trigger" title="All">
-                                             <div class="criteria-wrap">
-                                                 <div class="searcherValue">
-                                                     <span id="fieldpid" class="fieldValue">Filter:</span> None
+                                         <!-- Filter Dropdown  BUTTON-->
+                                         <a id="filterPickerButton" href="#filterPickerDropDown" aria-owns="filterPickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger" ></a>
+                                         <!--Filter Dropdown-->
+                                         <div id="filterPickerDropDown" class="aui-style-default aui-dropdown2">
+                                           <div class="jttr-filter-field">
+                                             <div class='ajs-layer box-shadow'>
+                                               <div>
+                                                 <div class='form-body'>
+                                                   <div class='field-group aui-field-issuetype'>
+                                                     <select id="filterPicker" name="filterPicker"  multiple="none" >
+                                                       #foreach ($filter in $favouriteFilters)
+                                                         <option value="$filter.id"> $filter.name </option>
+                                                       #end
+                                                     </select>
+                                                   </div>
                                                  </div>
+                                               </div>
                                              </div>
-                                        </button>
+                                           </div>
+                                         </div>
+                                         <!-- Filter END-->
                                         <button type="button" class="aui-button aui-button-link" onclick="everit.reporting.main.changeFilterType('basic')">Basic</button> <!-- switch to basic -->
                                     </div>
                                 </div>
@@ -503,7 +517,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                             <input type="hidden" id="selectedActiveTab" name="selectedActiveTab" value="" />
                                             <input type="hidden" id="collapsedDetailsModule" name="collapsedDetailsModule" value=""/>
                                             <input type="hidden" id="collapsedSummaryModule" name="collapsedSummaryModule" value=""/>
-                                            <button type="submit" class="aui-button aui-button-primary" onclick="everit.reporting.main.beforeSubmitCreateReport()">$i18n.getText("jtrp.report.btn.create.report")</button> <!-- Submit the search form -->
+                                            <button type="submit" class="aui-button aui-button-primary" onsubmit="everit.reporting.main.beforeSubmitCreateReport()">$i18n.getText("jtrp.report.btn.create.report")</button> <!-- Submit the search form -->
                                         </form>
                                     </div>
                                 </div>

@@ -32,6 +32,9 @@ import org.everit.jira.reporting.plugin.util.ConverterUtil;
 public class FilterCondition {
 
   @XmlElement
+  private Long filter;
+
+  @XmlElement
   private List<String> groups =
       new ArrayList<String>(Arrays.asList(ConverterUtil.VALUE_NEGATIVE_ONE));
 
@@ -94,6 +97,10 @@ public class FilterCondition {
 
   @XmlElement
   private String worklogStartDate = "";
+
+  public Long getFilter() {
+    return filter;
+  }
 
   public List<String> getGroups() {
     return groups;
@@ -177,6 +184,10 @@ public class FilterCondition {
 
   public String getWorklogStartDate() {
     return worklogStartDate;
+  }
+
+  public void setFilter(final Long filter) {
+    this.filter = filter;
   }
 
   public void setGroups(final List<String> groups) {

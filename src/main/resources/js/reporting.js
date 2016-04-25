@@ -79,9 +79,10 @@ everit.reporting.main = everit.reporting.main || {};
     
     initWorklogDetailsColumns();
     
-    //this two not use rest
+    //this three not use rest
     initCreatedDatePicker();
     initEpicNameSelect();
+    initFilterSelect();
     
     if( reporting.values.notBrowsableProjectKeys.length ) {
       var keys = "";
@@ -682,6 +683,18 @@ everit.reporting.main = everit.reporting.main || {};
     });
     ip.handleFreeInput();
   };
+  function initFilterSelect(){
+    var selectedFilterOption = jQuery('#filterPicker [value="'reporting.values.selectedFilter'"]');
+    selectedFilterOption.attr("selected","selected");
+    var pp = new AJS.CheckboxMultiSelect({
+      element:  AJS.$("#filterPicker"),
+      submitInputVal: true,
+    });
+    updatePickerButtonText("#filterPicker" , "#filterPickerButton", AJS.I18n.getText("jtrp.picker.none.filter"));
+    jQuery("#filterPicker").on("change unselect", function() {
+      updatePickerButtonText("#filterPicker" , "#filterPickerButton", AJS.I18n.getText("jtrp.picker.none.filter"));
+    });
+  };
   
   function initEpicLinkSelect(){
     var selectedArray =  jQuery.makeArray( reporting.values.selectedEpicLinks ); 
@@ -875,6 +888,8 @@ everit.reporting.main = everit.reporting.main || {};
     
     var issueKeys = jQuery('#issuePicker').val() || [];
     
+    var filter = jQuery('#filterPicker').val() || [];
+    
     var filterCondition = {
       "groups": groups,
       "issueAffectedVersions": issueAffectedVersions,
@@ -895,6 +910,7 @@ everit.reporting.main = everit.reporting.main || {};
       "users": users,
       "worklogEndDate": worklogEndDate,
       "worklogStartDate": worklogStartDate,
+      "filter": filter,
     }
     return filterCondition;
   }
