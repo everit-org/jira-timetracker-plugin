@@ -26,7 +26,6 @@ import java.util.Random;
 
 import javax.ws.rs.core.UriBuilder;
 
-import org.everit.jira.reporting.plugin.export.column.WorklogDetailsColumns;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
@@ -149,14 +148,8 @@ public class PiwikUrlBuilder {
       final List<String> selectedWorklogDetailColumns) {
     StringBuilder sb = new StringBuilder();
     for (String column : selectedWorklogDetailColumns) {
-      if (!(WorklogDetailsColumns.PROJECT.equals(column)
-          || WorklogDetailsColumns.ISSUE_KEY.equals(column)
-          || WorklogDetailsColumns.ISSUE_SUMMARY.equals(column)
-          || WorklogDetailsColumns.TIME_SPENT.equals(column))) {
-        // only append not required columns
-        sb.append(column.replace("jtrp_col_", ""));
-        sb.append(",");
-      }
+      sb.append(column.replace("jtrp_col_", ""));
+      sb.append(",");
     }
     String columns = sb.toString();
     if (!columns.isEmpty()) {

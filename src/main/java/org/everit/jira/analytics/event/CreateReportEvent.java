@@ -24,6 +24,7 @@ import org.everit.jira.analytics.SearcherValue;
 import org.everit.jira.analytics.UserSelection;
 import org.everit.jira.reporting.plugin.dto.FilterCondition;
 import org.everit.jira.reporting.plugin.dto.PickerUserDTO;
+import org.everit.jira.reporting.plugin.util.ConverterUtil;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 
@@ -165,7 +166,7 @@ public class CreateReportEvent implements AnalyticsEvent {
     appendActiveFilterCondition(sb, users, ActiveFilterConditionName.USER);
 
     List<String> groups = new ArrayList<>(filterCondition.getGroups());
-    groups.remove("-1"); // FIXME zs.cz read from constants ConverterUtil after merge!
+    groups.remove(ConverterUtil.VALUE_NEGATIVE_ONE);
     appendActiveFilterCondition(sb, groups, ActiveFilterConditionName.GROUP);
 
     String activeFilterCondition = sb.toString();
