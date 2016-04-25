@@ -683,7 +683,7 @@ everit.reporting.main = everit.reporting.main || {};
     ip.handleFreeInput();
   };
   function initFilterSelect(){
-    var selectedFilterOption = jQuery('#filterPicker [value="'reporting.values.selectedFilter'"]');
+    var selectedFilterOption = jQuery('#filterPicker [value="'+ reporting.values.selectedFilter +'"]');
     selectedFilterOption.attr("selected","selected");
     var pp = new AJS.CheckboxMultiSelect({
       element:  AJS.$("#filterPicker"),
@@ -889,6 +889,8 @@ everit.reporting.main = everit.reporting.main || {};
     
     var filter = jQuery('#filterPicker').val() || [];
     
+    var searcherValue = jQuery('#formType').val();
+    
     var filterCondition = {
       "groups": groups,
       "issueAffectedVersions": issueAffectedVersions,
@@ -910,6 +912,7 @@ everit.reporting.main = everit.reporting.main || {};
       "worklogEndDate": worklogEndDate,
       "worklogStartDate": worklogStartDate,
       "filter": filter,
+      "searcherValue": searcherValue,
     }
     return filterCondition;
   }

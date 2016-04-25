@@ -60,7 +60,8 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
             worklogDetailsAllColumns: [ #foreach( $tmp in $worklogDetailsAllColumns )#if($velocityCount> 1),#end "$tmp" #end ],
             pageSizeLimit: $pageSizeLimit,
             notBrowsableProjectKeys: [ #foreach( $tmp in $notBrowsableProjectKeys )#if($velocityCount> 1),#end "$tmp" #end ],
-            selectedFilter:  ${filterCondition.filter},
+            selectedFilter: $filterCondition.filter,
+          }
         );
       })(everit.reporting.main, AJS.$);
     </script>
@@ -497,7 +498,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                             <div class="date-search-container">
                                 <div class="search-criteria-container">
                                     <div class="search-criteria">
-                                        <form action="ReportingWebAction.jspa" class="aui top-label reporting-form" name="reporting-form" id="reporting-form" method="get">
+                                        <form action="ReportingWebAction.jspa" onsubmit="everit.reporting.main.beforeSubmitCreateReport()" class="aui top-label reporting-form" name="reporting-form" id="reporting-form" method="get">
                                             <div class="from-date inline-calendar">
                                                 <input id="dateFrom" name="dateFrom" class="text medium-field datepicker-input" placeholder="From" type="text" value="$filterCondition.worklogStartDate"/>
                                                     <a href="#" title="Select a date">
@@ -512,12 +513,12 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                             </div>
                                             <input type="hidden" id="filterConditionJson" name="filterConditionJson" value="$filterConditionJson"/>
                                             <input type="hidden" id="selectedWorklogDetailsColumns" name="selectedWorklogDetailsColumns" value="$selectedWorklogDetailsColumns"/>
-                                            <input type="hidden" name="formType" value="basic" />
+                                            <input type="hidden" name="formType" value="BASIC" />
                                             <input type="hidden" id="selectedMoreJson" name="selectedMoreJson" value="" />
                                             <input type="hidden" id="selectedActiveTab" name="selectedActiveTab" value="" />
                                             <input type="hidden" id="collapsedDetailsModule" name="collapsedDetailsModule" value=""/>
                                             <input type="hidden" id="collapsedSummaryModule" name="collapsedSummaryModule" value=""/>
-                                            <button id="create-report-button" type="submit" class="aui-button aui-button-primary" onsubmit="everit.reporting.main.beforeSubmitCreateReport()">$i18n.getText("jtrp.report.btn.create.report")</button> <!-- Submit the search form -->
+                                            <button id="create-report-button" type="submit" class="aui-button aui-button-primary" >$i18n.getText("jtrp.report.btn.create.report")</button> <!-- Submit the search form -->
                                             <div class="create-report-button-spinner"></div>
                                         </form>
                                     </div>

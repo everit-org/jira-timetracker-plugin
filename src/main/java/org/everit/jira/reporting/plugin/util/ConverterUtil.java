@@ -19,11 +19,13 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.everit.jira.analytics.SearcherValue;
 import org.everit.jira.reporting.plugin.dto.ConvertedSearchParam;
 import org.everit.jira.reporting.plugin.dto.FilterCondition;
 import org.everit.jira.reporting.plugin.dto.PickerUserDTO;
@@ -32,13 +34,25 @@ import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 
+import com.atlassian.crowd.embedded.api.User;
+import com.atlassian.jira.bc.JiraServiceContext;
+import com.atlassian.jira.bc.JiraServiceContextImpl;
+import com.atlassian.jira.bc.filter.DefaultSearchRequestService;
+import com.atlassian.jira.bc.issue.search.SearchService;
+import com.atlassian.jira.bc.issue.search.SearchService.ParseResult;
 import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.issue.Issue;
+import com.atlassian.jira.issue.search.SearchException;
+import com.atlassian.jira.issue.search.SearchRequest;
+import com.atlassian.jira.issue.search.SearchResults;
+import com.atlassian.jira.jql.parser.JqlParseException;
 import com.atlassian.jira.permission.ProjectPermissions;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.PermissionManager;
 import com.atlassian.jira.security.groups.GroupManager;
 import com.atlassian.jira.user.ApplicationUser;
+import com.atlassian.jira.web.bean.PagerFilter;
 import com.google.gson.Gson;
 
 /**
@@ -205,47 +219,65 @@ public final class ConverterUtil {
     Calendar worklogEndDateCalendar = DateTimeConverterUtil.setDateToDayStart(worklogEndDate);
     worklogEndDateCalendar.add(Calendar.DAY_OF_MONTH, 1);
     worklogEndDate = worklogEndDateCalendar.getTime();
+    List<String> searchParamIssueKeys = Collections.emptyList();
 
     Date worklogStartDate = ConverterUtil.getRequiredDate(filterCondition.getWorklogStartDate(),
         KEY_INVALID_START_TIME);
 
-    ReportSearchParam reportSearchParam = new ReportSearchParam()
-        .issueCreateDate(
-            ConverterUtil.getDate(filterCondition.getIssueCreateDate(), KEY_INVALID_START_TIME))
-        .issueEpicLinkIssueIds(filterCondition.getIssueEpicLinkIssueIds())
-        .issuePriorityIds(filterCondition.getIssuePriorityIds())
-        .issueStatusIds(filterCondition.getIssueStatusIds())
-        .issueTypeIds(filterCondition.getIssueTypeIds())
-        .labels(filterCondition.getLabels())
-        .worklogEndDate(worklogEndDate)
+    ReportSearchParam reportSearchParam = new ReportSearchParam();
+
+    if (SearcherValue.FILTER.name().toLowerCase().equals(filterCondition.getSearcherValue())) {
+      DefaultSearchRequestService defaultSearchRequestService =
+          ComponentAccessor.getComponentOfType(DefaultSearchRequestService.class);
+      JiraAuthenticationContext authenticationContext = ComponentAccessor
+          .getJiraAuthenticationContext();
+      User loggedInUser = authenticationContext.getLoggedInUser();
+      JiraServiceContext serviceContext = new JiraServiceContextImpl(loggedInUser);
+      SearchRequest filter =
+          defaultSearchRequestService.getFilter(serviceContext, filterCondition.getFilter().get(0));
+      // TODO t.d. set to SingleSelect in js and vm. Do not use list!
+      searchParamIssueKeys = getIssuesKeyByJQL(filter.getQuery().getQueryString());
+    } else {
+      searchParamIssueKeys = filterCondition.getIssueKeys();
+      reportSearchParam.issueCreateDate(
+          ConverterUtil.getDate(filterCondition.getIssueCreateDate(), KEY_INVALID_START_TIME))
+          .issueEpicLinkIssueIds(filterCondition.getIssueEpicLinkIssueIds())
+          .issuePriorityIds(filterCondition.getIssuePriorityIds())
+          .issueStatusIds(filterCondition.getIssueStatusIds())
+          .issueTypeIds(filterCondition.getIssueTypeIds())
+          .labels(filterCondition.getLabels());
+
+      ConverterUtil.appendIssueAssignees(reportSearchParam, filterCondition.getIssueAssignees());
+
+      ConverterUtil.appendIssueReportes(reportSearchParam, filterCondition.getIssueReporters());
+
+      ConverterUtil.appendIssueResolution(reportSearchParam,
+          filterCondition.getIssueResolutionIds());
+
+      ConverterUtil.appendIssueAffectedVersions(reportSearchParam,
+          filterCondition.getIssueAffectedVersions());
+
+      ConverterUtil.appendIssueFixedVersions(reportSearchParam,
+          filterCondition.getIssueFixedVersions());
+
+      ConverterUtil.appendIssueComponents(reportSearchParam, filterCondition.getIssueComponents());
+
+      List<String> notBrowsableProjectKeys =
+          ConverterUtil.appendProjectIds(reportSearchParam, filterCondition.getProjectIds());
+
+      String epicName = filterCondition.getIssueEpicName();
+      if ((epicName != null) && !epicName.isEmpty()) {
+        reportSearchParam.issueEpicName(epicName);
+      }
+    }
+
+    reportSearchParam.worklogEndDate(worklogEndDate)
         .worklogStartDate(worklogStartDate)
-        .issueKeys(filterCondition.getIssueKeys());
-
-    ConverterUtil.appendIssueAssignees(reportSearchParam, filterCondition.getIssueAssignees());
-
-    ConverterUtil.appendIssueReportes(reportSearchParam, filterCondition.getIssueReporters());
-
-    ConverterUtil.appendIssueResolution(reportSearchParam, filterCondition.getIssueResolutionIds());
-
-    ConverterUtil.appendIssueAffectedVersions(reportSearchParam,
-        filterCondition.getIssueAffectedVersions());
-
-    ConverterUtil.appendIssueFixedVersions(reportSearchParam,
-        filterCondition.getIssueFixedVersions());
-
-    ConverterUtil.appendIssueComponents(reportSearchParam, filterCondition.getIssueComponents());
-
-    List<String> notBrowsableProjectKeys =
-        ConverterUtil.appendProjectIds(reportSearchParam, filterCondition.getProjectIds());
+        .issueKeys(searchParamIssueKeys);
 
     if (reportSearchParam.worklogStartDate.after(reportSearchParam.worklogEndDate)) {
       throw new IllegalArgumentException(KEY_WRONG_DATES);
     }
-    String epicName = filterCondition.getIssueEpicName();
-    if ((epicName != null) && !epicName.isEmpty()) {
-      reportSearchParam.issueEpicName(epicName);
-    }
-
     List<String> users = filterCondition.getUsers();
     if (!users.isEmpty() && users.contains(PickerUserDTO.NONE_USER_NAME)) {
       users = ConverterUtil.getUserNamesFromGroup(filterCondition.getGroups());
@@ -296,6 +328,28 @@ public final class ConverterUtil {
     } catch (ParseException e) {
       throw new IllegalArgumentException(errorMsgKey, e);
     }
+  }
+
+  private static List<String> getIssuesKeyByJQL(final String jql)
+      throws SearchException,
+      JqlParseException {
+    JiraAuthenticationContext authenticationContext = ComponentAccessor
+        .getJiraAuthenticationContext();
+    User loggedInUser = authenticationContext.getLoggedInUser();
+    List<String> issuesKeys = Collections.emptyList();
+    SearchService searchService = ComponentAccessor.getComponentOfType(SearchService.class);
+    ParseResult parseResult = searchService.parseQuery(loggedInUser, jql);
+    if (parseResult.isValid()) {
+      SearchResults results = searchService.search(loggedInUser,
+          parseResult.getQuery(), PagerFilter.getUnlimitedFilter());
+      List<Issue> issues = results.getIssues();
+      for (Issue issue : issues) {
+        issuesKeys.add(issue.getKey());
+      }
+    } else {
+      throw new JqlParseException(null, parseResult.getErrors().toString());
+    }
+    return issuesKeys;
   }
 
   private static Date getRequiredDate(final String date, final String errorMsgKey) {

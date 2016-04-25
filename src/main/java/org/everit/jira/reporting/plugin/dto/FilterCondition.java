@@ -32,7 +32,7 @@ import org.everit.jira.reporting.plugin.util.ConverterUtil;
 public class FilterCondition {
 
   @XmlElement
-  private Long filter;
+  private List<Long> filter = Collections.emptyList();
 
   @XmlElement
   private List<String> groups =
@@ -90,6 +90,9 @@ public class FilterCondition {
   private List<Long> projectIds = Collections.emptyList();
 
   @XmlElement
+  private String searcherValue = "";
+
+  @XmlElement
   private List<String> users = Collections.emptyList();
 
   @XmlElement
@@ -98,7 +101,7 @@ public class FilterCondition {
   @XmlElement
   private String worklogStartDate = "";
 
-  public Long getFilter() {
+  public List<Long> getFilter() {
     return filter;
   }
 
@@ -174,6 +177,10 @@ public class FilterCondition {
     return projectIds;
   }
 
+  public String getSearcherValue() {
+    return searcherValue;
+  }
+
   public List<String> getUsers() {
     return users;
   }
@@ -186,7 +193,7 @@ public class FilterCondition {
     return worklogStartDate;
   }
 
-  public void setFilter(final Long filter) {
+  public void setFilter(final List<Long> filter) {
     this.filter = filter;
   }
 
@@ -260,6 +267,10 @@ public class FilterCondition {
 
   public void setProjectIds(final List<Long> projectIds) {
     this.projectIds = projectIds;
+  }
+
+  public void setSearcherValue(final String searcherValue) {
+    this.searcherValue = searcherValue;
   }
 
   public void setUsers(final List<String> users) {
