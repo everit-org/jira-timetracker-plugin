@@ -329,6 +329,9 @@ public final class ConverterUtil {
     }
     SearchRequest filter =
         defaultSearchRequestService.getFilter(serviceContext, filterCondition.getFilter().get(0));
+    if (filter == null) {
+      throw new IllegalArgumentException(KEY_WRONG_JQL);
+    }
     searchParamIssueKeys = ConverterUtil.getIssuesKeyByJQL(filter.getQuery().getQueryString());
     return searchParamIssueKeys;
   }

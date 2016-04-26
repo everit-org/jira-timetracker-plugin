@@ -176,6 +176,22 @@
 
 /* from Atlassian AUI */
 
+.error{
+  clear: both;
+  color: #d04437;
+  display: block;
+  margin: 5px 0 0 0;
+}
+
+.basic-button{
+  margin-left: 10px;
+}
+
+.filter-label{
+  margin-right: 10px;
+  color: #707070;
+}
+
 .module {
     margin-top: 15px;
 }

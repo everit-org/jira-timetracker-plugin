@@ -421,12 +421,13 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                             <div class="search-container filter"> <!-- This will be hidden if Basic is picked -->
                                 <div class="search-criteria-container">
                                     <div class="search-criteria">
+                                      <label for="filterPicker-single-select" class="filter-label">Favorite filters</label>
                                       <select id="filterPicker" name="filterPicker">
                                           #foreach ($filter in $favouriteFilters)
                                               <option value="$filter.id"> $filter.name </option>
                                           #end
                                       </select>
-                                      <button type="button" class="aui-button aui-button-link" onclick="everit.reporting.main.changeFilterType('basic')">Basic</button> <!-- switch to basic -->
+                                      <button type="button" class="aui-button aui-button-link basic-button" onclick="everit.reporting.main.changeFilterType('basic')">Basic</button> <!-- switch to basic -->
                                     </div>
                                 </div>
                             </div>

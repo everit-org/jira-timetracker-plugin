@@ -689,7 +689,7 @@ everit.reporting.main = everit.reporting.main || {};
     selectedFilterOption.attr("selected","selected");
     var pp = new AJS.SingleSelect({
       element:  AJS.$("#filterPicker"),
-      submitInputVal: true,
+      submitInputVal: false,
     });
     jQuery("#filterPicker-field").attr("class", "text medium-field criteria-dropdown-text");
     updatePickerButtonText("#filterPicker" , "#filterPickerButton", AJS.I18n.getText("jtrp.picker.none.filter"));
