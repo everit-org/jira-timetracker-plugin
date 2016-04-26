@@ -61,6 +61,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
             pageSizeLimit: $pageSizeLimit,
             notBrowsableProjectKeys: [ #foreach( $tmp in $notBrowsableProjectKeys )#if($velocityCount> 1),#end "$tmp" #end ],
             selectedFilter: $filterCondition.filter,
+            searcherValue: "$filterCondition.searcherValue",
           }
         );
       })(everit.reporting.main, AJS.$);
@@ -420,28 +421,12 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                             <div class="search-container filter"> <!-- This will be hidden if Basic is picked -->
                                 <div class="search-criteria-container">
                                     <div class="search-criteria">
-                                         <!-- Filter Dropdown  BUTTON-->
-                                         <a id="filterPickerButton" href="#filterPickerDropDown" aria-owns="filterPickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger" ></a>
-                                         <!--Filter Dropdown-->
-                                         <div id="filterPickerDropDown" class="aui-style-default aui-dropdown2">
-                                           <div class="jttr-filter-field">
-                                             <div class='ajs-layer box-shadow'>
-                                               <div>
-                                                 <div class='form-body'>
-                                                   <div class='field-group aui-field-issuetype'>
-                                                     <select id="filterPicker" name="filterPicker"  multiple="none" >
-                                                       #foreach ($filter in $favouriteFilters)
-                                                         <option value="$filter.id"> $filter.name </option>
-                                                       #end
-                                                     </select>
-                                                   </div>
-                                                 </div>
-                                               </div>
-                                             </div>
-                                           </div>
-                                         </div>
-                                         <!-- Filter END-->
-                                        <button type="button" class="aui-button aui-button-link" onclick="everit.reporting.main.changeFilterType('basic')">Basic</button> <!-- switch to basic -->
+                                      <select id="filterPicker" name="filterPicker">
+                                          #foreach ($filter in $favouriteFilters)
+                                              <option value="$filter.id"> $filter.name </option>
+                                          #end
+                                      </select>
+                                      <button type="button" class="aui-button aui-button-link" onclick="everit.reporting.main.changeFilterType('basic')">Basic</button> <!-- switch to basic -->
                                     </div>
                                 </div>
                             </div>
@@ -513,7 +498,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                             </div>
                                             <input type="hidden" id="filterConditionJson" name="filterConditionJson" value="$filterConditionJson"/>
                                             <input type="hidden" id="selectedWorklogDetailsColumns" name="selectedWorklogDetailsColumns" value="$selectedWorklogDetailsColumns"/>
-                                            <input type="hidden" name="formType" value="BASIC" />
+                                            <input type="hidden" id="formType" name="formType" value="basic" />
                                             <input type="hidden" id="selectedMoreJson" name="selectedMoreJson" value="" />
                                             <input type="hidden" id="selectedActiveTab" name="selectedActiveTab" value="" />
                                             <input type="hidden" id="collapsedDetailsModule" name="collapsedDetailsModule" value=""/>

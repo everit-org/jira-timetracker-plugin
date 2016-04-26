@@ -100,6 +100,8 @@ everit.reporting.main = everit.reporting.main || {};
     }
 
     addTooltips();
+    
+    reporting.changeFilterType(reporting.values.searcherValue);
   });
   
   var morePickerShowFunctions = {
@@ -685,10 +687,11 @@ everit.reporting.main = everit.reporting.main || {};
   function initFilterSelect(){
     var selectedFilterOption = jQuery('#filterPicker [value="'+ reporting.values.selectedFilter +'"]');
     selectedFilterOption.attr("selected","selected");
-    var pp = new AJS.CheckboxMultiSelect({
+    var pp = new AJS.SingleSelect({
       element:  AJS.$("#filterPicker"),
       submitInputVal: true,
     });
+    jQuery("#filterPicker-field").attr("class", "text medium-field criteria-dropdown-text");
     updatePickerButtonText("#filterPicker" , "#filterPickerButton", AJS.I18n.getText("jtrp.picker.none.filter"));
     jQuery("#filterPicker").on("change unselect", function() {
       updatePickerButtonText("#filterPicker" , "#filterPickerButton", AJS.I18n.getText("jtrp.picker.none.filter"));
@@ -827,9 +830,13 @@ everit.reporting.main = everit.reporting.main || {};
     if(type === "basic") {
         searchWrap.removeClass("filter").addClass("basic");
         setMorePickerParentVisibility();
+        jQuery("#morePicker-parent").css("margin-top","10px");
+        jQuery("#issuePicker-parent").css("margin-top","10px");
     } else {
         searchWrap.removeClass("basic").addClass("filter");
         jQuery("#morePicker-parent").show();
+        jQuery("#morePicker-parent").css("margin-top","0px");
+        jQuery("#issuePicker-parent").css("margin-top","0px");
     }
   }
   

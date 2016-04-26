@@ -90,7 +90,7 @@ public class FilterCondition {
   private List<Long> projectIds = Collections.emptyList();
 
   @XmlElement
-  private String searcherValue = "";
+  private String searcherValue = ConverterUtil.DEFAULT_SEARCHER_VALUE;
 
   @XmlElement
   private List<String> users = Collections.emptyList();
