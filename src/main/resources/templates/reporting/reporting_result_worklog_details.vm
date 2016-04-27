@@ -139,7 +139,9 @@
                                 <tbody>
                                     #foreach ( $wd in $worklogDetailsReport.worklogDetails )
                                     <tr>
-                                        <td class="jtrp_col_project" style="#if( $isNotShowProject )display:none;#end">$wd.projectName</td>
+                                        <td class="jtrp_col_project" style="#if( $isNotShowProject )display:none;#end">
+                                          <a href="$contextPath/browse/$wd.projectKey" class="issue-link">$wd.projectName</a>
+                                        </td>
                                         <td class="jtrp_col_projectDescription" style="#if( $isNotShowProjectDescription )display:none;#end">#if ( $wd.projectDescription ) $wd.projectDescription #end</td>
                                         <td class="jtrp_col_issueKey" style="#if( $isNotShowIssueKey )display:none;#end">
                                           <a href="$contextPath/browse/$wd.issueKey" class="issue-link">$wd.issueKey</a>

@@ -95,8 +95,7 @@ public abstract class AbstractReportQuery {
   protected AbstractReportQuery(final ReportSearchParam reportSearchParam) {
     this.reportSearchParam = reportSearchParam;
     if (reportSearchParam.projectIds.isEmpty()) {
-      // TODO zs.cz check exception in paging and export???
-      throw new JTRPException("no_browsable_project_ids");
+      throw new JTRPException("jtrp.plugin.no_browsable_project_ids");
     }
     qIssue = new QJiraissue("issue");
     qProject = new QProject("project");
