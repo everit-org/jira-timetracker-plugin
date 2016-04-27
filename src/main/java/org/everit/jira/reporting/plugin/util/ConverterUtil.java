@@ -22,8 +22,10 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
+import org.everit.jira.analytics.SearcherValue;
 import org.everit.jira.reporting.plugin.dto.ConvertedSearchParam;
 import org.everit.jira.reporting.plugin.dto.FilterCondition;
 import org.everit.jira.reporting.plugin.dto.PickerUserDTO;
@@ -32,13 +34,25 @@ import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 
+import com.atlassian.crowd.embedded.api.User;
+import com.atlassian.jira.bc.JiraServiceContext;
+import com.atlassian.jira.bc.JiraServiceContextImpl;
+import com.atlassian.jira.bc.filter.DefaultSearchRequestService;
+import com.atlassian.jira.bc.issue.search.SearchService;
+import com.atlassian.jira.bc.issue.search.SearchService.ParseResult;
 import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.issue.Issue;
+import com.atlassian.jira.issue.search.SearchException;
+import com.atlassian.jira.issue.search.SearchRequest;
+import com.atlassian.jira.issue.search.SearchResults;
+import com.atlassian.jira.jql.parser.JqlParseException;
 import com.atlassian.jira.permission.ProjectPermissions;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.PermissionManager;
 import com.atlassian.jira.security.groups.GroupManager;
 import com.atlassian.jira.user.ApplicationUser;
+import com.atlassian.jira.web.bean.PagerFilter;
 import com.google.gson.Gson;
 
 /**
@@ -46,11 +60,17 @@ import com.google.gson.Gson;
  */
 public final class ConverterUtil {
 
+  public static final String DEFAULT_SEARCHER_VALUE = "basic";
+
   private static final String KEY_INVALID_END_TIME = "plugin.invalid_endTime";
 
   private static final String KEY_INVALID_START_TIME = "plugin.invalid_startTime";
 
+  private static final String KEY_MISSING_JQL = "jtrp.plugin.missing.jql";
+
   private static final String KEY_WRONG_DATES = "plugin.wrong.dates";
+
+  private static final String KEY_WRONG_JQL = "jtrp.plugin.wrong.jql";
 
   public static final String VALUE_NEGATIVE_ONE = "-1";
 
@@ -182,6 +202,18 @@ public final class ConverterUtil {
     return notBrowsableProjectKeys;
   }
 
+  private static void collectUsersFromParams(final FilterCondition filterCondition,
+      final ReportSearchParam reportSearchParam) {
+    List<String> users = filterCondition.getUsers();
+    if (!users.isEmpty() && users.contains(PickerUserDTO.NONE_USER_NAME)) {
+      users = ConverterUtil.getUserNamesFromGroup(filterCondition.getGroups());
+    } else if (users.contains(PickerUserDTO.CURRENT_USER_NAME)) {
+      users.remove(PickerUserDTO.CURRENT_USER_NAME);
+      users.add(JiraTimetrackerUtil.getLoggedUserName());
+    }
+    reportSearchParam.users(users);
+  }
+
   /**
    * Convert {@link FilterCondition} object to {@link ConvertedSearchParam} object.
    *
@@ -209,51 +241,36 @@ public final class ConverterUtil {
     Date worklogStartDate = ConverterUtil.getRequiredDate(filterCondition.getWorklogStartDate(),
         KEY_INVALID_START_TIME);
 
-    ReportSearchParam reportSearchParam = new ReportSearchParam()
-        .issueCreateDate(
-            ConverterUtil.getDate(filterCondition.getIssueCreateDate(), KEY_INVALID_START_TIME))
-        .issueEpicLinkIssueIds(filterCondition.getIssueEpicLinkIssueIds())
-        .issuePriorityIds(filterCondition.getIssuePriorityIds())
-        .issueStatusIds(filterCondition.getIssueStatusIds())
-        .issueTypeIds(filterCondition.getIssueTypeIds())
-        .labels(filterCondition.getLabels())
-        .worklogEndDate(worklogEndDate)
+    ReportSearchParam reportSearchParam = new ReportSearchParam();
+    List<String> searchParamIssueKeys;
+    List<String> notBrowsableProjectKeys;
+
+    if (SearcherValue.FILTER.name().toLowerCase(Locale.getDefault())
+        .equals(filterCondition.getSearcherValue())) {
+      try {
+        searchParamIssueKeys = ConverterUtil.getIssueKeysFromFilterSearcerValue(filterCondition);
+        notBrowsableProjectKeys =
+            ConverterUtil.appendProjectIds(reportSearchParam, new ArrayList<Long>());
+      } catch (SearchException | JqlParseException e) {
+        throw new IllegalArgumentException(KEY_WRONG_JQL);
+      }
+    } else {
+      searchParamIssueKeys = filterCondition.getIssueKeys();
+
+      ConverterUtil.setBasicSearcherValuesParams(filterCondition, reportSearchParam);
+
+      notBrowsableProjectKeys =
+          ConverterUtil.appendProjectIds(reportSearchParam, filterCondition.getProjectIds());
+    }
+
+    reportSearchParam.worklogEndDate(worklogEndDate)
         .worklogStartDate(worklogStartDate)
-        .issueKeys(filterCondition.getIssueKeys());
-
-    ConverterUtil.appendIssueAssignees(reportSearchParam, filterCondition.getIssueAssignees());
-
-    ConverterUtil.appendIssueReportes(reportSearchParam, filterCondition.getIssueReporters());
-
-    ConverterUtil.appendIssueResolution(reportSearchParam, filterCondition.getIssueResolutionIds());
-
-    ConverterUtil.appendIssueAffectedVersions(reportSearchParam,
-        filterCondition.getIssueAffectedVersions());
-
-    ConverterUtil.appendIssueFixedVersions(reportSearchParam,
-        filterCondition.getIssueFixedVersions());
-
-    ConverterUtil.appendIssueComponents(reportSearchParam, filterCondition.getIssueComponents());
-
-    List<String> notBrowsableProjectKeys =
-        ConverterUtil.appendProjectIds(reportSearchParam, filterCondition.getProjectIds());
+        .issueKeys(searchParamIssueKeys);
 
     if (reportSearchParam.worklogStartDate.after(reportSearchParam.worklogEndDate)) {
       throw new IllegalArgumentException(KEY_WRONG_DATES);
     }
-    String epicName = filterCondition.getIssueEpicName();
-    if ((epicName != null) && !epicName.isEmpty()) {
-      reportSearchParam.issueEpicName(epicName);
-    }
-
-    List<String> users = filterCondition.getUsers();
-    if (!users.isEmpty() && users.contains(PickerUserDTO.NONE_USER_NAME)) {
-      users = ConverterUtil.getUserNamesFromGroup(filterCondition.getGroups());
-    } else if (users.contains(PickerUserDTO.CURRENT_USER_NAME)) {
-      users.remove(PickerUserDTO.CURRENT_USER_NAME);
-      users.add(JiraTimetrackerUtil.getLoggedUserName());
-    }
-    reportSearchParam.users(users);
+    ConverterUtil.collectUsersFromParams(filterCondition, reportSearchParam);
 
     if (filterCondition.getOffset() != null) {
       reportSearchParam.offset(filterCondition.getOffset());
@@ -298,6 +315,49 @@ public final class ConverterUtil {
     }
   }
 
+  private static List<String> getIssueKeysFromFilterSearcerValue(
+      final FilterCondition filterCondition) throws SearchException, JqlParseException {
+    List<String> searchParamIssueKeys;
+    DefaultSearchRequestService defaultSearchRequestService =
+        ComponentAccessor.getComponentOfType(DefaultSearchRequestService.class);
+    JiraAuthenticationContext authenticationContext = ComponentAccessor
+        .getJiraAuthenticationContext();
+    User loggedInUser = authenticationContext.getLoggedInUser();
+    JiraServiceContext serviceContext = new JiraServiceContextImpl(loggedInUser);
+    if (filterCondition.getFilter().isEmpty()) {
+      throw new IllegalArgumentException(KEY_MISSING_JQL);
+    }
+    SearchRequest filter =
+        defaultSearchRequestService.getFilter(serviceContext, filterCondition.getFilter().get(0));
+    if (filter == null) {
+      throw new IllegalArgumentException(KEY_WRONG_JQL);
+    }
+    searchParamIssueKeys = ConverterUtil.getIssuesKeyByJQL(filter.getQuery().getQueryString());
+    return searchParamIssueKeys;
+  }
+
+  private static List<String> getIssuesKeyByJQL(final String jql)
+      throws SearchException,
+      JqlParseException {
+    JiraAuthenticationContext authenticationContext = ComponentAccessor
+        .getJiraAuthenticationContext();
+    User loggedInUser = authenticationContext.getLoggedInUser();
+    List<String> issuesKeys = new ArrayList<String>();
+    SearchService searchService = ComponentAccessor.getComponentOfType(SearchService.class);
+    ParseResult parseResult = searchService.parseQuery(loggedInUser, jql);
+    if (parseResult.isValid()) {
+      SearchResults results = searchService.search(loggedInUser,
+          parseResult.getQuery(), PagerFilter.getUnlimitedFilter());
+      List<Issue> issues = results.getIssues();
+      for (Issue issue : issues) {
+        issuesKeys.add(issue.getKey());
+      }
+    } else {
+      throw new JqlParseException(null, parseResult.getErrors().toString());
+    }
+    return issuesKeys;
+  }
+
   private static Date getRequiredDate(final String date, final String errorMsgKey) {
     Date parsedDate = ConverterUtil.getDate(date, errorMsgKey);
     if (parsedDate == null) {
@@ -314,6 +374,37 @@ public final class ConverterUtil {
       userNames.addAll(userNamesInGroup);
     }
     return userNames;
+  }
+
+  private static void setBasicSearcherValuesParams(final FilterCondition filterCondition,
+      final ReportSearchParam reportSearchParam) {
+    reportSearchParam.issueCreateDate(
+        ConverterUtil.getDate(filterCondition.getIssueCreateDate(), KEY_INVALID_START_TIME))
+        .issueEpicLinkIssueIds(filterCondition.getIssueEpicLinkIssueIds())
+        .issuePriorityIds(filterCondition.getIssuePriorityIds())
+        .issueStatusIds(filterCondition.getIssueStatusIds())
+        .issueTypeIds(filterCondition.getIssueTypeIds())
+        .labels(filterCondition.getLabels());
+
+    ConverterUtil.appendIssueAssignees(reportSearchParam, filterCondition.getIssueAssignees());
+
+    ConverterUtil.appendIssueReportes(reportSearchParam, filterCondition.getIssueReporters());
+
+    ConverterUtil.appendIssueResolution(reportSearchParam,
+        filterCondition.getIssueResolutionIds());
+
+    ConverterUtil.appendIssueAffectedVersions(reportSearchParam,
+        filterCondition.getIssueAffectedVersions());
+
+    ConverterUtil.appendIssueFixedVersions(reportSearchParam,
+        filterCondition.getIssueFixedVersions());
+
+    ConverterUtil.appendIssueComponents(reportSearchParam, filterCondition.getIssueComponents());
+
+    String epicName = filterCondition.getIssueEpicName();
+    if ((epicName != null) && !epicName.isEmpty()) {
+      reportSearchParam.issueEpicName(epicName);
+    }
   }
 
   private ConverterUtil() {

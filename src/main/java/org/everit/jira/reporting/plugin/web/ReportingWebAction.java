@@ -51,10 +51,12 @@ import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 
+import com.atlassian.jira.bc.filter.DefaultSearchRequestService;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.issue.RendererManager;
 import com.atlassian.jira.issue.fields.renderer.IssueRenderContext;
 import com.atlassian.jira.issue.fields.renderer.JiraRendererPlugin;
+import com.atlassian.jira.issue.search.SearchRequest;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.google.gson.Gson;
@@ -106,6 +108,8 @@ public class ReportingWebAction extends JiraWebActionSupport {
   private Class<DateTimeConverterUtil> dateConverterUtil = DateTimeConverterUtil.class;
 
   private DurationFormatter durationFormatter = new DurationFormatter();
+
+  public List<SearchRequest> favouriteFilters;
 
   private FilterCondition filterCondition;
 
@@ -218,6 +222,10 @@ public class ReportingWebAction extends JiraWebActionSupport {
       setReturnUrl(JIRA_HOME_URL);
       return getRedirect(NONE);
     }
+    // DefaultSearchRequestManager srm =
+    // ComponentAccessor.getComponentOfType(DefaultSearchRequestManager.class);
+
+    loadFavoriteFilters();
 
     loadPageSizeLimit();
 
@@ -257,6 +265,8 @@ public class ReportingWebAction extends JiraWebActionSupport {
     }
 
     normalizeContextPath();
+
+    loadFavoriteFilters();
 
     loadPageSizeLimit();
     loadIssueCollectorSrc();
@@ -310,6 +320,10 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   public DurationFormatter getDurationFormatter() {
     return durationFormatter;
+  }
+
+  public List<SearchRequest> getFavouriteFilters() {
+    return favouriteFilters;
   }
 
   public FilterCondition getFilterCondition() {
@@ -404,6 +418,13 @@ public class ReportingWebAction extends JiraWebActionSupport {
     return (ReportingSessionData) data;
   }
 
+  private void loadFavoriteFilters() {
+    DefaultSearchRequestService defaultSearchRequestService =
+        ComponentAccessor.getComponentOfType(DefaultSearchRequestService.class);
+    favouriteFilters = new ArrayList<SearchRequest>(
+        defaultSearchRequestService.getFavouriteFilters(getLoggedInApplicationUser()));
+  }
+
   private void loadIssueCollectorSrc() {
     Properties properties = PropertiesUtil.getJttpBuildProperties();
     issueCollectorSrc = properties.getProperty(ISSUE_COLLECTOR_SRC);
@@ -450,6 +471,10 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   public void setContextPath(final String contextPath) {
     this.contextPath = contextPath;
+  }
+
+  public void setFavouriteFilters(final List<SearchRequest> favouriteFilters) {
+    this.favouriteFilters = favouriteFilters;
   }
 
   public void setMessage(final String message) {

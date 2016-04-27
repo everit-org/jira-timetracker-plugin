@@ -79,9 +79,10 @@ everit.reporting.main = everit.reporting.main || {};
     
     initWorklogDetailsColumns();
     
-    //this two not use rest
+    //this three not use rest
     initCreatedDatePicker();
     initEpicNameSelect();
+    initFilterSelect();
     
     if( reporting.values.notBrowsableProjectKeys.length ) {
       var keys = "";
@@ -99,6 +100,8 @@ everit.reporting.main = everit.reporting.main || {};
     }
 
     addTooltips();
+    
+    reporting.changeFilterType(reporting.values.searcherValue);
   });
   
   var morePickerShowFunctions = {
@@ -681,6 +684,19 @@ everit.reporting.main = everit.reporting.main || {};
     });
     ip.handleFreeInput();
   };
+  function initFilterSelect(){
+    var selectedFilterOption = jQuery('#filterPicker [value="'+ reporting.values.selectedFilter +'"]');
+    selectedFilterOption.attr("selected","selected");
+    var pp = new AJS.SingleSelect({
+      element:  AJS.$("#filterPicker"),
+      submitInputVal: false,
+    });
+    jQuery("#filterPicker-field").attr("class", "text medium-field criteria-dropdown-text");
+    updatePickerButtonText("#filterPicker" , "#filterPickerButton", AJS.I18n.getText("jtrp.picker.none.filter"));
+    jQuery("#filterPicker").on("change unselect", function() {
+      updatePickerButtonText("#filterPicker" , "#filterPickerButton", AJS.I18n.getText("jtrp.picker.none.filter"));
+    });
+  };
   
   function initEpicLinkSelect(){
     var selectedArray =  jQuery.makeArray( reporting.values.selectedEpicLinks ); 
@@ -814,9 +830,13 @@ everit.reporting.main = everit.reporting.main || {};
     if(type === "basic") {
         searchWrap.removeClass("filter").addClass("basic");
         setMorePickerParentVisibility();
+        jQuery("#morePicker-parent").css("margin-top","10px");
+        jQuery("#issuePicker-parent").css("margin-top","10px");
     } else {
         searchWrap.removeClass("basic").addClass("filter");
         jQuery("#morePicker-parent").show();
+        jQuery("#morePicker-parent").css("margin-top","0px");
+        jQuery("#issuePicker-parent").css("margin-top","0px");
     }
   }
   
@@ -874,6 +894,10 @@ everit.reporting.main = everit.reporting.main || {};
     
     var issueKeys = jQuery('#issuePicker').val() || [];
     
+    var filter = jQuery('#filterPicker').val() || [];
+    
+    var searcherValue = jQuery('#formType').val();
+    
     var filterCondition = {
       "groups": groups,
       "issueAffectedVersions": issueAffectedVersions,
@@ -894,6 +918,8 @@ everit.reporting.main = everit.reporting.main || {};
       "users": users,
       "worklogEndDate": worklogEndDate,
       "worklogStartDate": worklogStartDate,
+      "filter": filter,
+      "searcherValue": searcherValue,
     }
     return filterCondition;
   }
