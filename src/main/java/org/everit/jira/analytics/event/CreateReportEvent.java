@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Objects;
 
 import org.everit.jira.analytics.PiwikUrlBuilder;
-import org.everit.jira.analytics.SearcherValue;
 import org.everit.jira.analytics.UserSelection;
 import org.everit.jira.reporting.plugin.dto.FilterCondition;
 import org.everit.jira.reporting.plugin.dto.PickerUserDTO;
@@ -127,7 +126,6 @@ public class CreateReportEvent implements AnalyticsEvent {
 
   @Override
   public String getUrl() {
-    // TODO zs.cz check SearcherValue! Maybe jql string not null or empty???
     StringBuilder sb = new StringBuilder();
 
     appendActiveFilterCondition(sb, filterCondition.getProjectIds(),
@@ -185,7 +183,7 @@ public class CreateReportEvent implements AnalyticsEvent {
             .addEventCategory(EVENT_CATEGORY)
             .addEventAction(EVENT_ACTION)
             .addCustomDimesionSelectedActiveTab(selectedActiveTab)
-            .addCustomDimesionSearcherValue(SearcherValue.BASIC)
+            .addCustomDimesionSearcherValue(filterCondition.getSearcherValue())
             .addCustomDimesionSelectedWorklogDetailColumns(selectedWorklogDetailColumns)
             .addCustomDimesionActiveFilterCondition(activeFilterCondition)
             .addCustomDimesionUserSelecton(userSelection)
