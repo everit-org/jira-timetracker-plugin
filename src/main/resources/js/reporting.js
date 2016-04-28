@@ -481,6 +481,7 @@ everit.reporting.main = everit.reporting.main || {};
         jQuery("#groupPicker").on("change unselect", function() {
           updatePickerButtonTextWithNone("#groupPicker" , "#groupPickerButton", AJS.I18n.getText("jtrp.picker.all.group"),  AJS.I18n.getText("jtrp.picker.none.group"), "-1");
         });
+      
         var groupPickerNone = jQuery('#groupPicker-suggestions [value="-1"]');
         groupPickerNone.on("click", function(event) {
           if(typeof event.fakeClick === 'undefined'){
