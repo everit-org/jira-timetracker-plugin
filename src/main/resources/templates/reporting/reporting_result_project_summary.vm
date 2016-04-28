@@ -20,8 +20,8 @@
                                             <th>$i18n.getText("jtrp.report.ps.col.jtrp_col_project")</th>
                                             <th>$i18n.getText("jtrp.report.ps.col.jtrp_col_projectKey")</th>
                                             <th>$i18n.getText("jtrp.report.ps.col.jtrp_col_estimated")</th>
-                                            <th>$i18n.getText("jtrp.report.ps.col.jtrp_col_totalLogged")</th>
                                             <th>$i18n.getText("jtrp.report.ps.col.jtrp_col_remaining")</th>
+                                            <th>$i18n.getText("jtrp.report.ps.col.jtrp_col_totalLogged")</th>
                                             <th>$i18n.getText("jtrp.report.ps.col.jtrp_col_expectedTotal") <span id="project-expected-tooltip" class="aui-icon aui-icon-small aui-iconfont-help" title="$i18n.getText('jtrp.report.ps.col.jtrp_col_expectedTotal.help')"></span></th>
                                         </tr>
                                     </thead>
@@ -33,8 +33,8 @@
                                               <a href="$contextPath/browse/$ps.projectKey" class="tinylink">$ps.projectKey</a>
                                             </td>
                                             <td>$durationFormatter.exactDuration($ps.issuesOrginalEstimatedSum)</td>
-                                            <td>$durationFormatter.exactDuration($ps.workloggedTimeSum)</td>
                                             <td>$durationFormatter.exactDuration($ps.issuesReaminingTimeSum)</td>
+                                            <td>$durationFormatter.exactDuration($ps.workloggedTimeSum)</td>
                                             <td>$durationFormatter.exactDuration($ps.expectedTotal)</td>
                                         </tr>
                                         #end

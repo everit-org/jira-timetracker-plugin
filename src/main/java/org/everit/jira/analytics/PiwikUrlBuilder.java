@@ -128,8 +128,8 @@ public class PiwikUrlBuilder {
   /**
    * Add searcher value custom dimension parameter to URL.
    */
-  public PiwikUrlBuilder addCustomDimesionSearcherValue(final SearcherValue searcherValue) {
-    parameters.add(searcherValueParam + "=" + encodeParamValue(searcherValue.name()));
+  public PiwikUrlBuilder addCustomDimesionSearcherValue(final String searcherValue) {
+    parameters.add(searcherValueParam + "=" + encodeParamValue(searcherValue));
     return this;
   }
 

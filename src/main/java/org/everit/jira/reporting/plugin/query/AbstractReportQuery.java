@@ -40,7 +40,6 @@ import org.everit.jira.querydsl.schema.QWorklog;
 import org.everit.jira.querydsl.support.QuerydslCallable;
 import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
 import org.everit.jira.reporting.plugin.exception.JTRPException;
-import org.everit.jira.reporting.plugin.query.util.QueryUtil;
 
 import com.atlassian.jira.entity.Entity;
 import com.atlassian.jira.issue.IssueRelationConstants;
@@ -95,8 +94,7 @@ public abstract class AbstractReportQuery {
   protected AbstractReportQuery(final ReportSearchParam reportSearchParam) {
     this.reportSearchParam = reportSearchParam;
     if (reportSearchParam.projectIds.isEmpty()) {
-      // TODO zs.cz check exception in paging and export???
-      throw new JTRPException("no_browsable_project_ids");
+      throw new JTRPException("jtrp.plugin.no_browsable_project_ids");
     }
     qIssue = new QJiraissue("issue");
     qProject = new QProject("project");
@@ -435,9 +433,19 @@ public abstract class AbstractReportQuery {
 
   private BooleanExpression filterToIssueIds(final QJiraissue qIssue,
       final BooleanExpression where) {
+    QJiraissue subQueryIssue = new QJiraissue("subQueryIssue");
+    QProject subQueryProject = new QProject("subQueryProject");
     if (!reportSearchParam.issueKeys.isEmpty()) {
-      return where.and(
-          QueryUtil.createIssueKeyExpression(qIssue, qProject).in(reportSearchParam.issueKeys));
+      BooleanExpression predicate = expressionFalse;
+      for (String issueKey : reportSearchParam.issueKeys) {
+        String[] split = issueKey.split("-");
+        predicate = predicate.or(subQueryProject.pkey.eq(split[0])
+            .and(subQueryIssue.issuenum.stringValue().eq(split[1])));
+      }
+      return where.and(qIssue.id.in(SQLExpressions.select(subQueryIssue.id)
+          .from(subQueryIssue)
+          .join(subQueryProject).on(subQueryIssue.project.eq(subQueryProject.id))
+          .where(predicate)));
     }
     return where;
   }

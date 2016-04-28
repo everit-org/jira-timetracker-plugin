@@ -121,6 +121,7 @@ public class WorklogDetailsReportQueryBuilder extends AbstractReportQuery {
     StringExpression userExpression = QueryUtil.createUserExpression(qCwdUser, qWorklog);
     return Projections.bean(WorklogDetailsDTO.class,
         qProject.pname.as(WorklogDetailsDTO.AliasNames.PROJECT_NAME),
+        qProject.pkey.as(WorklogDetailsDTO.AliasNames.PROJECT_KEY),
         issueKey.as(WorklogDetailsDTO.AliasNames.ISSUE_KEY),
         qIssue.summary.as(WorklogDetailsDTO.AliasNames.ISSUE_SUMMARY),
         qIssue.id.as(WorklogDetailsDTO.AliasNames.ISSUE_ID),

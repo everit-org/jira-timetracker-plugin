@@ -108,8 +108,7 @@ public class PagingReport {
   }
 
   private String getContextPath() {
-    // FIXME zs.cz get correct context path!
-    return "";
+    return ComponentAccessor.getWebResourceUrlProvider().getBaseUrl();
   }
 
   /**

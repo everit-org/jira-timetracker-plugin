@@ -59,6 +59,8 @@ public class WorklogDetailsDTO {
 
     public static final String PROJECT_DESCRIPTION = "projectDescription";
 
+    public static final String PROJECT_KEY = "projectKey";
+
     public static final String PROJECT_NAME = "projectName";
 
     public static final String RESOLUTION_NAME = "resolutionName";
@@ -114,6 +116,8 @@ public class WorklogDetailsDTO {
   private String priorityName;
 
   private String projectDescription;
+
+  private String projectKey;
 
   private String projectName;
 
@@ -213,6 +217,10 @@ public class WorklogDetailsDTO {
 
   public String getProjectDescription() {
     return projectDescription;
+  }
+
+  public String getProjectKey() {
+    return projectKey;
   }
 
   public String getProjectName() {
@@ -335,6 +343,10 @@ public class WorklogDetailsDTO {
 
   public void setProjectDescription(final String projectDescription) {
     this.projectDescription = projectDescription;
+  }
+
+  public void setProjectKey(final String projectKey) {
+    this.projectKey = projectKey;
   }
 
   public void setProjectName(final String projectName) {
