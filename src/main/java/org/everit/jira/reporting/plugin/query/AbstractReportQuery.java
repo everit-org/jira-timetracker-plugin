@@ -57,6 +57,10 @@ import com.querydsl.sql.SQLQuery;
 /**
  * Abstract implementation of {@link QuerydslCallable}. Provide source (from), joins and filter
  * condition to report queries.
+ *
+ * @param <T>
+ *          Type of the return value.
+ *
  */
 public abstract class AbstractReportQuery<T> {
 
