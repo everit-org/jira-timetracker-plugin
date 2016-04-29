@@ -1005,9 +1005,7 @@ everit.reporting.main = everit.reporting.main || {};
     
     jQuery('#reporting-result').addClass('pending');
     var $createReportButton = jQuery('#create-report-button');
-    // FIXME zs.cz check send form again if click button again!!! 
-    // in chrome not send from if add disabled button check  
-    // $createReportButton.attr('disabled', 'disabled');
+    $createReportButton.attr('disabled', 'disabled');
     $createReportButton.attr('aria-disabled', 'true');
     jQuery('.create-report-button-spinner').spin('small');
     return true;
@@ -1065,7 +1063,6 @@ everit.reporting.main = everit.reporting.main || {};
   }
   
   reporting.getUserSummaryPage = function(offset) {
-    // FIXME zs.cz possible to simplest solution?? (4 paging)
     var url = contextPath + "/rest/jttp-rest/1/paging-report/pageUserSummary?filterConditionJson=";
     var filterConditionJson = jQuery('#filterConditionJson').val();
     var filterCondition = JSON.parse(filterConditionJson);
