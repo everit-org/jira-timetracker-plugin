@@ -1005,8 +1005,6 @@ everit.reporting.main = everit.reporting.main || {};
     
     jQuery('#reporting-result').addClass('pending');
     var $createReportButton = jQuery('#create-report-button');
-    // FIXME zs.cz check send form again if click button again!!! 
-    // in chrome not send from if add disabled button check  
     $createReportButton.attr('disabled', 'disabled');
     $createReportButton.attr('aria-disabled', 'true');
     jQuery('.create-report-button-spinner').spin('small');
