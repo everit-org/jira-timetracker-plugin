@@ -20,7 +20,7 @@
   <plugin-info>
     <version>${project.version}</version>
     <description>Timetracker</description>
-    <application-version min="6.3" />
+    <application-version min="7.0" />
     <vendor name="EverIT Kft." url="https://www.everit.biz" />
     <param name="atlassian-data-center-compatible">true</param>
     <param name="configure.url">/secure/admin/JiraTimetrackerAdminSettingsWebAction!default.jspa</param>
