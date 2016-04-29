@@ -37,16 +37,14 @@ import com.querydsl.sql.SQLQuery;
 /**
  * Queries for project summary report.
  */
-public class ProjectSummaryReportQueryBuilder extends AbstractReportQuery {
+public class ProjectSummaryReportQueryBuilder extends AbstractReportQuery<ProjectSummaryDTO> {
 
   public ProjectSummaryReportQueryBuilder(final ReportSearchParam reportSearchParam) {
     super(reportSearchParam);
   }
 
-  /**
-   * Build count project summary query.
-   */
-  public QuerydslCallable<Long> buildCountQuery() {
+  @Override
+  protected QuerydslCallable<Long> getCountQuery() {
     return new QuerydslCallable<Long>() {
       @Override
       public Long call(final Connection connection, final Configuration configuration)
@@ -70,10 +68,8 @@ public class ProjectSummaryReportQueryBuilder extends AbstractReportQuery {
     };
   }
 
-  /**
-   * Build project summary query.
-   */
-  public QuerydslCallable<List<ProjectSummaryDTO>> buildQuery() {
+  @Override
+  protected QuerydslCallable<List<ProjectSummaryDTO>> getQuery() {
     return new QuerydslCallable<List<ProjectSummaryDTO>>() {
 
       @Override
