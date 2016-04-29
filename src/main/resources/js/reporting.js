@@ -229,20 +229,24 @@ everit.reporting.main = everit.reporting.main || {};
       element:  jQuery("#morePicker"),
       submitInputVal: true,
     });
-    jQuery('#morePicker-suggestions input[type="checkbox"]').on("click", function() {
-      var clickedOptionValue = jQuery(this).val();
-      if(jQuery("#" + clickedOptionValue).is(":visible")){
-        jQuery("#" + clickedOptionValue).hide();
-        morePickerHideFunctions[clickedOptionValue]();
-        setMorePickerParentVisibility();
-      }else{
-        morePickerShowFunctions[clickedOptionValue]();
-        jQuery("#" + clickedOptionValue).show();
-        if(clickedOptionValue != "issuePicker-parent"){ 
-          jQuery("#morePicker-parent").show();
-        }
+    pp._setDescriptorSelection = function(descriptor, $input) {
+      var clickedOptionValue = descriptor.value();
+      if (!descriptor.selected()) {
+          this.selectItem(descriptor);
+          $input.attr("checked", "checked");
+          morePickerShowFunctions[clickedOptionValue]();
+          jQuery("#" + clickedOptionValue).show();
+          if(clickedOptionValue != "issuePicker-parent"){ 
+            jQuery("#morePicker-parent").show();
+          }
+      } else {
+          this.unselectItem(descriptor);
+          $input.removeAttr("checked");
+          jQuery("#" + clickedOptionValue).hide();
+          morePickerHideFunctions[clickedOptionValue]();
+          setMorePickerParentVisibility();
       }
-     });
+    };
   };
 
   function setMorePickerParentVisibility(){
@@ -410,20 +414,26 @@ everit.reporting.main = everit.reporting.main || {};
           element:  AJS.$("#userPicker"),
           submitInputVal: true,
         });
+        pp._setDescriptorSelection = function(descriptor, $input) {
+          var descriptValue = descriptor.value();
+          if (!descriptor.selected()) {
+              this.selectItem(descriptor);
+              $input.attr("checked", "checked");
+              if(descriptValue == "none"){
+                var triggerData = {type:"click",name:"UserSelectClick",fakeClick:true};
+                jQuery('#userPicker-suggestions input[checked="checked"][value!="none"]').click();
+                jQuery('#groupPicker-suggestions [value="-1"]').trigger(triggerData);
+                jQuery("#groupPickerButton").attr("aria-disabled", false);
+              }
+          } else {
+              this.unselectItem(descriptor);
+              $input.removeAttr("checked");
+          }
+        };
+        
         updatePickerButtonTextWithNone("#userPicker" , "#userPickerButton",  AJS.I18n.getText("jtrp.picker.all.user"),  AJS.I18n.getText("jtrp.picker.none.user"), "none");
         jQuery("#userPicker").on("change unselect", function() {
           updatePickerButtonTextWithNone("#userPicker" , "#userPickerButton", AJS.I18n.getText("jtrp.picker.all.user"),  AJS.I18n.getText("jtrp.picker.none.user"), "none");
-        });
-       var userPickerNone = jQuery('#userPicker-suggestions [value="none"]');
-       userPickerNone.on("click", function(event) {
-         if(typeof event.fakeClick === 'undefined'){
-           var triggerData = {type:"click",name:"UserSelectClick",fakeClick:true};
-           jQuery('#userPicker-suggestions input[checked="checked"][value!="none"]').click();
-           //group select None fake click- disable false
-           jQuery('#groupPicker-suggestions [value="-1"]').trigger(triggerData);
-           //group select disable false
-           jQuery("#groupPickerButton").attr("aria-disabled", false);
-         }
         });
      
       },
@@ -477,20 +487,28 @@ everit.reporting.main = everit.reporting.main || {};
               element:  AJS.$("#groupPicker"),
               submitInputVal: true,
         });
+        pp._setDescriptorSelection = function(descriptor, $input) {
+          var descriptValue = descriptor.value();
+          if (!descriptor.selected()) {
+              this.selectItem(descriptor);
+              $input.attr("checked", "checked");
+              if(descriptValue == "-1"){
+                var triggerData = {type:"click",name:"GroupSelectClick",fakeClick:true};
+                jQuery('#groupPicker-suggestions input[checked="checked"][value!="-1"]').click();
+                jQuery('#userPicker-suggestions [value="none"]').trigger(triggerData);
+                jQuery("#userPickerButton").attr("aria-disabled", false);
+              }
+          } else {
+              this.unselectItem(descriptor);
+              $input.removeAttr("checked");
+          }
+        };
+        
         updatePickerButtonTextWithNone("#groupPicker" , "#groupPickerButton",  AJS.I18n.getText("jtrp.picker.all.group"),  AJS.I18n.getText("jtrp.picker.none.group"), "-1");
         jQuery("#groupPicker").on("change unselect", function() {
           updatePickerButtonTextWithNone("#groupPicker" , "#groupPickerButton", AJS.I18n.getText("jtrp.picker.all.group"),  AJS.I18n.getText("jtrp.picker.none.group"), "-1");
         });
       
-        var groupPickerNone = jQuery('#groupPicker-suggestions [value="-1"]');
-        groupPickerNone.on("click", function(event) {
-          if(typeof event.fakeClick === 'undefined'){
-            jQuery('#groupPicker-suggestions input[checked="checked"][value!="-1"]').click();
-            var triggerData = {type:"click",name:"GroupSelectClick",fakeClick:true};
-            jQuery('#userPicker-suggestions [value="none"]').trigger(triggerData);
-            jQuery("#userPickerButton").attr("aria-disabled", false);
-          }
-        });
       },
       error : function(XMLHttpRequest, status, error){
       }
@@ -1079,19 +1097,23 @@ everit.reporting.main = everit.reporting.main || {};
       submitInputVal: true,
     });
     
-    jQuery('#detailsColumns-suggestions input[type="checkbox"]').on("click", function() {
-      var clickedOptionValue = jQuery(this).val();
-      if(jQuery("." + clickedOptionValue).is(":visible")){
-        var index = reporting.values.worklogDetailsColumns.indexOf(clickedOptionValue);
-        if(index > 0) {
-          reporting.values.worklogDetailsColumns.splice(index, 1);
-        }
-        jQuery("." + clickedOptionValue).hide();
-      }else{
-        jQuery("." + clickedOptionValue).show();
-        reporting.values.worklogDetailsColumns.push(clickedOptionValue);
+    pp._setDescriptorSelection = function(descriptor, $input) {
+      var clickedOptionValue = descriptor.value();
+      if (!descriptor.selected()) {
+          this.selectItem(descriptor);
+          $input.attr("checked", "checked");
+          jQuery("." + clickedOptionValue).show();
+          reporting.values.worklogDetailsColumns.push(clickedOptionValue);
+      } else {
+          this.unselectItem(descriptor);
+          $input.removeAttr("checked");
+          var index = reporting.values.worklogDetailsColumns.indexOf(clickedOptionValue);
+          if(index > 0) {
+            reporting.values.worklogDetailsColumns.splice(index, 1);
+          }
+          jQuery("." + clickedOptionValue).hide();
       }
-     });
+    };
   };
   
   function collectSelectedWorklogDetailsColumns() {
