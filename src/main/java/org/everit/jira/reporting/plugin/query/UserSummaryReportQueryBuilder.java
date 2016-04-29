@@ -38,16 +38,25 @@ import com.querydsl.sql.SQLQuery;
 /**
  * Queries for user summary report.
  */
-public class UserSummaryReportQueryBuilder extends AbstractReportQuery {
+public class UserSummaryReportQueryBuilder extends AbstractReportQuery<UserSummaryDTO> {
 
   public UserSummaryReportQueryBuilder(final ReportSearchParam reportSearchParam) {
     super(reportSearchParam);
   }
 
-  /**
-   * Build count user summary query.
-   */
-  public QuerydslCallable<Long> buildCountQuery() {
+  private Expression<?>[] createQueryGroupBy() {
+    return new Expression<?>[] { qCwdUser.displayName,
+        qWorklog.author };
+  }
+
+  private QBean<UserSummaryDTO> createQuerySelectProjection(final StringExpression userExpression) {
+    return Projections.bean(UserSummaryDTO.class,
+        userExpression.as(UserSummaryDTO.AliasNames.USER_DISPLAY_NAME),
+        qWorklog.timeworked.sum().as(UserSummaryDTO.AliasNames.WORKLOGGED_TIME_SUM));
+  }
+
+  @Override
+  protected QuerydslCallable<Long> getCountQuery() {
     return new QuerydslCallable<Long>() {
       @Override
       public Long call(final Connection connection, final Configuration configuration)
@@ -71,10 +80,8 @@ public class UserSummaryReportQueryBuilder extends AbstractReportQuery {
     };
   }
 
-  /**
-   * Build user summary query.
-   */
-  public QuerydslCallable<List<UserSummaryDTO>> buildQuery() {
+  @Override
+  protected QuerydslCallable<List<UserSummaryDTO>> getQuery() {
     return new QuerydslCallable<List<UserSummaryDTO>>() {
 
       @Override
@@ -96,17 +103,6 @@ public class UserSummaryReportQueryBuilder extends AbstractReportQuery {
         return query.fetch();
       }
     };
-  }
-
-  private Expression<?>[] createQueryGroupBy() {
-    return new Expression<?>[] { qCwdUser.displayName,
-        qWorklog.author };
-  }
-
-  private QBean<UserSummaryDTO> createQuerySelectProjection(final StringExpression userExpression) {
-    return Projections.bean(UserSummaryDTO.class,
-        userExpression.as(UserSummaryDTO.AliasNames.USER_DISPLAY_NAME),
-        qWorklog.timeworked.sum().as(UserSummaryDTO.AliasNames.WORKLOGGED_TIME_SUM));
   }
 
 }

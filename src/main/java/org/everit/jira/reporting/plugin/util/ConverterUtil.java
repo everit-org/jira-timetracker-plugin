@@ -34,7 +34,6 @@ import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 
-import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jira.bc.JiraServiceContext;
 import com.atlassian.jira.bc.JiraServiceContextImpl;
 import com.atlassian.jira.bc.filter.DefaultSearchRequestService;
@@ -322,7 +321,7 @@ public final class ConverterUtil {
         ComponentAccessor.getComponentOfType(DefaultSearchRequestService.class);
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
-    User loggedInUser = authenticationContext.getLoggedInUser();
+    ApplicationUser loggedInUser = authenticationContext.getLoggedInUser();
     JiraServiceContext serviceContext = new JiraServiceContextImpl(loggedInUser);
     if (filterCondition.getFilter().isEmpty()) {
       throw new IllegalArgumentException(KEY_MISSING_JQL);
@@ -333,6 +332,9 @@ public final class ConverterUtil {
       throw new IllegalArgumentException(KEY_WRONG_JQL);
     }
     searchParamIssueKeys = ConverterUtil.getIssuesKeyByJQL(filter.getQuery().getQueryString());
+    if (searchParamIssueKeys.isEmpty()) {
+      return null;
+    }
     return searchParamIssueKeys;
   }
 
@@ -341,7 +343,7 @@ public final class ConverterUtil {
       JqlParseException {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
-    User loggedInUser = authenticationContext.getLoggedInUser();
+    ApplicationUser loggedInUser = authenticationContext.getLoggedInUser();
     List<String> issuesKeys = new ArrayList<String>();
     SearchService searchService = ComponentAccessor.getComponentOfType(SearchService.class);
     ParseResult parseResult = searchService.parseQuery(loggedInUser, jql);

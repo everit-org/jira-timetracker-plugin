@@ -18,6 +18,8 @@ package org.everit.jira.reporting.plugin.query;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 
 import org.everit.jira.querydsl.schema.QAppUser;
@@ -55,8 +57,11 @@ import com.querydsl.sql.SQLQuery;
 /**
  * Abstract implementation of {@link QuerydslCallable}. Provide source (from), joins and filter
  * condition to report queries.
+ *
+ * @param <T>
+ *          Type of the return value.
  */
-public abstract class AbstractReportQuery {
+public abstract class AbstractReportQuery<T> {
 
   protected BooleanExpression expressionFalse;
 
@@ -174,6 +179,23 @@ public abstract class AbstractReportQuery {
   }
 
   /**
+   * Build count query.
+   */
+  public QuerydslCallable<Long> buildCountQuery() {
+    if (reportSearchParam.issueKeys == null) {
+      return new QuerydslCallable<Long>() {
+        @Override
+        public Long call(final Connection connection, final Configuration configuration)
+            throws SQLException {
+          return 0L;
+        }
+      };
+    }
+    return getCountQuery();
+
+  }
+
+  /**
    * Build grand total query.
    */
   public QuerydslCallable<Long> buildGrandTotalQuery() {
@@ -181,6 +203,9 @@ public abstract class AbstractReportQuery {
       @Override
       public Long call(final Connection connection, final Configuration configuration)
           throws SQLException {
+        if (reportSearchParam.issueKeys == null) {
+          return 0L;
+        }
         NumberPath<Long> worklogTimeSumPath = Expressions.numberPath(Long.class,
             new PathMetadata(null, "worklogTimeSum", PathType.VARIABLE));
 
@@ -199,6 +224,22 @@ public abstract class AbstractReportQuery {
         return grandTotal == null ? Long.valueOf(0L) : grandTotal;
       }
     };
+  }
+
+  /**
+   * Build query.
+   */
+  public QuerydslCallable<List<T>> buildQuery() {
+    if (reportSearchParam.issueKeys == null) {
+      return new QuerydslCallable<List<T>>() {
+        @Override
+        public List<T> call(final Connection connection, final Configuration configuration)
+            throws SQLException {
+          return Collections.emptyList();
+        }
+      };
+    }
+    return getQuery();
   }
 
   private BooleanExpression filterToAffectedVersions(final QJiraissue qIssue,
@@ -552,5 +593,12 @@ public abstract class AbstractReportQuery {
     }
     return where;
   }
+
+  /**
+   * Build count query.
+   */
+  protected abstract QuerydslCallable<Long> getCountQuery();
+
+  protected abstract QuerydslCallable<List<T>> getQuery();
 
 }
