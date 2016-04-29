@@ -38,64 +38,10 @@ import com.querydsl.sql.SQLQuery;
 /**
  * Queries for issue summary report.
  */
-public class IssueSummaryReportQueryBuilder extends AbstractReportQuery {
+public class IssueSummaryReportQueryBuilder extends AbstractReportQuery<IssueSummaryDTO> {
 
   public IssueSummaryReportQueryBuilder(final ReportSearchParam reportSearchParam) {
     super(reportSearchParam);
-  }
-
-  /**
-   * Build count issue summary query.
-   */
-  public QuerydslCallable<Long> buildCountQuery() {
-    return new QuerydslCallable<Long>() {
-      @Override
-      public Long call(final Connection connection, final Configuration configuration)
-          throws SQLException {
-        NumberPath<Long> issueCountPath = Expressions.numberPath(Long.class,
-            new PathMetadata(null, "issueCount", PathType.VARIABLE));
-
-        SQLQuery<Long> fromQuery = new SQLQuery<Long>(connection, configuration)
-            .select(qIssue.id.count().as(issueCountPath));
-
-        appendBaseFromAndJoin(fromQuery);
-        appendBaseWhere(fromQuery);
-        fromQuery.groupBy(qIssue.id);
-
-        SQLQuery<Long> query = new SQLQuery<Long>(connection, configuration)
-            .select(issueCountPath.count())
-            .from(fromQuery.as("fromCount"));
-
-        return query.fetchOne();
-      }
-    };
-  }
-
-  /**
-   * Build issue summary query.
-   */
-  public QuerydslCallable<List<IssueSummaryDTO>> buildQuery() {
-    return new QuerydslCallable<List<IssueSummaryDTO>>() {
-
-      @Override
-      public List<IssueSummaryDTO> call(final Connection connection,
-          final Configuration configuration) throws SQLException {
-        StringExpression issueKey = QueryUtil.createIssueKeyExpression(qIssue, qProject);
-
-        SQLQuery<IssueSummaryDTO> query = new SQLQuery<IssueSummaryDTO>(connection, configuration)
-            .select(createQuerySelectProjection(issueKey));
-
-        appendBaseFromAndJoin(query);
-        appendBaseWhere(query);
-        appendQueryRange(query);
-
-        query.groupBy(createQueryGroupBy());
-
-        query.orderBy(issueKey.asc());
-
-        return query.fetch();
-      }
-    };
   }
 
   private Expression<?>[] createQueryGroupBy() {
@@ -125,6 +71,56 @@ public class IssueSummaryReportQueryBuilder extends AbstractReportQuery {
             .as(IssueSummaryDTO.AliasNames.ISSUE_ORIGINAL_ESTIMATE_SUM),
         qIssue.timeestimate.sum().as(IssueSummaryDTO.AliasNames.ISSUE_TIME_ESTIMATE_SUM),
         qWorklog.timeworked.sum().as(IssueSummaryDTO.AliasNames.WORKLOGGED_TIME_SUM));
+  }
+
+  @Override
+  protected QuerydslCallable<Long> getCountQuery() {
+    return new QuerydslCallable<Long>() {
+      @Override
+      public Long call(final Connection connection, final Configuration configuration)
+          throws SQLException {
+        NumberPath<Long> issueCountPath = Expressions.numberPath(Long.class,
+            new PathMetadata(null, "issueCount", PathType.VARIABLE));
+
+        SQLQuery<Long> fromQuery = new SQLQuery<Long>(connection, configuration)
+            .select(qIssue.id.count().as(issueCountPath));
+
+        appendBaseFromAndJoin(fromQuery);
+        appendBaseWhere(fromQuery);
+        fromQuery.groupBy(qIssue.id);
+
+        SQLQuery<Long> query = new SQLQuery<Long>(connection, configuration)
+            .select(issueCountPath.count())
+            .from(fromQuery.as("fromCount"));
+
+        return query.fetchOne();
+      }
+    };
+  }
+
+  @Override
+  protected QuerydslCallable<List<IssueSummaryDTO>> getQuery() {
+    return new QuerydslCallable<List<IssueSummaryDTO>>() {
+
+      @Override
+      public List<IssueSummaryDTO> call(final Connection connection,
+          final Configuration configuration) throws SQLException {
+        StringExpression issueKey = QueryUtil.createIssueKeyExpression(qIssue, qProject);
+
+        SQLQuery<IssueSummaryDTO> query = new SQLQuery<IssueSummaryDTO>(connection, configuration)
+            .select(createQuerySelectProjection(issueKey));
+
+        appendBaseFromAndJoin(query);
+        appendBaseWhere(query);
+        appendQueryRange(query);
+
+        query.groupBy(createQueryGroupBy());
+
+        query.orderBy(issueKey.asc());
+
+        return query.fetch();
+      }
+    };
   }
 
 }

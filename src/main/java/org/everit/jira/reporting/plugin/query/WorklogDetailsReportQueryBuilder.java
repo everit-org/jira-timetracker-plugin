@@ -47,66 +47,10 @@ import com.querydsl.sql.SQLQuery;
 /**
  * Queries for worklog details report.
  */
-public class WorklogDetailsReportQueryBuilder extends AbstractReportQuery {
+public class WorklogDetailsReportQueryBuilder extends AbstractReportQuery<WorklogDetailsDTO> {
 
   public WorklogDetailsReportQueryBuilder(final ReportSearchParam reportSearchParam) {
     super(reportSearchParam);
-  }
-
-  /**
-   * Build countworklog details query.
-   */
-  public QuerydslCallable<Long> buildCountQuery() {
-    return new QuerydslCallable<Long>() {
-      @Override
-      public Long call(final Connection connection, final Configuration configuration)
-          throws SQLException {
-        NumberPath<Long> worklogCountPath = Expressions.numberPath(Long.class,
-            new PathMetadata(null, "worklogCount", PathType.VARIABLE));
-
-        SQLQuery<Long> fromQuery = new SQLQuery<Long>(connection, configuration)
-            .select(qWorklog.id.count().as(worklogCountPath));
-
-        appendBaseFromAndJoin(fromQuery);
-        appendBaseWhere(fromQuery);
-        fromQuery.groupBy(qWorklog.id);
-
-        SQLQuery<Long> query = new SQLQuery<Long>(connection, configuration)
-            .select(worklogCountPath.count())
-            .from(fromQuery.as("fromCount"));
-
-        return query.fetchOne();
-      }
-    };
-  }
-
-  /**
-   * Build worklog details query.
-   */
-  public QuerydslCallable<List<WorklogDetailsDTO>> buildQuery() {
-    return new QuerydslCallable<List<WorklogDetailsDTO>>() {
-
-      @Override
-      public List<WorklogDetailsDTO> call(final Connection connection,
-          final Configuration configuration) throws SQLException {
-        StringExpression issueKey = QueryUtil.createIssueKeyExpression(qIssue, qProject);
-
-        SQLQuery<WorklogDetailsDTO> query =
-            new SQLQuery<WorklogDetailsDTO>(connection, configuration)
-                .select(createQuerySelectProjection(issueKey));
-
-        appendBaseFromAndJoin(query);
-        appendBaseWhere(query);
-        appendQueryRange(query);
-        query.orderBy(issueKey.asc(), qWorklog.startdate.asc());
-
-        List<WorklogDetailsDTO> result = query.fetch();
-
-        extendResult(connection, configuration, result);
-
-        return result;
-      }
-    };
   }
 
   private ConcurrentSkipListSet<Long> collectIssueIds(final List<WorklogDetailsDTO> result) {
@@ -178,6 +122,58 @@ public class WorklogDetailsReportQueryBuilder extends AbstractReportQuery {
       }
     }
 
+  }
+
+  @Override
+  protected QuerydslCallable<Long> getCountQuery() {
+    return new QuerydslCallable<Long>() {
+      @Override
+      public Long call(final Connection connection, final Configuration configuration)
+          throws SQLException {
+        NumberPath<Long> worklogCountPath = Expressions.numberPath(Long.class,
+            new PathMetadata(null, "worklogCount", PathType.VARIABLE));
+
+        SQLQuery<Long> fromQuery = new SQLQuery<Long>(connection, configuration)
+            .select(qWorklog.id.count().as(worklogCountPath));
+
+        appendBaseFromAndJoin(fromQuery);
+        appendBaseWhere(fromQuery);
+        fromQuery.groupBy(qWorklog.id);
+
+        SQLQuery<Long> query = new SQLQuery<Long>(connection, configuration)
+            .select(worklogCountPath.count())
+            .from(fromQuery.as("fromCount"));
+
+        return query.fetchOne();
+      }
+    };
+  }
+
+  @Override
+  protected QuerydslCallable<List<WorklogDetailsDTO>> getQuery() {
+    return new QuerydslCallable<List<WorklogDetailsDTO>>() {
+
+      @Override
+      public List<WorklogDetailsDTO> call(final Connection connection,
+          final Configuration configuration) throws SQLException {
+        StringExpression issueKey = QueryUtil.createIssueKeyExpression(qIssue, qProject);
+
+        SQLQuery<WorklogDetailsDTO> query =
+            new SQLQuery<WorklogDetailsDTO>(connection, configuration)
+                .select(createQuerySelectProjection(issueKey));
+
+        appendBaseFromAndJoin(query);
+        appendBaseWhere(query);
+        appendQueryRange(query);
+        query.orderBy(issueKey.asc(), qWorklog.startdate.asc());
+
+        List<WorklogDetailsDTO> result = query.fetch();
+
+        extendResult(connection, configuration, result);
+
+        return result;
+      }
+    };
   }
 
   private Map<Long, List<String>> selectAffectedVersions(final Connection connection,
