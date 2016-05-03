@@ -15,7 +15,7 @@
  *#
 <html>
 <head>
-<title>Timetracker Global Settings</title>
+  <title>Timetracker Global Settings</title>
 </head>
 <body>
 $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-resources")

@@ -72,7 +72,8 @@ public class WorklogDetailsReportQueryBuilder extends AbstractReportQuery<Worklo
         qIssuetype.pname.as(WorklogDetailsDTO.AliasNames.ISSUE_TYPE_NAME),
         qIssuetype.iconurl.as(WorklogDetailsDTO.AliasNames.ISSUE_TYPE_ICON_URL),
         qIssuestatus.pname.as(WorklogDetailsDTO.AliasNames.ISSUE_STATUS_P_NAME),
-        qIssue.assignee.as(WorklogDetailsDTO.AliasNames.ISSUE_ASSIGNEE),
+        QueryUtil.selectDisplayName(qIssue.assignee)
+            .as(WorklogDetailsDTO.AliasNames.ISSUE_ASSIGNEE),
         qIssue.timeoriginalestimate.as(WorklogDetailsDTO.AliasNames.ISSUE_TIME_ORIGINAL_ESTIMATE),
         qIssue.timeestimate.as(WorklogDetailsDTO.AliasNames.ISSUE_TIME_ESTIMATE),
         qWorklog.worklogbody.as(WorklogDetailsDTO.AliasNames.WORKLOG_BODY),
@@ -80,7 +81,8 @@ public class WorklogDetailsReportQueryBuilder extends AbstractReportQuery<Worklo
         qProject.description.as(WorklogDetailsDTO.AliasNames.PROJECT_DESCRIPTION),
         qPriority.pname.as(WorklogDetailsDTO.AliasNames.PRIORITY_NAME),
         qPriority.iconurl.as(WorklogDetailsDTO.AliasNames.PRIORITY_ICON_URL),
-        qIssue.reporter.as(WorklogDetailsDTO.AliasNames.ISSUE_REPORTER),
+        QueryUtil.selectDisplayName(qIssue.reporter)
+            .as(WorklogDetailsDTO.AliasNames.ISSUE_REPORTER),
         qIssue.created.as(WorklogDetailsDTO.AliasNames.ISSUE_CREATED),
         qIssue.updated.as(WorklogDetailsDTO.AliasNames.ISSUE_UPDATED),
         qResolution.pname.as(WorklogDetailsDTO.AliasNames.RESOLUTION_NAME),

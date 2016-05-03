@@ -32,7 +32,7 @@ import org.everit.jira.reporting.plugin.query.WorklogDetailsReportQueryBuilder;
  */
 public class ExportWorklogDetailsListReport extends AbstractExportListReport {
 
-  private static final String WORKLOG_DETAILS_PREFIX = "jtrp.report.wd.col.";
+  private static final String WORKLOG_DETAILS_PREFIX = "jtrp.report.export.wd.col.";
 
   private int rowIndex = 0;
 
