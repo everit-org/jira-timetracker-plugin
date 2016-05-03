@@ -14,6 +14,9 @@
  * limitations under the License.
  *#
 <html>
+<head>
+  <title>Reporting</title>
+</head>
 $webResourceManager.requireResource("jira.webresources:global-static")
 $webResourceManager.requireResource("jira.webresources:calendar")
 $webResourceManager.requireResource("jira.webresources:calendar-en")
@@ -73,7 +76,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                 <div class="aui-page-header-image">
                     <span class="aui-avatar aui-avatar-large">
                         <span class="aui-avatar-inner">
-                          <a href="http://www.everit.biz" target="_blank">
+                          <a href="http://www.everit.biz/index.php?nyelv=en" target="_blank">
                             <img src="$contextPath/download/resources/org.everit.jira.timetracker.plugin:reporting-resources/E_logo.png" alt="Everit reporting logo">
                           </a>
                         </span>
@@ -484,7 +487,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                             <div class="date-search-container">
                                 <div class="search-criteria-container">
                                     <div class="search-criteria">
-                                        <form action="ReportingWebAction.jspa" onsubmit="everit.reporting.main.beforeSubmitCreateReport()" class="aui top-label reporting-form" name="reporting-form" id="reporting-form" method="get">
+                                        <form action="ReportingWebAction.jspa" onsubmit="return everit.reporting.main.beforeSubmitCreateReport()" class="aui top-label reporting-form" name="reporting-form" id="reporting-form" method="get">
                                             <div class="from-date inline-calendar">
                                                 <input id="dateFrom" name="dateFrom" class="text medium-field datepicker-input" placeholder="From" type="text" value="$filterCondition.worklogStartDate"/>
                                                     <a href="#" title="Select a date">
