@@ -66,7 +66,8 @@ public class IssueSummaryReportQueryBuilder extends AbstractReportQuery<IssueSum
         qPriority.pname.as(IssueSummaryDTO.AliasNames.PRIORITY_NAME),
         qPriority.iconurl.as(IssueSummaryDTO.AliasNames.PRIORITY_ICON_URL),
         qIssuestatus.pname.as(IssueSummaryDTO.AliasNames.STATUS_NAME),
-        qIssue.assignee.as(IssueSummaryDTO.AliasNames.ASSIGNEE),
+        QueryUtil.selectDisplayName(qIssue.assignee)
+            .as(IssueSummaryDTO.AliasNames.ASSIGNEE),
         qIssue.timeoriginalestimate.sum()
             .as(IssueSummaryDTO.AliasNames.ISSUE_ORIGINAL_ESTIMATE_SUM),
         qIssue.timeestimate.sum().as(IssueSummaryDTO.AliasNames.ISSUE_TIME_ESTIMATE_SUM),

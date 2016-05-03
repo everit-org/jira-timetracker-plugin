@@ -37,11 +37,11 @@ import org.everit.jira.reporting.plugin.query.UserSummaryReportQueryBuilder;
  */
 public class ExportSummariesListReport extends AbstractExportListReport {
 
-  private static final String ISSUE_SUMMARY_PREFIX = "jtrp.report.is.col.";
+  private static final String ISSUE_SUMMARY_PREFIX = "jtrp.report.export.is.col.";
 
-  private static final String PROJECT_SUMMARY_PREFIX = "jtrp.report.ps.col.";
+  private static final String PROJECT_SUMMARY_PREFIX = "jtrp.report.export.ps.col.";
 
-  private static final String USER_SUMMARY_PREFIX = "jtrp.report.us.col.";
+  private static final String USER_SUMMARY_PREFIX = "jtrp.report.export.us.col.";
 
   public ExportSummariesListReport(final QuerydslSupport querydslSupport,
       final ReportSearchParam reportSearchParam, final List<String> notBrowsableProjectKeys) {

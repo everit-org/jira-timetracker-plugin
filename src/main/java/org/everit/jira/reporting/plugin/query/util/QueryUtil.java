@@ -15,6 +15,7 @@
  */
 package org.everit.jira.reporting.plugin.query.util;
 
+import org.everit.jira.querydsl.schema.QAppUser;
 import org.everit.jira.querydsl.schema.QCwdUser;
 import org.everit.jira.querydsl.schema.QJiraissue;
 import org.everit.jira.querydsl.schema.QProject;
@@ -22,6 +23,9 @@ import org.everit.jira.querydsl.schema.QWorklog;
 
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.StringExpression;
+import com.querydsl.core.types.dsl.StringPath;
+import com.querydsl.sql.SQLExpressions;
+import com.querydsl.sql.SQLQuery;
 
 /**
  * Helper class to Queries.
@@ -47,6 +51,23 @@ public final class QueryUtil {
         .when(qCwdUser.displayName.isNull()).then(qWorklog.author)
         .otherwise(qCwdUser.displayName);
     return userExpression;
+  }
+
+  /**
+   * Select user displayName for issue assigne or report user.
+   *
+   * @param stringPath
+   *          The StringPath of the issue para,
+   */
+  public static SQLQuery<String> selectDisplayName(final StringPath stringPath) {
+    QCwdUser qCwdUser = new QCwdUser("issueUser");
+    QAppUser qAppUser = new QAppUser("appUserForIssue");
+    return SQLExpressions.select(new CaseBuilder()
+        .when(qCwdUser.displayName.isNotNull()).then(qCwdUser.displayName)
+        .otherwise(stringPath))
+        .from(qCwdUser)
+        .leftJoin(qAppUser).on(qCwdUser.lowerUserName.eq(qAppUser.lowerUserName))
+        .where(qAppUser.lowerUserName.eq(stringPath));
   }
 
   private QueryUtil() {

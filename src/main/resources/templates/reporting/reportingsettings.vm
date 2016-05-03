@@ -15,7 +15,7 @@
  *#
 <html>
 <head>
-<title>Timetracker Global Settings</title>
+  <title>Reporting Global Settings</title>
 </head>
 <body>
 $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reporting-admin-resources")

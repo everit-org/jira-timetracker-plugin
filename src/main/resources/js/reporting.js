@@ -247,6 +247,27 @@ everit.reporting.main = everit.reporting.main || {};
           setMorePickerParentVisibility();
       }
     };
+    pp.clear = function () {
+      var instance = this;
+      var selectedDescriptors = this.model.getDisplayableSelectedDescriptors();
+      this.model.setAllUnSelected();
+      if (this.$field.val().length === 0) {
+          this.$field.val("");
+          this.listController.$container.find(":checkbox").removeAttr("checked");
+      } else {
+          this.clearQueryField();
+          this.listController.moveToFirst();
+      }
+      this._toggleClearButton();
+      jQuery.each(selectedDescriptors, function() {
+          instance.model.$element.trigger("unselect", [this, instance, true]);
+          var clickedOptionValue = this.value();
+          jQuery("#" + clickedOptionValue).hide();
+          morePickerHideFunctions[clickedOptionValue]();
+          setMorePickerParentVisibility();
+      });
+    };
+    
   };
 
   function setMorePickerParentVisibility(){
@@ -980,6 +1001,12 @@ everit.reporting.main = everit.reporting.main || {};
   }
   
   reporting.beforeSubmitCreateReport = function() {
+    var searcherValue = jQuery('#formType').val();
+    if(searcherValue == "filter"){
+      if(jQuery('#morePicker-parent div.error').length){
+        return false;
+      }
+    }
     var filterCondition = getFilterConditionJson();
     filterCondition["limit"] = reporting.values.pageSizeLimit;
     filterCondition["offset"] = 0;
@@ -1112,23 +1139,57 @@ everit.reporting.main = everit.reporting.main || {};
           jQuery("." + clickedOptionValue).hide();
       }
     };
+    pp.clear = function () {
+      var instance = this;
+      var selectedDescriptors = this.model.getDisplayableSelectedDescriptors();
+      this.model.setAllUnSelected();
+      if (this.$field.val().length === 0) {
+          this.$field.val("");
+          this.listController.$container.find(":checkbox").removeAttr("checked");
+      } else {
+          this.clearQueryField();
+          this.listController.moveToFirst();
+      }
+      this._toggleClearButton();
+      jQuery.each(selectedDescriptors, function() {
+          instance.model.$element.trigger("unselect", [this, instance, true]);
+          var clickedOptionValue = this.value();
+          var index = reporting.values.worklogDetailsColumns.indexOf(clickedOptionValue);
+          if(index > 0) {
+            reporting.values.worklogDetailsColumns.splice(index, 1);
+          }
+          jQuery("." + clickedOptionValue).hide();
+      });
+    };
   };
   
   function collectSelectedWorklogDetailsColumns() {
-   return jQuery('#detailsColumns').val();
+    return jQuery('#detailsColumns').val() || [];
   }
   
   function addTooltips(){
     var $projectExpectedTooltip = AJS.$('#project-expected-tooltip');
-    if($projectExpectedTooltip.hasClass('jtrp-tooltipped')) {
+    if(!$projectExpectedTooltip.hasClass('jtrp-tooltipped')) {
       $projectExpectedTooltip.tooltip();
       $projectExpectedTooltip.addClass('jtrp-tooltipped');
     }
     
     var $issueExpectedTooltip = AJS.$('#issue-expected-tooltip');
-    if($issueExpectedTooltip.hasClass('jtrp-tooltipped')) {
+    if(!$issueExpectedTooltip.hasClass('jtrp-tooltipped')) {
       $issueExpectedTooltip.tooltip();
       $issueExpectedTooltip.addClass('jtrp-tooltipped');
+    }
+    
+    var $jtrp_col_priorityTooltip = AJS.$('#jtrp_col_priority');
+    if(!$jtrp_col_priorityTooltip.hasClass('jtrp-tooltipped')) {
+      $jtrp_col_priorityTooltip.tooltip();
+      $jtrp_col_priorityTooltip.addClass('jtrp-tooltipped');
+    }
+    
+    var $jtrp_col_typeTooltip = AJS.$('#jtrp_col_type');
+    if(!$jtrp_col_typeTooltip.hasClass('jtrp-tooltipped')) {
+      $jtrp_col_typeTooltip.tooltip();
+      $jtrp_col_typeTooltip.addClass('jtrp-tooltipped');
     }
     
     AJS.$('.img-tooltip').each(function() {

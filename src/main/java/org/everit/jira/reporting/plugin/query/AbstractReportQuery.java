@@ -192,7 +192,6 @@ public abstract class AbstractReportQuery<T> {
       };
     }
     return getCountQuery();
-
   }
 
   /**
@@ -594,9 +593,6 @@ public abstract class AbstractReportQuery<T> {
     return where;
   }
 
-  /**
-   * Build count query.
-   */
   protected abstract QuerydslCallable<Long> getCountQuery();
 
   protected abstract QuerydslCallable<List<T>> getQuery();
