@@ -285,7 +285,6 @@ public class ReportingWebAction extends JiraWebActionSupport {
         httpRequest.getParameter(HTTP_PARAM_COLLAPSED_DETAILS_MODULE);
     String collapsedSummaryModuleVal =
         httpRequest.getParameter(HTTP_PARAM_COLLAPSED_SUMMARY_MODULE);
-
     String createReportResult =
         createReport(selectedMoreJson, selectedActiveTab, filterConditionJsonValue,
             selectedWorklogDetailsColumnsJson, collapsedDetailsModuleVal,

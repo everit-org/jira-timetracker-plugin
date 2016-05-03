@@ -115,9 +115,9 @@
                                         <th class="jtrp_col_projectDescription" style="#if( $isNotShowProjectDescription )display:none;#end">$i18n.getText("jtrp.report.wd.col.jtrp_col_projectDescription")</th>
                                         <th class="jtrp_col_issueKey" style="#if( $isNotShowIssueKey )display:none;#end">$i18n.getText("jtrp.report.wd.col.jtrp_col_issueKey")</th>
                                         <th class="jtrp_col_issueSummary" style="#if( $isNotShowIssueSummary )display:none;#end">$i18n.getText("jtrp.report.wd.col.jtrp_col_issueSummary")</th>
-                                        <th class="jtrp_col_type" style="#if( $isNotShowType )display:none;#end">$i18n.getText("jtrp.report.wd.col.jtrp_col_type")</th>
+                                        <th class="jtrp_col_type" id="jtrp_col_type" style="#if( $isNotShowType )display:none;#end" title='$i18n.getText("jtrp.report.wd.col.jtrp_col_type.tooltip")'>$i18n.getText("jtrp.report.wd.col.jtrp_col_type")</th>
                                         <th class="jtrp_col_status" style="#if( $isNotShowStatus )display:none;#end">$i18n.getText("jtrp.report.wd.col.jtrp_col_status")</th>
-                                        <th class="jtrp_col_priority" style="#if( $isNotShowPriority )display:none;#end">$i18n.getText("jtrp.report.wd.col.jtrp_col_priority")</th>                                        
+                                        <th class="jtrp_col_priority" id="jtrp_col_priority" style="#if( $isNotShowPriority )display:none;#end"  title='$i18n.getText("jtrp.report.wd.col.jtrp_col_priority.tooltip")'>$i18n.getText("jtrp.report.wd.col.jtrp_col_priority")</th>                                        
                                         <th class="jtrp_col_assignee" style="#if( $isNotShowAssignee )display:none;#end">$i18n.getText("jtrp.report.wd.col.jtrp_col_assignee")</th>
                                         <th class="jtrp_col_reporter" style="#if( $isNotShowReporter )display:none;#end">$i18n.getText("jtrp.report.wd.col.jtrp_col_reporter")</th>
                                         <th class="jtrp_col_estimated" style="#if( $isNotShowEstimated )display:none;#end">$i18n.getText("jtrp.report.wd.col.jtrp_col_estimated")</th>

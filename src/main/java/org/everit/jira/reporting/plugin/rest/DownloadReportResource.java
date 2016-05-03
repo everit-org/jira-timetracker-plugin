@@ -17,6 +17,8 @@ package org.everit.jira.reporting.plugin.rest;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
@@ -71,11 +73,14 @@ public class DownloadReportResource {
     }
   }
 
-  private Response buildResponse(final HSSFWorkbook workbook, final String fileName) {
+  private Response buildResponse(final HSSFWorkbook workbook, final String fileName,
+      final String fileExtension) {
     try (ByteArrayOutputStream bos = new ByteArrayOutputStream();) {
       workbook.write(bos);
+      String timeStamp = new SimpleDateFormat("yyyyMMddhhmm").format(new Date());
       return Response.ok(bos.toByteArray(), MediaType.APPLICATION_OCTET_STREAM)
-          .header("Content-Disposition", "attachment; filename=\"" + fileName + "\"")
+          .header("Content-Disposition",
+              "attachment; filename=\"" + fileName + timeStamp + "." + fileExtension + "\"")
           .build();
     } catch (IOException e) {
       return Response.serverError().build();
@@ -111,7 +116,7 @@ public class DownloadReportResource {
     ExportSummaryReportEvent exportSummaryReportEvent = new ExportSummaryReportEvent(pluginId);
     analyticsSender.send(exportSummaryReportEvent);
 
-    return buildResponse(workbook, "summaries-report.xls");
+    return buildResponse(workbook, "summaries-report", "xls");
   }
 
   /**
@@ -147,7 +152,7 @@ public class DownloadReportResource {
         new ExportWorklogDetailsReportEvent(pluginId, allFields);
     analyticsSender.send(exportWorklogDetailsReportEvent);
 
-    return buildResponse(workbook, "worklog-details-report.xls");
+    return buildResponse(workbook, "worklog-details-report", "xls");
   }
 
 }
