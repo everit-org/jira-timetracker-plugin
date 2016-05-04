@@ -13,228 +13,79 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *#
-<section role="dialog" id="reporting-dialog" class="aui-layer aui-dialog2 aui-dialog2-large" aria-hidden="true">
+<section role="dialog" id="reporting-tutorial-dialog" class="aui-layer aui-dialog2 aui-dialog2-xlarge" aria-hidden="true">
     <!-- Dialog header -->
-   <form name="reportingForm" id="reportingForm" method="post" action="JiraTimetrackerWebAction.jspa?dateFormatted=$dateFormatted" class="aui"/>
       <header class="aui-dialog2-header">
         <!-- The dialog's title -->
-        <h1 class="aui-dialog2-header-main" style="color: #707070;">$i18n.getText('jttp.reporting.header')</h1>   
+        <h1 class="aui-dialog2-header-main" style="color: #707070;">$i18n.getText('jtrp.tutorial.header')</h1>   
       </header>
       <!-- Main dialog content -->
       <div class="aui-dialog2-content form-body" style="height: 500px;">
-        <div id="reportingError" style="margin-bottom: 5px; width: 100%; float: left; display: none;" class="error_message">
-          <p>$i18n.getText('jttp.feedback.missing')</p>
+       	<div class="aui-tabs horizontal-tabs">
+            <div class="tabs-pane active-pane" id="tutorialPage-1">
+              <h2>$i18n.getText('jtrp.tutorial.tab.header.1')</h2>
+              <div class="aui-group">
+                <div class="aui-item">
+                  $i18n.getText('jtrp.tutorial.tab.text.1')
+                </div>
+                <div class="aui-item tabImage tab1-img">
+                </div>
+              </div>
+            </div>
+            <div class="tabs-pane" id="tutorialPage-2">
+              <h2>$i18n.getText('jtrp.tutorial.tab.header.2')</h2>
+              <div class="aui-group">
+                <div class="aui-item">
+                  $i18n.getText('jtrp.tutorial.tab.text.2')
+                </div>
+                <div class="aui-item tabImage tab2-img">
+                </div>
+              </div>
+            </div>
+            <div class="tabs-pane" id="tutorialPage-3">
+              <h2>$i18n.getText('jtrp.tutorial.tab.header.3')</h2>
+              <div class="aui-group">
+                <div class="aui-item">
+                  $i18n.getText('jtrp.tutorial.tab.text.3')
+                 </div>
+                 <div class="aui-item tabImage tab3-img">
+                 </div>
+               </div>
+            </div>
+            <div class="tabs-pane" id="tutorialPage-4">
+              <h2>$i18n.getText('jtrp.tutorial.tab.header.4')</h2>
+              <div class="aui-group">
+                <div class="aui-item">
+                  $i18n.getText('jtrp.tutorial.tab.text.4')
+                </div>
+                <div class="aui-item tabImage tab4-img">
+                </div>
+              </div>
+            </div>
+            <div class="tabs-pane" id="tutorialPage-5">
+              <h2>$i18n.getText('jtrp.tutorial.tab.header.5')</h2>
+              <div class="aui-group">
+                <div class="aui-item">
+                  $i18n.getText('jtrp.tutorial.tab.text.5')
+                </div>
+                <div class="aui-item tabImage tab5-img">
+                </div>
+              </div>
+            </div>
         </div>
-        <table style="width: 100%;">
-          <tr>
-            <td colspan="2">
-              $i18n.getText('jttp.reporting.desc')
-            </td>
-          </tr>
-          <tr>
-            <td colspan="2" class="question">
-              <label style="margin-bottom: 5px;">$i18n.getText('jttp.reporting.question.1') </label> 
-            </td>
-          </tr>
-          <tr>
-            <td colspan="2" class="answers">
-              <div class="answer-column">
-                <div><input type="checkbox" value="1" name="answer1" id="answer1-opt1"><label for="answer1-opt1">$i18n.getText('jttp.reporting.answer.1.1')</label></div>
-                <div><input type="checkbox" value="2" name="answer1" id="answer1-opt2"><label for="answer1-opt2">$i18n.getText('jttp.reporting.answer.1.2')</label></div>
-                <div><input type="checkbox" value="3" name="answer1" id="answer1-opt3"><label for="answer1-opt3">$i18n.getText('jttp.reporting.answer.1.3')</label></div>
-                <div><input type="checkbox" value="4" name="answer1" id="answer1-opt4"><label for="answer1-opt4">$i18n.getText('jttp.reporting.answer.1.4')</label></div>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td colspan="2"  class="question">
-              <label style="margin-bottom: 5px;">$i18n.getText('jttp.reporting.question.2') </label> 
-            </td>
-          </tr>
-          <tr>
-            <td colspan="2" class="answers">
-              <div class="answer-column">
-                <div><input type="checkbox" value="1" name="answer2" id="answer2-opt1"><label for="answer2-opt1">$i18n.getText('jttp.reporting.answer.2.1')</label></div>
-                <div><input type="checkbox" value="2" name="answer2" id="answer2-opt2"><label for="answer2-opt2">$i18n.getText('jttp.reporting.answer.2.2')</label></div>
-                <div><input type="checkbox" value="3" name="answer2" id="answer2-opt3"><label for="answer2-opt3">$i18n.getText('jttp.reporting.answer.2.3')</label></div>
-              </div>
-              <div class="answer-column">
-                <div><input type="checkbox" value="4" name="answer2" id="answer2-opt4"><label for="answer2-opt4">$i18n.getText('jttp.reporting.answer.2.4')</label></div>
-                <div><input type="checkbox" value="5" name="answer2" id="answer2-opt5"><label for="answer2-opt5">$i18n.getText('jttp.reporting.answer.2.5')</label></div>
-                <div><input type="checkbox" value="6" name="answer2" id="answer2-opt6"><label for="answer2-opt6">$i18n.getText('jttp.reporting.answer.2.6')</label></div>
-              </div>
-              <div class="answer-column">
-                <div><input type="checkbox" value="7" name="answer2" id="answer2-opt7"><label for="answer2-opt7">$i18n.getText('jttp.reporting.answer.2.7')</label></div>
-                <div><input type="checkbox" value="8" name="answer2" id="answer2-opt8"><label for="answer2-opt8">$i18n.getText('jttp.reporting.answer.2.8')</label></div>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td colspan="2" style="padding-top: 5px;">
-              <label style="vertical-align: top; color: black;">$i18n.getText('jttp.reporting.answer.2.9')</label> 
-              <textarea name="answer2" style="width: 50%; height: 20px; resize: none; border-radius: 0.3em;"></textarea>
-            </td>
-          </tr>
-          <tr>
-            <td colspan="2" class="question">
-              <label style="margin-bottom: 5px;">$i18n.getText('jttp.reporting.question.3') </label> 
-            </td>
-          </tr>
-          <tr>
-            <td colspan="2" class="answers">
-              <div class="answer-column">
-                <div><input type="checkbox" value="1" name="answer3" id="answer3-opt1"><label for="answer3-opt1">$i18n.getText('jttp.reporting.answer.3.1')</label></div>
-                <div><input type="checkbox" value="2" name="answer3" id="answer3-opt2"><label for="answer3-opt2">$i18n.getText('jttp.reporting.answer.3.2')</label></div>
-                <div><input type="checkbox" value="3" name="answer3" id="answer3-opt3"><label for="answer3-opt3">$i18n.getText('jttp.reporting.answer.3.3')</label></div>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td colspan="2" style="padding-top: 5px;">
-              <label style="vertical-align: top; color: black;"> $i18n.getText('jttp.reporting.answer.3.4')</label> 
-              <textarea name="answer3" style="width: 50%; height: 20px; resize: none; border-radius: 0.3em;"></textarea>
-            </td>
-          </tr>
-          <tr>
-            <td colspan="2"  class="question">
-              <label style="margin-bottom: 5px;">$i18n.getText('jttp.reporting.question.9') </label> 
-            </td>
-          </tr>
-          <tr>
-            <td colspan="2" class="answers">
-              <div class="answer-column">
-                <div><input type="checkbox" value="1" name="answer9" id="answer9-opt1"><label for="answer9-opt1">$i18n.getText('jttp.reporting.answer.9.1')</label></div>
-                <div><input type="checkbox" value="2" name="answer9" id="answer9-opt2"><label for="answer9-opt2">$i18n.getText('jttp.reporting.answer.9.2')</label></div>
-                <div><input type="checkbox" value="3" name="answer9" id="answer9-opt3"><label for="answer9-opt3">$i18n.getText('jttp.reporting.answer.9.3')</label></div>
-                <div><input type="checkbox" value="4" name="answer9" id="answer9-opt4"><label for="answer9-opt4">$i18n.getText('jttp.reporting.answer.9.4')</label></div>
-                <div><input type="checkbox" value="5" name="answer9" id="answer9-opt5"><label for="answer9-opt5">$i18n.getText('jttp.reporting.answer.9.5')</label></div>
-              </div>
-              <div class="answer-column">
-                <div><input type="checkbox" value="6" name="answer9" id="answer9-opt6"><label for="answer9-opt6">$i18n.getText('jttp.reporting.answer.9.6') </label></div>
-                <div><input type="checkbox" value="7" name="answer9" id="answer9-opt7"><label for="answer9-opt7">$i18n.getText('jttp.reporting.answer.9.7') </label></div>
-                <div><input type="checkbox" value="8" name="answer9" id="answer9-opt8"><label for="answer9-opt8">$i18n.getText('jttp.reporting.answer.9.8') </label></div>
-                <div><input type="checkbox" value="9" name="answer9" id="answer9-opt9"><label for="answer9-opt9">$i18n.getText('jttp.reporting.answer.9.9') </label></div>
-                <div><input type="checkbox" value="10" name="answer9" id="answer9-opt10"><label for="answer9-opt10">$i18n.getText('jttp.reporting.answer.9.10') </label></div>
-              </div>
-              <div class="answer-column">
-                <div><input type="checkbox" value="11" name="answer9" id="answer9-opt11"><label for="answer9-opt11"> $i18n.getText('jttp.reporting.answer.9.11')</label></div>
-                <div><input type="checkbox" value="12" name="answer9" id="answer9-opt12"><label for="answer9-opt12">$i18n.getText('jttp.reporting.answer.9.12')</label></div>
-                <div><input type="checkbox" value="13" name="answer9" id="answer9-opt13"><label for="answer9-opt13">$i18n.getText('jttp.reporting.answer.9.13')</label></div>
-                <div><input type="checkbox" value="14" name="answer9" id="answer9-opt14"><label for="answer9-opt14">$i18n.getText('jttp.reporting.answer.9.14') </label></div>
-              </div> 
-            </td>
-          </tr>
-          <tr>
-            <td colspan="2"  class="question">
-              <label style="margin-bottom: 5px;">$i18n.getText('jttp.reporting.question.4') </label> 
-            </td>
-          </tr>
-          <tr>
-            <td colspan="2" class="answers">
-              <div class="answer-column">
-                <div><input type="checkbox" value="1" name="answer4" id="answer4-opt1"><label for="answer4-opt1">$i18n.getText('jttp.reporting.answer.4.1')</label></div>
-                <div><input type="checkbox" value="2" name="answer4" id="answer4-opt2"><label for="answer4-opt2">$i18n.getText('jttp.reporting.answer.4.2')</label></div>
-                <div><input type="checkbox" value="3" name="answer4" id="answer4-opt3"><label for="answer4-opt3">$i18n.getText('jttp.reporting.answer.4.3')</label></div>
-                <div><input type="checkbox" value="4" name="answer4" id="answer4-opt4"><label for="answer4-opt4">$i18n.getText('jttp.reporting.answer.4.4')</label></div>
-                <div><input type="checkbox" value="5" name="answer4" id="answer4-opt5"><label for="answer4-opt5">$i18n.getText('jttp.reporting.answer.4.5')</label></div>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td colspan="2" class="question">
-              <label style="margin-bottom: 5px;">$i18n.getText('jttp.reporting.question.5') </label> 
-            </td>
-          </tr>
-          <tr>
-            <td colspan="2" class="answers">
-              <div class="answer-column">
-                <input type="radio" name="answer5" value="1" id="answer5-opt1"><label for="answer5-opt1">$i18n.getText('jttp.reporting.answer.5.1')</label>
-                <input type="radio" name="answer5" value="2" id="answer5-opt2"><label for="answer5-opt2">$i18n.getText('jttp.reporting.answer.5.2')</label>
-                <input type="radio" name="answer5" value="3" id="answer5-opt3"><label for="answer5-opt3">$i18n.getText('jttp.reporting.answer.5.3')</label>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td colspan="2" class="question">
-              <label style="margin-bottom: 5px;">$i18n.getText('jttp.reporting.question.6') </label> 
-            </td>
-          </tr>
-          <tr>
-            <td colspan="2" class="answers">
-              <div class="answer-column">
-                <input type="radio" name="answer6" value="1" id="answer6-opt1"><label for="answer6-opt1">$i18n.getText('jttp.reporting.answer.6.1')</label>
-                <input type="radio" name="answer6" value="2" id="answer6-opt2"><label for="answer6-opt2">$i18n.getText('jttp.reporting.answer.6.2')</label>
-                <input type="radio" name="answer6" value="3" id="answer6-opt3"><label for="answer6-opt3">$i18n.getText('jttp.reporting.answer.6.3')</label>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td colspan="2" class="question">
-              <label style="margin-bottom: 5px;">$i18n.getText('jttp.reporting.question.7') </label> 
-            </td>
-          </tr>
-          <tr>
-            <td colspan="2">
-              <textarea id="reportinginput7" name="reportinginput7" style="width: 75%; height: 130px; resize: none; border-radius: 0.3em;"></textarea>
-            </td>
-          </tr>
-          <tr>
-            <td colspan="2" class="question">
-              <label style="margin-bottom: 5px;">$i18n.getText('jttp.reporting.question.8') </label> 
-            </td>
-          </tr>
-          <tr>
-            <td colspan="2">
-              <textarea id="reportinginput8" name="reportinginput8" style="width: 75%; height: 130px; resize: none; border-radius: 0.3em;"></textarea>
-            </td>
-          </tr>
-          <tr>
-            <td class="label_td_left question">
-              <label style="margin-bottom: 5px;">$i18n.getText('jttp.reporting.customer.mail')</label>
-              <input type="text" id="reportingCustomerMail" name="customerMail" class="text"/> <span class="aui-icon aui-icon-small aui-iconfont-help" style="cursor: pointer;" title="$i18n.getText('jttp.reporting.mail.help')">help</span>
-            </td>
-          </tr>
-        </table>
       </div>
       <!-- Dialog footer -->
       <footer class="aui-dialog2-footer">
-        <!-- Actions to render on the right of the footer -->
-        <div class="aui-dialog2-footer-actions" style="margin-right: 5px;" >
-            <button id="reporting-close-button" class="aui-button aui-button-link">$i18n.getText('jttp.reporting.close')</button>
-        </div>
-        <div class="aui-dialog2-footer-actions" style="margin-right: 15px;">
-            <button id="reporting-send-button" type="submit" name="reporting-send-button" class="aui-button-primary aui-button" #if(!$feedBackSendAviable) disabled #end >$i18n.getText('jttp.reporting.send')</button>
-        </div>
-        #if(!$feedBackSendAviable)
-            <div class="aui-dialog2-footer-hint">$i18n.getText('jttp.reporting.no.mail')</div>
-        #end
+        <form name="reportingForm" id="reportingForm" method="get" onsubmit="return everit.reporting.main.tutorialDialogHide();" action="ReportingWebAction.jspa" class="aui"/>
+          <!-- Actions to render on the right of the footer -->
+          <div class="aui-dialog2-footer-actions" style="margin-right: 15px;">
+            <button class="aui-button" type="button" id='reporting-tutorial-prev' onclick="everit.reporting.main.prevTutorialPage();">Prev</button >
+            <button class="aui-button" type="button" id='reporting-tutorial-next' onclick="everit.reporting.main.nextTutorialPage()">Next</button >
+            <button id="reporting-tutorial-button" type="submit" name="reporting-tutorial-button" class="aui-button-primary aui-button">$i18n.getText('jtrp.tutorial.close')</button>
+          </div>
+          <div class="aui-dialog2-footer-hint">
+            <input type="checkbox" value="tutorial_dns" name="tutorial_dns" id="tutorial_dns"><label for="tutorial_dns">$i18n.getText('jtrp.tutorial.dns.label')</label>
+          </div>
+        </form>
       </footer>
-    </form>
 </section>
-
-<script>
-
-window.onhashchange = function(){
-    var currentHash = window.location.hash;
-    if (currentHash=="#reporting-dialog") {
-        window.location.hash = "";
-        AJS.dialog2("#reporting-dialog").show();
-        AJS.$("#reportingError").hide();
-        _paq.push(['trackEvent', 'User', 'Reporting']); 
-    }
-};
-//onload added in jttp.vm, after refactore this not will be a problem
-//window.onload = jttpReportDialogShow();
-
-// SEND FEEDBACK and hide the dialog
-AJS.$("#reporting-send-button").click(function(e) {
-     AJS.dialog2("#reporting-dialog").hide();
-});
-
-// Hides the dialog
-AJS.$("#reporting-close-button").click(function(e) {
-    e.preventDefault();
-    AJS.dialog2("#reporting-dialog").hide();
-});
-
-</script>

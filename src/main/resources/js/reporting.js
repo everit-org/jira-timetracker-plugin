@@ -84,6 +84,8 @@ everit.reporting.main = everit.reporting.main || {};
     initEpicNameSelect();
     initFilterSelect();
     
+    tutorialDialogInit();
+    
     if( reporting.values.notBrowsableProjectKeys.length ) {
       var keys = "";
       var length = reporting.values.notBrowsableProjectKeys.length;
@@ -103,6 +105,27 @@ everit.reporting.main = everit.reporting.main || {};
     
     reporting.changeFilterType(reporting.values.searcherValue);
   });
+  
+  
+  var actualTutorialPage;
+
+  function tutorialDialogInit() {
+    if(reporting.values.isShowTutorial){
+      AJS.dialog2("#reporting-tutorial-dialog").show();
+      actualTutorialPage = 1
+      changeNavigationButtonVisibility();
+    }
+  };
+    
+
+  reporting.tutorialDialogHide = function(){
+    if(jQuery('#tutorial_dns:checked').length){
+      return true;
+    }else{
+      AJS.dialog2("#reporting-tutorial-dialog").hide();
+      return false;
+    }
+  };
   
   var morePickerShowFunctions = {
       "issuePicker-parent": function(){ 
@@ -675,6 +698,44 @@ everit.reporting.main = everit.reporting.main || {};
       }
     });
   };
+  
+   reporting.prevTutorialPage = function(){
+    if(actualTutorialPage > 1){
+      actualTutorialPage--;
+    }else{
+      actualTutorialPage = 1;
+    }
+    changeNavigationButtonVisibility();
+    showActiveTutotialPage();
+   };
+
+   reporting.nextTutorialPage = function(){
+     if(actualTutorialPage < 5){
+       actualTutorialPage++;
+     }else{
+       actualTutorialPage = 5;
+      }
+      changeNavigationButtonVisibility();
+      showActiveTutotialPage();
+   };
+   
+   function changeNavigationButtonVisibility(){
+     if(actualTutorialPage == 1){
+       jQuery("#reporting-tutorial-prev").hide();
+     }else{
+       jQuery("#reporting-tutorial-prev").show();
+     }
+     if(actualTutorialPage == 5){
+       jQuery("#reporting-tutorial-next").hide();
+     }else{
+       jQuery("#reporting-tutorial-next").show();
+     }
+   }
+   
+   function showActiveTutotialPage(){
+     jQuery("#reporting-tutorial-dialog .tabs-pane.active-pane").removeClass("active-pane");
+     jQuery("#tutorialPage-"+ actualTutorialPage).addClass("active-pane");
+   };
   
   function initLabelSelect(){
     var selectedArray =  jQuery.makeArray( reporting.values.selectedLabels ); 

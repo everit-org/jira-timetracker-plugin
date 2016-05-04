@@ -40,6 +40,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
           {
             firstDay : ${firstDay},
             useISO8601: ${useISO8601},
+            isShowTutorial: ${isShowTutorialDialog},
             dateToFormated: "${filterCondition.worklogEndDate}",
             dateFromFormated: "${filterCondition.worklogStartDate}",
             dateCreatedFormated: "${filterCondition.issueCreateDate}",
@@ -520,7 +521,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
 
         </div>
         #parse("templates/reporting/reporting_result.vm")
-
+        #parse("templates/reporting/reporting_popup.vm")
         <!-- Issue Collector script -->
         <script type="text/javascript" src="$issueCollectorSrc"></script>
     </section>

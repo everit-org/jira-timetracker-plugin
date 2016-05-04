@@ -128,6 +128,21 @@
     <resource type="download" name="E_logo.png" location="/icons/E_logo.png">
       <param name="content-type" value="image/png" />
     </resource>
+    <resource type="download" name="opening.png" location="/images/opening.png">
+      <param name="content-type" value="image/png" />
+    </resource>
+    <resource type="download" name="search1.png" location="/images/search1.png">
+      <param name="content-type" value="image/png" />
+    </resource>
+    <resource type="download" name="search2.png" location="/images/search2.png">
+      <param name="content-type" value="image/png" />
+    </resource>
+    <resource type="download" name="details.png" location="/images/details.png">
+      <param name="content-type" value="image/png" />
+    </resource>
+    <resource type="download" name="summary.png" location="/images/summary.png">
+      <param name="content-type" value="image/png" />
+    </resource>
     <resource type="download" name="js-fecha.js" location="/js/js-fecha.js"/>
     <resource type="download" name="reporting.css" location="/css/reporting.css"/>
     <resource type="download" name="reporting.js" location="/js/reporting.js"/>
