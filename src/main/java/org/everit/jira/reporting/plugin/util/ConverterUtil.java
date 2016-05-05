@@ -28,6 +28,7 @@ import java.util.Map;
 import org.everit.jira.analytics.SearcherValue;
 import org.everit.jira.reporting.plugin.dto.ConvertedSearchParam;
 import org.everit.jira.reporting.plugin.dto.FilterCondition;
+import org.everit.jira.reporting.plugin.dto.PickerComponentDTO;
 import org.everit.jira.reporting.plugin.dto.PickerUserDTO;
 import org.everit.jira.reporting.plugin.dto.PickerVersionDTO;
 import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
@@ -73,13 +74,11 @@ public final class ConverterUtil {
 
   public static final String VALUE_NEGATIVE_ONE = "-1";
 
-  private static final String VALUE_NO_COMPONENT = "No component";
-
   private static void appendIssueAffectedVersions(final ReportSearchParam reportSearchParam,
       final List<String> issueAffectedVersions) {
     ArrayList<String> affectedVersions = new ArrayList<String>();
     for (String affectedVersion : issueAffectedVersions) {
-      if (PickerVersionDTO.NO_VERSION.equals(affectedVersion)) {
+      if (JiraTimetrackerUtil.getI18nText(PickerVersionDTO.NO_VERSION).equals(affectedVersion)) {
         reportSearchParam.selectNoAffectedVersionIssue(true);
       } else {
         affectedVersions.add(affectedVersion);
@@ -92,9 +91,10 @@ public final class ConverterUtil {
       final List<String> issueAssignees) {
     ArrayList<String> assignees = new ArrayList<String>();
     for (String assignee : issueAssignees) {
-      if (PickerUserDTO.UNASSIGNED_USER_NAME.equals(assignee)) {
+      if (JiraTimetrackerUtil.getI18nText(PickerUserDTO.UNASSIGNED_USER_NAME).equals(assignee)) {
         reportSearchParam.selectUnassgined(true);
-      } else if (PickerUserDTO.CURRENT_USER_NAME.equals(assignee)) {
+      } else if (JiraTimetrackerUtil.getI18nText(PickerUserDTO.CURRENT_USER_NAME)
+          .equals(assignee)) {
         assignees.add(JiraTimetrackerUtil.getLoggedUserName());
       } else {
         assignees.add(assignee);
@@ -107,7 +107,7 @@ public final class ConverterUtil {
       final List<String> issueComponents) {
     ArrayList<String> components = new ArrayList<String>();
     for (String component : issueComponents) {
-      if (VALUE_NO_COMPONENT.equals(component)) {
+      if (JiraTimetrackerUtil.getI18nText(PickerComponentDTO.NO_COMPONENT).equals(component)) {
         reportSearchParam.selectNoComponentIssue(true);
       } else {
         components.add(component);
@@ -120,11 +120,13 @@ public final class ConverterUtil {
       final List<String> issueFixedVersions) {
     ArrayList<String> fixedVersions = new ArrayList<String>();
     for (String fixedVersion : issueFixedVersions) {
-      if (PickerVersionDTO.NO_VERSION.equals(fixedVersion)) {
+      if (JiraTimetrackerUtil.getI18nText(PickerVersionDTO.NO_VERSION).equals(fixedVersion)) {
         reportSearchParam.selectNoFixedVersionIssue(true);
-      } else if (PickerVersionDTO.RELEASED_VERSION.equals(fixedVersion)) {
+      } else if (JiraTimetrackerUtil.getI18nText(PickerVersionDTO.RELEASED_VERSION)
+          .equals(fixedVersion)) {
         reportSearchParam.selectReleasedFixVersion(true);
-      } else if (PickerVersionDTO.UNRELEASED_VERSION.equals(fixedVersion)) {
+      } else if (JiraTimetrackerUtil.getI18nText(PickerVersionDTO.UNRELEASED_VERSION)
+          .equals(fixedVersion)) {
         reportSearchParam.selectUnreleasedFixVersion(true);
       } else {
         fixedVersions.add(fixedVersion);
