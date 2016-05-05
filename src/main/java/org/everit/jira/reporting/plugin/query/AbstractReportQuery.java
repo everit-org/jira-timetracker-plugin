@@ -365,10 +365,14 @@ public abstract class AbstractReportQuery<T> {
 
   private BooleanExpression filterToIssueAssignees(final QJiraissue qIssue,
       final BooleanExpression where) {
+    QAppUser qAppUser = new QAppUser("qIssueAssigneAppUser");
     boolean filterToIssueAssignees = false;
     BooleanExpression assignedExpressions = expressionFalse;
     if (!reportSearchParam.issueAssignees.isEmpty()) {
-      assignedExpressions = qIssue.assignee.in(reportSearchParam.issueAssignees);
+      assignedExpressions = qIssue.assignee.in(
+          SQLExpressions.select(qAppUser.userKey)
+              .from(qAppUser)
+              .where(qAppUser.lowerUserName.in(reportSearchParam.issueAssignees)));
       filterToIssueAssignees = true;
     }
 
@@ -514,8 +518,12 @@ public abstract class AbstractReportQuery<T> {
 
   private BooleanExpression filterToIssueReporters(final QJiraissue qIssue,
       final BooleanExpression where) {
+    QAppUser qAppUser = new QAppUser("qIssueReporterAppUser");
     if (!reportSearchParam.issueReporters.isEmpty()) {
-      return where.and(qIssue.reporter.in(reportSearchParam.issueReporters));
+      return where.and(qIssue.reporter.in(
+          SQLExpressions.select(qAppUser.userKey)
+              .from(qAppUser)
+              .where(qAppUser.lowerUserName.in(reportSearchParam.issueReporters))));
     }
     return where;
   }
@@ -568,8 +576,12 @@ public abstract class AbstractReportQuery<T> {
 
   private BooleanExpression filterToWorklogAuhtors(final QWorklog qWorklog,
       final BooleanExpression where) {
+    QAppUser qAppUser = new QAppUser("qWorklogAuthor");
     if (!reportSearchParam.users.isEmpty()) {
-      return where.and(qWorklog.author.in(reportSearchParam.users));
+      return where.and(qWorklog.author.in(
+          SQLExpressions.select(qAppUser.userKey)
+              .from(qAppUser)
+              .where(qAppUser.lowerUserName.in(reportSearchParam.users))));
     }
     return where;
   }

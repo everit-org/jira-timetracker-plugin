@@ -78,11 +78,11 @@ public class PickerUserQuery implements QuerydslCallable<List<PickerUserDTO>> {
 
     List<PickerUserDTO> result = new SQLQuery<PickerUserDTO>(connection, configuration)
         .select(Projections.bean(PickerUserDTO.class,
-            qCwdUser.userName.as(PickerUserDTO.AliasNames.USER_NAME),
+            qCwdUser.lowerUserName.as(PickerUserDTO.AliasNames.USER_NAME),
             qCwdUser.userName.as(PickerUserDTO.AliasNames.AVATAR_OWNER),
             qCwdUser.displayName.as(PickerUserDTO.AliasNames.DISPLAY_NAME)))
         .from(qCwdUser)
-        .orderBy(qCwdUser.userName.asc())
+        .orderBy(qCwdUser.displayName.asc())
         .fetch();
 
     if (PickerUserQueryType.ASSIGNEE.equals(pickerUserQueryType)) {
