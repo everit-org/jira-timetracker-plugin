@@ -45,6 +45,7 @@ import org.everit.jira.reporting.plugin.export.column.WorklogDetailsColumns;
 import org.everit.jira.reporting.plugin.util.ConverterUtil;
 import org.everit.jira.timetracker.plugin.DurationFormatter;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
+import org.everit.jira.timetracker.plugin.UserDialogSettingsHelper;
 import org.everit.jira.timetracker.plugin.dto.ReportingSettingsValues;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
@@ -72,12 +73,16 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   private static final String HTTP_PARAM_FILTER_CONDITION_JSON = "filterConditionJson";
 
+  private static final String HTTP_PARAM_REPORTING_TUTORIAL_BUTTON = "reporting-tutorial-button";
+
   private static final String HTTP_PARAM_SELECTED_ACTIVE_TAB = "selectedActiveTab";
 
   private static final String HTTP_PARAM_SELECTED_MORE_JSON = "selectedMoreJson";
 
   private static final String HTTP_PARAM_SELECTED_WORKLOG_DETAILS_COLUMNS =
       "selectedWorklogDetailsColumns";
+
+  private static final String HTTP_PARAM_TUTORIAL_DNS = "tutorial_dns";
 
   /**
    * The Issue Collector jttp_build.porperties key.
@@ -116,6 +121,8 @@ public class ReportingWebAction extends JiraWebActionSupport {
   private String filterConditionJson = "";
 
   private Gson gson;
+
+  public boolean isShowTutorialDialog = false;
 
   private String issueCollectorSrc;
 
@@ -222,8 +229,6 @@ public class ReportingWebAction extends JiraWebActionSupport {
       setReturnUrl(JIRA_HOME_URL);
       return getRedirect(NONE);
     }
-    // DefaultSearchRequestManager srm =
-    // ComponentAccessor.getComponentOfType(DefaultSearchRequestManager.class);
 
     loadFavoriteFilters();
 
@@ -232,22 +237,13 @@ public class ReportingWebAction extends JiraWebActionSupport {
     loadIssueCollectorSrc();
     normalizeContextPath();
 
+    isShowTutorialDialog = UserDialogSettingsHelper.getIsShowTutorialDialog(settingsFactory,
+        getLoggedInApplicationUser().getUsername());
+
     analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(settingsFactory,
         PiwikPropertiesUtil.PIWIK_REPORTING_SITEID);
 
-    ReportingSessionData loadDataFromSession = loadDataFromSession();
-    if (loadDataFromSession != null) {
-      createReport(loadDataFromSession.selectedMoreJson, loadDataFromSession.selectedActiveTab,
-          loadDataFromSession.filterConditionJson,
-          loadDataFromSession.selectedWorklogDetailsColumnsJson,
-          loadDataFromSession.collapsedDetailsModuleVal,
-          loadDataFromSession.collapsedSummaryModuleVal);
-    } else {
-      selectedMore = new ArrayList<String>();
-      filterCondition = new FilterCondition();
-      selectedWorklogDetailsColumns = WorklogDetailsColumns.DEFAULT_COLUMNS;
-      initDatesIfNecessary();
-    }
+    initializeData();
 
     return INPUT;
   }
@@ -275,6 +271,17 @@ public class ReportingWebAction extends JiraWebActionSupport {
         PiwikPropertiesUtil.PIWIK_REPORTING_SITEID);
 
     HttpServletRequest httpRequest = getHttpRequest();
+
+    if (httpRequest.getParameter(HTTP_PARAM_REPORTING_TUTORIAL_BUTTON) != null) {
+      boolean isDoNotShow = true;
+      if (httpRequest.getParameter(HTTP_PARAM_TUTORIAL_DNS) != null) {
+        isDoNotShow = false;
+      }
+      UserDialogSettingsHelper.saveIsShowTutorialDialog(settingsFactory,
+          getLoggedInApplicationUser().getUsername(), isDoNotShow);
+      initializeData();
+      return SUCCESS;
+    }
 
     String selectedMoreJson = httpRequest.getParameter(HTTP_PARAM_SELECTED_MORE_JSON);
     String selectedActiveTab = httpRequest.getParameter(HTTP_PARAM_SELECTED_ACTIVE_TAB);
@@ -331,6 +338,10 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   public String getFilterConditionJson() {
     return filterConditionJson;
+  }
+
+  public boolean getIsShowTutorialDialog() {
+    return isShowTutorialDialog;
   }
 
   public String getIssueCollectorSrc() {
@@ -396,6 +407,22 @@ public class ReportingWebAction extends JiraWebActionSupport {
       Calendar calendarTo = Calendar.getInstance();
       Date dateTo = calendarTo.getTime();
       filterCondition.setWorklogEndDate(DateTimeConverterUtil.dateToString(dateTo));
+    }
+  }
+
+  private void initializeData() {
+    ReportingSessionData loadDataFromSession = loadDataFromSession();
+    if (loadDataFromSession != null) {
+      createReport(loadDataFromSession.selectedMoreJson, loadDataFromSession.selectedActiveTab,
+          loadDataFromSession.filterConditionJson,
+          loadDataFromSession.selectedWorklogDetailsColumnsJson,
+          loadDataFromSession.collapsedDetailsModuleVal,
+          loadDataFromSession.collapsedSummaryModuleVal);
+    } else {
+      selectedMore = new ArrayList<String>();
+      filterCondition = new FilterCondition();
+      selectedWorklogDetailsColumns = WorklogDetailsColumns.DEFAULT_COLUMNS;
+      initDatesIfNecessary();
     }
   }
 
@@ -474,6 +501,10 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   public void setFavouriteFilters(final List<SearchRequest> favouriteFilters) {
     this.favouriteFilters = favouriteFilters;
+  }
+
+  public void setIsShowTutorialDialog(final boolean isShowTutorialDialog) {
+    this.isShowTutorialDialog = isShowTutorialDialog;
   }
 
   public void setMessage(final String message) {

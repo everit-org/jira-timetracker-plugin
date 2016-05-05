@@ -56,6 +56,11 @@ public final class GlobalSettingsKey {
   public static final String JTTP_PLUGIN_SETTINGS_IS_COLORIG = "isColoring";
 
   /**
+   * The plugin setting is show tutorila key.
+   */
+  public static final String JTTP_PLUGIN_SETTINGS_IS_SHOW_TUTORIAL = "isShowTutorial";
+
+  /**
    * The plugin settings key prefix.
    */
   public static final String JTTP_PLUGIN_SETTINGS_KEY_PREFIX = "jttp";
