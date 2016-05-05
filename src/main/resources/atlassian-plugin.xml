@@ -15,13 +15,17 @@
     limitations under the License.
 
 -->
-<atlassian-plugin key="org.everit.jira.timetracker.plugin" name="Timetracker" plugins-version="2">
+<atlassian-plugin key="org.everit.jira.timetracker.plugin" name="Timetracker Plugin" plugins-version="2">
 
   <plugin-info>
     <version>${project.version}</version>
-    <description>Timetracker</description>
     <application-version min="7.0" />
+    <description>Timetracker for JIRA provides an easy and fast time tracking and reporting solution. Manage work logs on a simple screen designed for effective daily time tracking. Create and export detailed reports with multiple search criteria or one of your favorite filters and view every work log related to the users.</description>
     <vendor name="EverIT Kft." url="https://www.everit.biz" />
+    <param name="plugin-icon">icons/jttp16.png</param>
+    <param name="plugin-logo">icons/jttp144.png</param>
+    <param name="vendor-icon">icons/e_logo16.png</param>
+    <param name="vendor-logo">icons/e_logo72.png</param>
     <param name="atlassian-data-center-compatible">true</param>
     <param name="configure.url">/secure/admin/JiraTimetrackerAdminSettingsWebAction!default.jspa</param>
   </plugin-info>
