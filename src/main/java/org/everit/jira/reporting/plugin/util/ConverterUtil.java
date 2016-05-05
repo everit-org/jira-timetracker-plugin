@@ -373,7 +373,9 @@ public final class ConverterUtil {
     GroupManager groupManager = ComponentAccessor.getGroupManager();
     for (String groupName : groupNames) {
       Collection<String> userNamesInGroup = groupManager.getUserNamesInGroup(groupName);
-      userNames.addAll(userNamesInGroup);
+      for (String userName : userNamesInGroup) {
+        userNames.add(userName.toLowerCase(Locale.getDefault()));
+      }
     }
     return userNames;
   }
