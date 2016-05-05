@@ -45,6 +45,62 @@
     font-family: inherit;
     font-size: 14px;
  }
+
+ .tabImage{
+    padding-top: 10px;
+    border: 0;
+    width: 660px;
+    height: 300px;
+ }
+
+ .tab1-img{
+   background-image: url(opening.png);
+   background-position-x: 50%;
+   background-position-y: 10%;
+   background-size: 70%;
+   background-repeat-x: no-repeat;
+   background-repeat-y: no-repeat;
+ }
+ 
+ .tab2-img{
+   background-image: url(search1.png);
+   background-position-x: 90%;
+   background-position-y: 10%;
+   background-size: 85%;
+   background-repeat-x: no-repeat;
+   background-repeat-y: no-repeat;
+   
+ }
+ 
+ .tab3-img{
+   background-image: url(search2.png);
+   background-position-x: 90%;
+   background-position-y: 10%;
+   background-size: 85%;
+   background-repeat-x: no-repeat;
+   background-repeat-y: no-repeat;
+   
+ }
+ 
+ .tab4-img{
+   background-image: url(details.png);
+   background-position-x: 90%;
+   background-position-y: 10%;
+   background-size: 85%;
+   background-repeat-x: no-repeat;
+   background-repeat-y: no-repeat;
+   
+ }
+ 
+ .tab5-img{
+   background-image: url(summary.png);
+   background-position-x: 90%;
+   background-position-y: 10%;
+   background-size: 85%;
+   background-repeat-x: no-repeat;
+   background-repeat-y: no-repeat;
+   
+ }
  
   .criteria-dropdown-textarea{
     width: 100%;
