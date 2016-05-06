@@ -1168,6 +1168,18 @@ everit.reporting.main = everit.reporting.main || {};
   }
   
   function addTooltips(){
+    var $projectExpectedTooltip = AJS.$('#userPickerButton');
+    if(!$projectExpectedTooltip.hasClass('jtrp-tooltipped')) {
+      $projectExpectedTooltip.tooltip();
+      $projectExpectedTooltip.addClass('jtrp-tooltipped');
+    }
+    
+    var $projectExpectedTooltip = AJS.$('#groupPickerButton');
+    if(!$projectExpectedTooltip.hasClass('jtrp-tooltipped')) {
+      $projectExpectedTooltip.tooltip();
+      $projectExpectedTooltip.addClass('jtrp-tooltipped');
+    }
+    
     var $projectExpectedTooltip = AJS.$('#project-expected-tooltip');
     if(!$projectExpectedTooltip.hasClass('jtrp-tooltipped')) {
       $projectExpectedTooltip.tooltip();
