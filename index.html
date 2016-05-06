@@ -114,6 +114,7 @@ Easier, faster time tracking, and timelog reporting." charset="utf-8">
         <p>After installation you can see Timetracker menu in the JIRA top navigation bar. The menu has the following items:</p>
 		<ul>
           <li><b>Timetracker</b> - After clicking on the Timetracker menu item, the plugin interface appears.</li>
+          <li><b>Reporting</b> - This item navigates you to the reporting interface that provides dynamic queries for work log reporting.</li>
 		  <li><b>Help</b> - This item navigates you to the Timetracker user guide page.</li>
           <li><b>Administration</b> - This item is a shortcut to the Timetracker <a href="#global_settings">Global settings</a>. 
 		  The Administration option is only available for JIRA administrators.</li>          
@@ -426,8 +427,34 @@ Easier, faster time tracking, and timelog reporting." charset="utf-8">
         <img class="img-responsive img-thumbnail" src="images/jttp_table_report.png"
           alt="Table report" />
       </div>
+      <hr class="featurette-divider"><div class="bs-docs-featurette cookbook" id="reporting">
+        <h2>Reporting</h2>
+        <p>Create detailed reports with multiple search criteria or one of your favorite filters and view every work log related to the users and additional information about the projects and the issues.</p>
+        <img class="img-responsive img-thumbnail" src="images/reporting.png"
+          alt="Reporting" />
+        <h3 id="reporting_search_criteria">Search criteria</h3>
+        <p>Dynamic queries for work log reporting. Timetracker Reporting provides the main search criteria which you already know from the JIRA Issue Navigator and with a similar look and feel. You can search for projects, issues and worklogs and for their properties. You can define your search criteria in two way: using the basic search or search with one of your favorite filters.</p>
+        <img class="img-responsive img-thumbnail" src="images/rep_search1.png"
+          alt="Search criteria" />
+        <p>You can search by users to find all worklogs related to the selected user(s).
+        You can also search by groups. In this case you can get all worklogs that belong to users within groups. <strong>Note:</strong> The two search terms are exclusive, so the user and group criteria cannot be used simultaneously. 
+        It is also possible to run your parameterised search for a specified time range.</p>
+        <img class="img-responsive img-thumbnail" src="images/rep_search2.png"
+          alt="Search criteria" />
+        <h3 id="reporting_details">Time Tracking Details</h3> 
+        <p>In this section you can see the detailed data according to the search. Each row represents one worklog and every row contains the basic information about the project and the issue which the worklog belongs to. You can display additional columns to see the information that you need in the report.</p>
+        <h4>Export</h4>
+        <p>Timetracker Reporting enables you to export your search results from this section to Microsoft Excel. You can export all columns at once, or just the ones that you displayed.</p>
+        <img class="img-responsive img-thumbnail" src="images/rep_details.png"
+          alt="Time Tracking Details" />
+        <h3 id="reporting_summary">Quick Summary</h3>
+        <p>In this section you can see the summary information about projects, issues and users. Under every tab, each row also displays the total logged times based on its dimension. The grand total of the logged times can be found here too.</p>
+        <h4>Export</h4>
+        <p>You can export the summarized data from this section to Microsoft Excel.</p>
+        <img class="img-responsive img-thumbnail" src="images/rep_summary.png"
+          alt="Quick Summary" />
+      </div>
       <hr class="featurette-divider">
-
       <div class="bs-docs-featurette cookbook" id="notification_email">
         <h2>Notification email</h2>
         <p>By default, the plugin sends every day at 20:00 a notification email about the issues
@@ -509,6 +536,19 @@ Easier, faster time tracking, and timelog reporting." charset="utf-8">
 		   </ul>		
         <img class="img-responsive img-thumbnail" src="images/jttp_feedback.png"
           alt="Feedback" />
+	  </div>
+	  <hr class="featurette-divider">
+        
+      <div class="bs-docs-featurette cookbook" id="versions">
+	    <h2>Versions and compatibility</h2>
+        <p>Due to the introduction of the Reporting feature we had to split the latest Timetracker plugin to two versions.</p>          
+		<p>Timetracker versions and compatibility:</p>
+           <ul>
+             <li>The latest 3.x version of the plugin has the same functionality as the latest 2.4.x version and compatible with JIRA 7.x and above.</li>
+			 <li>The latest 2.4.x version of the plugin compatible with JIRA 6.3.0 to 6.4.13</li>
+			 <li>The older Timetracker 2.2.0 to 2.3.5 versions of the plugin compatible with JIRA 6.2.5 to 7.x, but these versions do not contain the Reporting feature.</li>
+             <li>The version 1.x is compatible with older Jira versions but it uses tricks to achieve the same goals (e.g.: native SQL expressions). Version 1.x will be supported until the rate of deployments is dropped below 15%.</li>
+		   </ul>
 	  </div>
 	  <hr class="featurette-divider">
 	  
@@ -792,10 +832,17 @@ Easier, faster time tracking, and timelog reporting." charset="utf-8">
           <li><a href="#missing_days_report">Missing days report</a></li>
           <li><a href="#chart_report">Chart report</a></li>
           <li><a href="#table_report">Table report</a></li>
+          <li><a href="#reporting">Reporting</a>
+            <ul class="nav nav-pills nav-stacked">
+              <li><a href="#reporting_search_criteria">Search criteria</a></li>
+              <li><a href="#reporting_details">Time Tracking Details</a></li>
+              <li><a href="#reporting_summary">Quick Summary</a></li>
+            </ul></li>
           <li><a href="#notification_email">Notification Email</a></li>
           <li><a href="#error_messages">Error messages</a></li>
 		  <li><a href="#analytics">Analytics</a></li>
 		  <li><a href="#feedback">Feedback</a></li>
+          <li><a href="#versions">Versions and compatibility</a></li>
           <li><a href="#release_notes">Release notes</a></li>
         </ul>
       </nav>
