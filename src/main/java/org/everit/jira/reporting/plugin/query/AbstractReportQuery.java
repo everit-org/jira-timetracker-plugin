@@ -18,7 +18,9 @@ package org.everit.jira.reporting.plugin.query;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -432,10 +434,14 @@ public abstract class AbstractReportQuery<T> {
   private BooleanExpression filterToIssueCreatedDate(final QJiraissue qIssue,
       final BooleanExpression where) {
     if (reportSearchParam.issueCreateDate != null) {
+      Calendar issueCreateDateEndCalendar = Calendar.getInstance();
+      issueCreateDateEndCalendar.setTime(reportSearchParam.issueCreateDate);
+      issueCreateDateEndCalendar.add(Calendar.DAY_OF_MONTH, 1);
+      Date issueCreateDateEndDate = issueCreateDateEndCalendar.getTime();
       return where
-          .and(qIssue.created.eq(
-              new Timestamp(reportSearchParam.issueCreateDate
-                  .getTime())));
+          .and(qIssue.created.between(
+              new Timestamp(reportSearchParam.issueCreateDate.getTime()),
+              new Timestamp(issueCreateDateEndDate.getTime())));
     }
     return where;
   }
