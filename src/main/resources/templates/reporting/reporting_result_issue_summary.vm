@@ -19,8 +19,8 @@
                                         <tr>
                                             <th>$i18n.getText("jtrp.report.is.col.jtrp_col_issue")</th>
                                             <th>$i18n.getText("jtrp.report.is.col.jtrp_col_issueSummary")</th>
-                                            <th>$i18n.getText("jtrp.report.is.col.jtrp_col_type")</th>
-                                            <th>$i18n.getText("jtrp.report.is.col.jtrp_col_priority")</th>
+                                            <th id='is_jtrp_col_type' title='$i18n.getText("jtrp.report.is.col.jtrp_col_type.tooltip")'>$i18n.getText("jtrp.report.is.col.jtrp_col_type")</th>
+                                            <th id='is_jtrp_col_priority' title='$i18n.getText("jtrp.report.is.col.jtrp_col_priority.tooltip")'>$i18n.getText("jtrp.report.is.col.jtrp_col_priority")</th>
                                             <th>$i18n.getText("jtrp.report.is.col.jtrp_col_status")</th>
                                             <th>$i18n.getText("jtrp.report.is.col.jtrp_col_assignee")</th>
                                             <th>$i18n.getText("jtrp.report.is.col.jtrp_col_estimated")</th>

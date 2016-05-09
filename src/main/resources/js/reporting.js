@@ -1265,6 +1265,18 @@ everit.reporting.main = everit.reporting.main || {};
       $jtrp_col_typeTooltip.addClass('jtrp-tooltipped');
     }
     
+    var $jtrp_col_priorityTooltip = AJS.$('#is_jtrp_col_priority');
+    if(!$jtrp_col_priorityTooltip.hasClass('jtrp-tooltipped')) {
+      $jtrp_col_priorityTooltip.tooltip();
+      $jtrp_col_priorityTooltip.addClass('jtrp-tooltipped');
+    }
+    
+    var $jtrp_col_typeTooltip = AJS.$('#is_jtrp_col_type');
+    if(!$jtrp_col_typeTooltip.hasClass('jtrp-tooltipped')) {
+      $jtrp_col_typeTooltip.tooltip();
+      $jtrp_col_typeTooltip.addClass('jtrp-tooltipped');
+    }
+    
     AJS.$('.img-tooltip').each(function() {
       var $element = AJS.$(this);
       if(!$element.hasClass('jtrp-tooltipped')) {
