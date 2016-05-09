@@ -269,7 +269,7 @@ public final class ConverterUtil {
         .worklogStartDate(worklogStartDate)
         .issueKeys(searchParamIssueKeys);
 
-    if (reportSearchParam.worklogStartDate.after(reportSearchParam.worklogEndDate)) {
+    if (!reportSearchParam.worklogStartDate.before(reportSearchParam.worklogEndDate)) {
       throw new IllegalArgumentException(KEY_WRONG_DATES);
     }
     ConverterUtil.collectUsersFromParams(filterCondition, reportSearchParam);

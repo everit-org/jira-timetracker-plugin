@@ -443,7 +443,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                 <div class="search-criteria-container">
                                     <div class="search-criteria">
                                          <!-- User Dropdown  BUTTON-->
-                                         <a id="userPickerButton" href="#userPickerDropDown" aria-disabled="false" aria-owns="userPickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger"></a>
+                                         <a id="userPickerButton" href="#userPickerDropDown" aria-disabled="false" aria-owns="userPickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger"  title='$i18n.getText("jtrp.picker.user.tooltip")'></a>
                                          <!-- User Dropdown -->
                                          <div id="userPickerDropDown" class="aui-style-default aui-dropdown2">
                                            <div class="jttr-filter-field">
@@ -461,7 +461,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                          </div>
                                          <!-- User Dropdown End-->
                                          <!-- Group Dropdown  BUTTON-->
-                                         <a id="groupPickerButton" href="#groupPickerDropDown" aria-disabled="false" aria-owns="groupPickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger"></a>
+                                         <a id="groupPickerButton" href="#groupPickerDropDown" aria-disabled="false" aria-owns="groupPickerDropDown" aria-haspopup="true" class="criteria-selector aui-button aui-button-subtle drop-arrow aui-dropdown2-trigger" title='$i18n.getText("jtrp.picker.group.tooltip")'></a>
                                          <!-- Group Dropdown -->
                                          <div id="groupPickerDropDown" class="aui-style-default aui-dropdown2">
                                            <div class="jttr-filter-field">
