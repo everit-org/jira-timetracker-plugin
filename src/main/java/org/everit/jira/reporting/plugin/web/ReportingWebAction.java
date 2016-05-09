@@ -218,6 +218,13 @@ public class ReportingWebAction extends JiraWebActionSupport {
     return SUCCESS;
   }
 
+  private void defaultInitalizeData() {
+    selectedMore = new ArrayList<String>();
+    filterCondition = new FilterCondition();
+    selectedWorklogDetailsColumns = WorklogDetailsColumns.DEFAULT_COLUMNS;
+    initDatesIfNecessary();
+  }
+
   @Override
   public String doDefault() throws ParseException {
     boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
@@ -413,16 +420,20 @@ public class ReportingWebAction extends JiraWebActionSupport {
   private void initializeData() {
     ReportingSessionData loadDataFromSession = loadDataFromSession();
     if (loadDataFromSession != null) {
-      createReport(loadDataFromSession.selectedMoreJson, loadDataFromSession.selectedActiveTab,
-          loadDataFromSession.filterConditionJson,
-          loadDataFromSession.selectedWorklogDetailsColumnsJson,
-          loadDataFromSession.collapsedDetailsModuleVal,
-          loadDataFromSession.collapsedSummaryModuleVal);
+      String createReportResult =
+          createReport(loadDataFromSession.selectedMoreJson, loadDataFromSession.selectedActiveTab,
+              loadDataFromSession.filterConditionJson,
+              loadDataFromSession.selectedWorklogDetailsColumnsJson,
+              loadDataFromSession.collapsedDetailsModuleVal,
+              loadDataFromSession.collapsedSummaryModuleVal);
+      // This check is necessary because of the date parse errors not handeled well. In the feature
+      // try to avoid the formated dates store, better if we user timestamp
+      if (!SUCCESS.equals(createReportResult)) {
+        message = "";
+        defaultInitalizeData();
+      }
     } else {
-      selectedMore = new ArrayList<String>();
-      filterCondition = new FilterCondition();
-      selectedWorklogDetailsColumns = WorklogDetailsColumns.DEFAULT_COLUMNS;
-      initDatesIfNecessary();
+      defaultInitalizeData();
     }
   }
 
