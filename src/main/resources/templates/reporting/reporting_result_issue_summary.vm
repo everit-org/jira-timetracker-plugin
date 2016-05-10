@@ -37,7 +37,7 @@
                                             </td>
                                             <td>$is.issueSummary</td>
                                             <td>
-                                              <img class="img-tooltip" src="#if( $is.issueTypeIconUrl.startsWith("http") )$is.issueTypeIconUrl#else$contextPath$is.issueTypeIconUrl#end" alt="$is.issueTypeName" title="$is.issueTypeName"></img>
+                                              <img class="img-tooltip" src="#if(!$is.issueAvatarId) #if( $is.issueTypeIconUrl.startsWith("http") )$is.issueTypeIconUrl#else$contextPath$is.issueTypeIconUrl#end#else$contextPath/secure/viewavatar?size=xsmall&avatarId=$is.issueAvatarId&avatarType=issuetype#end" alt="$is.issueTypeName" title="$is.issueTypeName"></img>
                                             </td>
                                             <td>
                                               <img class="img-tooltip" src="#if( $is.priorityIconUrl.startsWith("http") )$is.priorityIconUrl#else$contextPath$is.priorityIconUrl#end" alt="$is.priorityName" title="$is.priorityName"></img>

@@ -63,6 +63,7 @@ public class IssueSummaryReportQueryBuilder extends AbstractReportQuery<IssueSum
         qIssue.summary.as(IssueSummaryDTO.AliasNames.ISSUE_SUMMARY),
         qIssuetype.pname.as(IssueSummaryDTO.AliasNames.ISSUE_TYPE_NAME),
         qIssuetype.iconurl.as(IssueSummaryDTO.AliasNames.ISSUE_TYPE_ICON_URL),
+        qIssuetype.avatar.as(IssueSummaryDTO.AliasNames.ISSUE_AVATAR_ID),
         qPriority.pname.as(IssueSummaryDTO.AliasNames.PRIORITY_NAME),
         qPriority.iconurl.as(IssueSummaryDTO.AliasNames.PRIORITY_ICON_URL),
         qIssuestatus.pname.as(IssueSummaryDTO.AliasNames.STATUS_NAME),

@@ -27,6 +27,8 @@ public class IssueSummaryDTO {
 
     public static final String ASSIGNEE = "assignee";
 
+    public static final String ISSUE_AVATAR_ID = "issueAvatarId";
+
     public static final String ISSUE_KEY = "issueKey";
 
     public static final String ISSUE_ORIGINAL_ESTIMATE_SUM = "orginalEstimatedSum";
@@ -55,6 +57,8 @@ public class IssueSummaryDTO {
 
   private long expected;
 
+  private Long issueAvatarId;
+
   private String issueKey;
 
   private String issueSummary;
@@ -82,6 +86,10 @@ public class IssueSummaryDTO {
   public long getExpected() {
     expected = workloggedTimeSum + reaminingTimeSum;
     return expected;
+  }
+
+  public Long getIssueAvatarId() {
+    return issueAvatarId;
   }
 
   public String getIssueKey() {
@@ -126,6 +134,10 @@ public class IssueSummaryDTO {
 
   public void setAssignee(final String assignee) {
     this.assignee = assignee;
+  }
+
+  public void setIssueAvatarId(final Long issueAvatarId) {
+    this.issueAvatarId = issueAvatarId;
   }
 
   public void setIssueKey(final String issueKey) {
