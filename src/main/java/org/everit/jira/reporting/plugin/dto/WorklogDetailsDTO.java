@@ -86,6 +86,7 @@ public class WorklogDetailsDTO {
   private List<String> issueAffectedVersions = Collections.emptyList();
 
   private String issueAssignee;
+
   private Long issueAvatarId;
 
   private List<String> issueComponents = Collections.emptyList();
