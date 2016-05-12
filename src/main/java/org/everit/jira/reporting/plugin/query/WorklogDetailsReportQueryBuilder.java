@@ -71,6 +71,7 @@ public class WorklogDetailsReportQueryBuilder extends AbstractReportQuery<Worklo
         qIssue.id.as(WorklogDetailsDTO.AliasNames.ISSUE_ID),
         qIssuetype.pname.as(WorklogDetailsDTO.AliasNames.ISSUE_TYPE_NAME),
         qIssuetype.iconurl.as(WorklogDetailsDTO.AliasNames.ISSUE_TYPE_ICON_URL),
+        qIssuetype.avatar.as(WorklogDetailsDTO.AliasNames.ISSUE_AVATAR_ID),
         qIssuestatus.pname.as(WorklogDetailsDTO.AliasNames.ISSUE_STATUS_P_NAME),
         QueryUtil.selectDisplayName(qIssue.assignee)
             .as(WorklogDetailsDTO.AliasNames.ISSUE_ASSIGNEE),
