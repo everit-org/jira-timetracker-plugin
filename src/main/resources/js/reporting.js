@@ -39,7 +39,12 @@ everit.reporting.main = everit.reporting.main || {};
     
     var opt = reporting.values;
      
-    Date.parseDate = function(str, fmt){return fecha.parse(str, AJS.Meta.get("date-dmy").toUpperCase());};
+    Date.parseDate = function(str, fmt){
+      return fecha.parse(str, AJS.Meta.get("date-dmy").toUpperCase());
+      };
+      
+    jQuery("#dateFrom").val(fecha.format(opt.dateFromFormated, AJS.Meta.get("date-dmy").toUpperCase()));
+    jQuery("#dateTo").val(fecha.format(opt.dateToFormated, AJS.Meta.get("date-dmy").toUpperCase()));
     
     var calFrom = Calendar.setup({
       firstDay : opt.firstDay,
@@ -302,6 +307,9 @@ everit.reporting.main = everit.reporting.main || {};
   }
   
  function initCreatedDatePicker(){
+    if(!isNaN(reporting.values.dateCreatedFormated)){
+      jQuery("#createdPicker").val(fecha.format(reporting.values.dateCreatedFormated, AJS.Meta.get("date-dmy").toUpperCase()));
+    }
     var createdDate = Calendar.setup({
       firstDay : reporting.values.firstDay,
       inputField : jQuery("#createdPicker"),
@@ -974,7 +982,13 @@ everit.reporting.main = everit.reporting.main || {};
 
     var labels = jQuery('#labelPicker').val() || [];
     
-    var issueCreateDate = jQuery('#createdPicker').val();
+    var createdPicker = jQuery('#createdPicker').val();
+    if(createdPicker != ""){
+      var issueCreateDate = fecha.parse(createdPicker,  AJS.Meta.get("date-dmy").toUpperCase());
+      if(issueCreateDate){
+        var issueCreateDateMilis = issueCreateDate.getTime();
+      }
+    }
     
     var issueEpicName = jQuery('#epicNamePicker').val();
     
@@ -989,9 +1003,11 @@ everit.reporting.main = everit.reporting.main || {};
     
     var users =jQuery('#userPicker').val() || [];
     
-    var worklogStartDate = jQuery('#dateFrom').val();
+    var dateFrom = jQuery('#dateFrom').val();
+    var worklogStartDate = fecha.parse(dateFrom,  AJS.Meta.get("date-dmy").toUpperCase());
     
-    var worklogEndDate = jQuery('#dateTo').val();
+    var dateTo = jQuery('#dateTo').val();
+    var worklogEndDate = fecha.parse(dateTo,  AJS.Meta.get("date-dmy").toUpperCase());
     
     var issueKeys = jQuery('#issuePicker').val() || [];
     
@@ -1004,7 +1020,7 @@ everit.reporting.main = everit.reporting.main || {};
       "issueAffectedVersions": issueAffectedVersions,
       "issueAssignees": issueAssignees,
       "issueComponents": issueComponents,
-      "issueCreateDate": issueCreateDate,
+      "issueCreateDate": issueCreateDateMilis,
       "issueEpicLinkIssueIds": issueEpicLinkIssueIds,
       "issueEpicName": issueEpicName,
       "issueFixedVersions": issueFixedVersions,
@@ -1017,8 +1033,8 @@ everit.reporting.main = everit.reporting.main || {};
       "labels": labels,
       "projectIds": projectIds,
       "users": users,
-      "worklogEndDate": worklogEndDate,
-      "worklogStartDate": worklogStartDate,
+      "worklogEndDate": worklogEndDate.getTime(),
+      "worklogStartDate": worklogStartDate.getTime(),
       "filter": filter,
       "searcherValue": searcherValue,
     }
