@@ -49,6 +49,7 @@ public class IssueSummaryReportQueryBuilder extends AbstractReportQuery<IssueSum
         qProject.pkey,
         qIssue.issuenum,
         qIssue.summary,
+        qIssuetype.avatar,
         qIssuetype.pname,
         qIssuetype.iconurl,
         qPriority.pname,
