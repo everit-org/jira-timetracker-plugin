@@ -48,6 +48,7 @@ public class IssueSummaryReportQueryBuilder extends AbstractReportQuery<IssueSum
     return new Expression<?>[] {
         qProject.pkey,
         qIssue.issuenum,
+        qIssuetype.avatar,
         qIssue.summary,
         qIssuetype.pname,
         qIssuetype.iconurl,
