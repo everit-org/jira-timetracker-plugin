@@ -63,7 +63,6 @@ public class WorklogDetailsReportQueryBuilder extends AbstractReportQuery<Worklo
   }
 
   private QBean<WorklogDetailsDTO> createQuerySelectProjection(final StringExpression issueKey) {
-    // StringExpression userExpression = QueryUtil.createUserExpression(qCwdUser, qWorklog);
     return Projections.bean(WorklogDetailsDTO.class,
         qProject.pname.as(WorklogDetailsDTO.AliasNames.PROJECT_NAME),
         qProject.pkey.as(WorklogDetailsDTO.AliasNames.PROJECT_KEY),
@@ -74,8 +73,6 @@ public class WorklogDetailsReportQueryBuilder extends AbstractReportQuery<Worklo
         qIssuetype.iconurl.as(WorklogDetailsDTO.AliasNames.ISSUE_TYPE_ICON_URL),
         qIssuetype.avatar.as(WorklogDetailsDTO.AliasNames.ISSUE_AVATAR_ID),
         qIssuestatus.pname.as(WorklogDetailsDTO.AliasNames.ISSUE_STATUS_P_NAME),
-        // QueryUtil.selectDisplayName(qIssue.assignee)
-        // .as(WorklogDetailsDTO.AliasNames.ISSUE_ASSIGNEE),
         new CaseBuilder()
             .when(QueryUtil.selectDisplayNameForUserExist(qIssue.assignee))
             .then(QueryUtil.selectDisplayNameForUser(qIssue.assignee))
@@ -88,8 +85,6 @@ public class WorklogDetailsReportQueryBuilder extends AbstractReportQuery<Worklo
         qProject.description.as(WorklogDetailsDTO.AliasNames.PROJECT_DESCRIPTION),
         qPriority.pname.as(WorklogDetailsDTO.AliasNames.PRIORITY_NAME),
         qPriority.iconurl.as(WorklogDetailsDTO.AliasNames.PRIORITY_ICON_URL),
-        // QueryUtil.selectDisplayName(qIssue.reporter)
-        // .as(WorklogDetailsDTO.AliasNames.ISSUE_REPORTER),
         new CaseBuilder()
             .when(QueryUtil.selectDisplayNameForUserExist(qIssue.reporter))
             .then(QueryUtil.selectDisplayNameForUser(qIssue.reporter))
@@ -106,7 +101,6 @@ public class WorklogDetailsReportQueryBuilder extends AbstractReportQuery<Worklo
             .then(QueryUtil.selectDisplayNameForUser(qWorklog.author))
             .otherwise(qWorklog.author)
             .as(WorklogDetailsDTO.AliasNames.WORKLOG_USER));
-    // userExpression.as(WorklogDetailsDTO.AliasNames.WORKLOG_USER));
   }
 
   private void extendResult(final Connection connection, final Configuration configuration,

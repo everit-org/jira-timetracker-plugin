@@ -51,10 +51,8 @@ public class UserSummaryReportQueryBuilder extends AbstractReportQuery<UserSumma
   }
 
   private QBean<UserSummaryDTO> createQuerySelectProjection(
-      // final StringExpression userExpression,
       final StringPath userPath) {
     return Projections.bean(UserSummaryDTO.class,
-        // userExpression.as(UserSummaryDTO.AliasNames.USER_DISPLAY_NAME),
         new CaseBuilder()
             .when(QueryUtil.selectDisplayNameForUserExist(qWorklog.author))
             .then(QueryUtil.selectDisplayNameForUser(qWorklog.author))
@@ -98,7 +96,6 @@ public class UserSummaryReportQueryBuilder extends AbstractReportQuery<UserSumma
         StringPath userPath =
             Expressions.stringPath(new PathMetadata(null,
                 UserSummaryDTO.AliasNames.USER_DISPLAY_NAME, PathType.VARIABLE));
-        // StringExpression userExpression = QueryUtil.createUserExpression(qCwdUser, qWorklog);
 
         SQLQuery<UserSummaryDTO> query = new SQLQuery<UserSummaryDTO>(connection, configuration)
             .select(createQuerySelectProjection(userPath));

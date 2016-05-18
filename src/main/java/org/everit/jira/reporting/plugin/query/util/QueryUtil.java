@@ -64,7 +64,7 @@ public final class QueryUtil {
   }
 
   /**
-   * Select user displayName for user.
+   * Select and check user exists.
    *
    * @param stringPath
    *          The StringPath of the checked user parameter.
