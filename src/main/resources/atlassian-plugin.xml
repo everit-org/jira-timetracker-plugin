@@ -19,8 +19,8 @@
 
   <plugin-info>
     <version>${project.version}</version>
+    <application-version min="7.0" />
     <description>Timetracker for JIRA provides an easy and fast time tracking and reporting solution. Manage work logs on a simple screen designed for effective daily time tracking. Create and export detailed reports with multiple search criteria or one of your favorite filters and view every work log related to the users.</description>
-    <application-version min="6.3" />
     <vendor name="EverIT Kft." url="https://www.everit.biz" />
     <param name="plugin-icon">icons/jttp16.png</param>
     <param name="plugin-logo">icons/jttp144.png</param>
