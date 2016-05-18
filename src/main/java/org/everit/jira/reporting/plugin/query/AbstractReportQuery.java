@@ -68,10 +68,6 @@ public abstract class AbstractReportQuery<T> {
 
   protected BooleanExpression expressionTrue;
 
-  // protected final QAppUser qAppUser;
-
-  // protected final QCwdUser qCwdUser;
-
   protected final QJiraissue qIssue;
 
   protected final QIssuestatus qIssuestatus;
@@ -109,8 +105,6 @@ public abstract class AbstractReportQuery<T> {
     qWorklog = new QWorklog("worklog");
     qPriority = new QPriority("priority");
     qResolution = new QResolution("resolution");
-    // qAppUser = new QAppUser("appuser");
-    // qCwdUser = new QCwdUser("cwd_user");
     expressionTrue = Expressions.ONE.eq(Expressions.ONE);
     expressionFalse = Expressions.ONE.ne(Expressions.ONE);
   }
@@ -129,8 +123,6 @@ public abstract class AbstractReportQuery<T> {
         .join(qIssuestatus).on(qIssue.issuestatus.eq(qIssuestatus.id))
         .join(qPriority).on(qIssue.priority.eq(qPriority.id))
         .leftJoin(qResolution).on(qIssue.resolution.eq(qResolution.id));
-    // .leftJoin(qAppUser).on(qAppUser.userKey.eq(qWorklog.author))
-    // .leftJoin(qCwdUser).on(qCwdUser.lowerUserName.eq(qAppUser.lowerUserName));
   }
 
   /**
