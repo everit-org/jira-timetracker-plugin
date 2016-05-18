@@ -17,6 +17,7 @@ package org.everit.jira.reporting.plugin.query;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 
 import org.everit.jira.querydsl.schema.QProject;
@@ -90,33 +91,51 @@ public class ProjectSummaryReportQueryBuilder extends AbstractReportQuery<Projec
                 ProjectSummaryDTO.AliasNames.WORKLOGGED_TIME_SUM,
                 PathType.VARIABLE));
 
+        NumberPath<Long> timeOriginalIssueSumPath = Expressions.numberPath(Long.class,
+            new PathMetadata(null,
+                "timeOriginalIssueSumPath",
+                PathType.VARIABLE));
+        NumberPath<Long> timeEstimateIssueSumPath = Expressions.numberPath(Long.class,
+            new PathMetadata(null,
+                "timeEstimateIssueSumPath",
+                PathType.VARIABLE));
+        NumberPath<Long> workloggedIssueSumPath = Expressions.numberPath(Long.class,
+            new PathMetadata(null,
+                "workloggedIssueSumPath",
+                PathType.VARIABLE));
+
         SQLQuery<Tuple> fromQuery = SQLExpressions.select(
             qProject.id.as(fromProjectIdPath),
-            qIssue.timeoriginalestimate.sum().as(timeOriginalSumPath),
-            qIssue.timeestimate.sum().as(timeEstimateSumPath),
-            qWorklog.timeworked.sum().as(workloggedSumPath));
+            qIssue.timeoriginalestimate.min().as(timeOriginalIssueSumPath),
+            qIssue.timeestimate.min().as(timeEstimateIssueSumPath),
+            qWorklog.timeworked.sum().as(workloggedIssueSumPath));
 
         appendBaseFromAndJoin(fromQuery);
         appendBaseWhere(fromQuery);
-        fromQuery.groupBy(qProject.id);
+        fromQuery.groupBy(qProject.id, qIssue.id);
 
         QProject qProject = new QProject("m_project");
         SQLQuery<ProjectSummaryDTO> query =
             new SQLQuery<ProjectSummaryDTO>(connection, configuration)
-                .select(Projections.bean(ProjectSummaryDTO.class,
-                    qProject.pkey.as(ProjectSummaryDTO.AliasNames.PROJECT_KEY),
-                    qProject.pname.as(ProjectSummaryDTO.AliasNames.PROJECT_NAME),
-                    qProject.description.as(ProjectSummaryDTO.AliasNames.PROJECT_DESCRIPTION),
-                    timeOriginalSumPath,
-                    timeEstimateSumPath,
-                    workloggedSumPath))
+                .select(
+                    Projections.bean(ProjectSummaryDTO.class,
+                        qProject.pkey.as(ProjectSummaryDTO.AliasNames.PROJECT_KEY),
+                        qProject.pname.as(ProjectSummaryDTO.AliasNames.PROJECT_NAME),
+                        qProject.description.as(ProjectSummaryDTO.AliasNames.PROJECT_DESCRIPTION),
+                        timeOriginalIssueSumPath.sum().as(timeOriginalSumPath),
+                        timeEstimateIssueSumPath.sum().as(timeEstimateSumPath),
+                        workloggedIssueSumPath.sum().as(workloggedSumPath)))
                 .from(fromQuery.as("sums"))
                 .join(qProject).on(qProject.id.eq(fromProjectIdPath))
+                .groupBy(fromProjectIdPath)
                 .orderBy(qProject.pkey.asc());
 
         appendQueryRange(query);
-
-        return query.fetch();
+        List<ProjectSummaryDTO> fetch = query.fetch();
+        if ((fetch.size() == 1) && (fetch.get(0).getProjectKey() == null)) {
+          return Collections.emptyList();
+        }
+        return fetch;
       }
     };
   }
