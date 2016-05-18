@@ -32,9 +32,9 @@
 	                                          <option value="jtrp_col_projectDescription">$i18n.getText("jtrp.report.wd.col.jtrp_col_projectDescription")</option>
 	                                          <option value="jtrp_col_issueKey">$i18n.getText("jtrp.report.wd.col.jtrp_col_issueKey")</option>
 	                                          <option value="jtrp_col_issueSummary">$i18n.getText("jtrp.report.wd.col.jtrp_col_issueSummary")</option>
-	                                          <option value="jtrp_col_type">$i18n.getText("jtrp.report.wd.col.jtrp_col_type")</option>
+	                                          <option value="jtrp_col_type">$i18n.getText("jtrp.report.wd.col.jtrp_col_type.tooltip")</option>
 	                                          <option value="jtrp_col_status">$i18n.getText("jtrp.report.wd.col.jtrp_col_status")</option>
-	                                          <option value="jtrp_col_priority">$i18n.getText("jtrp.report.wd.col.jtrp_col_priority")</option>
+	                                          <option value="jtrp_col_priority">$i18n.getText("jtrp.report.wd.col.jtrp_col_priority.tooltip")</option>
 	                                          <option value="jtrp_col_assignee">$i18n.getText("jtrp.report.wd.col.jtrp_col_assignee")</option>
 	                                          <option value="jtrp_col_reporter">$i18n.getText("jtrp.report.wd.col.jtrp_col_reporter")</option>
 	                                          <option value="jtrp_col_estimated">$i18n.getText("jtrp.report.wd.col.jtrp_col_estimated")</option>
