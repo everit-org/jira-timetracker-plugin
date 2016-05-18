@@ -28,7 +28,6 @@ import org.everit.jira.querydsl.schema.QAppUser;
 import org.everit.jira.querydsl.schema.QComponent;
 import org.everit.jira.querydsl.schema.QCustomfield;
 import org.everit.jira.querydsl.schema.QCustomfieldvalue;
-import org.everit.jira.querydsl.schema.QCwdUser;
 import org.everit.jira.querydsl.schema.QIssuelink;
 import org.everit.jira.querydsl.schema.QIssuelinktype;
 import org.everit.jira.querydsl.schema.QIssuestatus;
@@ -70,9 +69,9 @@ public abstract class AbstractReportQuery<T> {
 
   protected BooleanExpression expressionTrue;
 
-  protected final QAppUser qAppUser;
+  // protected final QAppUser qAppUser;
 
-  protected final QCwdUser qCwdUser;
+  // protected final QCwdUser qCwdUser;
 
   protected final QJiraissue qIssue;
 
@@ -111,8 +110,8 @@ public abstract class AbstractReportQuery<T> {
     qWorklog = new QWorklog("worklog");
     qPriority = new QPriority("priority");
     qResolution = new QResolution("resolution");
-    qAppUser = new QAppUser("appuser");
-    qCwdUser = new QCwdUser("cwd_user");
+    // qAppUser = new QAppUser("appuser");
+    // qCwdUser = new QCwdUser("cwd_user");
     expressionTrue = Expressions.ONE.eq(Expressions.ONE);
     expressionFalse = Expressions.ONE.ne(Expressions.ONE);
   }
@@ -130,9 +129,9 @@ public abstract class AbstractReportQuery<T> {
         .join(qIssuetype).on(qIssue.issuetype.eq(qIssuetype.id))
         .join(qIssuestatus).on(qIssue.issuestatus.eq(qIssuestatus.id))
         .join(qPriority).on(qIssue.priority.eq(qPriority.id))
-        .leftJoin(qResolution).on(qIssue.resolution.eq(qResolution.id))
-        .leftJoin(qAppUser).on(qAppUser.userKey.eq(qWorklog.author))
-        .leftJoin(qCwdUser).on(qCwdUser.lowerUserName.eq(qAppUser.lowerUserName));
+        .leftJoin(qResolution).on(qIssue.resolution.eq(qResolution.id));
+    // .leftJoin(qAppUser).on(qAppUser.userKey.eq(qWorklog.author))
+    // .leftJoin(qCwdUser).on(qCwdUser.lowerUserName.eq(qAppUser.lowerUserName));
   }
 
   /**
