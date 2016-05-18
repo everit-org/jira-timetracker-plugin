@@ -29,9 +29,11 @@ import com.querydsl.core.types.PathMetadata;
 import com.querydsl.core.types.PathType;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.QBean;
+import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberPath;
 import com.querydsl.core.types.dsl.StringExpression;
+import com.querydsl.core.types.dsl.StringPath;
 import com.querydsl.sql.Configuration;
 import com.querydsl.sql.SQLQuery;
 
@@ -44,7 +46,7 @@ public class IssueSummaryReportQueryBuilder extends AbstractReportQuery<IssueSum
     super(reportSearchParam);
   }
 
-  private Expression<?>[] createQueryGroupBy() {
+  private Expression<?>[] createQueryGroupBy(final StringPath userPath) {
     return new Expression<?>[] {
         qProject.pkey,
         qIssue.issuenum,
@@ -55,10 +57,11 @@ public class IssueSummaryReportQueryBuilder extends AbstractReportQuery<IssueSum
         qPriority.pname,
         qPriority.iconurl,
         qIssuestatus.pname,
-        qIssue.assignee };
+        userPath };
   }
 
-  private QBean<IssueSummaryDTO> createQuerySelectProjection(final StringExpression issueKey) {
+  private QBean<IssueSummaryDTO> createQuerySelectProjection(final StringExpression issueKey,
+      final StringPath userPath) {
     return Projections.bean(IssueSummaryDTO.class,
         issueKey.as(IssueSummaryDTO.AliasNames.ISSUE_KEY),
         qIssue.summary.as(IssueSummaryDTO.AliasNames.ISSUE_SUMMARY),
@@ -68,11 +71,14 @@ public class IssueSummaryReportQueryBuilder extends AbstractReportQuery<IssueSum
         qPriority.pname.as(IssueSummaryDTO.AliasNames.PRIORITY_NAME),
         qPriority.iconurl.as(IssueSummaryDTO.AliasNames.PRIORITY_ICON_URL),
         qIssuestatus.pname.as(IssueSummaryDTO.AliasNames.STATUS_NAME),
-        QueryUtil.selectDisplayName(qIssue.assignee)
-            .as(IssueSummaryDTO.AliasNames.ASSIGNEE),
-        qIssue.timeoriginalestimate.sum()
+        new CaseBuilder()
+            .when(QueryUtil.selectDisplayNameForUserExist(qIssue.assignee))
+            .then(QueryUtil.selectDisplayNameForUser(qIssue.assignee))
+            .otherwise(qIssue.assignee)
+            .as(userPath),
+        qIssue.timeoriginalestimate.min()
             .as(IssueSummaryDTO.AliasNames.ISSUE_ORIGINAL_ESTIMATE_SUM),
-        qIssue.timeestimate.sum().as(IssueSummaryDTO.AliasNames.ISSUE_TIME_ESTIMATE_SUM),
+        qIssue.timeestimate.min().as(IssueSummaryDTO.AliasNames.ISSUE_TIME_ESTIMATE_SUM),
         qWorklog.timeworked.sum().as(IssueSummaryDTO.AliasNames.WORKLOGGED_TIME_SUM));
   }
 
@@ -109,15 +115,18 @@ public class IssueSummaryReportQueryBuilder extends AbstractReportQuery<IssueSum
       public List<IssueSummaryDTO> call(final Connection connection,
           final Configuration configuration) throws SQLException {
         StringExpression issueKey = QueryUtil.createIssueKeyExpression(qIssue, qProject);
+        StringPath userPath =
+            Expressions.stringPath(
+                new PathMetadata(null, IssueSummaryDTO.AliasNames.ASSIGNEE, PathType.VARIABLE));
 
         SQLQuery<IssueSummaryDTO> query = new SQLQuery<IssueSummaryDTO>(connection, configuration)
-            .select(createQuerySelectProjection(issueKey));
+            .select(createQuerySelectProjection(issueKey, userPath));
 
         appendBaseFromAndJoin(query);
         appendBaseWhere(query);
         appendQueryRange(query);
 
-        query.groupBy(createQueryGroupBy());
+        query.groupBy(createQueryGroupBy(userPath));
 
         query.orderBy(issueKey.asc());
 
