@@ -38,6 +38,7 @@ import com.querydsl.core.types.PathMetadata;
 import com.querydsl.core.types.PathType;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.QBean;
+import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberPath;
 import com.querydsl.core.types.dsl.StringExpression;
@@ -62,7 +63,7 @@ public class WorklogDetailsReportQueryBuilder extends AbstractReportQuery<Worklo
   }
 
   private QBean<WorklogDetailsDTO> createQuerySelectProjection(final StringExpression issueKey) {
-    StringExpression userExpression = QueryUtil.createUserExpression(qCwdUser, qWorklog);
+    // StringExpression userExpression = QueryUtil.createUserExpression(qCwdUser, qWorklog);
     return Projections.bean(WorklogDetailsDTO.class,
         qProject.pname.as(WorklogDetailsDTO.AliasNames.PROJECT_NAME),
         qProject.pkey.as(WorklogDetailsDTO.AliasNames.PROJECT_KEY),
@@ -73,7 +74,12 @@ public class WorklogDetailsReportQueryBuilder extends AbstractReportQuery<Worklo
         qIssuetype.iconurl.as(WorklogDetailsDTO.AliasNames.ISSUE_TYPE_ICON_URL),
         qIssuetype.avatar.as(WorklogDetailsDTO.AliasNames.ISSUE_AVATAR_ID),
         qIssuestatus.pname.as(WorklogDetailsDTO.AliasNames.ISSUE_STATUS_P_NAME),
-        QueryUtil.selectDisplayName(qIssue.assignee)
+        // QueryUtil.selectDisplayName(qIssue.assignee)
+        // .as(WorklogDetailsDTO.AliasNames.ISSUE_ASSIGNEE),
+        new CaseBuilder()
+            .when(QueryUtil.selectDisplayNameForUserExist(qIssue.assignee))
+            .then(QueryUtil.selectDisplayNameForUser(qIssue.assignee))
+            .otherwise(qIssue.assignee)
             .as(WorklogDetailsDTO.AliasNames.ISSUE_ASSIGNEE),
         qIssue.timeoriginalestimate.as(WorklogDetailsDTO.AliasNames.ISSUE_TIME_ORIGINAL_ESTIMATE),
         qIssue.timeestimate.as(WorklogDetailsDTO.AliasNames.ISSUE_TIME_ESTIMATE),
@@ -82,7 +88,12 @@ public class WorklogDetailsReportQueryBuilder extends AbstractReportQuery<Worklo
         qProject.description.as(WorklogDetailsDTO.AliasNames.PROJECT_DESCRIPTION),
         qPriority.pname.as(WorklogDetailsDTO.AliasNames.PRIORITY_NAME),
         qPriority.iconurl.as(WorklogDetailsDTO.AliasNames.PRIORITY_ICON_URL),
-        QueryUtil.selectDisplayName(qIssue.reporter)
+        // QueryUtil.selectDisplayName(qIssue.reporter)
+        // .as(WorklogDetailsDTO.AliasNames.ISSUE_REPORTER),
+        new CaseBuilder()
+            .when(QueryUtil.selectDisplayNameForUserExist(qIssue.reporter))
+            .then(QueryUtil.selectDisplayNameForUser(qIssue.reporter))
+            .otherwise(qIssue.reporter)
             .as(WorklogDetailsDTO.AliasNames.ISSUE_REPORTER),
         qIssue.created.as(WorklogDetailsDTO.AliasNames.ISSUE_CREATED),
         qIssue.updated.as(WorklogDetailsDTO.AliasNames.ISSUE_UPDATED),
@@ -90,7 +101,12 @@ public class WorklogDetailsReportQueryBuilder extends AbstractReportQuery<Worklo
         qWorklog.startdate.as(WorklogDetailsDTO.AliasNames.WORKLOG_START_DATE),
         qWorklog.created.as(WorklogDetailsDTO.AliasNames.WORKLOG_CREATED),
         qWorklog.updated.as(WorklogDetailsDTO.AliasNames.WORKLOG_UPDATED),
-        userExpression.as(WorklogDetailsDTO.AliasNames.WORKLOG_USER));
+        new CaseBuilder()
+            .when(QueryUtil.selectDisplayNameForUserExist(qWorklog.author))
+            .then(QueryUtil.selectDisplayNameForUser(qWorklog.author))
+            .otherwise(qWorklog.author)
+            .as(WorklogDetailsDTO.AliasNames.WORKLOG_USER));
+    // userExpression.as(WorklogDetailsDTO.AliasNames.WORKLOG_USER));
   }
 
   private void extendResult(final Connection connection, final Configuration configuration,
