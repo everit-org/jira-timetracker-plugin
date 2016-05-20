@@ -41,9 +41,9 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
             firstDay : ${firstDay},
             useISO8601: ${useISO8601},
             isShowTutorial: ${isShowTutorialDialog},
-            dateToFormated: "${filterCondition.worklogEndDate}",
-            dateFromFormated: "${filterCondition.worklogStartDate}",
-            dateCreatedFormated: "${filterCondition.issueCreateDate}",
+            dateToFormated: ${filterCondition.worklogEndDate},
+            dateFromFormated: ${filterCondition.worklogStartDate},
+            dateCreatedFormated: +"${filterCondition.issueCreateDate}",
             selectedProjects : ${filterCondition.projectIds},
             selectedStatus: ${filterCondition.issueStatusIds},
             selectedTypes: ${filterCondition.issueTypeIds},
@@ -92,11 +92,12 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
         <!-- Search criterias -->
         <div class="reporting-search-criteria-container">
 			     <div class="form-body">
-                     #if(!$message.isEmpty())
-                       	<div id="error_message">
-                           $i18n.getText($message)
-                        </div>
-                     #end
+                     <div id="error_message"  #if($message.isEmpty()) style="display:none;" #end>
+                         <label id="error_message_label" #if($message.isEmpty()) style="display:none;" #end>$i18n.getText($message)</label>
+                         <label id="error_message_label_cd" style="display:none;">$i18n.getText('plugin.invalid_createDate')</label>
+                         <label id="error_message_label_df" style="display:none;">$i18n.getText('plugin.invalid_startTime')</label>
+                         <label id="error_message_label_dt" style="display:none;">$i18n.getText('plugin.invalid_endTime')</label>
+                     </div>
                      <div class="aui-group">
                         <div class="aui-item search-wrap basic"> <!-- Search wrap class from issue search -->
                             <div class="search-container basic">
@@ -374,7 +375,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                                <div class="criteria-dropdown-text-div" data-query>
                                                  <div class='form-body'>
                                                    <div class='field-group aui-field-text'>
-                                                       <input id="createdPicker" name="createdPicker" class="text medium-field datepicker-input criteria-dropdown-text" placeholder="Created Date" type="text" value="$filterCondition.issueCreateDate">
+                                                       <input id="createdPicker" name="createdPicker" class="text medium-field datepicker-input criteria-dropdown-text" placeholder="Created Date" type="text">
                                                          <span id="createdPickerTrigger" class="aui-icon criteria-dropdown-calendar-icon">Select a date</span>
                                                        </input>
                                                    </div>
@@ -490,13 +491,13 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                     <div class="search-criteria">
                                         <form action="ReportingWebAction.jspa" onsubmit="return everit.reporting.main.beforeSubmitCreateReport()" class="aui top-label reporting-form" name="reporting-form" id="reporting-form" method="get">
                                             <div class="from-date inline-calendar">
-                                                <input id="dateFrom" name="dateFrom" class="text medium-field datepicker-input" placeholder="From" type="text" value="$filterCondition.worklogStartDate"/>
+                                                <input id="dateFrom" name="dateFrom" class="text medium-field datepicker-input" placeholder="From" type="text"/>
                                                     <a href="#" title="Select a date">
                                                         <span id="date_trigger_from" class="aui-icon aui-icon-small aui-iconfont-calendar">Select a date</span>
                                                     </a>
                                             </div>
                                             <div class="to-date inline-calendar">
-                                                <input id="dateTo" name="dateTo" class="text medium-field datepicker-input" placeholder="To" type="text" value="$filterCondition.worklogEndDate" />
+                                                <input id="dateTo" name="dateTo" class="text medium-field datepicker-input" placeholder="To" type="text"/>
                                                     <a href="#" title="Select a date">
                                                         <span id="date_trigger_to" class="aui-icon aui-icon-small aui-iconfont-calendar">Select a date</span>
                                                     </a>

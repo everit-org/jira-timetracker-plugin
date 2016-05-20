@@ -117,6 +117,13 @@ public class CreateReportEvent implements AnalyticsEvent {
     }
   }
 
+  private void appendActiveFilterCondition(final StringBuilder sb, final Long condition,
+      final ActiveFilterConditionName activeFilterConditionName) {
+    if (condition != null) {
+      sb.append(activeFilterConditionName.name() + ",");
+    }
+  }
+
   private void appendActiveFilterCondition(final StringBuilder sb, final String condition,
       final ActiveFilterConditionName activeFilterConditionName) {
     if ((condition != null) && !condition.isEmpty()) {
