@@ -92,11 +92,12 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
         <!-- Search criterias -->
         <div class="reporting-search-criteria-container">
 			     <div class="form-body">
-                     #if(!$message.isEmpty())
-                       	<div id="error_message">
-                           $i18n.getText($message)
-                        </div>
-                     #end
+                     <div id="error_message"  #if($message.isEmpty()) style="display:none;" #end>
+                         <label id="error_message_label" #if($message.isEmpty()) style="display:none;" #end>$i18n.getText($message)</label>
+                         <label id="error_message_label_cd" style="display:none;">$i18n.getText('plugin.invalid_createDate')</label>
+                         <label id="error_message_label_df" style="display:none;">$i18n.getText('plugin.invalid_startTime')</label>
+                         <label id="error_message_label_dt" style="display:none;">$i18n.getText('plugin.invalid_endTime')</label>
+                     </div>
                      <div class="aui-group">
                         <div class="aui-item search-wrap basic"> <!-- Search wrap class from issue search -->
                             <div class="search-container basic">

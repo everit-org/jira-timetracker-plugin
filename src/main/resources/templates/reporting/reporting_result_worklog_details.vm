@@ -70,10 +70,10 @@
 	                                      <div class='field-group aui-field-issuetype'>
 	                                        <ul class="aui-list-section">
 	                                          <li class="aui-list-item">
-	                                            <a id="detials-all-export" class="aui-list-item-link" target="_blank" href="#" data-jttp-href="$contextPath/rest/jttp-rest/1/download-report/downloadWorklogDetailsReport" onclick="everit.reporting.main.updateDetailsAllExportHref()">$i18n.getText("jtrp.report.btn.export.all")</a>
+	                                            <a id="detials-all-export" class="aui-list-item-link" target="_blank" href="#" data-jttp-href="$contextPath/rest/jttp-rest/1/download-report/downloadWorklogDetailsReport" onclick="return everit.reporting.main.updateDetailsAllExportHref()">$i18n.getText("jtrp.report.btn.export.all")</a>
 	                                          </li>
 	                                          <li class="aui-list-item">
-	                                            <a id="detials-custom-export" class="aui-list-item-link" target="_blank" href="#" data-jttp-href="$contextPath/rest/jttp-rest/1/download-report/downloadWorklogDetailsReport" onclick="everit.reporting.main.updateDetailsCustomExportHref()">$i18n.getText("jtrp.report.btn.export.current")</a>
+	                                            <a id="detials-custom-export" class="aui-list-item-link" target="_blank" href="#" data-jttp-href="$contextPath/rest/jttp-rest/1/download-report/downloadWorklogDetailsReport" onclick="return everit.reporting.main.updateDetailsCustomExportHref()">$i18n.getText("jtrp.report.btn.export.current")</a>
 	                                          </li>
 	                                        </ul>
 	                                      </div>
