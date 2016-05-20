@@ -62,10 +62,6 @@ public final class ConverterUtil {
 
   public static final String DEFAULT_SEARCHER_VALUE = "basic";
 
-  // private static final String KEY_INVALID_END_TIME = "plugin.invalid_endTime";
-
-  // private static final String KEY_INVALID_START_TIME = "plugin.invalid_startTime";
-
   private static final String KEY_MISSING_JQL = "jtrp.plugin.missing.jql";
 
   private static final String KEY_WRONG_DATES = "plugin.wrong.dates";
@@ -234,13 +230,11 @@ public final class ConverterUtil {
     }
 
     Date worklogEndDate = new Date(filterCondition.getWorklogEndDate());
-    // KEY_INVALID_END_TIME);
     Calendar worklogEndDateCalendar = DateTimeConverterUtil.setDateToDayStart(worklogEndDate);
     worklogEndDateCalendar.add(Calendar.DAY_OF_MONTH, 1);
     worklogEndDate = worklogEndDateCalendar.getTime();
 
     Date worklogStartDate = new Date(filterCondition.getWorklogStartDate());
-    // KEY_INVALID_START_TIME);
 
     ReportSearchParam reportSearchParam = new ReportSearchParam();
     List<String> searchParamIssueKeys;
@@ -354,14 +348,6 @@ public final class ConverterUtil {
     }
     return issuesKeys;
   }
-
-  // private static Date getRequiredDate(final String date, final String errorMsgKey) {
-  // Date parsedDate = ConverterUtil.getDate(date, errorMsgKey);
-  // if (parsedDate == null) {
-  // throw new IllegalArgumentException(errorMsgKey);
-  // }
-  // return parsedDate;
-  // }
 
   private static List<String> getUserNamesFromGroup(final List<String> groupNames) {
     List<String> userNames = new ArrayList<String>();
