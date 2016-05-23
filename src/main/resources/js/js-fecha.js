@@ -34,7 +34,7 @@
     dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
     monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
     amPm = ['am', 'pm'],
-    twoDigits = /\d\d?/, threeDigits = /\d{3}/, fourDigits = /\d{4}/,
+    twoDigits = /\d{2}/, threeDigits = /\d{3}/, fourDigits = /\d{4}/,
     word = /[0-9]*['a-z\u00A0-\u05FF\u0700-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF\u002E]+|[\u0600-\u06FF\/]+(\s*?[\u0600-\u06FF]+){1,2}/i,
     noop = function () {},
     dayNamesShort, monthNamesShort,
@@ -272,7 +272,12 @@
     } else if (dateInfo.isPm === false && +dateInfo.hour === 12) {
       dateInfo.hour = 0;
     }
-
+    if(!dateInfo.month){
+      return false;
+    }
+    if(!dateInfo.day){
+      return false;
+    }
     if (dateInfo.timezoneOffset != null) {
       dateInfo.minute = +(dateInfo.minute || 0) - +dateInfo.timezoneOffset;
       date = new Date(Date.UTC(dateInfo.year || today.getFullYear(), dateInfo.month || 0, dateInfo.day || 1,
