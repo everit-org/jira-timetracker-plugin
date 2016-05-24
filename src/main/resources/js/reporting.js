@@ -39,7 +39,12 @@ everit.reporting.main = everit.reporting.main || {};
     
     var opt = reporting.values;
      
-    Date.parseDate = function(str, fmt){return fecha.parse(str, AJS.Meta.get("date-dmy").toUpperCase());};
+    Date.parseDate = function(str, fmt){
+      return fecha.parse(str, AJS.Meta.get("date-dmy").toUpperCase());
+      };
+      
+    jQuery("#dateFrom").val(fecha.format(opt.dateFromFormated, AJS.Meta.get("date-dmy").toUpperCase()));
+    jQuery("#dateTo").val(fecha.format(opt.dateToFormated, AJS.Meta.get("date-dmy").toUpperCase()));
     
     var calFrom = Calendar.setup({
       firstDay : opt.firstDay,
@@ -302,6 +307,9 @@ everit.reporting.main = everit.reporting.main || {};
   }
   
  function initCreatedDatePicker(){
+    if(!isNaN(reporting.values.dateCreatedFormated)){
+      jQuery("#createdPicker").val(fecha.format(reporting.values.dateCreatedFormated, AJS.Meta.get("date-dmy").toUpperCase()));
+    }
     var createdDate = Calendar.setup({
       firstDay : reporting.values.firstDay,
       inputField : jQuery("#createdPicker"),
@@ -974,8 +982,6 @@ everit.reporting.main = everit.reporting.main || {};
 
     var labels = jQuery('#labelPicker').val() || [];
     
-    var issueCreateDate = jQuery('#createdPicker').val();
-    
     var issueEpicName = jQuery('#epicNamePicker').val();
     
     var issueEpicLinkIssueIds = jQuery('#epicLinkPicker').val() || [];
@@ -989,10 +995,6 @@ everit.reporting.main = everit.reporting.main || {};
     
     var users =jQuery('#userPicker').val() || [];
     
-    var worklogStartDate = jQuery('#dateFrom').val();
-    
-    var worklogEndDate = jQuery('#dateTo').val();
-    
     var issueKeys = jQuery('#issuePicker').val() || [];
     
     var filter = jQuery('#filterPicker').val() || [];
@@ -1004,7 +1006,6 @@ everit.reporting.main = everit.reporting.main || {};
       "issueAffectedVersions": issueAffectedVersions,
       "issueAssignees": issueAssignees,
       "issueComponents": issueComponents,
-      "issueCreateDate": issueCreateDate,
       "issueEpicLinkIssueIds": issueEpicLinkIssueIds,
       "issueEpicName": issueEpicName,
       "issueFixedVersions": issueFixedVersions,
@@ -1017,8 +1018,6 @@ everit.reporting.main = everit.reporting.main || {};
       "labels": labels,
       "projectIds": projectIds,
       "users": users,
-      "worklogEndDate": worklogEndDate,
-      "worklogStartDate": worklogStartDate,
       "filter": filter,
       "searcherValue": searcherValue,
     }
@@ -1027,6 +1026,33 @@ everit.reporting.main = everit.reporting.main || {};
   
   reporting.updateDetailsAllExportHref = function() {
     var filterCondition = getFilterConditionJson();
+    var createdPicker = jQuery('#createdPicker').val();
+    if(createdPicker != ""){
+      try{
+        var issueCreateDate = fecha.parse(createdPicker,  AJS.Meta.get("date-dmy").toUpperCase());
+        var issueCreateDateMilis = issueCreateDate.getTime();
+      }catch(err){
+        showErrorMessage("error_message_label_cd");
+        return false;
+      }
+    }
+    filterCondition["issueCreateDate"] = issueCreateDateMilis;
+    try{
+      var dateFrom = jQuery('#dateFrom').val();
+      var worklogStartDate = fecha.parse(dateFrom,  AJS.Meta.get("date-dmy").toUpperCase());
+      filterCondition["worklogStartDate"] = worklogStartDate.getTime();
+    }catch(err){
+      showErrorMessage("error_message_label_df");
+      return false;
+    }
+    try{
+      var dateTo = jQuery('#dateTo').val();
+      var worklogEndDate = fecha.parse(dateTo,  AJS.Meta.get("date-dmy").toUpperCase());
+      filterCondition["worklogEndDate"] = worklogEndDate.getTime();
+    }catch(err){
+      showErrorMessage("error_message_label_dt");
+      return false;
+    }
     var downloadWorklogDetailsParam = {
         "filterCondition": filterCondition,
         "selectedWorklogDetailsColumns": reporting.values.worklogDetailsAllColumns
@@ -1040,6 +1066,33 @@ everit.reporting.main = everit.reporting.main || {};
   
   reporting.updateDetailsCustomExportHref = function() {
     var filterCondition = getFilterConditionJson();
+    var createdPicker = jQuery('#createdPicker').val();
+    if(createdPicker != ""){
+      try{
+        var issueCreateDate = fecha.parse(createdPicker,  AJS.Meta.get("date-dmy").toUpperCase());
+        var issueCreateDateMilis = issueCreateDate.getTime();
+      }catch(err){
+        showErrorMessage("error_message_label_cd");
+        return false;
+      }
+    }
+    filterCondition["issueCreateDate"] = issueCreateDateMilis;
+    try{
+      var dateFrom = jQuery('#dateFrom').val();
+      var worklogStartDate = fecha.parse(dateFrom,  AJS.Meta.get("date-dmy").toUpperCase());
+      filterCondition["worklogStartDate"] = worklogStartDate.getTime();
+    }catch(err){
+      showErrorMessage("error_message_label_df");
+      return false;
+    }
+    try{
+      var dateTo = jQuery('#dateTo').val();
+      var worklogEndDate = fecha.parse(dateTo,  AJS.Meta.get("date-dmy").toUpperCase());
+      filterCondition["worklogEndDate"] = worklogEndDate.getTime();
+    }catch(err){
+      showErrorMessage("error_message_label_dt");
+      return false;
+    }
     var selectedWorklogDetailsColumns = collectSelectedWorklogDetailsColumns();
     var downloadWorklogDetailsParam = {
         "filterCondition": filterCondition,
@@ -1054,11 +1107,46 @@ everit.reporting.main = everit.reporting.main || {};
   
   reporting.updateSummariesExportHref = function() {
     var filterCondition = getFilterConditionJson();
+    var createdPicker = jQuery('#createdPicker').val();
+    if(createdPicker != ""){
+      try{
+        var issueCreateDate = fecha.parse(createdPicker,  AJS.Meta.get("date-dmy").toUpperCase());
+        var issueCreateDateMilis = issueCreateDate.getTime();
+      }catch(err){
+        showErrorMessage("error_message_label_cd");
+        return false;
+      }
+    }
+    filterCondition["issueCreateDate"] = issueCreateDateMilis;
+    try{
+      var dateFrom = jQuery('#dateFrom').val();
+      var worklogStartDate = fecha.parse(dateFrom,  AJS.Meta.get("date-dmy").toUpperCase());
+      filterCondition["worklogStartDate"] = worklogStartDate.getTime();
+    }catch(err){
+      showErrorMessage("error_message_label_df");
+      return false;
+    }
+    try{
+      var dateTo = jQuery('#dateTo').val();
+      var worklogEndDate = fecha.parse(dateTo,  AJS.Meta.get("date-dmy").toUpperCase());
+      filterCondition["worklogEndDate"] = worklogEndDate.getTime();
+    }catch(err){
+      showErrorMessage("error_message_label_dt");
+      return false;
+    }
     var json = JSON.stringify(filterCondition);
     var $detailsCustomExport = jQuery('#summaries-export')
     var href = $detailsCustomExport.attr('data-jttp-href');
     $detailsCustomExport.attr('href', href + '?json=' + json);
     return true;
+  }
+  
+  function showErrorMessage(message_key){
+    AJS.$('#error_message label').hide();
+    var errorMessageLabel = AJS.$('#'+message_key);
+    errorMessageLabel.show();
+    var errorMessage = AJS.$('#error_message');
+    errorMessage.show();
   }
   
   reporting.beforeSubmitCreateReport = function() {
@@ -1069,6 +1157,33 @@ everit.reporting.main = everit.reporting.main || {};
       }
     }
     var filterCondition = getFilterConditionJson();
+    var createdPicker = jQuery('#createdPicker').val();
+    if(createdPicker != ""){
+      try{
+        var issueCreateDate = fecha.parse(createdPicker,  AJS.Meta.get("date-dmy").toUpperCase());
+        var issueCreateDateMilis = issueCreateDate.getTime();
+      }catch(err){
+        showErrorMessage("error_message_label_cd");
+        return false;
+      }
+    }
+    filterCondition["issueCreateDate"] = issueCreateDateMilis;
+    try{
+      var dateFrom = jQuery('#dateFrom').val();
+      var worklogStartDate = fecha.parse(dateFrom,  AJS.Meta.get("date-dmy").toUpperCase());
+      filterCondition["worklogStartDate"] = worklogStartDate.getTime();
+    }catch(err){
+      showErrorMessage("error_message_label_df");
+      return false;
+    }
+    try{
+      var dateTo = jQuery('#dateTo').val();
+      var worklogEndDate = fecha.parse(dateTo,  AJS.Meta.get("date-dmy").toUpperCase());
+      filterCondition["worklogEndDate"] = worklogEndDate.getTime();
+    }catch(err){
+      showErrorMessage("error_message_label_dt");
+      return false;
+    }
     filterCondition["limit"] = reporting.values.pageSizeLimit;
     filterCondition["offset"] = 0;
     var json = JSON.stringify(filterCondition);

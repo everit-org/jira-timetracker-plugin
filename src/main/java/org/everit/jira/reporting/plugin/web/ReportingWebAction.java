@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
@@ -404,16 +403,15 @@ public class ReportingWebAction extends JiraWebActionSupport {
   }
 
   private void initDatesIfNecessary() {
-    if ("".equals(filterCondition.getWorklogStartDate())) {
+    if (filterCondition.getWorklogStartDate() == null) {
       Calendar calendarFrom = Calendar.getInstance();
       calendarFrom.add(Calendar.WEEK_OF_MONTH, -1);
-      Date dateFrom = calendarFrom.getTime();
-      filterCondition.setWorklogStartDate(DateTimeConverterUtil.dateToString(dateFrom));
+      filterCondition.setWorklogStartDate(calendarFrom.getTimeInMillis());
     }
-    if ("".equals(filterCondition.getWorklogEndDate())) {
+    if (filterCondition.getWorklogEndDate() == null) {
       Calendar calendarTo = Calendar.getInstance();
-      Date dateTo = calendarTo.getTime();
-      filterCondition.setWorklogEndDate(DateTimeConverterUtil.dateToString(dateTo));
+      // Date dateTo = calendarTo.getTime();
+      filterCondition.setWorklogEndDate(calendarTo.getTimeInMillis());
     }
   }
 
