@@ -273,7 +273,7 @@
     } else if (dateInfo.isPm === false && +dateInfo.hour === 12) {
       dateInfo.hour = 0;
     }
-    if(!dateInfo.month){
+    if(typeof dateInfo.month == 'undefined'){
       return false;
     }
     if(!dateInfo.day){
