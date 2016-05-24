@@ -31,6 +31,8 @@ public class WorklogDetailsDTO {
 
     public static final String ISSUE_ASSIGNEE = "issueAssignee";
 
+    public static final String ISSUE_AVATAR_ID = "issueAvatarId";
+
     public static final String ISSUE_CREATED = "issueCreated";
 
     public static final String ISSUE_ID = "issueId";
@@ -84,6 +86,8 @@ public class WorklogDetailsDTO {
   private List<String> issueAffectedVersions = Collections.emptyList();
 
   private String issueAssignee;
+
+  private Long issueAvatarId;
 
   private List<String> issueComponents = Collections.emptyList();
 
@@ -141,6 +145,10 @@ public class WorklogDetailsDTO {
 
   public String getIssueAssignee() {
     return issueAssignee;
+  }
+
+  public Long getIssueAvatarId() {
+    return issueAvatarId;
   }
 
   public List<String> getIssueComponents() {
@@ -279,6 +287,10 @@ public class WorklogDetailsDTO {
 
   public void setIssueAssignee(final String issueAssignee) {
     this.issueAssignee = issueAssignee;
+  }
+
+  public void setIssueAvatarId(final Long issueAvatarId) {
+    this.issueAvatarId = issueAvatarId;
   }
 
   public void setIssueComponents(final List<String> issueComponents) {

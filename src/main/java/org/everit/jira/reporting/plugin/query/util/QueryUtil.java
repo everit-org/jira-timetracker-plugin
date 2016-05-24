@@ -16,11 +16,12 @@
 package org.everit.jira.reporting.plugin.query.util;
 
 import org.everit.jira.querydsl.schema.QAppUser;
+import org.everit.jira.querydsl.schema.QCwdDirectory;
 import org.everit.jira.querydsl.schema.QCwdUser;
 import org.everit.jira.querydsl.schema.QJiraissue;
 import org.everit.jira.querydsl.schema.QProject;
-import org.everit.jira.querydsl.schema.QWorklog;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.StringExpression;
 import com.querydsl.core.types.dsl.StringPath;
@@ -42,32 +43,44 @@ public final class QueryUtil {
   }
 
   /**
-   * Create user StringExpression. In SQL return worklog.author if cwd_user.displayname is null
-   * otherwise cwd_user.displayname.
-   */
-  public static StringExpression createUserExpression(final QCwdUser qCwdUser,
-      final QWorklog qWorklog) {
-    StringExpression userExpression = new CaseBuilder()
-        .when(qCwdUser.displayName.isNull()).then(qWorklog.author)
-        .otherwise(qCwdUser.displayName);
-    return userExpression;
-  }
-
-  /**
-   * Select user displayName for issue assigne or report user.
+   * Select user displayName for user.
    *
    * @param stringPath
-   *          The StringPath of the issue para,
+   *          The StringPath of the checked user parameter.
    */
-  public static SQLQuery<String> selectDisplayName(final StringPath stringPath) {
+  public static SQLQuery<String> selectDisplayNameForUser(final StringPath stringPath) {
     QCwdUser qCwdUser = new QCwdUser("issueUser");
     QAppUser qAppUser = new QAppUser("appUserForIssue");
+    QCwdDirectory qCwdDirectory = new QCwdDirectory("cwdDirectoryForIssue");
     return SQLExpressions.select(new CaseBuilder()
         .when(qCwdUser.displayName.isNotNull()).then(qCwdUser.displayName)
         .otherwise(stringPath))
         .from(qCwdUser)
-        .leftJoin(qAppUser).on(qCwdUser.lowerUserName.eq(qAppUser.lowerUserName))
-        .where(qAppUser.lowerUserName.eq(stringPath));
+        .leftJoin(qAppUser).on(qAppUser.lowerUserName.eq(qCwdUser.lowerUserName))
+        .leftJoin(qCwdDirectory).on(qCwdUser.directoryId.eq(qCwdDirectory.id))
+        .where(qAppUser.userKey.eq(stringPath))
+        .orderBy(qCwdDirectory.directoryPosition.asc())
+        .limit(1L);
+  }
+
+  /**
+   * Select and check user exists.
+   *
+   * @param stringPath
+   *          The StringPath of the checked user parameter.
+   */
+  public static BooleanExpression selectDisplayNameForUserExist(final StringPath stringPath) {
+    QCwdUser qCwdUser = new QCwdUser("cwdUserExists");
+    QAppUser qAppUser = new QAppUser("appUserExists");
+    QCwdDirectory qCwdDirectory = new QCwdDirectory("cwdDirectoryExists");
+    return SQLExpressions.select(qCwdUser.displayName)
+        .from(qCwdUser)
+        .leftJoin(qAppUser).on(qAppUser.lowerUserName.eq(qCwdUser.lowerUserName))
+        .leftJoin(qCwdDirectory).on(qCwdUser.directoryId.eq(qCwdDirectory.id))
+        .where(qAppUser.userKey.eq(stringPath))
+        .orderBy(qCwdDirectory.directoryPosition.asc())
+        .limit(1L)
+        .exists();
   }
 
   private QueryUtil() {
