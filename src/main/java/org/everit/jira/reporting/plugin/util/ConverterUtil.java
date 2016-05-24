@@ -15,7 +15,6 @@
  */
 package org.everit.jira.reporting.plugin.util;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -62,10 +61,6 @@ import com.google.gson.Gson;
 public final class ConverterUtil {
 
   public static final String DEFAULT_SEARCHER_VALUE = "basic";
-
-  private static final String KEY_INVALID_END_TIME = "plugin.invalid_endTime";
-
-  private static final String KEY_INVALID_START_TIME = "plugin.invalid_startTime";
 
   private static final String KEY_MISSING_JQL = "jtrp.plugin.missing.jql";
 
@@ -234,14 +229,12 @@ public final class ConverterUtil {
       throw new NullPointerException("filterCondition parameter is null");
     }
 
-    Date worklogEndDate = ConverterUtil.getRequiredDate(filterCondition.getWorklogEndDate(),
-        KEY_INVALID_END_TIME);
+    Date worklogEndDate = new Date(filterCondition.getWorklogEndDate());
     Calendar worklogEndDateCalendar = DateTimeConverterUtil.setDateToDayStart(worklogEndDate);
     worklogEndDateCalendar.add(Calendar.DAY_OF_MONTH, 1);
     worklogEndDate = worklogEndDateCalendar.getTime();
 
-    Date worklogStartDate = ConverterUtil.getRequiredDate(filterCondition.getWorklogStartDate(),
-        KEY_INVALID_START_TIME);
+    Date worklogStartDate = new Date(filterCondition.getWorklogStartDate());
 
     ReportSearchParam reportSearchParam = new ReportSearchParam();
     List<String> searchParamIssueKeys;
@@ -306,15 +299,11 @@ public final class ConverterUtil {
         .fromJson(json, FilterCondition.class);
   }
 
-  private static Date getDate(final String date, final String errorMsgKey) {
-    if ((date == null) || date.isEmpty()) {
+  private static Date getDate(final Long date) {
+    if (date == null) {
       return null;
     }
-    try {
-      return DateTimeConverterUtil.stringToDate(date);
-    } catch (ParseException e) {
-      throw new IllegalArgumentException(errorMsgKey, e);
-    }
+    return new Date(date);
   }
 
   private static List<String> getIssueKeysFromFilterSearcerValue(
@@ -360,14 +349,6 @@ public final class ConverterUtil {
     return issuesKeys;
   }
 
-  private static Date getRequiredDate(final String date, final String errorMsgKey) {
-    Date parsedDate = ConverterUtil.getDate(date, errorMsgKey);
-    if (parsedDate == null) {
-      throw new IllegalArgumentException(errorMsgKey);
-    }
-    return parsedDate;
-  }
-
   private static List<String> getUserNamesFromGroup(final List<String> groupNames) {
     List<String> userNames = new ArrayList<String>();
     GroupManager groupManager = ComponentAccessor.getGroupManager();
@@ -382,8 +363,7 @@ public final class ConverterUtil {
 
   private static void setBasicSearcherValuesParams(final FilterCondition filterCondition,
       final ReportSearchParam reportSearchParam) {
-    reportSearchParam.issueCreateDate(
-        ConverterUtil.getDate(filterCondition.getIssueCreateDate(), KEY_INVALID_START_TIME))
+    reportSearchParam.issueCreateDate(ConverterUtil.getDate(filterCondition.getIssueCreateDate()))
         .issueEpicLinkIssueIds(filterCondition.getIssueEpicLinkIssueIds())
         .issuePriorityIds(filterCondition.getIssuePriorityIds())
         .issueStatusIds(filterCondition.getIssueStatusIds())

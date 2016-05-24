@@ -48,7 +48,7 @@ public class FilterCondition {
   private List<String> issueComponents = Collections.emptyList();
 
   @XmlElement
-  private String issueCreateDate = "";
+  private Long issueCreateDate;
 
   @XmlElement
   private List<Long> issueEpicLinkIssueIds = Collections.emptyList();
@@ -96,10 +96,10 @@ public class FilterCondition {
   private List<String> users = Collections.emptyList();
 
   @XmlElement
-  private String worklogEndDate = "";
+  private Long worklogEndDate;
 
   @XmlElement
-  private String worklogStartDate = "";
+  private Long worklogStartDate;
 
   public List<Long> getFilter() {
     return filter;
@@ -121,7 +121,7 @@ public class FilterCondition {
     return issueComponents;
   }
 
-  public String getIssueCreateDate() {
+  public Long getIssueCreateDate() {
     return issueCreateDate;
   }
 
@@ -185,11 +185,11 @@ public class FilterCondition {
     return users;
   }
 
-  public String getWorklogEndDate() {
+  public Long getWorklogEndDate() {
     return worklogEndDate;
   }
 
-  public String getWorklogStartDate() {
+  public Long getWorklogStartDate() {
     return worklogStartDate;
   }
 
@@ -213,7 +213,7 @@ public class FilterCondition {
     this.issueComponents = issueComponents;
   }
 
-  public void setIssueCreateDate(final String issueCreateDate) {
+  public void setIssueCreateDate(final Long issueCreateDate) {
     this.issueCreateDate = issueCreateDate;
   }
 
@@ -277,11 +277,11 @@ public class FilterCondition {
     this.users = users;
   }
 
-  public void setWorklogEndDate(final String worklogEndDate) {
+  public void setWorklogEndDate(final Long worklogEndDate) {
     this.worklogEndDate = worklogEndDate;
   }
 
-  public void setWorklogStartDate(final String worklogStartDate) {
+  public void setWorklogStartDate(final Long worklogStartDate) {
     this.worklogStartDate = worklogStartDate;
   }
 }

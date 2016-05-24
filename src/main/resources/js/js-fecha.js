@@ -34,12 +34,13 @@
     dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
     monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
     amPm = ['am', 'pm'],
-    twoDigits = /\d\d?/, threeDigits = /\d{3}/, fourDigits = /\d{4}/,
+    twoDigitsDays = /\d{2}/, twoDigits = /\d{2}/, threeDigits = /\d{3}/, fourDigits = /\d{4}/,
+    wordForMonth = /([0-9]{1,2}['a-z\u00A0-\u05FF\u0700-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF\u002E]+|[\u0600-\u06FF\/]+(\s*?[\u0600-\u06FF]+){1,2})|([0-9]{1,2})|(['a-z\u00A0-\u05FF\u0700-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF\u002E]+|[\u0600-\u06FF\/]+(\s*?[\u0600-\u06FF]+){1,2})/i,
     word = /[0-9]*['a-z\u00A0-\u05FF\u0700-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF\u002E]+|[\u0600-\u06FF\/]+(\s*?[\u0600-\u06FF]+){1,2}/i,
     noop = function () {},
     dayNamesShort, monthNamesShort,
     parseFlags = {
-      D: [twoDigits, function (d, v) {
+      D: [twoDigitsDays, function (d, v) {
         d.day = v;
       }],
       M: [twoDigits, function (d, v) {
@@ -72,8 +73,8 @@
       }],
       d: [twoDigits, noop],
       ddd: [word, noop],
-      MMM: [word, monthUpdate('monthNamesShort')],
-      MMMM: [word, monthUpdate('monthNames')],
+      MMM: [wordForMonth, monthUpdate('monthNamesShort')],
+      MMMM: [wordForMonth, monthUpdate('monthNames')],
       a: [word, function (d, v) {
         var val = v.toLowerCase();
         if (val === amPm[0]) {
@@ -272,7 +273,12 @@
     } else if (dateInfo.isPm === false && +dateInfo.hour === 12) {
       dateInfo.hour = 0;
     }
-
+    if(typeof dateInfo.month == 'undefined'){
+      return false;
+    }
+    if(!dateInfo.day){
+      return false;
+    }
     if (dateInfo.timezoneOffset != null) {
       dateInfo.minute = +(dateInfo.minute || 0) - +dateInfo.timezoneOffset;
       date = new Date(Date.UTC(dateInfo.year || today.getFullYear(), dateInfo.month || 0, dateInfo.day || 1,
