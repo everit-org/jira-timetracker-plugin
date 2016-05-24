@@ -105,6 +105,56 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
 		                </div>
 		              </td>
 		            </tr>
+		            <tr>
+		              <td style="text-align: right; vertical-align: top;" width="15%">
+		                <strong>$i18n.getText("jtrp.plugin.reporting.browse.user")</strong>
+		              </td>
+		              <td class="admin-settings-value-column">
+		                <div id="groupSelect_browse_container"
+		                  class="ajax_autocomplete atlassian-autocomplete aui-ss field-group"
+		                  style="margin-bottom: 35px">
+	                      <select multiple="multiple"
+		                    name="browseGroupSelect" 
+		                    id="browseGroupSelect" 
+		                    data-popup-link-message="" 
+		                    data-popup-width="620" 
+		                    data-popup-height="500" 
+		                    data-remove-on-un-select="true" 
+		                    data-ajax-options.query="-" 
+		                    data-ajax-options.url="${req.contextPath}/rest/api/2/groups/picker" 
+		                    data-ajax-options.data.query="-" 
+		                    #if (${action.currentJQL})
+		                      data-ajax-options.data.current_jql=${action.currentJQL}
+		                    #end>
+		                  </select>
+		                  <script>
+		                    var gp = new AJS.MultiSelect({
+		                      element : AJS.$("#browseGroupSelect"),
+		                      itemAttrDisplayed : "label",
+		                      showDropdownButton : false,
+		                      ajaxOptions : {
+		                        url : "${req.contextPath}/rest/api/2/groups/picker",
+		                        query : true, // keep going back to the sever for each keystroke
+		                        formatResponse : JIRA.GroupPickerUtil.formatResponse
+		                      }
+		                    });
+		                    #if($browseGroups.size() != 0)
+		                      var list =[];
+		                      #foreach ($browseGroup in $browseGroups)
+		                        list.push("$browseGroup");
+		                      #end
+		                      var groups = jQuery.map(list, function(value) {
+		                        return { value: value, label: value };
+		                      });
+		                      gp._addMultipleItems(groups,true);
+		                    #end
+		                  </script>
+		                 </div>
+		                <div class="description">
+		                  $i18n.getText("jtrp.plugin.reporting.browse.user.desc")
+		                </div>
+		              </td>
+		            </tr>
 					<tr>
 		              <td style="text-align: right; vertical-align: top;" width="15%">
 		                <strong>$i18n.getText("jtrp.plugin.reporting.pagination")</strong>
