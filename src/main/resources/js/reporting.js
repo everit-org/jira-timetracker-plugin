@@ -81,6 +81,7 @@ everit.reporting.main = everit.reporting.main || {};
     
     initUserSelect();
     initGroupSelect();
+    browsePermissionCheck();
     
     initWorklogDetailsColumns();
     
@@ -518,6 +519,15 @@ everit.reporting.main = everit.reporting.main || {};
    }
    jQuery(button).text(newButtonText);
   };
+    
+  function browsePermissionCheck(){
+    if(!reporting.values.hasBrowseUsersPermission){
+      jQuery("#userPickerButton").attr("aria-disabled", true);
+      jQuery("#groupPickerButton").attr("aria-disabled", true);
+      jQuery("#groupPickerButton").attr("original-title", AJS.I18n.getText("jtrp.plugin.no.browse.permission"));
+      jQuery("#userPickerButton").attr("original-title", AJS.I18n.getText("jtrp.plugin.no.browse.permission"));
+    }
+  }
   
   function initGroupSelect(){
     var selectedArray =  jQuery.makeArray( reporting.values.selectedGroups ); 

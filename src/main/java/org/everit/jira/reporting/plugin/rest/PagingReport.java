@@ -127,7 +127,7 @@ public class PagingReport {
     FilterCondition filterCondition = convertJsonToFilterCondition(filterConditionJson);
 
     ConvertedSearchParam converSearchParam = ConverterUtil
-        .convertFilterConditionToConvertedSearchParam(filterCondition);
+        .convertFilterConditionToConvertedSearchParam(filterCondition, reportingPlugin);
 
     IssueSummaryReportDTO issueSummaryReport =
         reportingPlugin.getIssueSummaryReport(converSearchParam.reportSearchParam);
@@ -156,7 +156,7 @@ public class PagingReport {
     FilterCondition filterCondition = convertJsonToFilterCondition(filterConditionJson);
 
     ConvertedSearchParam converSearchParam = ConverterUtil
-        .convertFilterConditionToConvertedSearchParam(filterCondition);
+        .convertFilterConditionToConvertedSearchParam(filterCondition, reportingPlugin);
 
     ProjectSummaryReportDTO projectSummaryReport =
         reportingPlugin.getProjectSummaryReport(converSearchParam.reportSearchParam);
@@ -185,7 +185,7 @@ public class PagingReport {
     FilterCondition filterCondition = convertJsonToFilterCondition(filterConditionJson);
 
     ConvertedSearchParam converSearchParam = ConverterUtil
-        .convertFilterConditionToConvertedSearchParam(filterCondition);
+        .convertFilterConditionToConvertedSearchParam(filterCondition, reportingPlugin);
 
     UserSummaryReportDTO userSummaryReport =
         reportingPlugin.getUserSummaryReport(converSearchParam.reportSearchParam);
@@ -219,7 +219,7 @@ public class PagingReport {
     String[] selectedColumns = gson.fromJson(selectedColumnsJson, String[].class);
 
     ConvertedSearchParam converSearchParam = ConverterUtil
-        .convertFilterConditionToConvertedSearchParam(filterCondition);
+        .convertFilterConditionToConvertedSearchParam(filterCondition, reportingPlugin);
 
     WorklogDetailsReportDTO worklogDetailsReport =
         reportingPlugin.getWorklogDetailsReport(converSearchParam.reportSearchParam);
