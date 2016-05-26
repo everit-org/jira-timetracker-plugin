@@ -127,7 +127,7 @@ public class ProjectSummaryReportQueryBuilder extends AbstractReportQuery<Projec
                         workloggedIssueSumPath.sum().as(workloggedSumPath)))
                 .from(fromQuery.as("sums"))
                 .join(qProject).on(qProject.id.eq(fromProjectIdPath))
-                .groupBy(fromProjectIdPath)
+                .groupBy(fromProjectIdPath, qProject.pkey, qProject.pname, qProject.description)
                 .orderBy(qProject.pkey.asc());
 
         appendQueryRange(query);
