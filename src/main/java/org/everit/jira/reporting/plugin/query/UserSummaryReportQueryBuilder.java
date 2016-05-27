@@ -24,7 +24,6 @@ import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
 import org.everit.jira.reporting.plugin.dto.UserSummaryDTO;
 import org.everit.jira.reporting.plugin.query.util.QueryUtil;
 
-import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.PathMetadata;
 import com.querydsl.core.types.PathType;
 import com.querydsl.core.types.Projections;
@@ -43,11 +42,6 @@ public class UserSummaryReportQueryBuilder extends AbstractReportQuery<UserSumma
 
   public UserSummaryReportQueryBuilder(final ReportSearchParam reportSearchParam) {
     super(reportSearchParam);
-  }
-
-  private Expression<?>[] createQueryGroupBy(final StringPath userPath) {
-    return new Expression<?>[] {
-        qWorklog.author };
   }
 
   private QBean<UserSummaryDTO> createQuerySelectProjection(
@@ -106,7 +100,7 @@ public class UserSummaryReportQueryBuilder extends AbstractReportQuery<UserSumma
 
         query.orderBy(userPath.asc());
 
-        query.groupBy(createQueryGroupBy(userPath));
+        query.groupBy(qWorklog.author);
 
         return query.fetch();
       }
