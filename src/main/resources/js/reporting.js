@@ -81,7 +81,6 @@ everit.reporting.main = everit.reporting.main || {};
     
     initUserSelect();
     initGroupSelect();
-    browsePermissionCheck();
     
     initWorklogDetailsColumns();
     
@@ -108,7 +107,8 @@ everit.reporting.main = everit.reporting.main || {};
     }
 
     addTooltips();
-    
+    browsePermissionCheck();
+
     reporting.changeFilterType(reporting.values.searcherValue);
   });
   
@@ -1354,16 +1354,16 @@ everit.reporting.main = everit.reporting.main || {};
   }
   
   function addTooltips(){
-    var $projectExpectedTooltip = AJS.$('#userPickerButton');
-    if(!$projectExpectedTooltip.hasClass('jtrp-tooltipped')) {
-      $projectExpectedTooltip.tooltip();
-      $projectExpectedTooltip.addClass('jtrp-tooltipped');
+    var $userPickerTooltip = AJS.$('#userPickerButton');
+    if(!$userPickerTooltip.hasClass('jtrp-tooltipped')) {
+      $userPickerTooltip.tooltip({gravity: 'w'});
+      $userPickerTooltip.addClass('jtrp-tooltipped');
     }
     
-    var $projectExpectedTooltip = AJS.$('#groupPickerButton');
-    if(!$projectExpectedTooltip.hasClass('jtrp-tooltipped')) {
-      $projectExpectedTooltip.tooltip();
-      $projectExpectedTooltip.addClass('jtrp-tooltipped');
+    var $groupPickerTooltip = AJS.$('#groupPickerButton');
+    if(!$groupPickerTooltip.hasClass('jtrp-tooltipped')) {
+      $groupPickerTooltip.tooltip({gravity: 'w'});
+      $groupPickerTooltip.addClass('jtrp-tooltipped');
     }
     
     var $projectExpectedTooltip = AJS.$('#project-expected-tooltip');

@@ -204,7 +204,7 @@ public final class ConverterUtil {
 
   private static void collectUsersFromParams(final FilterCondition filterCondition,
       final ReportSearchParam reportSearchParam, final ReportingPlugin reportingPlugin) {
-    List<String> users = filterCondition.getUsers();
+    ArrayList<String> users = new ArrayList<String>(filterCondition.getUsers());
     JiraAuthenticationContext jiraAuthenticationContext =
         ComponentAccessor.getJiraAuthenticationContext();
     ApplicationUser user = jiraAuthenticationContext.getUser();
@@ -365,8 +365,8 @@ public final class ConverterUtil {
     return issuesKeys;
   }
 
-  private static List<String> getUserNamesFromGroup(final List<String> groupNames) {
-    List<String> userNames = new ArrayList<String>();
+  private static ArrayList<String> getUserNamesFromGroup(final List<String> groupNames) {
+    ArrayList<String> userNames = new ArrayList<String>();
     GroupManager groupManager = ComponentAccessor.getGroupManager();
     for (String groupName : groupNames) {
       Collection<String> userNamesInGroup = groupManager.getUserNamesInGroup(groupName);
