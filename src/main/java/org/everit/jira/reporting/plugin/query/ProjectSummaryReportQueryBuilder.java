@@ -121,13 +121,12 @@ public class ProjectSummaryReportQueryBuilder extends AbstractReportQuery<Projec
                     Projections.bean(ProjectSummaryDTO.class,
                         qProject.pkey.as(ProjectSummaryDTO.AliasNames.PROJECT_KEY),
                         qProject.pname.as(ProjectSummaryDTO.AliasNames.PROJECT_NAME),
-                        qProject.description.as(ProjectSummaryDTO.AliasNames.PROJECT_DESCRIPTION),
                         timeOriginalIssueSumPath.sum().as(timeOriginalSumPath),
                         timeEstimateIssueSumPath.sum().as(timeEstimateSumPath),
                         workloggedIssueSumPath.sum().as(workloggedSumPath)))
                 .from(fromQuery.as("sums"))
                 .join(qProject).on(qProject.id.eq(fromProjectIdPath))
-                .groupBy(fromProjectIdPath, qProject.pkey, qProject.pname, qProject.description)
+                .groupBy(fromProjectIdPath, qProject.pkey, qProject.pname)
                 .orderBy(qProject.pkey.asc());
 
         appendQueryRange(query);

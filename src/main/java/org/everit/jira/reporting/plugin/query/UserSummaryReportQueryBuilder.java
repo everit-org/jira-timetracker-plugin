@@ -47,7 +47,7 @@ public class UserSummaryReportQueryBuilder extends AbstractReportQuery<UserSumma
 
   private Expression<?>[] createQueryGroupBy(final StringPath userPath) {
     return new Expression<?>[] {
-        userPath };
+        qWorklog.author };
   }
 
   private QBean<UserSummaryDTO> createQuerySelectProjection(
