@@ -49,6 +49,8 @@ public class ReportingSettingsWebAction extends JiraWebActionSupport {
    */
   private static final long serialVersionUID = 1L;
 
+  private List<String> browseGroups;
+
   /**
    * The first day of the week.
    */
@@ -126,6 +128,10 @@ public class ReportingSettingsWebAction extends JiraWebActionSupport {
     return getRedirect(INPUT);
   }
 
+  public List<String> getBrowseGroups() {
+    return browseGroups;
+  }
+
   public String getContextPath() {
     return contextPath;
   }
@@ -154,6 +160,7 @@ public class ReportingSettingsWebAction extends JiraWebActionSupport {
         .loadReportingSettings();
     reportingGroups = pluginSettingsValues.reportingGroups;
     pageSize = pluginSettingsValues.pageSize;
+    browseGroups = pluginSettingsValues.browseGroups;
   }
 
   private void normalizeContextPath() {
@@ -162,6 +169,14 @@ public class ReportingSettingsWebAction extends JiraWebActionSupport {
       contextPath = path.substring(0, path.length() - 1);
     } else {
       contextPath = path;
+    }
+  }
+
+  private void parseBrowseGroups(final String[] browseGroupsValue) {
+    if (browseGroupsValue == null) {
+      browseGroups = new ArrayList<String>();
+    } else {
+      browseGroups = Arrays.asList(browseGroupsValue);
     }
   }
 
@@ -216,8 +231,10 @@ public class ReportingSettingsWebAction extends JiraWebActionSupport {
    */
   public String parseSaveSettings(final HttpServletRequest request) {
     String[] reportingGroupSelectValue = request.getParameterValues("reportingGroupSelect");
+    String[] browseGroupSelectValue = request.getParameterValues("browseGroupSelect");
     String pageSizeValue = request.getParameter("pageSizeInput");
     parseReportingGroups(reportingGroupSelectValue);
+    parseBrowseGroups(browseGroupSelectValue);
     parsePageSizeInput(pageSizeValue);
     return null;
   }
@@ -227,9 +244,13 @@ public class ReportingSettingsWebAction extends JiraWebActionSupport {
    */
   public void savePluginSettings() {
     ReportingSettingsValues reportingSettingsValues =
-        new ReportingSettingsValues().reportingGroups(reportingGroups)
+        new ReportingSettingsValues().reportingGroups(reportingGroups).browseGroups(browseGroups)
             .pageSize(pageSize);
     reportingPlugin.saveReportingSettings(reportingSettingsValues);
+  }
+
+  public void setBrowseGroups(final List<String> browseGroups) {
+    this.browseGroups = browseGroups;
   }
 
   public void setContextPath(final String contextPath) {

@@ -107,7 +107,8 @@ everit.reporting.main = everit.reporting.main || {};
     }
 
     addTooltips();
-    
+    browsePermissionCheck();
+
     reporting.changeFilterType(reporting.values.searcherValue);
   });
   
@@ -518,6 +519,15 @@ everit.reporting.main = everit.reporting.main || {};
    }
    jQuery(button).text(newButtonText);
   };
+    
+  function browsePermissionCheck(){
+    if(!reporting.values.hasBrowseUsersPermission){
+      jQuery("#userPickerButton").attr("aria-disabled", true);
+      jQuery("#groupPickerButton").attr("aria-disabled", true);
+      jQuery("#groupPickerButton").attr("original-title", AJS.I18n.getText("jtrp.plugin.no.browse.permission"));
+      jQuery("#userPickerButton").attr("original-title", AJS.I18n.getText("jtrp.plugin.no.browse.permission"));
+    }
+  }
   
   function initGroupSelect(){
     var selectedArray =  jQuery.makeArray( reporting.values.selectedGroups ); 
@@ -1344,16 +1354,16 @@ everit.reporting.main = everit.reporting.main || {};
   }
   
   function addTooltips(){
-    var $projectExpectedTooltip = AJS.$('#userPickerButton');
-    if(!$projectExpectedTooltip.hasClass('jtrp-tooltipped')) {
-      $projectExpectedTooltip.tooltip();
-      $projectExpectedTooltip.addClass('jtrp-tooltipped');
+    var $userPickerTooltip = AJS.$('#userPickerButton');
+    if(!$userPickerTooltip.hasClass('jtrp-tooltipped')) {
+      $userPickerTooltip.tooltip({gravity: 'w'});
+      $userPickerTooltip.addClass('jtrp-tooltipped');
     }
     
-    var $projectExpectedTooltip = AJS.$('#groupPickerButton');
-    if(!$projectExpectedTooltip.hasClass('jtrp-tooltipped')) {
-      $projectExpectedTooltip.tooltip();
-      $projectExpectedTooltip.addClass('jtrp-tooltipped');
+    var $groupPickerTooltip = AJS.$('#groupPickerButton');
+    if(!$groupPickerTooltip.hasClass('jtrp-tooltipped')) {
+      $groupPickerTooltip.tooltip({gravity: 'w'});
+      $groupPickerTooltip.addClass('jtrp-tooltipped');
     }
     
     var $projectExpectedTooltip = AJS.$('#project-expected-tooltip');

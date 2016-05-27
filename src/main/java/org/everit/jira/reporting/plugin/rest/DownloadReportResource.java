@@ -35,6 +35,7 @@ import org.everit.jira.analytics.event.ExportSummaryReportEvent;
 import org.everit.jira.analytics.event.ExportWorklogDetailsReportEvent;
 import org.everit.jira.querydsl.support.QuerydslSupport;
 import org.everit.jira.querydsl.support.ri.QuerydslSupportImpl;
+import org.everit.jira.reporting.plugin.ReportingPlugin;
 import org.everit.jira.reporting.plugin.dto.ConvertedSearchParam;
 import org.everit.jira.reporting.plugin.dto.DownloadWorklogDetailsParam;
 import org.everit.jira.reporting.plugin.dto.FilterCondition;
@@ -59,13 +60,16 @@ public class DownloadReportResource {
 
   private final QuerydslSupport querydslSupport;
 
+  private ReportingPlugin reportingPlugin;
+
   /**
    * Simple constructor.
    */
   public DownloadReportResource(final PluginSettingsFactory pluginSettingsFactory,
-      final AnalyticsSender analyticsSender) {
+      final AnalyticsSender analyticsSender, final ReportingPlugin reportingPlugin) {
     pluginId = JiraTimetrackerAnalytics.getPluginUUID(pluginSettingsFactory.createGlobalSettings());
     this.analyticsSender = analyticsSender;
+    this.reportingPlugin = reportingPlugin;
     try {
       querydslSupport = new QuerydslSupportImpl();
     } catch (Exception e) {
@@ -105,7 +109,7 @@ public class DownloadReportResource {
         .fromJson(json, FilterCondition.class);
 
     ConvertedSearchParam converSearchParam = ConverterUtil
-        .convertFilterConditionToConvertedSearchParam(filterCondition);
+        .convertFilterConditionToConvertedSearchParam(filterCondition, reportingPlugin);
 
     ExportSummariesListReport exportSummariesListReport =
         new ExportSummariesListReport(querydslSupport, converSearchParam.reportSearchParam,
@@ -136,7 +140,8 @@ public class DownloadReportResource {
     DownloadWorklogDetailsParam downloadWorklogDetailsParam = new Gson()
         .fromJson(json, DownloadWorklogDetailsParam.class);
     ConvertedSearchParam converSearchParam = ConverterUtil
-        .convertFilterConditionToConvertedSearchParam(downloadWorklogDetailsParam.filterCondition);
+        .convertFilterConditionToConvertedSearchParam(downloadWorklogDetailsParam.filterCondition,
+            reportingPlugin);
 
     ExportWorklogDetailsListReport exportWorklogDetailsListReport =
         new ExportWorklogDetailsListReport(querydslSupport,
