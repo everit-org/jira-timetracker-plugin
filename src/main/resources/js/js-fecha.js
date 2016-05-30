@@ -36,7 +36,7 @@
     amPm = ['am', 'pm'],
     twoDigitsDays = /\d{2}/, twoDigits = /\d{2}/, threeDigits = /\d{3}/, fourDigits = /\d{4}/,
     wordForMonth = /([0-9]{1,2}['a-z\u00A0-\u05FF\u0700-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF\u002E]+|[\u0600-\u06FF\/]+(\s*?[\u0600-\u06FF]+){1,2})|([0-9]{1,2})|(['a-z\u00A0-\u05FF\u0700-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF\u002E]+|[\u0600-\u06FF\/]+(\s*?[\u0600-\u06FF]+){1,2})/i,
-    word = /[0-9]*['a-z\u00A0-\u05FF\u0700-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF\u002E\0-\9]+|[\u0600-\u06FF\/]+(\s*?[\u0600-\u06FF]+){1,2}/i,
+    word = /[0-9]*['a-z\u00A0-\u05FF\u0700-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF\u002E]+|[\u0600-\u06FF\/]+(\s*?[\u0600-\u06FF]+){1,2}/i,
     noop = function () {},
     dayNamesShort, monthNamesShort,
     parseFlags = {
