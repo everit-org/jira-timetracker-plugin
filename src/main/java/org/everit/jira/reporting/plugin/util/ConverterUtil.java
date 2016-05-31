@@ -296,6 +296,24 @@ public final class ConverterUtil {
   }
 
   /**
+   * Convert {@link FilterCondition} class to json string.
+   *
+   * @param filterCondition
+   *          the {@link FilterCondition} object. Cannot be <code>null</code>.
+   *
+   * @return the json string.
+   *
+   * @throws NullPointerException
+   *           if filterCondition parameter is <code>null</code>.
+   */
+  public static String convertFilterConditionToJson(final FilterCondition filterCondition) {
+    if (filterCondition == null) {
+      throw new NullPointerException("EMPTY_FILTER");
+    }
+    return new Gson().toJson(filterCondition);
+  }
+
+  /**
    * Convert json string to {@link FilterCondition} class.
    *
    * @param json

@@ -433,18 +433,24 @@ public class ReportingWebAction extends JiraWebActionSupport {
   private void initializeData() {
     ReportingSessionData loadDataFromSession = loadDataFromSession();
     if (loadDataFromSession != null) {
-      String createReportResult =
-          createReport(loadDataFromSession.selectedMoreJson, loadDataFromSession.selectedActiveTab,
-              loadDataFromSession.filterConditionJson,
-              loadDataFromSession.selectedWorklogDetailsColumnsJson,
-              loadDataFromSession.collapsedDetailsModuleVal,
-              loadDataFromSession.collapsedSummaryModuleVal);
-      // This check is necessary because of the date parse errors not handeled well. In the feature
+      FilterCondition filterConditionFromSession =
+          ConverterUtil.convertJsonToFilterCondition(loadDataFromSession.filterConditionJson);
+      filterConditionFromSession.setLimit(Long.valueOf(pageSizeLimit));
+      String filterConditionJsonFixedPageSize =
+          ConverterUtil.convertFilterConditionToJson(filterConditionFromSession);
+      // String createReportResult =
+      createReport(loadDataFromSession.selectedMoreJson, loadDataFromSession.selectedActiveTab,
+          filterConditionJsonFixedPageSize,
+          loadDataFromSession.selectedWorklogDetailsColumnsJson,
+          loadDataFromSession.collapsedDetailsModuleVal,
+          loadDataFromSession.collapsedSummaryModuleVal);
+      // FIXME This check is necessary because of the date parse errors not handeled well. In the
+      // feature
       // try to avoid the formated dates store, better if we user timestamp
-      if (!SUCCESS.equals(createReportResult)) {
-        message = "";
-        defaultInitalizeData();
-      }
+      // if (!SUCCESS.equals(createReportResult)) {
+      // message = "";
+      // defaultInitalizeData();
+      // }
     } else {
       defaultInitalizeData();
     }
