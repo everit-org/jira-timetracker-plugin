@@ -423,12 +423,12 @@ public class ReportingWebAction extends JiraWebActionSupport {
       filterConditionFromSession.setLimit(Long.valueOf(pageSizeLimit));
       String filterConditionJsonFixedPageSize =
           ConverterUtil.convertFilterConditionToJson(filterConditionFromSession);
-      String createReportResult =
-          createReport(loadDataFromSession.selectedMoreJson, loadDataFromSession.selectedActiveTab,
-              filterConditionJsonFixedPageSize,
-              loadDataFromSession.selectedWorklogDetailsColumnsJson,
-              loadDataFromSession.collapsedDetailsModuleVal,
-              loadDataFromSession.collapsedSummaryModuleVal);
+      // String createReportResult =
+      createReport(loadDataFromSession.selectedMoreJson, loadDataFromSession.selectedActiveTab,
+          filterConditionJsonFixedPageSize,
+          loadDataFromSession.selectedWorklogDetailsColumnsJson,
+          loadDataFromSession.collapsedDetailsModuleVal,
+          loadDataFromSession.collapsedSummaryModuleVal);
       // FIXME This check is necessary because of the date parse errors not handeled well. In the
       // feature
       // try to avoid the formated dates store, better if we user timestamp
