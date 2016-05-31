@@ -1035,7 +1035,8 @@ everit.reporting.main = everit.reporting.main || {};
   }
   
   reporting.updateDetailsAllExportHref = function() {
-    var filterCondition = getFilterConditionJson();
+    var filterConditionString = jQuery('#filterConditionJson').val();
+    var filterCondition = JSON.parse(filterConditionString);
     var createdPicker = jQuery('#createdPicker').val();
     if(createdPicker != ""){
       try{
@@ -1075,7 +1076,8 @@ everit.reporting.main = everit.reporting.main || {};
   }
   
   reporting.updateDetailsCustomExportHref = function() {
-    var filterCondition = getFilterConditionJson();
+    var filterConditionString = jQuery('#filterConditionJson').val();
+    var filterCondition = JSON.parse(filterConditionString);
     var createdPicker = jQuery('#createdPicker').val();
     if(createdPicker != ""){
       try{
@@ -1116,7 +1118,8 @@ everit.reporting.main = everit.reporting.main || {};
   }
   
   reporting.updateSummariesExportHref = function() {
-    var filterCondition = getFilterConditionJson();
+    var filterConditionString = jQuery('#filterConditionJson').val();
+    var filterCondition = JSON.parse(filterConditionString);
     var createdPicker = jQuery('#createdPicker').val();
     if(createdPicker != ""){
       try{
@@ -1197,7 +1200,7 @@ everit.reporting.main = everit.reporting.main || {};
     filterCondition["limit"] = reporting.values.pageSizeLimit;
     filterCondition["offset"] = 0;
     var json = JSON.stringify(filterCondition);
-    var $filterConditionJson = jQuery('#filterConditionJson')
+    var $filterConditionJson = jQuery('#filterConditionJson');
     $filterConditionJson.val(json);
     
     var selectedWorklogDetailsColumns = collectSelectedWorklogDetailsColumns();
