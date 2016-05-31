@@ -30,6 +30,11 @@ public class ReportingSettingsValues implements Serializable {
   private static final long serialVersionUID = -9056110737937671869L;
 
   /**
+   * The browse users groups.
+   */
+  public List<String> browseGroups;
+
+  /**
    * The reporting pager size.
    */
   public int pageSize;
@@ -40,6 +45,11 @@ public class ReportingSettingsValues implements Serializable {
   public List<String> reportingGroups;
 
   public ReportingSettingsValues() {
+  }
+
+  public ReportingSettingsValues browseGroups(final List<String> browseGroups) {
+    this.browseGroups = browseGroups;
+    return this;
   }
 
   public ReportingSettingsValues pageSize(final int pageSize) {

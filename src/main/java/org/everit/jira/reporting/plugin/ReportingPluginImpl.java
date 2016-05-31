@@ -53,7 +53,12 @@ public class ReportingPluginImpl implements ReportingPlugin, InitializingBean,
   private static final int DEFAULT_PAGE_SIZE = 20;
 
   /**
-   * The plugin reporting settings is use Noworks.
+   * The plugin reporting settings groups that have browse user permission.
+   */
+  private static final String JTTP_PLUGIN_REPORTING_SETTINGS_BROWSE_GROUPS = "browseGroups";
+
+  /**
+   * The plugin reporting settings user reporting groups.
    */
   private static final String JTTP_PLUGIN_REPORTING_SETTINGS_GROUPS = "reportingGroups";
 
@@ -71,6 +76,8 @@ public class ReportingPluginImpl implements ReportingPlugin, InitializingBean,
    * Serial Version UID.
    */
   private static final long serialVersionUID = -3872710932298672883L;
+
+  private List<String> browseGroups;
 
   private int pageSize;
 
@@ -249,9 +256,11 @@ public class ReportingPluginImpl implements ReportingPlugin, InitializingBean,
     reportingSettings = settingsFactory
         .createSettingsForKey(JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX);
     setReportingGroups();
+    setBrowseGroups();
     setPageSize();
     reportingSettingsValues =
-        new ReportingSettingsValues().reportingGroups(reportingGroups).pageSize(pageSize);
+        new ReportingSettingsValues().reportingGroups(reportingGroups).pageSize(pageSize)
+            .browseGroups(browseGroups);
     return reportingSettingsValues;
   }
 
@@ -270,6 +279,18 @@ public class ReportingPluginImpl implements ReportingPlugin, InitializingBean,
         String.valueOf(reportingSettingsParameter.pageSize));
     reportingSettings.put(JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX
         + JTTP_PLUGIN_REPORTING_SETTINGS_GROUPS, reportingSettingsParameter.reportingGroups);
+    reportingSettings.put(JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX
+        + JTTP_PLUGIN_REPORTING_SETTINGS_BROWSE_GROUPS, reportingSettingsParameter.browseGroups);
+  }
+
+  private void setBrowseGroups() {
+    List<String> browseGroupsNames = (List<String>) reportingSettings
+        .get(JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX
+            + JTTP_PLUGIN_REPORTING_SETTINGS_BROWSE_GROUPS);
+    browseGroups = new ArrayList<String>();
+    if (browseGroupsNames != null) {
+      browseGroups = browseGroupsNames;
+    }
   }
 
   private void setPageSize() {

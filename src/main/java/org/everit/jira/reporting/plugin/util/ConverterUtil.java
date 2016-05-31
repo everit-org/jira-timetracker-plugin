@@ -25,6 +25,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.everit.jira.analytics.SearcherValue;
+import org.everit.jira.reporting.plugin.ReportingPlugin;
 import org.everit.jira.reporting.plugin.dto.ConvertedSearchParam;
 import org.everit.jira.reporting.plugin.dto.FilterCondition;
 import org.everit.jira.reporting.plugin.dto.PickerComponentDTO;
@@ -67,6 +68,8 @@ public final class ConverterUtil {
   private static final String KEY_WRONG_DATES = "plugin.wrong.dates";
 
   private static final String KEY_WRONG_JQL = "jtrp.plugin.wrong.jql";
+
+  private static final String NO_BROWSE_PERMISSION = "jtrp.plugin.no.browse.permission";
 
   public static final String VALUE_NEGATIVE_ONE = "-1";
 
@@ -200,13 +203,26 @@ public final class ConverterUtil {
   }
 
   private static void collectUsersFromParams(final FilterCondition filterCondition,
-      final ReportSearchParam reportSearchParam) {
-    List<String> users = filterCondition.getUsers();
-    if (!users.isEmpty() && users.contains(PickerUserDTO.NONE_USER_NAME)) {
-      users = ConverterUtil.getUserNamesFromGroup(filterCondition.getGroups());
-    } else if (users.contains(PickerUserDTO.CURRENT_USER_NAME)) {
-      users.remove(PickerUserDTO.CURRENT_USER_NAME);
-      users.add(JiraTimetrackerUtil.getLoggedUserName());
+      final ReportSearchParam reportSearchParam, final ReportingPlugin reportingPlugin) {
+    ArrayList<String> users = new ArrayList<String>(filterCondition.getUsers());
+    JiraAuthenticationContext jiraAuthenticationContext =
+        ComponentAccessor.getJiraAuthenticationContext();
+    ApplicationUser user = jiraAuthenticationContext.getUser();
+    if (!PermissionUtil.hasBrowseUserPermission(user, reportingPlugin)) {
+      if ((users.size() == 1) && (users.contains(PickerUserDTO.CURRENT_USER_NAME)
+          || users.contains(JiraTimetrackerUtil.getLoggedUserName()))) {
+        if (users.remove(PickerUserDTO.CURRENT_USER_NAME)) {
+          users.add(JiraTimetrackerUtil.getLoggedUserName());
+        }
+      } else {
+        throw new IllegalArgumentException(NO_BROWSE_PERMISSION);
+      }
+    } else {
+      if (!users.isEmpty() && users.contains(PickerUserDTO.NONE_USER_NAME)) {
+        users = ConverterUtil.getUserNamesFromGroup(filterCondition.getGroups());
+      } else if (users.remove(PickerUserDTO.CURRENT_USER_NAME)) {
+        users.add(JiraTimetrackerUtil.getLoggedUserName());
+      }
     }
     reportSearchParam.users(users);
   }
@@ -224,7 +240,7 @@ public final class ConverterUtil {
    *           if has problem in convert. Contains property key name in message.
    */
   public static ConvertedSearchParam convertFilterConditionToConvertedSearchParam(
-      final FilterCondition filterCondition) {
+      final FilterCondition filterCondition, final ReportingPlugin reportingPlugin) {
     if (filterCondition == null) {
       throw new NullPointerException("filterCondition parameter is null");
     }
@@ -265,7 +281,7 @@ public final class ConverterUtil {
     if (!reportSearchParam.worklogStartDate.before(reportSearchParam.worklogEndDate)) {
       throw new IllegalArgumentException(KEY_WRONG_DATES);
     }
-    ConverterUtil.collectUsersFromParams(filterCondition, reportSearchParam);
+    ConverterUtil.collectUsersFromParams(filterCondition, reportSearchParam, reportingPlugin);
 
     if (filterCondition.getOffset() != null) {
       reportSearchParam.offset(filterCondition.getOffset());
@@ -349,8 +365,8 @@ public final class ConverterUtil {
     return issuesKeys;
   }
 
-  private static List<String> getUserNamesFromGroup(final List<String> groupNames) {
-    List<String> userNames = new ArrayList<String>();
+  private static ArrayList<String> getUserNamesFromGroup(final List<String> groupNames) {
+    ArrayList<String> userNames = new ArrayList<String>();
     GroupManager groupManager = ComponentAccessor.getGroupManager();
     for (String groupName : groupNames) {
       Collection<String> userNamesInGroup = groupManager.getUserNamesInGroup(groupName);
