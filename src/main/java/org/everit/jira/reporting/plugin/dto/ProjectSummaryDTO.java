@@ -29,8 +29,6 @@ public class ProjectSummaryDTO {
 
     public static final String ISSUE_TIME_ORIGINAL_ESTIMATE_SUM = "issuesOrginalEstimatedSum";
 
-    public static final String PROJECT_DESCRIPTION = "projectSummary";
-
     public static final String PROJECT_KEY = "projectKey";
 
     public static final String PROJECT_NAME = "projectName";
@@ -50,8 +48,6 @@ public class ProjectSummaryDTO {
   private String projectKey;
 
   private String projectName;
-
-  private String projectSummary;
 
   private long workloggedTimeSum;
 
@@ -76,10 +72,6 @@ public class ProjectSummaryDTO {
     return projectName;
   }
 
-  public String getProjectSummary() {
-    return projectSummary;
-  }
-
   public long getWorkloggedTimeSum() {
     return workloggedTimeSum;
   }
@@ -98,10 +90,6 @@ public class ProjectSummaryDTO {
 
   public void setProjectName(final String projectName) {
     this.projectName = projectName;
-  }
-
-  public void setProjectSummary(final String projectSummary) {
-    this.projectSummary = projectSummary;
   }
 
   public void setWorkloggedTimeSum(final long issuesTimespentSum) {
