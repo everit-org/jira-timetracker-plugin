@@ -35,6 +35,7 @@ import org.everit.jira.reporting.plugin.ReportingPlugin;
 import org.everit.jira.reporting.plugin.dto.ConvertedSearchParam;
 import org.everit.jira.reporting.plugin.dto.FilterCondition;
 import org.everit.jira.reporting.plugin.dto.IssueSummaryReportDTO;
+import org.everit.jira.reporting.plugin.dto.PickerUserDTO;
 import org.everit.jira.reporting.plugin.dto.ProjectSummaryReportDTO;
 import org.everit.jira.reporting.plugin.dto.ReportingSessionData;
 import org.everit.jira.reporting.plugin.dto.UserSummaryReportDTO;
@@ -42,6 +43,7 @@ import org.everit.jira.reporting.plugin.dto.WorklogDetailsReportDTO;
 import org.everit.jira.reporting.plugin.exception.JTRPException;
 import org.everit.jira.reporting.plugin.export.column.WorklogDetailsColumns;
 import org.everit.jira.reporting.plugin.util.ConverterUtil;
+import org.everit.jira.reporting.plugin.util.PermissionUtil;
 import org.everit.jira.timetracker.plugin.DurationFormatter;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.UserDialogSettingsHelper;
@@ -121,6 +123,8 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   private Gson gson;
 
+  public boolean hasBrowseUsersPermission = true;
+
   public boolean isShowTutorialDialog = false;
 
   private String issueCollectorSrc;
@@ -189,7 +193,7 @@ public class ReportingWebAction extends JiraWebActionSupport {
     try {
       filterCondition = ConverterUtil.convertJsonToFilterCondition(filterConditionJson);
       convertedSearchParam = ConverterUtil
-          .convertFilterConditionToConvertedSearchParam(filterCondition);
+          .convertFilterConditionToConvertedSearchParam(filterCondition, reportingPlugin);
     } catch (IllegalArgumentException e) {
       message = e.getMessage();
       return INPUT;
@@ -220,6 +224,9 @@ public class ReportingWebAction extends JiraWebActionSupport {
   private void defaultInitalizeData() {
     selectedMore = new ArrayList<String>();
     filterCondition = new FilterCondition();
+    if (!hasBrowseUsersPermission) {
+      filterCondition.setUsers(Arrays.asList(PickerUserDTO.CURRENT_USER_NAME));
+    }
     selectedWorklogDetailsColumns = WorklogDetailsColumns.DEFAULT_COLUMNS;
     initDatesIfNecessary();
   }
@@ -242,6 +249,8 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
     loadIssueCollectorSrc();
     normalizeContextPath();
+    hasBrowseUsersPermission =
+        PermissionUtil.hasBrowseUserPermission(getLoggedInApplicationUser(), reportingPlugin);
 
     isShowTutorialDialog = UserDialogSettingsHelper.getIsShowTutorialDialog(settingsFactory,
         getLoggedInApplicationUser().getUsername());
@@ -269,6 +278,8 @@ public class ReportingWebAction extends JiraWebActionSupport {
     normalizeContextPath();
 
     loadFavoriteFilters();
+    hasBrowseUsersPermission =
+        PermissionUtil.hasBrowseUserPermission(getLoggedInApplicationUser(), reportingPlugin);
 
     loadPageSizeLimit();
     loadIssueCollectorSrc();
@@ -344,6 +355,10 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   public String getFilterConditionJson() {
     return filterConditionJson;
+  }
+
+  public boolean getHasBrowseUsersPermission() {
+    return hasBrowseUsersPermission;
   }
 
   public boolean getIsShowTutorialDialog() {
@@ -516,6 +531,10 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   public void setFavouriteFilters(final List<SearchRequest> favouriteFilters) {
     this.favouriteFilters = favouriteFilters;
+  }
+
+  public void setHasBrowseUsersPermission(final boolean hasBrowseUsersPermission) {
+    this.hasBrowseUsersPermission = hasBrowseUsersPermission;
   }
 
   public void setIsShowTutorialDialog(final boolean isShowTutorialDialog) {

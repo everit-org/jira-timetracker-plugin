@@ -288,7 +288,7 @@ public final class JiraTimetrackerUtil {
     if (user == null) {
       return "";
     }
-    return user.getUsername();
+    return user.getUsername().toLowerCase(Locale.getDefault());
   }
 
   /**
