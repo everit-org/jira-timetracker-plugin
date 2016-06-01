@@ -21,6 +21,11 @@ package org.everit.jira.timetracker.plugin;
 public final class GlobalSettingsKey {
 
   /**
+   * The plugin reporting settings is use Noworks.
+   */
+  public static final String JTTP_PLUGIN_REPORTING_SETTINGS_PAGER_SIZE = "pagerSize";
+
+  /**
    * The plugin settings analytics check.
    */
   public static final String JTTP_PLUGIN_SETTINGS_ANALYTICS_CHECK_CHANGE = "analyticsCheckChange";

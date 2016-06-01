@@ -87,6 +87,13 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                 <div class="aui-page-header-main">
                     <h1>Reporting</h1>
                 </div>                
+                <div class="aui-page-header-actions">
+					<div class="aui-buttons">
+						<button class="aui-button aui-button-subtle"  type="button" name="setting" onclick="location.href='JiraTimetrackerReportingUserSettingsWebAction!default.jspa'">
+							<span class="aui-icon aui-icon-small aui-iconfont-configure"> </span>
+						</button>
+					</div>
+				</div>
             </div>
         </header>
             

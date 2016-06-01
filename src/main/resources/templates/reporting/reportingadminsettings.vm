@@ -29,9 +29,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
 		jttp.options = jQuery.extend( 
 			{},
 			jttp.options,
-			{
-				pageSize : ${pageSize}
-			}
+			{}
 		);
 	})(everit.jttp.reporting_admin, AJS.$);
 </script>
@@ -152,37 +150,6 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
 		                 </div>
 		                <div class="description">
 		                  $i18n.getText("jtrp.plugin.reporting.browse.user.desc")
-		                </div>
-		              </td>
-		            </tr>
-					<tr>
-		              <td style="text-align: right; vertical-align: top;" width="15%">
-		                <strong>$i18n.getText("jtrp.plugin.reporting.pagination")</strong>
-		              </td>
-		              <td class="admin-settings-value-column">
-		                <div>
-		                  <input type="hidden" id="pageSizeInput" name="pageSizeInput"/>
-		                  <a id="pageSizeButton" href="#pagesize-dropdown2-checkbox-radio-interactive-trigger" aria-owns="pagesize-dropdown2-checkbox-radio-interactive" aria-haspopup="true" class="aui-button aui-style-default aui-dropdown2-trigger">
-                    		Dropdown trigger
-                          </a>
-			                <!-- Dropdown -->
-			                <div id="pagesize-dropdown2-checkbox-radio-interactive" class="aui-dropdown2 aui-style-default">
-								   <div class="aui-dropdown2-section">
-									  <ul>
-			                            <li><a id="pages_5" class="aui-dropdown2-radio interactive">5</a></li>
-			                            <li><a id="pages_10" class="aui-dropdown2-radio interactive">10</a></li>
-			                            <li><a id="pages_15" class="aui-dropdown2-radio interactive">15</a></li>
-			                            <li><a id="pages_20" class="aui-dropdown2-radio interactive">20</a></li>
-			                            <li><a id="pages_25" class="aui-dropdown2-radio interactive">25</a></li>
-			                            <li><a id="pages_30" class="aui-dropdown2-radio interactive">30</a></li>
-			                            <li><a id="pages_35" class="aui-dropdown2-radio interactive">35</a></li>
-			                            <li><a id="pages_40" class="aui-dropdown2-radio interactive">40</a></li>
-			                        </ul>
-			                      </div>
-			                </div>
-		                </div>
-		                <div class="description">
-		                  $i18n.getText("jtrp.plugin.reporting.pagination.desc")
 		                </div>
 		              </td>
 		            </tr>
