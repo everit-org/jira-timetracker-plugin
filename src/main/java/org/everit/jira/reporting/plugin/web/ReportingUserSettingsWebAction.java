@@ -15,12 +15,12 @@
  */
 package org.everit.jira.reporting.plugin.web;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.everit.jira.reporting.plugin.ReportingPlugin;
 import org.everit.jira.timetracker.plugin.UserReportingSettingsHelper;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
@@ -61,16 +61,12 @@ public class ReportingUserSettingsWebAction extends JiraWebActionSupport {
 
   private int pageSize;
 
-  private ReportingPlugin reportingPlugin;
-
   private PluginSettingsFactory settingsFactory;
 
   private boolean userPopupVisible;
 
-  public ReportingUserSettingsWebAction(
-      final PluginSettingsFactory settingsFactory, final ReportingPlugin reportingPlugin) {
+  public ReportingUserSettingsWebAction(final PluginSettingsFactory settingsFactory) {
     this.settingsFactory = settingsFactory;
-    this.reportingPlugin = reportingPlugin;
   }
 
   @Override
@@ -185,6 +181,12 @@ public class ReportingUserSettingsWebAction extends JiraWebActionSupport {
     }
   }
 
+  private void readObject(final java.io.ObjectInputStream stream) throws IOException,
+      ClassNotFoundException {
+    stream.close();
+    throw new java.io.NotSerializableException(getClass().getName());
+  }
+
   /**
    * Save the user reporting settings.
    */
@@ -213,5 +215,10 @@ public class ReportingUserSettingsWebAction extends JiraWebActionSupport {
 
   public void setUserPopupVisible(final boolean userPopupVisible) {
     this.userPopupVisible = userPopupVisible;
+  }
+
+  private void writeObject(final java.io.ObjectOutputStream stream) throws IOException {
+    stream.close();
+    throw new java.io.NotSerializableException(getClass().getName());
   }
 }

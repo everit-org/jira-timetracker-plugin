@@ -43,16 +43,6 @@ public class UserReportingSettingsHelper {
             + userName);
   }
 
-  // private void setPageSize() {
-  // pageSize = DEFAULT_PAGE_SIZE;
-  // String pageSizeValue =
-  // (String) reportingSettings.get(JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX
-  // + JTTP_PLUGIN_REPORTING_SETTINGS_PAGER_SIZE);
-  // if (pageSizeValue != null) {
-  // pageSize = Integer.parseInt(pageSizeValue);
-  // }
-  // }
-
   /**
    * Get the user saved show tutorial value.
    *
@@ -99,7 +89,8 @@ public class UserReportingSettingsHelper {
    *          The new value.
    */
   public void savePageSize(final int pageSize) {
-    pluginSettings.put(GlobalSettingsKey.JTTP_PLUGIN_REPORTING_SETTINGS_PAGER_SIZE, pageSize);
+    pluginSettings.put(GlobalSettingsKey.JTTP_PLUGIN_REPORTING_SETTINGS_PAGER_SIZE,
+        String.valueOf(pageSize));
   }
 
 }

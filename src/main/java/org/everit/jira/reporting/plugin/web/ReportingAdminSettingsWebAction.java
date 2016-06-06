@@ -36,8 +36,6 @@ import com.atlassian.jira.web.action.JiraWebActionSupport;
  */
 public class ReportingAdminSettingsWebAction extends JiraWebActionSupport {
 
-  private static final int DEFAULT_PAGE_SIZE = 20;
-
   private static final String FREQUENT_FEEDBACK = "jttp.plugin.frequent.feedback";
 
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
@@ -217,7 +215,6 @@ public class ReportingAdminSettingsWebAction extends JiraWebActionSupport {
   public String parseSaveSettings(final HttpServletRequest request) {
     String[] reportingGroupSelectValue = request.getParameterValues("reportingGroupSelect");
     String[] browseGroupSelectValue = request.getParameterValues("browseGroupSelect");
-    String pageSizeValue = request.getParameter("pageSizeInput");
     parseReportingGroups(reportingGroupSelectValue);
     parseBrowseGroups(browseGroupSelectValue);
     return null;
