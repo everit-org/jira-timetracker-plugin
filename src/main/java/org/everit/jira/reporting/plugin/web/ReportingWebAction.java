@@ -46,8 +46,7 @@ import org.everit.jira.reporting.plugin.util.ConverterUtil;
 import org.everit.jira.reporting.plugin.util.PermissionUtil;
 import org.everit.jira.timetracker.plugin.DurationFormatter;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
-import org.everit.jira.timetracker.plugin.UserDialogSettingsHelper;
-import org.everit.jira.timetracker.plugin.dto.ReportingSettingsValues;
+import org.everit.jira.timetracker.plugin.UserReportingSettingsHelper;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
@@ -246,14 +245,12 @@ public class ReportingWebAction extends JiraWebActionSupport {
     loadFavoriteFilters();
 
     loadPageSizeLimit();
+    loadIsShowTutorial();
 
     loadIssueCollectorSrc();
     normalizeContextPath();
     hasBrowseUsersPermission =
         PermissionUtil.hasBrowseUserPermission(getLoggedInApplicationUser(), reportingPlugin);
-
-    isShowTutorialDialog = UserDialogSettingsHelper.getIsShowTutorialDialog(settingsFactory,
-        getLoggedInApplicationUser().getUsername());
 
     analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(settingsFactory,
         PiwikPropertiesUtil.PIWIK_REPORTING_SITEID);
@@ -294,8 +291,7 @@ public class ReportingWebAction extends JiraWebActionSupport {
       if (httpRequest.getParameter(HTTP_PARAM_TUTORIAL_DNS) != null) {
         isDoNotShow = false;
       }
-      UserDialogSettingsHelper.saveIsShowTutorialDialog(settingsFactory,
-          getLoggedInApplicationUser().getUsername(), isDoNotShow);
+      saveIsShowTutorial(isDoNotShow);
       initializeData();
       return SUCCESS;
     }
@@ -481,14 +477,21 @@ public class ReportingWebAction extends JiraWebActionSupport {
         defaultSearchRequestService.getFavouriteFilters(getLoggedInApplicationUser()));
   }
 
+  private void loadIsShowTutorial() {
+    UserReportingSettingsHelper userReportingSettingsHelper =
+        new UserReportingSettingsHelper(settingsFactory, JiraTimetrackerUtil.getLoggedUserName());
+    isShowTutorialDialog = userReportingSettingsHelper.getIsShowTutorialDialog();
+  }
+
   private void loadIssueCollectorSrc() {
     Properties properties = PropertiesUtil.getJttpBuildProperties();
     issueCollectorSrc = properties.getProperty(ISSUE_COLLECTOR_SRC);
   }
 
   private void loadPageSizeLimit() {
-    ReportingSettingsValues loadReportingSettings = reportingPlugin.loadReportingSettings();
-    pageSizeLimit = loadReportingSettings.pageSize;
+    UserReportingSettingsHelper userReportingSettingsHelper =
+        new UserReportingSettingsHelper(settingsFactory, JiraTimetrackerUtil.getLoggedUserName());
+    pageSizeLimit = userReportingSettingsHelper.getPageSize();
   }
 
   private void morePickerParse(final String selectedMoreJson) {
@@ -523,6 +526,12 @@ public class ReportingWebAction extends JiraWebActionSupport {
             .selectedWorklogDetailsColumnsJson(selectedWorklogDetailsColumnsJson)
             .collapsedDetailsModuleVal(collapsedDetailsModuleVal)
             .collapsedSummaryModuleVal(collapsedSummaryModuleVal));
+  }
+
+  private void saveIsShowTutorial(final boolean isDoNotShow) {
+    UserReportingSettingsHelper userReportingSettingsHelper =
+        new UserReportingSettingsHelper(settingsFactory, JiraTimetrackerUtil.getLoggedUserName());
+    userReportingSettingsHelper.saveIsShowTutorialDialog(isDoNotShow);
   }
 
   public void setContextPath(final String contextPath) {
