@@ -50,8 +50,6 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 public class ReportingPluginImpl implements ReportingPlugin, InitializingBean,
     DisposableBean, Serializable {
 
-  private static final int DEFAULT_PAGE_SIZE = 20;
-
   /**
    * The plugin reporting settings groups that have browse user permission.
    */
@@ -68,18 +66,11 @@ public class ReportingPluginImpl implements ReportingPlugin, InitializingBean,
   private static final String JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX = "jttp_report";
 
   /**
-   * The plugin reporting settings is use Noworks.
-   */
-  private static final String JTTP_PLUGIN_REPORTING_SETTINGS_PAGER_SIZE = "pagerSize";
-
-  /**
    * Serial Version UID.
    */
   private static final long serialVersionUID = -3872710932298672883L;
 
   private List<String> browseGroups;
-
-  private int pageSize;
 
   private QuerydslSupport querydslSupport;
 
@@ -257,10 +248,8 @@ public class ReportingPluginImpl implements ReportingPlugin, InitializingBean,
         .createSettingsForKey(JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX);
     setReportingGroups();
     setBrowseGroups();
-    setPageSize();
     reportingSettingsValues =
-        new ReportingSettingsValues().reportingGroups(reportingGroups).pageSize(pageSize)
-            .browseGroups(browseGroups);
+        new ReportingSettingsValues().reportingGroups(reportingGroups).browseGroups(browseGroups);
     return reportingSettingsValues;
   }
 
@@ -275,9 +264,6 @@ public class ReportingPluginImpl implements ReportingPlugin, InitializingBean,
     reportingSettings = settingsFactory
         .createSettingsForKey(JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX);
     reportingSettings.put(JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX
-        + JTTP_PLUGIN_REPORTING_SETTINGS_PAGER_SIZE,
-        String.valueOf(reportingSettingsParameter.pageSize));
-    reportingSettings.put(JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX
         + JTTP_PLUGIN_REPORTING_SETTINGS_GROUPS, reportingSettingsParameter.reportingGroups);
     reportingSettings.put(JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX
         + JTTP_PLUGIN_REPORTING_SETTINGS_BROWSE_GROUPS, reportingSettingsParameter.browseGroups);
@@ -290,16 +276,6 @@ public class ReportingPluginImpl implements ReportingPlugin, InitializingBean,
     browseGroups = new ArrayList<String>();
     if (browseGroupsNames != null) {
       browseGroups = browseGroupsNames;
-    }
-  }
-
-  private void setPageSize() {
-    pageSize = DEFAULT_PAGE_SIZE;
-    String pageSizeValue =
-        (String) reportingSettings.get(JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX
-            + JTTP_PLUGIN_REPORTING_SETTINGS_PAGER_SIZE);
-    if (pageSizeValue != null) {
-      pageSize = Integer.parseInt(pageSizeValue);
     }
   }
 

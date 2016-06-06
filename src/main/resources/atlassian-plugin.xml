@@ -226,9 +226,14 @@
         <view name="input">/templates/reporting/reporting.vm</view>
         <view name="error">/templates/common/error.vm</view>
       </action>
-      <action name="org.everit.jira.reporting.plugin.web.ReportingSettingsWebAction" alias="JiraTimetrackerReportingSettingsWebAction">
-        <view name="success">/templates/reporting/reportingsettings.vm</view>
-        <view name="input">/templates/reporting/reportingsettings.vm</view>
+      <action name="org.everit.jira.reporting.plugin.web.ReportingAdminSettingsWebAction" alias="JiraTimetrackerReportingSettingsWebAction">
+        <view name="success">/templates/reporting/reportingadminsettings.vm</view>
+        <view name="input">/templates/reporting/reportingadminsettings.vm</view>
+        <view name="error">/templates/common/error.vm</view>
+      </action>
+       <action name="org.everit.jira.reporting.plugin.web.ReportingUserSettingsWebAction" alias="JiraTimetrackerReportingUserSettingsWebAction">
+        <view name="success">/templates/reporting/reportingusersettings.vm</view>
+        <view name="input">/templates/reporting/reportingusersettings.vm</view>
         <view name="error">/templates/common/error.vm</view>
       </action>
     </actions>

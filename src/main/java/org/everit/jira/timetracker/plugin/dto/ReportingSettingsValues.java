@@ -35,11 +35,6 @@ public class ReportingSettingsValues implements Serializable {
   public List<String> browseGroups;
 
   /**
-   * The reporting pager size.
-   */
-  public int pageSize;
-
-  /**
    * The reporting groups.
    */
   public List<String> reportingGroups;
@@ -49,11 +44,6 @@ public class ReportingSettingsValues implements Serializable {
 
   public ReportingSettingsValues browseGroups(final List<String> browseGroups) {
     this.browseGroups = browseGroups;
-    return this;
-  }
-
-  public ReportingSettingsValues pageSize(final int pageSize) {
-    this.pageSize = pageSize;
     return this;
   }
 
