@@ -34,9 +34,7 @@ import com.atlassian.jira.web.action.JiraWebActionSupport;
 /**
  * Admin settings page.
  */
-public class ReportingSettingsWebAction extends JiraWebActionSupport {
-
-  private static final int DEFAULT_PAGE_SIZE = 20;
+public class ReportingAdminSettingsWebAction extends JiraWebActionSupport {
 
   private static final String FREQUENT_FEEDBACK = "jttp.plugin.frequent.feedback";
 
@@ -65,13 +63,11 @@ public class ReportingSettingsWebAction extends JiraWebActionSupport {
    */
   private String message = "";
 
-  private int pageSize;
-
   private List<String> reportingGroups;
 
   private ReportingPlugin reportingPlugin;
 
-  public ReportingSettingsWebAction(
+  public ReportingAdminSettingsWebAction(
       final JiraTimetrackerPlugin jiraTimetrackerPlugin, final ReportingPlugin reportingPlugin) {
     this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
     this.reportingPlugin = reportingPlugin;
@@ -144,10 +140,6 @@ public class ReportingSettingsWebAction extends JiraWebActionSupport {
     return message;
   }
 
-  public int getPageSize() {
-    return pageSize;
-  }
-
   public List<String> getReportingGroups() {
     return reportingGroups;
   }
@@ -159,7 +151,6 @@ public class ReportingSettingsWebAction extends JiraWebActionSupport {
     ReportingSettingsValues pluginSettingsValues = reportingPlugin
         .loadReportingSettings();
     reportingGroups = pluginSettingsValues.reportingGroups;
-    pageSize = pluginSettingsValues.pageSize;
     browseGroups = pluginSettingsValues.browseGroups;
   }
 
@@ -207,14 +198,6 @@ public class ReportingSettingsWebAction extends JiraWebActionSupport {
     return null;
   }
 
-  private void parsePageSizeInput(final String pageSizeInputValuse) {
-    if (pageSizeInputValuse == null) {
-      pageSize = DEFAULT_PAGE_SIZE;
-    } else {
-      pageSize = Integer.parseInt(pageSizeInputValuse);
-    }
-  }
-
   private void parseReportingGroups(final String[] reportingGroupsValue) {
     if (reportingGroupsValue == null) {
       reportingGroups = new ArrayList<String>();
@@ -232,10 +215,8 @@ public class ReportingSettingsWebAction extends JiraWebActionSupport {
   public String parseSaveSettings(final HttpServletRequest request) {
     String[] reportingGroupSelectValue = request.getParameterValues("reportingGroupSelect");
     String[] browseGroupSelectValue = request.getParameterValues("browseGroupSelect");
-    String pageSizeValue = request.getParameter("pageSizeInput");
     parseReportingGroups(reportingGroupSelectValue);
     parseBrowseGroups(browseGroupSelectValue);
-    parsePageSizeInput(pageSizeValue);
     return null;
   }
 
@@ -244,8 +225,7 @@ public class ReportingSettingsWebAction extends JiraWebActionSupport {
    */
   public void savePluginSettings() {
     ReportingSettingsValues reportingSettingsValues =
-        new ReportingSettingsValues().reportingGroups(reportingGroups).browseGroups(browseGroups)
-            .pageSize(pageSize);
+        new ReportingSettingsValues().reportingGroups(reportingGroups).browseGroups(browseGroups);
     reportingPlugin.saveReportingSettings(reportingSettingsValues);
   }
 
@@ -263,10 +243,6 @@ public class ReportingSettingsWebAction extends JiraWebActionSupport {
 
   public void setMessage(final String message) {
     this.message = message;
-  }
-
-  public void setPageSize(final int pageSize) {
-    this.pageSize = pageSize;
   }
 
   public void setReportingGroups(final List<String> reportingGroups) {
