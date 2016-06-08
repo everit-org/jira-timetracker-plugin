@@ -24,15 +24,16 @@ import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
 import org.everit.jira.reporting.plugin.dto.UserSummaryDTO;
 import org.everit.jira.reporting.plugin.query.util.QueryUtil;
 
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.PathMetadata;
 import com.querydsl.core.types.PathType;
 import com.querydsl.core.types.Projections;
-import com.querydsl.core.types.QBean;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberPath;
 import com.querydsl.core.types.dsl.StringPath;
 import com.querydsl.sql.Configuration;
+import com.querydsl.sql.SQLExpressions;
 import com.querydsl.sql.SQLQuery;
 
 /**
@@ -44,20 +45,10 @@ public class UserSummaryReportQueryBuilder extends AbstractReportQuery<UserSumma
     super(reportSearchParam);
   }
 
-  private QBean<UserSummaryDTO> createQuerySelectProjection(
-      final StringPath userPath) {
-    return Projections.bean(UserSummaryDTO.class,
-        new CaseBuilder()
-            .when(QueryUtil.selectDisplayNameForUserExist(qWorklog.author))
-            .then(QueryUtil.selectDisplayNameForUser(qWorklog.author))
-            .otherwise(qWorklog.author)
-            .as(userPath),
-        qWorklog.timeworked.sum().as(UserSummaryDTO.AliasNames.WORKLOGGED_TIME_SUM));
-  }
-
   @Override
   protected QuerydslCallable<Long> getCountQuery() {
     return new QuerydslCallable<Long>() {
+
       @Override
       public Long call(final Connection connection, final Configuration configuration)
           throws SQLException {
@@ -86,21 +77,37 @@ public class UserSummaryReportQueryBuilder extends AbstractReportQuery<UserSumma
 
       @Override
       public List<UserSummaryDTO> call(final Connection connection,
-          final Configuration configuration) throws SQLException {
-        StringPath userPath =
-            Expressions.stringPath(new PathMetadata(null,
-                UserSummaryDTO.AliasNames.USER_DISPLAY_NAME, PathType.VARIABLE));
+          final Configuration configuration)
+              throws SQLException {
+        StringPath userPath = Expressions.stringPath(new PathMetadata(null,
+            UserSummaryDTO.AliasNames.USER_DISPLAY_NAME,
+            PathType.VARIABLE));
+
+        NumberPath<Long> worklogTimeSumPath = Expressions.numberPath(Long.class,
+            new PathMetadata(null,
+                UserSummaryDTO.AliasNames.WORKLOGGED_TIME_SUM,
+                PathType.VARIABLE));
+
+        SQLQuery<Tuple> fromQuery = SQLExpressions.select(
+            new CaseBuilder()
+                .when(QueryUtil.selectDisplayNameForUserExist(qWorklog.author))
+                .then(QueryUtil.selectDisplayNameForUser(qWorklog.author))
+                .otherwise(qWorklog.author)
+                .as(userPath),
+            qWorklog.timeworked.sum().as(worklogTimeSumPath));
+
+        appendBaseFromAndJoin(fromQuery);
+        appendBaseWhere(fromQuery);
+        fromQuery.groupBy(qWorklog.author);
 
         SQLQuery<UserSummaryDTO> query = new SQLQuery<UserSummaryDTO>(connection, configuration)
-            .select(createQuerySelectProjection(userPath));
-
-        appendBaseFromAndJoin(query);
-        appendBaseWhere(query);
-        appendQueryRange(query);
-
+            .select(Projections.bean(UserSummaryDTO.class,
+                userPath,
+                worklogTimeSumPath));
+        query.from(fromQuery.as("fromQuery"));
         query.orderBy(userPath.asc());
 
-        query.groupBy(qWorklog.author);
+        appendQueryRange(query);
 
         return query.fetch();
       }
