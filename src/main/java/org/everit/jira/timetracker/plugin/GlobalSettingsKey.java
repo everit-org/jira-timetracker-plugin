@@ -86,6 +86,11 @@ public final class GlobalSettingsKey {
   public static final String JTTP_PLUGIN_SETTINGS_SUMMARY_FILTERS = "SummaryFilters";
 
   /**
+   * The plugin setting is show tutorila key.
+   */
+  public static final String JTTP_PLUGIN_USER_WD_SELECTED_COLUMNS = "worklogDetialsSelectedColumns";
+
+  /**
    * The plugin UUDI global setting key.
    */
   public static final String JTTP_PLUGIN_UUID = "PluginUUID";
