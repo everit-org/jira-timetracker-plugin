@@ -15,8 +15,11 @@
  */
 package org.everit.jira.timetracker.plugin;
 
+import org.everit.jira.reporting.plugin.export.column.WorklogDetailsColumns;
+
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
+import com.google.gson.Gson;
 
 /**
  * The User settings for dialog helper class.
@@ -72,6 +75,21 @@ public class UserReportingSettingsHelper {
   }
 
   /**
+   * Get the user saved worklog detials selected columns value.
+   *
+   * @return The saved value from settigns.
+   */
+  public String getUserSelectedColumns() {
+    String selectedColumnsJson =
+        (String) pluginSettings.get(GlobalSettingsKey.JTTP_PLUGIN_USER_WD_SELECTED_COLUMNS);
+    if (selectedColumnsJson != null) {
+      return selectedColumnsJson;
+    }
+    Gson gson = new Gson();
+    return gson.toJson(WorklogDetailsColumns.DEFAULT_COLUMNS);
+  }
+
+  /**
    * Get the user saved show tutorial value.
    *
    * @param isShowTutorial
@@ -85,12 +103,22 @@ public class UserReportingSettingsHelper {
   /**
    * Get the user saved show tutorial value.
    *
-   * @param isShowTutorial
+   * @param pageSize
    *          The new value.
    */
   public void savePageSize(final int pageSize) {
     pluginSettings.put(GlobalSettingsKey.JTTP_PLUGIN_REPORTING_SETTINGS_PAGER_SIZE,
         String.valueOf(pageSize));
+  }
+
+  /**
+   * Get the user saved worklog detials selected columns value.
+   *
+   * @param selectedColumnsJson
+   *          The new value.
+   */
+  public void saveSelectedColumnsJSon(final String selectedColumnsJson) {
+    pluginSettings.put(GlobalSettingsKey.JTTP_PLUGIN_USER_WD_SELECTED_COLUMNS, selectedColumnsJson);
   }
 
 }

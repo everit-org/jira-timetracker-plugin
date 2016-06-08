@@ -226,7 +226,10 @@ public class ReportingWebAction extends JiraWebActionSupport {
     if (!hasBrowseUsersPermission) {
       filterCondition.setUsers(Arrays.asList(PickerUserDTO.CURRENT_USER_NAME));
     }
-    selectedWorklogDetailsColumns = WorklogDetailsColumns.DEFAULT_COLUMNS;
+    String selectedWorklogDetailsColumnsJson = loadUserWorklogDetialsSelectedColumnsJson();
+    String[] selectedWorklogDetailsColumnsArray =
+        gson.fromJson(selectedWorklogDetailsColumnsJson, String[].class);
+    selectedWorklogDetailsColumns = Arrays.asList(selectedWorklogDetailsColumnsArray);
     initDatesIfNecessary();
   }
 
@@ -313,6 +316,7 @@ public class ReportingWebAction extends JiraWebActionSupport {
       saveDataToSession(selectedMoreJson, selectedActiveTab, filterConditionJsonValue,
           selectedWorklogDetailsColumnsJson, collapsedDetailsModuleVal,
           collapsedSummaryModuleVal);
+      saveUserWorklogDetialsSelectedColumns(selectedWorklogDetailsColumnsJson);
       CreateReportEvent analyticsEvent =
           new CreateReportEvent(analyticsDTO.getInstalledPluginId(), filterCondition,
               selectedWorklogDetailsColumns, selectedActiveTab);
@@ -494,6 +498,12 @@ public class ReportingWebAction extends JiraWebActionSupport {
     pageSizeLimit = userReportingSettingsHelper.getPageSize();
   }
 
+  private String loadUserWorklogDetialsSelectedColumnsJson() {
+    UserReportingSettingsHelper userReportingSettingsHelper =
+        new UserReportingSettingsHelper(settingsFactory, JiraTimetrackerUtil.getLoggedUserName());
+    return userReportingSettingsHelper.getUserSelectedColumns();
+  }
+
   private void morePickerParse(final String selectedMoreJson) {
     if (selectedMoreJson != null) {
       String[] selectedMore = gson.fromJson(selectedMoreJson, String[].class);
@@ -532,6 +542,12 @@ public class ReportingWebAction extends JiraWebActionSupport {
     UserReportingSettingsHelper userReportingSettingsHelper =
         new UserReportingSettingsHelper(settingsFactory, JiraTimetrackerUtil.getLoggedUserName());
     userReportingSettingsHelper.saveIsShowTutorialDialog(isDoNotShow);
+  }
+
+  private void saveUserWorklogDetialsSelectedColumns(final String selectedColumnsJson) {
+    UserReportingSettingsHelper userReportingSettingsHelper =
+        new UserReportingSettingsHelper(settingsFactory, JiraTimetrackerUtil.getLoggedUserName());
+    userReportingSettingsHelper.saveSelectedColumnsJSon(selectedColumnsJson);
   }
 
   public void setContextPath(final String contextPath) {
