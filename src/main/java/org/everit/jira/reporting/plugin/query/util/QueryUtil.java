@@ -52,15 +52,22 @@ public final class QueryUtil {
     QCwdUser qCwdUser = new QCwdUser("issueUser");
     QAppUser qAppUser = new QAppUser("appUserForIssue");
     QCwdDirectory qCwdDirectory = new QCwdDirectory("cwdDirectoryForIssue");
-    return SQLExpressions.select(new CaseBuilder()
-        .when(qCwdUser.displayName.isNotNull()).then(qCwdUser.displayName)
-        .otherwise(stringPath))
+    QCwdDirectory qCwdDirectoryMin = new QCwdDirectory("cwdDirMin");
+    QCwdUser qCwdUserMin = new QCwdUser("cwdUMin");
+    return SQLExpressions
+        .select(new CaseBuilder()
+            .when(qCwdUser.displayName.isNotNull())
+            .then(qCwdUser.displayName)
+            .otherwise(stringPath))
         .from(qCwdUser)
         .leftJoin(qAppUser).on(qAppUser.lowerUserName.eq(qCwdUser.lowerUserName))
         .leftJoin(qCwdDirectory).on(qCwdUser.directoryId.eq(qCwdDirectory.id))
-        .where(qAppUser.userKey.eq(stringPath))
-        .orderBy(qCwdDirectory.directoryPosition.asc())
-        .limit(1L);
+        .where(qAppUser.userKey.eq(stringPath)
+            .and(qCwdDirectory.directoryPosition.eq(
+                SQLExpressions.select(qCwdDirectoryMin.directoryPosition.min())
+                    .from(qCwdDirectoryMin)
+                    .leftJoin(qCwdUserMin).on(qCwdUserMin.directoryId.eq(qCwdDirectoryMin.id))
+                    .where(qCwdUserMin.lowerUserName.eq(qAppUser.lowerUserName)))));
   }
 
   /**
@@ -70,16 +77,22 @@ public final class QueryUtil {
    *          The StringPath of the checked user parameter.
    */
   public static BooleanExpression selectDisplayNameForUserExist(final StringPath stringPath) {
-    QCwdUser qCwdUser = new QCwdUser("cwdUserExists");
-    QAppUser qAppUser = new QAppUser("appUserExists");
-    QCwdDirectory qCwdDirectory = new QCwdDirectory("cwdDirectoryExists");
-    return SQLExpressions.select(qCwdUser.displayName)
+    QCwdUser qCwdUser = new QCwdUser("issueUser");
+    QAppUser qAppUser = new QAppUser("appUserForIssue");
+    QCwdDirectory qCwdDirectory = new QCwdDirectory("cwdDirectoryForIssue");
+    QCwdDirectory qCwdDirectoryMin = new QCwdDirectory("cwdDirMin");
+    QCwdUser qCwdUserMin = new QCwdUser("cwdUMin");
+    return SQLExpressions
+        .select(qCwdUser.displayName)
         .from(qCwdUser)
         .leftJoin(qAppUser).on(qAppUser.lowerUserName.eq(qCwdUser.lowerUserName))
         .leftJoin(qCwdDirectory).on(qCwdUser.directoryId.eq(qCwdDirectory.id))
-        .where(qAppUser.userKey.eq(stringPath))
-        .orderBy(qCwdDirectory.directoryPosition.asc())
-        .limit(1L)
+        .where(qAppUser.userKey.eq(stringPath)
+            .and(qCwdDirectory.directoryPosition.eq(
+                SQLExpressions.select(qCwdDirectoryMin.directoryPosition.min())
+                    .from(qCwdDirectoryMin)
+                    .join(qCwdUserMin).on(qCwdUserMin.directoryId.eq(qCwdDirectoryMin.id))
+                    .where(qCwdUserMin.lowerUserName.eq(qAppUser.lowerUserName)))))
         .exists();
   }
 

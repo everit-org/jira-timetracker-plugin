@@ -101,8 +101,8 @@ everit.reporting.main = everit.reporting.main || {};
         }
       }
       AJS.messages.warning({
-        title: "Some worklogs cannot be displayed",
-        body: "You don't have the permission to browse the following projects: " + keys +"."
+        title: AJS.I18n.getText("jtrp.report.worklogs_no_display_head"),
+        body: AJS.I18n.getText("jtrp.report.worklogs_no_display_body") + " " + keys +"."
       });
     }
 
