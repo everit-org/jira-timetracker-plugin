@@ -481,6 +481,9 @@ public abstract class AbstractReportQuery<T> {
       BooleanExpression predicate = expressionFalse;
       for (String issueKey : reportSearchParam.issueKeys) {
         String[] split = issueKey.split("-");
+        if (split.length != 2) {
+          throw new JTRPException("jtrp.plugin.invalid.issue.key");
+        }
         predicate = predicate.or(subQueryProject.pkey.eq(split[0])
             .and(subQueryIssue.issuenum.stringValue().eq(split[1])));
       }
