@@ -159,6 +159,8 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   private List<String> worklogDetailsAllColumns = WorklogDetailsColumns.ALL_COLUMNS;
 
+  private boolean worklogDetailsEmpty = false;
+
   private WorklogDetailsReportDTO worklogDetailsReport = new WorklogDetailsReportDTO();
 
   /**
@@ -201,7 +203,9 @@ public class ReportingWebAction extends JiraWebActionSupport {
     try {
       worklogDetailsReport =
           reportingPlugin.getWorklogDetailsReport(convertedSearchParam.reportSearchParam);
-
+      if (worklogDetailsReport.getWorklogDetailsCount() == 0) {
+        worklogDetailsEmpty = true;
+      }
       projectSummaryReport =
           reportingPlugin.getProjectSummaryReport(convertedSearchParam.reportSearchParam);
 
@@ -413,6 +417,10 @@ public class ReportingWebAction extends JiraWebActionSupport {
     return worklogDetailsAllColumns;
   }
 
+  public boolean getWorklogDetailsEmpty() {
+    return worklogDetailsEmpty;
+  }
+
   public WorklogDetailsReportDTO getWorklogDetailsReport() {
     return worklogDetailsReport;
   }
@@ -582,6 +590,10 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   public void setSelectedMore(final List<String> selectedMore) {
     this.selectedMore = selectedMore;
+  }
+
+  public void setWorklogDetailsEmpty(final boolean worklogDetailsEmpty) {
+    this.worklogDetailsEmpty = worklogDetailsEmpty;
   }
 
   private void writeObject(final java.io.ObjectOutputStream stream) throws IOException {
