@@ -42,6 +42,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
             useISO8601: ${useISO8601},
             isShowTutorial: ${isShowTutorialDialog},
             hasBrowseUsersPermission: ${hasBrowseUsersPermission},
+            worklogDetailsEmpty: ${worklogDetailsEmpty},
             dateToFormated: ${filterCondition.worklogEndDate},
             dateFromFormated: ${filterCondition.worklogStartDate},
             dateCreatedFormated: +"${filterCondition.issueCreateDate}",
