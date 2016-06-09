@@ -500,13 +500,13 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                                     <div class="search-criteria">
                                         <form action="ReportingWebAction.jspa" onsubmit="return everit.reporting.main.beforeSubmitCreateReport()" class="aui top-label reporting-form" name="reporting-form" id="reporting-form" method="get">
                                             <div class="from-date inline-calendar">
-                                                <input id="dateFrom" name="dateFrom" class="text medium-field datepicker-input" placeholder="From" type="text"/>
+                                                <input id="dateFrom" name="dateFrom" class="text medium-field datepicker-input" placeholder="From"/>
                                                     <a href="#" title="Select a date">
                                                         <span id="date_trigger_from" class="aui-icon aui-icon-small aui-iconfont-calendar">Select a date</span>
                                                     </a>
                                             </div>
                                             <div class="to-date inline-calendar">
-                                                <input id="dateTo" name="dateTo" class="text medium-field datepicker-input" placeholder="To" type="text"/>
+                                                <input id="dateTo" name="dateTo" class="text medium-field datepicker-input" placeholder="To"/>
                                                     <a href="#" title="Select a date">
                                                         <span id="date_trigger_to" class="aui-icon aui-icon-small aui-iconfont-calendar">Select a date</span>
                                                     </a>
