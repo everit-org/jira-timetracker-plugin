@@ -105,7 +105,15 @@ everit.reporting.main = everit.reporting.main || {};
         body: AJS.I18n.getText("jtrp.report.worklogs_no_display_body") + " " + keys +"."
       });
     }
-
+    
+    if(reporting.values.worklogDetailsEmpty){
+      AJS.messages.info({
+        title: AJS.I18n.getText("jtrp.report.result_not_found_head"),
+        body: AJS.I18n.getText("jtrp.report.result_not_found_body")
+      });
+    }
+    
+    
     addTooltips();
     browsePermissionCheck();
 
