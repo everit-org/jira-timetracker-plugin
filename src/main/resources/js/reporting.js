@@ -1045,33 +1045,9 @@ everit.reporting.main = everit.reporting.main || {};
   reporting.updateDetailsAllExportHref = function() {
     var filterConditionString = jQuery('#filterConditionJson').val();
     var filterCondition = JSON.parse(filterConditionString);
-    var createdPicker = jQuery('#createdPicker').val();
-    if(createdPicker != ""){
-      try{
-        var issueCreateDate = fecha.parse(createdPicker,  AJS.Meta.get("date-dmy").toUpperCase());
-        var issueCreateDateMilis = issueCreateDate.getTime();
-      }catch(err){
-        showErrorMessage("error_message_label_cd");
-        return false;
-      }
-    }
-    filterCondition["issueCreateDate"] = issueCreateDateMilis;
-    try{
-      var dateFrom = jQuery('#dateFrom').val();
-      var worklogStartDate = fecha.parse(dateFrom,  AJS.Meta.get("date-dmy").toUpperCase());
-      filterCondition["worklogStartDate"] = worklogStartDate.getTime();
-    }catch(err){
-      showErrorMessage("error_message_label_df");
-      return false;
-    }
-    try{
-      var dateTo = jQuery('#dateTo').val();
-      var worklogEndDate = fecha.parse(dateTo,  AJS.Meta.get("date-dmy").toUpperCase());
-      filterCondition["worklogEndDate"] = worklogEndDate.getTime();
-    }catch(err){
-      showErrorMessage("error_message_label_dt");
-      return false;
-    }
+    filterCondition["issueCreateDate"] = reporting.values.dateCreatedFormated;
+    filterCondition["worklogStartDate"] = reporting.values.dateFromFormated;
+    filterCondition["worklogEndDate"] = reporting.values.dateToFormated;
     var downloadWorklogDetailsParam = {
         "filterCondition": filterCondition,
         "selectedWorklogDetailsColumns": reporting.values.worklogDetailsAllColumns
@@ -1087,36 +1063,12 @@ everit.reporting.main = everit.reporting.main || {};
     var filterConditionString = jQuery('#filterConditionJson').val();
     var filterCondition = JSON.parse(filterConditionString);
     var createdPicker = jQuery('#createdPicker').val();
-    if(createdPicker != ""){
-      try{
-        var issueCreateDate = fecha.parse(createdPicker,  AJS.Meta.get("date-dmy").toUpperCase());
-        var issueCreateDateMilis = issueCreateDate.getTime();
-      }catch(err){
-        showErrorMessage("error_message_label_cd");
-        return false;
-      }
-    }
-    filterCondition["issueCreateDate"] = issueCreateDateMilis;
-    try{
-      var dateFrom = jQuery('#dateFrom').val();
-      var worklogStartDate = fecha.parse(dateFrom,  AJS.Meta.get("date-dmy").toUpperCase());
-      filterCondition["worklogStartDate"] = worklogStartDate.getTime();
-    }catch(err){
-      showErrorMessage("error_message_label_df");
-      return false;
-    }
-    try{
-      var dateTo = jQuery('#dateTo').val();
-      var worklogEndDate = fecha.parse(dateTo,  AJS.Meta.get("date-dmy").toUpperCase());
-      filterCondition["worklogEndDate"] = worklogEndDate.getTime();
-    }catch(err){
-      showErrorMessage("error_message_label_dt");
-      return false;
-    }
-    var selectedWorklogDetailsColumns = collectSelectedWorklogDetailsColumns();
+    filterCondition["issueCreateDate"] = reporting.values.dateCreatedFormated;
+    filterCondition["worklogStartDate"] = reporting.values.dateFromFormated;
+    filterCondition["worklogEndDate"] = reporting.values.dateToFormated;
     var downloadWorklogDetailsParam = {
         "filterCondition": filterCondition,
-        "selectedWorklogDetailsColumns": selectedWorklogDetailsColumns
+        "selectedWorklogDetailsColumns": reporting.values.worklogDetailsColumns
     }
     var json = JSON.stringify(downloadWorklogDetailsParam);
     var $detailsCustomExport = jQuery('#detials-custom-export')
@@ -1129,32 +1081,9 @@ everit.reporting.main = everit.reporting.main || {};
     var filterConditionString = jQuery('#filterConditionJson').val();
     var filterCondition = JSON.parse(filterConditionString);
     var createdPicker = jQuery('#createdPicker').val();
-    if(createdPicker != ""){
-      try{
-        var issueCreateDate = fecha.parse(createdPicker,  AJS.Meta.get("date-dmy").toUpperCase());
-        var issueCreateDateMilis = issueCreateDate.getTime();
-      }catch(err){
-        showErrorMessage("error_message_label_cd");
-        return false;
-      }
-    }
-    filterCondition["issueCreateDate"] = issueCreateDateMilis;
-    try{
-      var dateFrom = jQuery('#dateFrom').val();
-      var worklogStartDate = fecha.parse(dateFrom,  AJS.Meta.get("date-dmy").toUpperCase());
-      filterCondition["worklogStartDate"] = worklogStartDate.getTime();
-    }catch(err){
-      showErrorMessage("error_message_label_df");
-      return false;
-    }
-    try{
-      var dateTo = jQuery('#dateTo').val();
-      var worklogEndDate = fecha.parse(dateTo,  AJS.Meta.get("date-dmy").toUpperCase());
-      filterCondition["worklogEndDate"] = worklogEndDate.getTime();
-    }catch(err){
-      showErrorMessage("error_message_label_dt");
-      return false;
-    }
+    filterCondition["issueCreateDate"] = reporting.values.dateCreatedFormated;
+    filterCondition["worklogStartDate"] = reporting.values.dateFromFormated;
+    filterCondition["worklogEndDate"] = reporting.values.dateToFormated;
     var json = JSON.stringify(filterCondition);
     var $detailsCustomExport = jQuery('#summaries-export')
     var href = $detailsCustomExport.attr('data-jttp-href');
