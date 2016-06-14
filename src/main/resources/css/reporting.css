@@ -52,7 +52,25 @@
     width: 660px;
     height: 300px;
  }
-
+  
+  .tab-new1-img{
+   background-image: url(permission920.png);
+   background-position-x: 50%;
+   background-position-y: 10%;
+   background-size: 70%;
+   background-repeat-x: no-repeat;
+   background-repeat-y: no-repeat;
+ }
+ 
+ .tab-new2-img{
+   background-image: url(usersettings920.png);
+   background-position-x: 50%;
+   background-position-y: 10%;
+   background-size: 70%;
+   background-repeat-x: no-repeat;
+   background-repeat-y: no-repeat;
+ }
+  
  .tab1-img{
    background-image: url(opening.png);
    background-position-x: 50%;
