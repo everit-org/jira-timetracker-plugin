@@ -132,7 +132,10 @@
     <resource type="download" name="E_logo.png" location="/icons/E_logo.png">
       <param name="content-type" value="image/png" />
     </resource>
-    <resource type="download" name="opening.png" location="/images/opening.png">
+    <resource type="download" name="permission920.png" location="/images/permission920.png">
+      <param name="content-type" value="image/png" />
+    </resource>
+    <resource type="download" name="usersettings920.png" location="/images/usersettings920.png">
       <param name="content-type" value="image/png" />
     </resource>
     <resource type="download" name="search1.png" location="/images/search1.png">
