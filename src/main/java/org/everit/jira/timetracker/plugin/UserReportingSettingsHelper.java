@@ -16,7 +16,9 @@
 package org.everit.jira.timetracker.plugin;
 
 import org.everit.jira.reporting.plugin.export.column.WorklogDetailsColumns;
+import org.everit.jira.timetracker.plugin.util.VersionComperatorUtil;
 
+import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.google.gson.Gson;
@@ -52,6 +54,14 @@ public class UserReportingSettingsHelper {
    * @return The saved value from settigns.
    */
   public boolean getIsShowTutorialDialog() {
+    String showTurorilaVersion =
+        (String) pluginSettings.get(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_SHOW_TUTORIAL_VERSION);
+    String pluginVersion =
+        ComponentAccessor.getPluginAccessor().getPlugin("org.everit.jira.timetracker.plugin")
+            .getPluginInformation().getVersion();
+    if (VersionComperatorUtil.versionCompare(showTurorilaVersion, pluginVersion) < 0) {
+      return true;
+    }
     if ("false".equals(
         pluginSettings.get(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_IS_SHOW_TUTORIAL))) {
       return false;
@@ -96,6 +106,10 @@ public class UserReportingSettingsHelper {
    *          The new value.
    */
   public void saveIsShowTutorialDialog(final boolean isShowTutorial) {
+    String pluginVersion =
+        ComponentAccessor.getPluginAccessor().getPlugin("org.everit.jira.timetracker.plugin")
+            .getPluginInformation().getVersion();
+    pluginSettings.put(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_SHOW_TUTORIAL_VERSION, pluginVersion);
     pluginSettings.put(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_IS_SHOW_TUTORIAL,
         Boolean.toString(isShowTutorial));
   }

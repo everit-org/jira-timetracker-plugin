@@ -61,7 +61,7 @@ public final class GlobalSettingsKey {
   public static final String JTTP_PLUGIN_SETTINGS_IS_COLORIG = "isColoring";
 
   /**
-   * The plugin setting is show tutorila key.
+   * The plugin setting is show tutorial key.
    */
   public static final String JTTP_PLUGIN_SETTINGS_IS_SHOW_TUTORIAL = "isShowTutorial";
 
@@ -74,6 +74,11 @@ public final class GlobalSettingsKey {
    * The plugin setting Summary Filters key.
    */
   public static final String JTTP_PLUGIN_SETTINGS_NON_ESTIMATED_ISSUES = "NonEstimated";
+
+  /**
+   * The plugin setting is show tutoriak version key.
+   */
+  public static final String JTTP_PLUGIN_SETTINGS_SHOW_TUTORIAL_VERSION = "showTutorialVersion";
 
   /**
    * The plugin setting is calendar popup key.
