@@ -98,12 +98,16 @@
     <dependency>com.atlassian.auiplugin:ajs</dependency>
     <dependency>com.atlassian.auiplugin:dialog2</dependency>
     <dependency>com.atlassian.auiplugin:aui-date-picker</dependency>
+     <transformation extension="js">
+        <transformer key="jsI18n"/>
+    </transformation>
     <resource type="download" name="jttp_feedback.css" location="/css/jttp_feedback.css"/>
     <resource type="download" name="everit_tt_logo.png" location="/icons/everit_tt_logo.png">
       <param name="content-type" value="image/png" />
     </resource>
     <resource type="download" name="js-fecha.js" location="/js/js-fecha.js"/>
     <resource type="download" name="jttp.css" location="/css/jttp.css"/>
+    <resource type="download" name="reporting.css" location="/css/reporting.css"/>
 	<resource type="download" name="report_common_scripts.js" location="/js/report_common_scripts.js"/>
   </web-resource>
   
@@ -117,6 +121,7 @@
     </resource>
     <resource type="download" name="js-fecha.js" location="/js/js-fecha.js"/>
     <resource type="download" name="jttp.css" location="/css/jttp.css"/>
+    <resource type="download" name="reporting.css" location="/css/reporting.css"/>
 	<resource type="download" name="report_common_scripts.js" location="/js/report_common_scripts.js"/>
     <resource type="download" name="missing_days_report.js" location="/js/missing_days_report.js"/>
   </web-resource>
@@ -170,12 +175,16 @@
     <dependency>com.atlassian.auiplugin:ajs</dependency>
     <dependency>com.atlassian.auiplugin:dialog2</dependency>
     <dependency>com.atlassian.auiplugin:aui-date-picker</dependency>
+    <transformation extension="js">
+        <transformer key="jsI18n"/>
+    </transformation>
     <resource type="download" name="jttp_feedback.css" location="/css/jttp_feedback.css"/>
     <resource type="download" name="everit_tt_logo.png" location="/icons/everit_tt_logo.png">
       <param name="content-type" value="image/png" />
     </resource>
     <resource type="download" name="js-fecha.js" location="/js/js-fecha.js"/>
     <resource type="download" name="jttp.css" location="/css/jttp.css"/>
+    <resource type="download" name="reporting.css" location="/css/reporting.css"/>
 	<resource type="download" name="report_common_scripts.js" location="/js/report_common_scripts.js"/>
     <resource type="download" name="chart_report.js" location="/js/chart_report.js"/>
   </web-resource>
@@ -189,18 +198,7 @@
         <view name="input">/templates/timetracker/jttp.vm</view>
         <view name="error">/templates/common/error.vm</view>
       </action>
-      <action name="org.everit.jira.timetracker.plugin.web.JiraTimetrackerWorklogsWebAction" alias="JiraTimetrackerWorklogsWebAction">
-        <view name="success">/templates/timetracker/missing_worklogs_report.vm</view>
-        <view name="input">/templates/timetracker/missing_worklogs_report.vm</view>
-        <view name="error">/templates/common/error.vm</view>
-      </action>
-
-      <action name="org.everit.jira.timetracker.plugin.web.JiraTimetrackerChartWebAction" alias="JiraTimetrackerChartWebAction">
-        <view name="success">/templates/timetracker/chart_report.vm</view>
-        <view name="input">/templates/timetracker/chart_report.vm</view>
-        <view name="error">/templates/common/error.vm</view>
-      </action>
-
+      
       <action name="org.everit.jira.timetracker.plugin.web.JiraTimetrackerSettingsWebAction" alias="JiraTimetrackerSettingsWebAction">
         <view name="success">/templates/timetracker/settings.vm</view>
         <view name="input">/templates/timetracker/settings.vm</view>
@@ -211,22 +209,32 @@
         <view name="input">/templates/timetracker/adminsettings.vm</view>
         <view name="error">/templates/common/error.vm</view>
       </action>
-      
-      <action name="org.everit.jira.timetracker.plugin.web.JiraTimetrackerTableWebAction" alias="JiraTimetrackerTableWebAction">
-        <view name="success">/templates/timetracker/table_report.vm</view>
-        <view name="input">/templates/timetracker/table_report.vm</view>
-        <view name="error">/templates/common/error.vm</view>
-      </action>
     </actions>
   </webwork1>
   
   <webwork1 key="jtrp-webaction" name="JTRP Webwork actions" class="java.lang.Object">
     <resource type="i18n" name="i18n-jtrp-vm" location="i18n/jtrp" />
+    <resource type="i18n" name="i18n-jttp-vm" location="i18n/jttp" />
     <resource type="i18n" name="i18n-feedback-vm" location="i18n/feedback" />
     <actions>
       <action name="org.everit.jira.reporting.plugin.web.ReportingWebAction" alias="ReportingWebAction">
         <view name="success">/templates/reporting/reporting.vm</view>
         <view name="input">/templates/reporting/reporting.vm</view>
+        <view name="error">/templates/common/error.vm</view>
+      </action>
+      <action name="org.everit.jira.reporting.plugin.web.JiraTimetrackerWorklogsWebAction" alias="JiraTimetrackerWorklogsWebAction">
+        <view name="success">/templates/reporting/missing_worklogs_report.vm</view>
+        <view name="input">/templates/reporting/missing_worklogs_report.vm</view>
+        <view name="error">/templates/common/error.vm</view>
+      </action>
+      <action name="org.everit.jira.reporting.plugin.web.JiraTimetrackerChartWebAction" alias="JiraTimetrackerChartWebAction">
+        <view name="success">/templates/reporting/chart_report.vm</view>
+        <view name="input">/templates/reporting/chart_report.vm</view>
+        <view name="error">/templates/common/error.vm</view>
+      </action>
+      <action name="org.everit.jira.reporting.plugin.web.JiraTimetrackerTableWebAction" alias="JiraTimetrackerTableWebAction">
+        <view name="success">/templates/reporting/table_report.vm</view>
+        <view name="input">/templates/reporting/table_report.vm</view>
         <view name="error">/templates/common/error.vm</view>
       </action>
       <action name="org.everit.jira.reporting.plugin.web.ReportingAdminSettingsWebAction" alias="JiraTimetrackerReportingSettingsWebAction">

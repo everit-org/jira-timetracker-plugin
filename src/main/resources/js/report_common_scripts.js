@@ -67,11 +67,28 @@ everit.jttp.report_common_scripts = everit.jttp.report_common_scripts || {};
       useISO8601WeekNumbers : opt.useISO8601,
       onSelect: jttp.onSelect,
     });
-
+    
+    browsePermissionCheck();
+    
     jQuery('.aui-ss, .aui-ss-editing, .aui-ss-field').attr("style", "width: 300px;");
 
   });
   
+  function browsePermissionCheck(){
+    if(!jttp.options.hasBrowseUsersPermission){
+      jQuery("#userPicker-field").attr("aria-disabled", true);
+      jQuery("#userPicker-field").attr("disabled", "disabled");
+      jQuery("#userPicker-single-select").attr("title", AJS.I18n.getText("jtrp.plugin.no.browse.permission"));
+      jQuery("#userPicker-single-select").attr("original-title", AJS.I18n.getText("jtrp.plugin.no.browse.permission"));
+      
+      var $groupPickerTooltip = AJS.$('#userPicker-single-select');
+      if(!$groupPickerTooltip.hasClass('jtrp-tooltipped')) {
+        $groupPickerTooltip.tooltip({gravity: 'w'});
+        $groupPickerTooltip.addClass('jtrp-tooltipped');
+      }
+      
+    }
+  }
   
   jttp.onSelect = function(cal) {
     //Copy of the original onSelect. Only chacnge not use te p.ifFormat
