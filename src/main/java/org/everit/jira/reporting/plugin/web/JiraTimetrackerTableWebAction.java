@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.jira.timetracker.plugin.web;
+package org.everit.jira.reporting.plugin.web;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -34,6 +34,9 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.everit.jira.analytics.AnalyticsDTO;
+import org.everit.jira.reporting.plugin.ReportingCondition;
+import org.everit.jira.reporting.plugin.ReportingPlugin;
+import org.everit.jira.reporting.plugin.util.PermissionUtil;
 import org.everit.jira.timetracker.plugin.DurationFormatter;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
@@ -150,6 +153,8 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   private boolean feedBackSendAviable;
 
+  public boolean hasBrowseUsersPermission = true;
+
   private List<Pattern> issuesRegex;
 
   /**
@@ -172,6 +177,10 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   private final HashMap<Integer, List<Object>> realWeekSum = new HashMap<Integer, List<Object>>();
 
+  private ReportingCondition reportingCondition;
+
+  private ReportingPlugin reportingPlugin;
+
   private transient ApplicationUser userPickerObject;
 
   private HashMap<Integer, List<Object>> weekSum = new HashMap<Integer, List<Object>>();
@@ -188,8 +197,11 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
    */
   public JiraTimetrackerTableWebAction(
       final JiraTimetrackerPlugin jiraTimetrackerPlugin,
+      final ReportingPlugin reportingPlugin,
       final PluginSettingsFactory pluginSettingsFactory) {
     this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
+    this.reportingPlugin = reportingPlugin;
+    reportingCondition = new ReportingCondition(this.reportingPlugin);
     this.pluginSettingsFactory = pluginSettingsFactory;
   }
 
@@ -283,6 +295,12 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
       setReturnUrl(JIRA_HOME_URL);
       return getRedirect(NONE);
     }
+    if (!reportingCondition.shouldDisplay(getLoggedInApplicationUser(), null)) {
+      setReturnUrl(JIRA_HOME_URL);
+      return getRedirect(NONE);
+    }
+    hasBrowseUsersPermission =
+        PermissionUtil.hasBrowseUserPermission(getLoggedInApplicationUser(), reportingPlugin);
 
     createDurationFormatter();
 
@@ -312,12 +330,19 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
       setReturnUrl(JIRA_HOME_URL);
       return getRedirect(NONE);
     }
+    if (!reportingCondition.shouldDisplay(getLoggedInApplicationUser(), null)) {
+      setReturnUrl(JIRA_HOME_URL);
+      return getRedirect(NONE);
+    }
 
     createDurationFormatter();
 
     normalizeContextPath();
     checkMailServer();
     loadPluginSettingAndParseResult();
+    hasBrowseUsersPermission =
+        PermissionUtil.hasBrowseUserPermission(getLoggedInApplicationUser(), reportingPlugin);
+
     analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(pluginSettingsFactory,
         PiwikPropertiesUtil.PIWIK_TABLE_SITEID);
 
@@ -418,6 +443,10 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
         currentUserEncoded);
   }
 
+  public boolean getHasBrowseUsersPermission() {
+    return hasBrowseUsersPermission;
+  }
+
   public List<Pattern> getIssuesRegex() {
     return issuesRegex;
   }
@@ -455,7 +484,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   }
 
   private void initCurrentUserIfNecessary() {
-    if ("".equals(currentUser)) {
+    if ("".equals(currentUser) || !hasBrowseUsersPermission) {
       JiraAuthenticationContext authenticationContext = ComponentAccessor
           .getJiraAuthenticationContext();
       currentUser = authenticationContext.getUser().getUsername();
@@ -617,7 +646,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
       throw new IllegalArgumentException(INVALID_USER_PICKER);
     }
     currentUser = selectedUser;
-    if ("".equals(currentUser)) {
+    if ("".equals(currentUser) || !hasBrowseUsersPermission) {
       JiraAuthenticationContext authenticationContext = ComponentAccessor
           .getJiraAuthenticationContext();
       currentUser = authenticationContext.getUser().getKey();
@@ -638,6 +667,10 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   public void setFeedBackSendAviable(final boolean feedBackSendAviable) {
     this.feedBackSendAviable = feedBackSendAviable;
+  }
+
+  public void setHasBrowseUsersPermission(final boolean hasBrowseUsersPermission) {
+    this.hasBrowseUsersPermission = hasBrowseUsersPermission;
   }
 
   public void setIssuesRegex(final List<Pattern> issuesRegex) {
