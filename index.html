@@ -432,14 +432,22 @@ Easier, faster time tracking, and timelog reporting." charset="utf-8">
         <p>Create detailed reports with multiple search criteria or one of your favorite filters and view every work log related to the users and additional information about the projects and the issues.</p>
         <img class="img-responsive img-thumbnail" src="images/reporting.png"
           alt="Reporting" />
-        <h3 id="reporting_settings">Settings</h3>
-        <p>The Reporting settings may be accessed only by the system administrators. The administrator can find the Reporting settings menu item on the Administrator page under the Plugins or Add-ons menu in the Timetracker submenu.</p>
-        <h4>Permission</h4>    
+        <h3 id="reporting_settings">Administration Settings</h3>
+        <p>The Reporting administration settings may be accessed only by the system administrators. The administrator can find the Reporting settings menu item on the Administrator page under the Plugins or Add-ons menu in the Timetracker submenu.</p>
+        <h4>Permission to use Reporting</h4>    
         <p>By default all users have permission to view and use Timetracker Reporting. If you would like to restrict usability, you can add JIRA groups here that have permits to view and use Reporting.</p>
-        <h4>Page size</h4>    
-        <p>You can set the initial page length of Worklog details and Quick summary reports. This option will change the number of rows to display on a single page in the reports.</p>
+        <h4>Permission to browse others worklogs</h4>
+        <p>By default, each user has permission to browse other users' worklogs. Add groups if you want to restrict this functionality. Users who do not belong to one of the given groups can only see their own worklogs.</p>
         <img class="img-responsive img-thumbnail" src="images/rep_settings.png"
           alt="Reporting settings" />
+        <h3 id="reporting_user_settings">User Settings</h3>
+        <p>You can find the user settings menu item in the upper right corner of the Reporting page.</p>
+        <img class="img-responsive img-thumbnail" src="images/rep_user_settings.png"
+          alt="User settings" />
+        <h4>Page size</h4>    
+        <p>You can set the initial page length of Worklog details and Quick summary reports. This option will change the number of rows to display on a single page in the reports.</p>
+        <h4>Show pop-ups</h4>    
+        <p>Check this to show the tutorial/what's new pop-ups when you open reporting. Note that this setting may change after version update to make sure you get notified of the new features.</p>
         <h3 id="reporting_search_criteria">Search criteria</h3>
         <p>Dynamic queries for work log reporting. Timetracker Reporting provides the main search criteria which you already know from the JIRA Issue Navigator and with a similar look and feel. You can search for projects, issues and worklogs and for their properties. You can define your search criteria in two way: using the basic search or search with one of your favorite filters.</p>
         <img class="img-responsive img-thumbnail" src="images/rep_search1.png"
@@ -552,8 +560,8 @@ Easier, faster time tracking, and timelog reporting." charset="utf-8">
         <p>Due to the introduction of the Reporting feature we had to split the latest Timetracker plugin to two versions.</p>          
 		<p>Timetracker versions and compatibility:</p>
            <ul>
-             <li>The latest 3.x version of the plugin has the same functionality as the latest 2.4.x version and compatible with JIRA 7.x and above.</li>
-			 <li>The latest 2.4.x version of the plugin compatible with JIRA 6.3.0 to 6.4.13</li>
+             <li>The 3.x version of the plugin has the same functionality as the 2.4.x or later version and compatible with JIRA 7.x and above.</li>
+			 <li>The 2.4.x or later version of the plugin compatible with JIRA 6.3.0 to 6.4.13</li>
 			 <li>The older Timetracker 2.2.0 to 2.3.5 versions of the plugin compatible with JIRA 6.2.5 to 7.x, but these versions do not contain the Reporting feature.</li>
              <li>The version 1.x is compatible with older Jira versions but it uses tricks to achieve the same goals (e.g.: native SQL expressions). Version 1.x will be supported until the rate of deployments is dropped below 15%.</li>
 		   </ul>
@@ -562,6 +570,52 @@ Easier, faster time tracking, and timelog reporting." charset="utf-8">
 	  
       <div class="bs-docs-featurette cookbook" id="release_notes">
         <h2>Release notes</h2>
+          <h3>Timetracker version 3.1.0</h3>
+        <h4 style="margin-left: 20px;">Improvements</h4>
+        <ul>		
+          <li>Added new permission settings option.</li>
+		  <li>Introducing Reporting user settings.</li>
+          <li>Remember columns selected by the user in Reporting.</li>
+		  <li>Added information and warning messages.</li>
+        </ul>
+		<h4 style="margin-left: 20px;">Bugfix</h4>
+        <ul>		
+          <li>Database Error: Invalid column name 'userDispalyName' fixed. (<a
+            href="https://github.com/everit-org/jira-timetracker-plugin/issues/246">#246</a>) (<a
+            href="https://github.com/everit-org/jira-timetracker-plugin/issues/247">#247</a>)</li>
+          <li>Database Error: "ISSUE"."ASSIGNEE": invalid identifier fixed.</li>
+		  <li>Invalid Issue Key handling fixed.</li>          
+        </ul>
+        <h3>Timetracker version 2.5.0</h3>		
+		<h4 style="margin-left: 20px;">Improvements</h4>
+        <ul>		
+          <li>Added new permission settings option.</li>
+		  <li>Introducing Reporting user settings.</li>
+          <li>Remember columns selected by the user in Reporting.</li>
+		  <li>Added information and warning messages.</li>
+        </ul>
+		<h4 style="margin-left: 20px;">Bugfix</h4>
+        <ul>		
+          <li>Database Error: Invalid column name 'userDispalyName' fixed. (<a
+            href="https://github.com/everit-org/jira-timetracker-plugin/issues/246">#246</a>) (<a
+            href="https://github.com/everit-org/jira-timetracker-plugin/issues/247">#247</a>)</li>
+		  <li>Database Error: "ISSUE"."ASSIGNEE": invalid identifier fixed.</li>
+          <li>Invalid Issue Key handling fixed.</li>          
+        </ul>          
+          <h3>Timetracker version 3.0.1</h3>		
+		<h4 style="margin-left: 20px;">Bugfix</h4>
+        <ul>		
+          <li>Shadowed users error fixed. (<a
+            href="https://github.com/everit-org/jira-timetracker-plugin/issues/221">#221</a>)</li>
+		  <li>'avatarId' based icons load error fixed.</li>
+        </ul>
+        <h3>Timetracker version 2.4.1</h3>		
+		<h4 style="margin-left: 20px;">Bugfix</h4>
+        <ul>		
+          <li>Shadowed users error fixed. (<a
+            href="https://github.com/everit-org/jira-timetracker-plugin/issues/221">#221</a>)</li>
+		  <li>'avatarId' based icons load error fixed.</li>
+        </ul>         
         <h3>Timetracker version 3.0.0</h3>		
 		<h4 style="margin-left: 20px;">Improvements</h4>
         <ul>		
@@ -862,7 +916,8 @@ Easier, faster time tracking, and timelog reporting." charset="utf-8">
           <li><a href="#table_report">Table report</a></li>
           <li><a href="#reporting">Reporting</a>
             <ul class="nav nav-pills nav-stacked">
-              <li><a href="#reporting_settings">Settings</a></li>
+              <li><a href="#reporting_settings">Administration Settings</a></li>
+              <li><a href="#reporting_user_settings">User Settings</a></li>
               <li><a href="#reporting_search_criteria">Search criteria</a></li>
               <li><a href="#reporting_details">Time Tracking Details</a></li>
               <li><a href="#reporting_summary">Quick Summary</a></li>
