@@ -13,6 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+ 
+ .h1-button{
+     color: #000000 !important;
+     padding-bottom: 30px !important;
+ }
+ 
+ .h1-button.aui-button.aui-dropdown2-trigger:not(.aui-dropdown2-trigger-arrowless):after{
+  top: 17px;
+ }
+ 
  .criteria-dropdown-calendar-icon{
     position: absolute;
     top: 19px;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.jira.timetracker.plugin.web;
+package org.everit.jira.reporting.plugin.web;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -32,6 +32,9 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.everit.jira.analytics.AnalyticsDTO;
+import org.everit.jira.reporting.plugin.ReportingCondition;
+import org.everit.jira.reporting.plugin.ReportingPlugin;
+import org.everit.jira.reporting.plugin.util.PermissionUtil;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
 import org.everit.jira.timetracker.plugin.dto.ChartData;
@@ -59,8 +62,6 @@ import com.google.gson.GsonBuilder;
  */
 public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
-  private static final String FREQUENT_FEEDBACK = "jttp.plugin.frequent.feedback";
-
   private static final String GET_WORKLOGS_ERROR_MESSAGE = "Error when trying to get worklogs.";
 
   private static final String INVALID_END_TIME = "plugin.invalid_endTime";
@@ -75,8 +76,6 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
    * Logger.
    */
   private static final Logger LOGGER = Logger.getLogger(JiraTimetrackerChartWebAction.class);
-
-  private static final String NOT_RATED = "Not rated";
 
   private static final String PARAM_DATEFROM = "dateFrom";
 
@@ -132,6 +131,8 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
   private boolean feedBackSendAviable;
 
+  public boolean hasBrowseUsersPermission = true;
+
   /**
    * The {@link JiraTimetrackerPlugin}.
    */
@@ -143,6 +144,10 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
   private String message = "";
 
   private final PluginSettingsFactory pluginSettingsFactory;
+
+  private ReportingCondition reportingCondition;
+
+  private ReportingPlugin reportingPlugin;
 
   private transient ApplicationUser userPickerObject;
 
@@ -156,8 +161,11 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
    */
   public JiraTimetrackerChartWebAction(
       final JiraTimetrackerPlugin jiraTimetrackerPlugin,
+      final ReportingPlugin reportingPlugin,
       final PluginSettingsFactory pluginSettingsFactory) {
     this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
+    this.reportingPlugin = reportingPlugin;
+    reportingCondition = new ReportingCondition(this.reportingPlugin);
     this.pluginSettingsFactory = pluginSettingsFactory;
   }
 
@@ -172,9 +180,16 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
       setReturnUrl(JIRA_HOME_URL);
       return getRedirect(NONE);
     }
+    if (!reportingCondition.shouldDisplay(getLoggedInApplicationUser(), null)) {
+      setReturnUrl(JIRA_HOME_URL);
+      return getRedirect(NONE);
+    }
 
     normalizeContextPath();
     checkMailServer();
+
+    hasBrowseUsersPermission =
+        PermissionUtil.hasBrowseUserPermission(getLoggedInApplicationUser(), reportingPlugin);
 
     analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(pluginSettingsFactory,
         PiwikPropertiesUtil.PIWIK_CHART_SITEID);
@@ -199,20 +214,19 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
       setReturnUrl(JIRA_HOME_URL);
       return getRedirect(NONE);
     }
+    if (!reportingCondition.shouldDisplay(getLoggedInApplicationUser(), null)) {
+      setReturnUrl(JIRA_HOME_URL);
+      return getRedirect(NONE);
+    }
 
     normalizeContextPath();
     checkMailServer();
 
+    hasBrowseUsersPermission =
+        PermissionUtil.hasBrowseUserPermission(getLoggedInApplicationUser(), reportingPlugin);
+
     analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(pluginSettingsFactory,
         PiwikPropertiesUtil.PIWIK_CHART_SITEID);
-
-    if (parseFeedback()) {
-      loadDataFromSession();
-      initDatesIfNecessary();
-      initCurrentUserIfNecessary();
-      chartDataList = null;
-      return INPUT;
-    }
 
     Calendar startDate = null;
     Calendar lastDate = null;
@@ -315,6 +329,10 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
         currentUserEncoded);
   }
 
+  public boolean getHasBrowseUsersPermission() {
+    return hasBrowseUsersPermission;
+  }
+
   public String getMessage() {
     return message;
   }
@@ -324,7 +342,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
   }
 
   private void initCurrentUserIfNecessary() {
-    if ("".equals(currentUser)) {
+    if ("".equals(currentUser) || !hasBrowseUsersPermission) {
       JiraAuthenticationContext authenticationContext = ComponentAccessor
           .getJiraAuthenticationContext();
       currentUser = authenticationContext.getUser().getUsername();
@@ -406,35 +424,6 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     return parsedCalendarTo;
   }
 
-  private boolean parseFeedback() {
-    if (getHttpRequest().getParameter("sendfeedback") != null) {
-      if (JiraTimetrackerUtil.loadAndCheckFeedBackTimeStampFromSession(getHttpSession())) {
-        String feedBackValue = getHttpRequest().getParameter("feedbackinput");
-        String ratingValue = getHttpRequest().getParameter("rating");
-        String customerMail =
-            JiraTimetrackerUtil.getCheckCustomerMail(getHttpRequest().getParameter("customerMail"));
-        String feedBack = "";
-        String rating = NOT_RATED;
-        if (feedBackValue != null) {
-          feedBack = feedBackValue.trim();
-        }
-        if (ratingValue != null) {
-          rating = ratingValue;
-        }
-        String mailSubject = JiraTimetrackerUtil
-            .createFeedbackMailSubject(JiraTimetrackerAnalytics.getPluginVersion());
-        String mailBody =
-            JiraTimetrackerUtil.createFeedbackMailBody(customerMail, rating, feedBack);
-        jiraTimetrackerPlugin.sendEmail(mailSubject, mailBody);
-        JiraTimetrackerUtil.saveFeedBackTimeStampToSession(getHttpSession());
-      } else {
-        message = FREQUENT_FEEDBACK;
-      }
-      return true;
-    }
-    return false;
-  }
-
   private void readObject(final java.io.ObjectInputStream stream) throws IOException,
       ClassNotFoundException {
     stream.close();
@@ -470,7 +459,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
       throw new IllegalArgumentException(INVALID_USER_PICKER);
     }
     currentUser = selectedUser;
-    if ("".equals(currentUser)) {
+    if ("".equals(currentUser) || !hasBrowseUsersPermission) {
       JiraAuthenticationContext authenticationContext = ComponentAccessor
           .getJiraAuthenticationContext();
       currentUser = authenticationContext.getUser().getKey();
@@ -487,6 +476,10 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
   public void setFeedBackSendAviable(final boolean feedBackSendAviable) {
     this.feedBackSendAviable = feedBackSendAviable;
+  }
+
+  public void setHasBrowseUsersPermission(final boolean hasBrowseUsersPermission) {
+    this.hasBrowseUsersPermission = hasBrowseUsersPermission;
   }
 
   public void setMessage(final String message) {
