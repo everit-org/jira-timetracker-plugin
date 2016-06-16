@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 
 import javax.servlet.http.HttpSession;
 
@@ -43,6 +44,7 @@ import org.everit.jira.timetracker.plugin.dto.TimetrackerReportsSessionData;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
+import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 import org.ofbiz.core.entity.GenericEntityException;
 
 import com.atlassian.jira.avatar.Avatar;
@@ -69,6 +71,11 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
   private static final String INVALID_START_TIME = "plugin.invalid_startTime";
 
   private static final String INVALID_USER_PICKER = "plugin.user.picker.label";
+
+  /**
+   * The Issue Collector jttp_build.porperties key.
+   */
+  private static final String ISSUE_COLLECTOR_SRC = "ISSUE_COLLECTOR_SRC";
 
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
 
@@ -129,9 +136,9 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
    */
   private String dateToFormated = "";
 
-  private boolean feedBackSendAviable;
-
   public boolean hasBrowseUsersPermission = true;
+
+  private String issueCollectorSrc;
 
   /**
    * The {@link JiraTimetrackerPlugin}.
@@ -169,10 +176,6 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     this.pluginSettingsFactory = pluginSettingsFactory;
   }
 
-  private void checkMailServer() {
-    feedBackSendAviable = ComponentAccessor.getMailServerManager().isDefaultSMTPMailServerDefined();
-  }
-
   @Override
   public String doDefault() throws ParseException {
     boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
@@ -186,7 +189,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     }
 
     normalizeContextPath();
-    checkMailServer();
+    loadIssueCollectorSrc();
 
     hasBrowseUsersPermission =
         PermissionUtil.hasBrowseUserPermission(getLoggedInApplicationUser(), reportingPlugin);
@@ -220,7 +223,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     }
 
     normalizeContextPath();
-    checkMailServer();
+    loadIssueCollectorSrc();
 
     hasBrowseUsersPermission =
         PermissionUtil.hasBrowseUserPermission(getLoggedInApplicationUser(), reportingPlugin);
@@ -311,10 +314,6 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     return dateToFormated;
   }
 
-  public boolean getFeedBackSendAviable() {
-    return feedBackSendAviable;
-  }
-
   private String getFormattedRedirectUrl() {
     String currentUserEncoded;
     try {
@@ -331,6 +330,10 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
   public boolean getHasBrowseUsersPermission() {
     return hasBrowseUsersPermission;
+  }
+
+  public String getIssueCollectorSrc() {
+    return issueCollectorSrc;
   }
 
   public String getMessage() {
@@ -379,6 +382,11 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     dateTo = timetrackerReportsSessionData.dateTo;
     dateToFormated = DateTimeConverterUtil.dateToString(dateTo);
     return true;
+  }
+
+  private void loadIssueCollectorSrc() {
+    Properties properties = PropertiesUtil.getJttpBuildProperties();
+    issueCollectorSrc = properties.getProperty(ISSUE_COLLECTOR_SRC);
   }
 
   private void normalizeContextPath() {
@@ -472,10 +480,6 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
   public void setDateToFormated(final String dateToFormated) {
     this.dateToFormated = dateToFormated;
-  }
-
-  public void setFeedBackSendAviable(final boolean feedBackSendAviable) {
-    this.feedBackSendAviable = feedBackSendAviable;
   }
 
   public void setHasBrowseUsersPermission(final boolean hasBrowseUsersPermission) {

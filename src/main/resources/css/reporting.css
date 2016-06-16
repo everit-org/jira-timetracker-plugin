@@ -14,6 +14,13 @@
  * limitations under the License.
  */
  
+ /* Chart report new design */
+ .chart-search-criteria-container {
+    padding: 5px 20px 5px 20px;
+    border-top: 1px solid #ccc; 
+}
+ 
+  /* Reporting */
  .h1-button{
      color: #000000 !important;
      padding-bottom: 30px !important;
