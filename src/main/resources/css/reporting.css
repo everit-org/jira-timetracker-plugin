@@ -20,6 +20,35 @@
     border-top: 1px solid #ccc; 
 }
  
+  /* Missings report new design */
+ .missing-search-criteria-container {
+    padding: 5px 20px 5px 20px;
+    border-top: 1px solid #ccc; 
+}
+
+.container {
+    width: 20%;
+    min-width: 20rem;
+    max-width: 30rem;
+}
+
+.missing-message{
+     margin-bottom: 1rem;
+}
+
+.missing-worklog-table tbody tr:hover {
+   background-color: #f5f5f5;
+}
+
+table.aui > thead > tr > th{
+    text-align: center;
+    color: #707070;
+}
+
+table.aui > tbody > tr > td{
+   text-align: center;
+}
+ 
   /* Reporting */
  .h1-button{
      color: #000000 !important;

@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
 import org.everit.jira.analytics.AnalyticsDTO;
@@ -31,9 +32,9 @@ import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
+import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 import org.ofbiz.core.entity.GenericEntityException;
 
-import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
@@ -42,7 +43,10 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
  */
 public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
-  private static final String FREQUENT_FEEDBACK = "jttp.plugin.frequent.feedback";
+  /**
+   * The Issue Collector jttp_build.porperties key.
+   */
+  private static final String ISSUE_COLLECTOR_SRC = "ISSUE_COLLECTOR_SRC";
 
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
 
@@ -51,8 +55,6 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    */
   private static final Logger LOGGER = Logger
       .getLogger(JiraTimetrackerWorklogsWebAction.class);
-
-  private static final String NOT_RATED = "Not rated";
 
   private static final String PARAM_DATEFROM = "dateFrom";
 
@@ -109,7 +111,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    */
   private String dateToFormated = "";
 
-  private boolean feedBackSendAviable;
+  private String issueCollectorSrc;
 
   /**
    * The {@link JiraTimetrackerPlugin}.
@@ -162,10 +164,6 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     this.pluginSettingsFactory = pluginSettingsFactory;
   }
 
-  private void checkMailServer() {
-    feedBackSendAviable = ComponentAccessor.getMailServerManager().isDefaultSMTPMailServerDefined();
-  }
-
   /**
    * Count how much page need to show the dates.
    *
@@ -212,7 +210,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     }
 
     normalizeContextPath();
-    checkMailServer();
+    loadIssueCollectorSrc();
 
     analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(pluginSettingsFactory,
         PiwikPropertiesUtil.PIWIK_WORKLOGS_SITEID);
@@ -262,7 +260,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     }
 
     normalizeContextPath();
-    checkMailServer();
+    loadIssueCollectorSrc();
 
     analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(pluginSettingsFactory,
         PiwikPropertiesUtil.PIWIK_WORKLOGS_SITEID);
@@ -291,8 +289,6 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     numberOfPages = countNumberOfPages();
     pageChangeAction();
     setShowDatesListByActualPage(actualPage);
-
-    parseFeedBack();
 
     return SUCCESS;
   }
@@ -329,8 +325,8 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     return dateToFormated;
   }
 
-  public boolean getFeedBackSendAviable() {
-    return feedBackSendAviable;
+  public String getIssueCollectorSrc() {
+    return issueCollectorSrc;
   }
 
   public String getMessage() {
@@ -359,6 +355,11 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     statisticsMessageParameter = "0";
     allDatesWhereNoWorklog = new ArrayList<String>();
     showDatesWhereNoWorklog = new ArrayList<String>();
+  }
+
+  private void loadIssueCollectorSrc() {
+    Properties properties = PropertiesUtil.getJttpBuildProperties();
+    issueCollectorSrc = properties.getProperty(ISSUE_COLLECTOR_SRC);
   }
 
   private void normalizeContextPath() {
@@ -421,33 +422,6 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     return true;
   }
 
-  private void parseFeedBack() {
-    if (getHttpRequest().getParameter("sendfeedback") != null) {
-      if (JiraTimetrackerUtil.loadAndCheckFeedBackTimeStampFromSession(getHttpSession())) {
-        String feedBackValue = getHttpRequest().getParameter("feedbackinput");
-        String ratingValue = getHttpRequest().getParameter("rating");
-        String customerMail =
-            JiraTimetrackerUtil.getCheckCustomerMail(getHttpRequest().getParameter("customerMail"));
-        String feedBack = "";
-        String rating = NOT_RATED;
-        if (feedBackValue != null) {
-          feedBack = feedBackValue;
-        }
-        if (ratingValue != null) {
-          rating = ratingValue.trim();
-        }
-        String mailSubject = JiraTimetrackerUtil
-            .createFeedbackMailSubject(JiraTimetrackerAnalytics.getPluginVersion());
-        String mailBody =
-            JiraTimetrackerUtil.createFeedbackMailBody(customerMail, rating, feedBack);
-        jiraTimetrackerPlugin.sendEmail(mailSubject, mailBody);
-        JiraTimetrackerUtil.saveFeedBackTimeStampToSession(getHttpSession());
-      } else {
-        message = FREQUENT_FEEDBACK;
-      }
-    }
-  }
-
   private void readObject(final java.io.ObjectInputStream stream) throws IOException,
       ClassNotFoundException {
     stream.close();
@@ -508,10 +482,6 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
   public void setDateToFormated(final String dateToFormated) {
     this.dateToFormated = dateToFormated;
-  }
-
-  public void setFeedBackSendAviable(final boolean feedBackSendAviable) {
-    this.feedBackSendAviable = feedBackSendAviable;
   }
 
   public void setMessage(final String message) {

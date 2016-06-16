@@ -85,88 +85,122 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:missing_
         </div>
      </div>
   </header>
-  <div id="main-content" class="content rounded">
-    <form name="myForm" method="post"action="JiraTimetrackerWorklogsWebAction.jspa?dateFromFormated=$dateFromFormated&dateToFormated=$dateToFormated&actualPage=$actualPage" />
-	  <div class="inside-content">
-			#if(!$message.isEmpty())
-			  	<div id="error_message">
-			 			$i18n.getText($message) $messageParameter
-			  	</div>
-		  	#end	    
-		<div id="calendar_div" class="jttp-calendar">
-	      <table>
-	        <tbody>
-	          <tr>
-	            <td>$i18n.getText("plugin.from") <input type="text" id="dateFrom" name="dateFrom" tabindex="1"
-	              onkeydown="return everit.jttp.report_common_scripts.checkEnter(event);" value="$dateFromFormated" /> 
-					<img id="date_trigger_from" src="$contextPath/images/icons/cal.gif" width="16" height="16" border="0" alt="Pick a date" class="jttp-calendar-img" title="$i18n.getText('plugin.choose.date')"/> 
-	            </td>
-	            <td>$i18n.getText("plugin.to") <input type="text" id="dateTo" name="dateTo" tabindex="2"
-	              onkeydown="return everit.jttp.report_common_scripts.checkToEnter(event);" value="$dateToFormated" /> 
-				  <img id="date_trigger_to" src="$contextPath/images/icons/cal.gif" width="16" height="16" border="0" alt="Pick a date" class="jttp-calendar-img" title="$i18n.getText('plugin.choose.date')"/> 
-	            </td>
-	          </tr>
-	        </tbody>
-	      </table>
-	      <table>
-	        <tbody>
-	          <tr>
-	            <td><input id="hour" type="checkbox" value="check 8 h" name="hour" onclick="everit.jttp.missing_days_report.setCheckWorkedHours();" #if($checkHours) checked #end/></td>
-	            <td>$i18n.getText("plugin.missing.days.hours")</td>
-	          </tr>
-	          <tr>
-	            <td><input id="nonworking" type="checkbox" value="non-working not count" name="nonworking"
-	              #if($checkNonWorkingIssues) checked #end /> 
-				</td>
-	            <td>$i18n.getText("plugin.missing.days.nonworking")</td>
-	          </tr>
-	          <tr>
-	            <td><input id="search" tabindex="3" type="submit" name="search" value="$i18n.getText('plugin.search')"
-	              class="button" onclick="_paq.push(['trackEvent', 'User', 'Missings']); "/></td>
-	          </tr>
-	        </tbody>
-	      </table>
-	    </div>
+  
+   <div class="missing-search-criteria-container">
+            <form action="JiraTimetrackerWorklogsWebAction.jspa?dateFromFormated=$dateFromFormated&dateToFormated=$dateToFormated&actualPage=$actualPage" class="aui top-label reporting-form" id="reporting-form" method="get">
+                 #if(!$message.isEmpty())
+                   <div id="error_message">
+                     $i18n.getText($message) $messageParameter
+                   </div>
+                 #end
+                 <div class="form-body">
+                     <div class="aui-group">
+                        <div class="aui-item search-wrap">
+                            <div class="date-search-container">
+                                <div class="search-criteria-container">
+                                    <div class="search-criteria">
+                                        <div class="from-date inline-calendar">
+                                            <input class="text medium-field datepicker-input" placeholder="From" type="text" onkeydown="return everit.jttp.report_common_scripts.checkEnter(event);" value="$dateFromFormated" id="dateFrom" name="dateFrom" tabindex="1">
+                                                <a href="#" title="Select a date">
+                                                    <span id="date_trigger_from" class="aui-icon aui-icon-small aui-iconfont-calendar">Select a date</span>
+                                                </a>
+                                        </div>
+                                        <div class="to-date inline-calendar">
+                                            <input class="text medium-field datepicker-input" placeholder="To" type="text" onkeydown="return everit.jttp.report_common_scripts.checkToEnter(event);" value="$dateToFormated" id="dateTo" name="dateTo" tabindex="2">
+                                                <a href="#" title="Select a date">
+                                                    <span id="date_trigger_to" class="aui-icon aui-icon-small aui-iconfont-calendar">Select a date</span>
+                                                </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                     </div>
+                     <div class="aui-group">
+                        <div class="aui-item">
+                            <div class="checkbox">
+                                <input class="checkbox" id="hour" type="checkbox" value="check 8 h" name="hour" onclick="everit.jttp.missing_days_report.setCheckWorkedHours();" #if($checkHours) checked #end/>
+                                <label for="cbOne">$i18n.getText("plugin.missing.days.hours")</label>
+                            </div>
+                            <div class="checkbox">
+                                <input class="checkbox" id="nonworking" type="checkbox" value="non-working not count" name="nonworking" #if($checkNonWorkingIssues) checked #end />
+                                <label for="cbOne">$i18n.getText("plugin.missing.days.nonworking")</label>
+                            </div>
+                        </div>
+                    </div>
+                     <div class="aui-group">
+                        <div class="aui-item">
+                            <button id="search" tabindex="3" class="aui-button aui-button-primary" onclick="_paq.push(['trackEvent', 'User', 'Missings']); ">$i18n.getText('plugin.search')</button> <!-- Submit the search form -->
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
 
-	    <div id="statistics-message" class="message">
-	      $i18n.getText("plugin.statistics.message") $statisticsMessageParameter
-		</div>
-	    #set($rowCount = 0)
-	    <div class="results-wrap">
-	      <div>
-	        <table class="grid" border="0" cellpadding="2" cellspacing="0" width="30%">
-	          <thead>
-	            <tr class="rowHeader">
-	              <td width="5%">$i18n.getText("plugin.dates")</td>
-	            </tr>
-	          </thead>
-	          #if($showDatesWhereNoWorklog.size() == 0)
-	        </table>
-	        <div id="message" class="message">
-	          $i18n.getText("plugin.no.dates")</div>
-	        #else
-	        <tbody>
-	          #foreach ($date in $showDatesWhereNoWorklog)
-	          <tr #if($rowCount % 2 !=0) class="rowAlter" #end>
-	            <td><a href="JiraTimetrackerWebAction.jspa?dateFormatted=$date">$date</a></td>
-	          </tr>
-	          #set($rowCount = $rowCount + 1) #end
-	        </tbody>
-	        </table>
-	        #end
-	      </div>
-	    </div>
-	    #if($showDatesWhereNoWorklog.size() != 0)
-	    <div class="message">
-	      <input type="submit" id="pageBack" name="pageBack" value="<" class="button" /> $actualPage / $numberOfPages <input
-	        type="submit" id="pageNext" name="pageNext" value=">" class="button" />
-	    </div>
-	    #end
+        <div class="aui-page-panel">
+          <div class="aui-page-panel-inner">
+            <section class="aui-page-panel-content">
+                <div class="container">
+                    <div class="table-content">
+                        <div id="statistics-message" class="missing-message">
+	                       $i18n.getText("plugin.statistics.message") $statisticsMessageParameter
+                        </div>
+                        <div id="results-wrap">
+                            <table id="missing-worklog-table" class="aui missing-worklog-table">
+                              <thead>
+                                <tr>
+                                  <th>$i18n.getText("plugin.dates")</th>
+                                  <th>$i18n.getText("plugin.dates")</th> <!-- New feature, feedback request -->
+                                </tr>
+                              </thead>
+                          #if($showDatesWhereNoWorklog.size() == 0)
+                            </table>
+                            <div id="message" class="message">$i18n.getText("plugin.no.dates")</div><!-- Change to info panel? -->
+                          #else
+                              <tbody>
+                                #foreach ($date in $showDatesWhereNoWorklog)
+                                  <tr>
+                                    <td>
+                                      <a href="JiraTimetrackerWebAction.jspa?dateFormatted=$date">$date</a>
+                                    </td>
+                                    <td>7</td>
+                                  </tr>
+                                #end
+                              <tbody>
+                           #end
+                            </table> 
+                        </div>
+                        <div class="aui-group aui-group-split count-pagination missing-count">
+                            <div class="aui-item">
+                                <span class="results-count-text">
+                                    <span class="results-count results-count-start">1</span> –
+                                    <span class="results-count results-count-end">50</span> of 
+                                    <span class="results-count results-count-total results-count-link">100</span>
+                                </span>
+                            </div>
+                            <div class="aui-item">
+                                <div class="pagination" data-displayable-total="100"> 
+                                    <strong title="Issues 1 - 50">1</strong> 
+                                    <a href="/issues/?jql=&amp;startIndex=50" data-page="2" data-start-index="50" title="Issues 51 - 100">2</a>
+                                    <a href="/issues/?jql=&amp;startIndex=50" data-start-index="50" class="icon icon-next" title="Go to page 2 of 59">
+                                        <span class="aui-icon aui-icon-small aui-iconfont-arrows-right"></span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        #if($showDatesWhereNoWorklog.size() != 0)
+                          <div class="message">
+                            <input type="submit" id="pageBack" name="pageBack" value="<" class="button" /> $actualPage / $numberOfPages 
+                            <input type="submit" id="pageNext" name="pageNext" value=">" class="button" />
+                          </div>
+                        #end
+                    </div>
+                </div>
+            </section>
+          </div>
+        </div>
 	  </div>
-    </form>
-    <div id="feedbackfooter" class="feedback_footer">
-      #parse("templates/feedback/feedback_worklogs.vm")
-    </div>
+   <script type="text/javascript" src="$issueCollectorSrc"></script>
   </div>
   #if($analyticsDTO.analyticsCheck)
 	#parse("templates/common/analytics.vm")
