@@ -15,7 +15,7 @@
  *#
 <html>
 <head>
-<title>Timetracker Chart Report</title>
+<title>Chart Report</title>
 
 </head>
 $webResourceManager.requireResource("jira.webresources:global-static")
@@ -59,7 +59,8 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:chart_re
 		jttp.options = jQuery.extend( 
 			{},
 			jttp.options,
-			{
+			{	
+				hasBrowseUsersPermission: ${hasBrowseUsersPermission},
 				chartDataList : ${chartDataList}
 			}
 		);
@@ -68,30 +69,32 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:chart_re
 
 </script>
 
-<div id="plugin_head" class="item-header">
-	<div class="logo-img">
-		<a href="http://www.everit.biz/" target="_blank">
-			<img src="$contextPath/download/resources/org.everit.jira.timetracker.plugin:chart_report-resources/everit_tt_logo.png" alt="Everit logo" height="42" width="42" style:"float: right">
-		</a>
-	</div>
-	<h1 class="item-summary">Timetracker</h1>
-</div>
+  <header class="aui-page-header">
+    <div class="aui-page-header-inner">
+      <div class="aui-page-header-image">
+         <span class="aui-avatar aui-avatar-large">
+           <span class="aui-avatar-inner">
+             <a href="http://www.everit.biz/index.php?nyelv=en" target="_blank">
+               <img src="$contextPath/download/resources/org.everit.jira.timetracker.plugin:reporting-resources/E_logo.png" alt="Everit reporting logo">
+             </a>
+           </span>
+         </span>
+      </div>
+      <div class="aui-page-header-main">
+          <a href="#reporting_menu" aria-owns="reporting_menu" aria-haspopup="true" class="h1-button aui-button aui-button-link aui-style-default aui-dropdown2-trigger"><h1>Chart Report</h1></a>
+          <div id="reporting_menu" class="aui-style-default aui-dropdown2" style="top: 150px">
+            <ul class="aui-list-truncate">
+              <li><a href="ReportingWebAction!default.jspa">Reporting</a></li>
+              <li><a href="JiraTimetrackerWorklogsWebAction!default.jspa">Missing Days Report</a></li>
+              <li><a href="JiraTimetrackerTableWebAction!default.jspa">Table Report</a></li>
+            </ul>
+          </div>
+        </div>
+     </div>
+  </header>
 <div id="main-content" class="content rounded">
 	<form name="chartReportForm"  method="get" action="JiraTimetrackerChartWebAction.jspa" />   
 		<div class="inside-content">
-			##TAB START
-			<div class="tabwrap tabs2" id="tabs-jttp">
-	    		<ul class="tabs horizontal">
-	        		<li><a href="JiraTimetrackerWebAction!default.jspa"><strong>Timetracker</strong></a></li>
-	        		<li><a href="JiraTimetrackerWorklogsWebAction!default.jspa"><strong>Missing Days Report</strong></a></li>
-	        		<li class="active">
-	            		<a href="JiraTimetrackerChartWebAction!default.jspa"><strong>Chart Report</strong></a>
-	        		</li>
-					<li><a href="JiraTimetrackerTableWebAction!default.jspa"><strong>Table Report</strong></a></li>
-	      </ul>
-	    		</ul>
-	    	</div>
-			##TAB END
 		  	#if(!$message.isEmpty())
 			  	<div id="error_message">
 			 			$i18n.getText($message)
