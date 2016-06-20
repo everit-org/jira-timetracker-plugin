@@ -26,6 +26,14 @@
     border-top: 1px solid #ccc; 
 }
 
+.missings-paging-strong{
+    bottom: 8px;
+}
+
+.missings-paging~.missings-paging{
+    margin-left: 0px !important;
+}
+
 .container {
     width: 20%;
     min-width: 20rem;
