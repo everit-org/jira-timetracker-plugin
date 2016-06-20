@@ -21,19 +21,22 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
 import org.everit.jira.analytics.AnalyticsDTO;
 import org.everit.jira.reporting.plugin.ReportingCondition;
 import org.everit.jira.reporting.plugin.ReportingPlugin;
+import org.everit.jira.reporting.plugin.dto.MissingsPageingDTO;
+import org.everit.jira.reporting.plugin.dto.MissingsWorklogsDTO;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
+import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 import org.ofbiz.core.entity.GenericEntityException;
 
-import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
@@ -42,7 +45,10 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
  */
 public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
-  private static final String FREQUENT_FEEDBACK = "jttp.plugin.frequent.feedback";
+  /**
+   * The Issue Collector jttp_build.porperties key.
+   */
+  private static final String ISSUE_COLLECTOR_SRC = "ISSUE_COLLECTOR_SRC";
 
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
 
@@ -51,8 +57,6 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    */
   private static final Logger LOGGER = Logger
       .getLogger(JiraTimetrackerWorklogsWebAction.class);
-
-  private static final String NOT_RATED = "Not rated";
 
   private static final String PARAM_DATEFROM = "dateFrom";
 
@@ -73,7 +77,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    */
   private int actualPage;
 
-  private List<String> allDatesWhereNoWorklog;
+  private List<MissingsWorklogsDTO> allDatesWhereNoWorklog;
 
   private AnalyticsDTO analyticsDTO;
 
@@ -109,7 +113,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    */
   private String dateToFormated = "";
 
-  private boolean feedBackSendAviable;
+  private String issueCollectorSrc;
 
   /**
    * The {@link JiraTimetrackerPlugin}.
@@ -131,18 +135,15 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    */
   private int numberOfPages;
 
+  private MissingsPageingDTO paging = new MissingsPageingDTO();
+
   private final PluginSettingsFactory pluginSettingsFactory;
 
   private ReportingCondition reportingCondition;
 
   private ReportingPlugin reportingPlugin;
 
-  private List<String> showDatesWhereNoWorklog;
-
-  /**
-   * The message parameter.
-   */
-  private String statisticsMessageParameter = "0";
+  private List<MissingsWorklogsDTO> showDatesWhereNoWorklog;
 
   /**
    * Simple constructor.
@@ -160,10 +161,6 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     this.reportingPlugin = reportingPlugin;
     reportingCondition = new ReportingCondition(this.reportingPlugin);
     this.pluginSettingsFactory = pluginSettingsFactory;
-  }
-
-  private void checkMailServer() {
-    feedBackSendAviable = ComponentAccessor.getMailServerManager().isDefaultSMTPMailServerDefined();
   }
 
   /**
@@ -212,7 +209,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     }
 
     normalizeContextPath();
-    checkMailServer();
+    loadIssueCollectorSrc();
 
     analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(pluginSettingsFactory,
         PiwikPropertiesUtil.PIWIK_WORKLOGS_SITEID);
@@ -228,16 +225,9 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     try {
       // TODO not simple "" for selectedUser. Use user picker
       // Default check box parameter false, false
-      List<Date> dateswhereNoWorklogDate = jiraTimetrackerPlugin
+      allDatesWhereNoWorklog = jiraTimetrackerPlugin
           .getDates("", dateFrom, dateTo, checkHours,
               checkNonWorkingIssues);
-      allDatesWhereNoWorklog = new ArrayList<String>();
-      for (Date date : dateswhereNoWorklogDate) {
-        allDatesWhereNoWorklog.add(DateTimeConverterUtil
-            .dateToString(date));
-      }
-      statisticsMessageParameter = Integer
-          .toString(allDatesWhereNoWorklog.size());
     } catch (GenericEntityException e) {
       LOGGER.error("Error when try to run the query.", e);
       return ERROR;
@@ -262,27 +252,22 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     }
 
     normalizeContextPath();
-    checkMailServer();
+    loadIssueCollectorSrc();
 
     analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(pluginSettingsFactory,
         PiwikPropertiesUtil.PIWIK_WORKLOGS_SITEID);
 
     initVariables();
+    parseConstantParams();
     String searchActionResult = searchAction();
     if (searchActionResult != null) {
       return searchActionResult;
     }
     try {
       // TODO not simple "" for selectedUser. Use user picker
-      List<Date> dateswhereNoWorklogDate = jiraTimetrackerPlugin
+      allDatesWhereNoWorklog = jiraTimetrackerPlugin
           .getDates("", dateFrom, dateTo, checkHours,
               checkNonWorkingIssues);
-      for (Date date : dateswhereNoWorklogDate) {
-        allDatesWhereNoWorklog.add(DateTimeConverterUtil
-            .dateToString(date));
-      }
-      statisticsMessageParameter = Integer
-          .toString(allDatesWhereNoWorklog.size());
     } catch (GenericEntityException e) {
       LOGGER.error("Error when try to run the query.", e);
       return ERROR;
@@ -291,8 +276,6 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     numberOfPages = countNumberOfPages();
     pageChangeAction();
     setShowDatesListByActualPage(actualPage);
-
-    parseFeedBack();
 
     return SUCCESS;
   }
@@ -321,7 +304,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     return dateFromFormated;
   }
 
-  public List<String> getDateswhereNoWorklog() {
+  public List<MissingsWorklogsDTO> getDateswhereNoWorklog() {
     return allDatesWhereNoWorklog;
   }
 
@@ -329,8 +312,8 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     return dateToFormated;
   }
 
-  public boolean getFeedBackSendAviable() {
-    return feedBackSendAviable;
+  public String getIssueCollectorSrc() {
+    return issueCollectorSrc;
   }
 
   public String getMessage() {
@@ -345,20 +328,24 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     return numberOfPages;
   }
 
-  public List<String> getShowDatesWhereNoWorklog() {
-    return showDatesWhereNoWorklog;
+  public MissingsPageingDTO getPaging() {
+    return paging;
   }
 
-  public String getStatisticsMessageParameter() {
-    return statisticsMessageParameter;
+  public List<MissingsWorklogsDTO> getShowDatesWhereNoWorklog() {
+    return showDatesWhereNoWorklog;
   }
 
   private void initVariables() {
     message = "";
     messageParameter = "";
-    statisticsMessageParameter = "0";
-    allDatesWhereNoWorklog = new ArrayList<String>();
-    showDatesWhereNoWorklog = new ArrayList<String>();
+    allDatesWhereNoWorklog = new ArrayList<MissingsWorklogsDTO>();
+    showDatesWhereNoWorklog = new ArrayList<MissingsWorklogsDTO>();
+  }
+
+  private void loadIssueCollectorSrc() {
+    Properties properties = PropertiesUtil.getJttpBuildProperties();
+    issueCollectorSrc = properties.getProperty(ISSUE_COLLECTOR_SRC);
   }
 
   private void normalizeContextPath() {
@@ -376,13 +363,22 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
   public void pageChangeAction() {
     String dayBackValue = getHttpRequest().getParameter("pageBack");
     String dayNextValue = getHttpRequest().getParameter("pageNext");
+    String paging = getHttpRequest().getParameter("paging");
     if ((dayBackValue != null) && (actualPage > 1)) {
       actualPage--;
     }
     if ((dayNextValue != null) && (actualPage < numberOfPages)) {
       actualPage++;
     }
+    if (paging != null) {
+      actualPage = Integer.parseInt(paging);
+    }
+  }
 
+  private void parseConstantParams() {
+    dateFromFormated = getHttpRequest().getParameter("dateFromFormated");
+    dateToFormated = getHttpRequest().getParameter("dateToFormated");
+    actualPage = Integer.parseInt(getHttpRequest().getParameter("actualPage"));
   }
 
   private boolean parseDateParams() {
@@ -421,33 +417,6 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     return true;
   }
 
-  private void parseFeedBack() {
-    if (getHttpRequest().getParameter("sendfeedback") != null) {
-      if (JiraTimetrackerUtil.loadAndCheckFeedBackTimeStampFromSession(getHttpSession())) {
-        String feedBackValue = getHttpRequest().getParameter("feedbackinput");
-        String ratingValue = getHttpRequest().getParameter("rating");
-        String customerMail =
-            JiraTimetrackerUtil.getCheckCustomerMail(getHttpRequest().getParameter("customerMail"));
-        String feedBack = "";
-        String rating = NOT_RATED;
-        if (feedBackValue != null) {
-          feedBack = feedBackValue;
-        }
-        if (ratingValue != null) {
-          rating = ratingValue.trim();
-        }
-        String mailSubject = JiraTimetrackerUtil
-            .createFeedbackMailSubject(JiraTimetrackerAnalytics.getPluginVersion());
-        String mailBody =
-            JiraTimetrackerUtil.createFeedbackMailBody(customerMail, rating, feedBack);
-        jiraTimetrackerPlugin.sendEmail(mailSubject, mailBody);
-        JiraTimetrackerUtil.saveFeedBackTimeStampToSession(getHttpSession());
-      } else {
-        message = FREQUENT_FEEDBACK;
-      }
-    }
-  }
-
   private void readObject(final java.io.ObjectInputStream stream) throws IOException,
       ClassNotFoundException {
     stream.close();
@@ -456,6 +425,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
   private String searchAction() throws ParseException {
     String searchValue = getHttpRequest().getParameter("search");
+    // TODO no search....
     // if not null then we have to change the dates and make a new query
     if (searchValue != null) {
       // set actual page default! we start the new query with the first page
@@ -502,16 +472,12 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     this.dateFromFormated = dateFromFormated;
   }
 
-  public void setDateswhereNoWorklog(final List<String> dateswhereNoWorklog) {
+  public void setDateswhereNoWorklog(final List<MissingsWorklogsDTO> dateswhereNoWorklog) {
     allDatesWhereNoWorklog = dateswhereNoWorklog;
   }
 
   public void setDateToFormated(final String dateToFormated) {
     this.dateToFormated = dateToFormated;
-  }
-
-  public void setFeedBackSendAviable(final boolean feedBackSendAviable) {
-    this.feedBackSendAviable = feedBackSendAviable;
   }
 
   public void setMessage(final String message) {
@@ -526,6 +492,10 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     this.numberOfPages = numberOfPages;
   }
 
+  public void setPaging(final MissingsPageingDTO paging) {
+    this.paging = paging;
+  }
+
   /**
    * Set the showDatesWhereNoWorklog by the actual page.
    *
@@ -533,6 +503,9 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    *          The sub list of allDatesWhereNoWorklog.
    */
   private void setShowDatesListByActualPage(final int actualPageParam) {
+    // TODO MissingsPageingDTO - from+1, to, actual page?, max page? allDatesWhereNoWorklog.size() -
+    // static replace whit that!
+    // TODO ROW_COUNT based on pageington settings of the user???
     int from = (actualPageParam - 1) * ROW_COUNT;
     int to = actualPageParam * ROW_COUNT;
     if ((actualPageParam == 1) && (allDatesWhereNoWorklog.size() < ROW_COUNT)) {
@@ -542,17 +515,14 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
         && ((allDatesWhereNoWorklog.size() % ROW_COUNT) != 0)) {
       to = from + (allDatesWhereNoWorklog.size() % ROW_COUNT);
     }
+    paging = paging.start(from + 1).end(to).resultSize(allDatesWhereNoWorklog.size())
+        .actPageNumber(actualPageParam).maxPageNumber(numberOfPages);
     showDatesWhereNoWorklog = allDatesWhereNoWorklog.subList(from, to);
   }
 
   public void setShowDatesWhereNoWorklog(
-      final List<String> showDatesWhereNoWorklog) {
+      final List<MissingsWorklogsDTO> showDatesWhereNoWorklog) {
     this.showDatesWhereNoWorklog = showDatesWhereNoWorklog;
-  }
-
-  public void setStatisticsMessageParameter(
-      final String statisticsMessageParameter) {
-    this.statisticsMessageParameter = statisticsMessageParameter;
   }
 
   private void writeObject(final java.io.ObjectOutputStream stream) throws IOException {

@@ -19,8 +19,7 @@ everit.jttp.missing_days_report = everit.jttp.missing_days_report || {};
 (function(jttp, jQuery) {
 
   jQuery(document).ready(function() {
-    setCheckWorkedHours();
-    browsePermissionCheck();
+    jttp.setCheckWorkedHours();
     
   
   });
