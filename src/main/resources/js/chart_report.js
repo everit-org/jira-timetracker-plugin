@@ -25,24 +25,8 @@ everit.jttp.chart_report = everit.jttp.chart_report || {};
       packages : [ 'controls' ],
       callback : drawChart
     });
-    browsePermissionCheck();
   });
 
-  function browsePermissionCheck(){
-    if(!jttp.options.hasBrowseUsersPermission){
-      jQuery("#userPicker-field").attr("aria-disabled", true);
-      jQuery("#userPicker-field").attr("disabled", "disabled");
-      jQuery("#userPicker-single-select").attr("title", AJS.I18n.getText("jtrp.plugin.no.browse.permission"));
-      jQuery("#userPicker-single-select").attr("original-title", AJS.I18n.getText("jtrp.plugin.no.browse.permission"));
-      
-      var $groupPickerTooltip = AJS.$('#userPicker-single-select');
-      if(!$groupPickerTooltip.hasClass('jtrp-tooltipped')) {
-        $groupPickerTooltip.tooltip({gravity: 'w'});
-        $groupPickerTooltip.addClass('jtrp-tooltipped');
-      }
-      
-    }
-  }
   
   function drawChart() {
     var dataArray = new Array();
@@ -100,5 +84,5 @@ everit.jttp.chart_report = everit.jttp.chart_report || {};
     dashboard.bind([ control ], [ chart ]);
     dashboard.draw(data);
   }
-
+  
 })(everit.jttp.chart_report, AJS.$);
