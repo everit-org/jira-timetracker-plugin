@@ -31,7 +31,6 @@ import org.everit.jira.reporting.plugin.dto.MissingsPageingDTO;
 import org.everit.jira.reporting.plugin.dto.MissingsWorklogsDTO;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
-import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
@@ -58,9 +57,15 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
   private static final Logger LOGGER = Logger
       .getLogger(JiraTimetrackerWorklogsWebAction.class);
 
-  private static final String PARAM_DATEFROM = "dateFrom";
+  private static final String PARAM_ACTUAL_PAGE = "actualPage";
 
-  private static final String PARAM_DATETO = "dateTo";
+  private static final String PARAM_DATE_FROM_FORMATED = "dateFromFormated";
+
+  private static final String PARAM_DATE_TO_FORMATED = "dateToFormated";
+
+  private static final String PARAM_DATEFROM = "dateFromMil";
+
+  private static final String PARAM_DATETO = "dateToMil";
 
   /**
    * The number of rows in the dates table.
@@ -93,25 +98,19 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
   private String contextPath;
 
-  /**
-   * The date.
-   */
-  private Date dateFrom = null;
+  private Date dateFrom;
 
   /**
    * The formated date.
    */
-  private String dateFromFormated = "";
+  private Long dateFromFormated;
 
-  /**
-   * The date.
-   */
-  private Date dateTo = null;
+  private Date dateTo;
 
   /**
    * The formated date.
    */
-  private String dateToFormated = "";
+  private Long dateToFormated;
 
   private String issueCollectorSrc;
 
@@ -183,8 +182,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
   private void dateFromDefaultInit() {
     Calendar calendarFrom = Calendar.getInstance();
     calendarFrom.set(Calendar.MONTH, calendarFrom.get(Calendar.MONTH) - 1);
-    dateFrom = calendarFrom.getTime();
-    dateFromFormated = DateTimeConverterUtil.dateToString(dateFrom);
+    dateFromFormated = calendarFrom.getTimeInMillis();
   }
 
   /**
@@ -192,8 +190,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    */
   private void dateToDefaultInit() {
     Calendar calendarTo = Calendar.getInstance();
-    dateTo = calendarTo.getTime();
-    dateToFormated = DateTimeConverterUtil.dateToString(dateTo);
+    dateToFormated = calendarTo.getTimeInMillis();
   }
 
   @Override
@@ -214,14 +211,14 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(pluginSettingsFactory,
         PiwikPropertiesUtil.PIWIK_WORKLOGS_SITEID);
 
-    if ("".equals(dateToFormated)) {
+    if (dateToFormated == null) {
       dateToDefaultInit();
     }
-    dateTo = DateTimeConverterUtil.stringToDate(dateToFormated);
-    if ("".equals(dateFromFormated)) {
+    dateTo = new Date(dateToFormated);
+    if (dateFromFormated == null) {
       dateFromDefaultInit();
     }
-    dateFrom = DateTimeConverterUtil.stringToDate(dateFromFormated);
+    dateFrom = new Date(dateFromFormated);
     try {
       // TODO not simple "" for selectedUser. Use user picker
       // Default check box parameter false, false
@@ -300,7 +297,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     return contextPath;
   }
 
-  public String getDateFromFormated() {
+  public Long getDateFromFormated() {
     return dateFromFormated;
   }
 
@@ -308,7 +305,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     return allDatesWhereNoWorklog;
   }
 
-  public String getDateToFormated() {
+  public Long getDateToFormated() {
     return dateToFormated;
   }
 
@@ -376,45 +373,34 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
   }
 
   private void parseConstantParams() {
-    dateFromFormated = getHttpRequest().getParameter("dateFromFormated");
-    dateToFormated = getHttpRequest().getParameter("dateToFormated");
-    actualPage = Integer.parseInt(getHttpRequest().getParameter("actualPage"));
+    String requestDateFromFormated = getHttpRequest().getParameter(PARAM_DATE_FROM_FORMATED);
+    if (requestDateFromFormated != null) {
+      dateFromFormated = Long.valueOf(requestDateFromFormated);
+    }
+    String requestDateToFormated = getHttpRequest().getParameter(PARAM_DATE_TO_FORMATED);
+    if (requestDateToFormated != null) {
+      dateToFormated = Long.valueOf(requestDateToFormated);
+    }
+    actualPage = Integer.parseInt(getHttpRequest().getParameter(PARAM_ACTUAL_PAGE));
   }
 
-  private boolean parseDateParams() {
-
+  private void parseDateParams() {
     String requestDateFrom = getHttpRequest().getParameter(PARAM_DATEFROM);
-    try {
-      if (requestDateFrom != null) {
-        if (!"".equals(requestDateFrom)) {
-          dateFromFormated = requestDateFrom;
-        }
-        dateFrom = DateTimeConverterUtil.stringToDate(dateFromFormated);
-      } else if ((dateFromFormated == null) || "".equals(dateFromFormated)) {
-        dateFromDefaultInit();
-      } else {
-        dateFrom = DateTimeConverterUtil.stringToDate(dateFromFormated);
-      }
-
-      String requestDateTo = getHttpRequest().getParameter(PARAM_DATETO);
-      if (requestDateTo != null) {
-        if (!"".equals(requestDateTo)) {
-          dateToFormated = requestDateTo;
-        }
-        dateTo = DateTimeConverterUtil.stringToDate(dateToFormated);
-      } else if ((dateToFormated == null) || "".equals(dateToFormated)) {
-        dateToDefaultInit();
-      } else {
-        dateTo = DateTimeConverterUtil.stringToDate(dateToFormated);
-      }
-    } catch (ParseException e) {
-      message = "plugin.wrong.dates";
-      return false;
+    if (requestDateFrom != null) {
+      dateFromFormated = Long.valueOf(requestDateFrom);
+    } else if (dateFromFormated == null) {
+      dateFromDefaultInit();
     }
+    dateFrom = new Date(dateFromFormated);
 
-    dateFromFormated = DateTimeConverterUtil.dateToString(dateFrom);
-    dateToFormated = DateTimeConverterUtil.dateToString(dateTo);
-    return true;
+    String requestDateTo = getHttpRequest().getParameter(PARAM_DATETO);
+    if (requestDateTo != null) {
+      dateToFormated = Long.valueOf(requestDateTo);
+    } else if (dateToFormated == null) {
+      dateToDefaultInit();
+    }
+    dateTo = new Date(dateToFormated);
+
   }
 
   private void readObject(final java.io.ObjectInputStream stream) throws IOException,
@@ -425,13 +411,9 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
   private String searchAction() throws ParseException {
     String searchValue = getHttpRequest().getParameter("search");
-    // TODO no search....
-    // if not null then we have to change the dates and make a new query
     if (searchValue != null) {
       // set actual page default! we start the new query with the first page
-      if (!parseDateParams()) {
-        return INPUT;
-      }
+      parseDateParams();
       actualPage = 1;
       if (dateFrom.compareTo(dateTo) >= 0) {
         message = "plugin.wrong.dates";
@@ -446,8 +428,8 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
         checkNonWorkingIssues = true;
       }
     } else {
-      dateFrom = DateTimeConverterUtil.stringToDate(dateFromFormated);
-      dateTo = DateTimeConverterUtil.stringToDate(dateToFormated);
+      dateFrom = new Date(dateFromFormated);
+      dateTo = new Date(dateToFormated);
     }
     return null;
   }
@@ -468,7 +450,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     this.contextPath = contextPath;
   }
 
-  public void setDateFromFormated(final String dateFromFormated) {
+  public void setDateFromFormated(final Long dateFromFormated) {
     this.dateFromFormated = dateFromFormated;
   }
 
@@ -476,7 +458,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     allDatesWhereNoWorklog = dateswhereNoWorklog;
   }
 
-  public void setDateToFormated(final String dateToFormated) {
+  public void setDateToFormated(final Long dateToFormated) {
     this.dateToFormated = dateToFormated;
   }
 
@@ -503,8 +485,6 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    *          The sub list of allDatesWhereNoWorklog.
    */
   private void setShowDatesListByActualPage(final int actualPageParam) {
-    // TODO MissingsPageingDTO - from+1, to, actual page?, max page? allDatesWhereNoWorklog.size() -
-    // static replace whit that!
     // TODO ROW_COUNT based on pageington settings of the user???
     int from = (actualPageParam - 1) * ROW_COUNT;
     int to = actualPageParam * ROW_COUNT;

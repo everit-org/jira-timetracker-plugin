@@ -31,5 +31,41 @@ everit.jttp.missing_days_report = everit.jttp.missing_days_report || {};
       document.getElementById("nonworking").disabled = true;
     }
   }
+  
+  jttp.beforeSubmitMissingsReport = function() {
+    try{
+      var dateFrom = jQuery('#dateFrom').val();
+      var dateFromMil = fecha.parse(dateFrom,  AJS.Meta.get("date-dmy").toUpperCase());
+      jQuery('#dateFromMil').val(dateFromMil.getTime());
+    }catch(err){
+      showErrorMessage("error_message_label_df");
+      return false;
+    }
+    try{
+      var dateTo = jQuery('#dateTo').val();
+      var dateToMil = fecha.parse(dateTo,  AJS.Meta.get("date-dmy").toUpperCase());
+      jQuery('#dateToMil').val(dateToMil.getTime());
+    }catch(err){
+      showErrorMessage("error_message_label_dt");
+      return false;
+    }
+    if (jQuery("#hour").is(":checked")) {
+      var hourClone = jQuery("#hour").clone();
+      hourClone.attr("hidden", "hidden");
+      jQuery("#reporting-form").append(hourClone);
+    }
+    if (jQuery("#nonworking").is(":checked")) {
+      var noneworkingClone = jQuery("#nonworking").clone();
+      noneworkingClone.attr("hidden", "hidden");
+      jQuery("#reporting-form").append(noneworkingClone);
+    }
+  }
 
+  function showErrorMessage(message_key){
+    AJS.$('#error_message label').hide();
+    var errorMessageLabel = AJS.$('#'+message_key);
+    errorMessageLabel.show();
+    var errorMessage = AJS.$('#error_message');
+    errorMessage.show();
+  }
 })(everit.jttp.missing_days_report, jQuery);
