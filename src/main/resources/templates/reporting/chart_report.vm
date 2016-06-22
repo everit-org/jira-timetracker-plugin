@@ -47,8 +47,8 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:chart_re
 				firstDay : ${firstDay},
 				useISO8601 : ${currentCalendar.useISO8601},
 				hasBrowseUsersPermission: ${hasBrowseUsersPermission},
-				dateFromFormated : '${dateFromFormated}',
-				dateFromFormated : '${dateToFormated}'
+				dateFromFormated : ${dateFromFormated},
+				dateToFormated : ${dateToFormated}
 			}
 		);
 	})(everit.jttp.report_common_scripts, AJS.$);
@@ -94,26 +94,26 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:chart_re
   </header>
   
   <div class="chart-search-criteria-container">
-            <form name="chartReportForm" class="aui top-label reporting-form" method="get" action="JiraTimetrackerChartWebAction.jspa" />
-                 #if(!$message.isEmpty())
-                   <div id="error_message">
-                     $i18n.getText($message)
-                   </div>
-                 #end
-			     <div class="form-body">
+               <div id="error_message"  #if($message.isEmpty()) style="display:none;" #end>
+                 <label id="error_message_label" #if($message.isEmpty()) style="display:none;" #end>$i18n.getText($message)</label>
+                 <label id="error_message_label_df" style="display:none;">$i18n.getText('plugin.invalid_startTime')</label>
+                 <label id="error_message_label_dt" style="display:none;">$i18n.getText('plugin.invalid_endTime')</label>
+               </div>
+               <form name="dummyForm" class="aui top-label reporting-form" method="get" onsubmit="return false;" />
+                 <div class="form-body">
                      <div class="aui-group">
                         <div class="aui-item search-wrap">
                             <div class="date-search-container">
                                 <div class="search-criteria-container">
                                     <div class="search-criteria">
                                         <div class="from-date inline-calendar">
-                                            <input class="text medium-field datepicker-input" placeholder="From" type="text" onkeydown="return everit.jttp.report_common_scripts.checkEnter(event);" value="$dateFromFormated" id="dateFrom" name="dateFrom" tabindex="1">
+                                            <input class="text medium-field datepicker-input" placeholder="From" onkeydown="return everit.jttp.report_common_scripts.checkEnter(event);" id="dateFrom" name="dateFrom" tabindex="1">
                                                 <a href="#" title="Select a date">
                                                     <span id="date_trigger_from" class="aui-icon aui-icon-small aui-iconfont-calendar">Select a date</span>
                                                 </a>
                                         </div>
                                         <div class="to-date inline-calendar">
-                                            <input class="text medium-field datepicker-input" placeholder="To" type="text" onkeydown="return everit.jttp.report_common_scripts.checkToEnter(event);" value="$dateToFormated" id="dateTo" name="dateTo" tabindex="2">
+                                            <input class="text medium-field datepicker-input" placeholder="To" onkeydown="return everit.jttp.report_common_scripts.checkToEnter(event);" id="dateTo" name="dateTo" tabindex="2">
                                                 <a href="#" title="Select a date">
                                                     <span id="date_trigger_to" class="aui-icon aui-icon-small aui-iconfont-calendar">Select a date</span>
                                                 </a>
@@ -141,18 +141,22 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:chart_re
                                             </select>
                                         </div>
                                     </div>
-                                </div>                                    
+                                </div>
                             </div>
                         </div>
-                    </div>
+                     </div>
+                  </form>  
+              </div>
+                  <form name="chartReportForm" method="get" action="JiraTimetrackerChartWebAction.jspa"  onsubmit="return everit.jttp.report_common_scripts.beforeSubmitReport()"/>
+                    <input type="hidden" id="dateFromMil" name="dateFromMil"/>
+                    <input type="hidden" id="dateToMil" name="dateToMil"/>
+                    <input type="hidden" id="selectedUser" name="selectedUser"/>
                     <div class="aui-group">
-                        <div class="aui-item">                            
+                        <div class="aui-item">
                             <button id="search" tabindex="3" class="aui-button aui-button-primary"  onclick="return everit.jttp.report_common_scripts.jttpSearchOnClick('Chart');">$i18n.getText('plugin.search')</button> <!-- Submit the search form -->
                         </div>
                     </div>
-                </div>
-               <!--  <input type="hidden" name="formType" value="basic" > -->
-            </form>
+                  </form>
         </div>
         <div class="aui-page-panel">
           <div class="aui-page-panel-inner">
@@ -168,10 +172,8 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:chart_re
                 <div id="dashboard">
                     <div class="aui-group">
                         <div id="control_div" class="aui-item control_div">
-                            Control comes here
                         </div>
                         <div id="chart_div" class="aui-item chart_div">
-                            Chart comes here
                         </div>
                     </div>
                 </div>

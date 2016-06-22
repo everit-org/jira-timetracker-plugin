@@ -84,5 +84,5 @@ everit.jttp.chart_report = everit.jttp.chart_report || {};
     dashboard.bind([ control ], [ chart ]);
     dashboard.draw(data);
   }
-
+  
 })(everit.jttp.chart_report, AJS.$);

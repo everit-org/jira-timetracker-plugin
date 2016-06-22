@@ -44,8 +44,8 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:missing_
 			{
 				firstDay : ${firstDay},
 				useISO8601 : ${currentCalendar.useISO8601},
-				dateFromFormated : '${dateFromFormated}',
-				dateToFormated : '${dateToFormated}'
+				dateFromFormated : ${dateFromFormated},
+				dateToFormated : ${dateToFormated}
 			}
 		);
 	})(everit.jttp.report_common_scripts, AJS.$);
@@ -85,14 +85,13 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:missing_
         </div>
      </div>
   </header>
-  <!-- ?dateFromFormated=$dateFromFormated&dateToFormated=$dateToFormated&actualPage=$actualPage -->
-   <form action="JiraTimetrackerWorklogsWebAction.jspa" class="aui top-label reporting-form" id="reporting-form" method="get">
      <div class="missing-search-criteria-container">
-                 #if(!$message.isEmpty())
-                   <div id="error_message">
-                     $i18n.getText($message) $messageParameter
-                   </div>
-                 #end
+               <div id="error_message"  #if($message.isEmpty()) style="display:none;" #end>
+                 <label id="error_message_label" #if($message.isEmpty()) style="display:none;" #end>$i18n.getText($message)</label>
+                 <label id="error_message_label_df" style="display:none;">$i18n.getText('plugin.invalid_startTime')</label>
+                 <label id="error_message_label_dt" style="display:none;">$i18n.getText('plugin.invalid_endTime')</label>
+               </div>
+                <form name="dummyForm" class="aui top-label reporting-form" id="dummyForm" method="get" onsubmit="return false;" >
                  <div class="form-body">
                      <div class="aui-group">
                         <div class="aui-item search-wrap">
@@ -100,13 +99,13 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:missing_
                                 <div class="search-criteria-container">
                                     <div class="search-criteria">
                                         <div class="from-date inline-calendar">
-                                            <input class="text medium-field datepicker-input" placeholder="From" type="text" onkeydown="return everit.jttp.report_common_scripts.checkEnter(event);" value="$dateFromFormated" id="dateFrom" name="dateFrom" tabindex="1">
+                                            <input class="text medium-field datepicker-input" placeholder="From" type="text" onkeydown="return everit.jttp.report_common_scripts.checkEnter(event);" id="dateFrom" name="dateFrom" tabindex="1">
                                                 <a href="#" title="Select a date">
                                                     <span id="date_trigger_from" class="aui-icon aui-icon-small aui-iconfont-calendar">Select a date</span>
                                                 </a>
                                         </div>
                                         <div class="to-date inline-calendar">
-                                            <input class="text medium-field datepicker-input" placeholder="To" type="text" onkeydown="return everit.jttp.report_common_scripts.checkToEnter(event);" value="$dateToFormated" id="dateTo" name="dateTo" tabindex="2">
+                                            <input class="text medium-field datepicker-input" placeholder="To" type="text" onkeydown="return everit.jttp.report_common_scripts.checkToEnter(event);" id="dateTo" name="dateTo" tabindex="2">
                                                 <a href="#" title="Select a date">
                                                     <span id="date_trigger_to" class="aui-icon aui-icon-small aui-iconfont-calendar">Select a date</span>
                                                 </a>
@@ -128,20 +127,24 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:missing_
                             </div>
                         </div>
                     </div>
+                  </div>
+                  </form>
                      <div class="aui-group">
-                        <div class="aui-item">
+                        <form action="JiraTimetrackerWorklogsWebAction.jspa" id="reporting-form" method="get" onsubmit="return everit.jttp.missing_days_report.beforeSubmitMissingsReport()" >
+                          <div class="aui-item">
                             <button id="search" name="search" type="submit" tabindex="3" class="aui-button aui-button-primary" onclick="_paq.push(['trackEvent', 'User', 'Missings']); ">$i18n.getText('plugin.search')</button> <!-- Submit the search form -->
-                        </div>
-                        <input type="hidden" id="dateFromFormated" name="dateFromFormated" value="$dateFromFormated" />
-                        <input type="hidden" id="dateToFormated" name="dateToFormated" value="$dateToFormated" />
-                        <input type="hidden" id="actualPage" name="actualPage" value="$actualPage"/>
+                          </div>
+                          <input type="hidden" id="dateFromMil" name="dateFromMil"/>
+                          <input type="hidden" id="dateToMil" name="dateToMil"/>
+                        </from>
                     </div>
-                </div>
+                
         </div>
 
         <div class="aui-page-panel">
           <div class="aui-page-panel-inner">
             <section class="aui-page-panel-content">
+              <form action="JiraTimetrackerWorklogsWebAction.jspa" class="aui top-label reporting-form" id="reporting-form" method="get">
                 <div class="container">
                     <div class="table-content">
                         <div id="statistics-message" class="missing-message">
@@ -231,10 +234,13 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:missing_
                           </div>
                       </div>
                   </div>
+                  <input type="hidden" id="dateFromFormated" name="dateFromFormated" value="$dateFromFormated" />
+                  <input type="hidden" id="dateToFormated" name="dateToFormated" value="$dateToFormated" />
+                  <input type="hidden" id="actualPage" name="actualPage" value="$actualPage"/>
+                </form>
               </section>
             </div>
           </div>
-        </form>
 	  </div>
    <script type="text/javascript" src="$issueCollectorSrc"></script>
   </div>
