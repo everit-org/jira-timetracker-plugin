@@ -255,8 +255,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
         PiwikPropertiesUtil.PIWIK_WORKLOGS_SITEID);
 
     initVariables();
-    parseConstantParams();
-    String searchActionResult = searchAction();
+    String searchActionResult = parseParams();
     if (searchActionResult != null) {
       return searchActionResult;
     }
@@ -372,16 +371,15 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     }
   }
 
-  private void parseConstantParams() {
-    String requestDateFromFormated = getHttpRequest().getParameter(PARAM_DATE_FROM_FORMATED);
-    if (requestDateFromFormated != null) {
-      dateFromFormated = Long.valueOf(requestDateFromFormated);
+  private void parseCheckboxParam() {
+    String hourValue = getHttpRequest().getParameter("hour");
+    String nonworkingValue = getHttpRequest().getParameter("nonworking");
+    if (hourValue != null) {
+      checkHours = true;
     }
-    String requestDateToFormated = getHttpRequest().getParameter(PARAM_DATE_TO_FORMATED);
-    if (requestDateToFormated != null) {
-      dateToFormated = Long.valueOf(requestDateToFormated);
+    if (nonworkingValue != null) {
+      checkNonWorkingIssues = true;
     }
-    actualPage = Integer.parseInt(getHttpRequest().getParameter(PARAM_ACTUAL_PAGE));
   }
 
   private void parseDateParams() {
@@ -403,13 +401,19 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
   }
 
-  private void readObject(final java.io.ObjectInputStream stream) throws IOException,
-      ClassNotFoundException {
-    stream.close();
-    throw new java.io.NotSerializableException(getClass().getName());
+  private void parsePagingParams() {
+    String requestDateFromFormated = getHttpRequest().getParameter(PARAM_DATE_FROM_FORMATED);
+    if (requestDateFromFormated != null) {
+      dateFromFormated = Long.valueOf(requestDateFromFormated);
+    }
+    String requestDateToFormated = getHttpRequest().getParameter(PARAM_DATE_TO_FORMATED);
+    if (requestDateToFormated != null) {
+      dateToFormated = Long.valueOf(requestDateToFormated);
+    }
+    actualPage = Integer.parseInt(getHttpRequest().getParameter(PARAM_ACTUAL_PAGE));
   }
 
-  private String searchAction() throws ParseException {
+  private String parseParams() throws ParseException {
     String searchValue = getHttpRequest().getParameter("search");
     if (searchValue != null) {
       // set actual page default! we start the new query with the first page
@@ -419,19 +423,19 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
         message = "plugin.wrong.dates";
         return INPUT;
       }
-      String hourValue = getHttpRequest().getParameter("hour");
-      String nonworkingValue = getHttpRequest().getParameter("nonworking");
-      if (hourValue != null) {
-        checkHours = true;
-      }
-      if (nonworkingValue != null) {
-        checkNonWorkingIssues = true;
-      }
     } else {
+      parsePagingParams();
       dateFrom = new Date(dateFromFormated);
       dateTo = new Date(dateToFormated);
     }
+    parseCheckboxParam();
     return null;
+  }
+
+  private void readObject(final java.io.ObjectInputStream stream) throws IOException,
+      ClassNotFoundException {
+    stream.close();
+    throw new java.io.NotSerializableException(getClass().getName());
   }
 
   public void setActualPage(final int actualPage) {

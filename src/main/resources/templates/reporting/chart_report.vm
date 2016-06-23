@@ -148,9 +148,9 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:chart_re
                   </form>  
               </div>
                   <form name="chartReportForm" method="get" action="JiraTimetrackerChartWebAction.jspa"  onsubmit="return everit.jttp.report_common_scripts.beforeSubmitReport()"/>
-                    <input type="hidden" id="dateFromMil" name="dateFromMil"/>
-                    <input type="hidden" id="dateToMil" name="dateToMil"/>
-                    <input type="hidden" id="selectedUser" name="selectedUser"/>
+                    <input type="hidden" id="dateFromMil" name="dateFromMil">
+                    <input type="hidden" id="dateToMil" name="dateToMil">
+                    <input type="hidden" id="selectedUser" name="selectedUser">
                     <div class="aui-group">
                         <div class="aui-item">
                             <button id="search" tabindex="3" class="aui-button aui-button-primary"  onclick="return everit.jttp.report_common_scripts.jttpSearchOnClick('Chart');">$i18n.getText('plugin.search')</button> <!-- Submit the search form -->
