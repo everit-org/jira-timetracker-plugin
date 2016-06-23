@@ -118,11 +118,11 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:missing_
                      <div class="aui-group">
                         <div class="aui-item">
                             <div class="checkbox">
-                                <input class="checkbox" id="hour" type="checkbox" value="check 8 h" name="hour" onclick="everit.jttp.missing_days_report.setCheckWorkedHours();" #if($checkHours) checked #end/>
+                                <input class="checkbox" id="hour" type="checkbox" value="check 8 h" name="hour" onclick="everit.jttp.missing_days_report.setCheckWorkedHours();" #if($checkHours) checked #end>
                                 <label for="cbOne">$i18n.getText("plugin.missing.days.hours")</label>
                             </div>
                             <div class="checkbox">
-                                <input class="checkbox" id="nonworking" type="checkbox" value="non-working not count" name="nonworking" #if($checkNonWorkingIssues) checked #end />
+                                <input class="checkbox" id="nonworking" type="checkbox" value="non-working not count" name="nonworking" #if($checkNonWorkingIssues) checked #end>
                                 <label for="cbOne">$i18n.getText("plugin.missing.days.nonworking")</label>
                             </div>
                         </div>
@@ -134,17 +134,17 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:missing_
                           <div class="aui-item">
                             <button id="search" name="search" type="submit" tabindex="3" class="aui-button aui-button-primary" onclick="_paq.push(['trackEvent', 'User', 'Missings']); ">$i18n.getText('plugin.search')</button> <!-- Submit the search form -->
                           </div>
-                          <input type="hidden" id="dateFromMil" name="dateFromMil"/>
-                          <input type="hidden" id="dateToMil" name="dateToMil"/>
-                        </from>
+                          <input type="hidden" id="dateFromMil" name="dateFromMil">
+                          <input type="hidden" id="dateToMil" name="dateToMil">
+                        </form>
                     </div>
                 
         </div>
 
-        <div class="aui-page-panel">
-          <div class="aui-page-panel-inner">
-            <section class="aui-page-panel-content">
-              <form action="JiraTimetrackerWorklogsWebAction.jspa" class="aui top-label reporting-form" id="reporting-form" method="get">
+        <form action="JiraTimetrackerWorklogsWebAction.jspa" class="aui top-label reporting-form" id="paging-form" method="get" onsubmit="return everit.jttp.missing_days_report.beforeSubmitMissingsPagingReport()">
+          <div class="aui-page-panel">
+            <div class="aui-page-panel-inner">
+              <section class="aui-page-panel-content">
                 <div class="container">
                     <div class="table-content">
                         <div id="statistics-message" class="missing-message">
@@ -234,16 +234,14 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:missing_
                           </div>
                       </div>
                   </div>
-                  <input type="hidden" id="dateFromFormated" name="dateFromFormated" value="$dateFromFormated" />
-                  <input type="hidden" id="dateToFormated" name="dateToFormated" value="$dateToFormated" />
-                  <input type="hidden" id="actualPage" name="actualPage" value="$actualPage"/>
-                </form>
-              </section>
+                  <input type="hidden" id="dateFromFormated" name="dateFromFormated" value="$dateFromFormated" >
+                  <input type="hidden" id="dateToFormated" name="dateToFormated" value="$dateToFormated" >
+                  <input type="hidden" id="actualPage" name="actualPage" value="$actualPage">
+                </section>
+              </div>
             </div>
-          </div>
-	  </div>
+          </form>
    <script type="text/javascript" src="$issueCollectorSrc"></script>
-  </div>
   #if($analyticsDTO.analyticsCheck)
 	#parse("templates/common/analytics.vm")
   #end
