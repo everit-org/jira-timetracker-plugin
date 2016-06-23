@@ -165,6 +165,7 @@ everit.jttp.report_common_scripts = everit.jttp.report_common_scripts || {};
    }
    var selectedUser = jQuery('#userPicker').val();
    jQuery('#selectedUser').val(selectedUser);
+   
  }
 
 

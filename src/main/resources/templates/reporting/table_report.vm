@@ -91,7 +91,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:table_re
 								<td>
 								<input type="text" id="dateFrom" name="dateFrom" tabindex="1" onkeydown="return everit.jttp.report_common_scripts.checkEnter(event);"/>
 								<img id="date_trigger_from" src="$contextPath/images/icons/cal.gif" width="16" height="16" border="0"
-									alt="Pick a date" style="vertical-align: sub;" title="$i18n.getText('plugin.choose.date')"/>
+									alt="Pick a date" style="vertical-align: sub;" title="$i18n.getText('plugin.choose.date')">
 							</td>
 						</tr>
 						<tr>
@@ -101,7 +101,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:table_re
 								<td>
 								<input type="text" id="dateTo" name="dateTo" tabindex="1" onkeydown="return everit.jttp.report_common_scripts.checkEnter(event);" />
 								<img id="date_trigger_to" src="$contextPath/images/icons/cal.gif" width="16" height="16" border="0"
-									alt="Pick a date" style="vertical-align: sub;" title="$i18n.getText('plugin.choose.date')"/>
+									alt="Pick a date" style="vertical-align: sub;" title="$i18n.getText('plugin.choose.date')">
 							</td>
 						</tr>
 						<tr>
@@ -128,9 +128,9 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:table_re
                               <form name="chartReportForm"  method="get" action="JiraTimetrackerTableWebAction.jspa" onsubmit="return everit.jttp.report_common_scripts.beforeSubmitReport()" />
                                 <input id="search"  tabindex="3" type="submit" name="search" value="$i18n.getText('plugin.search')" class="button" 
                                     onclick="return everit.jttp.report_common_scripts.jttpSearchOnClick('Table');"/>
-                                <input type="hidden" id="dateFromMil" name="dateFromMil"/>
-                                <input type="hidden" id="dateToMil" name="dateToMil"/>
-                                <input type="hidden" id="selectedUser" name="selectedUser"/>
+                                <input type="hidden" id="dateFromMil" name="dateFromMil">
+                                <input type="hidden" id="dateToMil" name="dateToMil">
+                                <input type="hidden" id="selectedUser" name="selectedUser">
                               </form>
 							</td>
 						</tr>

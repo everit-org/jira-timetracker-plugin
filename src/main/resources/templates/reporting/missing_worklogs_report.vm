@@ -118,11 +118,11 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:missing_
                      <div class="aui-group">
                         <div class="aui-item">
                             <div class="checkbox">
-                                <input class="checkbox" id="hour" type="checkbox" value="check 8 h" name="hour" onclick="everit.jttp.missing_days_report.setCheckWorkedHours();" #if($checkHours) checked #end/>
+                                <input class="checkbox" id="hour" type="checkbox" value="check 8 h" name="hour" onclick="everit.jttp.missing_days_report.setCheckWorkedHours();" #if($checkHours) checked #end>
                                 <label for="cbOne">$i18n.getText("plugin.missing.days.hours")</label>
                             </div>
                             <div class="checkbox">
-                                <input class="checkbox" id="nonworking" type="checkbox" value="non-working not count" name="nonworking" #if($checkNonWorkingIssues) checked #end />
+                                <input class="checkbox" id="nonworking" type="checkbox" value="non-working not count" name="nonworking" #if($checkNonWorkingIssues) checked #end >
                                 <label for="cbOne">$i18n.getText("plugin.missing.days.nonworking")</label>
                             </div>
                         </div>
@@ -134,116 +134,115 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:missing_
                           <div class="aui-item">
                             <button id="search" name="search" type="submit" tabindex="3" class="aui-button aui-button-primary" onclick="_paq.push(['trackEvent', 'User', 'Missings']); ">$i18n.getText('plugin.search')</button> <!-- Submit the search form -->
                           </div>
-                          <input type="hidden" id="dateFromMil" name="dateFromMil"/>
-                          <input type="hidden" id="dateToMil" name="dateToMil"/>
-                        </from>
+                          <input type="hidden" id="dateFromMil" name="dateFromMil">
+                          <input type="hidden" id="dateToMil" name="dateToMil">
+                        </form>
                     </div>
                 
         </div>
 
+              <form action="JiraTimetrackerWorklogsWebAction.jspa" class="aui" id="paging-form" method="get" onsubmit="return everit.jttp.missing_days_report.beforeSubmitMissingsPagingReport()" >
         <div class="aui-page-panel">
           <div class="aui-page-panel-inner">
             <section class="aui-page-panel-content">
-              <form action="JiraTimetrackerWorklogsWebAction.jspa" class="aui top-label reporting-form" id="reporting-form" method="get">
                 <div class="container">
-                    <div class="table-content">
-                        <div id="statistics-message" class="missing-message">
-	                       $i18n.getText("plugin.statistics.message") $paging.resultSize
-                        </div>
-                        <div id="results-wrap">
-                            <table id="missing-worklog-table" class="aui missing-worklog-table">
-                              <thead>
-                                <tr>
-                                  <th>$i18n.getText("plugin.missings.dates")</th>
-                                  <th>$i18n.getText("plugin.missings.hours")</th> <!-- New feature, feedback request -->
-                                </tr>
-                              </thead>
-                          #if($showDatesWhereNoWorklog.size() == 0)
-                            </table>
-                            <div id="message" class="message">$i18n.getText("plugin.no.dates")</div><!-- Change to info panel? -->
-                          #else
-                              <tbody>
-                                #foreach ($missings in $showDatesWhereNoWorklog)
-                                  <tr>
-                                    <td>
-                                      <a href="JiraTimetrackerWebAction.jspa?dateFormatted=$outlookDate.formatDMY($missings.date)">$outlookDate.formatDMY($missings.date)</a>
-                                    </td>
-                                    <td>$missings.hour</td>
-                                  </tr>
+                  <div class="table-content">
+                    <div id="statistics-message" class="missing-message">
+	                  $i18n.getText("plugin.statistics.message") $paging.resultSize
+                    </div>
+                    <div id="results-wrap">
+                      <table id="missing-worklog-table" class="aui missing-worklog-table">
+                        <thead>
+                          <tr>
+                            <th>$i18n.getText("plugin.missings.dates")</th>
+                            <th>$i18n.getText("plugin.missings.hours")</th> <!-- New feature, feedback request -->
+                          </tr>
+                        </thead>
+                     #if($showDatesWhereNoWorklog.size() == 0)
+                      </table>
+                      <div id="message" class="message">$i18n.getText("plugin.no.dates")</div><!-- Change to info panel? -->
+                     #else
+                        <tbody>
+                        #foreach ($missings in $showDatesWhereNoWorklog)
+                          <tr>
+                            <td>
+                               <a href="JiraTimetrackerWebAction.jspa?dateFormatted=$outlookDate.formatDMY($missings.date)">$outlookDate.formatDMY($missings.date)</a>
+                             </td>
+                             <td>$missings.hour</td>
+                           </tr>
+                         #end
+                         </tbody>
+                     #end
+                      </table> 
+                    </div>
+                    <div class="aui-group aui-group-split count-pagination missing-count">
+                      <div class="aui-item">
+                        <span class="results-count-text">
+                          <span class="results-count results-count-start">$paging.start</span> –
+                          <span class="results-count results-count-end">$paging.end</span> of 
+                          <span class="results-count results-count-total results-count-link">$paging.resultSize</span>
+                         </span>
+                       </div>
+                       <div class="aui-item">
+                         <div class="pagination">
+                         #set($wdMaxPageNumber = $paging.maxPageNumber)
+                         #if ( $wdMaxPageNumber )
+                            #set($wdActPageNumber = $paging.actPageNumber)
+                            #if ( $wdActPageNumber - 2 < 1 )
+                               #set($inStart = 1)
+                            #else
+                               #set($inStart = $wdActPageNumber - 2)
+                            #end
+                            #if ( $wdActPageNumber + 2 > $wdMaxPageNumber )
+                               #set($inEnd = $wdMaxPageNumber)
+                            #else
+                               #set($inEnd = $wdActPageNumber + 2)
+                            #end
+                            #if ( $wdActPageNumber < 3 )
+                               #if ($wdMaxPageNumber > 5) 
+                                  #set($inEnd = 5) 
+                               #else 
+                                  #set($inEnd = $wdMaxPageNumber) 
                                 #end
-                              <tbody>
-                           #end
-                            </table> 
-                        </div>
-                        <div class="aui-group aui-group-split count-pagination missing-count">
-                            <div class="aui-item">
-                                <span class="results-count-text">
-                                    <span class="results-count results-count-start">$paging.start</span> –
-                                    <span class="results-count results-count-end">$paging.end</span> of 
-                                    <span class="results-count results-count-total results-count-link">$paging.resultSize</span>
-                                </span>
-                            </div>
-                            <div class="aui-item">
-                              <div class="pagination">
-                                    #set($wdMaxPageNumber = $paging.maxPageNumber)
-                                    
-                                    #if ( $wdMaxPageNumber )
-                                      #set($wdActPageNumber = $paging.actPageNumber)
-                                      #if ( $wdActPageNumber - 2 < 1 )
-                                        #set($inStart = 1)
-                                      #else
-                                        #set($inStart = $wdActPageNumber - 2)
-                                      #end
-                                      #if ( $wdActPageNumber + 2 > $wdMaxPageNumber )
-                                        #set($inEnd = $wdMaxPageNumber)
-                                      #else
-                                        #set($inEnd = $wdActPageNumber + 2)
-                                      #end
-                                      #if ( $wdActPageNumber < 3 )
-                                        #if ($wdMaxPageNumber > 5) 
-                                          #set($inEnd = 5) 
-                                        #else 
-                                          #set($inEnd = $wdMaxPageNumber) 
-                                        #end
-                                      #end
-                                      #if ( $wdActPageNumber + 2 >= $wdMaxPageNumber && $wdMaxPageNumber - 4 > 0 ) 
-                                        #set($inStart = $wdMaxPageNumber - 4)
-                                      #end
-                                      #if ( $wdActPageNumber > 1 )
-                                        #set($pageBack = $page - 1)
-                                    <button id="pageBack" name="pageBack" style="submit" class="missings-paging aui-button aui-button-link">
-                                        <span class="aui-icon aui-icon-small aui-iconfont-arrows-left"></span>
-                                    </button>
-                                      #end
-                                      #foreach ( $page in [$inStart..$inEnd] ) 
-                                        #if ( $wdActPageNumber == $page )
-                                    <strong class="missings-paging-strong">$page</strong>
-                                        #else
-                                    <button id="paging" name="paging" style="submit" value="$page" class="missings-paging aui-button aui-button-link">$page</button>
-                                        #end
-                                      #end
-                                      #if ( $wdActPageNumber < $wdMaxPageNumber )
-                                       #set($pageNext = $page + 1)
-                                    <button id="pageNext" name="pageNext" style="submit" class="missings-paging aui-button aui-button-link">
-                                        <span class="aui-icon aui-icon-small aui-iconfont-arrows-right"></span>
-                                    </button>
-                                      #end
-                                    #end
-                                </div>
-                              </div>
-                          </div>
-                      </div>
-                  </div>
-                  <input type="hidden" id="dateFromFormated" name="dateFromFormated" value="$dateFromFormated" />
-                  <input type="hidden" id="dateToFormated" name="dateToFormated" value="$dateToFormated" />
-                  <input type="hidden" id="actualPage" name="actualPage" value="$actualPage"/>
-                </form>
-              </section>
-            </div>
-          </div>
-	  </div>
+                             #end
+                             #if ( $wdActPageNumber + 2 >= $wdMaxPageNumber && $wdMaxPageNumber - 4 > 0 ) 
+                                #set($inStart = $wdMaxPageNumber - 4)
+                             #end
+                             #if ( $wdActPageNumber > 1 )
+                                #set($pageBack = $page - 1)
+                               <button id="pageBack" name="pageBack" style="submit" class="missings-paging aui-button aui-button-link">
+                                 <span class="aui-icon aui-icon-small aui-iconfont-arrows-left"></span>
+                               </button>
+                             #end
+                             #foreach ( $page in [$inStart..$inEnd] ) 
+                                #if ( $wdActPageNumber == $page )
+                                <strong class="missings-paging-strong">$page</strong>
+                                #else
+                                <button id="paging" name="paging" style="submit" value="$page" class="missings-paging aui-button aui-button-link">$page</button>
+                                #end
+                             #end
+                             #if ( $wdActPageNumber < $wdMaxPageNumber )
+                               #set($pageNext = $page + 1)
+                                <button id="pageNext" name="pageNext" style="submit" class="missings-paging aui-button aui-button-link">
+                                  <span class="aui-icon aui-icon-small aui-iconfont-arrows-right"></span>
+                                </button>
+                             #end
+                         #end
+                         </div>
+                       </div>
+                     </div>
+                   </div>
+                 </div>
+                 <input type="hidden" id="dateFromFormated" name="dateFromFormated" value="$dateFromFormated">
+                 <input type="hidden" id="dateToFormated" name="dateToFormated" value="$dateToFormated" >
+                 <input type="hidden" id="actualPage" name="actualPage" value="$actualPage">
+             </section>
+           </div>
+         </div>
+               </form>
+	  <!-- </div> -->
    <script type="text/javascript" src="$issueCollectorSrc"></script>
-  </div>
+ <!-- </div> -->
   #if($analyticsDTO.analyticsCheck)
 	#parse("templates/common/analytics.vm")
   #end

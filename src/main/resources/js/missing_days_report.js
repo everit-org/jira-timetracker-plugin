@@ -20,8 +20,6 @@ everit.jttp.missing_days_report = everit.jttp.missing_days_report || {};
 
   jQuery(document).ready(function() {
     jttp.setCheckWorkedHours();
-    
-  
   });
   
   jttp.setCheckWorkedHours = function() {
@@ -60,7 +58,21 @@ everit.jttp.missing_days_report = everit.jttp.missing_days_report || {};
       jQuery("#reporting-form").append(noneworkingClone);
     }
   }
-
+  
+  jttp.beforeSubmitMissingsPagingReport = function() {
+    if (jQuery("#hour").is(":checked")) {
+      var hourClone = jQuery("#hour").clone();
+      hourClone.attr("hidden", "hidden");
+      jQuery("#paging-form").append(hourClone);
+    }
+    if (jQuery("#nonworking").is(":checked")) {
+      var noneworkingClone = jQuery("#nonworking").clone();
+      noneworkingClone.attr("hidden", "hidden");
+      jQuery("#paging-form").append(noneworkingClone);
+    }
+    return true;
+  }
+  
   function showErrorMessage(message_key){
     AJS.$('#error_message label').hide();
     var errorMessageLabel = AJS.$('#'+message_key);
