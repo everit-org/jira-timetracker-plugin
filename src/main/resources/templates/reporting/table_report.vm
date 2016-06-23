@@ -44,8 +44,8 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:table_re
 				firstDay : ${firstDay},
 				useISO8601 : ${currentCalendar.useISO8601},
 				hasBrowseUsersPermission: ${hasBrowseUsersPermission},
-				dateFromFormated : '${dateFromFormated}',
-				dateToFormated : '${dateToFormated}'
+				dateFromFormated : ${dateFromFormated},
+				dateToFormated : ${dateToFormated}
 			}
 		);
 	})(everit.jttp.report_common_scripts, AJS.$);
@@ -75,13 +75,12 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:table_re
      </div>
   </header>
 <div id="main-content" class="content rounded">
-	<form name="chartReportForm"  method="get" action="JiraTimetrackerTableWebAction.jspa" />   
 		<div class="inside-content">
-		  	#if(!$message.isEmpty())
-			  	<div id="error_message">
-			 			$i18n.getText($message)
-			  	</div>
-		  	#end
+		  	<div id="error_message"  #if($message.isEmpty()) style="display:none;" #end>
+               <label id="error_message_label" #if($message.isEmpty()) style="display:none;" #end>$i18n.getText($message)</label>
+               <label id="error_message_label_df" style="display:none;">$i18n.getText('plugin.invalid_startTime')</label>
+               <label id="error_message_label_dt" style="display:none;">$i18n.getText('plugin.invalid_endTime')</label>
+            </div>
 			<div id="form_div" class="jttp-calendar">
 				<table>
 					<tbody>
@@ -90,9 +89,9 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:table_re
 								$i18n.getText("plugin.from"): 
 								</td>
 								<td>
-								<input type="text" id="dateFrom" name="dateFrom" tabindex="1" onkeydown="return everit.jttp.report_common_scripts.checkEnter(event);" value="$dateFromFormated"/>
+								<input type="text" id="dateFrom" name="dateFrom" tabindex="1" onkeydown="return everit.jttp.report_common_scripts.checkEnter(event);"/>
 								<img id="date_trigger_from" src="$contextPath/images/icons/cal.gif" width="16" height="16" border="0"
-									alt="Pick a date" style="vertical-align: sub;" title="$i18n.getText('plugin.choose.date')"/>
+									alt="Pick a date" style="vertical-align: sub;" title="$i18n.getText('plugin.choose.date')">
 							</td>
 						</tr>
 						<tr>
@@ -100,9 +99,9 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:table_re
 								$i18n.getText("plugin.to"): 
 								</td>
 								<td>
-								<input type="text" id="dateTo" name="dateTo" tabindex="1" onkeydown="return everit.jttp.report_common_scripts.checkEnter(event);" value="$dateToFormated"/>
+								<input type="text" id="dateTo" name="dateTo" tabindex="1" onkeydown="return everit.jttp.report_common_scripts.checkEnter(event);" />
 								<img id="date_trigger_to" src="$contextPath/images/icons/cal.gif" width="16" height="16" border="0"
-									alt="Pick a date" style="vertical-align: sub;" title="$i18n.getText('plugin.choose.date')"/>
+									alt="Pick a date" style="vertical-align: sub;" title="$i18n.getText('plugin.choose.date')">
 							</td>
 						</tr>
 						<tr>
@@ -126,8 +125,13 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:table_re
 						</tr>
 						<tr>
 							<td>
-								<input id="search"  tabindex="3" type="submit" name="search" value="$i18n.getText('plugin.search')" class="button" 
-								  onclick="return everit.jttp.report_common_scripts.jttpSearchOnClick('Table');"/>
+                              <form name="chartReportForm"  method="get" action="JiraTimetrackerTableWebAction.jspa" onsubmit="return everit.jttp.report_common_scripts.beforeSubmitReport()" />
+                                <input id="search"  tabindex="3" type="submit" name="search" value="$i18n.getText('plugin.search')" class="button" 
+                                    onclick="return everit.jttp.report_common_scripts.jttpSearchOnClick('Table');"/>
+                                <input type="hidden" id="dateFromMil" name="dateFromMil">
+                                <input type="hidden" id="dateToMil" name="dateToMil">
+                                <input type="hidden" id="selectedUser" name="selectedUser">
+                              </form>
 							</td>
 						</tr>
 					</tbody>
@@ -135,7 +139,6 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:table_re
 			</div>
 			#parse("templates/reporting/table_report_list.vm")
 		</div>
-	</form>
 	<div id="feedbackfooter" class="feedback_footer">
 		#parse("templates/feedback/feedback_table.vm")
 	</div>

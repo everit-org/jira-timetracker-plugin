@@ -18,6 +18,7 @@ package org.everit.jira.timetracker.plugin;
 import java.io.IOException;
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -40,6 +41,7 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 import org.everit.jira.analytics.AnalyticsSender;
 import org.everit.jira.analytics.event.AnalyticsStatusChangedEvent;
+import org.everit.jira.reporting.plugin.dto.MissingsWorklogsDTO;
 import org.everit.jira.timetracker.plugin.dto.ActionResult;
 import org.everit.jira.timetracker.plugin.dto.ActionResultStatus;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
@@ -537,10 +539,11 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   }
 
   @Override
-  public List<Date> getDates(final String selectedUser, final Date from, final Date to,
+  public List<MissingsWorklogsDTO> getDates(final String selectedUser, final Date from,
+      final Date to,
       final boolean workingHour, final boolean checkNonWorking)
-          throws GenericEntityException {
-    List<Date> datesWhereNoWorklog = new ArrayList<Date>();
+      throws GenericEntityException {
+    List<MissingsWorklogsDTO> datesWhereNoWorklog = new ArrayList<MissingsWorklogsDTO>();
     Calendar fromDate = Calendar.getInstance();
     fromDate.setTime(from);
     Calendar toDate = Calendar.getInstance();
@@ -560,16 +563,28 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
         continue;
       }
       // check worklog. if no worklog set result else ++ scanedDate
-      boolean isDateContainsWorklog;
+      DecimalFormat decimalFormat = new DecimalFormat("#.#");
+
       if (workingHour) {
-        isDateContainsWorklog = isContainsEnoughWorklog(fromDate.getTime(),
+        double missingsTime = isContainsEnoughWorklog(fromDate.getTime(),
             checkNonWorking);
+        if (missingsTime > 0) {
+          missingsTime = missingsTime / DateTimeConverterUtil.SECONDS_PER_MINUTE
+              / DateTimeConverterUtil.MINUTES_PER_HOUR;
+          // BigDecimal bd =
+          // new BigDecimal(Double.toString(missingsTime)).setScale(2, RoundingMode.HALF_EVEN);
+          // missingsTime = bd.doubleValue();
+          datesWhereNoWorklog
+              .add(new MissingsWorklogsDTO((Date) fromDate.getTime().clone(),
+                  decimalFormat.format(missingsTime)));
+        }
       } else {
-        isDateContainsWorklog = isContainsWorklog(fromDate.getTime());
+        if (!isContainsWorklog(fromDate.getTime())) {
+          datesWhereNoWorklog.add(new MissingsWorklogsDTO((Date) fromDate.getTime().clone(),
+              decimalFormat.format(timeTrackingConfiguration.getHoursPerDay().doubleValue())));
+        }
       }
-      if (!isDateContainsWorklog) {
-        datesWhereNoWorklog.add((Date) fromDate.getTime().clone());
-      }
+
       fromDate.add(Calendar.DATE, 1);
 
     }
@@ -692,7 +707,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   @Override
   public List<EveritWorklog> getWorklogs(final String selectedUser, final Date date,
       final Date finalDate)
-          throws ParseException {
+      throws ParseException {
     Calendar startDate = DateTimeConverterUtil.setDateToDayStart(date);
     Calendar endDate = (Calendar) startDate.clone();
     if (finalDate == null) {
@@ -738,11 +753,11 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
    *          The date what have to check.
    * @param checkNonWorking
    *          Exclude or not the non-working issues.
-   * @return True if the day contains enough worklog or weeked or exclude date.
+   * @return The number of missings hours.
    * @throws GenericEntityException
    *           If GenericEntity Exception.
    */
-  private boolean isContainsEnoughWorklog(final Date date,
+  private double isContainsEnoughWorklog(final Date date,
       final boolean checkNonWorking) throws GenericEntityException {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
@@ -751,12 +766,15 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     Calendar startDate = DateTimeConverterUtil.setDateToDayStart(date);
     Calendar endDate = (Calendar) startDate.clone();
     endDate.add(Calendar.DAY_OF_MONTH, 1);
+    double workHoursPerDay = timeTrackingConfiguration.getHoursPerDay().doubleValue();
+    double expectedTimeSpent = workHoursPerDay * DateTimeConverterUtil.SECONDS_PER_MINUTE
+        * DateTimeConverterUtil.MINUTES_PER_HOUR;
 
     List<EntityCondition> exprList = createWorklogQueryExprList(user, startDate, endDate);
     List<GenericValue> worklogGVList = ComponentAccessor.getOfBizDelegator().findByAnd("Worklog",
         exprList);
     if ((worklogGVList == null) || worklogGVList.isEmpty()) {
-      return false;
+      return expectedTimeSpent;
     }
     if (checkNonWorking) {
       removeNonWorkingIssues(worklogGVList);
@@ -765,10 +783,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     for (GenericValue worklog : worklogGVList) {
       timeSpent += worklog.getLong("timeworked").longValue();
     }
-    double workHoursPerDay = timeTrackingConfiguration.getHoursPerDay().doubleValue();
-    double expectedTimeSpent = workHoursPerDay * DateTimeConverterUtil.SECONDS_PER_MINUTE
-        * DateTimeConverterUtil.MINUTES_PER_HOUR;
-    return timeSpent >= expectedTimeSpent;
+    double missingsTime = expectedTimeSpent - timeSpent;
+    return missingsTime;
   }
 
   /**

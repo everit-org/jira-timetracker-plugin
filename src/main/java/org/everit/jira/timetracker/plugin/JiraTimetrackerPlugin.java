@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.everit.jira.reporting.plugin.dto.MissingsWorklogsDTO;
 import org.everit.jira.timetracker.plugin.dto.ActionResult;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
@@ -115,11 +116,11 @@ public interface JiraTimetrackerPlugin {
    * @param nonWorking
    *          Exclude or not the non-working issues.
    *
-   * @return The list of the dates.
+   * @return The list of the MissingsWorklogsDTO.
    * @throws GenericEntityException
    *           If GenericEntity Exception.
    */
-  List<Date> getDates(String selectedUser, Date from, Date to, boolean workingHours,
+  List<MissingsWorklogsDTO> getDates(String selectedUser, Date from, Date to, boolean workingHours,
       boolean nonWorking) throws GenericEntityException;
 
   /**
