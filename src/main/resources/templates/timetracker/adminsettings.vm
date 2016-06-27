@@ -39,10 +39,110 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 			<table  class="summaty-table">
 				<tbody>
 					<tr>
-						<td class="settings-label-column">
+		              <td style="text-align: right; vertical-align: top;" width="15%">
+		                <strong>$i18n.getText("plugin.setting.plugin.permission")</strong>
+		              </td>
+		              <td class="admin-settings-value-column">
+		                <div id="groupSelect_container"
+		                  class="ajax_autocomplete atlassian-autocomplete aui-ss field-group"
+		                  style="margin-bottom: 35px">
+	                      <select multiple="multiple"
+		                    name="pluginGroupSelect" 
+		                    id="pluginGroupSelect" 
+		                    data-popup-link-message="" 
+		                    data-popup-width="620" 
+		                    data-popup-height="500" 
+		                    data-remove-on-un-select="true" 
+		                    data-ajax-options.query="-" 
+		                    data-ajax-options.url="${req.contextPath}/rest/api/2/groups/picker" 
+		                    data-ajax-options.data.query="-" 
+		                    #if (${action.currentJQL})
+		                      data-ajax-options.data.current_jql=${action.currentJQL}
+		                    #end>
+		                  </select>
+		                  <script>
+		                    var gp = new AJS.MultiSelect({
+		                      element : AJS.$("#pluginGroupSelect"),
+		                      itemAttrDisplayed : "label",
+		                      showDropdownButton : false,
+		                      ajaxOptions : {
+		                        url : "${req.contextPath}/rest/api/2/groups/picker",
+		                        query : true, // keep going back to the sever for each keystroke
+		                        formatResponse : JIRA.GroupPickerUtil.formatResponse
+		                      }
+		                    });
+		                    #if($pluginGroups.size() != 0)
+		                      var list =[];
+		                      #foreach ($pluginGroup in $pluginGroups)
+		                        list.push("$pluginGroup");
+		                      #end
+		                      var groups = jQuery.map(list, function(value) {
+		                        return { value: value, label: value };
+		                      });
+		                      gp._addMultipleItems(groups,true);
+		                    #end
+		                  </script>
+		                 </div>
+		                <div class="description">
+		                  $i18n.getText("plugin.setting.plugin.permission.desc")
+		                </div>
+		              </td>
+		            </tr>
+		            <tr>
+		              <td style="text-align: right; vertical-align: top;" width="15%">
+		                <strong>$i18n.getText("plugin.setting.timetracker.permission")</strong>
+		              </td>
+		              <td class="admin-settings-value-column">
+		                <div id="groupSelect_browse_container"
+		                  class="ajax_autocomplete atlassian-autocomplete aui-ss field-group"
+		                  style="margin-bottom: 35px">
+	                      <select multiple="multiple"
+		                    name="timetrackerGroupSelect" 
+		                    id="timetrackerGroupSelect" 
+		                    data-popup-link-message="" 
+		                    data-popup-width="620" 
+		                    data-popup-height="500" 
+		                    data-remove-on-un-select="true" 
+		                    data-ajax-options.query="-" 
+		                    data-ajax-options.url="${req.contextPath}/rest/api/2/groups/picker" 
+		                    data-ajax-options.data.query="-" 
+		                    #if (${action.currentJQL})
+		                      data-ajax-options.data.current_jql=${action.currentJQL}
+		                    #end>
+		                  </select>
+		                  <script>
+		                    var gp = new AJS.MultiSelect({
+		                      element : AJS.$("#timetrackerGroupSelect"),
+		                      itemAttrDisplayed : "label",
+		                      showDropdownButton : false,
+		                      ajaxOptions : {
+		                        url : "${req.contextPath}/rest/api/2/groups/picker",
+		                        query : true, // keep going back to the sever for each keystroke
+		                        formatResponse : JIRA.GroupPickerUtil.formatResponse
+		                      }
+		                    });
+		                    #if($timetrackerGroups.size() != 0)
+		                      var list =[];
+		                      #foreach ($timetrackerGroup in $timetrackerGroups)
+		                        list.push("$timetrackerGroup");
+		                      #end
+		                      var groups = jQuery.map(list, function(value) {
+		                        return { value: value, label: value };
+		                      });
+		                      gp._addMultipleItems(groups,true);
+		                    #end
+		                  </script>
+		                 </div>
+		                <div class="description">
+		                  $i18n.getText("plugin.setting.timetracker.permission.desc")
+		                </div>
+		              </td>
+		            </tr>
+					<tr>
+						<td class="admin-border settings-label-column">
 							<h3>$i18n.getText("plugin.setting.non.working.issues")</h3>
 						</td>
-						<td class="admin-settings-value-column">
+						<td class="admin-border admin-settings-value-column">
 							<div id="issueSelect_container" class="ajax_autocomplete atlassian-autocomplete aui-ss" >
 								<select class="hidden"
 										multiple="none" 
@@ -170,12 +270,12 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 						</td>		
 					</tr>
 					<tr>
-						<td class="analitics settings-label-column">
+						<td class="admin-border settings-label-column">
 							<div >
 								<h3>$i18n.getText("plugin.settings.analytics")</h3>
 							</div>
 						</td>
-						<td class="analitics admin-settings-value-column">
+						<td class="admin-border admin-settings-value-column">
 							<div class="description" >
 										$i18n.getText("plugin.settings.analytics.help")
 							</div>

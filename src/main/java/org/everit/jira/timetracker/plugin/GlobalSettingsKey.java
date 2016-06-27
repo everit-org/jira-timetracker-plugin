@@ -76,6 +76,11 @@ public final class GlobalSettingsKey {
   public static final String JTTP_PLUGIN_SETTINGS_NON_ESTIMATED_ISSUES = "NonEstimated";
 
   /**
+   * The plugin setting Plugin Permission key.
+   */
+  public static final String JTTP_PLUGIN_SETTINGS_PLUGIN_PERMISSION = "pluginPermission";
+
+  /**
    * The plugin setting is show tutoriak version key.
    */
   public static final String JTTP_PLUGIN_SETTINGS_SHOW_TUTORIAL_VERSION = "showTutorialVersion";
@@ -89,6 +94,11 @@ public final class GlobalSettingsKey {
    * The plugin setting Summary Filters key.
    */
   public static final String JTTP_PLUGIN_SETTINGS_SUMMARY_FILTERS = "SummaryFilters";
+
+  /**
+   * The plugin setting Timetracker Permission key.
+   */
+  public static final String JTTP_PLUGIN_SETTINGS_TIMETRACKER_PERMISSION = "timetrackerPermission";
 
   /**
    * The plugin setting is show tutorila key.

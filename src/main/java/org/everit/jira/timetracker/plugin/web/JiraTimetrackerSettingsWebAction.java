@@ -15,6 +15,7 @@
  */
 package org.everit.jira.timetracker.plugin.web;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -125,6 +126,12 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 
   private TimetrackerCondition timetrackingCondition;
 
+  /**
+   * Simpe consturctor.
+   *
+   * @param jiraTimetrackerPlugin
+   *          The jiraTimetrackerPlugin.
+   */
   public JiraTimetrackerSettingsWebAction(
       final JiraTimetrackerPlugin jiraTimetrackerPlugin) {
     this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
@@ -315,6 +322,12 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     return null;
   }
 
+  private void readObject(final java.io.ObjectInputStream stream) throws IOException,
+      ClassNotFoundException {
+    stream.close();
+    throw new java.io.NotSerializableException(getClass().getName());
+  }
+
   /**
    * Save the plugin settings.
    */
@@ -369,6 +382,11 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 
   public void setStartTime(final String startTime) {
     this.startTime = startTime;
+  }
+
+  private void writeObject(final java.io.ObjectOutputStream stream) throws IOException {
+    stream.close();
+    throw new java.io.NotSerializableException(getClass().getName());
   }
 
 }
