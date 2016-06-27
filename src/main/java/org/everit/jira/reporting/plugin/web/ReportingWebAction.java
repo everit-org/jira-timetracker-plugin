@@ -46,6 +46,8 @@ import org.everit.jira.reporting.plugin.util.ConverterUtil;
 import org.everit.jira.reporting.plugin.util.PermissionUtil;
 import org.everit.jira.timetracker.plugin.DurationFormatter;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
+import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
+import org.everit.jira.timetracker.plugin.PluginCondition;
 import org.everit.jira.timetracker.plugin.UserReportingSettingsHelper;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
@@ -141,6 +143,8 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   private int pageSizeLimit;
 
+  private PluginCondition pluginCondition;
+
   private ProjectSummaryReportDTO projectSummaryReport = new ProjectSummaryReportDTO();
 
   private ReportingCondition reportingCondition;
@@ -167,15 +171,34 @@ public class ReportingWebAction extends JiraWebActionSupport {
    * Simple constructor.
    */
   public ReportingWebAction(final ReportingPlugin reportingPlugin,
-      final PluginSettingsFactory settingsFactory, final AnalyticsSender analyticsSender) {
+      final JiraTimetrackerPlugin timetrackerPlugin, final PluginSettingsFactory settingsFactory,
+      final AnalyticsSender analyticsSender) {
     this.reportingPlugin = reportingPlugin;
     reportingCondition = new ReportingCondition(this.reportingPlugin);
     gson = new Gson();
+    pluginCondition = new PluginCondition(timetrackerPlugin);
     issueRenderContext = new IssueRenderContext(null);
     RendererManager rendererManager = ComponentAccessor.getRendererManager();
     atlassianWikiRenderer = rendererManager.getRendererForType("atlassian-wiki-renderer");
     this.settingsFactory = settingsFactory;
     this.analyticsSender = analyticsSender;
+  }
+
+  private String checkConditions() {
+    boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
+    if (!isUserLogged) {
+      setReturnUrl(JIRA_HOME_URL);
+      return getRedirect(NONE);
+    }
+    if (!reportingCondition.shouldDisplay(getLoggedInApplicationUser(), null)) {
+      setReturnUrl(JIRA_HOME_URL);
+      return getRedirect(NONE);
+    }
+    if (!pluginCondition.shouldDisplay(getLoggedInApplicationUser(), null)) {
+      setReturnUrl(JIRA_HOME_URL);
+      return getRedirect(NONE);
+    }
+    return null;
   }
 
   private String createReport(final String selectedMoreJson, final String selectedActiveTab,
@@ -239,14 +262,9 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   @Override
   public String doDefault() throws ParseException {
-    boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
-    if (!isUserLogged) {
-      setReturnUrl(JIRA_HOME_URL);
-      return getRedirect(NONE);
-    }
-    if (!reportingCondition.shouldDisplay(getLoggedInApplicationUser(), null)) {
-      setReturnUrl(JIRA_HOME_URL);
-      return getRedirect(NONE);
+    String checkConditionsResult = checkConditions();
+    if (checkConditionsResult != null) {
+      return checkConditionsResult;
     }
 
     loadFavoriteFilters();
@@ -269,14 +287,9 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   @Override
   public String doExecute() throws ParseException {
-    boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
-    if (!isUserLogged) {
-      setReturnUrl(JIRA_HOME_URL);
-      return getRedirect(NONE);
-    }
-    if (!reportingCondition.shouldDisplay(getLoggedInApplicationUser(), null)) {
-      setReturnUrl(JIRA_HOME_URL);
-      return getRedirect(NONE);
+    String checkConditionsResult = checkConditions();
+    if (checkConditionsResult != null) {
+      return checkConditionsResult;
     }
 
     normalizeContextPath();

@@ -37,6 +37,7 @@ import org.everit.jira.reporting.plugin.ReportingPlugin;
 import org.everit.jira.reporting.plugin.util.PermissionUtil;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
+import org.everit.jira.timetracker.plugin.PluginCondition;
 import org.everit.jira.timetracker.plugin.dto.ChartData;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.dto.TimetrackerReportsSessionData;
@@ -138,6 +139,8 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
    */
   private String message = "";
 
+  private PluginCondition pluginCondition;
+
   private final PluginSettingsFactory pluginSettingsFactory;
 
   private ReportingCondition reportingCondition;
@@ -162,10 +165,10 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     this.reportingPlugin = reportingPlugin;
     reportingCondition = new ReportingCondition(this.reportingPlugin);
     this.pluginSettingsFactory = pluginSettingsFactory;
+    pluginCondition = new PluginCondition(jiraTimetrackerPlugin);
   }
 
-  @Override
-  public String doDefault() throws ParseException {
+  private String checkConditions() {
     boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
     if (!isUserLogged) {
       setReturnUrl(JIRA_HOME_URL);
@@ -175,7 +178,19 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
       setReturnUrl(JIRA_HOME_URL);
       return getRedirect(NONE);
     }
+    if (!pluginCondition.shouldDisplay(getLoggedInApplicationUser(), null)) {
+      setReturnUrl(JIRA_HOME_URL);
+      return getRedirect(NONE);
+    }
+    return null;
+  }
 
+  @Override
+  public String doDefault() throws ParseException {
+    String checkConditionsResult = checkConditions();
+    if (checkConditionsResult != null) {
+      return checkConditionsResult;
+    }
     normalizeContextPath();
     loadIssueCollectorSrc();
 
@@ -200,14 +215,9 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
   @Override
   public String doExecute() throws ParseException, GenericEntityException {
-    boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
-    if (!isUserLogged) {
-      setReturnUrl(JIRA_HOME_URL);
-      return getRedirect(NONE);
-    }
-    if (!reportingCondition.shouldDisplay(getLoggedInApplicationUser(), null)) {
-      setReturnUrl(JIRA_HOME_URL);
-      return getRedirect(NONE);
+    String checkConditionsResult = checkConditions();
+    if (checkConditionsResult != null) {
+      return checkConditionsResult;
     }
 
     normalizeContextPath();

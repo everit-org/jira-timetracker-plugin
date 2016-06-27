@@ -50,6 +50,7 @@
     <label>Timetracker</label>
     <link linkId="jttp_menu"></link>
     <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserLoggedInCondition" />
+    <condition class="org.everit.jira.timetracker.plugin.PluginCondition" />
   </web-item>
   
   <web-section key="jttp_section" location="jttp_menu"></web-section>
@@ -60,6 +61,7 @@
     <label>Timetracker</label>
     <link linkId="my_jttp_link"><![CDATA[/secure/JiraTimetrackerWebAction!default.jspa]]></link>
     <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserLoggedInCondition" />
+    <condition class="org.everit.jira.timetracker.plugin.TimetrackerCondition" />
   </web-item>
   
   <web-item key="jttp_report_link" name="JTTP Report Link" section="jttp_menu/jttp_reporting_section" weight="47">
