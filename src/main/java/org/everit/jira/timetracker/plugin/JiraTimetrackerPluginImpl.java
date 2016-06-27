@@ -200,6 +200,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
 
   private Map<String, String> piwikPorpeties;
 
+  private List<String> pluginGroups;
+
   /**
    * The plugin setting form the settingsFactory.
    */
@@ -226,6 +228,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
    * The PluginSettingsFactory.
    */
   private final PluginSettingsFactory settingsFactory;
+
+  private List<String> timetrackerGroups;
 
   /**
    * Time tracking configuration.
@@ -865,6 +869,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     setCollectorIssuePatterns();
     setExcludeDates();
     setIncludeDates();
+    setTimetrackerGroups();
+    setPluginGroups();
     analyticsCheckValue = JiraTimetrackerAnalytics.getAnalyticsCheck(globalSettings);
     setPluginUUID();
 
@@ -906,7 +912,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
         .includeDates(includeDatesString).coloring(isColoring)
         .filteredSummaryIssues(nonWorkingIssuePatterns).collectorIssues(collectorIssuePatterns)
         .startTimeChange(startTimeChange).endTimeChange(endTimeChange)
-        .analyticsCheck(analyticsCheckValue).pluginUUID(pluginUUID);
+        .analyticsCheck(analyticsCheckValue).pluginUUID(pluginUUID)
+        .pluginGroups(pluginGroups).timetrackingGroups(timetrackerGroups);
     return pluginSettingsValues;
   }
 
@@ -972,6 +979,13 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     globalSettings.put(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
         + GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_INCLUDE_DATES,
         pluginSettingsParameters.includeDates);
+
+    globalSettings.put(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+        + GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_PLUGIN_PERMISSION,
+        pluginSettingsParameters.pluginGroups);
+    globalSettings.put(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+        + GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_TIMETRACKER_PERMISSION,
+        pluginSettingsParameters.timetrackingGroups);
 
     Object analyticsCheckObj = globalSettings.get(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
         + GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_ANALYTICS_CHECK_CHANGE);
@@ -1083,8 +1097,28 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     }
   }
 
+  private void setPluginGroups() {
+    List<String> pluginGroupsNames = (List<String>) globalSettings
+        .get(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+            + GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_PLUGIN_PERMISSION);
+    pluginGroups = new ArrayList<String>();
+    if (pluginGroupsNames != null) {
+      pluginGroups = pluginGroupsNames;
+    }
+  }
+
   private void setPluginUUID() {
     pluginUUID = JiraTimetrackerAnalytics.getPluginUUID(globalSettings);
+  }
+
+  private void setTimetrackerGroups() {
+    List<String> timetrackerGroupsNames = (List<String>) globalSettings
+        .get(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+            + GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_TIMETRACKER_PERMISSION);
+    timetrackerGroups = new ArrayList<String>();
+    if (timetrackerGroupsNames != null) {
+      timetrackerGroups = timetrackerGroupsNames;
+    }
   }
 
   @Override

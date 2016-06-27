@@ -32,6 +32,8 @@ import org.everit.jira.analytics.AnalyticsDTO;
 import org.everit.jira.timetracker.plugin.DurationFormatter;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
+import org.everit.jira.timetracker.plugin.PluginCondition;
+import org.everit.jira.timetracker.plugin.TimetrackerCondition;
 import org.everit.jira.timetracker.plugin.dto.ActionResult;
 import org.everit.jira.timetracker.plugin.dto.ActionResultStatus;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
@@ -258,6 +260,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    */
   private String monthSummary = "";
 
+  private PluginCondition pluginCondition;
+
   private final PluginSettingsFactory pluginSettingsFactory;
 
   /**
@@ -288,6 +292,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The spent time in Jira time format (1h 20m).
    */
   private String timeSpent = "";
+
+  private TimetrackerCondition timetrackingCondition;
 
   private transient ApplicationUser userPickerObject;
 
@@ -324,6 +330,25 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       final PluginSettingsFactory pluginSettingsFactory) {
     this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
     this.pluginSettingsFactory = pluginSettingsFactory;
+    timetrackingCondition = new TimetrackerCondition(jiraTimetrackerPlugin);
+    pluginCondition = new PluginCondition(jiraTimetrackerPlugin);
+  }
+
+  private String checkConditions() {
+    boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
+    if (!isUserLogged) {
+      setReturnUrl(JIRA_HOME_URL);
+      return getRedirect(NONE);
+    }
+    if (!timetrackingCondition.shouldDisplay(getLoggedInApplicationUser(), null)) {
+      setReturnUrl(JIRA_HOME_URL);
+      return getRedirect(NONE);
+    }
+    if (!pluginCondition.shouldDisplay(getLoggedInApplicationUser(), null)) {
+      setReturnUrl(JIRA_HOME_URL);
+      return getRedirect(NONE);
+    }
+    return null;
   }
 
   private void checkMailServer() {
@@ -439,10 +464,9 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   @Override
   public String doDefault() throws ParseException {
-    boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
-    if (!isUserLogged) {
-      setReturnUrl(JIRA_HOME_URL);
-      return getRedirect(NONE);
+    String checkConditionsResult = checkConditions();
+    if (checkConditionsResult != null) {
+      return checkConditionsResult;
     }
 
     analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(pluginSettingsFactory,
@@ -505,10 +529,9 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   @Override
   public String doExecute() throws ParseException {
-    boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
-    if (!isUserLogged) {
-      setReturnUrl(JIRA_HOME_URL);
-      return getRedirect(NONE);
+    String checkConditionsResult = checkConditions();
+    if (checkConditionsResult != null) {
+      return checkConditionsResult;
     }
 
     analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(pluginSettingsFactory,

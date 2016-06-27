@@ -21,6 +21,10 @@ import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.everit.jira.reporting.plugin.ReportingCondition;
+import org.everit.jira.reporting.plugin.ReportingPlugin;
+import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
+import org.everit.jira.timetracker.plugin.PluginCondition;
 import org.everit.jira.timetracker.plugin.UserReportingSettingsHelper;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
@@ -61,20 +65,53 @@ public class ReportingUserSettingsWebAction extends JiraWebActionSupport {
 
   private int pageSize;
 
+  private PluginCondition pluginCondition;
+
+  private ReportingCondition reportingCondition;
+
   private PluginSettingsFactory settingsFactory;
 
   private boolean userPopupVisible;
 
-  public ReportingUserSettingsWebAction(final PluginSettingsFactory settingsFactory) {
+  /**
+   * ReportingUserSettingsWebAction constructor.
+   *
+   * @param settingsFactory
+   *          Jira plugin settings factory.
+   * @param reportingPlugin
+   *          Reporting plugin.
+   * @param timetrackerPlugin
+   *          Timetarcker plugin.
+   */
+  public ReportingUserSettingsWebAction(final PluginSettingsFactory settingsFactory,
+      final ReportingPlugin reportingPlugin, final JiraTimetrackerPlugin timetrackerPlugin) {
     this.settingsFactory = settingsFactory;
+    reportingCondition = new ReportingCondition(reportingPlugin);
+    pluginCondition = new PluginCondition(timetrackerPlugin);
   }
 
-  @Override
-  public String doDefault() throws ParseException {
+  private String checkConditions() {
     boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
     if (!isUserLogged) {
       setReturnUrl(JIRA_HOME_URL);
       return getRedirect(NONE);
+    }
+    if (!reportingCondition.shouldDisplay(getLoggedInApplicationUser(), null)) {
+      setReturnUrl(JIRA_HOME_URL);
+      return getRedirect(NONE);
+    }
+    if (!pluginCondition.shouldDisplay(getLoggedInApplicationUser(), null)) {
+      setReturnUrl(JIRA_HOME_URL);
+      return getRedirect(NONE);
+    }
+    return null;
+  }
+
+  @Override
+  public String doDefault() throws ParseException {
+    String checkConditionsResult = checkConditions();
+    if (checkConditionsResult != null) {
+      return checkConditionsResult;
     }
     normalizeContextPath();
     loadIssueCollectorSrc();
@@ -85,10 +122,9 @@ public class ReportingUserSettingsWebAction extends JiraWebActionSupport {
 
   @Override
   public String doExecute() throws ParseException {
-    boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
-    if (!isUserLogged) {
-      setReturnUrl(JIRA_HOME_URL);
-      return getRedirect(NONE);
+    String checkConditionsResult = checkConditions();
+    if (checkConditionsResult != null) {
+      return checkConditionsResult;
     }
     normalizeContextPath();
     loadIssueCollectorSrc();

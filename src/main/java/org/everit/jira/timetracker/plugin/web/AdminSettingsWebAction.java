@@ -17,6 +17,7 @@ package org.everit.jira.timetracker.plugin.web;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -52,6 +53,7 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    * Serial version UID.
    */
   private static final long serialVersionUID = 1L;
+
   /**
    * Check if the analytics is disable or enable.
    */
@@ -66,10 +68,12 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    * The collector issue ids.
    */
   private List<Pattern> collectorIssuePatterns;
+
   /**
    * The first day of the week.
    */
   private String contextPath;
+
   /**
    * The pluginSetting endTime value.
    */
@@ -81,43 +85,52 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
   private String excludeDates = "";
 
   private boolean feedBackSendAviable;
+
   /**
    * The include dates in String format.
    */
   private String includeDates = "";
+
   /**
    * The calenar show the actualDate or the last unfilled date.
    */
   private boolean isActualDate;
+
   /**
    * The pluginSetting isColoring value.
    */
   private boolean isColoring;
+
   /**
    * The calendar is popup, inLine or both.
    */
   private int isPopup;
+
   /**
    * The issue key.
    */
   private String issueKey = "";
+
   /**
    * The filtered Issues id.
    */
   private List<Pattern> issuesPatterns;
+
   /**
    * The {@link JiraTimetrackerPlugin}.
    */
-
   private JiraTimetrackerPlugin jiraTimetrackerPlugin;
+
   /**
    * The message.
    */
   private String message = "";
+
   /**
    * The settings page message parameter.
    */
   private String messageExclude = "";
+
   /**
    * The settings page message parameter.
    */
@@ -133,6 +146,8 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    */
   private String messageParameterInclude = "";
 
+  private List<String> pluginGroups;
+
   /**
    * The IDs of the projects.
    */
@@ -142,6 +157,8 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    * The pluginSetting startTime value.
    */
   private int startTime;
+
+  private List<String> timetrackerGroups;
 
   public AdminSettingsWebAction(
       final JiraTimetrackerPlugin jiraTimetrackerPlugin) {
@@ -257,8 +274,16 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     return messageParameterInclude;
   }
 
+  public List<String> getPluginGroups() {
+    return pluginGroups;
+  }
+
   public List<String> getProjectsId() {
     return projectsId;
+  }
+
+  public List<String> getTimetrackerGroups() {
+    return timetrackerGroups;
   }
 
   /**
@@ -283,6 +308,8 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     excludeDates = pluginSettingsValues.excludeDates;
     includeDates = pluginSettingsValues.includeDates;
     analyticsCheck = pluginSettingsValues.analyticsCheck;
+    pluginGroups = pluginSettingsValues.pluginGroups;
+    timetrackerGroups = pluginSettingsValues.timetrackingGroups;
   }
 
   private void normalizeContextPath() {
@@ -377,6 +404,14 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     return parseIncludeDateException;
   }
 
+  private void parsePluginGroups(final String[] pluginGroupsvalue) {
+    if (pluginGroupsvalue == null) {
+      pluginGroups = new ArrayList<String>();
+    } else {
+      pluginGroups = Arrays.asList(pluginGroupsvalue);
+    }
+  }
+
   /**
    * Parse the request after the save button was clicked. Set the variables.
    *
@@ -389,6 +424,10 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     String excludeDatesValue = request.getParameter("excludedates");
     String includeDatesValue = request.getParameter("includedates");
     String analyticsCheckValue = request.getParameter("analyticsCheck");
+    String[] pluginGroupsvalue = request.getParameterValues("pluginGroupSelect");
+    String[] timetrackerGroupsValue = request.getParameterValues("timetrackerGroupSelect");
+    parsePluginGroups(pluginGroupsvalue);
+    parseTimetrackerGroups(timetrackerGroupsValue);
 
     if ((analyticsCheckValue != null) && "enable".equals(analyticsCheckValue)) {
       analyticsCheck = true;
@@ -420,6 +459,14 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     return null;
   }
 
+  private void parseTimetrackerGroups(final String[] timetrackerGroupsValue) {
+    if (timetrackerGroupsValue == null) {
+      timetrackerGroups = new ArrayList<String>();
+    } else {
+      timetrackerGroups = Arrays.asList(timetrackerGroupsValue);
+    }
+  }
+
   /**
    * Save the plugin settings.
    */
@@ -428,7 +475,8 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
         .isCalendarPopup(isPopup).actualDate(isActualDate).excludeDates(excludeDates)
         .includeDates(includeDates).coloring(isColoring).filteredSummaryIssues(issuesPatterns)
         .collectorIssues(collectorIssuePatterns).startTimeChange(startTime).endTimeChange(endTime)
-        .analyticsCheck(analyticsCheck);
+        .analyticsCheck(analyticsCheck).pluginGroups(pluginGroups)
+        .timetrackingGroups(timetrackerGroups);
 
     jiraTimetrackerPlugin.savePluginSettings(pluginSettingValues);
   }
@@ -481,7 +529,15 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     this.messageParameterInclude = messageParameterInclude;
   }
 
+  public void setPluginGroups(final List<String> pluginGroups) {
+    this.pluginGroups = pluginGroups;
+  }
+
   public void setProjectsId(final List<String> projectsId) {
     this.projectsId = projectsId;
+  }
+
+  public void setTimetrackerGroups(final List<String> timetrackerGroups) {
+    this.timetrackerGroups = timetrackerGroups;
   }
 }

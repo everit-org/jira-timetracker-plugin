@@ -74,6 +74,11 @@ public class PluginSettingsValues implements Serializable {
   public Boolean isColoring;
 
   /**
+   * The plugin groups.
+   */
+  public List<String> pluginGroups;
+
+  /**
    * The plugin UUID.
    */
   public String pluginUUID;
@@ -82,6 +87,11 @@ public class PluginSettingsValues implements Serializable {
    * Start time rounding value change.
    */
   public int startTimeChange;
+
+  /**
+   * The timetarckning groups.
+   */
+  public List<String> timetrackingGroups;
 
   public PluginSettingsValues() {
   }
@@ -137,6 +147,11 @@ public class PluginSettingsValues implements Serializable {
     return this;
   }
 
+  public PluginSettingsValues pluginGroups(final List<String> pluginGroups) {
+    this.pluginGroups = pluginGroups;
+    return this;
+  }
+
   public PluginSettingsValues pluginUUID(final String pluginUUID) {
     this.pluginUUID = pluginUUID;
     return this;
@@ -144,6 +159,11 @@ public class PluginSettingsValues implements Serializable {
 
   public PluginSettingsValues startTimeChange(final int startTimeChange) {
     this.startTimeChange = startTimeChange;
+    return this;
+  }
+
+  public PluginSettingsValues timetrackingGroups(final List<String> timetrackingGroups) {
+    this.timetrackingGroups = timetrackingGroups;
     return this;
   }
 
