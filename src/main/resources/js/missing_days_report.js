@@ -58,7 +58,7 @@ everit.jttp.missing_days_report = everit.jttp.missing_days_report || {};
       jQuery("#reporting-form").append(noneworkingClone);
     }
   }
-  
+
   jttp.beforeSubmitMissingsPagingReport = function() {
     if (jQuery("#hour").is(":checked")) {
       var hourClone = jQuery("#hour").clone();

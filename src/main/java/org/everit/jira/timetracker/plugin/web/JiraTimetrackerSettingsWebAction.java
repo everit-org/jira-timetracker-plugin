@@ -15,6 +15,7 @@
  */
 package org.everit.jira.timetracker.plugin.web;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -23,6 +24,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
+import org.everit.jira.timetracker.plugin.PluginCondition;
+import org.everit.jira.timetracker.plugin.TimetrackerCondition;
 import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 
@@ -34,55 +37,66 @@ import com.atlassian.jira.web.action.JiraWebActionSupport;
 public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
+
   /**
    * Logger.
    */
-  private static final Logger LOGGER = Logger
-      .getLogger(JiraTimetrackerSettingsWebAction.class);
+  private static final Logger LOGGER = Logger.getLogger(JiraTimetrackerSettingsWebAction.class);
+
   /**
    * Serial version UID.
    */
   private static final long serialVersionUID = 1L;
 
   private boolean analyticsCheck;
+
   /**
    * The collector issue ids.
    */
   private List<Pattern> collectorIssuePatterns;
 
   private String contextPath;
+
   /**
    * The endTime.
    */
   private String endTime;
+
   /**
    * The exclude dates in String format.
    */
   private String excludeDates = "";
+
   /**
    * The first day of the week.
    */
   private int fdow;
+
   /**
    * The include dates in String format.
    */
   private String includeDates = "";
+
   /**
    * The calenar show the actualDate or the last unfilled date.
    */
   private boolean isActualDate;
+
   /**
    * The calendar highlights coloring.
    */
   private boolean isColoring;
+
   /**
    * The calendar is popup, inLine or both.
    */
   private int isPopup;
+
   /**
    * The filtered Issues id.
    */
   private List<Pattern> issuesPatterns;
+
   /**
    * The {@link JiraTimetrackerPlugin}.
    */
@@ -98,6 +112,8 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
    */
   private String messageParameter = "";
 
+  private PluginCondition pluginCondition;
+
   /**
    * The IDs of the projects.
    */
@@ -108,17 +124,43 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
    */
   private String startTime;
 
+  private TimetrackerCondition timetrackingCondition;
+
+  /**
+   * Simpe consturctor.
+   *
+   * @param jiraTimetrackerPlugin
+   *          The jiraTimetrackerPlugin.
+   */
   public JiraTimetrackerSettingsWebAction(
       final JiraTimetrackerPlugin jiraTimetrackerPlugin) {
     this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
+    timetrackingCondition = new TimetrackerCondition(jiraTimetrackerPlugin);
+    pluginCondition = new PluginCondition(jiraTimetrackerPlugin);
   }
 
-  @Override
-  public String doDefault() throws ParseException {
+  private String checkConditions() {
     boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
     if (!isUserLogged) {
       setReturnUrl(JIRA_HOME_URL);
       return getRedirect(NONE);
+    }
+    if (!timetrackingCondition.shouldDisplay(getLoggedInApplicationUser(), null)) {
+      setReturnUrl(JIRA_HOME_URL);
+      return getRedirect(NONE);
+    }
+    if (!pluginCondition.shouldDisplay(getLoggedInApplicationUser(), null)) {
+      setReturnUrl(JIRA_HOME_URL);
+      return getRedirect(NONE);
+    }
+    return null;
+  }
+
+  @Override
+  public String doDefault() throws ParseException {
+    String checkConditionsResult = checkConditions();
+    if (checkConditionsResult != null) {
+      return checkConditionsResult;
     }
     normalizeContextPath();
     loadPluginSettingAndParseResult();
@@ -133,10 +175,9 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 
   @Override
   public String doExecute() throws ParseException {
-    boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
-    if (!isUserLogged) {
-      setReturnUrl(JIRA_HOME_URL);
-      return getRedirect(NONE);
+    String checkConditionsResult = checkConditions();
+    if (checkConditionsResult != null) {
+      return checkConditionsResult;
     }
     normalizeContextPath();
     loadPluginSettingAndParseResult();
@@ -281,6 +322,12 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     return null;
   }
 
+  private void readObject(final java.io.ObjectInputStream stream) throws IOException,
+      ClassNotFoundException {
+    stream.close();
+    throw new java.io.NotSerializableException(getClass().getName());
+  }
+
   /**
    * Save the plugin settings.
    */
@@ -335,6 +382,11 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 
   public void setStartTime(final String startTime) {
     this.startTime = startTime;
+  }
+
+  private void writeObject(final java.io.ObjectOutputStream stream) throws IOException {
+    stream.close();
+    throw new java.io.NotSerializableException(getClass().getName());
   }
 
 }
