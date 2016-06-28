@@ -70,7 +70,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
                     $worklog.duration
                   </td>
                   <td>
-                    $worklog.body
+                    $atlassianWikiRenderer.render($worklog.body, $issueRenderContext)
                   </td>
                   <td>
                     <input id="hiddenWorklogId" type="hidden" value="$worklog.worklogId" >

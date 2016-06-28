@@ -225,41 +225,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 
             <section class="aui-page-panel-content" id="jttp-worklog-summary">
               <!-- Summary -->
-              <div class="module toggle-wrap expanded">
-                <div class="mod-header">
-                  <h2 class="class=" toggle-title>Summary</h2>
-                </div>
-                <div class="mod-content">
-                  <table id="jttp-worklog-summary-table" class="aui">
-                    <thead>
-                      <tr>
-                        <th id="jttp-worklog-summary-type"></th>
-                        <th id="jttp-worklog-summary-day">Day</th>
-                        <th id="jttp-worklog-summary-week">Week</th>
-                        <th id="jttp-worklog-summary-month">Month</th>
-                      </tr>
-                    </thead>
-                    </tbody>
-                    <tr id="jttp-worklog-table-summary-total">
-                      <td>
-                        <p class="jttp-row-header">Total</p>
-                      </td>
-                      <td>4h 10m</td>
-                      <td>2d 1h 30m</td>
-                      <td>3w 4h</td>
-                    </tr>
-                    <tr id="jttp-worklog-table-summary-real">
-                      <td>
-                        <p class="jttp-row-header">Real Work</p>
-                      </td>
-                      <td>3h 30m</td>
-                      <td>2d</td>
-                      <td>2w 4d 5h 10m</td>
-                    </tr>
-                    </tfoot>
-                  </table>
-                </div>
-              </div>
+              #parse("templates/timetracker/summary.vm")
             </section>
 
           </div>

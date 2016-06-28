@@ -41,6 +41,7 @@ public class EveritWorklog implements Serializable {
    * Serial version UID.
    */
   private static final long serialVersionUID = 1L;
+
   /**
    * The worklog note.
    */
@@ -71,10 +72,13 @@ public class EveritWorklog implements Serializable {
    * The issue estimated time is 0 or not.
    */
   private boolean isMoreEstimatedTime;
+
   /**
    * The worklog Issue key.
    */
   private String issue;
+
+  private Long issueAvatarId;
 
   /**
    * The worklog issue ID.
@@ -90,6 +94,10 @@ public class EveritWorklog implements Serializable {
    * The worklog Issue Summary.
    */
   private String issueSummary;
+
+  private String issueTypeIconUrl;
+
+  private String issueTypeName;
 
   /**
    * The milliseconds between the start time and the end time.
@@ -148,6 +156,9 @@ public class EveritWorklog implements Serializable {
         .equals(issueObject.getStatusObject().getSimpleStatus().getStatusCategory().getKey())) {
       isClosed = true;
     }
+    issueTypeName = issueObject.getIssueTypeObject().getName();
+    issueAvatarId = issueObject.getIssueTypeObject().getAvatar().getId();
+    issueTypeIconUrl = issueObject.getIssueTypeObject().getIconUrl();
     if (issueObject.getParentObject() != null) {
       issueParent = issueObject.getParentObject().getKey();
     }
@@ -205,6 +216,9 @@ public class EveritWorklog implements Serializable {
     MutableIssue issueObject = issueManager.getIssueObject(issueId);
     issue = issueObject.getKey();
     issueSummary = issueObject.getSummary();
+    issueTypeName = issueObject.getIssueTypeObject().getName();
+    issueAvatarId = issueObject.getIssueTypeObject().getAvatar().getId();
+    issueTypeIconUrl = issueObject.getIssueTypeObject().getIconUrl();
     if (StatusCategory.COMPLETE
         .equals(issueObject.getStatusObject().getSimpleStatus().getStatusCategory().getKey())) {
       isClosed = true;
@@ -304,12 +318,24 @@ public class EveritWorklog implements Serializable {
     return issue;
   }
 
+  public Long getIssueAvatarId() {
+    return issueAvatarId;
+  }
+
   public String getIssueParent() {
     return issueParent;
   }
 
   public String getIssueSummary() {
     return issueSummary;
+  }
+
+  public String getIssueTypeIconUrl() {
+    return issueTypeIconUrl;
+  }
+
+  public String getIssueTypeName() {
+    return issueTypeName;
   }
 
   public long getMilliseconds() {
@@ -372,12 +398,24 @@ public class EveritWorklog implements Serializable {
     this.issue = issue;
   }
 
+  public void setIssueAvatarId(final Long issueAvatarId) {
+    this.issueAvatarId = issueAvatarId;
+  }
+
   public void setIssueParent(final String issueParent) {
     this.issueParent = issueParent;
   }
 
   public void setIssueSummary(final String issueSummary) {
     this.issueSummary = issueSummary;
+  }
+
+  public void setIssueTypeIconUrl(final String issueTypeIconUrl) {
+    this.issueTypeIconUrl = issueTypeIconUrl;
+  }
+
+  public void setIssueTypeName(final String issueTypeName) {
+    this.issueTypeName = issueTypeName;
   }
 
   public void setMilliseconds(final long milliseconds) {

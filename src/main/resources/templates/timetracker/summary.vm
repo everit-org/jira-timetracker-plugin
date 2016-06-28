@@ -14,70 +14,40 @@
  * limitations under the License.
  *#
 
-<table id="summary_table" class="summaty-table">
-    <tr>
-        <td rowspan="2" >
-            <input type="text" id="date" name="date" style="display: none" value="$dateFormatted" onchange="this.form.datesubmit.click()" />
-            <input type="submit" id="datesubmit" name="datesubmit" class="spaced" style="display: none"/>
-            <div id="calendar_div" class="jttp-calendar">
-                #if($isPopup != 2)
-                    <input type="submit" id="monthBack"  name="monthBack" value="<<<" class="button" title="$i18n.getText('plugin.prev.month')"/>
-                    <input type="submit" id="weekBack"  name="weekBack" value="<<" class="button"    title="$i18n.getText('plugin.prev.week')"/>
-                    <input type="submit" id="dayBack"  name="dayBack" value="<" class="button"  title="$i18n.getText('plugin.prev.day')"/>
-                    $dateFormatted
-                    <img id="date_trigger" src="$contextPath/images/icons/cal.gif" width="16" height="16" border="0"
-                        alt="Pick a date" class="jttp-calendar-img" title="$i18n.getText('plugin.choose.date')"/>
-                    <input type="submit" id="dayNext"    name="dayNext" value=">"    class="button" title="$i18n.getText('plugin.next.day')"/>
-                    <input type="submit" id="weekNext"    name="weekNext" value=">>"    class="button" title="$i18n.getText('plugin.next.week')"/>
-                    <input type="submit" id="monthNext"    name="monthNext" value=">>>" class="button" title="$i18n.getText('plugin.next.month')"/>
-                #end
-            </div>
-        </td>
-        <td align="right" class="summaty-table-summary-column">
-            $i18n.getText("plugin.summary")
-        </td>
-        <td align="right">
-             $i18n.getText("plugin.day")
-        </td>
-        <td align="left">
-            ($daySummary)
-        </td>
-        <td align="right">
-            $i18n.getText("plugin.week")
-        </td>
-        <td align="left">
-            ($weekSummary)
-        </td>
-        <td align="right">
-            $i18n.getText("plugin.month")
-        </td>
-        <td align="left">
-            ($monthSummary)
-        </td>
-    </tr>
-    <tr>
-        <td align="right" class="summaty-table-summary-column">
-            #if($issuesRegex.size() != 0)
-                    $i18n.getText("plugin.real.work") $i18n.getText("plugin.summary")
-                </td>
-                <td align="right">
-                    $i18n.getText("plugin.day")
-                </td>
-                <td align="left">
-                    ($dayFilteredSummary)
-                </td>
-                <td align="right">
-                    $i18n.getText("plugin.week")
-                </td>
-                <td align="left">
-                    ($weekFilteredSummary)
-                </td>
-                <td align="right">
-                    $i18n.getText("plugin.month")
-                </td>
-                <td align="left">
-                    ($monthFilteredSummary)
-            #end
-        </td>
-    </tr>
-</table>
+               <div class="module toggle-wrap expanded">
+                <div class="mod-header">
+                  <h2 class="class=" toggle-title>$i18n.getText("plugin.summary")</h2>
+                </div>
+                <div class="mod-content">
+                  <table id="jttp-worklog-summary-table" class="aui">
+                    <thead>
+                      <tr>
+                        <th id="jttp-worklog-summary-type"></th>
+                        <th id="jttp-worklog-summary-day">$i18n.getText("plugin.day")</th>
+                        <th id="jttp-worklog-summary-week">$i18n.getText("plugin.week")</th>
+                        <th id="jttp-worklog-summary-month">$i18n.getText("plugin.month")</th>
+                      </tr>
+                    </thead>
+                    </tbody>
+                    <tr id="jttp-worklog-table-summary-total">
+                      <td>
+                        <p class="jttp-row-header">$i18n.getText("plugin.summary.total")</p>
+                      </td>
+                      <td>$daySummary</td>
+                      <td>$weekSummary</td>
+                      <td>$monthSummary</td>
+                    </tr>
+                    <tr id="jttp-worklog-table-summary-real">
+                    #if($issuesRegex.size() != 0)
+                      <td>
+                        <p class="jttp-row-header">$i18n.getText("plugin.summary.real")</p>
+                      </td>
+                      <td>$dayFilteredSummary</td>
+                      <td>$weekFilteredSummary</td>
+                      <td>$monthFilteredSummary</td>
+                    #end
+                    </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              </div>

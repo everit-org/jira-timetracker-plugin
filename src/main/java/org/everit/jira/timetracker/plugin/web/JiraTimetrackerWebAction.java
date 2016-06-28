@@ -50,6 +50,7 @@ import com.atlassian.jira.config.properties.APKeys;
 import com.atlassian.jira.config.properties.ApplicationProperties;
 import com.atlassian.jira.exception.DataAccessException;
 import com.atlassian.jira.issue.Issue;
+import com.atlassian.jira.issue.fields.renderer.IssueRenderContext;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
@@ -215,6 +216,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The issue key.
    */
   private String issueKey = "";
+  private IssueRenderContext issueRenderContext;
+
   /**
    * The issues.
    */
@@ -332,6 +335,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     this.pluginSettingsFactory = pluginSettingsFactory;
     timetrackingCondition = new TimetrackerCondition(jiraTimetrackerPlugin);
     pluginCondition = new PluginCondition(jiraTimetrackerPlugin);
+    issueRenderContext = new IssueRenderContext(null);
   }
 
   private String checkConditions() {
@@ -764,6 +768,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   public String getIssueKey() {
     return issueKey;
+  }
+
+  public IssueRenderContext getIssueRenderContext() {
+    return issueRenderContext;
   }
 
   public List<Issue> getIssues() {

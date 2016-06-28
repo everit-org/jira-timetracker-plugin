@@ -70,9 +70,21 @@ everit.jttp.main = everit.jttp.main || {};
       setExcludeDaysToWeekend(jttp.options.excludeDays);
       setLoggedDaysDesign(jttp.options.isColoring, jttp.options.loggedDays);
     }
-  
+    
+    addTooltips();
   });
-
+  
+  function addTooltips(){
+    AJS.$('.img-tooltip').each(function() {
+      var $element = AJS.$(this);
+      if(!$element.hasClass('jtrp-tooltipped')) {
+        $element.tooltip({gravity: 'w');
+        $element.addClass('jtrp-tooltipped');
+      }
+    });
+  }
+  
+  
   jttp.startState = 0;
   jttp.endState = 0;
 
