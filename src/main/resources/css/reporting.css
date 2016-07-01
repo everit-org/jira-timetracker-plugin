@@ -385,3 +385,13 @@ table.aui > thead > tr > th, div.grand-total p.grand-total-header {
     width:16px;
     padding-left:32px;
 }
+
+/* Table report new design */
+.table-report-search-criteria-container {
+    padding: 5px 20px 5px 20px;
+    border-top: 1px solid #ccc;
+}
+
+.table-report-summary-cell {
+  background-color: rgb(245,245,245);
+}
