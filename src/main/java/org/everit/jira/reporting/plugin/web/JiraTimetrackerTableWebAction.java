@@ -80,8 +80,6 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   private static final String EXCEEDED_A_YEAR = "plugin.exceeded.year";
 
-  private static final String FREQUENT_FEEDBACK = "jttp.plugin.frequent.feedback";
-
   private static final String GET_WORKLOGS_ERROR_MESSAGE = "Error when trying to get worklogs.";
 
   private static final String INVALID_END_TIME = "plugin.invalid_endTime";
@@ -103,8 +101,6 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   private static final Logger LOGGER = Logger.getLogger(JiraTimetrackerTableWebAction.class);
 
   private static final int MILLISEC_IN_SEC = 1000;
-
-  private static final String NOT_RATED = "Not rated";
 
   private static final String PARAM_DATEFROM = "dateFromMil";
 
@@ -359,13 +355,6 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(pluginSettingsFactory,
         PiwikPropertiesUtil.PIWIK_TABLE_SITEID);
 
-    if (parseFeedback()) {
-      loadDataFromSession();
-      initDatesIfNecessary();
-      initCurrentUserIfNecessary();
-      return INPUT;
-    }
-
     Calendar startDate = null;
     Calendar lastDate = null;
     try {
@@ -597,34 +586,6 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     } else {
       throw new IllegalArgumentException(INVALID_END_TIME);
     }
-  }
-
-  private boolean parseFeedback() {
-    if (getHttpRequest().getParameter("sendfeedback") != null) {
-      if (JiraTimetrackerUtil.loadAndCheckFeedBackTimeStampFromSession(getHttpSession())) {
-        String feedBackValue = getHttpRequest().getParameter("feedbackinput");
-        String ratingValue = getHttpRequest().getParameter("rating");
-        String customerMail =
-            JiraTimetrackerUtil.getCheckCustomerMail(getHttpRequest().getParameter("customerMail"));
-        String feedBack = "";
-        String rating = NOT_RATED;
-        if (feedBackValue != null) {
-          feedBack = feedBackValue.trim();
-        }
-        if (ratingValue != null) {
-          rating = ratingValue;
-        }
-        String mailSubject = JiraTimetrackerUtil
-            .createFeedbackMailSubject(JiraTimetrackerAnalytics.getPluginVersion());
-        String mailBody =
-            JiraTimetrackerUtil.createFeedbackMailBody(customerMail, rating, feedBack);
-        jiraTimetrackerPlugin.sendEmail(mailSubject, mailBody);
-      } else {
-        message = FREQUENT_FEEDBACK;
-      }
-      return true;
-    }
-    return false;
   }
 
   private void readObject(final java.io.ObjectInputStream stream) throws IOException,
