@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpSession;
@@ -45,12 +46,16 @@ import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
 import org.everit.jira.timetracker.plugin.dto.TimetrackerReportsSessionData;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
+import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 import org.ofbiz.core.entity.GenericEntityException;
 
 import com.atlassian.jira.avatar.Avatar;
 import com.atlassian.jira.avatar.AvatarService;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.exception.DataAccessException;
+import com.atlassian.jira.issue.RendererManager;
+import com.atlassian.jira.issue.fields.renderer.IssueRenderContext;
+import com.atlassian.jira.issue.fields.renderer.JiraRendererPlugin;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
@@ -75,8 +80,6 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   private static final String EXCEEDED_A_YEAR = "plugin.exceeded.year";
 
-  private static final String FREQUENT_FEEDBACK = "jttp.plugin.frequent.feedback";
-
   private static final String GET_WORKLOGS_ERROR_MESSAGE = "Error when trying to get worklogs.";
 
   private static final String INVALID_END_TIME = "plugin.invalid_endTime";
@@ -84,6 +87,11 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   private static final String INVALID_START_TIME = "plugin.invalid_startTime";
 
   private static final String INVALID_USER_PICKER = "plugin.user.picker.label";
+
+  /**
+   * The Issue Collector jttp_build.porperties key.
+   */
+  private static final String ISSUE_COLLECTOR_SRC = "ISSUE_COLLECTOR_SRC";
 
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
 
@@ -93,8 +101,6 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   private static final Logger LOGGER = Logger.getLogger(JiraTimetrackerTableWebAction.class);
 
   private static final int MILLISEC_IN_SEC = 1000;
-
-  private static final String NOT_RATED = "Not rated";
 
   private static final String PARAM_DATEFROM = "dateFromMil";
 
@@ -120,6 +126,8 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   private AnalyticsDTO analyticsDTO;
 
+  private JiraRendererPlugin atlassianWikiRenderer;
+
   private String avatarURL = "";
 
   private String contextPath;
@@ -140,9 +148,11 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   private DurationFormatter durationFormatter;
 
-  private boolean feedBackSendAviable;
-
   public boolean hasBrowseUsersPermission = true;
+
+  private String issueCollectorSrc;
+
+  private IssueRenderContext issueRenderContext;
 
   private List<Pattern> issuesRegex;
 
@@ -195,6 +205,9 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     reportingCondition = new ReportingCondition(this.reportingPlugin);
     this.pluginSettingsFactory = pluginSettingsFactory;
     pluginCondition = new PluginCondition(jiraTimetrackerPlugin);
+    issueRenderContext = new IssueRenderContext(null);
+    RendererManager rendererManager = ComponentAccessor.getRendererManager();
+    atlassianWikiRenderer = rendererManager.getRendererForType("atlassian-wiki-renderer");
   }
 
   private void addToDaySummary(final EveritWorklog worklog) {
@@ -289,10 +302,6 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     return null;
   }
 
-  private void checkMailServer() {
-    feedBackSendAviable = ComponentAccessor.getMailServerManager().isDefaultSMTPMailServerDefined();
-  }
-
   private void createDurationFormatter() {
     durationFormatter = new DurationFormatter();
   }
@@ -309,8 +318,8 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
     createDurationFormatter();
 
+    loadIssueCollectorSrc();
     normalizeContextPath();
-    checkMailServer();
 
     loadPluginSettingAndParseResult();
     analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(pluginSettingsFactory,
@@ -337,21 +346,14 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
     createDurationFormatter();
 
+    loadIssueCollectorSrc();
     normalizeContextPath();
-    checkMailServer();
     loadPluginSettingAndParseResult();
     hasBrowseUsersPermission =
         PermissionUtil.hasBrowseUserPermission(getLoggedInApplicationUser(), reportingPlugin);
 
     analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(pluginSettingsFactory,
         PiwikPropertiesUtil.PIWIK_TABLE_SITEID);
-
-    if (parseFeedback()) {
-      loadDataFromSession();
-      initDatesIfNecessary();
-      initCurrentUserIfNecessary();
-      return INPUT;
-    }
 
     Calendar startDate = null;
     Calendar lastDate = null;
@@ -401,6 +403,10 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     return analyticsDTO;
   }
 
+  public JiraRendererPlugin getAtlassianWikiRenderer() {
+    return atlassianWikiRenderer;
+  }
+
   public String getAvatarURL() {
     return avatarURL;
   }
@@ -425,10 +431,6 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     return daySum;
   }
 
-  public boolean getFeedBackSendAviable() {
-    return feedBackSendAviable;
-  }
-
   private String getFormattedRedirectUrl() {
     String currentUserEncoded;
     try {
@@ -445,6 +447,14 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   public boolean getHasBrowseUsersPermission() {
     return hasBrowseUsersPermission;
+  }
+
+  public String getIssueCollectorSrc() {
+    return issueCollectorSrc;
+  }
+
+  public IssueRenderContext getIssueRenderContext() {
+    return issueRenderContext;
   }
 
   public List<Pattern> getIssuesRegex() {
@@ -534,6 +544,11 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     return true;
   }
 
+  private void loadIssueCollectorSrc() {
+    Properties properties = PropertiesUtil.getJttpBuildProperties();
+    issueCollectorSrc = properties.getProperty(ISSUE_COLLECTOR_SRC);
+  }
+
   private void loadPluginSettingAndParseResult() {
     PluginSettingsValues pluginSettingsValues = jiraTimetrackerPlugin
         .loadPluginSettings();
@@ -571,34 +586,6 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     } else {
       throw new IllegalArgumentException(INVALID_END_TIME);
     }
-  }
-
-  private boolean parseFeedback() {
-    if (getHttpRequest().getParameter("sendfeedback") != null) {
-      if (JiraTimetrackerUtil.loadAndCheckFeedBackTimeStampFromSession(getHttpSession())) {
-        String feedBackValue = getHttpRequest().getParameter("feedbackinput");
-        String ratingValue = getHttpRequest().getParameter("rating");
-        String customerMail =
-            JiraTimetrackerUtil.getCheckCustomerMail(getHttpRequest().getParameter("customerMail"));
-        String feedBack = "";
-        String rating = NOT_RATED;
-        if (feedBackValue != null) {
-          feedBack = feedBackValue.trim();
-        }
-        if (ratingValue != null) {
-          rating = ratingValue;
-        }
-        String mailSubject = JiraTimetrackerUtil
-            .createFeedbackMailSubject(JiraTimetrackerAnalytics.getPluginVersion());
-        String mailBody =
-            JiraTimetrackerUtil.createFeedbackMailBody(customerMail, rating, feedBack);
-        jiraTimetrackerPlugin.sendEmail(mailSubject, mailBody);
-      } else {
-        message = FREQUENT_FEEDBACK;
-      }
-      return true;
-    }
-    return false;
   }
 
   private void readObject(final java.io.ObjectInputStream stream) throws IOException,
@@ -649,10 +636,6 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   public void setDaySum(final HashMap<Integer, List<Object>> daySum) {
     this.daySum = daySum;
-  }
-
-  public void setFeedBackSendAviable(final boolean feedBackSendAviable) {
-    this.feedBackSendAviable = feedBackSendAviable;
   }
 
   public void setHasBrowseUsersPermission(final boolean hasBrowseUsersPermission) {

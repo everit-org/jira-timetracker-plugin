@@ -160,11 +160,7 @@ public class EveritWorklog implements Serializable {
       issueEstimate = 0L;
     }
     body = worklogGv.getString("body");
-    if (body != null) {
-      body = body.replace("\"", "\\\"");
-      body = body.replace("\r", "\\r");
-      body = body.replace("\n", "\\n");
-    } else {
+    if (body == null) {
       body = "";
     }
     DurationFormatter durationFormatter = new DurationFormatter();

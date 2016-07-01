@@ -25,32 +25,32 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:table_report-resources")
 <body>
 #set($rendererType = "atlassian-wiki-renderer")
-	#if($currentCalendar.useISO8601 == true)
-		#set ($firstDay = 1)
-	#else
-		#set ($firstDay = 0)
-	#end
-	
+  #if($currentCalendar.useISO8601 == true)
+    #set ($firstDay = 1)
+  #else
+    #set ($firstDay = 0)
+  #end
+  
 <script type="text/javascript">
-	window.everit = window.everit || {};
-	everit.jttp = everit.jttp || {};
-	everit.jttp.report_common_scripts = everit.jttp.report_common_scripts || {};
+  window.everit = window.everit || {};
+  everit.jttp = everit.jttp || {};
+  everit.jttp.report_common_scripts = everit.jttp.report_common_scripts || {};
 
-	(function(jttp, jQuery) {
-		jttp.options = jQuery.extend( 
-			{},
-			jttp.options,
-			{
-				firstDay : ${firstDay},
-				useISO8601 : ${currentCalendar.useISO8601},
-				hasBrowseUsersPermission: ${hasBrowseUsersPermission},
-				dateFromFormated : ${dateFromFormated},
-				dateToFormated : ${dateToFormated}
-			}
-		);
-	})(everit.jttp.report_common_scripts, AJS.$);
+  (function(jttp, jQuery) {
+    jttp.options = jQuery.extend( 
+      {},
+      jttp.options,
+      {
+        firstDay : ${firstDay},
+        useISO8601 : ${currentCalendar.useISO8601},
+        hasBrowseUsersPermission: ${hasBrowseUsersPermission},
+        dateFromFormated : ${dateFromFormated},
+        dateToFormated : ${dateToFormated}
+      }
+    );
+  })(everit.jttp.report_common_scripts, AJS.$);
 </script>
-	
+  
   <header class="aui-page-header">
     <div class="aui-page-header-inner">
       <div class="aui-page-header-image">
@@ -74,77 +74,79 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:table_re
         </div>
      </div>
   </header>
-<div id="main-content" class="content rounded">
-		<div class="inside-content">
-		  	<div id="error_message"  #if($message.isEmpty()) style="display:none;" #end>
-               <label id="error_message_label" #if($message.isEmpty()) style="display:none;" #end>$i18n.getText($message)</label>
-               <label id="error_message_label_df" style="display:none;">$i18n.getText('plugin.invalid_startTime')</label>
-               <label id="error_message_label_dt" style="display:none;">$i18n.getText('plugin.invalid_endTime')</label>
+  <div class="table-report-search-criteria-container">
+    <div id="error_message"  #if($message.isEmpty()) style="display:none;" #end>
+      <label id="error_message_label" #if($message.isEmpty()) style="display:none;" #end>$i18n.getText($message)</label>
+      <label id="error_message_label_df" style="display:none;">$i18n.getText('plugin.invalid_startTime')</label>
+      <label id="error_message_label_dt" style="display:none;">$i18n.getText('plugin.invalid_endTime')</label>
+    </div>
+    <form name="dummyForm" class="aui top-label reporting-form" method="get" onsubmit="return false;">
+      <div class="form-body">
+        <div class="aui-group">
+          <div class="aui-item search-wrap">
+            <div class="date-search-container">
+              <div class="search-criteria-container">
+                <div class="search-criteria">
+                  <div class="from-date inline-calendar">
+                    <input class="text medium-field datepicker-input" placeholder="From" onkeydown="return everit.jttp.report_common_scripts.checkEnter(event);" id="dateFrom" name="dateFrom" tabindex="1">
+                    <a href="#" title="Select a date">
+                      <span id="date_trigger_from" class="aui-icon aui-icon-small aui-iconfont-calendar">Select a date</span>
+                    </a>
+                  </div>
+                  <div class="to-date inline-calendar">
+                    <input class="text medium-field datepicker-input" placeholder="To" onkeydown="return everit.jttp.report_common_scripts.checkToEnter(event);" id="dateTo" name="dateTo" tabindex="2">
+                    <a href="#" title="Select a date">
+                      <span id="date_trigger_to" class="aui-icon aui-icon-small aui-iconfont-calendar">Select a date</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
             </div>
-			<div id="form_div" class="jttp-calendar">
-				<table>
-					<tbody>
-						<tr>
-							<td>
-								$i18n.getText("plugin.from"): 
-								</td>
-								<td>
-								<input type="text" id="dateFrom" name="dateFrom" tabindex="1" onkeydown="return everit.jttp.report_common_scripts.checkEnter(event);"/>
-								<img id="date_trigger_from" src="$contextPath/images/icons/cal.gif" width="16" height="16" border="0"
-									alt="Pick a date" style="vertical-align: sub;" title="$i18n.getText('plugin.choose.date')"/>
-							</td>
-						</tr>
-						<tr>
-							<td>
-								$i18n.getText("plugin.to"): 
-								</td>
-								<td>
-								<input type="text" id="dateTo" name="dateTo" tabindex="1" onkeydown="return everit.jttp.report_common_scripts.checkEnter(event);" />
-								<img id="date_trigger_to" src="$contextPath/images/icons/cal.gif" width="16" height="16" border="0"
-									alt="Pick a date" style="vertical-align: sub;" title="$i18n.getText('plugin.choose.date')"/>
-							</td>
-						</tr>
-						<tr>
-							<td>
-								$i18n.getText("plugin.user"): 
-							</td>
-							<td>
-								<div class="field-group">
-									<select  id="userPicker" class="js-default-user-picker single-user-picker" name="userPicker">
-										#if($userPickerObject)
-										<option selected="selected" 
-										 value="$userPickerObject.getUsername()"
-										   data-field-text="$userPickerObject.getDisplayName()"
-										   style="background-image:url('$avatarURL')" >
-										  $userPickerObject.getDisplayName()
-										 </option>
-										#end   
-									</select>
-								</div>
-							</td>
-						</tr>
-						<tr>
-							<td>
-                              <form name="chartReportForm"  method="get" action="JiraTimetrackerTableWebAction.jspa" onsubmit="return everit.jttp.report_common_scripts.beforeSubmitReport()" />
-                                <input id="search"  tabindex="3" type="submit" name="search" value="$i18n.getText('plugin.search')" class="button" 
-                                    onclick="return everit.jttp.report_common_scripts.jttpSearchOnClick('Table');"/>
-                                <input type="hidden" id="dateFromMil" name="dateFromMil"/>
-                                <input type="hidden" id="dateToMil" name="dateToMil"/>
-                                <input type="hidden" id="selectedUser" name="selectedUser"/>
-                              </form>
-							</td>
-						</tr>
-					</tbody>
-				</table>
-			</div>
-			#parse("templates/reporting/table_report_list.vm")
-		</div>
-	<div id="feedbackfooter" class="feedback_footer">
-		#parse("templates/feedback/feedback_table.vm")
-	</div>
-</div>
-#if($analyticsDTO.analyticsCheck)
-	#parse("templates/common/analytics.vm")
-#end
+          </div>
+        </div>
+        <div class="aui-group">
+          <div class="aui-item search-wrap">
+            <div class="user-search-container">
+              <div class="search-criteria-container">
+                <div class="search-criteria">
+                  <div class="from-date inline-calendar">
+                    <select  id="userPicker" class="js-default-user-picker single-user-picker" name="userPicker">
+                      #if($userPickerObject)
+                      <option selected="selected" 
+                        value="$userPickerObject.getUsername()"
+                        data-field-text="$userPickerObject.getDisplayName()"
+                        style="background-image:url('$avatarURL')" >
+                        $userPickerObject.getDisplayName()
+                      </option>
+                      #end
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+    <form name="tableReportForm" method="get" action="JiraTimetrackerTableWebAction.jspa"  onsubmit="return everit.jttp.report_common_scripts.beforeSubmitReport()"/>
+      <input type="hidden" id="dateFromMil" name="dateFromMil">
+      <input type="hidden" id="dateToMil" name="dateToMil">
+      <input type="hidden" id="selectedUser" name="selectedUser">
+      <div class="aui-group">
+        <div class="aui-item">
+          <button id="search" tabindex="3" class="aui-button aui-button-primary"  onclick="return everit.jttp.report_common_scripts.jttpSearchOnClick('Table');">$i18n.getText('plugin.search')</button> <!-- Submit the search form -->
+        </div>
+      </div>
+    </form>
+  </div>
+  
+  #parse("templates/reporting/table_report_list.vm")
+
+  <!-- Issue Collector script -->
+  <script type="text/javascript" src="$issueCollectorSrc"></script>
+
+  #if($analyticsDTO.analyticsCheck)
+    #parse("templates/common/analytics.vm")
+  #end
 </body>
 </html>
