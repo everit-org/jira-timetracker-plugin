@@ -16,126 +16,130 @@
 $webResourceManager.requireResource("jira.webresources:dwr", null)   
 $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
 
-#set($rowCount = 0)
-<table class="aui reporting-table">
-  <thead>
-    <tr>
-      <th>$i18n.getText("plugin.date")</th>
-      <th>Issue</th>
-      <th title="$i18n.getText('jttp.list.title.remaining')">$i18n.getText("plugin.remaining")</th>
-      <th>$i18n.getText("plugin.start")</th>
-      <th>$i18n.getText("plugin.end")</th>
-      <th>$i18n.getText("plugin.duration")</th>
-      <th colspan="3">$i18n.getText("plugin.note")</th>
-    </tr>
-  </thead>
-#if($worklogs.size() == 0)
-</table>
-<div id="message" class="message">$i18n.getText("plugin.no.worklogs")</div>
-#else
-  #set($endSign = false)
-  <tbody>
-  #foreach ($worklog in $worklogs)
-    #set($currentDay = $worklog.dayNo)
-    #set($currentWeek = $worklog.weekNo)
-    #set($currentMonth = $worklog.monthNo)
-    <tr>
-      <td class="table-starttime vertically-middle">
-        $worklog.startDate
-      </td>
-      <td class="table-issue vertically-middle" style="white-space: nowrap; #if($worklog.isClosed) text-decoration: line-through; #end">
-        <a href="$contextPath/browse/$worklog.issue" class="issue-link" title="#if($worklog.issueParent != '') $i18n.getText('plugin.parent.issue') $worklog.issueParent &#13 $worklog.issueSummary #else $worklog.issueSummary #end">$worklog.issue</a>
-      </td>
-      <td style="vertical-align: middle; white-space: nowrap;">
-      #if($worklog.isClosed)
-        <div title="$worklog.exactRemaining" style="color: #A3A1A1;">$worklog.roundedRemaining</div>
-      #elseif($worklog.isMoreEstimatedTime)
-        <div title="$worklog.exactRemaining">$worklog.roundedRemaining<div>
-      #else
-        <div title="$worklog.exactRemaining" style="color:red;">$worklog.roundedRemaining</div>
-      #end
-      </td>
-      <td class="table-starttime vertically-middle">
-        $worklog.startTime
-      </td>
-      <td class="table-endtime vertically-middle">
-        $worklog.endTime
-      </td>
-      <td class="vertically-middle">
-        $worklog.duration
-      </td>
-      <td colspan="3" class="table-comment wiki-edit-content vertically-middle">
-        $atlassianWikiRenderer.render($worklog.body, $issueRenderContext)
-        <input id="hiddenWorklogBody" type="hidden" value="$worklog.body">
-        <script>
-          jQuery.ajax({
-            url:  "${req.contextPath}/rest/api/1.0/render",
-            contentType: "application/json",
-            type:'POST',
-            data: JSON.stringify({
-              rendererType: "atlassian-wiki-renderer",
-              unrenderedMarkup: "$worklog.body"
-            }),
-            dataType: "text",
-            success: function(data){
-              data = data.replace('<p>','');
-              data = data.replace('</p>','');
-              AJS.$("#commentRow_$rowCount").append(data);
-              AJS.$("#commentRow_$rowCount").attr("style","vertical-align: middle;text-align: left;padding: 4px 10px 4px 10px;");
-            }
-          });
-        </script>
-      </td>
-    </tr>
-    #if($velocityCount < $worklogs.size())
-      #set($nextWorklog = $worklogs.get($velocityCount))
+<div class="aui-page-panel">
+  <div class="aui-page-panel-inner aui-page-panel-content">
+    #set($rowCount = 0)
+    <table class="aui reporting-table">
+      <thead>
+        <tr>
+          <th>$i18n.getText("plugin.date")</th>
+          <th>Issue</th>
+          <th title="$i18n.getText('jttp.list.title.remaining')">$i18n.getText("plugin.remaining")</th>
+          <th>$i18n.getText("plugin.start")</th>
+          <th>$i18n.getText("plugin.end")</th>
+          <th>$i18n.getText("plugin.duration")</th>
+          <th colspan="3">$i18n.getText("plugin.note")</th>
+        </tr>
+      </thead>
+    #if($worklogs.size() == 0)
+    </table>
+    <div id="message" class="message">$i18n.getText("plugin.no.worklogs")</div>
     #else
-      #set($endSign = true)
+      #set($endSign = false)
+      <tbody>
+      #foreach ($worklog in $worklogs)
+        #set($currentDay = $worklog.dayNo)
+        #set($currentWeek = $worklog.weekNo)
+        #set($currentMonth = $worklog.monthNo)
+        <tr>
+          <td class="table-starttime vertically-middle">
+            $worklog.startDate
+          </td>
+          <td class="table-issue vertically-middle" style="white-space: nowrap; #if($worklog.isClosed) text-decoration: line-through; #end">
+            <a href="$contextPath/browse/$worklog.issue" class="issue-link" title="#if($worklog.issueParent != '') $i18n.getText('plugin.parent.issue') $worklog.issueParent &#13 $worklog.issueSummary #else $worklog.issueSummary #end">$worklog.issue</a>
+          </td>
+          <td style="vertical-align: middle; white-space: nowrap;">
+          #if($worklog.isClosed)
+            <div title="$worklog.exactRemaining" style="color: #A3A1A1;">$worklog.roundedRemaining</div>
+          #elseif($worklog.isMoreEstimatedTime)
+            <div title="$worklog.exactRemaining">$worklog.roundedRemaining<div>
+          #else
+            <div title="$worklog.exactRemaining" style="color:red;">$worklog.roundedRemaining</div>
+          #end
+          </td>
+          <td class="table-starttime vertically-middle">
+            $worklog.startTime
+          </td>
+          <td class="table-endtime vertically-middle">
+            $worklog.endTime
+          </td>
+          <td class="vertically-middle">
+            $worklog.duration
+          </td>
+          <td colspan="3" class="table-comment wiki-edit-content vertically-middle">
+            $atlassianWikiRenderer.render($worklog.body, $issueRenderContext)
+            <input id="hiddenWorklogBody" type="hidden" value="$worklog.body">
+            <script>
+              jQuery.ajax({
+                url:  "${req.contextPath}/rest/api/1.0/render",
+                contentType: "application/json",
+                type:'POST',
+                data: JSON.stringify({
+                  rendererType: "atlassian-wiki-renderer",
+                  unrenderedMarkup: "$worklog.body"
+                }),
+                dataType: "text",
+                success: function(data){
+                  data = data.replace('<p>','');
+                  data = data.replace('</p>','');
+                  AJS.$("#commentRow_$rowCount").append(data);
+                  AJS.$("#commentRow_$rowCount").attr("style","vertical-align: middle;text-align: left;padding: 4px 10px 4px 10px;");
+                }
+              });
+            </script>
+          </td>
+        </tr>
+        #if($velocityCount < $worklogs.size())
+          #set($nextWorklog = $worklogs.get($velocityCount))
+        #else
+          #set($endSign = true)
+        #end
+        #if($worklog.dayNo != $nextWorklog.dayNo || $endSign)
+        <tr>
+          <td colspan="6"></td>
+          <td class="rowHeader table-report-summary-cell">
+            <b>$i18n.getText("plugin.daily") $i18n.getText("plugin.summary")</b>
+          </td>
+          <td class="workRows table-report-summary-cell">
+            $i18n.getText("plugin.work"): $daySum.get($currentDay).get(1)
+          </td>
+          <td class="workRows table-report-summary-cell">
+            $i18n.getText("plugin.real.work"): $realDaySum.get($currentDay).get(1)
+          </td>
+        </tr>
+        #end
+        #if($worklog.weekNo != $nextWorklog.weekNo || $endSign)
+        <tr>
+          <td colspan="6"></td>
+          <td class="rowHeader table-report-summary-cell">
+            <b>$i18n.getText("plugin.weekly") $i18n.getText("plugin.summary")</b>
+          </td>
+          <td class="workRows table-report-summary-cell">
+            $i18n.getText("plugin.work"): $weekSum.get($currentWeek).get(1)
+          </td>
+          <td class="workRows table-report-summary-cell">
+            $i18n.getText("plugin.real.work"): $realWeekSum.get($currentWeek).get(1)
+          </td>
+        </tr>
+        #end
+        #if($worklog.monthNo != $nextWorklog.monthNo || $endSign)
+        <tr>
+          <td colspan="6"></td>
+          <td class="rowHeader table-report-summary-cell">
+            <b>$i18n.getText("plugin.monthly") $i18n.getText("plugin.summary")</b>
+          </td>
+          <td class="workRows table-report-summary-cell">
+            $i18n.getText("plugin.work"): $monthSum.get($currentMonth).get(1)
+          </td>
+          <td class="workRows table-report-summary-cell">
+            $i18n.getText("plugin.real.work"): $realMonthSum.get($currentMonth).get(1)
+          </td>
+        </tr>
+        #end
+        #set($rowCount = $rowCount + 1)
+      #end
+      </tbody>
+    </table>
     #end
-    #if($worklog.dayNo != $nextWorklog.dayNo || $endSign)
-    <tr>
-      <td colspan="6"></td>
-      <td class="rowHeader table-report-summary-cell">
-        <b>$i18n.getText("plugin.daily") $i18n.getText("plugin.summary")</b>
-      </td>
-      <td class="workRows table-report-summary-cell">
-        $i18n.getText("plugin.work"): $daySum.get($currentDay).get(1)
-      </td>
-      <td class="workRows table-report-summary-cell">
-        $i18n.getText("plugin.real.work"): $realDaySum.get($currentDay).get(1)
-      </td>
-    </tr>
-    #end
-    #if($worklog.weekNo != $nextWorklog.weekNo || $endSign)
-    <tr>
-      <td colspan="6"></td>
-      <td class="rowHeader table-report-summary-cell">
-        <b>$i18n.getText("plugin.weekly") $i18n.getText("plugin.summary")</b>
-      </td>
-      <td class="workRows table-report-summary-cell">
-        $i18n.getText("plugin.work"): $weekSum.get($currentWeek).get(1)
-      </td>
-      <td class="workRows table-report-summary-cell">
-        $i18n.getText("plugin.real.work"): $realWeekSum.get($currentWeek).get(1)
-      </td>
-    </tr>
-    #end
-    #if($worklog.monthNo != $nextWorklog.monthNo || $endSign)
-    <tr>
-      <td colspan="6"></td>
-      <td class="rowHeader table-report-summary-cell">
-        <b>$i18n.getText("plugin.monthly") $i18n.getText("plugin.summary")</b>
-      </td>
-      <td class="workRows table-report-summary-cell">
-        $i18n.getText("plugin.work"): $monthSum.get($currentMonth).get(1)
-      </td>
-      <td class="workRows table-report-summary-cell">
-        $i18n.getText("plugin.real.work"): $realMonthSum.get($currentMonth).get(1)
-      </td>
-    </tr>
-    #end
-    #set($rowCount = $rowCount + 1)
-  #end
-  </tbody>
-</table>
-#end
+  </div>
+</div>
