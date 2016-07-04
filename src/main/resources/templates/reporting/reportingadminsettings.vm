@@ -141,8 +141,8 @@
     <div class="buttons-container">
       <div class="buttons">
         <input id="savesettings" type="submit" name="savesettings" value="$i18n.getText('plugin.save')" class="aui-button aui-button-primary"/>
-        <input id="resetButton" type="button" name="reset" value="$i18n.getText('plugin.reset')" onclick="location.href='JiraTimetrackerReportingSettingsWebAction!default.jspa'" class="aui-button aui-button-primary"/>
-        <input id="cancelButton" type="button" name="cancel" value="$i18n.getText('plugin.cancel')" onclick="location.href='/secure/ReportingWebAction!default.jspa'" class="aui-button aui-button-primary"/>
+        <input id="resetButton" type="button" name="reset" value="$i18n.getText('plugin.reset')" onclick="location.href='JiraTimetrackerReportingSettingsWebAction!default.jspa'" class="aui-button"/>
+        <input id="cancelButton" type="button" name="cancel" value="$i18n.getText('plugin.cancel')" onclick="location.href='/secure/ReportingWebAction!default.jspa'" class="aui-button"/>
       </div>
     </div>
   </form>
