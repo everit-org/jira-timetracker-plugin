@@ -18,7 +18,7 @@
   <title>Reporting Global Settings</title>
 </head>
 <body>
-  $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reporting-admin-resources")
+  $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:admin-settings-resources")
   
   <script type="text/javascript">
     window.everit = window.everit || {};
@@ -34,13 +34,13 @@
     })(everit.jttp.reporting_admin, AJS.$);
   </script>
   
-  <header class="aui-page-header" style="padding: 20px;">
+  <header class="aui-page-header">
     <div class="aui-page-header-inner">
       <div class="aui-page-header-image">
          <span class="aui-avatar aui-avatar-large">
            <span class="aui-avatar-inner">
              <a href="http://www.everit.biz/index.php?nyelv=en" target="_blank">
-               <img src="$contextPath/download/resources/org.everit.jira.timetracker.plugin:reporting-resources/E_logo.png" alt="Everit reporting logo">
+               <img src="$contextPath/download/resources/org.everit.jira.timetracker.plugin:admin-settings-resources/E_logo.png" alt="Everit reporting logo">
              </a>
            </span>
          </span>
@@ -50,129 +50,103 @@
       </div>
     </div>
   </header>
-  <div class="aui-page-panel">
-    <div class="aui-page-panel-inner aui-page-panel-content">
-      <form name="adminSettingForm"  method="post" action="JiraTimetrackerReportingSettingsWebAction.jspa"/>
-      #if(!$message.isEmpty())
-        <div id="error_message">
-          $i18n.getText($message)
-        </div>
-      #end
-        <table class="aui">
-          <tbody>
-            <tr style="border: 0px none;">
-              <td style="text-align: right; vertical-align: top;" width="15%">
-                <strong>$i18n.getText("jtrp.plugin.reporting.permission")</strong>
-              </td>
-              <td class="admin-settings-value-column">
-                <div id="groupSelect_container"
-                  class="ajax_autocomplete atlassian-autocomplete aui-ss field-group"
-                  style="margin-bottom: 35px">
-                  <select multiple="multiple"
-                    name="reportingGroupSelect" 
-                    id="reportingGroupSelect" 
-                    data-popup-link-message="" 
-                    data-popup-width="620" 
-                    data-popup-height="500" 
-                    data-remove-on-un-select="true" 
-                    data-ajax-options.query="-" 
-                    data-ajax-options.url="${req.contextPath}/rest/api/2/groups/picker" 
-                    data-ajax-options.data.query="-" 
-                    #if (${action.currentJQL})
-                    data-ajax-options.data.current_jql=${action.currentJQL}
-                    #end>
-                  </select>
-                  <script>
-                    var gp = new AJS.MultiSelect({
-                      element : AJS.$("#reportingGroupSelect"),
-                      itemAttrDisplayed : "label",
-                      showDropdownButton : false,
-                      ajaxOptions : {
-                        url : "${req.contextPath}/rest/api/2/groups/picker",
-                        query : true, // keep going back to the sever for each keystroke
-                        formatResponse : JIRA.GroupPickerUtil.formatResponse
-                      }
-                    });
-                    #if($reportingGroups.size() != 0)
-                    var list =[];
-                      #foreach ($reportingGroup in $reportingGroups)
-                    list.push("$reportingGroup");
-                      #end
-                    var groups = jQuery.map(list, function(value) {
-                      return { value: value, label: value };
-                    });
-                    gp._addMultipleItems(groups,true);
-                    #end
-                  </script>
-                </div>
-                <div class="description">
-                  $i18n.getText("jtrp.plugin.reporting.permission.desc")
-                </div>
-              </td>
-            </tr>
-            <tr style="border: 0px none;">
-              <td style="text-align: right; vertical-align: top;" width="15%">
-                <strong>$i18n.getText("jtrp.plugin.reporting.browse.user")</strong>
-              </td>
-              <td class="admin-settings-value-column">
-                <div id="groupSelect_browse_container"
-                  class="ajax_autocomplete atlassian-autocomplete aui-ss field-group"
-                  style="margin-bottom: 35px">
-                  <select multiple="multiple"
-                    name="browseGroupSelect" 
-                    id="browseGroupSelect" 
-                    data-popup-link-message="" 
-                    data-popup-width="620" 
-                    data-popup-height="500" 
-                    data-remove-on-un-select="true" 
-                    data-ajax-options.query="-" 
-                    data-ajax-options.url="${req.contextPath}/rest/api/2/groups/picker" 
-                    data-ajax-options.data.query="-" 
-                    #if (${action.currentJQL})
-                    data-ajax-options.data.current_jql=${action.currentJQL}
-                    #end>
-                  </select>
-                  <script>
-                    var gp = new AJS.MultiSelect({
-                      element : AJS.$("#browseGroupSelect"),
-                      itemAttrDisplayed : "label",
-                      showDropdownButton : false,
-                      ajaxOptions : {
-                        url : "${req.contextPath}/rest/api/2/groups/picker",
-                        query : true, // keep going back to the sever for each keystroke
-                        formatResponse : JIRA.GroupPickerUtil.formatResponse
-                      }
-                    });
-                    #if($browseGroups.size() != 0)
-                    var list =[];
-                      #foreach ($browseGroup in $browseGroups)
-                    list.push("$browseGroup");
-                      #end
-                    var groups = jQuery.map(list, function(value) {
-                      return { value: value, label: value };
-                    });
-                    gp._addMultipleItems(groups,true);
-                    #end
-                  </script>
-                </div>
-                <div class="description">
-                  $i18n.getText("jtrp.plugin.reporting.browse.user.desc")
-                </div>
-              </td>
-            </tr>
-            <tr class="buttons-container">
-              <td colspan="2">
-                <input id="savesettings"  type="submit" name="savesettings" value="$i18n.getText('plugin.save')" class="aui-button aui-button-primary"/>
-                <input id="resetButton"  type="button" name="reset" value="$i18n.getText('plugin.reset')" onclick="location.href='JiraTimetrackerReportingSettingsWebAction!default.jspa'" class="aui-button aui-button-primary"/>
-                <input id="cancelButton"  type="button" name="cancel" value="$i18n.getText('plugin.cancel')" onclick="location.href='/secure/ReportingWebAction!default.jspa'" class="aui-button aui-button-primary"/>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </form>
+  <form name="adminSettingForm"  method="post" action="JiraTimetrackerReportingSettingsWebAction.jspa" class="aui">
+    #if(!$message.isEmpty())
+    <div id="error_message">
+      $i18n.getText($message)
     </div>
-  </div>
-  
+    #end
+    
+    <div class="field-group">
+      <label for="reportingGroupSelect">$i18n.getText("jtrp.plugin.reporting.permission")</label>
+      <select multiple="multiple"
+        name="reportingGroupSelect" 
+        id="reportingGroupSelect" 
+        data-popup-link-message="" 
+        data-popup-width="620" 
+        data-popup-height="500" 
+        data-remove-on-un-select="true" 
+        data-ajax-options.query="-" 
+        data-ajax-options.url="${req.contextPath}/rest/api/2/groups/picker" 
+        data-ajax-options.data.query="-" 
+        #if (${action.currentJQL})
+        data-ajax-options.data.current_jql=${action.currentJQL}
+        #end>
+      </select>
+      <script>
+        var gp = new AJS.MultiSelect({
+          element : AJS.$("#reportingGroupSelect"),
+          itemAttrDisplayed : "label",
+          showDropdownButton : false,
+          ajaxOptions : {
+            url : "${req.contextPath}/rest/api/2/groups/picker",
+            query : true, // keep going back to the sever for each keystroke
+            formatResponse : JIRA.GroupPickerUtil.formatResponse
+          }
+        });
+        #if($reportingGroups.size() != 0)
+        var list =[];
+          #foreach ($reportingGroup in $reportingGroups)
+        list.push("$reportingGroup");
+          #end
+        var groups = jQuery.map(list, function(value) {
+          return { value: value, label: value };
+        });
+        gp._addMultipleItems(groups,true);
+        #end
+      </script>
+      <div class="description">$i18n.getText("jtrp.plugin.reporting.permission.desc")</div>
+    </div>
+    
+    <div class="field-group">
+      <label for="browseGroupSelect">$i18n.getText("jtrp.plugin.reporting.browse.user")</label>
+      <select multiple="multiple"
+        name="browseGroupSelect" 
+        id="browseGroupSelect" 
+        data-popup-link-message="" 
+        data-popup-width="620" 
+        data-popup-height="500" 
+        data-remove-on-un-select="true" 
+        data-ajax-options.query="-" 
+        data-ajax-options.url="${req.contextPath}/rest/api/2/groups/picker" 
+        data-ajax-options.data.query="-" 
+        #if (${action.currentJQL})
+        data-ajax-options.data.current_jql=${action.currentJQL}
+        #end>
+      </select>
+      <script>
+        var gp = new AJS.MultiSelect({
+          element : AJS.$("#browseGroupSelect"),
+          itemAttrDisplayed : "label",
+          showDropdownButton : false,
+          ajaxOptions : {
+            url : "${req.contextPath}/rest/api/2/groups/picker",
+            query : true, // keep going back to the sever for each keystroke
+            formatResponse : JIRA.GroupPickerUtil.formatResponse
+          }
+        });
+        #if($browseGroups.size() != 0)
+        var list =[];
+          #foreach ($browseGroup in $browseGroups)
+        list.push("$browseGroup");
+          #end
+        var groups = jQuery.map(list, function(value) {
+          return { value: value, label: value };
+        });
+        gp._addMultipleItems(groups,true);
+        #end
+      </script>
+      <div class="description">$i18n.getText("jtrp.plugin.reporting.browse.user.desc")</div>
+    </div>
+    <div class="buttons-container">
+      <div class="buttons">
+        <input id="savesettings" type="submit" name="savesettings" value="$i18n.getText('plugin.save')" class="aui-button aui-button-primary"/>
+        <input id="resetButton" type="button" name="reset" value="$i18n.getText('plugin.reset')" onclick="location.href='JiraTimetrackerReportingSettingsWebAction!default.jspa'" class="aui-button aui-button-primary"/>
+        <input id="cancelButton" type="button" name="cancel" value="$i18n.getText('plugin.cancel')" onclick="location.href='/secure/ReportingWebAction!default.jspa'" class="aui-button aui-button-primary"/>
+      </div>
+    </div>
+  </form>
+
   <!-- Issue Collector script -->
   <script type="text/javascript" src="$issueCollectorSrc"></script>
 </body>

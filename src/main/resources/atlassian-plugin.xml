@@ -162,15 +162,12 @@
     <resource type="download" name="reporting.js" location="/js/reporting.js"/>
   </web-resource>
   
-  <web-resource name="JTRP Resources" key="reporting-admin-resources">
+  <web-resource name="JTRP Resources" key="admin-settings-resources">
     <dependency>com.atlassian.auiplugin:ajs</dependency>
-    <dependency>com.atlassian.auiplugin:dialog2</dependency>
-    <resource type="download" name="jttp_feedback.css" location="/css/jttp_feedback.css"/>
     <resource type="download" name="E_logo.png" location="/icons/E_logo.png">
       <param name="content-type" value="image/png" />
     </resource>
-    <resource type="download" name="jttp.css" location="/css/jttp.css"/>
-    <resource type="download" name="reporting_admin.js" location="/js/reporting_admin.js"/>
+    <resource type="download" name="admin_setting.css" location="/css/admin_settings.css"/>
   </web-resource>
   
   <web-resource name="JTTP Resources" key="chart_report-resources">

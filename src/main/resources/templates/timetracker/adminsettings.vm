@@ -18,292 +18,239 @@
   <title>Timetracker Global Settings</title>
 </head>
 <body>
-$webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-resources")
-<div id="plugin_head" class="item-header">
-		<div class="logo-img">
-			#parse("templates/feedback/feedback_admin.vm")
-			<a href="http://www.everit.biz/" target="_blank">
-				<img src="$contextPath/download/resources/org.everit.jira.timetracker.plugin:jttp-resources/everit_tt_logo.png" alt="Everit logo" height="42" width="42">
-			</a>
-		</div>
-		<h1 class="item-summary">Timetracker Global Settings</h1>
-</div>
-<form name="adminSettingForm"  method="post" action="JiraTimetrackerAdminSettingsWebAction.jspa"/>	
-  	<div id="main-content" class="content rounded" >
-		<div class="inside-content">
-		#if(!$message.isEmpty())
-			  	<div id="error_message">
-			 			$i18n.getText($message)
-			  	</div>
-		  	#end
-			<table  class="summaty-table">
-				<tbody>
-					<tr>
-		              <td style="text-align: right; vertical-align: top;" width="15%">
-		                <strong>$i18n.getText("plugin.setting.plugin.permission")</strong>
-		              </td>
-		              <td class="admin-settings-value-column">
-		                <div id="groupSelect_container"
-		                  class="ajax_autocomplete atlassian-autocomplete aui-ss field-group"
-		                  style="margin-bottom: 35px">
-	                      <select multiple="multiple"
-		                    name="pluginGroupSelect" 
-		                    id="pluginGroupSelect" 
-		                    data-popup-link-message="" 
-		                    data-popup-width="620" 
-		                    data-popup-height="500" 
-		                    data-remove-on-un-select="true" 
-		                    data-ajax-options.query="-" 
-		                    data-ajax-options.url="${req.contextPath}/rest/api/2/groups/picker" 
-		                    data-ajax-options.data.query="-" 
-		                    #if (${action.currentJQL})
-		                      data-ajax-options.data.current_jql=${action.currentJQL}
-		                    #end>
-		                  </select>
-		                  <script>
-		                    var gp = new AJS.MultiSelect({
-		                      element : AJS.$("#pluginGroupSelect"),
-		                      itemAttrDisplayed : "label",
-		                      showDropdownButton : false,
-		                      ajaxOptions : {
-		                        url : "${req.contextPath}/rest/api/2/groups/picker",
-		                        query : true, // keep going back to the sever for each keystroke
-		                        formatResponse : JIRA.GroupPickerUtil.formatResponse
-		                      }
-		                    });
-		                    #if($pluginGroups.size() != 0)
-		                      var list =[];
-		                      #foreach ($pluginGroup in $pluginGroups)
-		                        list.push("$pluginGroup");
-		                      #end
-		                      var groups = jQuery.map(list, function(value) {
-		                        return { value: value, label: value };
-		                      });
-		                      gp._addMultipleItems(groups,true);
-		                    #end
-		                  </script>
-		                 </div>
-		                <div class="description">
-		                  $i18n.getText("plugin.setting.plugin.permission.desc")
-		                </div>
-		              </td>
-		            </tr>
-		            <tr>
-		              <td style="text-align: right; vertical-align: top;" width="15%">
-		                <strong>$i18n.getText("plugin.setting.timetracker.permission")</strong>
-		              </td>
-		              <td class="admin-settings-value-column">
-		                <div id="groupSelect_browse_container"
-		                  class="ajax_autocomplete atlassian-autocomplete aui-ss field-group"
-		                  style="margin-bottom: 35px">
-	                      <select multiple="multiple"
-		                    name="timetrackerGroupSelect" 
-		                    id="timetrackerGroupSelect" 
-		                    data-popup-link-message="" 
-		                    data-popup-width="620" 
-		                    data-popup-height="500" 
-		                    data-remove-on-un-select="true" 
-		                    data-ajax-options.query="-" 
-		                    data-ajax-options.url="${req.contextPath}/rest/api/2/groups/picker" 
-		                    data-ajax-options.data.query="-" 
-		                    #if (${action.currentJQL})
-		                      data-ajax-options.data.current_jql=${action.currentJQL}
-		                    #end>
-		                  </select>
-		                  <script>
-		                    var gp = new AJS.MultiSelect({
-		                      element : AJS.$("#timetrackerGroupSelect"),
-		                      itemAttrDisplayed : "label",
-		                      showDropdownButton : false,
-		                      ajaxOptions : {
-		                        url : "${req.contextPath}/rest/api/2/groups/picker",
-		                        query : true, // keep going back to the sever for each keystroke
-		                        formatResponse : JIRA.GroupPickerUtil.formatResponse
-		                      }
-		                    });
-		                    #if($timetrackerGroups.size() != 0)
-		                      var list =[];
-		                      #foreach ($timetrackerGroup in $timetrackerGroups)
-		                        list.push("$timetrackerGroup");
-		                      #end
-		                      var groups = jQuery.map(list, function(value) {
-		                        return { value: value, label: value };
-		                      });
-		                      gp._addMultipleItems(groups,true);
-		                    #end
-		                  </script>
-		                 </div>
-		                <div class="description">
-		                  $i18n.getText("plugin.setting.timetracker.permission.desc")
-		                </div>
-		              </td>
-		            </tr>
-					<tr>
-						<td class="admin-border settings-label-column">
-							<h3>$i18n.getText("plugin.setting.non.working.issues")</h3>
-						</td>
-						<td class="admin-border admin-settings-value-column">
-							<div id="issueSelect_container" class="ajax_autocomplete atlassian-autocomplete aui-ss" >
-								<select class="hidden"
-										multiple="none" 
-							   			name="issueSelect" 
-										id="issueSelect" 
-							   			data-popup-link-message="" 
-							   			data-popup-height="500" 
-							   			data-remove-on-un-select="true" 
-							   			data-ajax-options.query="true" 
-							   			data-ajax-options.url="${req.contextPath}/rest/api/1.0/issues/picker" 
-							   			data-ajax-options.data.query="-" 
-							   			data-ajax-options.data.current-issue-key=""
-							   			data-ajax-options.data.show-sub-tasks="true" 
-								    	data-ajax-options.data.show-sub-task-parent="true"
-										#if (${action.currentJQL})
-											data-ajax-options.data.current_jql=${action.currentJQL}
-										#end>
-								</select> 
-								<script>
-										var ip = new AJS.IssuePicker({
-								  		element: AJS.$("#issueSelect"),
-								 		userEnteredOptionsMsg: AJS.params.enterIssueKey,
-								  		uppercaseUserEnteredOnSelect: true,
-								  		singleSelectOnly: true,
-								   		currentProjectId: $projectsId,
-										});
-										//Set the issues key all of them	
-										AJS.$("#issueSelect-textarea").append("$issueKey");
-										AJS.$('.issue-picker-popup').attr("style","margin-bottom: 15px;");
-										ip.handleFreeInput();
-								</script>
-							</div>
-							<div class="description separator-space">
-										$i18n.getText("plugin.setting.non.working.issues.help")
-							</div>
-						</td>
-					</tr>
-					<tr>
-						<td class="settings-label-column">
-							<h3>$i18n.getText("plugin.setting.nonestimated.issues")</h3>
-						</td>
-						<td class="admin-settings-value-column">
-							<div id="issueSelect_container_collector" class="ajax_autocomplete atlassian-autocomplete" >
-								<select class="hidden"
-										multiple="none" 
-							   			name="issueSelect_collector" 
-										id="issueSelect_collector" 
-							   			data-popup-link-message="" 
-							   			data-popup-width="620" 
-							   			data-popup-height="500" 
-							   			data-remove-on-un-select="true" 
-							   			data-ajax-options.query="true" 
-							   			data-ajax-options.url="${req.contextPath}/rest/api/1.0/issues/picker" 
-							   			data-ajax-options.data.query="-" 
-							   			data-ajax-options.data.current-issue-key=""
-							   			data-ajax-options.data.show-sub-tasks="true" 
-								    	data-ajax-options.data.show-sub-task-parent="true"
-										#if (${action.currentJQL})
-											data-ajax-options.data.current_jql=${action.currentJQL}
-										#end>
-								</select> 
-								<script>
-										var ip = new AJS.IssuePicker({
-								  		element: AJS.$("#issueSelect_collector"),
-								 		userEnteredOptionsMsg: AJS.params.enterIssueKey,
-								  		uppercaseUserEnteredOnSelect: true,
-								  		singleSelectOnly: true,
-								   		currentProjectId: $projectsId,
-										});
-										//Set the issues key all of them	
-										AJS.$("#issueSelect_collector-textarea").append("$collectorIssueKey");
-										AJS.$('.issue-picker-popup').attr("style","margin-bottom: 15px;");
-										ip.handleFreeInput();
-								</script>
-							</div>
-							<div class="description separator-space">
-									$i18n.getText("plugin.setting.nonestimated.issues.help")
-							</div>
-						</td>
-					</tr>
-					<tr>
-						<td class="settings-label-column">
-							<div>
-								<h3>$i18n.getText("plugin.setting.working.day")</h3>
-							</div>	
-						</td>
-						<td class="admin-settings-value-column">
-							<div class="description">
-										$i18n.getText("plugin.setting.working.day.help")
-							</div>
-						</td>	
-					</tr>
-					<tr>
-						<td class="settings-label-column">
-							<strong>$i18n.getText("plugin.setting.exclude.dates")</strong>
-						</td>
-						<td class="admin-settings-value-column">
-							<div id="messageExclude" class="red-text">
-		 							$i18n.getText($messageExclude) $messageParameterExclude
-		  					</div>
-							<textarea id="excludedates" name="excludedates" class="dates-textarea"></textarea>
-							<script>
-								AJS.$("#excludedates").append("$excludeDates");
-							</script>
-							<div class="description">
-									$i18n.getText("plugin.setting.exclude.dates.help")
-							</div>
-						</td>		
-					</tr>
-					<tr>
-						<td class="settings-label-column">
-							<strong>$i18n.getText("plugin.setting.include.dates")</strong>
-						</td>
-						<td class="admin-settings-value-column">
-							<div id="messageInclude" class="red-text">
-		 							$i18n.getText($messageInclude) $messageParameterInclude
-		  					</div>
-							<textarea id="includedates" name="includedates" class="dates-textarea"></textarea>
-							<script>
-								AJS.$("#includedates").append("$includeDates");
-							</script>
-							<div class="description">
-									$i18n.getText("plugin.setting.include.dates.help")
-							</div>
-						</td>		
-					</tr>
-					<tr>
-						<td class="admin-border settings-label-column">
-							<div >
-								<h3>$i18n.getText("plugin.settings.analytics")</h3>
-							</div>
-						</td>
-						<td class="admin-border admin-settings-value-column">
-							<div class="description" >
-										$i18n.getText("plugin.settings.analytics.help")
-							</div>
-						</td>
-					</tr>
-					<tr>
-						<td></td>
-						<td>
-							<div style="padding-top: 5px;">
-							<input id="analyticsCheckEnable" type="radio" name="analyticsCheck" value="enable" #if($analyticsCheck) checked #end/>
-										$i18n.getText("plugin.settings.analytics.radiobutton.enable")
-							<input id="analyticsCheckDisable" type="radio" name="analyticsCheck" value="disable" #if(!$analyticsCheck) checked #end/>
-										$i18n.getText("plugin.settings.analytics.radiobutton.disable")
-							</div>
-						</td>
-					</tr>
-					<tr class="buttons-container">
-						<td colspan="2">
-							<input id="savesettings"  type="submit" name="savesettings" value="$i18n.getText('plugin.save')" class="button"/>
-							<input id="resetButton"  type="button" name="reset" value="$i18n.getText('plugin.reset')" onclick="location.href='JiraTimetrackerAdminSettingsWebAction!default.jspa'" class="button"/>
-							<input id="cancelButton"  type="button" name="cancel" value="$i18n.getText('plugin.cancel')" onclick="location.href='JiraTimetrackerAdminSettingsWebAction!default.jspa'" class="button"/>
-						</td>
-					</tr>
-				</tbody>
-			</table>
-			
-		</div>
-	</div>
-</form>
+  $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:admin-settings-resources")
+
+  <header class="aui-page-header">
+    <div class="aui-page-header-inner">
+      <div class="aui-page-header-image">
+         <span class="aui-avatar aui-avatar-large">
+           <span class="aui-avatar-inner">
+             <a href="http://www.everit.biz/index.php?nyelv=en" target="_blank">
+               <img src="$contextPath/download/resources/org.everit.jira.timetracker.plugin:admin-settings-resources/E_logo.png" alt="Everit TimeTracker logo">
+             </a>
+           </span>
+         </span>
+      </div>
+      <div class="aui-page-header-main">
+        <h1>Timetracker Global Settings</h1>
+      </div>
+    </div>
+  </header>
+  <form name="adminSettingForm"  method="post" action="JiraTimetrackerAdminSettingsWebAction.jspa" class="aui">
+    #if(!$message.isEmpty())
+    <div id="error_message">
+      $i18n.getText($message)
+    </div>
+    #end
+    
+    <div class="field-group">
+      <label for="pluginGroupSelect">$i18n.getText("plugin.setting.plugin.permission")</label>
+      <select multiple="multiple"
+        name="pluginGroupSelect" 
+        id="pluginGroupSelect" 
+        data-popup-link-message="" 
+        data-popup-width="620" 
+        data-popup-height="500" 
+        data-remove-on-un-select="true" 
+        data-ajax-options.query="-" 
+        data-ajax-options.url="${req.contextPath}/rest/api/2/groups/picker" 
+        data-ajax-options.data.query="-" 
+      #if (${action.currentJQL})
+        data-ajax-options.data.current_jql=${action.currentJQL}
+      #end
+        >
+      </select>
+      <script>
+        var gp = new AJS.MultiSelect({
+          element : AJS.$("#pluginGroupSelect"),
+          itemAttrDisplayed : "label",
+          showDropdownButton : false,
+          ajaxOptions : {
+            url : "${req.contextPath}/rest/api/2/groups/picker",
+            query : true, // keep going back to the sever for each keystroke
+            formatResponse : JIRA.GroupPickerUtil.formatResponse
+          }
+        });
+      #if($pluginGroups.size() != 0)
+        var list =[];
+        #foreach ($pluginGroup in $pluginGroups)
+        list.push("$pluginGroup");
+        #end
+        var groups = jQuery.map(list, function(value) {
+          return { value: value, label: value };
+        });
+        gp._addMultipleItems(groups,true);
+      #end
+      </script>
+      <div class="description">$i18n.getText("plugin.setting.plugin.permission.desc")</div>
+    </div>
+    
+    <div class="field-group">
+      <label for="timetrackerGroupSelect">$i18n.getText("plugin.setting.timetracker.permission")</label>
+      <select multiple="multiple"
+        name="timetrackerGroupSelect" 
+        id="timetrackerGroupSelect" 
+        data-popup-link-message="" 
+        data-popup-width="620" 
+        data-popup-height="500" 
+        data-remove-on-un-select="true" 
+        data-ajax-options.query="-" 
+        data-ajax-options.url="${req.contextPath}/rest/api/2/groups/picker" 
+        data-ajax-options.data.query="-" 
+      #if (${action.currentJQL})
+        data-ajax-options.data.current_jql=${action.currentJQL}
+      #end
+        >
+      </select>
+      <script>
+        var gp = new AJS.MultiSelect({
+          element : AJS.$("#timetrackerGroupSelect"),
+          itemAttrDisplayed : "label",
+          showDropdownButton : false,
+          ajaxOptions : {
+            url : "${req.contextPath}/rest/api/2/groups/picker",
+            query : true, // keep going back to the sever for each keystroke
+            formatResponse : JIRA.GroupPickerUtil.formatResponse
+          }
+        });
+      #if($timetrackerGroups.size() != 0)
+        var list =[];
+        #foreach ($timetrackerGroup in $timetrackerGroups)
+        list.push("$timetrackerGroup");
+        #end
+        var groups = jQuery.map(list, function(value) {
+          return { value: value, label: value };
+        });
+        gp._addMultipleItems(groups,true);
+      #end
+      </script>
+      <div class="description">$i18n.getText("plugin.setting.timetracker.permission.desc")</div>
+    </div>
+    
+    <div class="field-group">
+      <label for="issueSelect">$i18n.getText("plugin.setting.non.working.issues")</label>
+      <select class="hidden"
+        multiple="none" 
+        name="issueSelect" 
+        id="issueSelect" 
+        data-popup-link-message="" 
+        data-popup-height="500" 
+        data-remove-on-un-select="true" 
+        data-ajax-options.query="true" 
+        data-ajax-options.url="${req.contextPath}/rest/api/1.0/issues/picker" 
+        data-ajax-options.data.query="-" 
+        data-ajax-options.data.current-issue-key=""
+        data-ajax-options.data.show-sub-tasks="true" 
+        data-ajax-options.data.show-sub-task-parent="true"
+      #if (${action.currentJQL})
+        data-ajax-options.data.current_jql=${action.currentJQL}
+      #end
+        >
+      </select> 
+      <script>
+        var ip = new AJS.IssuePicker({
+          element: AJS.$("#issueSelect"),
+          userEnteredOptionsMsg: AJS.params.enterIssueKey,
+          uppercaseUserEnteredOnSelect: true,
+          singleSelectOnly: true,
+          currentProjectId: $projectsId,
+        });
+        //Set the issues key all of them  
+        AJS.$("#issueSelect-textarea").append("$issueKey");
+        AJS.$('.issue-picker-popup').attr("style","margin-bottom: 15px;");
+        ip.handleFreeInput();
+      </script>
+      <div class="description">$i18n.getText("plugin.setting.non.working.issues.help")</div>
+    </div>
+    
+    <div class="field-group">
+      <label for="issueSelect_collector">$i18n.getText("plugin.setting.nonestimated.issues")</label>
+      <select class="hidden"
+        multiple="none" 
+        name="issueSelect_collector" 
+        id="issueSelect_collector" 
+        data-popup-link-message="" 
+        data-popup-width="620" 
+        data-popup-height="500" 
+        data-remove-on-un-select="true" 
+        data-ajax-options.query="true" 
+        data-ajax-options.url="${req.contextPath}/rest/api/1.0/issues/picker" 
+        data-ajax-options.data.query="-" 
+        data-ajax-options.data.current-issue-key=""
+        data-ajax-options.data.show-sub-tasks="true" 
+        data-ajax-options.data.show-sub-task-parent="true"
+      #if (${action.currentJQL})
+        data-ajax-options.data.current_jql=${action.currentJQL}
+      #end
+        >
+      </select> 
+      <script>
+        var ip = new AJS.IssuePicker({
+          element: AJS.$("#issueSelect_collector"),
+          userEnteredOptionsMsg: AJS.params.enterIssueKey,
+          uppercaseUserEnteredOnSelect: true,
+          singleSelectOnly: true,
+          currentProjectId: $projectsId,
+        });
+        //Set the issues key all of them  
+        AJS.$("#issueSelect_collector-textarea").append("$collectorIssueKey");
+        AJS.$('.issue-picker-popup').attr("style","margin-bottom: 15px;");
+        ip.handleFreeInput();
+      </script>
+      <div class="description">$i18n.getText("plugin.setting.nonestimated.issues.help")</div>
+    </div>
+    
+    <div class="field-group">
+      <label>$i18n.getText("plugin.setting.working.day")</label>
+      <div class="description">$i18n.getText("plugin.setting.working.day.help")</div>
+    </div>
+    
+    <div class="field-group">
+      <label for="excludedates">$i18n.getText("plugin.setting.exclude.dates")</label>
+      <div id="messageExclude" class="red-text">
+        $i18n.getText($messageExclude) $messageParameterExclude
+      </div>
+      <textarea id="excludedates" name="excludedates"></textarea>
+      <script>
+        AJS.$("#excludedates").append("$excludeDates");
+      </script>
+      <div class="description">$i18n.getText("plugin.setting.exclude.dates.help")</div>
+    </div>
+    
+    <div class="field-group">
+      <label for="includedates">$i18n.getText("plugin.setting.include.dates")</label>
+      <div id="messageInclude" class="red-text">
+        $i18n.getText($messageInclude) $messageParameterInclude
+      </div>
+      <textarea id="includedates" name="includedates"></textarea>
+      <script>
+        AJS.$("#includedates").append("$includeDates");
+      </script>
+      <div class="description">$i18n.getText("plugin.setting.include.dates.help")</div>
+    </div>
+    
+    <div class="field-group">
+      <label>$i18n.getText("plugin.settings.analytics")</label>
+      <div style="padding-top: 5px;">
+        <input id="analyticsCheckEnable" type="radio" name="analyticsCheck" value="enable" #if($analyticsCheck) checked #end/>
+        $i18n.getText("plugin.settings.analytics.radiobutton.enable")
+        <input id="analyticsCheckDisable" type="radio" name="analyticsCheck" value="disable" #if(!$analyticsCheck) checked #end/>
+        $i18n.getText("plugin.settings.analytics.radiobutton.disable")
+      </div>
+      <div class="description">$i18n.getText("plugin.settings.analytics.help")</div>
+    </div>
+    
+    <div class="buttons-container">
+      <div class="buttons">
+        <input id="savesettings"  type="submit" name="savesettings" value="$i18n.getText('plugin.save')" class="aui-button aui-button-primary"/>
+        <input id="resetButton"  type="button" name="reset" value="$i18n.getText('plugin.reset')" onclick="location.href='JiraTimetrackerAdminSettingsWebAction!default.jspa'" class="aui-button aui-button-primary"/>
+        <input id="cancelButton"  type="button" name="cancel" value="$i18n.getText('plugin.cancel')" onclick="location.href='/secure/JiraTimetrackerWebAction!default.jspa'" class="aui-button aui-button-primary"/>
+      </div>
+    </div>
+    
+  </form>
+  
+  <!-- Issue Collector script -->
+  <script type="text/javascript" src="$issueCollectorSrc"></script>
 </body>
 </html>
