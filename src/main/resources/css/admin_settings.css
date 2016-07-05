@@ -13,6 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+form.aui div.description {
+	clear: none;
+}
+
 form.aui div.field-group textarea {
 	max-width: 500px;
 	width: 100%;
