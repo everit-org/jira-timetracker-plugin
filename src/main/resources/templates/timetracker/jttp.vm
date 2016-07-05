@@ -237,5 +237,10 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 
           </div>
       </div>
+      <!-- Issue Collector script -->
+      <script type="text/javascript" src="$issueCollectorSrc"></script>
+      #if($analyticsDTO.analyticsCheck)
+        #parse("templates/common/analytics.vm")
+      #end
 </body>
 </html>

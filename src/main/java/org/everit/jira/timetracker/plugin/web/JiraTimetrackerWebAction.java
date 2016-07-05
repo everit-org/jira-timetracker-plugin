@@ -24,6 +24,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.time.DateUtils;
@@ -42,6 +43,7 @@ import org.everit.jira.timetracker.plugin.dto.WorklogValues;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
+import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 import org.ofbiz.core.entity.GenericEntityException;
 
 import com.atlassian.jira.component.ComponentAccessor;
@@ -188,6 +190,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The calendar isPopup.
    */
   private int isPopup;
+
+  private String issueCollectorSrc;
 
   /**
    * The issue key.
@@ -426,7 +430,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
         PiwikPropertiesUtil.PIWIK_TIMETRACKER_SITEID);
 
     normalizeContextPath();
-
+    loadIssueCollectorSrc();
     getJiraVersionFromBuildUtilsInfo();
 
     loadPluginSettingAndParseResult();
@@ -476,6 +480,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
         PiwikPropertiesUtil.PIWIK_TIMETRACKER_SITEID);
 
     normalizeContextPath();
+    loadIssueCollectorSrc();
 
     getJiraVersionFromBuildUtilsInfo();
 
@@ -682,6 +687,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return isPopup;
   }
 
+  public String getIssueCollectorSrc() {
+    return issueCollectorSrc;
+  }
+
   public String getIssueKey() {
     return issueKey;
   }
@@ -886,6 +895,11 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       return INPUT;
     }
     return SUCCESS;
+  }
+
+  private void loadIssueCollectorSrc() {
+    Properties properties = PropertiesUtil.getJttpBuildProperties();
+    issueCollectorSrc = properties.getProperty(PropertiesUtil.ISSUE_COLLECTOR_SRC);
   }
 
   private void loadPluginSettingAndParseResult() {
