@@ -69,9 +69,9 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
                   <td>
                     $worklog.duration
                   </td>
-                  <td  class="table-comment">
-                    <input id="hiddenWorklogBody" type="hidden" value="$worklog.body">
+                  <td  class="table-comment wiki-edit-content">
                     $atlassianWikiRenderer.render($worklog.body, $issueRenderContext)
+                    <input id="hiddenWorklogBody" type="hidden" value="$worklog.body">
                   </td>
                   <td>
                     <form class="aui top-label actionForm_$worklog.worklogId" id="jttp-action-form" method="get" action="JiraTimetrackerWebAction.jspa"  onsubmit="return everit.jttp.main.beforeSubmitAction($worklog.worklogId);" >

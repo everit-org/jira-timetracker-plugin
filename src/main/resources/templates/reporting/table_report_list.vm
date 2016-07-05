@@ -69,24 +69,6 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
           <td colspan="3" class="table-comment wiki-edit-content vertically-middle">
             $atlassianWikiRenderer.render($worklog.body, $issueRenderContext)
             <input id="hiddenWorklogBody" type="hidden" value="$worklog.body">
-            <script>
-              jQuery.ajax({
-                url:  "${req.contextPath}/rest/api/1.0/render",
-                contentType: "application/json",
-                type:'POST',
-                data: JSON.stringify({
-                  rendererType: "atlassian-wiki-renderer",
-                  unrenderedMarkup: "$worklog.body"
-                }),
-                dataType: "text",
-                success: function(data){
-                  data = data.replace('<p>','');
-                  data = data.replace('</p>','');
-                  AJS.$("#commentRow_$rowCount").append(data);
-                  AJS.$("#commentRow_$rowCount").attr("style","vertical-align: middle;text-align: left;padding: 4px 10px 4px 10px;");
-                }
-              });
-            </script>
           </td>
         </tr>
         #if($velocityCount < $worklogs.size())

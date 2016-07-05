@@ -379,6 +379,10 @@ div.calendar {
 	font-size: 14px;
 }
 
+p {
+    margin: 0;
+}
+
 .warn-message{
 	text-align: center;
 	padding: 3px;

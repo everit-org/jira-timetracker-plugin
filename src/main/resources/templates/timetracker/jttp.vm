@@ -201,7 +201,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
                 </div>
 
                 <div class="field-group">
-                  <label for="comments">$i18n.getText("plugin.note")</label>
+                  <label for="comments">$i18n.getText("plugin.jttp-worklog-description")</label>
                   #set($fieldId = "comments")
                   #parse("templates/plugins/renderers/wiki/wiki-renderer-edit.vm")
                 </div>
