@@ -18,6 +18,7 @@ package org.everit.jira.timetracker.plugin.web;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
+import java.util.Properties;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
@@ -28,6 +29,7 @@ import org.everit.jira.timetracker.plugin.PluginCondition;
 import org.everit.jira.timetracker.plugin.TimetrackerCondition;
 import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
+import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 
 import com.atlassian.jira.web.action.JiraWebActionSupport;
 
@@ -35,6 +37,11 @@ import com.atlassian.jira.web.action.JiraWebActionSupport;
  * The settings page.
  */
 public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
+
+  /**
+   * The Issue Collector jttp_build.porperties key.
+   */
+  private static final String ISSUE_COLLECTOR_SRC = "ISSUE_COLLECTOR_SRC";
 
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
 
@@ -91,6 +98,8 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
    * The calendar is popup, inLine or both.
    */
   private int isPopup;
+
+  private String issueCollectorSrc;
 
   /**
    * The filtered Issues id.
@@ -162,6 +171,7 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     if (checkConditionsResult != null) {
       return checkConditionsResult;
     }
+    loadIssueCollectorSrc();
     normalizeContextPath();
     loadPluginSettingAndParseResult();
     try {
@@ -179,6 +189,7 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     if (checkConditionsResult != null) {
       return checkConditionsResult;
     }
+    loadIssueCollectorSrc();
     normalizeContextPath();
     loadPluginSettingAndParseResult();
     try {
@@ -229,6 +240,10 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     return isPopup;
   }
 
+  public String getIssueCollectorSrc() {
+    return issueCollectorSrc;
+  }
+
   public String getMessage() {
     return message;
   }
@@ -243,6 +258,11 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 
   public String getStartTime() {
     return startTime;
+  }
+
+  private void loadIssueCollectorSrc() {
+    Properties properties = PropertiesUtil.getJttpBuildProperties();
+    issueCollectorSrc = properties.getProperty(ISSUE_COLLECTOR_SRC);
   }
 
   /**
