@@ -122,6 +122,8 @@
       </form>
     </div>
   </div>
-     
+  
+  <!-- Issue Collector script -->
+  <script type="text/javascript" src="$issueCollectorSrc"></script>
 </body>
 </html>
