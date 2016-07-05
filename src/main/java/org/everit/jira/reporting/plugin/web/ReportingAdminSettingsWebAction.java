@@ -19,6 +19,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -27,6 +28,7 @@ import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
 import org.everit.jira.timetracker.plugin.dto.ReportingSettingsValues;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
+import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
@@ -37,6 +39,11 @@ import com.atlassian.jira.web.action.JiraWebActionSupport;
 public class ReportingAdminSettingsWebAction extends JiraWebActionSupport {
 
   private static final String FREQUENT_FEEDBACK = "jttp.plugin.frequent.feedback";
+
+  /**
+   * The Issue Collector jttp_build.porperties key.
+   */
+  private static final String ISSUE_COLLECTOR_SRC = "ISSUE_COLLECTOR_SRC";
 
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
 
@@ -55,6 +62,8 @@ public class ReportingAdminSettingsWebAction extends JiraWebActionSupport {
   private String contextPath;
 
   private boolean feedBackSendAviable;
+
+  private String issueCollectorSrc;
 
   private JiraTimetrackerPlugin jiraTimetrackerPlugin;
 
@@ -84,6 +93,7 @@ public class ReportingAdminSettingsWebAction extends JiraWebActionSupport {
       setReturnUrl(JIRA_HOME_URL);
       return getRedirect(NONE);
     }
+    loadIssueCollectorSrc();
     normalizeContextPath();
     checkMailServer();
 
@@ -99,6 +109,7 @@ public class ReportingAdminSettingsWebAction extends JiraWebActionSupport {
       setReturnUrl(JIRA_HOME_URL);
       return getRedirect(NONE);
     }
+    loadIssueCollectorSrc();
     normalizeContextPath();
     checkMailServer();
 
@@ -136,12 +147,21 @@ public class ReportingAdminSettingsWebAction extends JiraWebActionSupport {
     return feedBackSendAviable;
   }
 
+  public String getIssueCollectorSrc() {
+    return issueCollectorSrc;
+  }
+
   public String getMessage() {
     return message;
   }
 
   public List<String> getReportingGroups() {
     return reportingGroups;
+  }
+
+  private void loadIssueCollectorSrc() {
+    Properties properties = PropertiesUtil.getJttpBuildProperties();
+    issueCollectorSrc = properties.getProperty(ISSUE_COLLECTOR_SRC);
   }
 
   /**
