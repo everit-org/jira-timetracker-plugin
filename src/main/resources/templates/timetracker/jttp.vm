@@ -14,11 +14,12 @@
  * limitations under the License.
  *#
 <html>
-
+<body>
 
 $webResourceManager.requireResource("jira.webresources:global-static")
 $webResourceManager.requireResource("jira.webresources:calendar")
 $webResourceManager.requireResource("jira.webresources:calendar-en")
+$webResourceManager.requireResource("com.atlassian.auiplugin:aui-progress-indicator")
 $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-resources")
 
 #set($rendererType = "atlassian-wiki-renderer")
@@ -40,7 +41,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 			{
 				firstDay : ${firstDay},
 				useISO8601 : ${currentCalendar.useISO8601},
-				dateFormatted : "$dateFormatted",
+				dateFormatted : ${dateFormatted},
 				excludeDays : ${excludeDays},
 				isColoring : ${isColoring},
 				loggedDays : ${loggedDays},
@@ -81,9 +82,9 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
       </header>
 
       <div class="aui-page-panel">
-      #if(!$debugMessage.isEmpty())
+      #if(!$message.isEmpty())
         <div id="error_message">
-          $debugMessage
+          $message
         </div>
       #end
 
@@ -98,52 +99,25 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
                   <div id="jttp-headline-progress-indicator" class="aui-progress-indicator">
                     <span class="aui-progress-indicator-value" />
                   </div>
-                  <script type="text/javascript">
-                    // TODO extract to JS file and function, the only call here with the proper value
-                    // Do this custom coloring only if the user can enable/disable it.
-                    // If user can't enable or disable custom coloring, then use deafult progress indicator: https://docs.atlassian.com/aui/latest/docs/progress-indicator.html
-                    var jttp_progress_value = 0.1;
-                    var jttp_progress_red = '#d04437';
-                    var jttp_progress_green = '#14892c';
-                    var jttp_progress_yellow = '#f6c342';
-                    AJS.progressBars.update(
-                        "#jttp-headline-progress-indicator",
-                        jttp_progress_value);
-                    if (jttp_progress_value <= 0.2) {
-                      AJS
-                          .$(
-                              '#jttp-headline-progress-indicator .aui-progress-indicator-value')
-                          .css("background-color",
-                              jttp_progress_red);
-                    } else if (jttp_progress_value >= 1.0){
-                       AJS
-                          .$(
-                              '#jttp-headline-progress-indicator .aui-progress-indicator-value')
-                          .css("background-color",
-                              jttp_progress_green); 
-                    } else {
-                      AJS
-                          .$(
-                              '#jttp-headline-progress-indicator .aui-progress-indicator-value')
-                          .css("background-color",
-                              jttp_progress_yellow);  
-                    }
-                  </script>
                 </div>
               </div>
               <div id="jttp-headline-day-stepper-container">
-                <div class="aui-buttons">
-                  <button id="jttp-headline-day-prev" class="aui-button aui-button-subtle" title="Previous day">
-                    <span class="aui-icon aui-icon-small aui-iconfont-arrows-left">Previous day</span>
-                  </button>
-                  <button id="jttp-headline-day-calendar" class="aui-button aui-button-subtle" title="Pick a date">
-                    <span>Fri, January 15, 2016 &nbsp;</span> 
-                    <span class="aui-icon aui-icon-small aui-iconfont-calendar">Open calendar</span>
-                  </button>
-                  <button id="jttp-headline-day-next" class="aui-button aui-button-subtle" title="Next day">
-                    <span class="aui-icon aui-icon-small aui-iconfont-arrows-right">Next day</span>
-                  </button>
-                </div>
+                <form class="aui top-label" id="jttp-datecahnge-form" method="get" action="JiraTimetrackerWebAction.jspa" onsubmit="return everit.jttp.main.beforeSubmitChangeDate();">
+                  <div class="aui-buttons">
+                    <button id="jttp-headline-day-prev" class="aui-button aui-button-subtle" title="Previous day" type="submit" id="dayBack"  name="dayBack" >
+                      <span class="aui-icon aui-icon-small aui-iconfont-arrows-left">Previous day</span>
+                    </button>
+                    <button id="jttp-headline-day-calendar" class="aui-button aui-button-subtle" title="Pick a date">
+                      <span id="date-span"></span> 
+                      <span class="aui-icon aui-icon-small aui-iconfont-calendar">Open calendar</span>
+                    </button>
+                    <button id="jttp-headline-day-next" class="aui-button aui-button-subtle" title="Next day" type="submit" id="dayNext" name="dayNext">
+                      <span class="aui-icon aui-icon-small aui-iconfont-arrows-right">Next day</span>
+                    </button>
+                  </div>
+                  <input type="text" id="dateHidden" name="dateHidden" style="display: none" onchange="this.form.datesubmit.click()" />
+                  <input type="submit" id="datesubmit" name="datesubmit" class="spaced" style="display: none"/>
+                </form>
               </div>
               <div id="jttp-headline-empty">&nbsp;</div>
             </div>
@@ -151,8 +125,6 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 
         <!-- Dont forget the "No data to display" message -->
         #parse("templates/timetracker/list.vm")
-        <!-- Worklog submit form -->
-        <form class="aui top-label" id="jttp-logwork-form">
 
           <div class="aui-page-panel-inner">
             <section class="aui-page-panel-content" id="jttp-change-date">
@@ -166,61 +138,96 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
           </div>
 
           <div class="jttp-bottom-group" id="jttp-bottom-group">
-
             <section class="aui-page-panel-content" id="jttp-logwork-fields">
+              <form name="dummyForm" class="aui top-label" id="dummyForm" method="get" onsubmit="return false;" >
+                <div id="jttp-logwork-time" class="full-width-field">
 
+                  <div class="field-group">
+                    <label for="startTime">$i18n.getText("plugin.start.time")<span class="aui-icon icon-required">(required)</span></label>
+                    <input id="startTime" class="text short-field" type="text"
+                      value="$startTime" onkeypress="everit.jttp.main.handleEnterKey(event, '#endTime');"
+                      name="startTime" maxlength="5" tabindex="1"
+                      pattern="^([01][0-9]|2[0-3]):[0-5][0-9]$" title="hh:mm">
+                    <input id="startNow" name="startNow" class="button" type="button" value="$i18n.getText('plugin.now')"
+                      onclick="everit.jttp.main.startNowClick($startTimeChange);">
+                  </div>
 
-              <div id="jttp-logwork-time" class="full-width-field">
+                  <div class="field-group">
+                    <label for="endTime">$i18n.getText("plugin.end.time")</label>
+                    <input id="radioEnd" type="radio" name="endOrDuration" value="end" checked="true" style="display: none;"> 
+                    <span class="time-input-span">
+                      <input id="endTime" class="text short-field" type="text"
+                        name="endTime" maxlength="5" tabindex="2"
+                        value="$endTime" onkeypress="everit.jttp.main.handleEnterKey(event, '#issueSelect-textarea');"
+                        onclick="everit.jttp.main.endTimeInputClick($isEditAll);"
+                        pattern="^([01][0-9]|2[0-3]):[0-5][0-9]$" title="empty or hh:mm">
+                      <div id="endTimeInput" class="time-input-div" onclick="everit.jttp.main.endTimeInputClick($isEditAll);"></div>
+                    </span>
+                    <input id="endNow" class="button" type="button" name="endNow" value="$i18n.getText('plugin.now')" onclick="everit.jttp.main.endNowClick($endTimeChange);">
+                  </div>
+
+                  <div class="field-group">
+                    <label for="durationTime">$i18n.getText("plugin.duration.time")</label> 
+                    <input id="radioDuration" type="radio" name="endOrDuration" value="duration" style="display: none;">
+                    <span class="time-input-span">
+                      <input id="durationTime" class="text short-field" type="text"
+                        name="durationTime" maxlength="5" tabindex="2"
+                        value="$durationTime" onkeypress="everit.jttp.main.handleEnterKey(event, '#issueSelect-textarea');"
+                        onclick="everit.jttp.main.durationTimeInput($isEditAll);"
+                        pattern="^([01][0-9]|2[0-3]):[0-5][0-9]$" title="empty or hh:mm" disabled >
+                      <div id="durationTimeInput" class="time-input-div" onclick="everit.jttp.main.durationTimeInput($isEditAll);"></div>
+                    </span>
+                  </div>
+                </div>
                 <div class="field-group">
-                  <label for="lw_start">Start Time <span class="aui-icon icon-required">(required)</span></label>
-                    <!-- TODO: add the required="required" attribute to the inpuptfield if the submit fails -->
-                    <input id="jttp-logwork-time-start" class="text short-field" type="text"
-                    name="lw_start" maxlength="5" tabindex="1"
-                    pattern="^([01][0-9]|2[0-3]):[0-5][0-9]$" title="hh:mm">
-                  <input id="jttp-logwork-time-start-now" class="button" type="button" value="Now">
+                  <label for="issueSelect-textarea">Issue <span class="aui-icon icon-required">(required)</span></label>
+                  <div id="issueSelect_container" class="ajax_autocomplete atlassian-autocomplete" >
+                    <select class="hidden"
+                      multiple="none" 
+                      name="issueSelect"
+                      id="issueSelect"
+                      data-popup-link-message=""
+                      data-popup-height="500"
+                      data-remove-on-un-select="true"
+                      data-ajax-options.query="true"
+                      data-ajax-options.url="${req.contextPath}/rest/api/1.0/issues/picker"
+                      data-ajax-options.data.query="-"
+                      data-ajax-options.data.current-issue-key=""
+                      data-ajax-options.data.show-sub-tasks="true"
+                      data-ajax-options.data.show-sub-task-parent="true"
+                      data-ajax-options.data.current_jql="resolution = Unresolved ORDER BY issuetype ASC, priority DESC">
+                    </select> 
+                  </div>
                 </div>
 
                 <div class="field-group">
-                  <label for="lw_end">End Time</label> <input id="jttp-logwork-time-end"
-                    class="text short-field" type="text" name="lw_end" maxlength="5" tabindex="2"
-                    pattern="^([01][0-9]|2[0-3]):[0-5][0-9]$" title="empty or hh:mm"> 
-                  <input id="jttp-logwork-time-end-now" class="button" type="button" value="Now">
+                  <label for="comments">$i18n.getText("plugin.note")</label>
+                  #set($fieldId = "comments")
+                  #parse("templates/plugins/renderers/wiki/wiki-renderer-edit.vm")
                 </div>
-
-                <div class="field-group">
-                  <label for="lw_duration">Duration</label> 
-                  <input id="jttp-logwork-time-duration" class="text short-field" type="text"
-                    name="lw_duration" maxlength="5" tabindex="2"
-                    pattern="^([01][0-9]|2[0-3]):[0-5][0-9]$" title="empty or hh:mm">
-                </div>
-
-              </div>
-
-              <div class="field-group">
-                <label for="lw_issue">Issue <span class="aui-icon icon-required">(required)</span></label>
-                <textarea id="jttp-logwork-issue" class="textarea full-width-field" name="lw_issue" tabindex="3"></textarea>
-              </div>
-
-              <div class="field-group">
-                <label for="lw_comment">Work Description </label>
-                <textarea id="jttp-logwork-comment" rows="3"
-                  class="textarea full-width-field" name="lw_comment" tabindex="4"></textarea>
-              </div>
+              </form>
 
               <div class="buttons-container">
-                <div class="buttons">
-                  <input class="aui-button aui-button-primary" type="submit" value="Save"
-                    id="jttp-logwork-save" name="lw_save" tabindex="5"> 
-                  <input class="aui-button aui-button-subtle" type="reset" value="Cancel"
-                    id="jttp-logwork-cancel" name="lw_cancel">
-                </div>
+                <!-- Worklog submit form -->
+                <form class="aui top-label" id="jttp-logwork-form" method="get" action="JiraTimetrackerWebAction.jspa"  onsubmit="return everit.jttp.main.beforeSubmit();" >
+                  <div class="buttons">
+                    <input class="aui-button aui-button-primary" type="submit" value="Save"
+                      id="jttp-logwork-save" name="lw_save" tabindex="5"> 
+                    <input type="hidden" id="actionWorklogId" name="actionWorklogId" value="$actionWorklogId" >
+                    <input type="hidden" id="actionFlag" name="actionFlag" value="$actionFlag" >
+                    <input type="hidden" id="date" name="date" >
+                    <input type="hidden" id="worklogValuesJson" name="worklogValuesJson" >
+                    <input class="aui-button aui-button-subtle" type="reset" value="Cancel"
+                      id="jttp-logwork-cancel" name="lw_cancel" onclick="everit.jttp.main.cancelClick();">
+                  </div>
+                </form>
               </div>
 
             </section>
 
             <section class="aui-page-panel-content" id="jttp-logwork-calendar">
-              <!-- Calendar -->
-                <div style="background-color: lightblue; width: 245.8px; height: 207.61px; margin: 50px 0px 50px 0px;"></div>
+                <!-- <div style="background-color: lightblue; width: 245.8px; height: 207.61px; margin: 50px 0px 50px 0px;"></div> -->
+                <div id="not_popup_calendar" class="not_popup_calendar"></div>
             </section>
 
             <section class="aui-page-panel-content" id="jttp-worklog-summary">
@@ -229,7 +236,6 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
             </section>
 
           </div>
-        </form>
       </div>
-
-<</html>
+</body>
+</html>

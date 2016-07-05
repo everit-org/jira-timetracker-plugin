@@ -288,7 +288,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
 
   @Override
   public ActionResult createWorklog(final String issueId,
-      final String comment, final String dateFormatted,
+      final String comment, final Date date,
       final String startTime, final String timeSpent) {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
@@ -306,16 +306,16 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
       return new ActionResult(ActionResultStatus.FAIL,
           NOPERMISSION_ISSUE, issueId);
     }
-    Date date;
+    Date startDate;
     try {
-      date = DateTimeConverterUtil.stringToDateAndTime(dateFormatted, startTime);
+      startDate = DateTimeConverterUtil.stringToDateAndTime(date, startTime);
     } catch (ParseException e) {
       return new ActionResult(ActionResultStatus.FAIL,
-          DATE_PARSE, dateFormatted + " " + startTime);
+          DATE_PARSE, date + " " + startTime);
     }
 
     WorklogNewEstimateInputParameters params = WorklogInputParametersImpl
-        .issue(issue).startDate(date).timeSpent(timeSpent)
+        .issue(issue).startDate(startDate).timeSpent(timeSpent)
         .comment(comment).buildNewEstimate();
     WorklogService worklogService = ComponentAccessor.getComponent(WorklogService.class);
     if (!worklogService.hasPermissionToCreate(serviceContext, issue, true)) {
@@ -421,7 +421,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
 
   @Override
   public ActionResult editWorklog(final Long id, final String issueId,
-      final String comment, final String dateFormatted, final String time,
+      final String comment, final Date date, final String time,
       final String timeSpent) {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
@@ -449,7 +449,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
         return deleteResult;
       }
       ActionResult createResult = createWorklog(issueId, comment,
-          dateFormatted, time, timeSpent);
+          date, time, timeSpent);
       if (createResult.getStatus() == ActionResultStatus.FAIL) {
         return createResult;
       }
@@ -457,10 +457,10 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
       Date dateCreate;
       try {
         dateCreate = DateTimeConverterUtil
-            .stringToDateAndTime(dateFormatted, time);
+            .stringToDateAndTime(date, time);
       } catch (ParseException e) {
         return new ActionResult(ActionResultStatus.FAIL,
-            DATE_PARSE + dateFormatted + " " + time);
+            DATE_PARSE + date + " " + time);
       }
       WorklogInputParameters params = WorklogInputParametersImpl
           .issue(issue).startDate(dateCreate).timeSpent(timeSpent)
@@ -487,7 +487,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   }
 
   @Override
-  public Date firstMissingWorklogsDate(final String selectedUser) throws GenericEntityException {
+  public Date firstMissingWorklogsDate() throws GenericEntityException {
     Calendar scannedDate = Calendar.getInstance();
     // one week
     scannedDate.set(Calendar.DAY_OF_YEAR,
@@ -648,7 +648,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   }
 
   @Override
-  public List<String> getLoggedDaysOfTheMonth(final String selectedUser, final Date date)
+  public List<String> getLoggedDaysOfTheMonth(final Date date)
       throws GenericEntityException {
     List<String> resultDays = new ArrayList<String>();
     int dayOfMonth = 1;
@@ -1122,7 +1122,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   }
 
   @Override
-  public String summary(final String selectedUser, final Date startSummary,
+  public String summary(final Date startSummary,
       final Date finishSummary,
       final List<Pattern> issuePatterns) throws GenericEntityException {
     JiraAuthenticationContext authenticationContext = ComponentAccessor

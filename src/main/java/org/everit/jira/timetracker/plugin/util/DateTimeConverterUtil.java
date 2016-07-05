@@ -381,6 +381,29 @@ public final class DateTimeConverterUtil {
   }
 
   /**
+   * Convert String to date and time and merge them. Use the stringToDate and stringTimeToDateTime
+   * methods.
+   *
+   * @param date
+   *          The date.
+   * @param timeString
+   *          The time string to convert.
+   * @return The result Date.
+   * @throws ParseException
+   *           if can't parse the date.
+   */
+  public static Date stringToDateAndTime(final Date date, final String timeString)
+      throws ParseException {
+    Calendar dateCalendaer = Calendar.getInstance();
+    dateCalendaer.setTime(date);
+    Calendar time = Calendar.getInstance();
+    time.setTime(DateTimeConverterUtil.stringTimeToDateTime(timeString));
+    dateCalendaer.set(Calendar.HOUR_OF_DAY, time.get(Calendar.HOUR_OF_DAY));
+    dateCalendaer.set(Calendar.MINUTE, time.get(Calendar.MINUTE));
+    return dateCalendaer.getTime();
+  }
+
+  /**
    * Convert String ({@value #DATE_TIME_FORMAT}) to date and time.
    *
    * @param dateAndTimeString
@@ -394,29 +417,6 @@ public final class DateTimeConverterUtil {
         new SimpleDateFormat(DATE_TIME_FORMAT, DateTimeConverterUtil.getLoggedUserLocal());
     Date date = formatterDateAndTime.parse(dateAndTimeString);
     return date;
-  }
-
-  /**
-   * Convert String to date and time and merge them. Use the stringToDate and stringTimeToDateTime
-   * methods.
-   *
-   * @param dateString
-   *          The date string to convert.
-   * @param timeString
-   *          The time string to convert.
-   * @return The result Date.
-   * @throws ParseException
-   *           if can't parse the date.
-   */
-  public static Date stringToDateAndTime(final String dateString, final String timeString)
-      throws ParseException {
-    Calendar date = Calendar.getInstance();
-    date.setTime(DateTimeConverterUtil.stringToDate(dateString));
-    Calendar time = Calendar.getInstance();
-    time.setTime(DateTimeConverterUtil.stringTimeToDateTime(timeString));
-    date.set(Calendar.HOUR_OF_DAY, time.get(Calendar.HOUR_OF_DAY));
-    date.set(Calendar.MINUTE, time.get(Calendar.MINUTE));
-    return date.getTime();
   }
 
   /**

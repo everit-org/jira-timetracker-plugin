@@ -48,7 +48,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
                   <td>
                     <img class="img-tooltip" src="#if(!$worklog.issueAvatarId) #if( $worklog.issueTypeIconUrl.startsWith("http") )$worklog.issueTypeIconUrl#else$contextPath$worklog.issueTypeIconUrl#end#else$contextPath/secure/viewavatar?size=xsmall&avatarId=$worklog.issueAvatarId&avatarType=issuetype#end" alt="$worklog.issueTypeName" title="$worklog.issueTypeName"></img>
                   </td>
-                  <td style="white-space: nowrap; #if($worklog.isClosed) text-decoration: line-through; #end">
+                  <td class="table-issue" style="white-space: nowrap; #if($worklog.isClosed) text-decoration: line-through; #end">
                     <a href="$contextPath/browse/$worklog.issue" class="issue-link" title="#if($worklog.issueParent != '') $i18n.getText('plugin.parent.issue') $worklog.issueParent &#13 $worklog.issueSummary #else $worklog.issueSummary #end">$worklog.issue</a>
                   </td>
                   <td>
@@ -60,31 +60,37 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
                     <div title="$worklog.exactRemaining" style="color:red;">$worklog.roundedRemaining</div>
                   #end
                   </td>
-                  <td>
+                  <td class="table-starttime">
                     $worklog.startTime
                   </td>
-                  <td>
+                  <td class="table-endtime">
                     $worklog.endTime
                   </td>
                   <td>
                     $worklog.duration
                   </td>
-                  <td>
+                  <td  class="table-comment">
+                    <input id="hiddenWorklogBody" type="hidden" value="$worklog.body">
                     $atlassianWikiRenderer.render($worklog.body, $issueRenderContext)
                   </td>
                   <td>
-                    <input id="hiddenWorklogId" type="hidden" value="$worklog.worklogId" >
-                    <span class="aui-icon aui-icon-small aui-iconfont-edit"
-                      id="edit" name="edit" title="$i18n.getText('plugin.edit')"
-                      onclick="location.href='JiraTimetrackerWebAction.jspa?editedWorklogId=$worklog.worklogId&dateFormatted=$dateFormatted'">
-                    </span>
-                    <span class="aui-icon aui-icon-small aui-iconfont-delete"
-                      id="delete" name="delete" title="$i18n.getText('plugin.delete')"
-                      onclick="location.href='JiraTimetrackerWebAction!default.jspa?deletedWorklogId=$worklog.worklogId&dateFormatted=$dateFormatted'">
-                    </span>
-                    <span class="aui-icon aui-icon-small aui-iconfont-copy-clipboard copy"
-                      id="copy" name="copy" title="$i18n.getText('plugin.copy')" onclick="location.href='JiraTimetrackerWebAction!default.jspa?copiedWorklogId=$worklog.worklogId&dateFormatted=$dateFormatted'">
-                    </span>
+                    <form class="aui top-label actionForm_$worklog.worklogId" id="jttp-action-form" method="get" action="JiraTimetrackerWebAction.jspa"  onsubmit="return everit.jttp.main.beforeSubmitAction($worklog.worklogId);" >
+                      <input id="actionWorklogId" name="actionWorklogId" type="hidden" value="$worklog.worklogId" >
+                      <input id="actionFlag" name="actionFlag" type="hidden" value="" class="actionFlag_$worklog.worklogId" onchange="everit.jttp.main.actionSubmitClick($worklog.worklogId);">
+                      <span class="aui-icon aui-icon-small aui-iconfont-edit"
+                        id="edit" name="edit" title="$i18n.getText('plugin.edit')"
+                        onclick="everit.jttp.main.setActionFlag('edit', $worklog.worklogId);">
+                      </span>
+                      <span class="aui-icon aui-icon-small aui-iconfont-delete"
+                        id="delete" name="delete" title="$i18n.getText('plugin.delete')"
+                        onclick="everit.jttp.main.setActionFlag('delete', $worklog.worklogId);">
+                      </span>
+                      <span class="aui-icon aui-icon-small aui-iconfont-copy-clipboard copy"
+                        id="copy" name="copy" title="$i18n.getText('plugin.copy')" 
+                        onclick="everit.jttp.main.setActionFlag('copy', $worklog.worklogId);">
+                      </span>
+                	  <input type="submit" id="actionSubmit_$worklog.worklogId" name="actionSubmit_$worklog.worklogId" style="display: none"/>
+                    </form>
                   </td>
                 </tr>
               #end

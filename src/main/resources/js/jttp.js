@@ -45,7 +45,6 @@ everit.jttp.main = everit.jttp.main || {};
         }
     }
     
-    document.getElementById('inputfields').scrollIntoView(allignWithTop = false);
     document.getElementById("startTime").focus();
     jQuery('.aui-ss-editing').attr("style", "width: 250px;");
     jQuery('.aui-ss.aui-ss-editing .aui-ss-field').attr("style", "width: 250px;");
@@ -57,8 +56,12 @@ everit.jttp.main = everit.jttp.main || {};
     issuePickerSetup(jttp.options.isPopup);
     eventBinding();
     commentsCSSFormat(jttp.options.isPopup);
+    var fechaFormatedDate = fecha.format(jttp.options.dateFormatted, AJS.Meta.get("date-dmy").toUpperCase());
+    jQuery("#date-span").text(fechaFormatedDate);
+    jQuery("#dateHidden").val(fechaFormatedDate);
     popupCalendarsSetup(jttp.options.isPopup);
-
+    standCalendarSetup(jttp.options.isPopup);
+    
     var isEditAll = jttp.options.isEditAll === true;
     if (isEditAll) {
       disableInputFields();
@@ -72,13 +75,14 @@ everit.jttp.main = everit.jttp.main || {};
     }
     
     addTooltips();
+//    headlineProgressIndicator();
   });
   
   function addTooltips(){
     AJS.$('.img-tooltip').each(function() {
       var $element = AJS.$(this);
       if(!$element.hasClass('jtrp-tooltipped')) {
-        $element.tooltip({gravity: 'w');
+        $element.tooltip({gravity: 'w'});
         $element.addClass('jtrp-tooltipped');
       }
     });
@@ -90,8 +94,8 @@ everit.jttp.main = everit.jttp.main || {};
 
   jttp.dateChanged = function(calendar) {
     var dmy = AJS.Meta.get("date-dmy").toUpperCase();
-    jQuery("#date").val(calendar.date.format(dmy));
-    jQuery("#date").change();
+    jQuery("#dateHidden").val(calendar.date.format(dmy));
+    jQuery("#dateHidden").change();
   }
 
   jttp.startNowClick = function(startTimeChange) {
@@ -138,7 +142,70 @@ everit.jttp.main = everit.jttp.main || {};
     jQuery('#Submit').val('true');
     jQuery('#Submit').attr('disabled', false);
   }
+  
+  jttp.beforeSubmit = function() {
+    var dateHidden = jQuery('#dateHidden').val();
+    var dateInMil = fecha.parse(dateHidden,  AJS.Meta.get("date-dmy").toUpperCase());
+    var date = jQuery('#date');
+    date.val(dateInMil.getTime());
+    
+    var worklogValues = getWorklogValuesJson();
+    var json = JSON.stringify(worklogValues);
+    var worklogValuesJson = jQuery('#worklogValuesJson');
+    worklogValuesJson.val(json);
+    
+    return true;
+  }
+    
+  jttp.setActionFlag = function(flag, id) {
+    var actionFlag = jQuery('.actionFlag_'+id);
+    actionFlag.val(flag);
+    actionFlag.change();
+  }
+  
+  jttp.actionSubmitClick  = function(id) {
+    jQuery("#actionSubmit_"+id).click();
+  }
+  
+ jttp.beforeSubmitAction = function(id) {
+   var dateHidden = jQuery('#dateHidden').val();
+   var dateInMil = fecha.parse(dateHidden,  AJS.Meta.get("date-dmy").toUpperCase());
+   var date = jQuery('#date');
+   date.val(dateInMil.getTime());
+   jQuery(".actionForm_"+id).append(date);
+    
+   return true;
+  }
+   
+ jttp.cancelClick = function(){
+   var dateHidden = jQuery('#dateHidden').val();
+   var dateInMil = fecha.parse(dateHidden,  AJS.Meta.get("date-dmy").toUpperCase());
+   window.location = "JiraTimetrackerWebAction!default.jspa?date="+dateInMil.getTime();
+ }
+ 
+  jttp.beforeSubmitChangeDate = function() {
+    //TODO  worklogId, actionFlag
+    var dateHidden = jQuery('#dateHidden').val();
+    var dateInMil = fecha.parse(dateHidden,  AJS.Meta.get("date-dmy").toUpperCase());
+    var date = jQuery('#date');
+    date.val(dateInMil.getTime());
+    jQuery("#jttp-datecahnge-form").append(date);
+    
+    var worklogValues = getWorklogValuesJson();
+    var json = JSON.stringify(worklogValues);
+    var worklogValuesJson = jQuery('#worklogValuesJson');
+    worklogValuesJson.val(json);
+    jQuery("#jttp-datecahnge-form").append(worklogValuesJson);
+    
+    var actionWorklogId = jQuery('#jttp-logwork-form #actionWorklogId');
+    jQuery("#jttp-datecahnge-form").append(actionWorklogId);
 
+    var actionFlag = jQuery('#jttp-logwork-form #actionFlag');
+    jQuery("#jttp-datecahnge-form").append(actionFlag);
+    
+    return true;
+  }
+  
   jttp.handleEnterKey = function(e, setFocusTo) {
     var isEnter = e.keyCode == 10 || e.keyCode == 13;
     if (!isEnter) {
@@ -173,7 +240,30 @@ everit.jttp.main = everit.jttp.main || {};
     jQuery("#issueSelect-textarea").prop("disabled", true);
     jQuery("#comments").prop("disabled", true);
   }
-
+  
+  function headlineProgressIndicator() {
+    // TODO extract to JS file and function, the only call here with the proper value
+    // Do this custom coloring only if the user can enable/disable it.
+    // If user can't enable or disable custom coloring, then use deafult progress indicator: https://docs.atlassian.com/aui/latest/docs/progress-indicator.html
+    var jttp_progress_value = 0.1;
+    var jttp_progress_red = '#d04437';
+    var jttp_progress_green = '#14892c';
+    var jttp_progress_yellow = '#f6c342';
+    AJS.progressBars.update(
+        "#jttp-headline-progress-indicator",
+        jttp_progress_value);
+    if (jttp_progress_value <= 0.2) {
+      AJS.$('#jttp-headline-progress-indicator .aui-progress-indicator-value')
+          .css("background-color", jttp_progress_red);
+    } else if (jttp_progress_value >= 1.0){
+       AJS.$('#jttp-headline-progress-indicator .aui-progress-indicator-value')
+          .css("background-color",jttp_progress_green); 
+    } else {
+      AJS.$('#jttp-headline-progress-indicator .aui-progress-indicator-value')
+          .css("background-color",jttp_progress_yellow);  
+    }
+  }
+  
   function eventBinding() {
     jQuery('.table-endtime').click(function() {
       var temp = new String(jQuery(this).html());
@@ -261,26 +351,7 @@ everit.jttp.main = everit.jttp.main || {};
       currentProjectId : jttp.options.projectsId,
     });
 
-    var jiraMainVersion = jttp.options.jiraMainVersion;
     var issueKey = jttp.options.issueKey;
-    jQuery('.issue-picker-popup').attr("style", "margin-bottom: 16px;");
-    if (isPopup != 1) {
-      if (jiraMainVersion < 6) {
-        jQuery("#issueSelect-multi-select").attr("style", "width: 630px;");
-        jQuery("#issueSelect-textarea").attr("style", "width: 605px; height: 20px");
-      } else {
-        jQuery("#issueSelect-multi-select").attr("style", "width: 630px;");
-        jQuery("#issueSelect-textarea").attr("style", "width: 630px; height: 30px");
-      }
-    } else {
-      if (jiraMainVersion < 6) {
-        jQuery("#issueSelect-multi-select").attr("style", "width: 930px;");
-        jQuery("#issueSelect-textarea").attr("style", "width: 910px; height: 20px");
-      } else {
-        jQuery("#issueSelect-multi-select").attr("style", "width: 910px;");
-        jQuery("#issueSelect-textarea").attr("style", "width: 910px; height: 30px");
-      }
-    }
     jQuery("#issueSelect-textarea").attr("class", "select2-choices");
 
     jQuery("#issueSelect-textarea").append(issueKey);
@@ -295,7 +366,7 @@ everit.jttp.main = everit.jttp.main || {};
     if (update && p.inputField) {
       var dmy = AJS.Meta.get("date-dmy").toUpperCase();
       p.inputField.value = cal.date.format(dmy);
-      jQuery(p.inputField).change();            
+      jQuery(p.inputField).change();
     }
     if (update && p.displayArea)
       p.displayArea.innerHTML = cal.date.print(p.daFormat);
@@ -318,8 +389,8 @@ everit.jttp.main = everit.jttp.main || {};
     if (isPopup != 2) {
       var calPop = Calendar.setup({
         firstDay : jttp.options.firstDay,
-        inputField : jQuery("#date"),
-        button : jQuery("#date_trigger"),
+        inputField : jQuery("#dateHidden"),
+        button : jQuery("#jttp-headline-day-calendar"),
         date : jttp.options.dateFormatted,
         align : 'Br',
         electric : false,
@@ -331,18 +402,25 @@ everit.jttp.main = everit.jttp.main || {};
     }
   }
   
-  jttp.standCalendarSetup = function(isPopup){
+  function standCalendarSetup(isPopup){
     if (isPopup != 1) {
-      fecha.i18n = {
-          dayNamesShort: Calendar._SDN,
-          dayNames: Calendar._DN,
-          monthNamesShort: Calendar._SMN,
-          monthNames: Calendar._MN,
-      }
+      //TODO remove code if not need it any more
+//      fecha.i18n = {
+//          dayNamesShort: Calendar._SDN,
+//          dayNames: Calendar._DN,
+//          monthNamesShort: Calendar._SMN,
+//          monthNames: Calendar._MN,
+//      }
       
-      Calendar.prototype.parseDate = function(str, fmt) {
-       this.setDate(fecha.parse(str, AJS.Meta.get("date-dmy").toUpperCase()));
-      };
+//      Calendar.prototype.parseDate = function(str, fmt) {
+//       this.setDate(fecha.parse(str, AJS.Meta.get("date-dmy").toUpperCase()));
+//      };
+      
+//      Date.prototype.format = function (formatString) {
+//        return fecha.format(this, formatString);
+//      };
+      
+//      var fechaFormatedDate = fecha.format(jttp.options.dateFormatted, AJS.Meta.get("date-dmy").toUpperCase());
       
       var original = Calendar.prototype.show;
       Calendar.prototype.show = function() {
@@ -353,7 +431,7 @@ everit.jttp.main = everit.jttp.main || {};
       
       var cal = Calendar.setup({
         firstDay : jttp.options.firstDay,
-        date : fecha.parse(jttp.options.dateFormatted, AJS.Meta.get("date-dmy").toUpperCase()),
+        date : jttp.options.dateFormatted,
         align : 'Br',
         singleClick : true,
         showOthers : true,
@@ -365,14 +443,32 @@ everit.jttp.main = everit.jttp.main || {};
     }
   }
   
-
+  function getWorklogValuesJson(){
+    var issueKey = (!jQuery('#issueSelect').val() || jQuery('#issueSelect').val())[0] || "";
+    var startTime = jQuery('#startTime').val() || "";
+    var endOrDuration = jQuery('input[name="endOrDuration"]:checked').val();
+    var endTime = jQuery('#endTime').val() || "";
+    var durationTime = jQuery('#durationTime').val() || "";
+    var comment = jQuery('#comments').val() ||"";
+    var isDurationSelect = true;
+    if(endOrDuration == "end"){
+      isDurationSelect = false;
+    }
+    
+    var worklogValues = {
+      "startTime": startTime,
+      "endTime": endTime,
+      "durationTime": durationTime,
+      "isDuration": isDurationSelect,
+      "comment": comment,
+      "issueKey": issueKey,
+    }
+    return worklogValues;
+  }
+  
+  
   function commentsCSSFormat(isPopup) {
     var comment = jttp.options.comment;
-    if (isPopup != 1) {
-      jQuery("#comments").attr("style", "width: 650px; resize: vertical;");
-    } else {
-      jQuery("#comments").attr("style", "width: 99.4%; resize: vertical;");
-    }
     jQuery("#comments").append(comment);
     jQuery("#comments").attr("tabindex", "4");
     jQuery("#comments").attr("height", "100px");
@@ -556,8 +652,5 @@ everit.jttp.main = everit.jttp.main || {};
     jQuery("#endTime").val(time);
   }
 
-  function analitycs() {
-
-  }
 
 })(everit.jttp.main, jQuery);

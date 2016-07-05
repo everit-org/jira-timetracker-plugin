@@ -15,12 +15,19 @@
  */
 package org.everit.jira.timetracker.plugin;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 
+import org.easymock.EasyMock;
+import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.web.JiraTimetrackerWebAction;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
+import com.atlassian.jira.issue.RendererManager;
+import com.atlassian.jira.mock.component.MockComponentWorker;
 
 public class JiraTimetrackerWebActionTest {
 
@@ -37,6 +44,7 @@ public class JiraTimetrackerWebActionTest {
 
   @Before
   public void before() {
+    setupMockTimeTrackerConfig(1, 1);
     subject = new JiraTimetrackerWebAction(new JiraTimetrackerPluginImpl(null, null, null), null);
   }
 
@@ -48,6 +56,28 @@ public class JiraTimetrackerWebActionTest {
   @Test
   public void parseEmptyEditAllIds() {
     assertParsedEditAllIds("[]");
+  }
+
+  /**
+   * Mocks the {@code ComponentAccessor.getComponent(TimeTrackingConfiguration.class);} call in the
+   * {@link DateTimeConverterUtil.secondConvertToString} constructor.
+   */
+  public void setupMockTimeTrackerConfig(final double hoursPerDayParam,
+      final double daysPerWeekParam) {
+    BigDecimal daysPerWeek = new BigDecimal(daysPerWeekParam);
+    BigDecimal hoursPerDay = new BigDecimal(hoursPerDayParam);
+    TimeTrackingConfiguration ttConfig = EasyMock.createNiceMock(TimeTrackingConfiguration.class);
+    EasyMock.expect(ttConfig.getDaysPerWeek()).andReturn(daysPerWeek)
+        .anyTimes();
+    EasyMock.expect(ttConfig.getHoursPerDay()).andReturn(hoursPerDay)
+        .anyTimes();
+    EasyMock.replay(ttConfig);
+    RendererManager rendererManager = EasyMock.createNiceMock(RendererManager.class);
+    EasyMock.expect(rendererManager.getRendererForType("atlassian-wiki-renderer")).andReturn(null)
+        .anyTimes();
+    EasyMock.replay(rendererManager);
+    new MockComponentWorker().addMock(TimeTrackingConfiguration.class, ttConfig)
+        .addMock(RendererManager.class, rendererManager).init();
   }
 
 }

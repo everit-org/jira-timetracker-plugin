@@ -26,6 +26,7 @@ import org.everit.jira.timetracker.plugin.DurationFormatter;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.ofbiz.core.entity.GenericValue;
 
+import com.atlassian.jira.avatar.Avatar;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.MutableIssue;
@@ -157,7 +158,10 @@ public class EveritWorklog implements Serializable {
       isClosed = true;
     }
     issueTypeName = issueObject.getIssueTypeObject().getName();
-    issueAvatarId = issueObject.getIssueTypeObject().getAvatar().getId();
+    Avatar avatar = issueObject.getIssueTypeObject().getAvatar();
+    if (avatar != null) {
+      issueAvatarId = avatar.getId();
+    }
     issueTypeIconUrl = issueObject.getIssueTypeObject().getIconUrl();
     if (issueObject.getParentObject() != null) {
       issueParent = issueObject.getParentObject().getKey();
