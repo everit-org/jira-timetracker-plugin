@@ -147,10 +147,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    */
   private String durationTime = "";
 
-  /**
-   * The all edit worklogs ids.
-   */
-  private String editAllIds = "";
+  private String editAllIds;
 
   /**
    * The worklog end time.
@@ -180,11 +177,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private boolean isColoring;
 
   private boolean isDurationSelected = false;
-
-  /**
-   * The WebAction is edit all worklog or not.
-   */
-  private boolean isEditAll = false;
 
   /**
    * The calendar isPopup.
@@ -346,6 +338,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   }
 
   private String createOrCopyAction() {
+    String validateInputFieldsResult = validateInputFields();
+    if (validateInputFieldsResult.equals(INPUT)) {
+      return INPUT;
+    }
     String result = createWorklog();
     if (SUCCESS.equals(result)) {
       boolean copying = (actionWorklogId != null) && !DEFAULT_WORKLOG_ID.equals(actionWorklogId)
@@ -481,7 +477,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
     normalizeContextPath();
     loadIssueCollectorSrc();
-
     getJiraVersionFromBuildUtilsInfo();
 
     loadPluginSettingAndParseResult();
@@ -491,6 +486,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
     dateSwitcherAction();
     parseActionParams();
+    parseEditAllAction();
 
     String deleteResult = deleteWorklog();
     if (deleteResult != null) {
@@ -510,19 +506,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     if (result != null) {
       return result;
     }
-    String validateInputFieldsResult = validateInputFields();
-    if (validateInputFieldsResult.equals(INPUT)) {
-      return INPUT;
-    }
 
-    // edit all save before the input fields validate
-    if (getHttpRequest().getParameter("editallsave") != null) {
-      result = editAllAction();
-    } else if ((getHttpRequest().getParameter("lw_save") != null) && "edit".equals(actionFlag)) {
-      result = editAction();
-    } else {
-      return createOrCopyAction();
-    }
+    result = handleSaveActions();
 
     if (SUCCESS.equals(result)) {
       return redirectWithDateFormattedParameterOnly(result);
@@ -538,6 +523,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * @return String which will be passed to the WebAction.
    */
   public String editAction() {
+    String validateInputFieldsResult = validateInputFields();
+    if (validateInputFieldsResult.equals(INPUT)) {
+      return INPUT;
+    }
     ActionResult updateResult = jiraTimetrackerPlugin.editWorklog(
         actionWorklogId, issueKey, commentForActions, date,
         startTime, timeSpent);
@@ -573,12 +562,13 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     // parse the editAllIds
     List<Long> editWorklogIds = parseEditAllIds();
     // edit the worklogs!
-    // TODO what if result is a fail?????? what if just one fail?
-    // ActionResult editResult;
     for (Long editWorklogId : editWorklogIds) {
       EveritWorklog editWorklog = jiraTimetrackerPlugin
           .getWorklog(editWorklogId);
-      // editResult =
+      // String body = editWorklog.getBody();
+      // body = body.replace("\"", "\\\"");
+      // body = body.replace("\r", "\\r");
+      // body = body.replace("\n", "\\n");
       jiraTimetrackerPlugin.editWorklog(editWorklog
           .getWorklogId(), editWorklog.getIssue(), editWorklog
               .getBody(),
@@ -595,7 +585,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       LOGGER.error("Error when try set the plugin variables.", e);
       return ERROR;
     }
-    editAllIds = "";
     return SUCCESS;
   }
 
@@ -677,10 +666,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   public boolean getIsDurationSelected() {
     return isDurationSelected;
-  }
-
-  public boolean getIsEditAll() {
-    return isEditAll;
   }
 
   public int getIsPopup() {
@@ -776,10 +761,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * @return null if the current action is not a Date change action
    */
   private String handleDateChangeAction() {
-    // TODO this is not the date change handle this is just the variabels when date ch
     if (getHttpRequest().getParameter("lw_save") == null) {
       try {
         handleInputWorklogId();
+        handleEditAllIds();
       } catch (ParseException e) {
         LOGGER.error("Error when try parse the worklog.", e);
         return ERROR;
@@ -820,6 +805,13 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return SUCCESS;
   }
 
+  private void handleEditAllIds() {
+    String editAllValue = getHttpRequest().getParameter("editAll");
+    if (editAllValue != null) {
+      editAllIds = editAllValue;
+    }
+  }
+
   private String handleEndTime() {
     if (!DateTimeConverterUtil.isValidTime(endTime)) {
       message = "plugin.invalid_endTime";
@@ -854,9 +846,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    *           If can't parse the editWorklog date.
    */
   private void handleInputWorklogId() throws ParseException {
-    if (!"".equals(editAllIds)) {
-      isEditAll = true;
-    }
     if ((actionWorklogId != null) && !DEFAULT_WORKLOG_ID.equals(actionWorklogId)) {
       EveritWorklog editWorklog;
       if ("edit".equals(actionFlag)) {
@@ -872,6 +861,18 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
         comment = editWorklog.getBody();
       }
     }
+  }
+
+  private String handleSaveActions() throws ParseException {
+    String result;
+    if ((getHttpRequest().getParameter("lw_save") != null) && "editAll".equals(actionFlag)) {
+      result = editAllAction();
+    } else if ((getHttpRequest().getParameter("lw_save") != null) && "edit".equals(actionFlag)) {
+      result = editAction();
+    } else {
+      result = createOrCopyAction();
+    }
+    return result;
   }
 
   private String handleValidDuration(final Date startDateTime) {
@@ -1037,23 +1038,37 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     }
   }
 
+  private void parseEditAllAction() {
+    if (getHttpRequest().getParameter("lw_chgdate") != null) {
+      String worklogsIdsValues = getHttpRequest().getParameter("worklogsIds");
+      if ((worklogsIdsValues != null) && !"".equals(worklogsIdsValues)) {
+        editAllIds = worklogsIdsValues;
+        actionFlag = "editAll";
+      }
+    }
+  }
+
   /**
    * Parses the {@link #editAllIds} string to a list of {@code Long} values.
    */
   public List<Long> parseEditAllIds() {
+    String editAllValues = getHttpRequest().getParameter("editAll");
     List<Long> editWorklogIds = new ArrayList<Long>();
-    String editAllIdsCopy = editAllIds;
-    editAllIdsCopy = editAllIdsCopy.replace("[", "");
-    editAllIdsCopy = editAllIdsCopy.replace("]", "");
-    editAllIdsCopy = editAllIdsCopy.replace(" ", "");
-    if (editAllIdsCopy.trim().equals("")) {
-      return Collections.emptyList();
+    if (editAllValues != null) {
+      String editAllIdsCopy = editAllValues;
+      editAllIdsCopy = editAllIdsCopy.replace("[", "");
+      editAllIdsCopy = editAllIdsCopy.replace("]", "");
+      editAllIdsCopy = editAllIdsCopy.replace(" ", "");
+      if (editAllIdsCopy.trim().equals("")) {
+        return Collections.emptyList();
+      }
+      String[] editIds = editAllIdsCopy.split(",");
+      for (String editId : editIds) {
+        editWorklogIds.add(Long.valueOf(editId));
+      }
+      return editWorklogIds;
     }
-    String[] editIds = editAllIdsCopy.split(",");
-    for (String editId : editIds) {
-      editWorklogIds.add(Long.valueOf(editId));
-    }
-    return editWorklogIds;
+    return Collections.emptyList();
   }
 
   /**
@@ -1147,10 +1162,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   public void setDurationTime(final String durationTime) {
     this.durationTime = durationTime;
-  }
-
-  public void setEditAll(final boolean isEditAll) {
-    this.isEditAll = isEditAll;
   }
 
   public void setEditAllIds(final String editAllIds) {

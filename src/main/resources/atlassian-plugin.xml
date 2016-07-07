@@ -88,6 +88,9 @@
     <dependency>com.atlassian.auiplugin:aui-progress-indicator</dependency>
     <dependency>com.atlassian.auiplugin:dialog2</dependency>
     <dependency>com.atlassian.auiplugin:aui-date-picker</dependency>
+    <transformation extension="js">
+        <transformer key="jsI18n"/>
+    </transformation>
     <resource type="download" name="jttp_feedback.css" location="/css/jttp_feedback.css"/>
     <resource type="download" name="jttp.js" location="/js/jttp.js"/>
     <resource type="download" name="js-fecha.js" location="/js/js-fecha.js"/>

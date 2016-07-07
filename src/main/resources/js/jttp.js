@@ -48,10 +48,7 @@ everit.jttp.main = everit.jttp.main || {};
     document.getElementById("startTime").focus();
     jQuery('.aui-ss-editing').attr("style", "width: 250px;");
     jQuery('.aui-ss.aui-ss-editing .aui-ss-field').attr("style", "width: 250px;");
-    setExcludeDaysToWeekend(jttp.options.excludeDays);
-    setLoggedDaysDesign(jttp.options.isColoring, jttp.options.loggedDays);
-    jttpReportDialogShow();
-
+   
     durationSelectionSetup();
     issuePickerSetup(jttp.options.isPopup);
     eventBinding();
@@ -59,13 +56,27 @@ everit.jttp.main = everit.jttp.main || {};
     var fechaFormatedDate = fecha.format(jttp.options.dateFormatted, AJS.Meta.get("date-dmy").toUpperCase());
     jQuery("#date-span").text(fechaFormatedDate);
     jQuery("#dateHidden").val(fechaFormatedDate);
-    popupCalendarsSetup(jttp.options.isPopup);
-    standCalendarSetup(jttp.options.isPopup);
     
-    var isEditAll = jttp.options.isEditAll === true;
-    if (isEditAll) {
+   
+    popupCalendarsSetup(jttp.options.isPopup);
+//    standCalendarSetup(jttp.options.isPopup);
+    setExcludeDaysToWeekend(jttp.options.excludeDays);
+    setLoggedDaysDesign(jttp.options.isColoring, jttp.options.loggedDays);
+    
+    if (jttp.options.actionFlag == "editAll") {
       disableInputFields();
     }
+    if(jttp.options.worklogSize == 0){
+      AJS.messages.info({
+        title: AJS.I18n.getText("plugin.no.worklogs.title"),
+        body: AJS.I18n.getText("plugin.no.worklogs"),
+        closeable: false,
+      });
+    }
+    
+    
+    addTooltips();
+//    headlineProgressIndicator();
     
     var original = Calendar.prototype.show;
     Calendar.prototype.show = function() {
@@ -73,9 +84,6 @@ everit.jttp.main = everit.jttp.main || {};
       setExcludeDaysToWeekend(jttp.options.excludeDays);
       setLoggedDaysDesign(jttp.options.isColoring, jttp.options.loggedDays);
     }
-    
-    addTooltips();
-//    headlineProgressIndicator();
   });
   
   function addTooltips(){
@@ -108,8 +116,8 @@ everit.jttp.main = everit.jttp.main || {};
     }
   }
 
-  jttp.endTimeInputClick = function(isEditAll) {
-    if (!isEditAll) {
+  jttp.endTimeInputClick = function() {
+    if (actionFlag != "editAll") {
       jQuery("#endTimeInput").css("cursor", "text").hide().prev().prop("disabled", false).css(
           "cursor", "text").focus();
       jQuery("#durationTimeInput").css("cursor", "pointer").show().prev("input").prop("disabled",
@@ -128,8 +136,8 @@ everit.jttp.main = everit.jttp.main || {};
     }
   }
 
-  jttp.durationTimeInput = function(isEditAll) {
-    if (!isEditAll) {
+  jttp.durationTimeInput = function() {
+    if (actionFlag != "editAll") {
       jQuery("#durationTimeInput").css("cursor", "text").hide().prev("input[disabled]").prop(
           "disabled", false).css("cursor", "text").focus();
       jQuery("#endTimeInput").css("cursor", "pointer").show().prev("input").prop("disabled", true)
@@ -167,14 +175,24 @@ everit.jttp.main = everit.jttp.main || {};
     jQuery("#actionSubmit_"+id).click();
   }
   
- jttp.beforeSubmitAction = function(id) {
-   var dateHidden = jQuery('#dateHidden').val();
-   var dateInMil = fecha.parse(dateHidden,  AJS.Meta.get("date-dmy").toUpperCase());
-   var date = jQuery('#date');
-   date.val(dateInMil.getTime());
-   jQuery(".actionForm_"+id).append(date);
+  jttp.beforeSubmitEditAll = function(){
+    var dateHidden = jQuery('#dateHidden').val();
+    var dateInMil = fecha.parse(dateHidden,  AJS.Meta.get("date-dmy").toUpperCase());
+    var date = jQuery('#date');
+    date.val(dateInMil.getTime());
+    jQuery("#jttp-editall-form").append(date);
     
-   return true;
+    return true;
+  }
+  
+  jttp.beforeSubmitAction = function(id) {
+    var dateHidden = jQuery('#dateHidden').val();
+    var dateInMil = fecha.parse(dateHidden,  AJS.Meta.get("date-dmy").toUpperCase());
+    var date = jQuery('#date');
+    date.val(dateInMil.getTime());
+    jQuery(".actionForm_"+id).append(date);
+    
+    return true;
   }
    
  jttp.cancelClick = function(){
@@ -184,7 +202,6 @@ everit.jttp.main = everit.jttp.main || {};
  }
  
   jttp.beforeSubmitChangeDate = function() {
-    //TODO  worklogId, actionFlag
     var dateHidden = jQuery('#dateHidden').val();
     var dateInMil = fecha.parse(dateHidden,  AJS.Meta.get("date-dmy").toUpperCase());
     var date = jQuery('#date');
@@ -199,7 +216,10 @@ everit.jttp.main = everit.jttp.main || {};
     
     var actionWorklogId = jQuery('#jttp-logwork-form #actionWorklogId');
     jQuery("#jttp-datecahnge-form").append(actionWorklogId);
-
+    
+    var editAll = jQuery('#jttp-logwork-form #editAll');
+    jQuery("#jttp-datecahnge-form").append(editAll);
+    
     var actionFlag = jQuery('#jttp-logwork-form #actionFlag');
     jQuery("#jttp-datecahnge-form").append(actionFlag);
     
@@ -217,16 +237,6 @@ everit.jttp.main = everit.jttp.main || {};
       e.preventDefault ? e.preventDefault() : event.returnValue = false;
       jQuery(setFocusTo).focus();
       return false;
-    }
-  }
-
-  function jttpReportDialogShow() {
-    var currentHash = window.location.hash;
-    if (currentHash == "#reporting-dialog") {
-      window.location.hash = "";
-      AJS.dialog2("#reporting-dialog").show();
-      AJS.$("#reportingError").hide();
-      _paq.push([ 'trackEvent', 'User', 'Reporting' ]);
     }
   }
 
@@ -387,6 +397,12 @@ everit.jttp.main = everit.jttp.main || {};
   
   function popupCalendarsSetup(isPopup) {
     if (isPopup != 2) {
+    var original = Calendar.prototype.show;
+    Calendar.prototype.show = function() {
+      original.call(this);
+      setExcludeDaysToWeekend(jttp.options.excludeDays);
+      setLoggedDaysDesign(jttp.options.isColoring, jttp.options.loggedDays);
+    }
       var calPop = Calendar.setup({
         firstDay : jttp.options.firstDay,
         inputField : jQuery("#dateHidden"),
@@ -402,25 +418,8 @@ everit.jttp.main = everit.jttp.main || {};
     }
   }
   
-  function standCalendarSetup(isPopup){
+  jttp.standCalendarSetup = function(isPopup){
     if (isPopup != 1) {
-      //TODO remove code if not need it any more
-//      fecha.i18n = {
-//          dayNamesShort: Calendar._SDN,
-//          dayNames: Calendar._DN,
-//          monthNamesShort: Calendar._SMN,
-//          monthNames: Calendar._MN,
-//      }
-      
-//      Calendar.prototype.parseDate = function(str, fmt) {
-//       this.setDate(fecha.parse(str, AJS.Meta.get("date-dmy").toUpperCase()));
-//      };
-      
-//      Date.prototype.format = function (formatString) {
-//        return fecha.format(this, formatString);
-//      };
-      
-//      var fechaFormatedDate = fecha.format(jttp.options.dateFormatted, AJS.Meta.get("date-dmy").toUpperCase());
       
       var original = Calendar.prototype.show;
       Calendar.prototype.show = function() {

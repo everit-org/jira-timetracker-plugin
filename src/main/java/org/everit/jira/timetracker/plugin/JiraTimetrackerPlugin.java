@@ -182,7 +182,7 @@ public interface JiraTimetrackerPlugin {
    * Give back the days all worklog of the selectedUser. If selectedUser null or empty the actual
    * logged in user will used.
    *
-   * @param date
+   * @param startDate
    *          The date.
    * @param selectedUser
    *          The selected User.

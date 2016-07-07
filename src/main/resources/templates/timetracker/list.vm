@@ -32,9 +32,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
               </thead>
             #if($worklogs.size() == 0)
               </table>
-              <div id="message" class="center-text" style="padding: 3px; font-size: 14px;">
-                $i18n.getText("plugin.no.worklogs")
-              </div>
+              <div id="aui-message-bar" style="padding: 3px;"></div>
             #else
               <tbody>
               #foreach ($worklog in $worklogs)

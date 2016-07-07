@@ -228,13 +228,16 @@ public class EveritWorklog implements Serializable {
     }
     isMoreEstimatedTime = issueObject.getEstimate() == 0 ? false : true;
     body = rs.getString("worklogbody");
-    if (body != null) {
-      body = body.replace("\"", "\\\"");
-      body = body.replace("\r", "\\r");
-      body = body.replace("\n", "\\n");
-    } else {
+    if (body == null) {
       body = "";
     }
+    // if (body != null) {
+    // body = body.replace("\"", "\\\"");
+    // body = body.replace("\r", "\\r");
+    // body = body.replace("\n", "\\n");
+    // } else {
+    // body = "";
+    // }
     DurationFormatter durationFormatter = new DurationFormatter();
     long timeSpentInSec = rs.getLong("timeworked");
     milliseconds = timeSpentInSec
@@ -267,13 +270,16 @@ public class EveritWorklog implements Serializable {
     issue = worklog.getIssue().getKey();
     issueSummary = worklog.getIssue().getSummary();
     body = worklog.getComment();
-    if (body != null) {
-      body = body.replace("\"", "\\\"");
-      body = body.replace("\r", "\\r");
-      body = body.replace("\n", "\\n");
-    } else {
+    if (body == null) {
       body = "";
     }
+    // if (body != null) {
+    // body = body.replace("\"", "\\\"");
+    // body = body.replace("\r", "\\r");
+    // body = body.replace("\n", "\\n");
+    // } else {
+    // body = "";
+    // }
     long timeSpentInSec = worklog.getTimeSpent().longValue();
     milliseconds = timeSpentInSec
         * DateTimeConverterUtil.MILLISECONDS_PER_SECOND;
