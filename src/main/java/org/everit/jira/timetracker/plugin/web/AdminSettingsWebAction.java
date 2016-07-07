@@ -19,6 +19,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
@@ -29,6 +30,7 @@ import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
 import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
+import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
@@ -39,6 +41,11 @@ import com.atlassian.jira.web.action.JiraWebActionSupport;
 public class AdminSettingsWebAction extends JiraWebActionSupport {
 
   private static final String FREQUENT_FEEDBACK = "jttp.plugin.frequent.feedback";
+
+  /**
+   * The Issue Collector jttp_build.porperties key.
+   */
+  private static final String ISSUE_COLLECTOR_SRC = "ISSUE_COLLECTOR_SRC";
 
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
 
@@ -105,6 +112,8 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    * The calendar is popup, inLine or both.
    */
   private int isPopup;
+
+  private String issueCollectorSrc;
 
   /**
    * The issue key.
@@ -176,6 +185,7 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
       setReturnUrl(JIRA_HOME_URL);
       return getRedirect(NONE);
     }
+    loadIssueCollectorSrc();
     normalizeContextPath();
     loadPluginSettingAndParseResult();
     checkMailServer();
@@ -196,6 +206,7 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
       setReturnUrl(JIRA_HOME_URL);
       return getRedirect(NONE);
     }
+    loadIssueCollectorSrc();
     normalizeContextPath();
     loadPluginSettingAndParseResult();
     checkMailServer();
@@ -250,6 +261,10 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     return includeDates;
   }
 
+  public String getIssueCollectorSrc() {
+    return issueCollectorSrc;
+  }
+
   public String getIssueKey() {
     return issueKey;
   }
@@ -284,6 +299,11 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
 
   public List<String> getTimetrackerGroups() {
     return timetrackerGroups;
+  }
+
+  private void loadIssueCollectorSrc() {
+    Properties properties = PropertiesUtil.getJttpBuildProperties();
+    issueCollectorSrc = properties.getProperty(ISSUE_COLLECTOR_SRC);
   }
 
   /**
