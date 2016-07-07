@@ -22,9 +22,10 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.everit.jira.querydsl.support.QuerydslSupport;
+import org.everit.jira.reporting.plugin.column.WorklogDetailsColumns;
+import org.everit.jira.reporting.plugin.dto.OrderBy;
 import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
 import org.everit.jira.reporting.plugin.dto.WorklogDetailsDTO;
-import org.everit.jira.reporting.plugin.export.column.WorklogDetailsColumns;
 import org.everit.jira.reporting.plugin.query.WorklogDetailsReportQueryBuilder;
 
 /**
@@ -34,15 +35,32 @@ public class ExportWorklogDetailsListReport extends AbstractExportListReport {
 
   private static final String WORKLOG_DETAILS_PREFIX = "jtrp.report.export.wd.col.";
 
+  private OrderBy orderBy;
+
   private int rowIndex = 0;
 
   private List<String> selectedWorklogDetailsColumns;
 
+  /**
+   * Simple constructor.
+   *
+   * @param querydslSupport
+   *          the {@link QuerydslSupport} instance.
+   * @param selectedWorklogDetailsColumns
+   *          the list of the selected columns.
+   * @param reportSearchParam
+   *          the {@link ReportSearchParam} object, that contains parameters to filter condition.
+   * @param notBrowsableProjectKeys
+   *          the list of not browsable project keys.
+   * @param orderBy
+   *          the {@link OrderBy} object.
+   */
   public ExportWorklogDetailsListReport(final QuerydslSupport querydslSupport,
       final List<String> selectedWorklogDetailsColumns, final ReportSearchParam reportSearchParam,
-      final List<String> notBrowsableProjectKeys) {
+      final List<String> notBrowsableProjectKeys, final OrderBy orderBy) {
     super(querydslSupport, reportSearchParam, notBrowsableProjectKeys);
     this.selectedWorklogDetailsColumns = selectedWorklogDetailsColumns;
+    this.orderBy = orderBy;
   }
 
   @Override
@@ -52,8 +70,9 @@ public class ExportWorklogDetailsListReport extends AbstractExportListReport {
     insertHeaderRow(worklogDetailsSheet);
 
     List<WorklogDetailsDTO> worklogDetails =
-        querydslSupport.execute(new WorklogDetailsReportQueryBuilder(reportSearchParam)
-            .buildQuery());
+        querydslSupport.execute(new WorklogDetailsReportQueryBuilder(reportSearchParam,
+            orderBy)
+                .buildQuery());
 
     for (WorklogDetailsDTO worklogDetailsDTO : worklogDetails) {
       insertBodyRow(worklogDetailsSheet, worklogDetailsDTO);

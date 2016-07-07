@@ -15,7 +15,7 @@
  */
 package org.everit.jira.timetracker.plugin;
 
-import org.everit.jira.reporting.plugin.export.column.WorklogDetailsColumns;
+import org.everit.jira.reporting.plugin.column.WorklogDetailsColumns;
 import org.everit.jira.timetracker.plugin.util.VersionComperatorUtil;
 
 import com.atlassian.jira.component.ComponentAccessor;
