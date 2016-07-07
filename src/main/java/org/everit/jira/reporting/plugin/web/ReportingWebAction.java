@@ -32,16 +32,17 @@ import org.everit.jira.analytics.AnalyticsSender;
 import org.everit.jira.analytics.event.CreateReportEvent;
 import org.everit.jira.reporting.plugin.ReportingCondition;
 import org.everit.jira.reporting.plugin.ReportingPlugin;
+import org.everit.jira.reporting.plugin.column.WorklogDetailsColumns;
 import org.everit.jira.reporting.plugin.dto.ConvertedSearchParam;
 import org.everit.jira.reporting.plugin.dto.FilterCondition;
 import org.everit.jira.reporting.plugin.dto.IssueSummaryReportDTO;
+import org.everit.jira.reporting.plugin.dto.OrderBy;
 import org.everit.jira.reporting.plugin.dto.PickerUserDTO;
 import org.everit.jira.reporting.plugin.dto.ProjectSummaryReportDTO;
 import org.everit.jira.reporting.plugin.dto.ReportingSessionData;
 import org.everit.jira.reporting.plugin.dto.UserSummaryReportDTO;
 import org.everit.jira.reporting.plugin.dto.WorklogDetailsReportDTO;
 import org.everit.jira.reporting.plugin.exception.JTRPException;
-import org.everit.jira.reporting.plugin.export.column.WorklogDetailsColumns;
 import org.everit.jira.reporting.plugin.util.ConverterUtil;
 import org.everit.jira.reporting.plugin.util.PermissionUtil;
 import org.everit.jira.timetracker.plugin.DurationFormatter;
@@ -141,6 +142,10 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   private List<String> notBrowsableProjectKeys = Collections.emptyList();
 
+  private String order = "ASC";
+
+  private String orderColumn = "jtrp_col_issueKey";
+
   private int pageSizeLimit;
 
   private PluginCondition pluginCondition;
@@ -225,7 +230,8 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
     try {
       worklogDetailsReport =
-          reportingPlugin.getWorklogDetailsReport(convertedSearchParam.reportSearchParam);
+          reportingPlugin.getWorklogDetailsReport(convertedSearchParam.reportSearchParam,
+              OrderBy.DEFAULT);
       if (worklogDetailsReport.getWorklogDetailsCount() == 0) {
         worklogDetailsEmpty = true;
       }
@@ -400,6 +406,14 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   public List<String> getNotBrowsableProjectKeys() {
     return notBrowsableProjectKeys;
+  }
+
+  public String getOrder() {
+    return order;
+  }
+
+  public String getOrderColumn() {
+    return orderColumn;
   }
 
   public int getPageSizeLimit() {

@@ -28,6 +28,7 @@ import org.everit.jira.analytics.SearcherValue;
 import org.everit.jira.reporting.plugin.ReportingPlugin;
 import org.everit.jira.reporting.plugin.dto.ConvertedSearchParam;
 import org.everit.jira.reporting.plugin.dto.FilterCondition;
+import org.everit.jira.reporting.plugin.dto.OrderBy;
 import org.everit.jira.reporting.plugin.dto.PickerComponentDTO;
 import org.everit.jira.reporting.plugin.dto.PickerUserDTO;
 import org.everit.jira.reporting.plugin.dto.PickerVersionDTO;
@@ -330,6 +331,31 @@ public final class ConverterUtil {
     }
     return new Gson()
         .fromJson(json, FilterCondition.class);
+  }
+
+  /**
+   * Convert string to {@link OrderBy} object.
+   *
+   * @param orderBy
+   *          the string that representation orderby. Example jtrp_col_issueKey-ASC.
+   * @return the {@link OrderBy} object. If orderby string null or invalid return the
+   *         {@link OrderBy#DEFAULT}.
+   */
+  public static OrderBy convertToOrderBy(final String orderBy) {
+    if (orderBy == null) {
+      return OrderBy.DEFAULT;
+    }
+
+    String[] splitOrderBy = orderBy.split("-");
+    if (splitOrderBy.length != 2) {
+      return OrderBy.DEFAULT;
+    }
+
+    String order = splitOrderBy[1];
+    return new OrderBy()
+        .columnName(splitOrderBy[0])
+        .order(order)
+        .asc("ASC".equals(order));
   }
 
   private static Date getDate(final Long date) {
