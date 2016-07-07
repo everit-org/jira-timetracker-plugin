@@ -17,157 +17,113 @@
 <head>
 <title>Timetracker Settings</title>
 </head>
-$webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-resources")
 <body>
-<form name="settingsForm"  method="post" action="JiraTimetrackerSettingsWebAction.jspa"/>   
-	<div id="plugin_head" class="item-header">
- 			<div class="logo-img">
-				<a href="http://www.everit.biz/" target="_blank">
-					<img src="$contextPath/download/resources/org.everit.jira.timetracker.plugin:jttp-resources/everit_tt_logo.png" alt="Everit logo" height="42" width="42" style:"float: right">
-				</a>
-			</div>
- 			<h1 class="item-summary">Timetracker Settings</h1>
-  	</div>
-  	<div id="main-content" class="content rounded" >
-		<div class="inside-content">
-			#if(!$message.isEmpty())
-			  	<div id="error_message">
-			 			$i18n.getText($message) $messageParameter
-			  	</div>
-		  	#end
-			<table class="summaty-table">
-				<tbody>
-					<tr>
-						<td class="settings-label-column">
-							<div class="setting-separator-label-div">
-								<h3>$i18n.getText("plugin.setting.calendar.appearance")</h3>
-							<div>
-						</td>
-					</tr>
-		        	<tr>
-						<td class="settings-label-column"> 
-							<strong>$i18n.getText("plugin.setting.ispopup"):</strong> 
-						</td>
-						<td class="settings-value-column">
-						 	#if($isPopup == 1)
-						 		<input id="radioPopup" type="radio" name="popupOrInline" value="popup" class="settings-input" checked="true">
-                     		#else
-                         		<input id="radioPopup" type="radio" name="popupOrInline" value="popup" class="settings-input">
-                      		#end
-                      		$i18n.getText("plugin.setting.popup")
-						</td>
-					</tr>
-					<tr>
-						<td />
-						<td class="settings-value-column">
-						 	#if($isPopup == 2)
-						 		<input id="radioInline" type="radio" name="popupOrInline" value="inline" class="settings-input" checked="true">
-                     		#else
-                         		<input id="radioInline" type="radio" name="popupOrInline" value="inline" class="settings-input"> 
-                      		#end
-                      		$i18n.getText("plugin.setting.inline")
-						</td>
-					</tr>
-					<tr>
-						<td />
-						<td class="settings-value-column">
-						 	#if($isPopup == 3)
-						 		<input id="radioBoth" type="radio" name="popupOrInline" value="both" class="settings-input" checked="true">
-                     		#else
-                         		<input id="radioBoth" type="radio" name="popupOrInline" value="both" class="settings-input">
-                      		#end
-                      		$i18n.getText("plugin.setting.both")
-                      		<div class="description">
-								$i18n.getText("plugin.setting.ispopup.help")
-							</div>
-						</td>
-					</tr>
-					<tr>
-						<td class="settings-label-column">
-							<strong>$i18n.getText("plugin.setting.isactualdate"):</strong>  
-						</td>
-						<td class="settings-value-column">
-						 	#if($isActualDate)
-                         		<input id="radioCurrent" type="radio" name="currentOrLast" value="current" class="settings-input" checked="true">  
-                     		#else
-                         		<input id="radioCurrent" type="radio" name="currentOrLast" value="current" class="settings-input">
-                      		#end
-                      		$i18n.getText("plugin.setting.current")
-						</td>
-					</tr>
-					<tr>
-						<td />
-						<td class="settings-value-column">
-						 	#if($isActualDate)
-                         		<input id="radioLast" type="radio" name="currentOrLast" value="last" class="settings-input">  
-                     		#else
-                         		<input id="radioLast" type="radio" name="currentOrLast" value="last" class="settings-input" checked="true"> 
-                      		#end
-                      		$i18n.getText("plugin.setting.last")
-                      		<div class="description">
-								$i18n.getText("plugin.setting.isactualdate.help")
-							</div>
-						</td>
-					</tr>
-					<tr>
-						<td class="settings-label-column">
-							<strong>$i18n.getText("plugin.setting.coloring"):</strong>  
-						</td>
-						<td class="settings-value-column">
-						 	<input id="isColoring" type="checkbox" value="use color" class="settings-input" name="isColoring" #if($isColoring) checked #end/>
-						</td>
-					</tr>
-					<tr>
-						<td />
-						<td class="settings-value-column">
-                      		<div class="description">
-								$i18n.getText("plugin.setting.coloring.help")
-							</div>
-						</td>
-					</tr>
-					<tr>
-						<td class="settings-label-column">
-							<div class="setting-separator-label-div">
-								<h3>$i18n.getText("plugin.setting.input.fields.settings")</h3>
-							<div>
-						</td>
-					</tr>
-		        	<tr>
-						<td class="settings-label-column"> 
-							<strong>$i18n.getText("plugin.setting.starttime.value"):</strong> 
-						</td>
-						<td class="settings-value-column">
-						 	 <input id="startTime"  type="text" name="startTime" value="$startTime"  class="time-input settings-input"/> 
-						 	 $i18n.getText("plugin.setting.min")                      		
-                      		<div class="description">
-								$i18n.getText("plugin.setting.starttime.help")
-							</div>
-						</td>
-					</tr>
-					<tr>
-						<td class="settings-label-column"> 
-							<strong>$i18n.getText("plugin.setting.endtime.value"):</strong> 
-						</td>
-						<td class="settings-value-column">
-						 	<input id="endTime"  type="text" name="endTime" value="$endTime" class="time-input settings-input"/> 
-						 	 $i18n.getText("plugin.setting.min")   
-                      		<div class="description">
-								$i18n.getText("plugin.setting.endtime.help")
-							</div>
-						</td>
-					</tr>
-					<tr class="buttons-container">
-						<td colspan="2">
-							<input id="savesettings"  type="submit" name="savesettings" value="$i18n.getText('plugin.save')" class="button"/>
-							<input id="resetButton"  type="button" name="reset" value="$i18n.getText('plugin.reset')" onclick="location.href='JiraTimetrackerSettingsWebAction.jspa'" class="button"/>
-							<input id="cancelButton"  type="button" name="cancel" value="$i18n.getText('plugin.cancel')" onclick="location.href='JiraTimetrackerWebAction!default.jspa'" class="button"/>
-						</td>
-					</tr>
-				</tbody>
-			</table>
-			
-		</div>
-	</div>
-</form>
+  $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:timetracker-user-settings-resources")
+  
+  <header class="aui-page-header">
+    <div class="aui-page-header-inner">
+      <div class="aui-page-header-image">
+        <span class="aui-avatar aui-avatar-large">
+          <span class="aui-avatar-inner">
+            <a href="http://www.everit.biz/index.php?nyelv=en" target="_blank">
+              <img src="$contextPath/download/resources/org.everit.jira.timetracker.plugin:timetracker-user-settings-resources/E_logo.png" alt="Everit reporting logo">
+            </a>
+          </span>
+        </span>
+      </div>
+      <div class="aui-page-header-main">
+        <h1>Timetracker Settings</h1>
+      </div>
+    </div>
+  </header>
+  
+  <div class="aui-page-panel">
+    <div class="aui-page-panel-inner aui-page-panel-content">
+      <form name="settingsForm"  method="post" action="JiraTimetrackerSettingsWebAction.jspa" class="aui">
+        #if(!$message.isEmpty())
+        <div id="error_message">
+          $i18n.getText($message) $messageParameter
+        </div>
+        #end
+        
+        <h3>$i18n.getText("plugin.setting.calendar.appearance")</h3>
+        <div class="field-group">
+          <label>$i18n.getText("plugin.setting.ispopup"):</label>
+          <div>
+            #if($isPopup == 1)
+            <input id="radioPopup" type="radio" name="popupOrInline" value="popup" class="settings-input" checked="true">
+            #else
+            <input id="radioPopup" type="radio" name="popupOrInline" value="popup" class="settings-input">
+            #end
+            <label for="radioPopup">$i18n.getText("plugin.setting.popup")</label>
+            
+            #if($isPopup == 2)
+            <input id="radioInline" type="radio" name="popupOrInline" value="inline" class="settings-input" checked="true">
+            #else
+            <input id="radioInline" type="radio" name="popupOrInline" value="inline" class="settings-input"> 
+            #end
+            <label for="radioInline">$i18n.getText("plugin.setting.inline")</label>
+            
+            #if($isPopup == 3)
+            <input id="radioBoth" type="radio" name="popupOrInline" value="both" class="settings-input" checked="true">
+            #else
+            <input id="radioBoth" type="radio" name="popupOrInline" value="both" class="settings-input">
+            #end
+            <label for="radioBoth">$i18n.getText("plugin.setting.both")</label>
+          </div>
+          <div class="description">$i18n.getText("plugin.setting.ispopup.help")</div>
+        </div>
+        
+        <div class="field-group">
+          <label>$i18n.getText("plugin.setting.isactualdate"):</label>
+          <div>
+            #if($isActualDate)
+            <input id="radioCurrent" type="radio" name="currentOrLast" value="current" class="settings-input" checked="true">  
+            #else
+            <input id="radioCurrent" type="radio" name="currentOrLast" value="current" class="settings-input">
+            #end
+            <label for="radioCurrent">$i18n.getText("plugin.setting.current")</label>
+            
+            #if($isActualDate)
+            <input id="radioLast" type="radio" name="currentOrLast" value="last" class="settings-input">  
+            #else
+            <input id="radioLast" type="radio" name="currentOrLast" value="last" class="settings-input" checked="true"> 
+            #end
+            <label for="radioLast">$i18n.getText("plugin.setting.last")</label>
+          </div>
+          <div class="description">$i18n.getText("plugin.setting.isactualdate.help")</div>
+        </div>
+        
+        <div class="field-group">
+          <label>$i18n.getText("plugin.setting.coloring"):</label>
+          <input id="isColoring" type="checkbox" value="use color" class="settings-input" name="isColoring" #if($isColoring) checked #end/>
+          <div class="description">$i18n.getText("plugin.setting.coloring.help")</div>
+        </div>
+        
+        <h3>$i18n.getText("plugin.setting.input.fields.settings")</h3>
+        <div class="field-group">
+          <label>$i18n.getText("plugin.setting.starttime.value"):</label>
+          <input id="startTime"  type="text" name="startTime" value="$startTime"  class="time-input settings-input"/> $i18n.getText("plugin.setting.min")
+          <div class="description">$i18n.getText("plugin.setting.starttime.help")</div>
+        </div>
+        <div class="field-group">
+          <label>$i18n.getText("plugin.setting.endtime.value"):</label>
+          <input id="endTime"  type="text" name="endTime" value="$endTime" class="time-input settings-input"/> $i18n.getText("plugin.setting.min")
+          <div class="description">$i18n.getText("plugin.setting.starttime.help")</div>
+        </div>
+        
+        <div class="buttons-container">
+          <div class="buttons">
+            <input id="savesettings"  type="submit" name="savesettings" value="$i18n.getText('plugin.save')" class="aui-button aui-button-primary"/>
+            <input id="resetButton"  type="button" name="reset" value="$i18n.getText('plugin.reset')" onclick="location.href='JiraTimetrackerSettingsWebAction.jspa'" class="aui-button"/>
+            <input id="cancelButton"  type="button" name="cancel" value="$i18n.getText('plugin.cancel')" onclick="location.href='JiraTimetrackerWebAction!default.jspa'" class="aui-button"/>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <!-- Issue Collector script -->
+  <script type="text/javascript" src="$issueCollectorSrc"></script>
 </body>
 </html>
