@@ -15,22 +15,38 @@
  */
 package org.everit.jira.reporting.plugin.dto;
 
-import java.util.List;
-
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
-import org.everit.jira.reporting.plugin.column.WorklogDetailsColumns;
-
 /**
- * Download worklog details parameter that containt the filter condition and the showable columns.
+ * Represents the ordering of the a search query.
  */
-@XmlRootElement
-public class DownloadWorklogDetailsParam {
+public class OrderBy {
 
-  @XmlElement
-  public FilterCondition filterCondition = new FilterCondition();
+  public static final OrderBy DEFAULT;
 
-  @XmlElement
-  public List<String> selectedWorklogDetailsColumns = WorklogDetailsColumns.ALL_COLUMNS;
+  static {
+    DEFAULT = new OrderBy()
+        .columnName("jtrp_col_issueKey")
+        .order("ASC")
+        .asc(true);
+  }
+
+  public boolean asc;
+
+  public String columnName;
+
+  public String order;
+
+  public OrderBy asc(final boolean asc) {
+    this.asc = asc;
+    return this;
+  }
+
+  public OrderBy columnName(final String columnName) {
+    this.columnName = columnName;
+    return this;
+  }
+
+  public OrderBy order(final String order) {
+    this.order = order;
+    return this;
+  }
 }
