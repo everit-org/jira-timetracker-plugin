@@ -17,33 +17,152 @@
 {
 margin-bottom: 0em;
 }
+
+/*********************************/
+/**********NEW DESING*************/
+/*********************************/
+
+/* Headline alignment */
+div#jttp-headline {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  height: 2rem;
+  padding-bottom: 1rem;
+}
+
+/* Progress */
+div#jttp-headline-progress {
+  float: left;
+  width: 15rem;
+  height: 100%;
+}
+div#jttp-headline-progress-number {
+  float: right;
+}
+div#jttp-headline-progress-bar {
+  width: 15rem;
+  height: 100%;
+}
+
+/* Day stepper */
+div#jttp-headline-day-stepper-container {
+  width: 20rem;
+  min-width: 20rem;
+  height: 100%;
+  border: none;
+}
+
+button#jttp-headline-day-calendar {
+  min-width: 15rem;
+}
+
+div#jttp-headline-empty {
+  width: 15rem;
+  height: 0rem;
+}
+
+/* Worklog table */
+section#jttp-worklog {
+  margin-bottom: 1rem;
+}
+
+table.aui > thead > tr > th{
+    color: #707070;
+}
+
+/* Change date button's section */
+section#jttp-change-date {
+  padding-top: 0;
+}
+
+#jttp-worklog-table tbody tr:hover {
+  background-color: #f5f5f5;
+}
+
+table#jttp-worklog-table th#jttp-worklog-description {
+  min-width: 15rem;
+  width: 50%;
+}
+
+table#jttp-worklog-table th#jttp-worklog-actions {
+  min-width: 5rem;
+  width: 5rem;
+}
+
+td.jttp-worklog-no-remaining {
+  color: red;
+}
+
+/* Inline time input fields flex */
+div#jttp-logwork-time {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+}
+div#jttp-logwork-time > div.field-group {
+  width: auto;
+  margin-right: 1rem;
+}
+
+/* General fields */
+section#jttp-logwork-fields {
+  box-sizing: border-box;
+  min-width: 550px;
+  width: calc((100% - 250px) /2);
+}
+
+/* Calendar */
+section#jttp-logwork-calendar {
+  box-sizing: border-box;
+  min-width: 250px;
+  width: 292px;
+  /*background: lightgray;*/
+}
+
+/* Worklog summary */
+section#jttp-worklog-summary {
+  box-sizing: border-box;
+  width: calc((100% - 250px) /2);
+}
+section#jttp-worklog-summary > div {
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: 0px;
+}
+.jttp-row-header {
+  color: #707070;
+  font-weight: bold;
+}
+
+/* Bottom group flex */
+div#jttp-bottom-group {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+
+/* Bottom group flex */
+div#jttp-bottom-group > section {
+  padding-top: 10px;
+}
+
+/*********************************/
+/*********NEW DESING END**********/
+/*********************************/
+
 .table-endtime:hover, .table-starttime:hover, .table-issue:hover, .table-comment:hover{
 cursor:pointer;
 }
 
-.rowHeader {
-    background-color: #E2E2E2;
-	text-align: center;
-}
-
-.workRows{
-	background-color: #E2E2E2;
-	text-align: left!important;
-}
-
-.rowAlter {
-    background-color: #F2F2F2;
-}
-.rowEdit {
+table.aui>tbody>tr.rowEdit {
     background-color: #FFEAAE;
 }
-.button {
-    padding: 2px;
-}
 
-.settings-button{
-	display: inline;
-	float: right;
+#jttp-worklog-table tbody tr.rowEdit:hover{
+    background-color: #f6c342;
 }
 
 .grid {
@@ -127,14 +246,6 @@ div.calendar {
 	padding-top: 6px;
 }
 
-/*#issueSelect-textarea, #issueSelect-multi-select{
-    width: 610px;
-}
-*/
-.jira-multi-select>.icon.drop-menu{
-    bottom: 6px;
-}
-
 #error_message{
     color: white;
     text-align: center;
@@ -144,9 +255,6 @@ div.calendar {
     background-color: #d04437;
 }
 
-.logo-img{
-	float: right;
-}
 
 .jttp-calendar{
     text-align: left;
@@ -154,18 +262,6 @@ div.calendar {
     padding:5px;
 }
 
-.jttp-calendar-img{
-    vertical-align: sub;
-}
-
-.summaty-table{
-	width: 100%;
-	padding-right: 5px;
-}
-
-.summaty-table-summary-column{
-    width: 20%;
-}
 
 .label-row{
     width: 5%;
@@ -173,18 +269,6 @@ div.calendar {
 
 .value-row{
     width: 85px;
-}
-
-.summary-table-datepicker-column{
-	width: 30%;
-}
-.worklog-table-header-column{
-	width: 110px;
-}
-
-.time-input{
-	margin-right: 5px;
-	width: 100px;
 }
 
 .time-input-div{
@@ -202,18 +286,6 @@ div.calendar {
 .inside-content{
 	margin:10px;
 	width:970px;
-}
-
-.not_popup_calendar{
-	float: right;
-}
-
-.center-text{
-	text-align: center;
-}
-
-.vertically-middle{
-	vertical-align: middle;
 }
 
 .jttp-aui-icon{
@@ -250,6 +322,10 @@ div.calendar {
 	text-align: center;
 	padding: 3px;
 	font-size: 14px;
+}
+
+p {
+    margin: 0;
 }
 
 .warn-message{

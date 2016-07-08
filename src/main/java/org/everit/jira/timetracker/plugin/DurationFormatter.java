@@ -16,6 +16,8 @@
 package org.everit.jira.timetracker.plugin;
 
 import java.io.Serializable;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -142,6 +144,21 @@ public class DurationFormatter implements Serializable {
   }
 
   /**
+   * Convert the seconds to Industry rounded format (8.5h) String.
+   *
+   * @param durationInSeconds
+   *          dutation in seconds.
+   * @return the formatted duration string.
+   */
+  public String industryDuration(final long durationInSeconds) {
+    double durationInMins = durationInSeconds / (double) DateTimeConverterUtil.SECONDS_PER_MINUTE;
+    double hours = durationInMins / DateTimeConverterUtil.MINUTES_PER_HOUR;
+    DecimalFormat df = new DecimalFormat("#.#");
+    df.setRoundingMode(RoundingMode.FLOOR);
+    return df.format(hours) + "h";
+  }
+
+  /**
    * Convert the seconds to jira rounded format (1h 30m) String.
    *
    * @param durationInSeconds
@@ -154,4 +171,14 @@ public class DurationFormatter implements Serializable {
     return calculateFormattedRemaining();
   }
 
+  /**
+   * Convert the working hours per day to Industry rounded format (8.5h) String.
+   *
+   * @return the formatted work hours per day string.
+   */
+  public String workHoursDayIndustryDuration() {
+    DecimalFormat df = new DecimalFormat("#.#");
+    df.setRoundingMode(RoundingMode.FLOOR);
+    return df.format(workHoursPerDay) + "h";
+  }
 }

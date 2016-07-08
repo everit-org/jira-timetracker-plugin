@@ -87,11 +87,6 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   private static final String HTTP_PARAM_TUTORIAL_DNS = "tutorial_dns";
 
-  /**
-   * The Issue Collector jttp_build.porperties key.
-   */
-  private static final String ISSUE_COLLECTOR_SRC = "ISSUE_COLLECTOR_SRC";
-
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
 
   /**
@@ -524,7 +519,7 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   private void loadIssueCollectorSrc() {
     Properties properties = PropertiesUtil.getJttpBuildProperties();
-    issueCollectorSrc = properties.getProperty(ISSUE_COLLECTOR_SRC);
+    issueCollectorSrc = properties.getProperty(PropertiesUtil.ISSUE_COLLECTOR_SRC);
   }
 
   private void loadPageSizeLimit() {
