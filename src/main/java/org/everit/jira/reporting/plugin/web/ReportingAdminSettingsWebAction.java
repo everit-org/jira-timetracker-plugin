@@ -40,11 +40,6 @@ public class ReportingAdminSettingsWebAction extends JiraWebActionSupport {
 
   private static final String FREQUENT_FEEDBACK = "jttp.plugin.frequent.feedback";
 
-  /**
-   * The Issue Collector jttp_build.porperties key.
-   */
-  private static final String ISSUE_COLLECTOR_SRC = "ISSUE_COLLECTOR_SRC";
-
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
 
   private static final String NOT_RATED = "Not rated";
@@ -161,7 +156,7 @@ public class ReportingAdminSettingsWebAction extends JiraWebActionSupport {
 
   private void loadIssueCollectorSrc() {
     Properties properties = PropertiesUtil.getJttpBuildProperties();
-    issueCollectorSrc = properties.getProperty(ISSUE_COLLECTOR_SRC);
+    issueCollectorSrc = properties.getProperty(PropertiesUtil.ISSUE_COLLECTOR_SRC);
   }
 
   /**

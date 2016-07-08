@@ -48,12 +48,12 @@
    background-color: #f5f5f5;
 }
 
-table.aui > thead > tr > th{
+ table.missing-worklog-table thead > tr > th{
     text-align: center;
     color: #707070;
 }
 
-table.aui > tbody > tr > td{
+table.missing-worklog-table > tbody > tr > td{
    text-align: center;
 }
  
