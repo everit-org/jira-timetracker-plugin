@@ -771,7 +771,7 @@ everit.jttp.main = everit.jttp.main || {};
     
     var endMinString = String(endMin);
     if(endMin < 10) {
-      endMinString = "0" + String(durationMin);
+      endMinString = "0" + String(endMin);
     }
     
     $endInput.val(endHourString + ":" + endMinString);
