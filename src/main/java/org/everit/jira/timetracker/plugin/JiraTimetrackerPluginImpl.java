@@ -546,7 +546,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   public List<MissingsWorklogsDTO> getDates(final String selectedUser, final Date from,
       final Date to,
       final boolean workingHour, final boolean checkNonWorking)
-      throws GenericEntityException {
+          throws GenericEntityException {
     List<MissingsWorklogsDTO> datesWhereNoWorklog = new ArrayList<MissingsWorklogsDTO>();
     Calendar fromDate = Calendar.getInstance();
     fromDate.setTime(from);
@@ -711,7 +711,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   @Override
   public List<EveritWorklog> getWorklogs(final String selectedUser, final Date date,
       final Date finalDate)
-      throws ParseException {
+          throws ParseException {
     Calendar startDate = DateTimeConverterUtil.setDateToDayStart(date);
     Calendar endDate = (Calendar) startDate.clone();
     if (finalDate == null) {
@@ -1122,7 +1122,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   }
 
   @Override
-  public String summary(final Date startSummary,
+  public long summary(final Date startSummary,
       final Date finishSummary,
       final List<Pattern> issuePatterns) throws GenericEntityException {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
@@ -1171,6 +1171,14 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     for (GenericValue worklog : worklogs) {
       timeSpent += worklog.getLong("timeworked").longValue();
     }
+    return timeSpent;
+  }
+
+  @Override
+  public String summaryToGui(final Date startSummary, final Date finishSummary,
+      final List<Pattern> issueIds)
+          throws GenericEntityException {
+    long timeSpent = summary(startSummary, finishSummary, issueIds);
     return new DurationFormatter().exactDuration(timeSpent);
   }
 
