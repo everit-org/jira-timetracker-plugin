@@ -14,21 +14,14 @@
  * limitations under the License.
  *#
 <html>
-<head>
-  <title>Timetracker</title>
-</head>
 <body>
 
 $webResourceManager.requireResource("jira.webresources:global-static")
 $webResourceManager.requireResource("jira.webresources:calendar")
 $webResourceManager.requireResource("jira.webresources:calendar-en")
+$webResourceManager.requireResource("com.atlassian.auiplugin:aui-progress-indicator")
 $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-resources")
 
-#if(!$debugMessage.isEmpty())
-  <div id="error_message">
-    $debugMessage
-  </div>
-#end
 #set($rendererType = "atlassian-wiki-renderer")
     #if($currentCalendar.useISO8601 == true)
         #set ($firstDay = 1)
@@ -48,169 +41,215 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 			{
 				firstDay : ${firstDay},
 				useISO8601 : ${currentCalendar.useISO8601},
-				dateFormatted : "$dateFormatted",
+				dateFormatted : ${dateFormatted},
 				excludeDays : ${excludeDays},
 				isColoring : ${isColoring},
 				loggedDays : ${loggedDays},
 				isDurationSelected : ${isDurationSelected},
 				projectsId : ${projectsId},
 				isPopup : ${isPopup},
-				jiraMainVersion : ${jiraMainVersion},
 				issueKey : '${issueKey}',
-				comment : '${comment}',
-				isEditAll : ${isEditAll}
+				comment: '${comment}',
+				actionFlag: '${actionFlag}',
+				worklogSize: ${worklogs.size()},
 			}
 		);
 	})(everit.jttp.main, AJS.$);
 </script>
 
-<div id="plugin_head" class="item-header" >
-	<div class="logo-img">
-		<a href="http://www.everit.biz/" target="_blank">
-			<img src="$contextPath/download/resources/org.everit.jira.timetracker.plugin:jttp-resources/everit_tt_logo.png" alt="Everit logo" height="42" width="42" style:"float: right">
-		</a>
-	</div>
-	<h1 class="item-summary" >Timetracker</h1>
-</div>
-<div id="main-content" class="content rounded">
-	<form name="jttpForm" id="jttpForm" method="post"
-                    #if($isEdit) action="JiraTimetrackerWebAction.jspa?editedWorklogId=$editedWorklogId&dateFormatted=$dateFormatted" 
-                    #elseif($isEditAll) action="JiraTimetrackerWebAction.jspa?editAllIds=$editAllIds&dateFormatted=$dateFormatted" 
-                    #elseif($isCopy) action="JiraTimetrackerWebAction.jspa?copiedWorklogId=$copiedWorklogId&dateFormatted=$dateFormatted" 
-					#else action="JiraTimetrackerWebAction.jspa?dateFormatted=$dateFormatted" #end/>   
-        <div class="inside-content">
-            ##TAB START
-            <div class="tabwrap tabs2" id="tabs-jttp">
-                <ul class="tabs horizontal">
-                    <li class="active">
-                        <a href="JiraTimetrackerWebAction!default.jspa"><strong>Timetracker</strong></a>
-                    </li>
-                </ul>
+      <header class="aui-page-header">
+        <div class="aui-page-header-inner">
+          <div class="aui-page-header-image">
+            <span class="aui-avatar aui-avatar-large">
+              <span class="aui-avatar-inner">
+                <a href="http://www.everit.biz/index.php?nyelv=en" target="_blank">
+                  <img src="$contextPath/download/resources/org.everit.jira.timetracker.plugin:jttp-resources/E_logo.png" alt="Everit reporting logo">
+                </a>
+              </span>
+            </span>
+          </div>
+          <div class="aui-page-header-main">
+            <h1>Timetracker</h1>
+          </div>
+          <div class="aui-page-header-actions">
+            <div class="aui-buttons">
+              <button class="aui-button aui-button-subtle"  type="button" name="setting" onclick="location.href='JiraTimetrackerSettingsWebAction!default.jspa'">
+                <span class="aui-icon aui-icon-small aui-iconfont-configure"> </span>
+              </button>
             </div>
-            ##TAB END
-              #if(!$message.isEmpty())
-                  <div id="error_message">
-                         $i18n.getText($message) $messageParameter
-                  </div>
-              #end
-            #parse("templates/timetracker/summary.vm")
-            #parse("templates/timetracker/list.vm")
-               </br>
-               <div id="inputfields" name="inputfields">
-               <table id="inputfields-table" width="100%">
-                   <tbody>
-                       <tr>
-                           <input id="editAll" type="button" name="editall" value="$i18n.getText('plugin.edit.all')" onclick="location.href='JiraTimetrackerWebAction!default.jspa?editAllIds=$worklogsIds&dateFormatted=$dateFormatted'" class="button" #if($worklogs.size() == 0) disabled #end/>
-                           <td>
-                            <table>
-                                        <tbody>
-                                            <tr>
-                                                <td class="worklog-table-header-column">
-                                                    <div class="field-group">
-                                                        $i18n.getText("plugin.start.time") <img src="$contextPath/images/required.png" width="16" height="16" border="0" />
-                                                    </div>
-                                                </td>
-												<td />
-                                                <td class="worklog-table-header-column">
-                                                    <div>
-                                                        <input id="radioEnd" type="radio" name="endOrDuration" value="end" checked="true" style="display: none;"> 
-                                                        $i18n.getText("plugin.end.time")
-                                                    </div>
-                                                </td>
-												<td />
-                                                <td class="worklog-table-header-column">
-                                                    <div>
-                                                        <input id="radioDuration" type="radio" name="endOrDuration" value="duration" style="display: none;">
-                                                        $i18n.getText("plugin.duration.time")
-                                                    </div>
-                                                </td>
-												<td />
-                                            </tr>
-                                            <tr>
-                                                <td class="worklog-table-header-column">
-                                                   <input id="startTime"  type="text" name="startTime" value="$startTime" onkeypress="everit.jttp.main.handleEnterKey(event, '#endTime');" tabindex="1" class="time-input"/>
-                                                </td>
-                                                <td class="worklog-table-header-column">
-                                                   <input id="startNow"  type="button" name="startNow" value="$i18n.getText('plugin.now')" class="button" onclick="everit.jttp.main.startNowClick($startTimeChange);"/>
-                                                </td>
-                                                <td  class="worklog-table-header-column">
-												  <span class="time-input-span">
-                                                         <input id="endTime"  type="text" name="endTime" value="$endTime" onkeypress="everit.jttp.main.handleEnterKey(event, '#issueSelect-textarea');" tabindex="2" class="time-input"/> 
-                                                         <div id="endTimeInput" class="time-input-div" onclick="everit.jttp.main.endTimeInputClick($isEditAll);"></div>
-                                                      </span>
-                                                 </td>
-                                                 <td class="worklog-table-header-column">
-                                                   <input id="endNow"  type="button" name="endNow" value="$i18n.getText('plugin.now')" class="button" onclick="everit.jttp.main.endNowClick($endTimeChange);"/>
-                                                 </td>
-                                                 <td class="worklog-table-header-column" >
-                                                  <span class="time-input-span">
-                                                     <input id="durationTime"  type="text" name="durationTime" onkeypress="everit.jttp.main.handleEnterKey(event, '#issueSelect-textarea');" tabindex="2" disabled value="$durationTime" class="time-input"/>
-                                                    <div id="durationTimeInput" class="time-input-div" onclick="everit.jttp.main.durationTimeInput($isEditAll);"></div>
-                                                  </span>
-                                                 </td>
-                                                <td />
-                                            </tr>
-                                            <tr>
-                                                <td colspan="6">
-                                                   Issue: <img src="$contextPath/images/required.png" width="16" height="16" border="0"/>
-                                                 <div id="issueSelect_container" class="ajax_autocomplete atlassian-autocomplete" >
-                                                    <select class="hidden"
-                                                        multiple="none" 
-                                                        name="issueSelect" 
-                                                        id="issueSelect" 
-                                                        data-popup-link-message="" 
-                                                        data-popup-height="500" 
-                                                        data-remove-on-un-select="true" 
-                                                        data-ajax-options.query="true" 
-                                                        data-ajax-options.url="${req.contextPath}/rest/api/1.0/issues/picker" 
-                                                        data-ajax-options.data.query="-" 
-                                                        data-ajax-options.data.current-issue-key=""
-                                                        data-ajax-options.data.show-sub-tasks="true" 
-                                                        data-ajax-options.data.show-sub-task-parent="true"
-                                                        data-ajax-options.data.current_jql="resolution = Unresolved ORDER BY issuetype ASC, priority DESC">
-                                                    </select> 
-                                                 </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                 <td colspan="6" class="notes">
-                                                    $i18n.getText("plugin.note"):</br>
-                                                    #set($fieldId = "comments")
-                                                    #parse("templates/plugins/renderers/wiki/wiki-renderer-edit.vm")
-                                                   </td>
-                                              </tr>
-                                          </tbody>
-                                    </table>     
-                                </td>
-                                <td>
-                                    <div id="not_popup_calendar" class="not_popup_calendar">
-                                    <script>
-                                    	everit.jttp.main.standCalendarSetup($isPopup);
-                                    </script>
-                                    </div>
-                                </td>
-                </tbody>
-            </table>
-            #if($isEdit)
-                <input id="Edit"  type="submit" name="edit" value="$i18n.getText('plugin.save')" class="button" tabindex="5" />
-            #elseif($isEditAll)
-                <input id="editallsave"  type="submit" name="editallsave" value="$i18n.getText('plugin.save')" class="button" />    
-            #else
-                <input type="hidden" id="Submit" name="submit" disabled />
-                <input id="Submitbutton" type="submit" name="submitbutton" value="$i18n.getText('plugin.submit')" class="button" tabindex="5"
-                    onclick="everit.jttp.main.submitButtonClick();"/>
+          </div>
+        </div>
+      </header>
+
+      <div class="aui-page-panel">
+        <div class="aui-page-panel-inner">
+          <section class="aui-page-panel-content">
+            #if(!$message.isEmpty())
+              <div class="aui-message aui-message-error">
+                <p>$i18n.getText($message) #if($messageParameter) <a href="$contextPath/browse/$messageParameter" class="issue-link link-title">$messageParameter</a> #end</p>
+              </div>
             #end
-            <input id="setting"  type="button" name="setting" onclick="location.href='JiraTimetrackerSettingsWebAction!default.jspa'" value="$i18n.getText('plugin.settings')" class="button settings-button" />
-            <input id="cancelButton"  type="button" name="Cancel" value="$i18n.getText('plugin.cancel')" onclick="location.href='JiraTimetrackerWebAction!default.jspa?dateFormatted=$dateFormatted'" class="button"/>
+            <div id="jttp-headline">
+              <div id="jttp-headline-progress">
+                <!-- New feature -->
+                <span></span>
+                <div id="jttp-headline-progress-number">$daySumIndustryFormatted / $hoursPerDayFormatted</div>
+                <div id="jttp-headline-progress-bar">
+                  <div id="jttp-headline-progress-indicator" class="aui-progress-indicator" data-jttp-percent="$dailyPercent">
+                    <span class="aui-progress-indicator-value" />
+                  </div>
+                </div>
+              </div>
+              <div id="jttp-headline-day-stepper-container">
+                <form class="aui top-label" id="jttp-datecahnge-form" method="get" action="JiraTimetrackerWebAction.jspa" onsubmit="return everit.jttp.main.beforeSubmitChangeDate();">
+                  <div class="aui-buttons">
+                    <button id="jttp-headline-day-prev" class="aui-button aui-button-subtle" title="Previous day" type="submit" id="dayBack"  name="dayBack" >
+                      <span class="aui-icon aui-icon-small aui-iconfont-arrows-left">Previous day</span>
+                    </button>
+                    <button id="jttp-headline-day-calendar" class="aui-button aui-button-subtle" title="Pick a date">
+                      <span id="date-span"></span> 
+                      <span class="aui-icon aui-icon-small aui-iconfont-calendar">Open calendar</span>
+                    </button>
+                    <button id="jttp-headline-day-next" class="aui-button aui-button-subtle" title="Next day" type="submit" id="dayNext" name="dayNext">
+                      <span class="aui-icon aui-icon-small aui-iconfont-arrows-right">Next day</span>
+                    </button>
+                  </div>
+                  <input type="text" id="dateHidden" name="dateHidden" style="display: none" onchange="this.form.datesubmit.click()" />
+                  <input type="submit" id="datesubmit" name="datesubmit" class="spaced" style="display: none"/>
+                </form>
+              </div>
+              <div id="jttp-headline-empty">&nbsp;</div>
             </div>
         </div>
-	</form>
-		<div id="feedbackfooter" class="feedback_footer">
-		#parse("templates/feedback/feedback_jttp.vm")
-	</div>
-</div>
-#if($analyticsDTO.analyticsCheck)
-	#parse("templates/common/analytics.vm")
-#end
+
+        <!-- Dont forget the "No data to display" message -->
+        #parse("templates/timetracker/list.vm")
+
+          <div class="aui-page-panel-inner">
+            <section class="aui-page-panel-content" id="jttp-change-date">
+              <form class="aui top-label" id="jttp-editall-form" method="get" action="JiraTimetrackerWebAction.jspa"  onsubmit="return everit.jttp.main.beforeSubmitEditAll();" >
+                <div class="buttons-container">
+                  <div class="buttons">
+                    <input type="hidden" id="worklogsIds" name="worklogsIds" value="$worklogsIds" >
+                    <input class="aui-button " type="submit" value="Change date for all" #if($worklogs.size() == 0) disabled #end
+                      id="jttp-logwork-change-date-all" name="lw_chgdate" title="Move all the worklogs to a particular day">
+                  </div>
+                </div>
+              </form>
+            </section>
+          </div>
+
+          <div class="jttp-bottom-group" id="jttp-bottom-group">
+            <section class="aui-page-panel-content" id="jttp-logwork-fields">
+              <form name="dummyForm" class="aui top-label" id="dummyForm" method="get" onsubmit="return false;" >
+                <div id="jttp-logwork-time" class="full-width-field">
+
+                  <div class="field-group">
+                    <label for="startTime">$i18n.getText("plugin.start.time")<span class="aui-icon icon-required">(required)</span></label>
+                    <input id="startTime" class="text short-field" type="text"
+                      value="$startTime" onkeypress="everit.jttp.main.handleEnterKey(event, '#endTime');"
+                      name="startTime" maxlength="5" tabindex="1"
+                      pattern="^([01][0-9]|2[0-3]):[0-5][0-9]$" title="hh:mm"
+                      onblur="everit.jttp.main.calculateDuration();">
+                    <input id="startNow" name="startNow" class="button" type="button" value="$i18n.getText('plugin.now')"
+                      onclick="everit.jttp.main.startNowClick($startTimeChange);">
+                  </div>
+
+                  <div class="field-group">
+                    <label for="endTime">$i18n.getText("plugin.end.time")</label>
+                    <input id="radioEnd" type="radio" name="endOrDuration" value="end" checked="true" style="display: none;"> 
+                    <span class="time-input-span">
+                      <input id="endTime" class="text short-field" type="text"
+                        name="endTime" maxlength="5" tabindex="2"
+                        value="$endTime" onkeypress="everit.jttp.main.handleEnterKey(event, '#issueSelect-textarea');"
+                        onclick="everit.jttp.main.endTimeInputClick();"
+                        pattern="^([01][0-9]|2[0-3]):[0-5][0-9]$" title="empty or hh:mm"
+                        onblur="everit.jttp.main.calculateDuration();">
+                      <div id="endTimeInput" class="time-input-div" onclick="everit.jttp.main.endTimeInputClick();"></div>
+                    </span>
+                    <input id="endNow" class="button" type="button" name="endNow" value="$i18n.getText('plugin.now')" onclick="everit.jttp.main.endNowClick($endTimeChange);">
+                  </div>
+
+                  <div class="field-group">
+                    <label for="durationTime">$i18n.getText("plugin.duration.time")</label> 
+                    <input id="radioDuration" type="radio" name="endOrDuration" value="duration" style="display: none;">
+                    <span class="time-input-span">
+                      <input id="durationTime" class="text short-field" type="text"
+                        name="durationTime" maxlength="5" tabindex="2"
+                        value="$durationTime" onkeypress="everit.jttp.main.handleEnterKey(event, '#issueSelect-textarea');"
+                        onclick="everit.jttp.main.durationTimeInput();"
+                        pattern="^([01][0-9]|2[0-3]):[0-5][0-9]$" title="empty or hh:mm" disabled 
+                        onblur="everit.jttp.main.calculateEndTime();">
+                      <div id="durationTimeInput" class="time-input-div" onclick="everit.jttp.main.durationTimeInput();"></div>
+                    </span>
+                  </div>
+                </div>
+                <div class="field-group">
+                  <label for="issueSelect-textarea">Issue <span class="aui-icon icon-required">(required)</span></label>
+                  <div id="issueSelect_container" class="ajax_autocomplete atlassian-autocomplete" >
+                    <select class="hidden"
+                      multiple="none" 
+                      name="issueSelect"
+                      id="issueSelect"
+                      data-popup-link-message=""
+                      data-popup-height="500"
+                      data-remove-on-un-select="true"
+                      data-ajax-options.query="true"
+                      data-ajax-options.url="${req.contextPath}/rest/api/1.0/issues/picker"
+                      data-ajax-options.data.query="-"
+                      data-ajax-options.data.current-issue-key=""
+                      data-ajax-options.data.show-sub-tasks="true"
+                      data-ajax-options.data.show-sub-task-parent="true"
+                      data-ajax-options.data.current_jql="resolution = Unresolved ORDER BY issuetype ASC, priority DESC">
+                    </select> 
+                  </div>
+                </div>
+
+                <div class="field-group">
+                  <label for="comments">$i18n.getText("plugin.jttp-worklog-description")</label>
+                  #set($fieldId = "comments")
+                  #parse("templates/plugins/renderers/wiki/wiki-renderer-edit.vm")
+                </div>
+              </form>
+
+              <div class="buttons-container">
+                <!-- Worklog submit form -->
+                <form class="aui top-label" id="jttp-logwork-form" method="post" action="JiraTimetrackerWebAction.jspa"  onsubmit="return everit.jttp.main.beforeSubmit();" >
+                  <div class="buttons">
+                    <input class="aui-button aui-button-primary" type="submit" value="Save"
+                      id="jttp-logwork-save" name="lw_save" tabindex="5"> 
+                    <input type="hidden" id="actionWorklogId" name="actionWorklogId" value="$actionWorklogId" >
+                    <input type="hidden" id="actionFlag" name="actionFlag" value="$actionFlag" >
+                    <input type="hidden" id="date" name="date" >
+                    <input type="hidden" id="editAll" name="editAll" value="$editAllIds" >
+                    <input type="hidden" id="worklogValuesJson" name="worklogValuesJson" >
+                    <input class="aui-button aui-button-subtle" type="reset" value="Cancel"
+                      id="jttp-logwork-cancel" name="lw_cancel" onclick="everit.jttp.main.cancelClick();">
+                  </div>
+                </form>
+              </div>
+
+            </section>
+
+            <section class="aui-page-panel-content" id="jttp-logwork-calendar">
+                <!-- <div style="background-color: lightblue; width: 245.8px; height: 207.61px; margin: 50px 0px 50px 0px;"></div> -->
+                <div id="not_popup_calendar" class="not_popup_calendar"></div>
+                <script>
+                  everit.jttp.main.standCalendarSetup($isPopup);
+                </script>
+            </section>
+
+            <section class="aui-page-panel-content" id="jttp-worklog-summary">
+              <!-- Summary -->
+              #parse("templates/timetracker/summary.vm")
+            </section>
+
+          </div>
+      </div>
+      <!-- Issue Collector script -->
+      <script type="text/javascript" src="$issueCollectorSrc"></script>
+      #if($analyticsDTO.analyticsCheck)
+        #parse("templates/common/analytics.vm")
+      #end
 </body>
 </html>

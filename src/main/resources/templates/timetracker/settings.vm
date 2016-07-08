@@ -103,12 +103,12 @@
         <h3>$i18n.getText("plugin.setting.input.fields.settings")</h3>
         <div class="field-group">
           <label>$i18n.getText("plugin.setting.starttime.value"):</label>
-          <input id="startTime"  type="text" name="startTime" value="$startTime"  class="time-input settings-input"/> $i18n.getText("plugin.setting.min")
+          <input id="startTime"  type="text" name="startTime" value="$startTime"  class="time-input settings-input text short-field"/> $i18n.getText("plugin.setting.min")
           <div class="description">$i18n.getText("plugin.setting.starttime.help")</div>
         </div>
         <div class="field-group">
           <label>$i18n.getText("plugin.setting.endtime.value"):</label>
-          <input id="endTime"  type="text" name="endTime" value="$endTime" class="time-input settings-input"/> $i18n.getText("plugin.setting.min")
+          <input id="endTime"  type="text" name="endTime" value="$endTime" class="time-input settings-input text short-field"/> $i18n.getText("plugin.setting.min")
           <div class="description">$i18n.getText("plugin.setting.starttime.help")</div>
         </div>
         

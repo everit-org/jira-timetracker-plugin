@@ -45,11 +45,6 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
  */
 public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
-  /**
-   * The Issue Collector jttp_build.porperties key.
-   */
-  private static final String ISSUE_COLLECTOR_SRC = "ISSUE_COLLECTOR_SRC";
-
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
 
   /**
@@ -351,7 +346,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
   private void loadIssueCollectorSrc() {
     Properties properties = PropertiesUtil.getJttpBuildProperties();
-    issueCollectorSrc = properties.getProperty(ISSUE_COLLECTOR_SRC);
+    issueCollectorSrc = properties.getProperty(PropertiesUtil.ISSUE_COLLECTOR_SRC);
   }
 
   private void normalizeContextPath() {
