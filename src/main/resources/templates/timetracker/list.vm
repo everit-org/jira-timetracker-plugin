@@ -36,13 +36,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
             #else
               <tbody>
               #foreach ($worklog in $worklogs)
-                #set($wl_item_class = "")
-                #if($worklog.worklogId == $editedWorklogId)
-                  #set($wl_item_class = "rowEdit")
-                #elseif($worklog.worklogId == $copiedWorklogId)
-                  #set($wl_item_class = "rowCopy")
-                #end
-                <tr #if(not $wl_item_class.isEmpty()) class="${wl_item_class}"#end>
+                <tr #if($worklog.worklogId == $actionWorklogId) class="rowEdit"#end>
                   <td>
                     <img class="img-tooltip" src="#if(!$worklog.issueAvatarId) #if( $worklog.issueTypeIconUrl.startsWith("http") )$worklog.issueTypeIconUrl#else$contextPath$worklog.issueTypeIconUrl#end#else$contextPath/secure/viewavatar?size=xsmall&avatarId=$worklog.issueAvatarId&avatarType=issuetype#end" alt="$worklog.issueTypeName" title="$worklog.issueTypeName"></img>
                   </td>
@@ -51,11 +45,11 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
                   </td>
                   <td>
                   #if($worklog.isClosed)
-                    <div title="$worklog.exactRemaining" style="color: #A3A1A1;">$worklog.roundedRemaining</div>
+                    <div class="tooltip-bottom"  title="$worklog.exactRemaining" style="color: #A3A1A1;">$worklog.roundedRemaining</div>
                   #elseif($worklog.isMoreEstimatedTime)
-                    <div title="$worklog.exactRemaining">$worklog.roundedRemaining<div>
+                    <div class="tooltip-bottom"  title="$worklog.exactRemaining">$worklog.roundedRemaining<div>
                   #else
-                    <div title="$worklog.exactRemaining" style="color:red;">$worklog.roundedRemaining</div>
+                    <div class="tooltip-bottom"  title="$worklog.exactRemaining" style="color:red;">$worklog.roundedRemaining</div>
                   #end
                   </td>
                   <td class="table-starttime">
@@ -75,15 +69,15 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
                     <form class="aui top-label actionForm_$worklog.worklogId" id="jttp-action-form" method="get" action="JiraTimetrackerWebAction.jspa"  onsubmit="return everit.jttp.main.beforeSubmitAction($worklog.worklogId);" >
                       <input id="actionWorklogId" name="actionWorklogId" type="hidden" value="$worklog.worklogId" >
                       <input id="actionFlag" name="actionFlag" type="hidden" value="" class="actionFlag_$worklog.worklogId" onchange="everit.jttp.main.actionSubmitClick($worklog.worklogId);">
-                      <span class="aui-icon aui-icon-small aui-iconfont-edit"
+                      <span class="aui-icon aui-icon-small aui-iconfont-edit tooltip-left jttp-aui-icon"
                         id="edit" name="edit" title="$i18n.getText('plugin.edit')"
                         onclick="everit.jttp.main.setActionFlag('edit', $worklog.worklogId);">
                       </span>
-                      <span class="aui-icon aui-icon-small aui-iconfont-delete"
+                      <span class="aui-icon aui-icon-small aui-iconfont-delete tooltip-left jttp-aui-icon"
                         id="delete" name="delete" title="$i18n.getText('plugin.delete')"
                         onclick="everit.jttp.main.setActionFlag('delete', $worklog.worklogId);">
                       </span>
-                      <span class="aui-icon aui-icon-small aui-iconfont-copy-clipboard copy"
+                      <span class="aui-icon aui-icon-small aui-iconfont-copy-clipboard copy tooltip-left jttp-aui-icon"
                         id="copy" name="copy" title="$i18n.getText('plugin.copy')" 
                         onclick="everit.jttp.main.setActionFlag('copy', $worklog.worklogId);">
                       </span>

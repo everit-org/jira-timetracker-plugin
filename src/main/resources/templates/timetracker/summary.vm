@@ -14,9 +14,9 @@
  * limitations under the License.
  *#
 
-               <div class="module toggle-wrap expanded">
+               <div id="summaryModule" class="module toggle-wrap expanded">
                 <div class="mod-header">
-                  <h2 class="class=" toggle-title>$i18n.getText("plugin.summary")</h2>
+                  <h2 class="toggle-title" onclick="everit.jttp.main.toggleSummary()">$i18n.getText("plugin.summary")</h2>
                 </div>
                 <div class="mod-content">
                   <table id="jttp-worklog-summary-table" class="aui">

@@ -144,18 +144,22 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   private boolean analyticsCheckValue;
 
   private AnalyticsSender analyticsSender;
+
   /**
    * The collector issues ids.
    */
   private List<Pattern> collectorIssuePatterns;
+
   /**
    * The collector issues ids.
    */
   private List<Pattern> defaultNonEstimedIssuePatterns = new ArrayList<Pattern>();
+
   /**
    * The summary filter issues ids.
    */
   private final List<Pattern> defaultNonWorkingIssueIds = new ArrayList<Pattern>();
+
   /**
    * The parsed exclude dates.
    */
@@ -443,7 +447,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
         return new ActionResult(ActionResultStatus.FAIL,
             NOPERMISSION_ISSUE, issueId);
       }
-      // ProjectPermissions.WORK_ON_ISSUES;
       ActionResult deleteResult = deleteWorklog(id);
       if (deleteResult.getStatus() == ActionResultStatus.FAIL) {
         return deleteResult;
@@ -674,7 +677,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   }
 
   @Override
-  public List<String> getProjectsId() throws GenericEntityException {
+  public List<String> getProjectsId() {
     List<String> projectsId = new ArrayList<String>();
     List<GenericValue> projectsGV = ComponentAccessor.getOfBizDelegator().findAll("Project");
     for (GenericValue project : projectsGV) {
@@ -1134,8 +1137,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     Calendar finish = Calendar.getInstance();
     finish.setTime(finishSummary);
 
-    // List<EntityExpr> exprList = createWorklogQueryExprList(selectedUser, user,
-    // startSummary, finishSummary);
     List<EntityCondition> exprList = createWorklogQueryExprList(user,
         start, finish);
 
@@ -1163,11 +1164,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
       }
     }
     long timeSpent = 0;
-    // Iterator<GenericValue> worklogsIterator = worklogs.iterator();
-    // while (worklogsIterator.hasNext()) {
-    // GenericValue worklog = worklogsIterator.next();
-    // timeSpent = timeSpent + worklog.getLong("timeworked").longValue();
-    // }
     for (GenericValue worklog : worklogs) {
       timeSpent += worklog.getLong("timeworked").longValue();
     }

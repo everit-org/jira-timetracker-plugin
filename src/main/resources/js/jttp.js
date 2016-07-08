@@ -52,14 +52,13 @@ everit.jttp.main = everit.jttp.main || {};
     durationSelectionSetup();
     issuePickerSetup(jttp.options.isPopup);
     eventBinding();
-    commentsCSSFormat(jttp.options.isPopup);
+    commentsCSSFormat();
     var fechaFormatedDate = fecha.format(jttp.options.dateFormatted, AJS.Meta.get("date-dmy").toUpperCase());
     jQuery("#date-span").text(fechaFormatedDate);
     jQuery("#dateHidden").val(fechaFormatedDate);
     
    
     popupCalendarsSetup(jttp.options.isPopup);
-//    standCalendarSetup(jttp.options.isPopup);
     setExcludeDaysToWeekend(jttp.options.excludeDays);
     setLoggedDaysDesign(jttp.options.isColoring, jttp.options.loggedDays);
     
@@ -76,7 +75,6 @@ everit.jttp.main = everit.jttp.main || {};
     
     
     addTooltips();
-//    headlineProgressIndicator();
     
     var original = Calendar.prototype.show;
     Calendar.prototype.show = function() {
@@ -87,6 +85,34 @@ everit.jttp.main = everit.jttp.main || {};
   });
   
   function addTooltips(){
+    var $issueTypeTooltip = AJS.$('#jttp-worklog-issue-type');
+    if(!$issueTypeTooltip.hasClass('jtrp-tooltipped')) {
+      $issueTypeTooltip.tooltip({gravity: 'w'});
+      $issueTypeTooltip.addClass('jtrp-tooltipped');
+    }
+    
+    var $datePickerTooltip = AJS.$('#jttp-headline-day-calendar');
+    if(!$datePickerTooltip.hasClass('jtrp-tooltipped')) {
+      $datePickerTooltip.tooltip();
+      $datePickerTooltip.addClass('jtrp-tooltipped');
+    }
+    
+    AJS.$('.tooltip-left').each(function() {
+      var $element = AJS.$(this);
+      if(!$element.hasClass('jtrp-tooltipped')) {
+        $element.tooltip({gravity: 'e'});
+        $element.addClass('jtrp-tooltipped');
+      }
+    });
+    
+    AJS.$('.tooltip-bottom').each(function() {
+      var $element = AJS.$(this);
+      if(!$element.hasClass('jtrp-tooltipped')) {
+        $element.tooltip();
+        $element.addClass('jtrp-tooltipped');
+      }
+    });
+    
     AJS.$('.img-tooltip').each(function() {
       var $element = AJS.$(this);
       if(!$element.hasClass('jtrp-tooltipped')) {
@@ -117,7 +143,7 @@ everit.jttp.main = everit.jttp.main || {};
   }
 
   jttp.endTimeInputClick = function() {
-    if (actionFlag != "editAll") {
+    if (jttp.options.actionFlag != "editAll") {
       jQuery("#endTimeInput").css("cursor", "text").hide().prev().prop("disabled", false).css(
           "cursor", "text").focus();
       jQuery("#durationTimeInput").css("cursor", "pointer").show().prev("input").prop("disabled",
@@ -137,7 +163,7 @@ everit.jttp.main = everit.jttp.main || {};
   }
 
   jttp.durationTimeInput = function() {
-    if (actionFlag != "editAll") {
+    if (jttp.options.actionFlag != "editAll") {
       jQuery("#durationTimeInput").css("cursor", "text").hide().prev("input[disabled]").prop(
           "disabled", false).css("cursor", "text").focus();
       jQuery("#endTimeInput").css("cursor", "pointer").show().prev("input").prop("disabled", true)
@@ -442,6 +468,13 @@ everit.jttp.main = everit.jttp.main || {};
     }
   }
   
+  jttp.toggleSummary = function() {
+    var module = jQuery("#summaryModule");
+    jQuery(".mod-content", module).toggle(0, function() {
+        module.toggleClass("collapsed");
+    });
+  }
+  
   function getWorklogValuesJson(){
     var issueKey = (!jQuery('#issueSelect').val() || jQuery('#issueSelect').val())[0] || "";
     var startTime = jQuery('#startTime').val() || "";
@@ -466,7 +499,7 @@ everit.jttp.main = everit.jttp.main || {};
   }
   
   
-  function commentsCSSFormat(isPopup) {
+  function commentsCSSFormat() {
     var comment = jttp.options.comment;
     jQuery("#comments").append(comment);
     jQuery("#comments").attr("tabindex", "4");

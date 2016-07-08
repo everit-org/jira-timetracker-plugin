@@ -162,10 +162,8 @@ public interface JiraTimetrackerPlugin {
    * Give back the Projects.
    *
    * @return whit Projects.
-   * @throws GenericEntityException
-   *           GenericEntityException.
    */
-  List<String> getProjectsId() throws GenericEntityException;
+  List<String> getProjectsId();
 
   /**
    * Give back the Worklog by ID.

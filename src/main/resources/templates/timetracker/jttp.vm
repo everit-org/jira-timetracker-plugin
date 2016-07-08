@@ -48,9 +48,8 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 				isDurationSelected : ${isDurationSelected},
 				projectsId : ${projectsId},
 				isPopup : ${isPopup},
-				jiraMainVersion : ${jiraMainVersion},
 				issueKey : '${issueKey}',
-				comment : '${comment}',
+				comment: '${comment}',
 				actionFlag: '${actionFlag}',
 				worklogSize: ${worklogs.size()},
 			}
@@ -213,7 +212,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 
               <div class="buttons-container">
                 <!-- Worklog submit form -->
-                <form class="aui top-label" id="jttp-logwork-form" method="get" action="JiraTimetrackerWebAction.jspa"  onsubmit="return everit.jttp.main.beforeSubmit();" >
+                <form class="aui top-label" id="jttp-logwork-form" method="post" action="JiraTimetrackerWebAction.jspa"  onsubmit="return everit.jttp.main.beforeSubmit();" >
                   <div class="buttons">
                     <input class="aui-button aui-button-primary" type="submit" value="Save"
                       id="jttp-logwork-save" name="lw_save" tabindex="5"> 
