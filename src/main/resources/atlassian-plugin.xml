@@ -85,8 +85,7 @@
   
   <web-resource name="JTTP Resources" key="jttp-resources">
     <dependency>com.atlassian.auiplugin:ajs</dependency>
-    <dependency>com.atlassian.auiplugin:aui-progress-indicator</dependency>
-    <dependency>com.atlassian.auiplugin:dialog2</dependency>
+    <dependency>com.atlassian.auiplugin:aui-experimental-progress-indicator</dependency>
     <dependency>com.atlassian.auiplugin:aui-date-picker</dependency>
     <transformation extension="js">
         <transformer key="jsI18n"/>

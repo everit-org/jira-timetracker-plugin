@@ -95,9 +95,10 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
             <div id="jttp-headline">
               <div id="jttp-headline-progress">
                 <!-- New feature -->
-                <div id="jttp-headline-progress-number">3h / 8h</div>
+                <span></span>
+                <div id="jttp-headline-progress-number">$daySumIndustryFormatted / $hoursPerDayFormatted</div>
                 <div id="jttp-headline-progress-bar">
-                  <div id="jttp-headline-progress-indicator" class="aui-progress-indicator">
+                  <div id="jttp-headline-progress-indicator" class="aui-progress-indicator" data-jttp-percent="$dailyPercent">
                     <span class="aui-progress-indicator-value" />
                   </div>
                 </div>

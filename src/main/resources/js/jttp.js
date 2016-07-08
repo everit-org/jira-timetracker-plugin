@@ -76,7 +76,7 @@ everit.jttp.main = everit.jttp.main || {};
     
     
     addTooltips();
-//    headlineProgressIndicator();
+    headlineProgressIndicator();
     
     var original = Calendar.prototype.show;
     Calendar.prototype.show = function() {
@@ -252,25 +252,22 @@ everit.jttp.main = everit.jttp.main || {};
   }
   
   function headlineProgressIndicator() {
-    // TODO extract to JS file and function, the only call here with the proper value
-    // Do this custom coloring only if the user can enable/disable it.
-    // If user can't enable or disable custom coloring, then use deafult progress indicator: https://docs.atlassian.com/aui/latest/docs/progress-indicator.html
-    var jttp_progress_value = 0.1;
     var jttp_progress_red = '#d04437';
     var jttp_progress_green = '#14892c';
     var jttp_progress_yellow = '#f6c342';
-    AJS.progressBars.update(
-        "#jttp-headline-progress-indicator",
-        jttp_progress_value);
-    if (jttp_progress_value <= 0.2) {
-      AJS.$('#jttp-headline-progress-indicator .aui-progress-indicator-value')
-          .css("background-color", jttp_progress_red);
-    } else if (jttp_progress_value >= 1.0){
-       AJS.$('#jttp-headline-progress-indicator .aui-progress-indicator-value')
-          .css("background-color",jttp_progress_green); 
+    var $indicator = jQuery('#jttp-headline-progress-indicator');
+    var dailyPercent = parseFloat($indicator.attr('data-jttp-percent'));
+    if(dailyPercent > 1.0) {
+      dailyPercent = 1;
+    }
+    AJS.progressBars.update($indicator, dailyPercent);
+    var $progressIndicator = jQuery('#jttp-headline-progress-indicator .aui-progress-indicator-value');
+    if (dailyPercent <= 0.2) {
+      AJS.$($progressIndicator).css("background-color", jttp_progress_red);
+    } else if (dailyPercent >= 1.0){
+      AJS.$($progressIndicator).css("background-color", jttp_progress_green); 
     } else {
-      AJS.$('#jttp-headline-progress-indicator .aui-progress-indicator-value')
-          .css("background-color",jttp_progress_yellow);  
+      AJS.$($progressIndicator).css("background-color", jttp_progress_yellow);  
     }
   }
   
