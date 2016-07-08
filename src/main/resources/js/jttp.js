@@ -743,7 +743,7 @@ everit.jttp.main = everit.jttp.main || {};
       return false;
     }
     
-    var durationTimeParts = endTime.split(':');
+    var durationTimeParts = durationTime.split(':');
     var durationTimeHour = parseInt(durationTimeParts[0]);
     var durationTimeMin = parseInt(durationTimeParts[1]);
     
@@ -751,8 +751,8 @@ everit.jttp.main = everit.jttp.main || {};
     var startTimeHour = parseInt(startTimeParts[0]);
     var startTimeMin = parseInt(startTimeParts[1]);
     
-    var endHour = endTimeHour + startTimeHour;
-    var endMin = endTimeMin + startTimeMin;
+    var endHour = durationTimeHour + startTimeHour;
+    var endMin = durationTimeMin + startTimeMin;
     
     if(endMin > 59) {
       endHour = endHour + 1;
@@ -766,15 +766,15 @@ everit.jttp.main = everit.jttp.main || {};
 
     var endHourString = String(endHour);
     if(endHour < 10) {
-      durationHourString = "0" + String(durationHour);
+      endHourString = "0" + String(durationHour);
     }
     
     var endMinString = String(endMin);
     if(endMin < 10) {
-      durationMinString = "0" + String(durationMin);
+      endMinString = "0" + String(durationMin);
     }
     
-    $endInput.val(durationHourString + ":" + durationMinString);
+    $endInput.val(endHourString + ":" + endMinString);
   }
 
 })(everit.jttp.main, jQuery);
