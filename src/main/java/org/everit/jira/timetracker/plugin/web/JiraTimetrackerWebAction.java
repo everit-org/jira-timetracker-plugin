@@ -46,6 +46,7 @@ import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 import org.ofbiz.core.entity.GenericEntityException;
 
+import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.config.properties.APKeys;
 import com.atlassian.jira.config.properties.ApplicationProperties;
@@ -119,6 +120,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   private String contextPath;
 
+  private double dailyPercent;
+
   /**
    * The date.
    */
@@ -133,6 +136,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The summary of day.
    */
   private String dayFilteredSummary = "";
+
+  private String daySumIndustryFormatted;
 
   /**
    * The summary of day.
@@ -164,6 +169,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * List of the exclude days of the date variable current months.
    */
   private List<String> excludeDays = new ArrayList<String>();
+
+  private String hoursPerDayFormatted;
 
   private String installedPluginId;
 
@@ -259,6 +266,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   private TimetrackerCondition timetrackingCondition;
 
+  private TimeTrackingConfiguration timeTrackingConfiguration;
+
   /**
    * The summary of week.
    */
@@ -288,13 +297,17 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    *
    * @param jiraTimetrackerPlugin
    *          The {@link JiraTimetrackerPlugin}.
+   * @param timeTrackingConfiguration
+   *          the {@link TimeTrackingConfiguration}.
    * @param pluginSettingsFactory
    *          the {@link PluginSettingsFactory}.
    */
   public JiraTimetrackerWebAction(
       final JiraTimetrackerPlugin jiraTimetrackerPlugin,
+      final TimeTrackingConfiguration timeTrackingConfiguration,
       final PluginSettingsFactory pluginSettingsFactory) {
     this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
+    this.timeTrackingConfiguration = timeTrackingConfiguration;
     this.pluginSettingsFactory = pluginSettingsFactory;
     timetrackingCondition = new TimetrackerCondition(jiraTimetrackerPlugin);
     pluginCondition = new PluginCondition(jiraTimetrackerPlugin);
@@ -601,6 +614,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return contextPath;
   }
 
+  public double getDailyPercent() {
+    return dailyPercent;
+  }
+
   public Date getDate() {
     return (Date) date.clone();
   }
@@ -611,6 +628,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   public String getDayFilteredSummary() {
     return dayFilteredSummary;
+  }
+
+  public String getDaySumIndustryFormatted() {
+    return daySumIndustryFormatted;
   }
 
   public String getDaySummary() {
@@ -639,6 +660,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   public List<String> getExcludeDays() {
     return excludeDays;
+  }
+
+  public String getHoursPerDayFormatted() {
+    return hoursPerDayFormatted;
   }
 
   public String getInstalledPluginId() {
@@ -945,9 +970,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     endCalendar.add(Calendar.DAY_OF_MONTH, 1);
 
     Date end = endCalendar.getTime();
-    daySummary = jiraTimetrackerPlugin.summary(start, end, null);
+    daySummary = jiraTimetrackerPlugin.summaryToGui(start, end, null);
+    long daySum = jiraTimetrackerPlugin.summary(start, end, null);
     if ((issuesRegex != null) && !issuesRegex.isEmpty()) {
-      dayFilteredSummary = jiraTimetrackerPlugin.summary(start, end,
+      dayFilteredSummary = jiraTimetrackerPlugin.summaryToGui(start, end,
           issuesRegex);
     }
 
@@ -959,9 +985,9 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     endCalendar = (Calendar) startCalendar.clone();
     endCalendar.add(Calendar.DATE, DateTimeConverterUtil.DAYS_PER_WEEK);
     end = endCalendar.getTime();
-    weekSummary = jiraTimetrackerPlugin.summary(start, end, null);
+    weekSummary = jiraTimetrackerPlugin.summaryToGui(start, end, null);
     if ((issuesRegex != null) && !issuesRegex.isEmpty()) {
-      weekFilteredSummary = jiraTimetrackerPlugin.summary(start, end,
+      weekFilteredSummary = jiraTimetrackerPlugin.summaryToGui(start, end,
           issuesRegex);
     }
 
@@ -975,11 +1001,18 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     endCalendar.add(Calendar.DAY_OF_MONTH, 1);
     end = endCalendar.getTime();
 
-    monthSummary = jiraTimetrackerPlugin.summary(start, end, null);
+    monthSummary = jiraTimetrackerPlugin.summaryToGui(start, end, null);
     if ((issuesRegex != null) && !issuesRegex.isEmpty()) {
-      monthFilteredSummary = jiraTimetrackerPlugin.summary(start, end,
+      monthFilteredSummary = jiraTimetrackerPlugin.summaryToGui(start, end,
           issuesRegex);
     }
+
+    double hoursPerDay = timeTrackingConfiguration.getHoursPerDay().doubleValue();
+    hoursPerDayFormatted = durationFormatter.workHoursDayIndustryDuration();
+    daySumIndustryFormatted = durationFormatter.industryDuration(daySum);
+    double daySumMin = daySum / (double) DateTimeConverterUtil.SECONDS_PER_MINUTE;
+    double daySumHour = daySumMin / DateTimeConverterUtil.MINUTES_PER_HOUR;
+    dailyPercent = daySumHour / hoursPerDay;
   }
 
   private void normalizeContextPath() {

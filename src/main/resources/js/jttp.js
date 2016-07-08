@@ -75,6 +75,7 @@ everit.jttp.main = everit.jttp.main || {};
     
     
     addTooltips();
+    headlineProgressIndicator();
     
     var original = Calendar.prototype.show;
     Calendar.prototype.show = function() {
@@ -278,25 +279,22 @@ everit.jttp.main = everit.jttp.main || {};
   }
   
   function headlineProgressIndicator() {
-    // TODO extract to JS file and function, the only call here with the proper value
-    // Do this custom coloring only if the user can enable/disable it.
-    // If user can't enable or disable custom coloring, then use deafult progress indicator: https://docs.atlassian.com/aui/latest/docs/progress-indicator.html
-    var jttp_progress_value = 0.1;
     var jttp_progress_red = '#d04437';
     var jttp_progress_green = '#14892c';
     var jttp_progress_yellow = '#f6c342';
-    AJS.progressBars.update(
-        "#jttp-headline-progress-indicator",
-        jttp_progress_value);
-    if (jttp_progress_value <= 0.2) {
-      AJS.$('#jttp-headline-progress-indicator .aui-progress-indicator-value')
-          .css("background-color", jttp_progress_red);
-    } else if (jttp_progress_value >= 1.0){
-       AJS.$('#jttp-headline-progress-indicator .aui-progress-indicator-value')
-          .css("background-color",jttp_progress_green); 
+    var $indicator = jQuery('#jttp-headline-progress-indicator');
+    var dailyPercent = parseFloat($indicator.attr('data-jttp-percent'));
+    if(dailyPercent > 1.0) {
+      dailyPercent = 1;
+    }
+    AJS.progressBars.update($indicator, dailyPercent);
+    var $progressIndicator = jQuery('#jttp-headline-progress-indicator .aui-progress-indicator-value');
+    if (dailyPercent <= 0.2) {
+      AJS.$($progressIndicator).css("background-color", jttp_progress_red);
+    } else if (dailyPercent >= 1.0){
+      AJS.$($progressIndicator).css("background-color", jttp_progress_green); 
     } else {
-      AJS.$('#jttp-headline-progress-indicator .aui-progress-indicator-value')
-          .css("background-color",jttp_progress_yellow);  
+      AJS.$($progressIndicator).css("background-color", jttp_progress_yellow);  
     }
   }
   
@@ -683,6 +681,100 @@ everit.jttp.main = everit.jttp.main || {};
     var time = calculateTimeForInputfileds(hour, min);
     jQuery("#endTime").val(time);
   }
+  
+  jttp.calculateDuration = function(){
+    var $startInput = jQuery('#startTime');
+    var $endInput = jQuery('#endTime');
+    var $durationInput = jQuery('#durationTime');
+    
+    var startTime = $startInput.val();
+    var endTime = $endInput.val();
+    
+    if(startTime.length != 5 || endTime.length != 5) {
+      $durationInput.val("");
+      return false;
+    }
+    
+    var endTimeParts = endTime.split(':');
+    var endTimeHour = parseInt(endTimeParts[0]);
+    var endTimeMin = parseInt(endTimeParts[1]);
+    
+    var startTimeParts = startTime.split(':');
+    var startTimeHour = parseInt(startTimeParts[0]);
+    var startTimeMin = parseInt(startTimeParts[1]);
+    
+    var durationHour = endTimeHour - startTimeHour;
+    var durationMin = endTimeMin - startTimeMin;
+    
+    if(durationMin < 0) {
+      durationHour = durationHour - 1;
+      durationMin = 60 + durationMin;
+    }
 
+    // startime is after endtime
+    if(durationHour < 0) {
+      $durationInput.val("");
+      return false;
+    }
+
+    var durationHourString = String(durationHour);
+    if(durationHour < 10) {
+      durationHourString = "0" + String(durationHour);
+    }
+    
+    var durationMinString = String(durationMin);
+    if(durationMin < 10) {
+      durationMinString = "0" + String(durationMin);
+    }
+    
+    $durationInput.val(durationHourString + ":" + durationMinString);
+  }
+
+  jttp.calculateEndTime = function(){
+    var $startInput = jQuery('#startTime');
+    var $endInput = jQuery('#endTime');
+    var $durationInput = jQuery('#durationTime');
+    
+    var startTime = $startInput.val();
+    var durationTime = $durationInput.val();
+    
+    if(startTime.length != 5 || durationTime.length != 5) {
+      $endInput.val("");
+      return false;
+    }
+    
+    var durationTimeParts = endTime.split(':');
+    var durationTimeHour = parseInt(durationTimeParts[0]);
+    var durationTimeMin = parseInt(durationTimeParts[1]);
+    
+    var startTimeParts = startTime.split(':');
+    var startTimeHour = parseInt(startTimeParts[0]);
+    var startTimeMin = parseInt(startTimeParts[1]);
+    
+    var endHour = endTimeHour + startTimeHour;
+    var endMin = endTimeMin + startTimeMin;
+    
+    if(endMin > 59) {
+      endHour = endHour + 1;
+      endMin = endMin - 60;
+    }
+
+    // startime is after endtime
+    if(endHour > 23) {
+      endHour = endHour - 24;
+    }
+
+    var endHourString = String(endHour);
+    if(endHour < 10) {
+      durationHourString = "0" + String(durationHour);
+    }
+    
+    var endMinString = String(endMin);
+    if(endMin < 10) {
+      durationMinString = "0" + String(durationMin);
+    }
+    
+    $endInput.val(durationHourString + ":" + durationMinString);
+  }
 
 })(everit.jttp.main, jQuery);

@@ -244,11 +244,27 @@ public interface JiraTimetrackerPlugin {
    *          The finish date.
    * @param issueIds
    *          The filtered issues ids. If null or empty then don't make filtered summary.
+   * @return The summary spent time in seconds.
+   * @throws GenericEntityException
+   *           GenericEntityException.
+   */
+  long summary(Date startSummary, Date finishSummary, List<Pattern> issueIds)
+      throws GenericEntityException;
+
+  /**
+   * Give back the all worklogs spent time between the two date.
+   *
+   * @param startSummary
+   *          The start date.
+   * @param finishSummary
+   *          The finish date.
+   * @param issueIds
+   *          The filtered issues ids. If null or empty then don't make filtered summary.
    * @return The summary spent time in Jira format (1h 30m)
    * @throws GenericEntityException
    *           GenericEntityException.
    */
-  String summary(Date startSummary, Date finishSummary, List<Pattern> issueIds)
+  String summaryToGui(Date startSummary, Date finishSummary, List<Pattern> issueIds)
       throws GenericEntityException;
 
   /**
