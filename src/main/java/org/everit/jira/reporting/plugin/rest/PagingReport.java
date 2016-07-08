@@ -31,6 +31,7 @@ import org.everit.jira.reporting.plugin.ReportingPlugin;
 import org.everit.jira.reporting.plugin.dto.ConvertedSearchParam;
 import org.everit.jira.reporting.plugin.dto.FilterCondition;
 import org.everit.jira.reporting.plugin.dto.IssueSummaryReportDTO;
+import org.everit.jira.reporting.plugin.dto.OrderBy;
 import org.everit.jira.reporting.plugin.dto.ProjectSummaryReportDTO;
 import org.everit.jira.reporting.plugin.dto.UserSummaryReportDTO;
 import org.everit.jira.reporting.plugin.dto.WorklogDetailsReportDTO;
@@ -213,7 +214,8 @@ public class PagingReport {
   @Path("/pageWorklogDetails")
   public Response pageWorklogDetails(
       @QueryParam("filterConditionJson") final String filterConditionJson,
-      @QueryParam("selectedColumnsJson") final String selectedColumnsJson) {
+      @QueryParam("selectedColumnsJson") final String selectedColumnsJson,
+      @QueryParam("orderBy") final String orderByString) {
     FilterCondition filterCondition = convertJsonToFilterCondition(filterConditionJson);
 
     String[] selectedColumns = gson.fromJson(selectedColumnsJson, String[].class);
@@ -221,14 +223,19 @@ public class PagingReport {
     ConvertedSearchParam converSearchParam = ConverterUtil
         .convertFilterConditionToConvertedSearchParam(filterCondition, reportingPlugin);
 
+    OrderBy orderBy = ConverterUtil.convertToOrderBy(orderByString);
+
     WorklogDetailsReportDTO worklogDetailsReport =
-        reportingPlugin.getWorklogDetailsReport(converSearchParam.reportSearchParam);
+        reportingPlugin.getWorklogDetailsReport(converSearchParam.reportSearchParam, orderBy);
 
     HashMap<String, Object> contextParameters = new HashMap<>();
     contextParameters.put("worklogDetailsReport", worklogDetailsReport);
     contextParameters.put("selectedWorklogDetailsColumns", Arrays.asList(selectedColumns));
 
     appendRequiredContextParameters(contextParameters, filterCondition);
+
+    contextParameters.put("order", orderBy.order);
+    contextParameters.put("orderColumn", orderBy.columnName);
 
     return buildResponse("reporting_result_worklog_details.vm", contextParameters);
   }

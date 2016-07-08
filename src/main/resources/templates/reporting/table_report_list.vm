@@ -42,7 +42,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
         #set($currentWeek = $worklog.weekNo)
         #set($currentMonth = $worklog.monthNo)
         <tr>
-          <td class="table-starttime vertically-middle">
+          <td nowrap class="table-starttime vertically-middle">
             $worklog.startDate
           </td>
           <td class="table-issue vertically-middle" style="white-space: nowrap; #if($worklog.isClosed) text-decoration: line-through; #end">
