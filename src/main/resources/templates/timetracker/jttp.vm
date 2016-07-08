@@ -82,15 +82,13 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
       </header>
 
       <div class="aui-page-panel">
-      #if(!$message.isEmpty())
-        <div id="error_message">
-          $i18n.getText($message)
-        </div>
-      #end
-
         <div class="aui-page-panel-inner">
-
           <section class="aui-page-panel-content">
+            #if(!$message.isEmpty())
+              <div class="aui-message aui-message-error">
+                <p>$i18n.getText($message) #if($messageParameter) <a href="$contextPath/browse/$messageParameter" class="issue-link link-title">$messageParameter</a> #end</p>
+              </div>
+            #end
             <div id="jttp-headline">
               <div id="jttp-headline-progress">
                 <!-- New feature -->
