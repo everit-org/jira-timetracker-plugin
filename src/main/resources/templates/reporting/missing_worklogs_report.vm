@@ -166,7 +166,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:missing_
                                 #foreach ($missings in $showDatesWhereNoWorklog)
                                   <tr>
                                     <td>
-                                      <a href="JiraTimetrackerWebAction.jspa?dateFormatted=$outlookDate.formatDMY($missings.date)">$outlookDate.formatDMY($missings.date)</a>
+                                      <a href="JiraTimetrackerWebAction.jspa?date=$missings.date.getTime()">$outlookDate.formatDMY($missings.date)</a>
                                     </td>
                                     <td>$missings.hour</td>
                                   </tr>
