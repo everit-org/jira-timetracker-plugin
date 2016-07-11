@@ -50,26 +50,19 @@
         <div class="field-group">
           <label>$i18n.getText("plugin.setting.ispopup"):</label>
           <div>
-            #if($isPopup == 1)
+            #if($isPopup != 3)
             <input id="radioPopup" type="radio" name="popupOrInline" value="popup" class="settings-input" checked="true">
             #else
             <input id="radioPopup" type="radio" name="popupOrInline" value="popup" class="settings-input">
             #end
-            <label for="radioPopup">$i18n.getText("plugin.setting.popup")</label>
-            
-            #if($isPopup == 2)
-            <input id="radioInline" type="radio" name="popupOrInline" value="inline" class="settings-input" checked="true">
-            #else
-            <input id="radioInline" type="radio" name="popupOrInline" value="inline" class="settings-input"> 
-            #end
-            <label for="radioInline">$i18n.getText("plugin.setting.inline")</label>
+            <label for="radioPopup">$i18n.getText("plugin.setting.popup.default")</label>
             
             #if($isPopup == 3)
             <input id="radioBoth" type="radio" name="popupOrInline" value="both" class="settings-input" checked="true">
             #else
             <input id="radioBoth" type="radio" name="popupOrInline" value="both" class="settings-input">
             #end
-            <label for="radioBoth">$i18n.getText("plugin.setting.both")</label>
+            <label for="radioBoth">$i18n.getText("plugin.setting.popup.both")</label>
           </div>
           <div class="description">$i18n.getText("plugin.setting.ispopup.help")</div>
         </div>

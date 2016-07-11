@@ -50,7 +50,7 @@ everit.jttp.main = everit.jttp.main || {};
     jQuery('.aui-ss.aui-ss-editing .aui-ss-field').attr("style", "width: 250px;");
    
     durationSelectionSetup();
-    issuePickerSetup(jttp.options.isPopup);
+    issuePickerSetup();
     eventBinding();
     commentsCSSFormat();
     var fechaFormatedDate = fecha.format(jttp.options.dateFormatted, AJS.Meta.get("date-dmy").toUpperCase());
@@ -376,7 +376,7 @@ everit.jttp.main = everit.jttp.main || {};
     }
   }
 
-  function issuePickerSetup(isPopup) {
+  function issuePickerSetup() {
     var ip = new AJS.IssuePicker({
       element : jQuery("#issueSelect"),
       userEnteredOptionsMsg : AJS.params.enterIssueKey,
@@ -420,7 +420,6 @@ everit.jttp.main = everit.jttp.main || {};
   }
   
   function popupCalendarsSetup(isPopup) {
-    if (isPopup != 2) {
     var original = Calendar.prototype.show;
     Calendar.prototype.show = function() {
       original.call(this);
@@ -439,11 +438,10 @@ everit.jttp.main = everit.jttp.main || {};
         useISO8601WeekNumbers : jttp.options.useISO8601,
         onSelect: jttp.onSelect
       });
-    }
   }
   
   jttp.standCalendarSetup = function(isPopup){
-    if (isPopup != 1) {
+    if (isPopup == 3) {
       
       var original = Calendar.prototype.show;
       Calendar.prototype.show = function() {
