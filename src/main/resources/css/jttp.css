@@ -104,7 +104,7 @@ div#jttp-logwork-time {
 }
 div#jttp-logwork-time > div.field-group {
   width: auto;
-  margin-right: 1rem;
+  margin-right: 2rem;
 }
 
 /* General fields */
@@ -112,6 +112,10 @@ section#jttp-logwork-fields {
   box-sizing: border-box;
   min-width: 550px;
   width: calc((100% - 250px) /2);
+}
+
+section#jttp-panel-head-fields{
+  padding-bottom: 10px;
 }
 
 /* Calendar */
