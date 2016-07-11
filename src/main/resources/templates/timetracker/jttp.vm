@@ -83,10 +83,15 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 
       <div class="aui-page-panel">
         <div class="aui-page-panel-inner">
-          <section class="aui-page-panel-content">
+          <section class="aui-page-panel-content" id="jttp-panel-head-fields">
             #if(!$message.isEmpty())
               <div class="aui-message aui-message-error">
-                <p>$i18n.getText($message) #if($messageParameter) <a href="$contextPath/browse/$messageParameter" class="issue-link link-title">$messageParameter</a> #end</p>
+                #if($message != 'plugin.nopermission_issue' && $message != 'jttp.nopermission.worklog.create')
+                  <p>$i18n.getText($message) #if($messageParameter) <a href="$contextPath/browse/$messageParameter" class="issue-link link-title">$messageParameter</a> #end</p>
+                #else
+                  <p class="title"><strong>$i18n.getText($message) #if($messageParameter) <a href="$contextPath/browse/$messageParameter" class="issue-link link-title">$messageParameter</a> #end</strong></p>
+                  <p>$i18n.getText('plugin.nopermission_issue.detials')</p>
+                #end
               </div>
             #end
             <div id="jttp-headline">
