@@ -363,8 +363,7 @@ everit.jttp.main = everit.jttp.main || {};
   }
 
   function durationSelectionSetup() {
-    var isDurationSelected = (jttp.options.isDurationSelected === "true");
-    if (isDurationSelected) {
+    if (jttp.options.isDurationSelected) {
       jQuery("#durationTimeInput").css("cursor", "text").hide().prev("input[disabled]").prop(
           "disabled", false).css("cursor", "text").focus();
       jQuery("#endTimeInput").css("cursor", "pointer").show().prev("input").prop("disabled", true)
@@ -499,7 +498,7 @@ everit.jttp.main = everit.jttp.main || {};
     var comment = jttp.options.comment;
     jQuery("#comments").append(comment);
     jQuery("#comments").attr("tabindex", "4");
-    jQuery("#comments").attr("height", "100px");
+    jQuery('#comments').attr("style","height: 85px;");
   }
 
   function calculateTimeForInputfileds(hour, min) {
@@ -689,7 +688,6 @@ everit.jttp.main = everit.jttp.main || {};
     var endTime = $endInput.val();
     
     if(startTime.length != 5 || endTime.length != 5) {
-      $durationInput.val("");
       return false;
     }
     
@@ -737,7 +735,6 @@ everit.jttp.main = everit.jttp.main || {};
     var durationTime = $durationInput.val();
     
     if(startTime.length != 5 || durationTime.length != 5) {
-      $endInput.val("");
       return false;
     }
     
