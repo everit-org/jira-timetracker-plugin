@@ -1095,10 +1095,12 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   }
 
   private String redirectWithDateAndWorklogParams(final String action) {
+    worklogValue.setComment("");
+    String returnJson = JiraTimetrackerUtil.convertWorklogValuesToJson(worklogValue);
     setReturnUrl(
         String.format(SELF_WITH_DATE_WORKLOG_URL_FORMAT,
             dateFormatted,
-            JiraTimetrackerUtil.urlEndcodeHandleException(worklogValuesJson)));
+            JiraTimetrackerUtil.urlEndcodeHandleException(returnJson)));
     return getRedirect(action);
   }
 
@@ -1211,8 +1213,11 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       }
       durationTime = worklogValue.getDurationTime();
       if (worklogValue.getComment() != null) {
-        comment = worklogValue.getComment();
         commentForActions = worklogValue.getComment();
+        comment = worklogValue.getComment();
+        comment = comment.replace("\"", "\\\"");
+        comment = comment.replace("\r", "\\r");
+        comment = comment.replace("\n", "\\n");
       } else {
         comment = "";
       }
