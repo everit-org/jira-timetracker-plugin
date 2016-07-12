@@ -129,7 +129,7 @@ section#jttp-logwork-calendar {
 /* Worklog summary */
 section#jttp-worklog-summary {
   box-sizing: border-box;
-  width: calc((100% - 250px) /2);
+  width: calc((100% - 280px) /2);
 }
 section#jttp-worklog-summary > div {
   max-width: 500px;
@@ -151,6 +151,45 @@ div#jttp-bottom-group {
 /* Bottom group flex */
 div#jttp-bottom-group > section {
   padding-top: 10px;
+}
+
+/* 801px <= Screen size <= 1200px */ 
+@media screen and (max-width: 1200px) and (min-width: 801px) {
+  
+  /* General fields */
+  section#jttp-logwork-fields {
+    width: calc(100% - 250px);
+  }
+  
+  /* Calendar */
+  section#jttp-logwork-calendar {
+  }
+  
+  /* Worklog summary */
+  section#jttp-worklog-summary {
+    display: none;
+  }
+
+}
+
+/* Screen size <= 800px */
+@media screen and (max-width: 800px) {
+  
+  /* General fields */
+  section#jttp-logwork-fields {
+    width: 100%;
+  }
+  
+  /* Calendar */
+  section#jttp-logwork-calendar {
+    display: none;
+  }
+  
+  /* Worklog summary */
+  section#jttp-worklog-summary {
+    display: none;
+  }
+  
 }
 
 /*********************************/

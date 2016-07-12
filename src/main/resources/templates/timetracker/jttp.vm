@@ -14,8 +14,10 @@
  * limitations under the License.
  *#
 <html>
+<head>
+  <title>Timetracker</title>
+</head>
 <body>
-
 $webResourceManager.requireResource("jira.webresources:global-static")
 $webResourceManager.requireResource("jira.webresources:calendar")
 $webResourceManager.requireResource("jira.webresources:calendar-en")
@@ -73,7 +75,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
           </div>
           <div class="aui-page-header-actions">
             <div class="aui-buttons">
-              <button class="aui-button aui-button-subtle"  type="button" name="setting" onclick="location.href='JiraTimetrackerSettingsWebAction!default.jspa'">
+              <button class="aui-button aui-button-light"  type="button" name="setting" onclick="location.href='JiraTimetrackerSettingsWebAction!default.jspa'">
                 <span class="aui-icon aui-icon-small aui-iconfont-configure"> </span>
               </button>
             </div>
@@ -108,14 +110,14 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
               <div id="jttp-headline-day-stepper-container">
                 <form class="aui top-label" id="jttp-datecahnge-form" method="get" action="JiraTimetrackerWebAction.jspa" onsubmit="return everit.jttp.main.beforeSubmitChangeDate();">
                   <div class="aui-buttons">
-                    <button id="jttp-headline-day-prev" class="aui-button aui-button-subtle" title="Previous day" type="submit" id="dayBack"  name="dayBack" >
+                    <button id="jttp-headline-day-prev" class="aui-button aui-button-light" title="Previous day" type="submit" id="dayBack"  name="dayBack" >
                       <span class="aui-icon aui-icon-small aui-iconfont-arrows-left">Previous day</span>
                     </button>
-                    <button id="jttp-headline-day-calendar" class="aui-button aui-button-subtle" title="Pick a date">
+                    <button id="jttp-headline-day-calendar" class="aui-button aui-button-light" title="Pick a date">
                       <span id="date-span"></span> 
                       <span class="aui-icon aui-icon-small aui-iconfont-calendar">Open calendar</span>
                     </button>
-                    <button id="jttp-headline-day-next" class="aui-button aui-button-subtle" title="Next day" type="submit" id="dayNext" name="dayNext">
+                    <button id="jttp-headline-day-next" class="aui-button aui-button-light" title="Next day" type="submit" id="dayNext" name="dayNext">
                       <span class="aui-icon aui-icon-small aui-iconfont-arrows-right">Next day</span>
                     </button>
                   </div>
@@ -151,7 +153,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 
                   <div class="field-group">
                     <label for="startTime">$i18n.getText("plugin.start.time")<span class="aui-icon icon-required">(required)</span></label>
-                    <input id="startTime" class="text short-field" type="text"
+                    <input id="startTime" class="text short-field"
                       value="$startTime" onkeypress="everit.jttp.main.handleEnterKey(event, '#endTime');"
                       name="startTime" maxlength="5" tabindex="1"
                       pattern="^([01][0-9]|2[0-3]):[0-5][0-9]$" title="hh:mm"
@@ -165,7 +167,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
                     <label for="endTime">$i18n.getText("plugin.end.time")</label>
                     <input id="radioEnd" type="radio" name="endOrDuration" value="end" checked="true" style="display: none;"> 
                     <span class="time-input-span">
-                      <input id="endTime" class="text short-field" type="text"
+                      <input id="endTime" class="text short-field"
                         name="endTime" maxlength="5" tabindex="2"
                         value="$endTime" onkeypress="everit.jttp.main.handleEnterKey(event, '#issueSelect-textarea');"
                         onclick="everit.jttp.main.endTimeInputClick();"
@@ -181,11 +183,11 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
                     <label for="durationTime">$i18n.getText("plugin.duration.time")</label> 
                     <input id="radioDuration" type="radio" name="endOrDuration" value="duration" style="display: none;">
                     <span class="time-input-span">
-                      <input id="durationTime" class="text short-field" type="text"
-                        name="durationTime" maxlength="5" tabindex="2"
+                      <input id="durationTime" class="text short-field"
+                        name="durationTime" tabindex="2"
                         value="$durationTime" onkeypress="everit.jttp.main.handleEnterKey(event, '#issueSelect-textarea');"
                         onclick="everit.jttp.main.durationTimeInput();"
-                        pattern="^([01][0-9]|2[0-3]):[0-5][0-9]$" title="empty or hh:mm" disabled 
+                        title="empty or hh:mm" disabled 
                         onblur="everit.jttp.main.calculateEndTime();">
                       <div id="durationTimeInput" class="time-input-div" onclick="everit.jttp.main.durationTimeInput();"></div>
                     </span>
@@ -230,7 +232,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
                     <input type="hidden" id="date" name="date" >
                     <input type="hidden" id="editAll" name="editAll" value="$editAllIds" >
                     <input type="hidden" id="worklogValuesJson" name="worklogValuesJson" >
-                    <input class="aui-button aui-button-subtle" type="reset" value="Cancel"
+                    <input class="aui-button aui-button-light" type="reset" value="Cancel"
                       id="jttp-logwork-cancel" name="lw_cancel" onclick="everit.jttp.main.cancelClick();">
                   </div>
                 </form>
