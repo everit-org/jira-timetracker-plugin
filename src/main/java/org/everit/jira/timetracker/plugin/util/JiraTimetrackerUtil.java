@@ -171,6 +171,24 @@ public final class JiraTimetrackerUtil {
   }
 
   /**
+   * Convert {@link WorklogValues} class to json string.
+   *
+   * @param worklogValues
+   *          the {@link WorklogValues} object. Cannot be <code>null</code>.
+   *
+   * @return the json string.
+   *
+   * @throws NullPointerException
+   *           if worklogValues parameter is <code>null</code>.
+   */
+  public static String convertWorklogValuesToJson(final WorklogValues worklogValues) {
+    if (worklogValues == null) {
+      throw new NullPointerException("EMPTY_FILTER");
+    }
+    return new Gson().toJson(worklogValues);
+  }
+
+  /**
    * Create the feedback email content.
    *
    * @param customerEmail
