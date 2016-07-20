@@ -1048,6 +1048,8 @@ everit.reporting.main = everit.reporting.main || {};
     filterCondition["issueCreateDate"] = reporting.values.dateCreatedFormated;
     filterCondition["worklogStartDate"] = reporting.values.dateFromFormated;
     filterCondition["worklogEndDate"] = reporting.values.dateToFormated;
+    delete filterCondition['limit'];
+    delete filterCondition['offset'];
     var downloadWorklogDetailsParam = {
         "filterCondition": filterCondition,
         "selectedWorklogDetailsColumns": reporting.values.worklogDetailsAllColumns
@@ -1066,6 +1068,8 @@ everit.reporting.main = everit.reporting.main || {};
     filterCondition["issueCreateDate"] = reporting.values.dateCreatedFormated;
     filterCondition["worklogStartDate"] = reporting.values.dateFromFormated;
     filterCondition["worklogEndDate"] = reporting.values.dateToFormated;
+    delete filterCondition['limit'];
+    delete filterCondition['offset'];
     var downloadWorklogDetailsParam = {
         "filterCondition": filterCondition,
         "selectedWorklogDetailsColumns": reporting.values.worklogDetailsColumns
@@ -1084,6 +1088,8 @@ everit.reporting.main = everit.reporting.main || {};
     filterCondition["issueCreateDate"] = reporting.values.dateCreatedFormated;
     filterCondition["worklogStartDate"] = reporting.values.dateFromFormated;
     filterCondition["worklogEndDate"] = reporting.values.dateToFormated;
+    delete filterCondition['limit'];
+    delete filterCondition['offset'];
     var json = JSON.stringify(filterCondition);
     var $detailsCustomExport = jQuery('#summaries-export')
     var href = $detailsCustomExport.attr('data-jttp-href');
