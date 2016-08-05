@@ -111,6 +111,9 @@
       lowerArray.forEach(function(part, index, theArray) {
          theArray[index] = theArray[index].toLowerCase();
       });
+      if(v.startsWith(".") && v.endsWith(".")){
+        v = v.substring(1, v.length - 1);
+      }
       var index = lowerArray.indexOf(v.toLowerCase());
       if (~index) {
         d.month = index;
