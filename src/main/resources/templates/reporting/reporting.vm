@@ -86,11 +86,18 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                     </span>
                 </div>
                 <div class="aui-page-header-main">
-                    <h1>Reporting</h1>
+                    <a href="#reporting_menu" aria-owns="reporting_menu" aria-haspopup="true" class="h1-button aui-button aui-button-link aui-style-default aui-dropdown2-trigger"><h1>Reporting</h1></a>
+                    <div id="reporting_menu" class="aui-style-default aui-dropdown2" style="top: 150px">
+                      <ul class="aui-list-truncate">
+                        <li><a href="JiraTimetrackerWorklogsWebAction!default.jspa">Missing Days Report</a></li>
+                    	<li><a href="JiraTimetrackerChartWebAction!default.jspa">Chart Report</a></li>
+                    	<li><a href="JiraTimetrackerTableWebAction!default.jspa">Table Report</a></li>
+                      </ul>
+                	</div>
                 </div>                
                 <div class="aui-page-header-actions">
 					<div class="aui-buttons">
-						<button class="aui-button aui-button-subtle"  type="button" name="setting" onclick="location.href='JiraTimetrackerReportingUserSettingsWebAction!default.jspa'">
+						<button class="aui-button aui-button-light"  type="button" name="setting" onclick="location.href='JiraTimetrackerReportingUserSettingsWebAction!default.jspa'">
 							<span class="aui-icon aui-icon-small aui-iconfont-configure"> </span>
 						</button>
 					</div>
@@ -527,8 +534,6 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                         </div>
                     </div>
                 </div>
-
-
         </div>
         #parse("templates/reporting/reporting_result.vm")
         #parse("templates/reporting/reporting_popup.vm")

@@ -25,7 +25,6 @@ everit.jttp.report_common_scripts = everit.jttp.report_common_scripts || {};
   };
   
   jQuery(document).ready(function() {
-    
     fecha.i18n = {
         dayNamesShort: Calendar._SDN,
         dayNames: Calendar._DN,
@@ -38,9 +37,15 @@ everit.jttp.report_common_scripts = everit.jttp.report_common_scripts || {};
         }
     }
     
-    Date.parseDate = function(str, fmt){return fecha.parse(str, AJS.Meta.get("date-dmy").toUpperCase());};
-    
     var opt = jttp.options;
+    
+    Date.parseDate = function(str, fmt){
+      return fecha.parse(str, AJS.Meta.get("date-dmy").toUpperCase());
+      };
+      
+    jQuery("#dateFrom").val(fecha.format(opt.dateFromFormated, AJS.Meta.get("date-dmy").toUpperCase()));
+    jQuery("#dateTo").val(fecha.format(opt.dateToFormated, AJS.Meta.get("date-dmy").toUpperCase()));
+    
 
     jttp.calFrom = Calendar.setup({
       firstDay : opt.firstDay,
@@ -67,11 +72,28 @@ everit.jttp.report_common_scripts = everit.jttp.report_common_scripts || {};
       useISO8601WeekNumbers : opt.useISO8601,
       onSelect: jttp.onSelect,
     });
-
+    
+    browsePermissionCheck();
+    
     jQuery('.aui-ss, .aui-ss-editing, .aui-ss-field').attr("style", "width: 300px;");
 
   });
   
+  function browsePermissionCheck(){
+    if(!jttp.options.hasBrowseUsersPermission){
+      jQuery("#userPicker-field").attr("aria-disabled", true);
+      jQuery("#userPicker-field").attr("disabled", "disabled");
+      jQuery("#userPicker-single-select").attr("title", AJS.I18n.getText("jtrp.plugin.no.browse.permission"));
+      jQuery("#userPicker-single-select").attr("original-title", AJS.I18n.getText("jtrp.plugin.no.browse.permission"));
+      
+      var $groupPickerTooltip = AJS.$('#userPicker-single-select');
+      if(!$groupPickerTooltip.hasClass('jtrp-tooltipped')) {
+        $groupPickerTooltip.tooltip({gravity: 'w'});
+        $groupPickerTooltip.addClass('jtrp-tooltipped');
+      }
+      
+    }
+  }
   
   jttp.onSelect = function(cal) {
     //Copy of the original onSelect. Only chacnge not use te p.ifFormat
@@ -122,5 +144,38 @@ everit.jttp.report_common_scripts = everit.jttp.report_common_scripts || {};
       return false;
     }
   }
+ 
+ 
+ jttp.beforeSubmitReport = function() {
+   try{
+     var dateFrom = jQuery('#dateFrom').val();
+     var dateFromMil = fecha.parse(dateFrom,  AJS.Meta.get("date-dmy").toUpperCase());
+     jQuery('#dateFromMil').val(dateFromMil.getTime());
+   }catch(err){
+     showErrorMessage("error_message_label_df");
+     return false;
+   }
+   try{
+     var dateTo = jQuery('#dateTo').val();
+     var dateToMil = fecha.parse(dateTo,  AJS.Meta.get("date-dmy").toUpperCase());
+     jQuery('#dateToMil').val(dateToMil.getTime());
+   }catch(err){
+     showErrorMessage("error_message_label_dt");
+     return false;
+   }
+   var selectedUser = jQuery('#userPicker').val();
+   jQuery('#selectedUser').val(selectedUser);
+ }
+
+
+ 
+ function showErrorMessage(message_key){
+   AJS.$('#error_message label').hide();
+   var errorMessageLabel = AJS.$('#'+message_key);
+   errorMessageLabel.show();
+   var errorMessage = AJS.$('#error_message');
+   errorMessage.show();
+ }
+ 
 
 })(everit.jttp.report_common_scripts, jQuery);

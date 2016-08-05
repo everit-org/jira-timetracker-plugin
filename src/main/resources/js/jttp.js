@@ -45,24 +45,37 @@ everit.jttp.main = everit.jttp.main || {};
         }
     }
     
-    document.getElementById('inputfields').scrollIntoView(allignWithTop = false);
     document.getElementById("startTime").focus();
     jQuery('.aui-ss-editing').attr("style", "width: 250px;");
     jQuery('.aui-ss.aui-ss-editing .aui-ss-field').attr("style", "width: 250px;");
+   
+    durationSelectionSetup();
+    issuePickerSetup();
+    eventBinding();
+    commentsCSSFormat();
+    var fechaFormatedDate = fecha.format(jttp.options.dateFormatted, AJS.Meta.get("date-dmy").toUpperCase());
+    jQuery("#date-span").text(fechaFormatedDate);
+    jQuery("#dateHidden").val(fechaFormatedDate);
+    
+   
+    popupCalendarsSetup(jttp.options.isPopup);
     setExcludeDaysToWeekend(jttp.options.excludeDays);
     setLoggedDaysDesign(jttp.options.isColoring, jttp.options.loggedDays);
-    jttpReportDialogShow();
-
-    durationSelectionSetup();
-    issuePickerSetup(jttp.options.isPopup);
-    eventBinding();
-    commentsCSSFormat(jttp.options.isPopup);
-    popupCalendarsSetup(jttp.options.isPopup);
-
-    var isEditAll = jttp.options.isEditAll === true;
-    if (isEditAll) {
+    
+    if (jttp.options.actionFlag == "editAll") {
       disableInputFields();
     }
+    if(jttp.options.worklogSize == 0){
+      AJS.messages.info({
+        title: AJS.I18n.getText("plugin.no.worklogs.title"),
+        body: AJS.I18n.getText("plugin.no.worklogs"),
+        closeable: false,
+      });
+    }
+    
+    
+    addTooltips();
+    headlineProgressIndicator();
     
     var original = Calendar.prototype.show;
     Calendar.prototype.show = function() {
@@ -70,16 +83,54 @@ everit.jttp.main = everit.jttp.main || {};
       setExcludeDaysToWeekend(jttp.options.excludeDays);
       setLoggedDaysDesign(jttp.options.isColoring, jttp.options.loggedDays);
     }
-  
   });
-
+  
+  function addTooltips(){
+    var $issueTypeTooltip = AJS.$('#jttp-worklog-issue-type');
+    if(!$issueTypeTooltip.hasClass('jtrp-tooltipped')) {
+      $issueTypeTooltip.tooltip({gravity: 'w'});
+      $issueTypeTooltip.addClass('jtrp-tooltipped');
+    }
+    
+    var $datePickerTooltip = AJS.$('#jttp-headline-day-calendar');
+    if(!$datePickerTooltip.hasClass('jtrp-tooltipped')) {
+      $datePickerTooltip.tooltip();
+      $datePickerTooltip.addClass('jtrp-tooltipped');
+    }
+    
+    AJS.$('.tooltip-left').each(function() {
+      var $element = AJS.$(this);
+      if(!$element.hasClass('jtrp-tooltipped')) {
+        $element.tooltip({gravity: 'e'});
+        $element.addClass('jtrp-tooltipped');
+      }
+    });
+    
+    AJS.$('.tooltip-bottom').each(function() {
+      var $element = AJS.$(this);
+      if(!$element.hasClass('jtrp-tooltipped')) {
+        $element.tooltip();
+        $element.addClass('jtrp-tooltipped');
+      }
+    });
+    
+    AJS.$('.img-tooltip').each(function() {
+      var $element = AJS.$(this);
+      if(!$element.hasClass('jtrp-tooltipped')) {
+        $element.tooltip({gravity: 'w'});
+        $element.addClass('jtrp-tooltipped');
+      }
+    });
+  }
+  
+  
   jttp.startState = 0;
   jttp.endState = 0;
 
   jttp.dateChanged = function(calendar) {
     var dmy = AJS.Meta.get("date-dmy").toUpperCase();
-    jQuery("#date").val(calendar.date.format(dmy));
-    jQuery("#date").change();
+    jQuery("#dateHidden").val(calendar.date.format(dmy));
+    jQuery("#dateHidden").change();
   }
 
   jttp.startNowClick = function(startTimeChange) {
@@ -92,8 +143,8 @@ everit.jttp.main = everit.jttp.main || {};
     }
   }
 
-  jttp.endTimeInputClick = function(isEditAll) {
-    if (!isEditAll) {
+  jttp.endTimeInputClick = function() {
+    if (jttp.options.actionFlag != "editAll") {
       jQuery("#endTimeInput").css("cursor", "text").hide().prev().prop("disabled", false).css(
           "cursor", "text").focus();
       jQuery("#durationTimeInput").css("cursor", "pointer").show().prev("input").prop("disabled",
@@ -112,8 +163,8 @@ everit.jttp.main = everit.jttp.main || {};
     }
   }
 
-  jttp.durationTimeInput = function(isEditAll) {
-    if (!isEditAll) {
+  jttp.durationTimeInput = function() {
+    if (jttp.options.actionFlag != "editAll") {
       jQuery("#durationTimeInput").css("cursor", "text").hide().prev("input[disabled]").prop(
           "disabled", false).css("cursor", "text").focus();
       jQuery("#endTimeInput").css("cursor", "pointer").show().prev("input").prop("disabled", true)
@@ -126,7 +177,82 @@ everit.jttp.main = everit.jttp.main || {};
     jQuery('#Submit').val('true');
     jQuery('#Submit').attr('disabled', false);
   }
-
+  
+  jttp.beforeSubmit = function() {
+    var dateHidden = jQuery('#dateHidden').val();
+    var dateInMil = fecha.parse(dateHidden,  AJS.Meta.get("date-dmy").toUpperCase());
+    var date = jQuery('#date');
+    date.val(dateInMil.getTime());
+    
+    var worklogValues = getWorklogValuesJson();
+    var json = JSON.stringify(worklogValues);
+    var worklogValuesJson = jQuery('#worklogValuesJson');
+    worklogValuesJson.val(json);
+    
+    return true;
+  }
+    
+  jttp.setActionFlag = function(flag, id) {
+    var actionFlag = jQuery('.actionFlag_'+id);
+    actionFlag.val(flag);
+    actionFlag.change();
+  }
+  
+  jttp.actionSubmitClick  = function(id) {
+    jQuery("#actionSubmit_"+id).click();
+  }
+  
+  jttp.beforeSubmitEditAll = function(){
+    var dateHidden = jQuery('#dateHidden').val();
+    var dateInMil = fecha.parse(dateHidden,  AJS.Meta.get("date-dmy").toUpperCase());
+    var date = jQuery('#date');
+    date.val(dateInMil.getTime());
+    jQuery("#jttp-editall-form").append(date);
+    
+    return true;
+  }
+  
+  jttp.beforeSubmitAction = function(id) {
+    var dateHidden = jQuery('#dateHidden').val();
+    var dateInMil = fecha.parse(dateHidden,  AJS.Meta.get("date-dmy").toUpperCase());
+    var date = jQuery('#date');
+    date.val(dateInMil.getTime());
+    jQuery(".actionForm_"+id).append(date);
+    
+    return true;
+  }
+   
+ jttp.cancelClick = function(){
+   var dateHidden = jQuery('#dateHidden').val();
+   var dateInMil = fecha.parse(dateHidden,  AJS.Meta.get("date-dmy").toUpperCase());
+   window.location = "JiraTimetrackerWebAction!default.jspa?date="+dateInMil.getTime();
+ }
+ 
+  jttp.beforeSubmitChangeDate = function() {
+    var dateHidden = jQuery('#dateHidden').val();
+    var dateInMil = fecha.parse(dateHidden,  AJS.Meta.get("date-dmy").toUpperCase());
+    var date = jQuery('#date');
+    date.val(dateInMil.getTime());
+    jQuery("#jttp-datecahnge-form").append(date);
+    
+    var worklogValues = getWorklogValuesJson();
+    var json = JSON.stringify(worklogValues);
+    var worklogValuesJson = jQuery('#worklogValuesJson');
+    worklogValuesJson.val(json);
+    jQuery("#jttp-datecahnge-form").append(worklogValuesJson);
+    
+    var actionWorklogId = jQuery('#jttp-logwork-form #actionWorklogId');
+    jQuery("#jttp-datecahnge-form").append(actionWorklogId);
+    
+    var editAll = jQuery('#jttp-logwork-form #editAll');
+    jQuery("#jttp-datecahnge-form").append(editAll);
+    
+    var actionFlag = jQuery('#jttp-logwork-form #actionFlag');
+    jQuery("#jttp-datecahnge-form").append(actionFlag);
+    
+    return true;
+  }
+  
   jttp.handleEnterKey = function(e, setFocusTo) {
     var isEnter = e.keyCode == 10 || e.keyCode == 13;
     if (!isEnter) {
@@ -141,16 +267,6 @@ everit.jttp.main = everit.jttp.main || {};
     }
   }
 
-  function jttpReportDialogShow() {
-    var currentHash = window.location.hash;
-    if (currentHash == "#reporting-dialog") {
-      window.location.hash = "";
-      AJS.dialog2("#reporting-dialog").show();
-      AJS.$("#reportingError").hide();
-      _paq.push([ 'trackEvent', 'User', 'Reporting' ]);
-    }
-  }
-
   function disableInputFields() {
     jQuery("#startTime").prop("disabled", true);
     jQuery("#startNow").prop("disabled", true);
@@ -161,7 +277,27 @@ everit.jttp.main = everit.jttp.main || {};
     jQuery("#issueSelect-textarea").prop("disabled", true);
     jQuery("#comments").prop("disabled", true);
   }
-
+  
+  function headlineProgressIndicator() {
+    var jttp_progress_red = '#d04437';
+    var jttp_progress_green = '#14892c';
+    var jttp_progress_yellow = '#f6c342';
+    var $indicator = jQuery('#jttp-headline-progress-indicator');
+    var dailyPercent = parseFloat($indicator.attr('data-jttp-percent'));
+    if(dailyPercent > 1.0) {
+      dailyPercent = 1;
+    }
+    AJS.progressBars.update($indicator, dailyPercent);
+    var $progressIndicator = jQuery('#jttp-headline-progress-indicator .aui-progress-indicator-value');
+    if (dailyPercent <= 0.2) {
+      AJS.$($progressIndicator).css("background-color", jttp_progress_red);
+    } else if (dailyPercent >= 1.0){
+      AJS.$($progressIndicator).css("background-color", jttp_progress_green); 
+    } else {
+      AJS.$($progressIndicator).css("background-color", jttp_progress_yellow);  
+    }
+  }
+  
   function eventBinding() {
     jQuery('.table-endtime').click(function() {
       var temp = new String(jQuery(this).html());
@@ -227,8 +363,7 @@ everit.jttp.main = everit.jttp.main || {};
   }
 
   function durationSelectionSetup() {
-    var isDurationSelected = (jttp.options.isDurationSelected === "true");
-    if (isDurationSelected) {
+    if (jttp.options.isDurationSelected) {
       jQuery("#durationTimeInput").css("cursor", "text").hide().prev("input[disabled]").prop(
           "disabled", false).css("cursor", "text").focus();
       jQuery("#endTimeInput").css("cursor", "pointer").show().prev("input").prop("disabled", true)
@@ -240,7 +375,7 @@ everit.jttp.main = everit.jttp.main || {};
     }
   }
 
-  function issuePickerSetup(isPopup) {
+  function issuePickerSetup() {
     var ip = new AJS.IssuePicker({
       element : jQuery("#issueSelect"),
       userEnteredOptionsMsg : AJS.params.enterIssueKey,
@@ -249,26 +384,7 @@ everit.jttp.main = everit.jttp.main || {};
       currentProjectId : jttp.options.projectsId,
     });
 
-    var jiraMainVersion = jttp.options.jiraMainVersion;
     var issueKey = jttp.options.issueKey;
-    jQuery('.issue-picker-popup').attr("style", "margin-bottom: 16px;");
-    if (isPopup != 1) {
-      if (jiraMainVersion < 6) {
-        jQuery("#issueSelect-multi-select").attr("style", "width: 630px;");
-        jQuery("#issueSelect-textarea").attr("style", "width: 605px; height: 20px");
-      } else {
-        jQuery("#issueSelect-multi-select").attr("style", "width: 630px;");
-        jQuery("#issueSelect-textarea").attr("style", "width: 630px; height: 30px");
-      }
-    } else {
-      if (jiraMainVersion < 6) {
-        jQuery("#issueSelect-multi-select").attr("style", "width: 930px;");
-        jQuery("#issueSelect-textarea").attr("style", "width: 910px; height: 20px");
-      } else {
-        jQuery("#issueSelect-multi-select").attr("style", "width: 910px;");
-        jQuery("#issueSelect-textarea").attr("style", "width: 910px; height: 30px");
-      }
-    }
     jQuery("#issueSelect-textarea").attr("class", "select2-choices");
 
     jQuery("#issueSelect-textarea").append(issueKey);
@@ -283,7 +399,7 @@ everit.jttp.main = everit.jttp.main || {};
     if (update && p.inputField) {
       var dmy = AJS.Meta.get("date-dmy").toUpperCase();
       p.inputField.value = cal.date.format(dmy);
-      jQuery(p.inputField).change();            
+      jQuery(p.inputField).change();
     }
     if (update && p.displayArea)
       p.displayArea.innerHTML = cal.date.print(p.daFormat);
@@ -303,11 +419,16 @@ everit.jttp.main = everit.jttp.main || {};
   }
   
   function popupCalendarsSetup(isPopup) {
-    if (isPopup != 2) {
+    var original = Calendar.prototype.show;
+    Calendar.prototype.show = function() {
+      original.call(this);
+      setExcludeDaysToWeekend(jttp.options.excludeDays);
+      setLoggedDaysDesign(jttp.options.isColoring, jttp.options.loggedDays);
+    }
       var calPop = Calendar.setup({
         firstDay : jttp.options.firstDay,
-        inputField : jQuery("#date"),
-        button : jQuery("#date_trigger"),
+        inputField : jQuery("#dateHidden"),
+        button : jQuery("#jttp-headline-day-calendar"),
         date : jttp.options.dateFormatted,
         align : 'Br',
         electric : false,
@@ -316,21 +437,10 @@ everit.jttp.main = everit.jttp.main || {};
         useISO8601WeekNumbers : jttp.options.useISO8601,
         onSelect: jttp.onSelect
       });
-    }
   }
   
   jttp.standCalendarSetup = function(isPopup){
-    if (isPopup != 1) {
-      fecha.i18n = {
-          dayNamesShort: Calendar._SDN,
-          dayNames: Calendar._DN,
-          monthNamesShort: Calendar._SMN,
-          monthNames: Calendar._MN,
-      }
-      
-      Calendar.prototype.parseDate = function(str, fmt) {
-       this.setDate(fecha.parse(str, AJS.Meta.get("date-dmy").toUpperCase()));
-      };
+    if (isPopup == 3) {
       
       var original = Calendar.prototype.show;
       Calendar.prototype.show = function() {
@@ -341,7 +451,7 @@ everit.jttp.main = everit.jttp.main || {};
       
       var cal = Calendar.setup({
         firstDay : jttp.options.firstDay,
-        date : fecha.parse(jttp.options.dateFormatted, AJS.Meta.get("date-dmy").toUpperCase()),
+        date : jttp.options.dateFormatted,
         align : 'Br',
         singleClick : true,
         showOthers : true,
@@ -353,17 +463,42 @@ everit.jttp.main = everit.jttp.main || {};
     }
   }
   
-
-  function commentsCSSFormat(isPopup) {
-    var comment = jttp.options.comment;
-    if (isPopup != 1) {
-      jQuery("#comments").attr("style", "width: 650px; resize: vertical;");
-    } else {
-      jQuery("#comments").attr("style", "width: 99.4%; resize: vertical;");
+  jttp.toggleSummary = function() {
+    var module = jQuery("#summaryModule");
+    jQuery(".mod-content", module).toggle(0, function() {
+        module.toggleClass("collapsed");
+    });
+  }
+  
+  function getWorklogValuesJson(){
+    var issueKey = (!jQuery('#issueSelect').val() || jQuery('#issueSelect').val())[0] || "";
+    var startTime = jQuery('#startTime').val() || "";
+    var endOrDuration = jQuery('input[name="endOrDuration"]:checked').val();
+    var endTime = jQuery('#endTime').val() || "";
+    var durationTime = jQuery('#durationTime').val() || "";
+    var comment = jQuery('#comments').val() ||"";
+    var isDurationSelect = true;
+    if(endOrDuration == "end"){
+      isDurationSelect = false;
     }
+    
+    var worklogValues = {
+      "startTime": startTime,
+      "endTime": endTime,
+      "durationTime": durationTime,
+      "isDuration": isDurationSelect,
+      "comment": comment,
+      "issueKey": issueKey,
+    }
+    return worklogValues;
+  }
+  
+  
+  function commentsCSSFormat() {
+    var comment = jttp.options.comment;
     jQuery("#comments").append(comment);
     jQuery("#comments").attr("tabindex", "4");
-    jQuery("#comments").attr("height", "100px");
+    jQuery('#comments').attr("style","height: 85px;");
   }
 
   function calculateTimeForInputfileds(hour, min) {
@@ -543,9 +678,98 @@ everit.jttp.main = everit.jttp.main || {};
     var time = calculateTimeForInputfileds(hour, min);
     jQuery("#endTime").val(time);
   }
+  
+  jttp.calculateDuration = function(){
+    var $startInput = jQuery('#startTime');
+    var $endInput = jQuery('#endTime');
+    var $durationInput = jQuery('#durationTime');
+    
+    var startTime = $startInput.val();
+    var endTime = $endInput.val();
+    
+    if(startTime.length != 5 || endTime.length != 5) {
+      return false;
+    }
+    
+    var endTimeParts = endTime.split(':');
+    var endTimeHour = parseInt(endTimeParts[0]);
+    var endTimeMin = parseInt(endTimeParts[1]);
+    
+    var startTimeParts = startTime.split(':');
+    var startTimeHour = parseInt(startTimeParts[0]);
+    var startTimeMin = parseInt(startTimeParts[1]);
+    
+    var durationHour = endTimeHour - startTimeHour;
+    var durationMin = endTimeMin - startTimeMin;
+    
+    if(durationMin < 0) {
+      durationHour = durationHour - 1;
+      durationMin = 60 + durationMin;
+    }
 
-  function analitycs() {
+    // startime is after endtime
+    if(durationHour < 0) {
+      $durationInput.val("");
+      return false;
+    }
 
+    var durationHourString = String(durationHour);
+    if(durationHour < 10) {
+      durationHourString = "0" + String(durationHour);
+    }
+    
+    var durationMinString = String(durationMin);
+    if(durationMin < 10) {
+      durationMinString = "0" + String(durationMin);
+    }
+    
+    $durationInput.val(durationHourString + ":" + durationMinString);
+  }
+
+  jttp.calculateEndTime = function(){
+    var $startInput = jQuery('#startTime');
+    var $endInput = jQuery('#endTime');
+    var $durationInput = jQuery('#durationTime');
+    
+    var startTime = $startInput.val();
+    var durationTime = $durationInput.val();
+    
+    if(startTime.length != 5 || durationTime.length != 5) {
+      return false;
+    }
+    
+    var durationTimeParts = durationTime.split(':');
+    var durationTimeHour = parseInt(durationTimeParts[0]);
+    var durationTimeMin = parseInt(durationTimeParts[1]);
+    
+    var startTimeParts = startTime.split(':');
+    var startTimeHour = parseInt(startTimeParts[0]);
+    var startTimeMin = parseInt(startTimeParts[1]);
+    
+    var endHour = durationTimeHour + startTimeHour;
+    var endMin = durationTimeMin + startTimeMin;
+    
+    if(endMin > 59) {
+      endHour = endHour + 1;
+      endMin = endMin - 60;
+    }
+
+    // startime is after endtime
+    if(endHour > 23) {
+      endHour = endHour - 24;
+    }
+
+    var endHourString = String(endHour);
+    if(endHour < 10) {
+      endHourString = "0" + String(durationHour);
+    }
+    
+    var endMinString = String(endMin);
+    if(endMin < 10) {
+      endMinString = "0" + String(endMin);
+    }
+    
+    $endInput.val(endHourString + ":" + endMinString);
   }
 
 })(everit.jttp.main, jQuery);

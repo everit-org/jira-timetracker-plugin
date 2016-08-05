@@ -13,33 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.jira.reporting.plugin.export.column;
+package org.everit.jira.reporting.plugin.column;
 
 /**
- * Define Issue Summary report columns.
+ * Define Project Summary report columns.
  */
-public final class IssueSummaryColumns {
-
-  public static final String ASSIGNEE = "jtrp_col_assignee";
+public final class ProjectSummaryColumns {
 
   public static final String ESTIMATED = "jtrp_col_estimated";
 
-  public static final String EXPECTED = "jtrp_col_expected";
+  public static final String EXPECTED_TOTAL = "jtrp_col_expectedTotal";
 
-  public static final String ISSUE = "jtrp_col_issue";
+  public static final String PROJECT = "jtrp_col_project";
 
-  public static final String ISSUE_SUMMARY = "jtrp_col_issueSummary";
-
-  public static final String PRIORITY = "jtrp_col_priority";
+  public static final String PROJECT_KEY = "jtrp_col_projectKey";
 
   public static final String REMAINING = "jtrp_col_remaining";
 
-  public static final String STATUS = "jtrp_col_status";
-
   public static final String TOTAL_LOGGED = "jtrp_col_totalLogged";
 
-  public static final String TYPE = "jtrp_col_type";
-
-  private IssueSummaryColumns() {
+  private ProjectSummaryColumns() {
   }
 }

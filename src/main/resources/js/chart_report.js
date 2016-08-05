@@ -27,6 +27,7 @@ everit.jttp.chart_report = everit.jttp.chart_report || {};
     });
   });
 
+  
   function drawChart() {
     var dataArray = new Array();
     dataArray.push([ 'id', 'duration' ]);
@@ -83,5 +84,5 @@ everit.jttp.chart_report = everit.jttp.chart_report || {};
     dashboard.bind([ control ], [ chart ]);
     dashboard.draw(data);
   }
-
+  
 })(everit.jttp.chart_report, AJS.$);

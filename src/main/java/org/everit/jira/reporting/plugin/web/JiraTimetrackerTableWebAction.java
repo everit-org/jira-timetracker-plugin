@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.jira.timetracker.plugin.web;
+package org.everit.jira.reporting.plugin.web;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -25,30 +25,37 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.everit.jira.analytics.AnalyticsDTO;
+import org.everit.jira.reporting.plugin.ReportingCondition;
+import org.everit.jira.reporting.plugin.ReportingPlugin;
+import org.everit.jira.reporting.plugin.util.PermissionUtil;
 import org.everit.jira.timetracker.plugin.DurationFormatter;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
+import org.everit.jira.timetracker.plugin.PluginCondition;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
 import org.everit.jira.timetracker.plugin.dto.TimetrackerReportsSessionData;
-import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
+import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 import org.ofbiz.core.entity.GenericEntityException;
 
 import com.atlassian.jira.avatar.Avatar;
 import com.atlassian.jira.avatar.AvatarService;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.exception.DataAccessException;
+import com.atlassian.jira.issue.RendererManager;
+import com.atlassian.jira.issue.fields.renderer.IssueRenderContext;
+import com.atlassian.jira.issue.fields.renderer.JiraRendererPlugin;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
@@ -73,8 +80,6 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   private static final String EXCEEDED_A_YEAR = "plugin.exceeded.year";
 
-  private static final String FREQUENT_FEEDBACK = "jttp.plugin.frequent.feedback";
-
   private static final String GET_WORKLOGS_ERROR_MESSAGE = "Error when trying to get worklogs.";
 
   private static final String INVALID_END_TIME = "plugin.invalid_endTime";
@@ -88,23 +93,21 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   /**
    * Logger.
    */
-  private static final Logger LOGGER = Logger.getLogger(JiraTimetrackerChartWebAction.class);
+  private static final Logger LOGGER = Logger.getLogger(JiraTimetrackerTableWebAction.class);
 
   private static final int MILLISEC_IN_SEC = 1000;
 
-  private static final String NOT_RATED = "Not rated";
+  private static final String PARAM_DATEFROM = "dateFromMil";
 
-  private static final String PARAM_DATEFROM = "dateFrom";
+  private static final String PARAM_DATETO = "dateToMil";
 
-  private static final String PARAM_DATETO = "dateTo";
-
-  private static final String PARAM_USERPICKER = "userPicker";
+  private static final String PARAM_USERPICKER = "selectedUser";
 
   private static final String SELF_WITH_DATE_AND_USER_URL_FORMAT =
       "/secure/JiraTimetrackerTableWebAction.jspa"
-          + "?dateFrom=%s"
-          + "&dateTo=%s"
-          + "&userPicker=%s"
+          + "?dateFromMil=%s"
+          + "&dateToMil=%s"
+          + "&selectedUser=%s"
           + "&search";
 
   /**
@@ -118,6 +121,8 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   private AnalyticsDTO analyticsDTO;
 
+  private JiraRendererPlugin atlassianWikiRenderer;
+
   private String avatarURL = "";
 
   private String contextPath;
@@ -125,30 +130,24 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   private String currentUser = "";
 
   /**
-   * The date.
+   * The formated date.
    */
-  private Date dateFrom = null;
+  private Long dateFromFormated;
 
   /**
    * The formated date.
    */
-  private String dateFromFormated = "";
-
-  /**
-   * The date.
-   */
-  private Date dateTo = null;
-
-  /**
-   * The formated date.
-   */
-  private String dateToFormated = "";
+  private Long dateToFormated;
 
   private HashMap<Integer, List<Object>> daySum = new HashMap<Integer, List<Object>>();
 
   private DurationFormatter durationFormatter;
 
-  private boolean feedBackSendAviable;
+  public boolean hasBrowseUsersPermission = true;
+
+  private String issueCollectorSrc;
+
+  private IssueRenderContext issueRenderContext;
 
   private List<Pattern> issuesRegex;
 
@@ -164,6 +163,8 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   private HashMap<Integer, List<Object>> monthSum = new HashMap<Integer, List<Object>>();
 
+  private PluginCondition pluginCondition;
+
   private final PluginSettingsFactory pluginSettingsFactory;
 
   private final HashMap<Integer, List<Object>> realDaySum = new HashMap<Integer, List<Object>>();
@@ -171,6 +172,10 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   private final HashMap<Integer, List<Object>> realMonthSum = new HashMap<Integer, List<Object>>();
 
   private final HashMap<Integer, List<Object>> realWeekSum = new HashMap<Integer, List<Object>>();
+
+  private ReportingCondition reportingCondition;
+
+  private ReportingPlugin reportingPlugin;
 
   private transient ApplicationUser userPickerObject;
 
@@ -188,9 +193,16 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
    */
   public JiraTimetrackerTableWebAction(
       final JiraTimetrackerPlugin jiraTimetrackerPlugin,
+      final ReportingPlugin reportingPlugin,
       final PluginSettingsFactory pluginSettingsFactory) {
     this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
+    this.reportingPlugin = reportingPlugin;
+    reportingCondition = new ReportingCondition(this.reportingPlugin);
     this.pluginSettingsFactory = pluginSettingsFactory;
+    pluginCondition = new PluginCondition(jiraTimetrackerPlugin);
+    issueRenderContext = new IssueRenderContext(null);
+    RendererManager rendererManager = ComponentAccessor.getRendererManager();
+    atlassianWikiRenderer = rendererManager.getRendererForType("atlassian-wiki-renderer");
   }
 
   private void addToDaySummary(final EveritWorklog worklog) {
@@ -268,8 +280,21 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     weekSum.put(weekNo, list);
   }
 
-  private void checkMailServer() {
-    feedBackSendAviable = ComponentAccessor.getMailServerManager().isDefaultSMTPMailServerDefined();
+  private String checkConditions() {
+    boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
+    if (!isUserLogged) {
+      setReturnUrl(JIRA_HOME_URL);
+      return getRedirect(NONE);
+    }
+    if (!reportingCondition.shouldDisplay(getLoggedInApplicationUser(), null)) {
+      setReturnUrl(JIRA_HOME_URL);
+      return getRedirect(NONE);
+    }
+    if (!pluginCondition.shouldDisplay(getLoggedInApplicationUser(), null)) {
+      setReturnUrl(JIRA_HOME_URL);
+      return getRedirect(NONE);
+    }
+    return null;
   }
 
   private void createDurationFormatter() {
@@ -278,16 +303,18 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   @Override
   public String doDefault() throws ParseException {
-    boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
-    if (!isUserLogged) {
-      setReturnUrl(JIRA_HOME_URL);
-      return getRedirect(NONE);
+    String checkConditionsResult = checkConditions();
+    if (checkConditionsResult != null) {
+      return checkConditionsResult;
     }
+
+    hasBrowseUsersPermission =
+        PermissionUtil.hasBrowseUserPermission(getLoggedInApplicationUser(), reportingPlugin);
 
     createDurationFormatter();
 
+    loadIssueCollectorSrc();
     normalizeContextPath();
-    checkMailServer();
 
     loadPluginSettingAndParseResult();
     analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(pluginSettingsFactory,
@@ -307,26 +334,21 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   @Override
   public String doExecute() throws ParseException, GenericEntityException {
-    boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
-    if (!isUserLogged) {
-      setReturnUrl(JIRA_HOME_URL);
-      return getRedirect(NONE);
+    String checkConditionsResult = checkConditions();
+    if (checkConditionsResult != null) {
+      return checkConditionsResult;
     }
 
     createDurationFormatter();
 
+    loadIssueCollectorSrc();
     normalizeContextPath();
-    checkMailServer();
     loadPluginSettingAndParseResult();
+    hasBrowseUsersPermission =
+        PermissionUtil.hasBrowseUserPermission(getLoggedInApplicationUser(), reportingPlugin);
+
     analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(pluginSettingsFactory,
         PiwikPropertiesUtil.PIWIK_TABLE_SITEID);
-
-    if (parseFeedback()) {
-      loadDataFromSession();
-      initDatesIfNecessary();
-      initCurrentUserIfNecessary();
-      return INPUT;
-    }
 
     Calendar startDate = null;
     Calendar lastDate = null;
@@ -376,6 +398,10 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     return analyticsDTO;
   }
 
+  public JiraRendererPlugin getAtlassianWikiRenderer() {
+    return atlassianWikiRenderer;
+  }
+
   public String getAvatarURL() {
     return avatarURL;
   }
@@ -388,20 +414,16 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     return currentUser;
   }
 
-  public String getDateFromFormated() {
+  public Long getDateFromFormated() {
     return dateFromFormated;
   }
 
-  public String getDateToFormated() {
+  public Long getDateToFormated() {
     return dateToFormated;
   }
 
   public HashMap<Integer, List<Object>> getDaySum() {
     return daySum;
-  }
-
-  public boolean getFeedBackSendAviable() {
-    return feedBackSendAviable;
   }
 
   private String getFormattedRedirectUrl() {
@@ -413,9 +435,21 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     }
     return String.format(
         SELF_WITH_DATE_AND_USER_URL_FORMAT,
-        JiraTimetrackerUtil.urlEndcodeHandleException(dateFromFormated),
-        JiraTimetrackerUtil.urlEndcodeHandleException(dateToFormated),
+        dateFromFormated,
+        dateToFormated,
         currentUserEncoded);
+  }
+
+  public boolean getHasBrowseUsersPermission() {
+    return hasBrowseUsersPermission;
+  }
+
+  public String getIssueCollectorSrc() {
+    return issueCollectorSrc;
+  }
+
+  public IssueRenderContext getIssueRenderContext() {
+    return issueRenderContext;
   }
 
   public List<Pattern> getIssuesRegex() {
@@ -455,7 +489,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   }
 
   private void initCurrentUserIfNecessary() {
-    if ("".equals(currentUser)) {
+    if ("".equals(currentUser) || !hasBrowseUsersPermission) {
       JiraAuthenticationContext authenticationContext = ComponentAccessor
           .getJiraAuthenticationContext();
       currentUser = authenticationContext.getUser().getUsername();
@@ -464,16 +498,14 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   }
 
   private void initDatesIfNecessary() {
-    if ("".equals(dateFromFormated)) {
+    if (dateFromFormated == null) {
       Calendar calendarFrom = Calendar.getInstance();
       calendarFrom.add(Calendar.WEEK_OF_MONTH, -1);
-      dateFrom = calendarFrom.getTime();
-      dateFromFormated = DateTimeConverterUtil.dateToString(dateFrom);
+      dateFromFormated = calendarFrom.getTimeInMillis();
     }
-    if ("".equals(dateToFormated)) {
+    if (dateToFormated == null) {
       Calendar calendarTo = Calendar.getInstance();
-      dateTo = calendarTo.getTime();
-      dateToFormated = DateTimeConverterUtil.dateToString(dateTo);
+      dateToFormated = calendarTo.getTimeInMillis();
     }
   }
 
@@ -502,11 +534,14 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     TimetrackerReportsSessionData timetrackerReportsSessionData =
         (TimetrackerReportsSessionData) data;
     currentUser = timetrackerReportsSessionData.currentUser;
-    dateFrom = timetrackerReportsSessionData.dateFrom;
-    dateFromFormated = DateTimeConverterUtil.dateToString(dateFrom);
-    dateTo = timetrackerReportsSessionData.dateTo;
-    dateToFormated = DateTimeConverterUtil.dateToString(dateTo);
+    dateFromFormated = timetrackerReportsSessionData.dateFrom;
+    dateToFormated = timetrackerReportsSessionData.dateTo;
     return true;
+  }
+
+  private void loadIssueCollectorSrc() {
+    Properties properties = PropertiesUtil.getJttpBuildProperties();
+    issueCollectorSrc = properties.getProperty(PropertiesUtil.ISSUE_COLLECTOR_SRC);
   }
 
   private void loadPluginSettingAndParseResult() {
@@ -527,63 +562,25 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   private Calendar parseDateFrom() throws IllegalArgumentException {
     String dateFromParam = getHttpRequest().getParameter(PARAM_DATEFROM);
     if ((dateFromParam != null) && !"".equals(dateFromParam)) {
-      dateFromFormated = dateFromParam;
+      dateFromFormated = Long.valueOf(dateFromParam);
+      Calendar parsedCalendarFrom = Calendar.getInstance();
+      parsedCalendarFrom.setTimeInMillis(dateFromFormated);
+      return parsedCalendarFrom;
     } else {
       throw new IllegalArgumentException(INVALID_START_TIME);
     }
-    Calendar parsedCalendarFrom = Calendar.getInstance();
-    try {
-      dateFrom = DateTimeConverterUtil.stringToDate(dateFromParam);
-      parsedCalendarFrom.setTime(dateFrom);
-    } catch (ParseException e) {
-      throw new IllegalArgumentException(INVALID_START_TIME);
-    }
-    return parsedCalendarFrom;
   }
 
   private Calendar parseDateTo() throws IllegalArgumentException {
     String dateToParam = getHttpRequest().getParameter(PARAM_DATETO);
     if ((dateToParam != null) && !"".equals(dateToParam)) {
-      dateToFormated = dateToParam;
+      dateToFormated = Long.valueOf(dateToParam);
+      Calendar parsedCalendarTo = Calendar.getInstance();
+      parsedCalendarTo.setTimeInMillis(dateToFormated);
+      return parsedCalendarTo;
     } else {
       throw new IllegalArgumentException(INVALID_END_TIME);
     }
-    Calendar parsedCalendarTo = Calendar.getInstance();
-    try {
-      dateTo = DateTimeConverterUtil.stringToDate(dateToParam);
-      parsedCalendarTo.setTime(dateTo);
-    } catch (ParseException e) {
-      throw new IllegalArgumentException(INVALID_END_TIME);
-    }
-    return parsedCalendarTo;
-  }
-
-  private boolean parseFeedback() {
-    if (getHttpRequest().getParameter("sendfeedback") != null) {
-      if (JiraTimetrackerUtil.loadAndCheckFeedBackTimeStampFromSession(getHttpSession())) {
-        String feedBackValue = getHttpRequest().getParameter("feedbackinput");
-        String ratingValue = getHttpRequest().getParameter("rating");
-        String customerMail =
-            JiraTimetrackerUtil.getCheckCustomerMail(getHttpRequest().getParameter("customerMail"));
-        String feedBack = "";
-        String rating = NOT_RATED;
-        if (feedBackValue != null) {
-          feedBack = feedBackValue.trim();
-        }
-        if (ratingValue != null) {
-          rating = ratingValue;
-        }
-        String mailSubject = JiraTimetrackerUtil
-            .createFeedbackMailSubject(JiraTimetrackerAnalytics.getPluginVersion());
-        String mailBody =
-            JiraTimetrackerUtil.createFeedbackMailBody(customerMail, rating, feedBack);
-        jiraTimetrackerPlugin.sendEmail(mailSubject, mailBody);
-      } else {
-        message = FREQUENT_FEEDBACK;
-      }
-      return true;
-    }
-    return false;
   }
 
   private void readObject(final java.io.ObjectInputStream stream) throws IOException,
@@ -595,8 +592,8 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   private void saveDataToSession() {
     HttpSession session = getHttpSession();
     session.setAttribute(SESSION_KEY,
-        new TimetrackerReportsSessionData().currentUser(currentUser).dateFrom(dateFrom)
-            .dateTo(dateTo));
+        new TimetrackerReportsSessionData().currentUser(currentUser).dateFrom(dateFromFormated)
+            .dateTo(dateToFormated));
   }
 
   public void setAvatarURL(final String avatarURL) {
@@ -617,18 +614,18 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
       throw new IllegalArgumentException(INVALID_USER_PICKER);
     }
     currentUser = selectedUser;
-    if ("".equals(currentUser)) {
+    if ("".equals(currentUser) || !hasBrowseUsersPermission) {
       JiraAuthenticationContext authenticationContext = ComponentAccessor
           .getJiraAuthenticationContext();
       currentUser = authenticationContext.getUser().getKey();
     }
   }
 
-  public void setDateFromFormated(final String dateFromFormated) {
+  public void setDateFromFormated(final Long dateFromFormated) {
     this.dateFromFormated = dateFromFormated;
   }
 
-  public void setDateToFormated(final String dateToFormated) {
+  public void setDateToFormated(final Long dateToFormated) {
     this.dateToFormated = dateToFormated;
   }
 
@@ -636,8 +633,8 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     this.daySum = daySum;
   }
 
-  public void setFeedBackSendAviable(final boolean feedBackSendAviable) {
-    this.feedBackSendAviable = feedBackSendAviable;
+  public void setHasBrowseUsersPermission(final boolean hasBrowseUsersPermission) {
+    this.hasBrowseUsersPermission = hasBrowseUsersPermission;
   }
 
   public void setIssuesRegex(final List<Pattern> issuesRegex) {

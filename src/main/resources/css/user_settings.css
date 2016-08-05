@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2011 Everit Kft. (http://www.everit.org)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,17 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.jira.reporting.plugin.export.column;
+form.aui div.description {
+	clear: none;
+}
 
-/**
- * Define User Summary report columns.
- */
-public final class UserSummaryColumns {
-
-  public static final String TOTAL_LOGGED = "jtrp_col_totalLogged";
-
-  public static final String USER = "jtrp_col_user";
-
-  private UserSummaryColumns() {
-  }
+form.aui div.field-group textarea {
+	max-width: 500px;
+	width: 100%;
 }

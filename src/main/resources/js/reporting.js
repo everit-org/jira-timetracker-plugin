@@ -1042,12 +1042,26 @@ everit.reporting.main = everit.reporting.main || {};
     return filterCondition;
   }
   
+  function getOrderBy(){
+    var th = jQuery('#worklogDetailsTable').find('th.jttp-tablesorter-headerAsc')[0];
+    var order = "ASC";
+    if(typeof th === 'undefined') {
+      th = jQuery('#worklogDetailsTable').find('th.jttp-tablesorter-headerDesc')[0];
+      order = "DESC";
+    }
+    var column = jQuery(th).attr('data-jtrp-col-name')
+    
+    return column + "-" + order;
+  }
+  
   reporting.updateDetailsAllExportHref = function() {
     var filterConditionString = jQuery('#filterConditionJson').val();
     var filterCondition = JSON.parse(filterConditionString);
     filterCondition["issueCreateDate"] = reporting.values.dateCreatedFormated;
     filterCondition["worklogStartDate"] = reporting.values.dateFromFormated;
     filterCondition["worklogEndDate"] = reporting.values.dateToFormated;
+    delete filterCondition['limit'];
+    delete filterCondition['offset'];
     var downloadWorklogDetailsParam = {
         "filterCondition": filterCondition,
         "selectedWorklogDetailsColumns": reporting.values.worklogDetailsAllColumns
@@ -1055,7 +1069,7 @@ everit.reporting.main = everit.reporting.main || {};
     var json = JSON.stringify(downloadWorklogDetailsParam);
     var $detailsAllExport = jQuery('#detials-all-export')
     var href = $detailsAllExport.attr('data-jttp-href');
-    $detailsAllExport.attr('href', href + '?json=' + json);
+    $detailsAllExport.attr('href', href + '?json=' + json + "&orderBy=" + getOrderBy());
     return true;
   }
   
@@ -1066,6 +1080,8 @@ everit.reporting.main = everit.reporting.main || {};
     filterCondition["issueCreateDate"] = reporting.values.dateCreatedFormated;
     filterCondition["worklogStartDate"] = reporting.values.dateFromFormated;
     filterCondition["worklogEndDate"] = reporting.values.dateToFormated;
+    delete filterCondition['limit'];
+    delete filterCondition['offset'];
     var downloadWorklogDetailsParam = {
         "filterCondition": filterCondition,
         "selectedWorklogDetailsColumns": reporting.values.worklogDetailsColumns
@@ -1073,7 +1089,7 @@ everit.reporting.main = everit.reporting.main || {};
     var json = JSON.stringify(downloadWorklogDetailsParam);
     var $detailsCustomExport = jQuery('#detials-custom-export')
     var href = $detailsCustomExport.attr('data-jttp-href');
-    $detailsCustomExport.attr('href', href + '?json=' + json);
+    $detailsCustomExport.attr('href', href + '?json=' + json + "&orderBy=" + getOrderBy());
     return true;
   }
   
@@ -1084,6 +1100,8 @@ everit.reporting.main = everit.reporting.main || {};
     filterCondition["issueCreateDate"] = reporting.values.dateCreatedFormated;
     filterCondition["worklogStartDate"] = reporting.values.dateFromFormated;
     filterCondition["worklogEndDate"] = reporting.values.dateToFormated;
+    delete filterCondition['limit'];
+    delete filterCondition['offset'];
     var json = JSON.stringify(filterCondition);
     var $detailsCustomExport = jQuery('#summaries-export')
     var href = $detailsCustomExport.attr('data-jttp-href');
@@ -1164,7 +1182,7 @@ everit.reporting.main = everit.reporting.main || {};
     return true;
   }
   
-  reporting.getWorklogDetailsPage = function(offset) {
+  reporting.getWorklogDetailsPage = function(offset, column, order) {
     var url = contextPath + "/rest/jttp-rest/1/paging-report/pageWorklogDetails?filterConditionJson=";
     var filterConditionJson = jQuery('#filterConditionJson').val();
     var filterCondition = JSON.parse(filterConditionJson);
@@ -1174,7 +1192,7 @@ everit.reporting.main = everit.reporting.main || {};
     var selectedColumnsJson = JSON.stringify(selectedWorklogDetailsColumns);
     var $detailsModule = jQuery('#detailsModule');
     $detailsModule.addClass("pending");
-    jQuery.get(url + filterConditionJson + "&selectedColumnsJson=" + selectedColumnsJson, function(data) {
+    jQuery.get(url + filterConditionJson + "&selectedColumnsJson=" + selectedColumnsJson + "&orderBy=" + column + "-" + order, function(data) {
       $detailsModule.replaceWith(data);
     }).done(function() {
       initWorklogDetailsColumns();
