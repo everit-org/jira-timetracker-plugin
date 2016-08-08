@@ -75,7 +75,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
           </div>
           <div class="aui-page-header-actions">
             <div class="aui-buttons">
-              <button class="aui-button aui-button-light"  type="button" name="setting" onclick="location.href='JiraTimetrackerSettingsWebAction!default.jspa'">
+              <button class="aui-button"  type="button" name="setting" onclick="location.href='JiraTimetrackerSettingsWebAction!default.jspa'">
                 <span class="aui-icon aui-icon-small aui-iconfont-configure"> </span>
               </button>
             </div>
