@@ -121,7 +121,7 @@ public abstract class AbstractReportQuery<T> {
         .join(qProject).on(qIssue.project.eq(qProject.id))
         .join(qIssuetype).on(qIssue.issuetype.eq(qIssuetype.id))
         .join(qIssuestatus).on(qIssue.issuestatus.eq(qIssuestatus.id))
-        .join(qPriority).on(qIssue.priority.eq(qPriority.id))
+        .leftJoin(qPriority).on(qIssue.priority.eq(qPriority.id))
         .leftJoin(qResolution).on(qIssue.resolution.eq(qResolution.id));
   }
 
