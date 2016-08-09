@@ -533,7 +533,9 @@
                                           <span original-title="" class=" jira-issue-status-lozenge aui-lozenge jira-issue-status-lozenge-$statusCategory.colorName jira-issue-status-lozenge-$statusCategory.key aui-lozenge-subtle jira-issue-status-lozenge-max-width-medium" data-tooltip="<span class=&quot;jira-issue-status-tooltip-title&quot;>$wd.issueStatusName</span>">$wd.issueStatusName</span>
                                         </td>
                                         <td class="jtrp_col_priority" style="#if( $isNotShowPriority )display:none;#end">
-                                          <img class="img-tooltip" src="#if( $wd.priorityIconUrl.startsWith("http") )$wd.priorityIconUrl#else$contextPath$wd.priorityIconUrl#end" alt="$wd.priorityName" title="$wd.priorityName"></img>
+                                          #if( $wd.priorityIconUrl )
+                                            <img class="img-tooltip" src="#if( $wd.priorityIconUrl.startsWith("http") )$wd.priorityIconUrl#else$contextPath$wd.priorityIconUrl#end" alt="$wd.priorityName" title="$wd.priorityName"></img>
+                                          #end
                                         </td>
                                         <td class="jtrp_col_assignee" style="#if( $isNotShowAssignee )display:none;#end">#if ( !$wd.issueAssignee ) $i18n.getText("jtrp.picker.unassigned.value") #else $wd.issueAssignee #end</td>
                                         <td class="jtrp_col_reporter" style="#if( $isNotShowReporter )display:none;#end">$wd.issueReporter</td>
