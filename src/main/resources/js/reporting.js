@@ -17,7 +17,7 @@
 window.everit = window.everit || {};
 everit.reporting = everit.reporting || {};
 everit.reporting.main = everit.reporting.main || {};
-
+const MAX_ELEMENTS_DISPLAYED = 100; // EQUAL TO JIRA.Issues.SearcherGroupListDialogView.CRITERIA_DISPLAY_LIMIT	
 (function(reporting, jQuery) {
 
   Date.prototype.format = function (formatString) {
@@ -358,11 +358,9 @@ everit.reporting.main = everit.reporting.main || {};
           var avatarId =  obj.iconUrl;
           jQuery("#priorityPicker").append('<option data-icon="' + avatarId + '" value="'+obj.id + '" '+ selected + '>' +obj.name +'</option>');
 
-        }
-        var pp = new AJS.CheckboxMultiSelect({
-            element:  jQuery("#priorityPicker"),
-            submitInputVal: true,
-        });
+        } 
+        var options= initializeOptionsForSelect(result.length,"#priorityPicker");
+        var pp = new AJS.CheckboxMultiSelect(options);
         updatePickerButtonText("#priorityPicker" , "#priorityPickerButton", AJS.I18n.getText("jtrp.picker.all.priority"));
         jQuery("#priorityPicker").on("change unselect", function() {
           updatePickerButtonText("#priorityPicker" , "#priorityPickerButton", AJS.I18n.getText("jtrp.picker.all.priority"));
@@ -387,10 +385,8 @@ everit.reporting.main = everit.reporting.main || {};
           var avatarId =  obj.avatarUrls["16x16"];
           jQuery("#projectPicker").append('<option data-icon="' + avatarId + '" value="' + obj.id + '" '+ selected +'>' +obj.name+ '(' + obj.key + ' )</option>');
         }
-        var pp = new AJS.CheckboxMultiSelect({
-            element:  jQuery("#projectPicker"),
-            submitInputVal: true,
-        });
+        var options= initializeOptionsForSelect(result.length,"#projectPicker");
+        var pp = new AJS.CheckboxMultiSelect(options);
         updatePickerButtonText("#projectPicker" , "#projectPickerButton", AJS.I18n.getText("jtrp.picker.all.project"));
         jQuery("#projectPicker").on("change unselect", function() {
           updatePickerButtonText("#projectPicker" , "#projectPickerButton", AJS.I18n.getText("jtrp.picker.all.project"));
@@ -415,10 +411,8 @@ everit.reporting.main = everit.reporting.main || {};
           var selected = checkSelected(obj.userName, selectedArray);
           jQuery("#assignePicker").append('<option data-icon="' + avatarId + '" value="'+obj.userName + '" '+ selected + '>' +obj.displayName +'</option>');
         }
-        var pp = new AJS.CheckboxMultiSelect({
-          element:  AJS.$("#assignePicker"),
-          submitInputVal: true,
-        });
+        var options= initializeOptionsForSelect(result.length,"#assignePicker");
+        var pp = new AJS.CheckboxMultiSelect(options);
         updatePickerButtonText("#assignePicker" , "#assignePickerButton", AJS.I18n.getText("jtrp.picker.all.assigne"));
         jQuery("#assignePicker").on("change unselect", function() {
           updatePickerButtonText("#assignePicker" , "#assignePickerButton", AJS.I18n.getText("jtrp.picker.all.assigne"));
@@ -443,10 +437,8 @@ everit.reporting.main = everit.reporting.main || {};
           var selected = checkSelected(obj.userName, selectedArray);
           jQuery("#reporterPicker").append('<option data-icon="' + avatarId + '" value="'+obj.userName + '" '+ selected + '>' +obj.displayName +'</option>');
         }
-        var pp = new AJS.CheckboxMultiSelect({
-          element:  AJS.$("#reporterPicker"),
-          submitInputVal: true,
-        });
+        var options= initializeOptionsForSelect(result.length,"#reporterPicker");
+        var pp = new AJS.CheckboxMultiSelect(options);
         updatePickerButtonText("#reporterPicker" , "#reporterPickerButton", AJS.I18n.getText("jtrp.picker.all.reporter"));
         jQuery("#reporterPicker").on("change unselect", function() {
           updatePickerButtonText("#reporterPicker" , "#reporterPickerButton", AJS.I18n.getText("jtrp.picker.all.reporter"));
@@ -471,10 +463,8 @@ everit.reporting.main = everit.reporting.main || {};
           var selected = checkSelected(obj.userName, selectedArray);
           jQuery("#userPicker").append('<option data-icon="' + avatarId + '" value="'+obj.userName + '" '+ selected + '>' +obj.displayName +'</option>');
         }
-        var pp = new AJS.CheckboxMultiSelect({
-          element:  AJS.$("#userPicker"),
-          submitInputVal: true,
-        });
+        var options= initializeOptionsForSelect(result.length,"#userPicker");
+        var pp = new AJS.CheckboxMultiSelect(options);
         pp._setDescriptorSelection = function(descriptor, $input) {
           var descriptValue = descriptor.value();
           if (!descriptor.selected()) {
@@ -543,7 +533,7 @@ everit.reporting.main = everit.reporting.main || {};
       async: true,
       type: 'GET',
       url : contextPath + "/rest/api/2/groups/picker",
-      data : [],
+      data : {maxResults : 1000},
       success : function(result){
         //Add None before result parse
         var selected = checkSelected("-1", selectedArray);
@@ -553,10 +543,8 @@ everit.reporting.main = everit.reporting.main || {};
           var selected = checkSelected(obj.name, selectedArray);
           jQuery("#groupPicker").append('<option value="'+obj.name + '" '+ selected + '>' +obj.name +'</option>');
         }
-        var pp = new AJS.CheckboxMultiSelect({
-              element:  AJS.$("#groupPicker"),
-              submitInputVal: true,
-        });
+        var options= initializeOptionsForSelect(result.groups.length,"#groupPicker");
+        var pp = new AJS.CheckboxMultiSelect(options);
         pp._setDescriptorSelection = function(descriptor, $input) {
           var descriptValue = descriptor.value();
           if (!descriptor.selected()) {
@@ -584,7 +572,11 @@ everit.reporting.main = everit.reporting.main || {};
       }
     });
   };
-  
+  function addMaxInlineRsultIfNecessary(numOfelements,options){
+	  if(numOfelements>MAX_ELEMENTS_DISPLAYED){
+		  options.maxInlineResultsDisplayed =MAX_ELEMENTS_DISPLAYED;
+     }
+  }
   function initTypeSelect(){
     var selectedArray =  jQuery.makeArray( reporting.values.selectedTypes ); 
     jQuery.ajax({
@@ -599,10 +591,8 @@ everit.reporting.main = everit.reporting.main || {};
           var selected = checkSelected(obj.id, selectedArray);
           jQuery("#typePicker").append('<option data-icon="' + avatarId + '" value="'+obj.id + '" '+ selected + '>' +obj.name +'</option>');
         }
-        var pp = new AJS.CheckboxMultiSelect({
-              element:  AJS.$("#typePicker"),
-              submitInputVal: true,
-        });
+        var options= initializeOptionsForSelect(result.length,"#typePicker");
+        var pp = new AJS.CheckboxMultiSelect(options);
         updatePickerButtonText("#typePicker" , "#typePickerButton", AJS.I18n.getText("jtrp.picker.all.type"));
         jQuery("#typePicker").on("change unselect", function() {
           updatePickerButtonText("#typePicker" , "#typePickerButton", AJS.I18n.getText("jtrp.picker.all.type"));
@@ -629,10 +619,8 @@ everit.reporting.main = everit.reporting.main || {};
           var selected = checkSelected(obj.id, selectedArray);
           jQuery("#resolutionPicker").append('<option value="'+obj.id+ '" '+ selected + '>' +obj.name +'</option>');
         }
-        var pp = new AJS.CheckboxMultiSelect({
-              element:  AJS.$("#resolutionPicker"),
-              submitInputVal: true,
-        });
+        var options= initializeOptionsForSelect(result.length,"#resolutionPicker");
+        var pp = new AJS.CheckboxMultiSelect(options);
         updatePickerButtonText("#resolutionPicker" , "#resolutionPickerButton", AJS.I18n.getText("jtrp.picker.all.resolution"));
         jQuery("#resolutionPicker").on("change unselect", function() {
           updatePickerButtonText("#resolutionPicker" , "#resolutionPickerButton", AJS.I18n.getText("jtrp.picker.all.resolution"));
@@ -657,10 +645,8 @@ everit.reporting.main = everit.reporting.main || {};
           var lozengeStatus = JSON.stringify(obj).replace(/"/g, "&quot;");
           jQuery("#statusPicker").append('<option value="'+obj.id+ '" data-simple-status="' + lozengeStatus +'"  ' + selected + '>' +obj.name +'</option>');
         }
-        var pp = new AJS.CheckboxMultiSelectStatusLozenge({
-              element:  AJS.$("#statusPicker"),
-              submitInputVal: true,
-        });
+        var options= initializeOptionsForSelect(result.length,"#statusPicker");
+        var pp = new AJS.CheckboxMultiSelectStatusLozenge(options);
         updatePickerButtonText("#statusPicker" , "#statusPickerButton", AJS.I18n.getText("jtrp.picker.all.status"));
         jQuery("#statusPicker").on("change unselect", function() {
           updatePickerButtonText("#statusPicker" , "#statusPickerButton", AJS.I18n.getText("jtrp.picker.all.status"));
@@ -684,10 +670,8 @@ everit.reporting.main = everit.reporting.main || {};
           var selected = checkSelected(obj.name, selectedArray);
           jQuery("#affectedVersionPicker").append('<option value="'+obj.name+ '" '+ selected + '>' +obj.name +'</option>');
         }
-        var pp = new AJS.CheckboxMultiSelect({
-              element:  AJS.$("#affectedVersionPicker"),
-              submitInputVal: true,
-        });
+        var options= initializeOptionsForSelect(result.length,"#affectedVersionPicker");
+        var pp = new AJS.CheckboxMultiSelect(options);
         updatePickerButtonText("#affectedVersionPicker" , "#affectedVersionPickerButton", AJS.I18n.getText("jtrp.picker.all.affects.version"));
         jQuery("#affectedVersionPicker").on("change unselect", function() {
           updatePickerButtonText("#affectedVersionPicker" , "#affectedVersionPickerButton", AJS.I18n.getText("jtrp.picker.all.affects.version"));
@@ -711,10 +695,8 @@ everit.reporting.main = everit.reporting.main || {};
           var selected = checkSelected(obj.name, selectedArray);
           jQuery("#fixVersionPicker").append('<option value="'+obj.name+ '" '+ selected + '>' +obj.name +'</option>');
         }
-        var pp = new AJS.CheckboxMultiSelect({
-              element:  AJS.$("#fixVersionPicker"),
-              submitInputVal: true,
-        });
+        var options= initializeOptionsForSelect(result.length,"#fixVersionPicker");
+        var pp = new AJS.CheckboxMultiSelect(options);
         updatePickerButtonText("#fixVersionPicker" , "#fixVersionPickerButton", AJS.I18n.getText("jtrp.picker.all.fix.version"));
         jQuery("#fixVersionPicker").on("change unselect", function() {
           updatePickerButtonText("#fixVersionPicker" , "#fixVersionPickerButton", AJS.I18n.getText("jtrp.picker.all.fix.version"));
@@ -776,10 +758,8 @@ everit.reporting.main = everit.reporting.main || {};
           var selected = checkSelected(obj.name, selectedArray);
           jQuery("#labelPicker").append('<option value="'+obj.name+ '" '+ selected + '>' +obj.name +'</option>');
         }
-        var pp = new AJS.CheckboxMultiSelect({
-              element:  AJS.$("#labelPicker"),
-              submitInputVal: true,
-        });
+        var options= initializeOptionsForSelect(result.length,"#labelPicker");
+        var pp = new AJS.CheckboxMultiSelect(options);
         updatePickerButtonText("#labelPicker" , "#labelPickerButton",AJS.I18n.getText("jtrp.picker.all.label"));
         jQuery("#labelPicker").on("change unselect", function() {
           updatePickerButtonText("#labelPicker" , "#labelPickerButton", AJS.I18n.getText("jtrp.picker.all.label"));
@@ -789,7 +769,14 @@ everit.reporting.main = everit.reporting.main || {};
       }
     });
   };
-    
+   function initializeOptionsForSelect(numOfelements,elementIdSelector){
+	   var options={
+      		 element:  jQuery(elementIdSelector),
+             submitInputVal: true,
+      };
+      addMaxInlineRsultIfNecessary(numOfelements,options);
+      return options;
+   }
   function initIssueSelect(){
     var selectedArray =  jQuery.makeArray( reporting.values.selectedIssues ); 
     var ip = new AJS.IssuePicker({
@@ -838,10 +825,12 @@ everit.reporting.main = everit.reporting.main || {};
           var selected = checkSelected(obj.epicLinkId, selectedArray);
           jQuery("#epicLinkPicker").append('<option value="'+obj.epicLinkId+ '" '+ selected + '>' +obj.epicName + ' - ('+ obj.issueKey +') </option>');
         }
-        var pp = new AJS.CheckboxMultiSelect({
-              element:  AJS.$("#epicLinkPicker"),
-              submitInputVal: true,
-        });
+        var options={
+        		 element:  AJS.$("#epicLinkPicker"),
+                 submitInputVal: true,
+        };
+        addMaxInlineRsultIfNecessary(result.length,options);
+        var pp = new AJS.CheckboxMultiSelect(options);
         updatePickerButtonText("#epicLinkPicker" , "#epicLinkPickerButton", AJS.I18n.getText("jtrp.picker.all.epic.link"));
         jQuery("#epicLinkPicker").on("change unselect", function() {
           updatePickerButtonText("#epicLinkPicker" , "#epicLinkPickerButton", AJS.I18n.getText("jtrp.picker.all.epic.link"));
@@ -865,10 +854,8 @@ everit.reporting.main = everit.reporting.main || {};
           var selected = checkSelected(obj.name, selectedArray);
           jQuery("#componentPicker").append('<option value="'+obj.name+ '" '+ selected + '>' +obj.name +'</option>');
         }
-        var pp = new AJS.CheckboxMultiSelect({
-              element:  AJS.$("#componentPicker"),
-              submitInputVal: true,
-        });
+        var options= initializeOptionsForSelect(result.length,"#componentPicker");
+        var pp = new AJS.CheckboxMultiSelect(options);           
         updatePickerButtonText("#componentPicker" , "#componentPickerButton", AJS.I18n.getText("jtrp.picker.all.component"));
         jQuery("#componentPicker").on("change unselect", function() {
           updatePickerButtonText("#componentPicker" , "#componentPickerButton", AJS.I18n.getText("jtrp.picker.all.component"));
