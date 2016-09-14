@@ -396,6 +396,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   public void dateSwitcherAction() throws ParseException {
     String dayBackValue = getHttpRequest().getParameter("dayBack");
     String dayNextValue = getHttpRequest().getParameter("dayNext");
+    String todayValue = getHttpRequest().getParameter("today");
 
     parseDateParam();
 
@@ -408,6 +409,9 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     } else if (dayBackValue != null) {
       tempCal.add(Calendar.DAY_OF_YEAR, -1);
       date = tempCal.getTime();
+      dateFormatted = date.getTime();
+    } else if (todayValue != null) {
+      date = new Date();
       dateFormatted = date.getTime();
     }
   }

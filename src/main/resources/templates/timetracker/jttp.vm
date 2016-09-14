@@ -119,7 +119,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
                          <button id="jttp-headline-day-prev" class="aui-button" title="Previous day" type="submit" id="dayBack"  name="dayBack" >
                            <span class="aui-icon aui-icon-small aui-iconfont-arrows-left">Previous day</span>
                          </button>
-                         <button class="aui-button button-today" title="Today"> 
+                         <button class="aui-button button-today" id="today" name="today" title="$i18n.getText('plugin.today.button')"> 
                             Today
                          </button>
                          <button id="jttp-headline-day-next" class="aui-button" title="Next day" type="submit" id="dayNext" name="dayNext">
@@ -147,7 +147,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
           </div>
         </form>
 
-        <h4 name="add_worklog" class="sidebar-header"><span>Add Worklog</span></h4>
+        <h4 name="add_worklog" class="sidebar-header"><span>$i18n.getText('plugin.header.add.worklog')</span></h4>
 
         <form name="dummyForm" class="aui top-label" id="dummyForm" method="get" onsubmit="return false;" >
           <div class="aui-group aui-group-split bottom-module">
