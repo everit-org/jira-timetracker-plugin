@@ -21,34 +21,31 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.everit.jira.updatenotifier.exception.UpdateException;
 import org.everit.jira.updatenotifier.json.JiraMarketplaceJSONDTO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.util.BuildUtilsInfo;
 import com.google.gson.Gson;
 
 /**
- * The update notifier.
+ * The JTTP version updater class.
  *
  */
-public class UpdateNotificationUpdater {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(UpdateNotificationUpdater.class);
+public class JTTPVersionUpdater {
 
   private static final long ONE_DAY_IN_MILISEC = 86400000L;
 
   private int buildNumber;
 
   private UpdateNotifier updateNotifier;
-  // TODO update interval handling
 
-  public UpdateNotificationUpdater(final int buildNumber) {
+  JTTPVersionUpdater(final int buildNumber, final UpdateNotifier updateNotifier) {
     this.buildNumber = buildNumber;
+    this.updateNotifier = updateNotifier;
   }
 
-  public UpdateNotificationUpdater(final UpdateNotifier updateNotifier) {
+  public JTTPVersionUpdater(final UpdateNotifier updateNotifier) {
     buildNumber = ComponentAccessor.getComponent(BuildUtilsInfo.class).getApplicationBuildNumber();
     this.updateNotifier = updateNotifier;
   }
@@ -67,14 +64,13 @@ public class UpdateNotificationUpdater {
     try {
       int statusCode = httpClient.executeMethod(method);
       if (statusCode != HttpStatus.SC_OK) {
-        LOGGER.error("Update JTTP latest version failed. Status code is : " + statusCode);
-        LOGGER.error("Response body: " + method.getResponseBodyAsString());
-        return;
+        throw new UpdateException(
+            "Update JTTP latest version failed. Status code is : "
+                + statusCode + "Response body is: " + method.getResponseBodyAsString());
       }
       response = method.getResponseBodyAsString();
     } catch (IOException e) {
-      LOGGER.error("Update JTTP latest version failed. ", e);
-      return;
+      throw new UpdateException("Update JTTP latest version failed. ", e);
     }
     Gson gson = new Gson();
     JiraMarketplaceJSONDTO fromJson = gson.fromJson(response, JiraMarketplaceJSONDTO.class);
@@ -86,6 +82,8 @@ public class UpdateNotificationUpdater {
    * Get the latest version from marketplace if the last update is older than one day. The new
    * version store in the {@link UpdateNotifier} class.
    *
+   * @throws {@link
+   *           UpdateException} if the update failed.
    */
   public void updateLatestVersion() {
     if (updateRequired()) {

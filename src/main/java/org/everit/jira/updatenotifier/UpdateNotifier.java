@@ -17,6 +17,9 @@ package org.everit.jira.updatenotifier;
 
 import org.everit.jira.timetracker.plugin.GlobalSettingsKey;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
+import org.everit.jira.updatenotifier.exception.UpdateException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
@@ -27,6 +30,8 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
  *
  */
 public class UpdateNotifier {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(UpdateNotifier.class);
 
   private PluginSettings globalSettings;
 
@@ -53,8 +58,17 @@ public class UpdateNotifier {
     return rval == null ? null : Long.parseLong(rval);
   }
 
+  /**
+   * Get the latest JTTP version, if necessary query it from the marketplace.
+   *
+   * @return the latest JTTP version.
+   */
   public String getLatestVersion() {
-    new UpdateNotificationUpdater(this).updateLatestVersion();
+    try {
+      new JTTPVersionUpdater(this).updateLatestVersion();
+    } catch (UpdateException e) {
+      LOGGER.error("Version update failed", e);
+    }
     return getLatestVersionWithoutUpdate();
   }
 
