@@ -176,7 +176,7 @@
     <resource type="download" name="js-fecha.js" location="/js/js-fecha.js" />
     <resource type="download" name="reporting.css" location="/css/reporting.css" />
     <resource type="download" name="reporting.js" location="/js/reporting.js" />
-    <resource type="download" name="jttp-aui-table-sortable.css" location="/css/jttp-aui-table-sortable.css" />
+    <resource type="download" name="jtrp-aui-table-sortable.css" location="/css/jtrp-aui-table-sortable.css" />
   </web-resource>
 
   

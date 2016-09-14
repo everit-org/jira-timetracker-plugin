@@ -22,68 +22,63 @@ margin-bottom: 0em;
 /**********NEW DESING*************/
 /*********************************/
 
-/* Headline alignment */
-div#jttp-headline {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  height: 2rem;
-  padding-bottom: 1rem;
+.aui-page-hybrid .aui-page-header, .aui-page-hybrid .aui-navgroup-horizontal .aui-navgroup-inner, .aui-page-hybrid .aui-page-panel-inner{
+    width: 980px;
 }
 
-/* Progress */
-div#jttp-headline-progress {
-  float: left;
-  width: 15rem;
-  height: 100%;
-}
-div#jttp-headline-progress-number {
-  float: right;
-}
-div#jttp-headline-progress-bar {
-  width: 15rem;
-  height: 100%;
+.aui-page-hybrid #footer .footer-body{
+    width: 100%;
 }
 
-/* Day stepper */
-div#jttp-headline-day-stepper-container {
-  width: 20rem;
-  min-width: 20rem;
-  height: 100%;
-  border: none;
+.jttp-headline {
+    padding-bottom: 25px;
 }
 
-button#jttp-headline-day-calendar {
-  min-width: 15rem;
+/* for daily progress */
+
+.jttp-headline-progress {
+    width: 50%;
 }
 
-div#jttp-headline-empty {
-  width: 15rem;
-  height: 0rem;
+div.jttp-headline-progress-number {
+    float: right;
+    color: #565656;
 }
 
-/* Worklog table */
-section#jttp-worklog {
-  margin-bottom: 1rem;
+div.jttp-headline-progress-date {
+    float: left;
+    padding-bottom: 5px;
+    color: #565656;
 }
 
-table.aui > thead > tr > th{
-    color: #707070;
+/* --- */
+
+div.jttp-headline-date {  
+    padding-top: 4px;
+    /*font-weight: bold;*/
+    font-size: large;
+    vertical-align: middle;
+    color: #565656;
 }
 
-/* Change date button's section */
-section#jttp-change-date {
-  padding-top: 0;
+.stepper-group-container {
+    padding-left: 10px;
+}
+
+td.jttp-worklog-no-remaining {
+  color: red;
 }
 
 #jttp-worklog-table tbody tr:hover {
   background-color: #f5f5f5;
 }
 
-table#jttp-worklog-table th#jttp-worklog-description {
-  min-width: 15rem;
-  width: 50%;
+table.aui>thead>tr>th {
+  color: #707070;
+}
+
+.aui-item.summary-module>table.aui>tbody>tr>td{
+    color: #707070;
 }
 
 table#jttp-worklog-table th#jttp-worklog-actions {
@@ -91,105 +86,90 @@ table#jttp-worklog-table th#jttp-worklog-actions {
   width: 5rem;
 }
 
-td.jttp-worklog-no-remaining {
-  color: red;
+table#jttp-worklog-table th#jttp-worklog-issue-type {
+  min-width: 1rem;
+  width: 1rem;
+}
+
+table#jttp-worklog-table th#jttp-worklog-issue-key {
+  min-width: 5rem;
+  width: 5rem;
+}
+
+table#jttp-worklog-table th#jttp-worklog-issue-remaining {
+  min-width: 3rem;
+  width: 3rem;
+}
+
+table#jttp-worklog-table th#jttp-worklog-start {
+  min-width: 3rem;
+  width: 3rem;
+}
+
+table#jttp-worklog-table th#jttp-worklog-end {
+  min-width: 3rem;
+  width: 3rem;
+}
+
+table#jttp-worklog-table th#jttp-worklog-duration {
+  min-width: 5rem;
+  width: 5rem;
+}
+
+.aui-group>.aui-item.summary-module {
+    width: 40%;
 }
 
 /* Inline time input fields flex */
 div#jttp-logwork-time {
   display: flex;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flex;
+  display: -o-flex;
   flex-direction: row;
   flex-wrap: nowrap;
   justify-content: flex-start;
 }
+
 div#jttp-logwork-time > div.field-group {
   width: auto;
-  margin-right: 2rem;
+  margin-right: 4rem;
 }
 
-/* General fields */
-section#jttp-logwork-fields {
-  box-sizing: border-box;
-  min-width: 550px;
-  width: calc((100% - 250px) /2);
+div#jttp-logwork-time > div.field-group.duration {
+  margin-right: 0rem;
 }
 
-section#jttp-panel-head-fields{
-  padding-bottom: 10px;
+form.aui .buttons-container .aui-button+.aui-button{
+  margin-left: 0px;
 }
 
-/* Calendar */
-section#jttp-logwork-calendar {
-  box-sizing: border-box;
-  min-width: 250px;
-  width: 292px;
-  /*background: lightgray;*/
+
+form.aui .buttons-container .aui-button+.aui-button:hover,
+form.aui .buttons-container .aui-button+.aui-button:focus,
+form.aui .buttons-container .aui-button+.aui-button:active{
+  margin-left: -1px;
 }
 
-/* Worklog summary */
-section#jttp-worklog-summary {
-  box-sizing: border-box;
-  width: calc((100% - 280px) /2);
-}
-section#jttp-worklog-summary > div {
-  max-width: 500px;
-  margin-left: auto;
-  margin-right: 0px;
-}
-.jttp-row-header {
-  color: #707070;
-  font-weight: bold;
-}
-
-/* Bottom group flex */
-div#jttp-bottom-group {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-}
-
-/* Bottom group flex */
-div#jttp-bottom-group > section {
-  padding-top: 10px;
-}
-
-/* 801px <= Screen size <= 1200px */ 
-@media screen and (max-width: 1200px) and (min-width: 801px) {
-  
-  /* General fields */
-  section#jttp-logwork-fields {
-    width: calc(100% - 250px);
-  }
-  
-  /* Calendar */
-  section#jttp-logwork-calendar {
-  }
-  
-  /* Worklog summary */
-  section#jttp-worklog-summary {
-    display: none;
-  }
-
-}
-
-/* Screen size <= 800px */
-@media screen and (max-width: 800px) {
-  
-  /* General fields */
-  section#jttp-logwork-fields {
+h4.sidebar-header {
     width: 100%;
-  }
-  
-  /* Calendar */
-  section#jttp-logwork-calendar {
-    display: none;
-  }
-  
-  /* Worklog summary */
-  section#jttp-worklog-summary {
-    display: none;
-  }
-  
+    text-align: left;
+    border-bottom: 1px solid #e6e6e6;
+    line-height: 0.1em;
+    margin-bottom: 0.5rem;
+    margin-top: 3rem;
+}
+
+h4.sidebar-header span {
+  font-size: 14px;
+  background: #fff;
+  padding-right: 0.5rem;
+  color: #707070;
+}
+
+#issueSelect-multi-select{
+  max-width: 450px;
 }
 
 /*********************************/
@@ -198,6 +178,10 @@ div#jttp-bottom-group > section {
 
 .table-endtime:hover, .table-starttime:hover, .table-issue:hover, .table-comment:hover{
 cursor:pointer;
+}
+
+#jttp-logwork-form{
+    padding: 4px 0px 4px 0px;
 }
 
 table.aui>tbody>tr.rowEdit {
