@@ -30,7 +30,6 @@ import com.google.gson.Gson;
 
 /**
  * The JTTP version updater class.
- *
  */
 public class TimetrackerVersionUpdater {
 
