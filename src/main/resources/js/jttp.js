@@ -388,7 +388,7 @@ everit.jttp.main = everit.jttp.main || {};
     jQuery("#issueSelect-textarea").attr("class", "select2-choices");
 
     jQuery("#issueSelect-textarea").append(issueKey);
-    jQuery("#issueSelect-textarea").attr("tabindex", "3");
+    jQuery("#issueSelect-textarea").attr("tabindex", "1");
     ip.handleFreeInput();
   }
   

@@ -149,7 +149,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
                     <label for="startTime">$i18n.getText("plugin.start.time")<span class="aui-icon icon-required">(required)</span></label>
                     <input id="startTime" class="text short-field"
                       value="$startTime" onkeypress="everit.jttp.main.handleEnterKey(event, '#endTime');"
-                      name="startTime" maxlength="5" tabindex="1"
+                      name="startTime" maxlength="5" tabindex="2"
                       pattern="^([01][0-9]|2[0-3]):[0-5][0-9]$" title="hh:mm"
                       onblur="everit.jttp.main.calculateDuration();"
                       list="time-options" autocomplete="off">
@@ -161,7 +161,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
                     <input id="radioEnd" type="radio" name="endOrDuration" value="end" checked="true" style="display: none;"> 
                     <span class="time-input-span">
                       <input id="endTime" class="text short-field"
-                        name="endTime" maxlength="5" tabindex="2"
+                        name="endTime" maxlength="5" tabindex="3"
                         value="$endTime" onkeypress="everit.jttp.main.handleEnterKey(event, '#issueSelect-textarea');"
                         onclick="everit.jttp.main.endTimeInputClick();"
                         pattern="^([01][0-9]|2[0-3]):[0-5][0-9]$" title="empty or hh:mm" 
