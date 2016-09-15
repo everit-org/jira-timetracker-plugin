@@ -15,6 +15,7 @@
  */
 package org.everit.jira.timetracker.plugin.web;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -64,7 +65,7 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    */
   private boolean analyticsCheck;
 
-  private AnalyticsSender analyticsSender;
+  private transient AnalyticsSender analyticsSender;
 
   /**
    * The collector issue key.
@@ -171,6 +172,16 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
 
   private List<String> timetrackerGroups;
 
+  /**
+   * Simple constructor.
+   *
+   * @param pluginSettingsFactory
+   *          the {@link PluginSettingsFactory}.
+   * @param jiraTimetrackerPlugin
+   *          The {@link JiraTimetrackerPlugin}.
+   * @param analyticsSender
+   *          The {@link AnalyticsSender}.
+   */
   public AdminSettingsWebAction(final PluginSettingsFactory pluginSettingsFactory,
       final JiraTimetrackerPlugin jiraTimetrackerPlugin, final AnalyticsSender analyticsSender) {
     this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
@@ -491,6 +502,12 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     }
   }
 
+  private void readObject(final java.io.ObjectInputStream stream) throws IOException,
+      ClassNotFoundException {
+    stream.close();
+    throw new java.io.NotSerializableException(getClass().getName());
+  }
+
   /**
    * Save the plugin settings.
    */
@@ -566,5 +583,10 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
 
   public void setTimetrackerGroups(final List<String> timetrackerGroups) {
     this.timetrackerGroups = timetrackerGroups;
+  }
+
+  private void writeObject(final java.io.ObjectOutputStream stream) throws IOException {
+    stream.close();
+    throw new java.io.NotSerializableException(getClass().getName());
   }
 }
