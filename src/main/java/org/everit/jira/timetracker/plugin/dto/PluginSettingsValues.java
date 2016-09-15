@@ -64,14 +64,14 @@ public class PluginSettingsValues implements Serializable {
   public Boolean isActualDate;
 
   /**
-   * The plugin calendar is popup.
-   */
-  public int isCalendarPopup;
-
-  /**
    * Coloring settings.
    */
   public Boolean isColoring;
+
+  /**
+   * The timetracker progress indicator is daily type.
+   */
+  public Boolean isProgressIndicatorDaily;
 
   /**
    * The plugin groups.
@@ -106,11 +106,6 @@ public class PluginSettingsValues implements Serializable {
     return this;
   }
 
-  public PluginSettingsValues calendarPopup(final int isCalendarPopup) {
-    this.isCalendarPopup = isCalendarPopup;
-    return this;
-  }
-
   public PluginSettingsValues collectorIssues(final List<Pattern> collectorIssues) {
     this.collectorIssues = collectorIssues;
     return this;
@@ -142,8 +137,8 @@ public class PluginSettingsValues implements Serializable {
     return this;
   }
 
-  public PluginSettingsValues isCalendarPopup(final int isCalendarPopup) {
-    this.isCalendarPopup = isCalendarPopup;
+  public PluginSettingsValues isProgressIndicatordaily(final boolean isProgressIndicatorDaily) {
+    this.isProgressIndicatorDaily = isProgressIndicatorDaily;
     return this;
   }
 
