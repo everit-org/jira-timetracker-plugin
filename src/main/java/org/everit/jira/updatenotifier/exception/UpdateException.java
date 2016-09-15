@@ -16,9 +16,7 @@
 package org.everit.jira.updatenotifier.exception;
 
 /**
- *
- * Exception calss for the update notifier.
- *
+ * Exception class for the update notifier.
  */
 public class UpdateException extends RuntimeException {
 

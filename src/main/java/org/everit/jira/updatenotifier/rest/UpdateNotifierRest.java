@@ -48,7 +48,7 @@ public class UpdateNotifierRest {
   public Response saveCancel() {
     UpdateNotifier updateNotifierSettingsHelper = new UpdateNotifier(
         pluginSettingsFactory, JiraTimetrackerUtil.getLoggedUserName());
-    updateNotifierSettingsHelper.saveDiableNotifierForVersion();
+    updateNotifierSettingsHelper.putDisableNotifierForVersion();
     return Response.ok().build();
   }
 }

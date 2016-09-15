@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-function callUpdateNotifierRest(){
-       jQuery.ajax({
-         async: true,
-         type: 'GET',
-         url : contextPath + "/rest/jttp-rest/1/update-notifier/cancel-update",
-         data : [],
-         success : function(result){
-         jQuery(".update-notification-banner").remove();
-           },
-         error : function(XMLHttpRequest, status, error){
-           }
-       });
-     }
+function callUpdateNotifierRest() {
+	jQuery.ajax({
+		async : true,
+		type : 'GET',
+		url : contextPath + "/rest/jttp-rest/1/update-notifier/cancel-update",
+		data : [],
+		success : function(result) {
+			jQuery(".update-notification-banner").remove();
+		},
+		error : function(XMLHttpRequest, status, error) {
+		}
+	});
+}

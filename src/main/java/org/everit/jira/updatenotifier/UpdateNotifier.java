@@ -52,10 +52,10 @@ public class UpdateNotifier {
    * Get the latest JTTP version from global settings.
    */
   public Long getLastUpdateTime() {
-    String rval = (String) globalSettings.get(
+    String lastUpdateInMilisec = (String) globalSettings.get(
         GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
             + GlobalSettingsKey.JTTP_UPDATE_NOTIFIER_LAST_UPDATE);
-    return rval == null ? null : Long.parseLong(rval);
+    return lastUpdateInMilisec == null ? null : Long.parseLong(lastUpdateInMilisec);
   }
 
   /**
@@ -65,7 +65,7 @@ public class UpdateNotifier {
    */
   public String getLatestVersion() {
     try {
-      new JTTPVersionUpdater(this).updateLatestVersion();
+      new TimetrackerVersionUpdater(this).updateLatestVersion();
     } catch (UpdateException e) {
       LOGGER.error("Version update failed", e);
     }
@@ -114,7 +114,7 @@ public class UpdateNotifier {
         + GlobalSettingsKey.JTTP_UPDATE_NOTIFIER_LATEST_VERSION, latestVersion);
   }
 
-  public void saveDiableNotifierForVersion() {
+  public void putDisableNotifierForVersion() {
     pluginSettings.put(GlobalSettingsKey.JTTP_USER_CANCELED_UPDATE,
         getLatestVersionWithoutUpdate());
   }

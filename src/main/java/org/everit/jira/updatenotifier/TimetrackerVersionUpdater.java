@@ -32,7 +32,12 @@ import com.google.gson.Gson;
  * The JTTP version updater class.
  *
  */
-public class JTTPVersionUpdater {
+public class TimetrackerVersionUpdater {
+
+  private static final String MARKETPLACE_URL_FIRST_PART =
+      "https://marketplace.atlassian.com/rest/2/addons/org.everit.jira.timetracker.plugin?application=jira&applicationBuild=";
+
+  private static final String MARKETPLACE_URL_WITH_VERSION_PARAMETER = "&withVersion=true";
 
   private static final long ONE_DAY_IN_MILISEC = 86400000L;
 
@@ -40,12 +45,12 @@ public class JTTPVersionUpdater {
 
   private UpdateNotifier updateNotifier;
 
-  JTTPVersionUpdater(final int buildNumber, final UpdateNotifier updateNotifier) {
+  TimetrackerVersionUpdater(final int buildNumber, final UpdateNotifier updateNotifier) {
     this.buildNumber = buildNumber;
     this.updateNotifier = updateNotifier;
   }
 
-  public JTTPVersionUpdater(final UpdateNotifier updateNotifier) {
+  public TimetrackerVersionUpdater(final UpdateNotifier updateNotifier) {
     buildNumber = ComponentAccessor.getComponent(BuildUtilsInfo.class).getApplicationBuildNumber();
     this.updateNotifier = updateNotifier;
   }
@@ -57,8 +62,8 @@ public class JTTPVersionUpdater {
     updateNotifier.putLastUpdateTime(System.currentTimeMillis());
     HttpClient httpClient = new HttpClient();
     HttpMethod method = new GetMethod(
-        "https://marketplace.atlassian.com/rest/2/addons/org.everit.jira.timetracker.plugin?application=jira&applicationBuild="
-            + buildNumber + "&withVersion=true");
+        MARKETPLACE_URL_FIRST_PART
+            + buildNumber + MARKETPLACE_URL_WITH_VERSION_PARAMETER);
     method.addRequestHeader("accept", "application/json");
     String response;
     try {
