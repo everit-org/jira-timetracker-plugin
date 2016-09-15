@@ -15,7 +15,9 @@
  */
 package org.everit.jira.analytics.event;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 import org.everit.jira.analytics.PiwikUrlBuilder;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
@@ -25,6 +27,17 @@ import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
  * Non-estimated field changed event.
  */
 public class NoEstimateUsageChangedEvent implements AnalyticsEvent {
+  /**
+   * Enumeration for representing the three option for the non estimate field.
+   */
+  private enum NonEstUsageValues {
+    ALL("all"), NONE("none"), SELECTED("selected");
+    public final String lowerCaseValue;
+
+    private NonEstUsageValues(final String lowerCaseValue) {
+      this.lowerCaseValue = lowerCaseValue;
+    }
+  }
 
   private static final String ACTION_URL =
       "http://customer.jira.com/secure/ReportingWebAction!default.jspa";
@@ -33,13 +46,9 @@ public class NoEstimateUsageChangedEvent implements AnalyticsEvent {
 
   private static final String EVENT_CATEGORY_NAME = "Non-estimated usage";
 
-  private static final String NON_EST_EMPTY = "false";
-
-  private static final String NON_EST_NOT_EMPTY = "true";
-
-  private final boolean emptyNonEstUsage;
-
   private final String hashUserId;
+
+  private final NonEstUsageValues nonEstValue;
 
   private final String pluginId;
 
@@ -48,14 +57,26 @@ public class NoEstimateUsageChangedEvent implements AnalyticsEvent {
    *
    * @param pluginId
    *          the installed plugin id.
-   * @param emptyNonEstUsage
+   * @param collectorIssuePatterns
    *          the Non-estimated field is empty or not.
    */
   public NoEstimateUsageChangedEvent(final String pluginId,
-      final boolean emptyNonEstUsage) {
+      final List<Pattern> collectorIssuePatterns) {
     this.pluginId = Objects.requireNonNull(pluginId);
     hashUserId = JiraTimetrackerAnalytics.getUserId();
-    this.emptyNonEstUsage = emptyNonEstUsage;
+    nonEstValue = decideNonEstValue(collectorIssuePatterns);
+  }
+
+  private NonEstUsageValues decideNonEstValue(final List<Pattern> collectorIssuePatterns) {
+    if (collectorIssuePatterns.isEmpty()) {
+      return NonEstUsageValues.ALL;
+    }
+    for (Pattern pattern : collectorIssuePatterns) {
+      if (pattern.pattern().equals(".*")) {
+        return NonEstUsageValues.NONE;
+      }
+    }
+    return NonEstUsageValues.SELECTED;
   }
 
   @Override
@@ -63,11 +84,8 @@ public class NoEstimateUsageChangedEvent implements AnalyticsEvent {
     return new PiwikUrlBuilder(ACTION_URL, PiwikPropertiesUtil.PIWIK_ADMINISTRATION_SITEID,
         pluginId, hashUserId)
             .addEventAction(EVENT_ACTION_NAME)
-            .addEventName(emptyNonEstUsage
-                ? NON_EST_EMPTY
-                : NON_EST_NOT_EMPTY)
+            .addEventName(nonEstValue.lowerCaseValue)
             .addEventCategory(EVENT_CATEGORY_NAME)
             .buildUrl();
   }
-
 }
