@@ -18,11 +18,10 @@ package org.everit.jira.updatenotifier.json;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+
 /**
-*
-* DTO for the jira JSON format.
-*
-*/
+ * DTO for the Jira JSON format used in the marketplace REST interface.
+ */
 public class JiraMarketplaceJSONDTO {
 
   @SerializedName("_embedded")

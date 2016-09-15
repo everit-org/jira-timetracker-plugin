@@ -28,7 +28,6 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
 /**
  * Rest for the Update notifier.
- *
  */
 @Path("/update-notifier")
 public class UpdateNotifierRest {
@@ -40,7 +39,6 @@ public class UpdateNotifierRest {
 
   /**
    * Save the current version in the user properties.
-   *
    */
   @GET
   @Produces(MediaType.TEXT_HTML)

@@ -17,9 +17,7 @@
 package org.everit.jira.updatenotifier.json;
 
 /**
- *
- * DTO for the jira JSON format.
- *
+ * DTO for the Jira JSON format used in the marketplace REST interface.
  */
 public class Embedded {
 

@@ -25,9 +25,7 @@ import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
 /**
- *
  * Helper class for store update information in the plugin.
- *
  */
 public class UpdateNotifier {
 
@@ -80,7 +78,6 @@ public class UpdateNotifier {
 
   /**
    * Decide the update notifier is visible or not for the user.
-   *
    */
   boolean isShownUpdateForUser(final String currentPluginVersion) {
     String version = (String) pluginSettings
@@ -104,6 +101,11 @@ public class UpdateNotifier {
     }
   }
 
+  public void putDisableNotifierForVersion() {
+    pluginSettings.put(GlobalSettingsKey.JTTP_USER_CANCELED_UPDATE,
+        getLatestVersionWithoutUpdate());
+  }
+
   public void putLastUpdateTime(final long time) {
     globalSettings.put(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
         + GlobalSettingsKey.JTTP_UPDATE_NOTIFIER_LAST_UPDATE, String.valueOf(time));
@@ -112,10 +114,5 @@ public class UpdateNotifier {
   public void putLatestVersion(final String latestVersion) {
     globalSettings.put(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
         + GlobalSettingsKey.JTTP_UPDATE_NOTIFIER_LATEST_VERSION, latestVersion);
-  }
-
-  public void putDisableNotifierForVersion() {
-    pluginSettings.put(GlobalSettingsKey.JTTP_USER_CANCELED_UPDATE,
-        getLatestVersionWithoutUpdate());
   }
 }
