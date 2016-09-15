@@ -18,6 +18,146 @@
 margin-bottom: 0em;
 }
 
+/******************************/
+/*******Summary Progress*******/
+/******************************/
+div.progress {
+    /*background-color: #f5f5f5;*/
+    background-color: #eeeeee;
+    border-radius: 3.01px;
+}
+
+div.progress .progress-bar-success {
+    background-color: #14892c;
+}
+
+div.progress .progress-bar-warning {
+    background-color: #f6c342;
+}
+
+div.progress .progress-bar-danger {
+    background-color: #d04437;
+}
+
+div.progress .progress-bar-danger-nowork {
+    background: repeating-linear-gradient(
+    45deg,
+    #d7908b,
+    #d7908b 10px,
+    #d04437 10px,
+    #d04437 20px
+  );
+    background: -webkit-repeating-linear-gradient(
+    45deg,
+    #d7908b,
+    #d7908b 10px,
+    #d04437 10px,
+    #d04437 20px
+  );
+    background: -moz-repeating-linear-gradient(
+    45deg,
+    #d7908b,
+    #d7908b 10px,
+    #d04437 10px,
+    #d04437 20px
+  );
+    background: -o-repeating-linear-gradient(
+    45deg,
+    #d7908b,
+    #d7908b 10px,
+    #d04437 10px,
+    #d04437 20px
+  );
+    background: -ms-repeating-linear-gradient(
+    45deg,
+    #d7908b,
+    #d7908b 10px,
+    #d04437 10px,
+    #d04437 20px
+  );
+}
+
+div.progress .progress-bar-warning-nowork {
+    background: repeating-linear-gradient(
+    45deg,
+    #bca979,
+    #bca979 10px,
+    #f6c342 10px,
+    #f6c342 20px
+  );
+    background: -webkit-repeating-linear-gradient(
+    45deg,
+    #bca979,
+    #bca979 10px,
+    #f6c342 10px,
+    #f6c342 20px
+  );
+    background: -moz-repeating-linear-gradient(
+    45deg,
+    #bca979,
+    #bca979 10px,
+    #f6c342 10px,
+    #f6c342 20px
+  );
+    background: -o-repeating-linear-gradient(
+    45deg,
+    #bca979,
+    #bca979 10px,
+    #f6c342 10px,
+    #f6c342 20px
+  );
+    background: -ms-repeating-linear-gradient(
+    45deg,
+    #bca979,
+    #bca979 10px,
+    #f6c342 10px,
+    #f6c342 20px
+  );
+}
+
+div.progress .progress-bar-success-nowork {
+    background: repeating-linear-gradient(
+    45deg,
+    #7ec58b,
+    #7ec58b 10px,
+    #14892c 10px,
+    #14892c 20px
+  );
+    background: -webkit-repeating-linear-gradient(
+    45deg,
+    #7ec58b,
+    #7ec58b 10px,
+    #14892c 10px,
+    #14892c 20px
+  );
+    background: -moz-repeating-linear-gradient(
+    45deg,
+    #7ec58b,
+    #7ec58b 10px,
+    #14892c 10px,
+    #14892c 20px
+  );
+    background: -o-repeating-linear-gradient(
+    45deg,
+    #7ec58b,
+    #7ec58b 10px,
+    #14892c 10px,
+    #14892c 20px
+  );
+    background: -ms-repeating-linear-gradient(
+    45deg,
+    #7ec58b,
+    #7ec58b 10px,
+    #14892c 10px,
+    #14892c 20px
+  );
+}
+
+.progress-label {
+    color: #565656;
+}
+
+
 /*********************************/
 /**********NEW DESING*************/
 /*********************************/
@@ -59,6 +199,14 @@ div.jttp-headline-date {
     font-size: large;
     vertical-align: middle;
     color: #565656;
+}
+
+.aui-group.aui-group-trio > .aui-item {
+    text-align: center;
+}
+
+.aui-group.aui-group-trio > .aui-item + .aui-item + .aui-item {
+    text-align: center;
 }
 
 .stepper-group-container {

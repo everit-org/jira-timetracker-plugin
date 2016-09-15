@@ -51,11 +51,6 @@ public final class GlobalSettingsKey {
   public static final String JTTP_PLUGIN_SETTINGS_IS_ACTUAL_DATE = "isActualDate";
 
   /**
-   * The plugin setting is calendar popup key.
-   */
-  public static final String JTTP_PLUGIN_SETTINGS_IS_CALENDAR_POPUP = "isCalendarPopup";
-
-  /**
    * The plugin setting is actual date key.
    */
   public static final String JTTP_PLUGIN_SETTINGS_IS_COLORIG = "isColoring";
@@ -79,6 +74,11 @@ public final class GlobalSettingsKey {
    * The plugin setting Plugin Permission key.
    */
   public static final String JTTP_PLUGIN_SETTINGS_PLUGIN_PERMISSION = "pluginPermission";
+
+  /**
+   * The plugin setting is actual date key.
+   */
+  public static final String JTTP_PLUGIN_SETTINGS_PROGRESS_INDICATOR = "progressIndicator";
 
   /**
    * The plugin setting is show tutoriak version key.
