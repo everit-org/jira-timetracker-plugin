@@ -76,7 +76,7 @@ public final class GlobalSettingsKey {
   public static final String JTTP_PLUGIN_SETTINGS_PLUGIN_PERMISSION = "pluginPermission";
 
   /**
-   * The plugin setting is actual date key.
+   * The plugin setting is progress indicator date key.
    */
   public static final String JTTP_PLUGIN_SETTINGS_PROGRESS_INDICATOR = "progressIndicator";
 
