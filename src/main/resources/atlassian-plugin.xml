@@ -222,6 +222,11 @@
     <resource type="download" name="report_common_scripts.js" location="/js/report_common_scripts.js" />
     <resource type="download" name="chart_report.js" location="/js/chart_report.js" />
   </web-resource>
+  
+   <web-resource name="JTTP Resources" key="update_notifier-resources">
+    <resource type="download" name="update_notifier.css" location="/css/update_notifier.css" />
+    <resource type="download" name="update_notifier.js" location="/js/update_notifier.js" />
+  </web-resource>
 
   <webwork1 key="jttp-webaction" name="JTTP Webwork actions" class="java.lang.Object">
     <resource type="i18n" name="i18n-jttp-vm" location="i18n/jttp" />
