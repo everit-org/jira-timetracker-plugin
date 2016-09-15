@@ -28,7 +28,7 @@ public class UpdateNotifierTest {
   @Test
   public void testNotUpdateVersion() {
     UpdateNotifier mock = Mockito.mock(UpdateNotifier.class);
-    JTTPVersionUpdater jttpVersionUpdater = new JTTPVersionUpdater(725, mock);
+    TimetrackerVersionUpdater jttpVersionUpdater = new TimetrackerVersionUpdater(725, mock);
     Mockito.when(mock.getLastUpdateTime())
         .thenReturn(System.currentTimeMillis() - TWO_MINUTE_IN_MILISEC);
     jttpVersionUpdater.updateLatestVersion();
@@ -38,7 +38,7 @@ public class UpdateNotifierTest {
   @Test
   public void testUpdateFail() {
     UpdateNotifier mock = Mockito.mock(UpdateNotifier.class);
-    JTTPVersionUpdater jttpVersionUpdater = new JTTPVersionUpdater(711, mock);
+    TimetrackerVersionUpdater jttpVersionUpdater = new TimetrackerVersionUpdater(711, mock);
     Mockito.when(mock.getLastUpdateTime()).thenReturn(2L);
     Mockito.doNothing().when(mock).putLastUpdateTime(org.easymock.EasyMock.anyLong());
     Mockito.doNothing().when(mock).putLatestVersion(Matchers.anyString());
@@ -54,7 +54,7 @@ public class UpdateNotifierTest {
   @Test
   public void testUpdateVersion() {
     UpdateNotifier mock = Mockito.mock(UpdateNotifier.class);
-    JTTPVersionUpdater jttpVersionUpdater = new JTTPVersionUpdater(725, mock);
+    TimetrackerVersionUpdater jttpVersionUpdater = new TimetrackerVersionUpdater(725, mock);
     Mockito.when(mock.getLastUpdateTime()).thenReturn(2L);
     Mockito.doNothing().when(mock).putLastUpdateTime(org.easymock.EasyMock.anyLong());
     Mockito.doNothing().when(mock).putLatestVersion(Matchers.anyString());
