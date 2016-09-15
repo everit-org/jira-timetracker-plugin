@@ -74,6 +74,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
     </script>
 
    <section id="content" role="main">
+   #parse("templates/common/updatenotifier.vm")
         <header class="aui-page-header">
             <div class="aui-page-header-inner">
                 <div class="aui-page-header-image">
