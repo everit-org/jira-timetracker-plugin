@@ -44,6 +44,7 @@ import org.everit.jira.timetracker.plugin.dto.TimetrackerReportsSessionData;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
+import org.everit.jira.updatenotifier.UpdateNotifier;
 import org.ofbiz.core.entity.GenericEntityException;
 
 import com.atlassian.jira.avatar.Avatar;
@@ -241,7 +242,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
       return INPUT;
     }
 
-    List<EveritWorklog> worklogs = new ArrayList<EveritWorklog>();
+    List<EveritWorklog> worklogs = new ArrayList<>();
     try {
       worklogs.addAll(jiraTimetrackerPlugin.getWorklogs(currentUser, startDate.getTime(),
           lastDate.getTime()));
@@ -254,7 +255,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
       return ERROR;
     }
 
-    Map<String, Long> map = new HashMap<String, Long>();
+    Map<String, Long> map = new HashMap<>();
     for (EveritWorklog worklog : worklogs) {
       String projectName = worklog.getIssue().split("-")[0];
       Long newValue = worklog.getMilliseconds();
@@ -265,7 +266,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
         map.put(projectName, oldValue + newValue);
       }
     }
-    chartDataList = new ArrayList<ChartData>();
+    chartDataList = new ArrayList<>();
     for (Entry<String, Long> entry : map.entrySet()) {
       chartDataList.add(new ChartData(entry.getKey(), entry.getValue()));
     }
@@ -415,6 +416,16 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
       ClassNotFoundException {
     stream.close();
     throw new java.io.NotSerializableException(getClass().getName());
+  }
+
+  /**
+   * Decide render or not the update information bar.
+   *
+   * @return true if bar should be render
+   */
+  public boolean renderUpdateNotifier() {
+    return new UpdateNotifier(pluginSettingsFactory, JiraTimetrackerUtil.getLoggedUserName())
+        .isShowUpdater();
   }
 
   private void saveDataToSession() {

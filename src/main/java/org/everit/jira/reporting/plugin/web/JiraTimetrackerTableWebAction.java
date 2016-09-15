@@ -47,6 +47,7 @@ import org.everit.jira.timetracker.plugin.dto.TimetrackerReportsSessionData;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
+import org.everit.jira.updatenotifier.UpdateNotifier;
 import org.ofbiz.core.entity.GenericEntityException;
 
 import com.atlassian.jira.avatar.Avatar;
@@ -139,7 +140,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
    */
   private Long dateToFormated;
 
-  private HashMap<Integer, List<Object>> daySum = new HashMap<Integer, List<Object>>();
+  private HashMap<Integer, List<Object>> daySum = new HashMap<>();
 
   private DurationFormatter durationFormatter;
 
@@ -161,17 +162,17 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
    */
   private String message = "";
 
-  private HashMap<Integer, List<Object>> monthSum = new HashMap<Integer, List<Object>>();
+  private HashMap<Integer, List<Object>> monthSum = new HashMap<>();
 
   private PluginCondition pluginCondition;
 
   private final PluginSettingsFactory pluginSettingsFactory;
 
-  private final HashMap<Integer, List<Object>> realDaySum = new HashMap<Integer, List<Object>>();
+  private final HashMap<Integer, List<Object>> realDaySum = new HashMap<>();
 
-  private final HashMap<Integer, List<Object>> realMonthSum = new HashMap<Integer, List<Object>>();
+  private final HashMap<Integer, List<Object>> realMonthSum = new HashMap<>();
 
-  private final HashMap<Integer, List<Object>> realWeekSum = new HashMap<Integer, List<Object>>();
+  private final HashMap<Integer, List<Object>> realWeekSum = new HashMap<>();
 
   private ReportingCondition reportingCondition;
 
@@ -179,7 +180,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   private transient ApplicationUser userPickerObject;
 
-  private HashMap<Integer, List<Object>> weekSum = new HashMap<Integer, List<Object>>();
+  private HashMap<Integer, List<Object>> weekSum = new HashMap<>();
 
   private List<EveritWorklog> worklogs;
 
@@ -207,7 +208,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   private void addToDaySummary(final EveritWorklog worklog) {
     int dayNo = worklog.getDayNo();
-    ArrayList<Object> list = new ArrayList<Object>();
+    ArrayList<Object> list = new ArrayList<>();
     Long prevDaySum = (daySum.get(dayNo) == null) ? Long.valueOf(0)
         : (Long) daySum.get(dayNo).get(0);
     Long sumSec = prevDaySum + (worklog.getMilliseconds() / MILLISEC_IN_SEC);
@@ -218,7 +219,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   private void addToMonthSummary(final EveritWorklog worklog) {
     int monthNo = worklog.getMonthNo();
-    ArrayList<Object> list = new ArrayList<Object>();
+    ArrayList<Object> list = new ArrayList<>();
     Long prevMonthSum = (monthSum.get(monthNo) == null) ? Long.valueOf(0)
         : (Long) monthSum.get(monthNo).get(0);
     Long sumSec = prevMonthSum + (worklog.getMilliseconds() / MILLISEC_IN_SEC);
@@ -229,7 +230,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   private void addToRealDaySummary(final EveritWorklog worklog, final boolean isRealWorklog) {
     int dayNo = worklog.getDayNo();
-    ArrayList<Object> realList = new ArrayList<Object>();
+    ArrayList<Object> realList = new ArrayList<>();
     Long prevRealDaySum = (realDaySum.get(dayNo) == null) ? Long.valueOf(0)
         : (Long) realDaySum.get(dayNo).get(0);
     Long realSumSec = prevRealDaySum;
@@ -243,7 +244,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   private void addToRealMonthSummary(final EveritWorklog worklog, final boolean isRealWorklog) {
     int monthNo = worklog.getMonthNo();
-    ArrayList<Object> realList = new ArrayList<Object>();
+    ArrayList<Object> realList = new ArrayList<>();
     Long prevRealMonthSum = realMonthSum.get(monthNo) == null ? Long.valueOf(0)
         : (Long) realMonthSum.get(monthNo).get(0);
     Long realSumSec = prevRealMonthSum;
@@ -257,7 +258,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   private void addToRealWeekSummary(final EveritWorklog worklog, final boolean isRealWorklog) {
     int weekNo = worklog.getWeekNo();
-    ArrayList<Object> realList = new ArrayList<Object>();
+    ArrayList<Object> realList = new ArrayList<>();
     Long prevRealWeekSum = realWeekSum.get(weekNo) == null ? Long.valueOf(0)
         : (Long) realWeekSum.get(weekNo).get(0);
     Long realSumSec = prevRealWeekSum;
@@ -270,7 +271,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   }
 
   private void addToWeekSummary(final EveritWorklog worklog) {
-    ArrayList<Object> list = new ArrayList<Object>();
+    ArrayList<Object> list = new ArrayList<>();
     int weekNo = worklog.getWeekNo();
     Long prevWeekSum = weekSum.get(weekNo) == null ? Long.valueOf(0)
         : (Long) weekSum.get(weekNo).get(0);
@@ -363,7 +364,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
       return INPUT;
     }
 
-    worklogs = new ArrayList<EveritWorklog>();
+    worklogs = new ArrayList<>();
     try {
       worklogs.addAll(jiraTimetrackerPlugin.getWorklogs(currentUser, startDate.getTime(),
           lastDate.getTime()));
@@ -587,6 +588,16 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
       ClassNotFoundException {
     stream.close();
     throw new java.io.NotSerializableException(getClass().getName());
+  }
+
+  /**
+   * Decide render or not the update information bar.
+   *
+   * @return true if bar should be render
+   */
+  public boolean renderUpdateNotifier() {
+    return new UpdateNotifier(pluginSettingsFactory, JiraTimetrackerUtil.getLoggedUserName())
+        .isShowUpdater();
   }
 
   private void saveDataToSession() {
