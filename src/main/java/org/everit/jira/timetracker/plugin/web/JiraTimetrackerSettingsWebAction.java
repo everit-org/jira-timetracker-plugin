@@ -89,11 +89,6 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
    */
   private boolean isColoring;
 
-  /**
-   * The calendar is popup, inLine or both.
-   */
-  private int isPopup;
-
   private String issueCollectorSrc;
 
   /**
@@ -117,6 +112,8 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
   private String messageParameter = "";
 
   private PluginCondition pluginCondition;
+
+  private boolean progressIndDaily;
 
   /**
    * The IDs of the projects.
@@ -231,10 +228,6 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     return isColoring;
   }
 
-  public int getIsPopup() {
-    return isPopup;
-  }
-
   public String getIssueCollectorSrc() {
     return issueCollectorSrc;
   }
@@ -245,6 +238,10 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 
   public String getMessageParameter() {
     return messageParameter;
+  }
+
+  public boolean getProgressIndDaily() {
+    return progressIndDaily;
   }
 
   public List<String> getProjectsId() {
@@ -266,7 +263,7 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
   public void loadPluginSettingAndParseResult() {
     PluginSettingsValues pluginSettingsValues = jiraTimetrackerPlugin
         .loadPluginSettings();
-    isPopup = pluginSettingsValues.isCalendarPopup;
+    progressIndDaily = pluginSettingsValues.isProgressIndicatorDaily;
     isActualDate = pluginSettingsValues.isActualDate;
     issuesPatterns = pluginSettingsValues.filteredSummaryIssues;
     collectorIssuePatterns = pluginSettingsValues.collectorIssues;
@@ -293,16 +290,14 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
    *          The HttpServletRequest.
    */
   public String parseSaveSettings(final HttpServletRequest request) {
-    String popupOrInlineValue = request.getParameter("popupOrInline");
+    String popupOrInlineValue = request.getParameter("progressInd");
     String startTimeValue = request.getParameter("startTime");
     String endTimeValue = request.getParameter("endTime");
 
-    if ("popup".equals(popupOrInlineValue)) {
-      isPopup = JiraTimetrackerUtil.POPUP_CALENDAR_CODE;
-    } else if ("inline".equals(popupOrInlineValue)) {
-      isPopup = JiraTimetrackerUtil.INLINE_CALENDAR_CODE;
+    if ("daily".equals(popupOrInlineValue)) {
+      progressIndDaily = true;
     } else {
-      isPopup = JiraTimetrackerUtil.BOTH_TYPE_CALENDAR_CODE;
+      progressIndDaily = false;
     }
 
     String currentOrLastValue = request.getParameter("currentOrLast");
@@ -348,10 +343,15 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
    */
   public void savePluginSettings() {
     PluginSettingsValues pluginSettingValues = new PluginSettingsValues()
-        .isCalendarPopup(isPopup).actualDate(isActualDate).excludeDates(excludeDates)
-        .includeDates(includeDates).coloring(isColoring).filteredSummaryIssues(issuesPatterns)
-        .collectorIssues(collectorIssuePatterns).startTimeChange(Integer.parseInt(startTime))
-        .endTimeChange(Integer.parseInt(endTime)).analyticsCheck(analyticsCheck);
+        .isProgressIndicatordaily(progressIndDaily)
+        .actualDate(isActualDate)
+        .excludeDates(excludeDates)
+        .includeDates(includeDates).coloring(isColoring)
+        .filteredSummaryIssues(issuesPatterns)
+        .collectorIssues(collectorIssuePatterns)
+        .startTimeChange(Integer.parseInt(startTime))
+        .endTimeChange(Integer.parseInt(endTime))
+        .analyticsCheck(analyticsCheck);
     jiraTimetrackerPlugin.savePluginSettings(pluginSettingValues);
   }
 
@@ -379,16 +379,16 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     this.isColoring = isColoring;
   }
 
-  public void setIsPopup(final int isPopup) {
-    this.isPopup = isPopup;
-  }
-
   public void setMessage(final String message) {
     this.message = message;
   }
 
   public void setMessageParameter(final String messageParameter) {
     this.messageParameter = messageParameter;
+  }
+
+  public void setProgressIndDaily(final boolean progressIndDaily) {
+    this.progressIndDaily = progressIndDaily;
   }
 
   public void setProjectsId(final List<String> projectsId) {

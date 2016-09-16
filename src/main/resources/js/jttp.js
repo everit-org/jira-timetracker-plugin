@@ -58,7 +58,7 @@ everit.jttp.main = everit.jttp.main || {};
     jQuery("#dateHidden").val(fechaFormatedDate);
     
    
-    popupCalendarsSetup(jttp.options.isPopup);
+    popupCalendarsSetup();
     setExcludeDaysToWeekend(jttp.options.excludeDays);
     setLoggedDaysDesign(jttp.options.isColoring, jttp.options.loggedDays);
     
@@ -352,9 +352,9 @@ everit.jttp.main = everit.jttp.main || {};
     });
 
     jQuery('#jttp-logwork-form').submit(function() {
-    	jQuery('#jttp-logwork-save').prop("disabled", true);
-    	jQuery('#lw_save').val('true');
-    	jQuery('#lw_save').attr('disabled', false);
+      jQuery('#jttp-logwork-save').prop("disabled", true);
+      jQuery('#lw_save').val('true');
+      jQuery('#lw_save').attr('disabled', false);
       return true;
     });
   }
@@ -385,7 +385,7 @@ everit.jttp.main = everit.jttp.main || {};
     jQuery("#issueSelect-textarea").attr("class", "select2-choices");
 
     jQuery("#issueSelect-textarea").append(issueKey);
-    jQuery("#issueSelect-textarea").attr("tabindex", "3");
+    jQuery("#issueSelect-textarea").attr("tabindex", "1");
     ip.handleFreeInput();
   }
   
@@ -415,7 +415,7 @@ everit.jttp.main = everit.jttp.main || {};
       cal.callCloseHandler();
   }
   
-  function popupCalendarsSetup(isPopup) {
+  function popupCalendarsSetup() {
     var original = Calendar.prototype.show;
     Calendar.prototype.show = function() {
       original.call(this);
@@ -434,30 +434,6 @@ everit.jttp.main = everit.jttp.main || {};
         useISO8601WeekNumbers : jttp.options.useISO8601,
         onSelect: jttp.onSelect
       });
-  }
-  
-  jttp.standCalendarSetup = function(isPopup){
-    if (isPopup == 3) {
-      
-      var original = Calendar.prototype.show;
-      Calendar.prototype.show = function() {
-        original.call(this);
-        setExcludeDaysToWeekend(jttp.options.excludeDays);
-        setLoggedDaysDesign(jttp.options.isColoring, jttp.options.loggedDays);
-      }
-      
-      var cal = Calendar.setup({
-        firstDay : jttp.options.firstDay,
-        date : jttp.options.dateFormatted,
-        align : 'Br',
-        singleClick : true,
-        showOthers : true,
-        flat : 'not_popup_calendar',
-        flatCallback : jttp.dateChanged,
-        useISO8601WeekNumbers : jttp.options.useISO8601,
-        onSelect: jttp.onSelect
-      });
-    }
   }
   
   jttp.toggleSummary = function() {

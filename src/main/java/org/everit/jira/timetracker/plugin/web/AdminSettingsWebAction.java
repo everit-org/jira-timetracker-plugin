@@ -103,10 +103,7 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    */
   private boolean isColoring;
 
-  /**
-   * The calendar is popup, inLine or both.
-   */
-  private int isPopup;
+  private boolean isProgressDaily;
 
   private String issueCollectorSrc;
 
@@ -307,7 +304,7 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
   public void loadPluginSettingAndParseResult() {
     PluginSettingsValues pluginSettingsValues = jiraTimetrackerPlugin
         .loadPluginSettings();
-    isPopup = pluginSettingsValues.isCalendarPopup;
+    isProgressDaily = pluginSettingsValues.isProgressIndicatorDaily;
     isActualDate = pluginSettingsValues.isActualDate;
     startTime = pluginSettingsValues.startTimeChange;
     endTime = pluginSettingsValues.endTimeChange;
@@ -487,10 +484,17 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    */
   public void savePluginSettings() {
     PluginSettingsValues pluginSettingValues = new PluginSettingsValues()
-        .isCalendarPopup(isPopup).actualDate(isActualDate).excludeDates(excludeDates)
-        .includeDates(includeDates).coloring(isColoring).filteredSummaryIssues(issuesPatterns)
-        .collectorIssues(collectorIssuePatterns).startTimeChange(startTime).endTimeChange(endTime)
-        .analyticsCheck(analyticsCheck).pluginGroups(pluginGroups)
+        .isProgressIndicatordaily(isProgressDaily)
+        .actualDate(isActualDate)
+        .excludeDates(excludeDates)
+        .includeDates(includeDates)
+        .coloring(isColoring)
+        .filteredSummaryIssues(issuesPatterns)
+        .collectorIssues(collectorIssuePatterns)
+        .startTimeChange(startTime)
+        .endTimeChange(endTime)
+        .analyticsCheck(analyticsCheck)
+        .pluginGroups(pluginGroups)
         .timetrackingGroups(timetrackerGroups);
 
     jiraTimetrackerPlugin.savePluginSettings(pluginSettingValues);
