@@ -58,6 +58,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 		);
 	})(everit.jttp.main, AJS.$);
 </script>
+      #parse("templates/common/updatenotifier.vm")
       <header class="aui-page-header">
         <div class="aui-page-header-inner">
           <div class="aui-page-header-image">
@@ -200,8 +201,9 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
                 <form class="aui top-label" id="jttp-logwork-form" method="post" action="JiraTimetrackerWebAction.jspa"  onsubmit="return everit.jttp.main.beforeSubmit();" >
                 <!-- Worklog submit form -->
                   <div class="buttons">
+                    <input type="hidden" id="lw_save" name="lw_save" disabled />
                     <input class="aui-button aui-button-primary" type="submit" value="Save"
-                      id="jttp-logwork-save" name="lw_save" tabindex="5"> 
+                      id="jttp-logwork-save" name="lw_save_button" tabindex="5"> 
                     <input type="hidden" id="actionWorklogId" name="actionWorklogId" value="$actionWorklogId" >
                     <input type="hidden" id="actionFlag" name="actionFlag" value="$actionFlag" >
                     <input type="hidden" id="date" name="date" >

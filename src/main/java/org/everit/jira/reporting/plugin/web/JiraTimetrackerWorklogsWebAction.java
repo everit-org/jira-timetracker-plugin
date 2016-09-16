@@ -35,6 +35,7 @@ import org.everit.jira.timetracker.plugin.PluginCondition;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
+import org.everit.jira.updatenotifier.UpdateNotifier;
 import org.ofbiz.core.entity.GenericEntityException;
 
 import com.atlassian.jira.web.action.JiraWebActionSupport;
@@ -340,8 +341,8 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
   private void initVariables() {
     message = "";
     messageParameter = "";
-    allDatesWhereNoWorklog = new ArrayList<MissingsWorklogsDTO>();
-    showDatesWhereNoWorklog = new ArrayList<MissingsWorklogsDTO>();
+    allDatesWhereNoWorklog = new ArrayList<>();
+    showDatesWhereNoWorklog = new ArrayList<>();
   }
 
   private void loadIssueCollectorSrc() {
@@ -441,6 +442,16 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
       ClassNotFoundException {
     stream.close();
     throw new java.io.NotSerializableException(getClass().getName());
+  }
+
+  /**
+   * Decide render or not the update information bar.
+   *
+   * @return true if bar should be render
+   */
+  public boolean renderUpdateNotifier() {
+    return new UpdateNotifier(pluginSettingsFactory, JiraTimetrackerUtil.getLoggedUserName())
+        .isShowUpdater();
   }
 
   public void setActualPage(final int actualPage) {

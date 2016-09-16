@@ -110,6 +110,20 @@ public final class GlobalSettingsKey {
    */
   public static final String JTTP_PLUGIN_UUID = "PluginUUID";
 
+  /**
+   * The update notifier last update time global setting key.
+   */
+  public static final String JTTP_UPDATE_NOTIFIER_LAST_UPDATE = "UPDATE_NOTIFIER";
+
+  /**
+   * The update notifier latest version of the JTTP global setting key.
+   */
+  public static final String JTTP_UPDATE_NOTIFIER_LATEST_VERSION = "JTTP_LATEST_VERSION";
+  /**
+   * User specific key for the version which the user canceled.
+   */
+  public static final String JTTP_USER_CANCELED_UPDATE = "USER_CANCELED_UPDATE";
+
   private GlobalSettingsKey() {
   }
 }

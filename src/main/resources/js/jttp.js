@@ -172,11 +172,6 @@ everit.jttp.main = everit.jttp.main || {};
       jQuery("#radioDuration").prop("checked", true);
     }
   }
-
-  jttp.submitButtonClick = function() {
-    jQuery('#Submit').val('true');
-    jQuery('#Submit').attr('disabled', false);
-  }
   
   jttp.beforeSubmit = function() {
     var dateHidden = jQuery('#dateHidden').val();
@@ -259,7 +254,7 @@ everit.jttp.main = everit.jttp.main || {};
       return;
     }
     if (e.ctrlKey) {
-      jQuery('#Submitbutton, #Edit').click();
+      jQuery('#jttp-logwork-save, #Edit').click();
     } else {
       e.preventDefault ? e.preventDefault() : event.returnValue = false;
       jQuery(setFocusTo).focus();
@@ -324,7 +319,7 @@ everit.jttp.main = everit.jttp.main || {};
       jQuery('#issueSelect-textarea').val(temp.trim());
       jQuery('#issueSelect-textarea').focus();
       jQuery('#Edit').focus();
-      jQuery('#Submitbutton').focus();
+      jQuery('#jttp-logwork-save').focus();
     });
 
     jQuery('.copy').click(function() {
@@ -340,24 +335,26 @@ everit.jttp.main = everit.jttp.main || {};
       jQuery("#comments").val(temp3);
 
       jQuery('#issueSelect-textarea').focus();
-      jQuery('#Submitbutton').focus();
+      jQuery('#jttp-logwork-save').focus();
     });
 
     jQuery('#issueSelect-textarea').keydown(function(e) {
       var isEnter = e.keyCode == 10 || e.keyCode == 13;
       if (isEnter && e.ctrlKey) {
-        jQuery('#Submitbutton, #Edit').click();
+        jQuery('#jttp-logwork-save, #Edit').click();
       }
     });
 
     jQuery('#comments').keydown(function(e) {
       if ((e.keyCode == 10 || e.keyCode == 13) && e.ctrlKey) {
-        jQuery('#Submitbutton, #Edit').click();
+        jQuery('#jttp-logwork-save, #Edit').click();
       }
     });
 
-    jQuery('#jttpForm').submit(function() {
-      jQuery('#Submitbutton').prop("disabled", true);
+    jQuery('#jttp-logwork-form').submit(function() {
+    	jQuery('#jttp-logwork-save').prop("disabled", true);
+    	jQuery('#lw_save').val('true');
+    	jQuery('#lw_save').attr('disabled', false);
       return true;
     });
   }
