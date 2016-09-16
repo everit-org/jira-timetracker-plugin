@@ -204,11 +204,11 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
                     <input type="hidden" id="lw_save" name="lw_save" disabled />
                     <input class="aui-button aui-button-primary" type="submit" value="Save"
                       id="jttp-logwork-save" name="lw_save_button" tabindex="5"> 
-                    <input type="hidden" id="actionWorklogId" name="actionWorklogId" value="$actionWorklogId" >
-                    <input type="hidden" id="actionFlag" name="actionFlag" value="$actionFlag" >
-                    <input type="hidden" id="date" name="date" >
-                    <input type="hidden" id="editAll" name="editAll" value="$editAllIds" >
-                    <input type="hidden" id="worklogValuesJson" name="worklogValuesJson" >
+                    <input type="hidden" id="actionWorklogId" name="actionWorklogId" value="$actionWorklogId">
+                    <input type="hidden" id="actionFlag" name="actionFlag" value="$actionFlag">
+                    <input type="hidden" id="date" name="date">
+                    <input type="hidden" id="editAll" name="editAll" value="$editAllIds">
+                    <input type="hidden" id="worklogValuesJson" name="worklogValuesJson">
                     <input class="aui-button aui-button-light" type="reset" value="Cancel"
                       id="jttp-logwork-cancel" name="lw_cancel" onclick="everit.jttp.main.cancelClick();">
                   </div>

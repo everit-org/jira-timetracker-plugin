@@ -352,9 +352,9 @@ everit.jttp.main = everit.jttp.main || {};
     });
 
     jQuery('#jttp-logwork-form').submit(function() {
-    	jQuery('#jttp-logwork-save').prop("disabled", true);
-    	jQuery('#lw_save').val('true');
-    	jQuery('#lw_save').attr('disabled', false);
+      jQuery('#jttp-logwork-save').prop("disabled", true);
+      jQuery('#lw_save').val('true');
+      jQuery('#lw_save').attr('disabled', false);
       return true;
     });
   }
