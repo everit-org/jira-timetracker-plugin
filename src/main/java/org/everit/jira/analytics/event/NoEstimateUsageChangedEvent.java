@@ -34,7 +34,7 @@ public class NoEstimateUsageChangedEvent implements AnalyticsEvent {
     ALL("all"), NONE("none"), SELECTED("selected");
     public final String lowerCaseValue;
 
-    private NonEstUsageValues(final String lowerCaseValue) {
+    NonEstUsageValues(final String lowerCaseValue) {
       this.lowerCaseValue = lowerCaseValue;
     }
   }
@@ -61,19 +61,36 @@ public class NoEstimateUsageChangedEvent implements AnalyticsEvent {
    *          the Non-estimated field is empty or not.
    */
   public NoEstimateUsageChangedEvent(final String pluginId,
-      final List<Pattern> collectorIssuePatterns) {
+      final List<?> collectorIssuePatterns) {
+    this(JiraTimetrackerAnalytics.getUserId(), collectorIssuePatterns, pluginId);
+  }
+
+  /**
+   * Simple constructor.
+   */
+  public NoEstimateUsageChangedEvent(final String hashUserId,
+      final List<?> collectorIssuePatterns,
+      final String pluginId) {
     this.pluginId = Objects.requireNonNull(pluginId);
-    hashUserId = JiraTimetrackerAnalytics.getUserId();
+    this.hashUserId = hashUserId;
     nonEstValue = decideNonEstValue(collectorIssuePatterns);
   }
 
-  private NonEstUsageValues decideNonEstValue(final List<Pattern> collectorIssuePatterns) {
-    if (collectorIssuePatterns.isEmpty()) {
+  private NonEstUsageValues decideNonEstValue(final List<?> collectorIssuePatterns) {
+    if ((collectorIssuePatterns == null) || collectorIssuePatterns.isEmpty()) {
       return NonEstUsageValues.ALL;
     }
-    for (Pattern pattern : collectorIssuePatterns) {
-      if (pattern.pattern().equals(".*")) {
-        return NonEstUsageValues.NONE;
+    if (collectorIssuePatterns.get(0) instanceof String) {
+      for (String pattern : ((List<String>) collectorIssuePatterns)) {
+        if (".*".equals(pattern)) {
+          return NonEstUsageValues.NONE;
+        }
+      }
+    } else {
+      for (Pattern pattern : ((List<Pattern>) collectorIssuePatterns)) {
+        if (pattern.pattern().equals(".*")) {
+          return NonEstUsageValues.NONE;
+        }
       }
     }
     return NonEstUsageValues.SELECTED;

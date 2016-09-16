@@ -521,10 +521,15 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
         .timetrackingGroups(timetrackerGroups);
 
     jiraTimetrackerPlugin.savePluginSettings(pluginSettingValues);
+    sendNonEstAndNonWorkAnaliticsEvent();
+  }
+
+  private void sendNonEstAndNonWorkAnaliticsEvent() {
     NoEstimateUsageChangedEvent analyticsEvent =
         new NoEstimateUsageChangedEvent(pluginId, collectorIssuePatterns);
     analyticsSender.send(analyticsEvent);
-    NonWorkingUsageEvent nonWorkingUsageEvent = new NonWorkingUsageEvent(pluginId, true);
+    NonWorkingUsageEvent nonWorkingUsageEvent =
+        new NonWorkingUsageEvent(pluginId, (issuesPatterns == null) || issuesPatterns.isEmpty());
     analyticsSender.send(nonWorkingUsageEvent);
   }
 
