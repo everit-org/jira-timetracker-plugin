@@ -176,7 +176,7 @@
     <resource type="download" name="js-fecha.js" location="/js/js-fecha.js" />
     <resource type="download" name="reporting.css" location="/css/reporting.css" />
     <resource type="download" name="reporting.js" location="/js/reporting.js" />
-    <resource type="download" name="jttp-aui-table-sortable.css" location="/css/jttp-aui-table-sortable.css" />
+    <resource type="download" name="jtrp-aui-table-sortable.css" location="/css/jtrp-aui-table-sortable.css" />
   </web-resource>
 
   
@@ -221,6 +221,11 @@
     <resource type="download" name="reporting.css" location="/css/reporting.css" />
     <resource type="download" name="report_common_scripts.js" location="/js/report_common_scripts.js" />
     <resource type="download" name="chart_report.js" location="/js/chart_report.js" />
+  </web-resource>
+  
+   <web-resource name="JTTP Resources" key="update_notifier-resources">
+    <resource type="download" name="update_notifier.css" location="/css/update_notifier.css" />
+    <resource type="download" name="update_notifier.js" location="/js/update_notifier.js" />
   </web-resource>
 
   <webwork1 key="jttp-webaction" name="JTTP Webwork actions" class="java.lang.Object">

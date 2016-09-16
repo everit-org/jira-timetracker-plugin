@@ -44,6 +44,7 @@ import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
+import org.everit.jira.updatenotifier.UpdateNotifier;
 import org.ofbiz.core.entity.GenericEntityException;
 
 import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
@@ -168,7 +169,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   /**
    * List of the exclude days of the date variable current months.
    */
-  private List<String> excludeDays = new ArrayList<String>();
+  private List<String> excludeDays = new ArrayList<>();
 
   private String hoursPerDayFormatted;
 
@@ -186,10 +187,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   private boolean isDurationSelected = false;
 
-  /**
-   * The calendar isPopup.
-   */
-  private int isPopup;
+  private boolean isProgressDaily = true;
 
   private String issueCollectorSrc;
 
@@ -203,7 +201,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   /**
    * The issues.
    */
-  private transient List<Issue> issues = new ArrayList<Issue>();
+  private transient List<Issue> issues = new ArrayList<>();
 
   /**
    * The filtered Issues id.
@@ -218,7 +216,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   /**
    * List of the logged days of the date variable current months.
    */
-  private List<String> loggedDays = new ArrayList<String>();
+  private List<String> loggedDays = new ArrayList<>();
 
   /**
    * The message.
@@ -281,12 +279,12 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   /**
    * The worklogs.
    */
-  private List<EveritWorklog> worklogs = new ArrayList<EveritWorklog>();
+  private List<EveritWorklog> worklogs = new ArrayList<>();
 
   /**
    * The ids of the woklogs.
    */
-  private List<Long> worklogsIds = new ArrayList<Long>();
+  private List<Long> worklogsIds = new ArrayList<>();
 
   private WorklogValues worklogValue;
 
@@ -341,7 +339,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * @return The array of the ids.
    */
   private List<Long> copyWorklogIdsToArray(final List<EveritWorklog> worklogsParam) {
-    List<Long> worklogIds = new ArrayList<Long>();
+    List<Long> worklogIds = new ArrayList<>();
     for (EveritWorklog worklog : worklogsParam) {
       worklogIds.add(worklog.getWorklogId());
     }
@@ -396,6 +394,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   public void dateSwitcherAction() throws ParseException {
     String dayBackValue = getHttpRequest().getParameter("dayBack");
     String dayNextValue = getHttpRequest().getParameter("dayNext");
+    String todayValue = getHttpRequest().getParameter("today");
 
     parseDateParam();
 
@@ -408,6 +407,9 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     } else if (dayBackValue != null) {
       tempCal.add(Calendar.DAY_OF_YEAR, -1);
       date = tempCal.getTime();
+      dateFormatted = date.getTime();
+    } else if (todayValue != null) {
+      date = new Date();
       dateFormatted = date.getTime();
     }
   }
@@ -678,8 +680,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return isDurationSelected;
   }
 
-  public int getIsPopup() {
-    return isPopup;
+  public boolean getIsProgressDaily() {
+    return isProgressDaily;
   }
 
   public String getIssueCollectorSrc() {
@@ -906,7 +908,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private void loadPluginSettingAndParseResult() {
     PluginSettingsValues pluginSettingsValues = jiraTimetrackerPlugin
         .loadPluginSettings();
-    isPopup = pluginSettingsValues.isCalendarPopup;
+
+    isProgressDaily = pluginSettingsValues.isProgressIndicatorDaily;
     isActualDate = pluginSettingsValues.isActualDate;
     issuesRegex = pluginSettingsValues.filteredSummaryIssues;
     startTimeChange = pluginSettingsValues.startTimeChange;
@@ -951,6 +954,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    *           GenericEntityException.
    */
   public void makeSummary() throws GenericEntityException {
+    // TODO JIRAPLUGIN-348 refactor for the new summary indicators
     ApplicationProperties applicationProperties = ComponentAccessor.getApplicationProperties();
     boolean useISO8601 = applicationProperties.getOption(APKeys.JIRA_DATE_TIME_PICKER_USE_ISO8601);
 
@@ -1060,7 +1064,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    */
   public List<Long> parseEditAllIds() {
     String editAllValues = getHttpRequest().getParameter("editAll");
-    List<Long> editWorklogIds = new ArrayList<Long>();
+    List<Long> editWorklogIds = new ArrayList<>();
     if (editAllValues != null) {
       String editAllIdsCopy = editAllValues;
       editAllIdsCopy = editAllIdsCopy.replace("[", "");
@@ -1091,7 +1095,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private void readObject(final ObjectInputStream in) throws IOException,
       ClassNotFoundException {
     in.defaultReadObject();
-    issues = new ArrayList<Issue>();
+    issues = new ArrayList<>();
   }
 
   private String redirectWithDateAndWorklogParams(final String action) {
@@ -1109,6 +1113,17 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
         String.format(SELF_WITH_DATE_URL_FORMAT,
             dateFormatted));
     return getRedirect(action);
+  }
+
+  /**
+   * Decide render or not the update information bar.
+   *
+   * @return true if bar should be render
+   */
+  public boolean renderUpdateNotifier() {
+    return new UpdateNotifier(pluginSettingsFactory, JiraTimetrackerUtil.getLoggedUserName())
+        .isShowUpdater();
+
   }
 
   public void setActionFlag(final String actionFlag) {
@@ -1247,6 +1262,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     this.isDurationSelected = isDurationSelected;
   }
 
+  public void setIsProgressDaily(final boolean isProgressDaily) {
+    this.isProgressDaily = isProgressDaily;
+  }
+
   public void setIssueKey(final String issueKey) {
     this.issueKey = issueKey;
   }
@@ -1281,10 +1300,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   public void setMonthSummary(final String monthSummary) {
     this.monthSummary = monthSummary;
-  }
-
-  public void setPopup(final int isPopup) {
-    this.isPopup = isPopup;
   }
 
   public void setProjectsId(final List<String> projectsId) {

@@ -48,26 +48,6 @@
         
         <h3>$i18n.getText("plugin.setting.calendar.appearance")</h3>
         <div class="field-group">
-          <label>$i18n.getText("plugin.setting.ispopup"):</label>
-          <div>
-            #if($isPopup != 3)
-            <input id="radioPopup" type="radio" name="popupOrInline" value="popup" class="settings-input" checked="true">
-            #else
-            <input id="radioPopup" type="radio" name="popupOrInline" value="popup" class="settings-input">
-            #end
-            <label for="radioPopup">$i18n.getText("plugin.setting.popup.default")</label>
-            
-            #if($isPopup == 3)
-            <input id="radioBoth" type="radio" name="popupOrInline" value="both" class="settings-input" checked="true">
-            #else
-            <input id="radioBoth" type="radio" name="popupOrInline" value="both" class="settings-input">
-            #end
-            <label for="radioBoth">$i18n.getText("plugin.setting.popup.both")</label>
-          </div>
-          <div class="description">$i18n.getText("plugin.setting.ispopup.help")</div>
-        </div>
-        
-        <div class="field-group">
           <label>$i18n.getText("plugin.setting.isactualdate"):</label>
           <div>
             #if($isActualDate)
@@ -91,6 +71,27 @@
           <label>$i18n.getText("plugin.setting.coloring"):</label>
           <input id="isColoring" type="checkbox" value="use color" class="settings-input" name="isColoring" #if($isColoring) checked #end/>
           <div class="description">$i18n.getText("plugin.setting.coloring.help")</div>
+        </div>
+        
+        <h3>$i18n.getText("plugin.setting.progress.ind.appearance")</h3>
+        <div class="field-group">
+          <label>$i18n.getText("plugin.setting.progress.ind"):</label>
+          <div>
+            #if($progressIndDaily)
+            <input id="radioDaily" type="radio" name="progressInd" value="daily" class="settings-input" checked="true">
+            #else
+            <input id="radioDaily" type="radio" name="progressInd" value="daily" class="settings-input">
+            #end
+            <label for="radioDaily">$i18n.getText("plugin.setting.progress.ind.daily")</label>
+            
+            #if(!$progressIndDaily)
+            <input id="radioSummary" type="radio" name="progressInd" value="summary" class="settings-input" checked="true">
+            #else
+            <input id="radioSummary" type="radio" name="progressInd" value="summary" class="settings-input">
+            #end
+            <label for="radioSummary">$i18n.getText("plugin.setting.progress.ind.summary")</label>
+          </div>
+          <div class="description">$i18n.getText("plugin.setting.progress.ind.help")</div>
         </div>
         
         <h3>$i18n.getText("plugin.setting.input.fields.settings")</h3>

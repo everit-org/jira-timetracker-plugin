@@ -51,11 +51,6 @@ public final class GlobalSettingsKey {
   public static final String JTTP_PLUGIN_SETTINGS_IS_ACTUAL_DATE = "isActualDate";
 
   /**
-   * The plugin setting is calendar popup key.
-   */
-  public static final String JTTP_PLUGIN_SETTINGS_IS_CALENDAR_POPUP = "isCalendarPopup";
-
-  /**
    * The plugin setting is actual date key.
    */
   public static final String JTTP_PLUGIN_SETTINGS_IS_COLORIG = "isColoring";
@@ -79,6 +74,11 @@ public final class GlobalSettingsKey {
    * The plugin setting Plugin Permission key.
    */
   public static final String JTTP_PLUGIN_SETTINGS_PLUGIN_PERMISSION = "pluginPermission";
+
+  /**
+   * The plugin setting is progress indicator date key.
+   */
+  public static final String JTTP_PLUGIN_SETTINGS_PROGRESS_INDICATOR = "progressIndicator";
 
   /**
    * The plugin setting is show tutoriak version key.
@@ -109,6 +109,20 @@ public final class GlobalSettingsKey {
    * The plugin UUDI global setting key.
    */
   public static final String JTTP_PLUGIN_UUID = "PluginUUID";
+
+  /**
+   * The update notifier last update time global setting key.
+   */
+  public static final String JTTP_UPDATE_NOTIFIER_LAST_UPDATE = "UPDATE_NOTIFIER";
+
+  /**
+   * The update notifier latest version of the JTTP global setting key.
+   */
+  public static final String JTTP_UPDATE_NOTIFIER_LATEST_VERSION = "JTTP_LATEST_VERSION";
+  /**
+   * User specific key for the version which the user canceled.
+   */
+  public static final String JTTP_USER_CANCELED_UPDATE = "USER_CANCELED_UPDATE";
 
   private GlobalSettingsKey() {
   }

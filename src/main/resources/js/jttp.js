@@ -58,7 +58,7 @@ everit.jttp.main = everit.jttp.main || {};
     jQuery("#dateHidden").val(fechaFormatedDate);
     
    
-    popupCalendarsSetup(jttp.options.isPopup);
+    popupCalendarsSetup();
     setExcludeDaysToWeekend(jttp.options.excludeDays);
     setLoggedDaysDesign(jttp.options.isColoring, jttp.options.loggedDays);
     
@@ -172,11 +172,6 @@ everit.jttp.main = everit.jttp.main || {};
       jQuery("#radioDuration").prop("checked", true);
     }
   }
-
-  jttp.submitButtonClick = function() {
-    jQuery('#Submit').val('true');
-    jQuery('#Submit').attr('disabled', false);
-  }
   
   jttp.beforeSubmit = function() {
     var dateHidden = jQuery('#dateHidden').val();
@@ -259,7 +254,7 @@ everit.jttp.main = everit.jttp.main || {};
       return;
     }
     if (e.ctrlKey) {
-      jQuery('#Submitbutton, #Edit').click();
+      jQuery('#jttp-logwork-save, #Edit').click();
     } else {
       e.preventDefault ? e.preventDefault() : event.returnValue = false;
       jQuery(setFocusTo).focus();
@@ -324,7 +319,7 @@ everit.jttp.main = everit.jttp.main || {};
       jQuery('#issueSelect-textarea').val(temp.trim());
       jQuery('#issueSelect-textarea').focus();
       jQuery('#Edit').focus();
-      jQuery('#Submitbutton').focus();
+      jQuery('#jttp-logwork-save').focus();
     });
 
     jQuery('.copy').click(function() {
@@ -340,24 +335,26 @@ everit.jttp.main = everit.jttp.main || {};
       jQuery("#comments").val(temp3);
 
       jQuery('#issueSelect-textarea').focus();
-      jQuery('#Submitbutton').focus();
+      jQuery('#jttp-logwork-save').focus();
     });
 
     jQuery('#issueSelect-textarea').keydown(function(e) {
       var isEnter = e.keyCode == 10 || e.keyCode == 13;
       if (isEnter && e.ctrlKey) {
-        jQuery('#Submitbutton, #Edit').click();
+        jQuery('#jttp-logwork-save, #Edit').click();
       }
     });
 
     jQuery('#comments').keydown(function(e) {
       if ((e.keyCode == 10 || e.keyCode == 13) && e.ctrlKey) {
-        jQuery('#Submitbutton, #Edit').click();
+        jQuery('#jttp-logwork-save, #Edit').click();
       }
     });
 
-    jQuery('#jttpForm').submit(function() {
-      jQuery('#Submitbutton').prop("disabled", true);
+    jQuery('#jttp-logwork-form').submit(function() {
+    	 jQuery('#jttp-logwork-save').prop("disabled", true);
+    	 jQuery('#lw_save').val('true');
+    	 jQuery('#lw_save').attr('disabled', false);
       return true;
     });
   }
@@ -388,7 +385,7 @@ everit.jttp.main = everit.jttp.main || {};
     jQuery("#issueSelect-textarea").attr("class", "select2-choices");
 
     jQuery("#issueSelect-textarea").append(issueKey);
-    jQuery("#issueSelect-textarea").attr("tabindex", "3");
+    jQuery("#issueSelect-textarea").attr("tabindex", "1");
     ip.handleFreeInput();
   }
   
@@ -418,7 +415,7 @@ everit.jttp.main = everit.jttp.main || {};
       cal.callCloseHandler();
   }
   
-  function popupCalendarsSetup(isPopup) {
+  function popupCalendarsSetup() {
     var original = Calendar.prototype.show;
     Calendar.prototype.show = function() {
       original.call(this);
@@ -437,30 +434,6 @@ everit.jttp.main = everit.jttp.main || {};
         useISO8601WeekNumbers : jttp.options.useISO8601,
         onSelect: jttp.onSelect
       });
-  }
-  
-  jttp.standCalendarSetup = function(isPopup){
-    if (isPopup == 3) {
-      
-      var original = Calendar.prototype.show;
-      Calendar.prototype.show = function() {
-        original.call(this);
-        setExcludeDaysToWeekend(jttp.options.excludeDays);
-        setLoggedDaysDesign(jttp.options.isColoring, jttp.options.loggedDays);
-      }
-      
-      var cal = Calendar.setup({
-        firstDay : jttp.options.firstDay,
-        date : jttp.options.dateFormatted,
-        align : 'Br',
-        singleClick : true,
-        showOthers : true,
-        flat : 'not_popup_calendar',
-        flatCallback : jttp.dateChanged,
-        useISO8601WeekNumbers : jttp.options.useISO8601,
-        onSelect: jttp.onSelect
-      });
-    }
   }
   
   jttp.toggleSummary = function() {

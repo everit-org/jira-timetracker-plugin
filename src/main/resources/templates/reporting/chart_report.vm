@@ -68,7 +68,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:chart_re
 	#enable_html_escaping()
 
 </script>
-
+  #parse("templates/common/updatenotifier.vm")
   <header class="aui-page-header">
     <div class="aui-page-header-inner">
       <div class="aui-page-header-image">
