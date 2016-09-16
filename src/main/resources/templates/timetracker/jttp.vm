@@ -54,6 +54,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
 				comment: '${comment}',
 				actionFlag: '${actionFlag}',
 				worklogSize: ${worklogs.size()},
+				isRounding : ${isRounding},
 			}
 		);
 	})(everit.jttp.main, AJS.$);

@@ -105,6 +105,13 @@
           <div class="description">$i18n.getText("plugin.setting.starttime.help")</div>
         </div>
         
+        <h3>$i18n.getText("plugin.setting.worklog.data.appearance")</h3>
+        <div class="field-group">
+          <label>$i18n.getText("plugin.setting.rounded.remaining"):</label>
+          <input id="isRounding" type="checkbox" value="use round" class="settings-input" name="isRounding" #if($isRounding) checked #end/>
+          <div class="description">$i18n.getText("plugin.setting.rounded.remaining.help")</div>
+        </div>
+        
         <div class="buttons-container">
           <div class="buttons">
             <input id="savesettings"  type="submit" name="savesettings" value="$i18n.getText('plugin.save')" class="aui-button aui-button-primary"/>
