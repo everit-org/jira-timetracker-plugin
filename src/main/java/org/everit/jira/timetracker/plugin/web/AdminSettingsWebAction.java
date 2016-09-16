@@ -15,6 +15,7 @@
  */
 package org.everit.jira.timetracker.plugin.web;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,6 +26,9 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
+import org.everit.jira.analytics.AnalyticsSender;
+import org.everit.jira.analytics.event.NoEstimateUsageChangedEvent;
+import org.everit.jira.analytics.event.NonWorkingUsageEvent;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
 import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
@@ -34,6 +38,7 @@ import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
+import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
 /**
  * Admin settings page.
@@ -60,6 +65,8 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    * Check if the analytics is disable or enable.
    */
   private boolean analyticsCheck;
+
+  private transient AnalyticsSender analyticsSender;
 
   /**
    * The collector issue key.
@@ -149,6 +156,8 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
 
   private List<String> pluginGroups;
 
+  private String pluginId;
+
   /**
    * The IDs of the projects.
    */
@@ -161,9 +170,21 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
 
   private List<String> timetrackerGroups;
 
-  public AdminSettingsWebAction(
-      final JiraTimetrackerPlugin jiraTimetrackerPlugin) {
+  /**
+   * Simple constructor.
+   *
+   * @param pluginSettingsFactory
+   *          the {@link PluginSettingsFactory}.
+   * @param jiraTimetrackerPlugin
+   *          The {@link JiraTimetrackerPlugin}.
+   * @param analyticsSender
+   *          The {@link AnalyticsSender}.
+   */
+  public AdminSettingsWebAction(final PluginSettingsFactory pluginSettingsFactory,
+      final JiraTimetrackerPlugin jiraTimetrackerPlugin, final AnalyticsSender analyticsSender) {
     this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
+    this.analyticsSender = analyticsSender;
+    pluginId = JiraTimetrackerAnalytics.getPluginUUID(pluginSettingsFactory.createGlobalSettings());
   }
 
   private void checkMailServer() {
@@ -418,7 +439,7 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
 
   private void parsePluginGroups(final String[] pluginGroupsvalue) {
     if (pluginGroupsvalue == null) {
-      pluginGroups = new ArrayList<String>();
+      pluginGroups = new ArrayList<>();
     } else {
       pluginGroups = Arrays.asList(pluginGroupsvalue);
     }
@@ -447,14 +468,14 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
       analyticsCheck = false;
     }
 
-    issuesPatterns = new ArrayList<Pattern>();
+    issuesPatterns = new ArrayList<>();
     if (issueSelectValue != null) {
       for (String filteredIssueKey : issueSelectValue) {
         issuesPatterns.add(Pattern.compile(filteredIssueKey));
       }
     }
 
-    collectorIssuePatterns = new ArrayList<Pattern>();
+    collectorIssuePatterns = new ArrayList<>();
     if (collectorIssueSelectValue != null) {
       for (String filteredIssueKey : collectorIssueSelectValue) {
         collectorIssuePatterns.add(Pattern.compile(filteredIssueKey));
@@ -473,10 +494,16 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
 
   private void parseTimetrackerGroups(final String[] timetrackerGroupsValue) {
     if (timetrackerGroupsValue == null) {
-      timetrackerGroups = new ArrayList<String>();
+      timetrackerGroups = new ArrayList<>();
     } else {
       timetrackerGroups = Arrays.asList(timetrackerGroupsValue);
     }
+  }
+
+  private void readObject(final java.io.ObjectInputStream stream) throws IOException,
+      ClassNotFoundException {
+    stream.close();
+    throw new java.io.NotSerializableException(getClass().getName());
   }
 
   /**
@@ -498,6 +525,16 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
         .timetrackingGroups(timetrackerGroups);
 
     jiraTimetrackerPlugin.savePluginSettings(pluginSettingValues);
+    sendNonEstAndNonWorkAnaliticsEvent();
+  }
+
+  private void sendNonEstAndNonWorkAnaliticsEvent() {
+    NoEstimateUsageChangedEvent analyticsEvent =
+        new NoEstimateUsageChangedEvent(pluginId, collectorIssuePatterns);
+    analyticsSender.send(analyticsEvent);
+    NonWorkingUsageEvent nonWorkingUsageEvent =
+        new NonWorkingUsageEvent(pluginId, (issuesPatterns == null) || issuesPatterns.isEmpty());
+    analyticsSender.send(nonWorkingUsageEvent);
   }
 
   public void setAnalyticsCheck(final boolean analyticsCheck) {
@@ -558,5 +595,10 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
 
   public void setTimetrackerGroups(final List<String> timetrackerGroups) {
     this.timetrackerGroups = timetrackerGroups;
+  }
+
+  private void writeObject(final java.io.ObjectOutputStream stream) throws IOException {
+    stream.close();
+    throw new java.io.NotSerializableException(getClass().getName());
   }
 }
