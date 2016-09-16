@@ -187,10 +187,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   private boolean isDurationSelected = false;
 
-  /**
-   * The calendar isPopup.
-   */
-  private int isPopup;
+  private boolean isProgressDaily = true;
 
   private String issueCollectorSrc;
 
@@ -397,6 +394,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   public void dateSwitcherAction() throws ParseException {
     String dayBackValue = getHttpRequest().getParameter("dayBack");
     String dayNextValue = getHttpRequest().getParameter("dayNext");
+    String todayValue = getHttpRequest().getParameter("today");
 
     parseDateParam();
 
@@ -409,6 +407,9 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     } else if (dayBackValue != null) {
       tempCal.add(Calendar.DAY_OF_YEAR, -1);
       date = tempCal.getTime();
+      dateFormatted = date.getTime();
+    } else if (todayValue != null) {
+      date = new Date();
       dateFormatted = date.getTime();
     }
   }
@@ -679,8 +680,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return isDurationSelected;
   }
 
-  public int getIsPopup() {
-    return isPopup;
+  public boolean getIsProgressDaily() {
+    return isProgressDaily;
   }
 
   public String getIssueCollectorSrc() {
@@ -907,7 +908,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private void loadPluginSettingAndParseResult() {
     PluginSettingsValues pluginSettingsValues = jiraTimetrackerPlugin
         .loadPluginSettings();
-    isPopup = pluginSettingsValues.isCalendarPopup;
+
+    isProgressDaily = pluginSettingsValues.isProgressIndicatorDaily;
     isActualDate = pluginSettingsValues.isActualDate;
     issuesRegex = pluginSettingsValues.filteredSummaryIssues;
     startTimeChange = pluginSettingsValues.startTimeChange;
@@ -952,6 +954,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    *           GenericEntityException.
    */
   public void makeSummary() throws GenericEntityException {
+    // TODO JIRAPLUGIN-348 refactor for the new summary indicators
     ApplicationProperties applicationProperties = ComponentAccessor.getApplicationProperties();
     boolean useISO8601 = applicationProperties.getOption(APKeys.JIRA_DATE_TIME_PICKER_USE_ISO8601);
 
@@ -1259,6 +1262,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     this.isDurationSelected = isDurationSelected;
   }
 
+  public void setIsProgressDaily(final boolean isProgressDaily) {
+    this.isProgressDaily = isProgressDaily;
+  }
+
   public void setIssueKey(final String issueKey) {
     this.issueKey = issueKey;
   }
@@ -1293,10 +1300,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   public void setMonthSummary(final String monthSummary) {
     this.monthSummary = monthSummary;
-  }
-
-  public void setPopup(final int isPopup) {
-    this.isPopup = isPopup;
   }
 
   public void setProjectsId(final List<String> projectsId) {

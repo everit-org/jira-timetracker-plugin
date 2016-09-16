@@ -15,8 +15,8 @@
  *#
 $webResourceManager.requireResource("jira.webresources:dwr", null)   
 $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
- <div class="aui-page-panel-inner">
-          <section class="aui-page-panel-content" id="jttp-worklog">
+<!-- <div class="aui-page-panel-inner"> -->
+<!--          <section class="aui-page-panel-content" id="jttp-worklog"> -->
             <table id="jttp-worklog-table" class="aui">
               <thead>
                 <tr>
@@ -89,5 +89,5 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
               </tbody>
             </table>
             #end
-          </section>
-        </div>
+      <!--    </section> -->
+     <!--   </div> -->
