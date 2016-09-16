@@ -50,7 +50,6 @@ import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklogComparator;
 import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
-import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 import org.ofbiz.core.entity.EntityCondition;
@@ -900,17 +899,11 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     pluginSettings = settingsFactory.createSettingsForKey(
         GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX + user.getName());
 
-    Integer isPopup = JiraTimetrackerUtil.POPUP_CALENDAR_CODE;
-    Object isCalendarPopup =
-        pluginSettings.get(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_IS_CALENDAR_POPUP);
-    if (isCalendarPopup != null) {
-      try {
-        isPopup = Integer.valueOf(isCalendarPopup.toString());
-      } catch (NumberFormatException e) {
-        // the default is the popup calendar
-        LOGGER.error("Wrong formated calender type. Set the default value (popup).", e);
-        isPopup = JiraTimetrackerUtil.POPUP_CALENDAR_CODE;
-      }
+    // the default is the Daily Progress Indicator
+    Boolean isProgressIndicatorDaily = true;
+    if ("false"
+        .equals(pluginSettings.get(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_PROGRESS_INDICATOR))) {
+      isProgressIndicatorDaily = false;
     }
 
     // the default is the Actual Date
@@ -931,12 +924,19 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     int endTimeChange = getEndTimeChange();
     // Here set the other values
     pluginSettingsValues = new PluginSettingsValues()
-        .isCalendarPopup(isPopup).actualDate(isActualDate).excludeDates(excludeDatesString)
-        .includeDates(includeDatesString).coloring(isColoring)
-        .filteredSummaryIssues(nonWorkingIssuePatterns).collectorIssues(collectorIssuePatterns)
-        .startTimeChange(startTimeChange).endTimeChange(endTimeChange)
-        .analyticsCheck(analyticsCheckValue).pluginUUID(pluginUUID)
-        .pluginGroups(pluginGroups).timetrackingGroups(timetrackerGroups);
+        .isProgressIndicatordaily(isProgressIndicatorDaily)
+        .actualDate(isActualDate)
+        .excludeDates(excludeDatesString)
+        .includeDates(includeDatesString)
+        .coloring(isColoring)
+        .filteredSummaryIssues(nonWorkingIssuePatterns)
+        .collectorIssues(collectorIssuePatterns)
+        .startTimeChange(startTimeChange)
+        .endTimeChange(endTimeChange)
+        .analyticsCheck(analyticsCheckValue)
+        .pluginUUID(pluginUUID)
+        .pluginGroups(pluginGroups)
+        .timetrackingGroups(timetrackerGroups);
     return pluginSettingsValues;
   }
 
@@ -978,8 +978,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     pluginSettings = settingsFactory
         .createSettingsForKey(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
             + user.getName());
-    pluginSettings.put(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_IS_CALENDAR_POPUP,
-        Integer.toString(pluginSettingsParameters.isCalendarPopup));
+    pluginSettings.put(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_PROGRESS_INDICATOR,
+        pluginSettingsParameters.isProgressIndicatorDaily.toString());
     pluginSettings.put(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_IS_ACTUAL_DATE,
         pluginSettingsParameters.isActualDate.toString());
     pluginSettings.put(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_IS_COLORIG,
@@ -1159,6 +1159,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   public long summary(final Date startSummary,
       final Date finishSummary,
       final List<Pattern> issuePatterns) throws GenericEntityException {
+    // TODO JIRAPLUGIN-348 refactor
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
     ApplicationUser user = authenticationContext.getUser();
@@ -1205,6 +1206,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   public String summaryToGui(final Date startSummary, final Date finishSummary,
       final List<Pattern> issueIds)
       throws GenericEntityException {
+    // TODO JIRAPLUGIN-348 this is works for the daily progress indicator
     long timeSpent = summary(startSummary, finishSummary, issueIds);
     return new DurationFormatter().exactDuration(timeSpent);
   }

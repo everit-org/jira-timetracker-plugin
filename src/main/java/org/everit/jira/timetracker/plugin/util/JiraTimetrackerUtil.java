@@ -65,11 +65,6 @@ public final class JiraTimetrackerUtil {
 
   public static final int MONTH_INTERVAL = 2;
 
-  /**
-   * The plugin calendar popup code.
-   */
-  public static final int POPUP_CALENDAR_CODE = 1;
-
   private static final String PREFIX_PLUGIN_RATED = "The plugin rated to: ";
 
   private static final String REPORTING_EMAIL_SUBJECT = "[JTTP] reporting";

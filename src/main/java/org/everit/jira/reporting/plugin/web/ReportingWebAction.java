@@ -54,6 +54,7 @@ import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
+import org.everit.jira.updatenotifier.UpdateNotifier;
 
 import com.atlassian.jira.bc.filter.DefaultSearchRequestService;
 import com.atlassian.jira.component.ComponentAccessor;
@@ -249,7 +250,7 @@ public class ReportingWebAction extends JiraWebActionSupport {
   }
 
   private void defaultInitalizeData() {
-    selectedMore = new ArrayList<String>();
+    selectedMore = new ArrayList<>();
     filterCondition = new FilterCondition();
     if (!hasBrowseUsersPermission) {
       filterCondition.setUsers(Arrays.asList(PickerUserDTO.CURRENT_USER_NAME));
@@ -507,7 +508,7 @@ public class ReportingWebAction extends JiraWebActionSupport {
   private void loadFavoriteFilters() {
     DefaultSearchRequestService defaultSearchRequestService =
         ComponentAccessor.getComponentOfType(DefaultSearchRequestService.class);
-    favouriteFilters = new ArrayList<SearchRequest>(
+    favouriteFilters = new ArrayList<>(
         defaultSearchRequestService.getFavouriteFilters(getLoggedInApplicationUser()));
   }
 
@@ -554,6 +555,16 @@ public class ReportingWebAction extends JiraWebActionSupport {
       ClassNotFoundException {
     stream.close();
     throw new java.io.NotSerializableException(getClass().getName());
+  }
+
+  /**
+   * Decide render or not the update information bar.
+   *
+   * @return true if bar should be render
+   */
+  public boolean renderUpdateNotifier() {
+    return new UpdateNotifier(settingsFactory, JiraTimetrackerUtil.getLoggedUserName())
+        .isShowUpdater();
   }
 
   private void saveDataToSession(final String selectedMoreJson, final String selectedActiveTab,

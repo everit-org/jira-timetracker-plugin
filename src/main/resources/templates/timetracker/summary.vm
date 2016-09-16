@@ -13,41 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *#
-
-               <div id="summaryModule" class="module toggle-wrap expanded">
-                <div class="mod-header">
-                  <h2 class="toggle-title" onclick="everit.jttp.main.toggleSummary()">$i18n.getText("plugin.summary")</h2>
-                </div>
-                <div class="mod-content">
-                  <table id="jttp-worklog-summary-table" class="aui">
-                    <thead>
-                      <tr>
-                        <th id="jttp-worklog-summary-type"></th>
-                        <th id="jttp-worklog-summary-day">$i18n.getText("plugin.day")</th>
-                        <th id="jttp-worklog-summary-week">$i18n.getText("plugin.week")</th>
-                        <th id="jttp-worklog-summary-month">$i18n.getText("plugin.month")</th>
-                      </tr>
-                    </thead>
-                    </tbody>
-                    <tr id="jttp-worklog-table-summary-total">
-                      <td>
-                        <p class="jttp-row-header">$i18n.getText("plugin.summary.total")</p>
-                      </td>
-                      <td>$daySummary</td>
-                      <td>$weekSummary</td>
-                      <td>$monthSummary</td>
-                    </tr>
-                    <tr id="jttp-worklog-table-summary-real">
-                    #if($issuesRegex.size() != 0)
-                      <td>
-                        <p class="jttp-row-header">$i18n.getText("plugin.summary.real")</p>
-                      </td>
-                      <td>$dayFilteredSummary</td>
-                      <td>$weekFilteredSummary</td>
-                      <td>$monthFilteredSummary</td>
-                    #end
-                    </tr>
-                    </tfoot>
-                  </table>
+         <div class="summary-container">
+           <div class="aui-group aui-group-trio">
+             <div class="aui-item">
+               <label class="progress-label" for="day-progress">Day: 4h 10m / 5h 10m</label>
+               <div id="day-progress" class="progress" style="height:8px; margin-bottom:0px;">
+                 <div class="progress-bar progress-bar-danger" style="width: 50%"></div>
+                 <div class="progress-bar progress-bar-danger-nowork" style="width: 30%"></div>
+               </div>
+             </div>
+             <div class="aui-item">
+               <label class="progress-label" for="day-progress">Week: 2d 1h 30m / 2d 2h 30m</label>
+               <div id="week-progress" class="progress" style="height:8px; margin-bottom:0px;">
+                 <div class="progress-bar progress-bar-warning" style="width: 30%"></div>
+                 <div class="progress-bar progress-bar-warning-nowork" style="width: 30%"></div>
+               </div>
+             </div>
+             <div class="aui-item">
+               <label class="progress-label" for="day-progress">Month: 3w 4h / 3w 5h</label>
+               <div id="month-progress" class="progress" style="height:8px; margin-bottom:0px;">
+                 <div class="progress-bar progress-bar-success" style="width: 70%"></div>
+                 <div class="progress-bar progress-bar-success-nowork" style="width: 15%"></div>
                 </div>
               </div>
+            </div>
+          </div>
