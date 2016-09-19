@@ -44,12 +44,22 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
                     <a href="$contextPath/browse/$worklog.issue" class="issue-link" title="#if($worklog.issueParent != '') $i18n.getText('plugin.parent.issue') $worklog.issueParent &#13 $worklog.issueSummary #else $worklog.issueSummary #end">$worklog.issue</a>
                   </td>
                   <td>
-                  #if($worklog.isClosed)
-                    <div class="tooltip-bottom"  title="$worklog.exactRemaining" style="color: #A3A1A1;">$worklog.roundedRemaining</div>
-                  #elseif($worklog.isMoreEstimatedTime)
-                    <div class="tooltip-bottom"  title="$worklog.exactRemaining">$worklog.roundedRemaining<div>
+                  #if($isRounded)
+                    #if($worklog.isClosed)
+                      <div class="tooltip-bottom"  title="$worklog.exactRemaining" style="color: #A3A1A1; white-space: nowrap;">$worklog.roundedRemaining</div>
+                    #elseif($worklog.isMoreEstimatedTime)
+                      <div class="tooltip-bottom"  title="$worklog.exactRemaining" style="white-space: nowrap;">$worklog.roundedRemaining<div>
+                    #else
+                      <div class="tooltip-bottom"  title="$worklog.exactRemaining" style="color:red; white-space: nowrap;">$worklog.roundedRemaining</div>
+                    #end
                   #else
-                    <div class="tooltip-bottom"  title="$worklog.exactRemaining" style="color:red;">$worklog.roundedRemaining</div>
+                    #if($worklog.isClosed)
+                      <div class="tooltip-bottom"  title="$worklog.exactRemaining" style="color: #A3A1A1; white-space: nowrap;">$worklog.exactRemaining</div>
+                    #elseif($worklog.isMoreEstimatedTime)
+                      <div class="tooltip-bottom"  title="$worklog.exactRemaining" style="white-space: nowrap;">$worklog.exactRemaining<div>
+                    #else
+                      <div class="tooltip-bottom"  title="$worklog.exactRemaining" style="color:red; white-space: nowrap;">$worklog.exactRemaining</div>
+                    #end
                   #end
                   </td>
                   <td class="table-starttime">
