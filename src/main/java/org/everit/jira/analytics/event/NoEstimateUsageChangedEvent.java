@@ -17,7 +17,6 @@ package org.everit.jira.analytics.event;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.regex.Pattern;
 
 import org.everit.jira.analytics.PiwikUrlBuilder;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
@@ -67,7 +66,7 @@ public class NoEstimateUsageChangedEvent implements AnalyticsEvent {
    *          the Non-estimated field is empty or not.
    */
   public NoEstimateUsageChangedEvent(final String pluginId,
-      final List<?> collectorIssuePatterns) {
+      final List<String> collectorIssuePatterns) {
     this(JiraTimetrackerAnalytics.getUserId(), collectorIssuePatterns, pluginId);
   }
 
@@ -75,32 +74,21 @@ public class NoEstimateUsageChangedEvent implements AnalyticsEvent {
    * Simple constructor.
    */
   public NoEstimateUsageChangedEvent(final String hashUserId,
-      final List<?> collectorIssuePatterns,
+      final List<String> collectorIssuePatterns,
       final String pluginId) {
     this.pluginId = Objects.requireNonNull(pluginId);
     this.hashUserId = hashUserId;
-    nonEstValue = decideNonEstValue(collectorIssuePatterns);
+    nonEstValue = decideNonEstimateValue(collectorIssuePatterns);
   }
 
-  private NonEstUsageValues decideNonEstValue(final List collectorIssuePatterns) {
+  private NonEstUsageValues decideNonEstimateValue(final List<String> collectorIssuePatterns) {
     if ((collectorIssuePatterns == null) || collectorIssuePatterns.isEmpty()) {
       return NonEstUsageValues.ALL;
     }
-    if (collectorIssuePatterns.get(0) instanceof String) {
-      for (String pattern : ((List<String>) collectorIssuePatterns)) {
-        if (".*".equals(pattern)) {
-          return NonEstUsageValues.NONE;
-        }
+    for (String pattern : (collectorIssuePatterns)) {
+      if (".*".equals(pattern)) {
+        return NonEstUsageValues.NONE;
       }
-    } else if (collectorIssuePatterns.get(0) instanceof Pattern) {
-      for (Pattern pattern : ((List<Pattern>) collectorIssuePatterns)) {
-        if (pattern.pattern().equals(".*")) {
-          return NonEstUsageValues.NONE;
-        }
-      }
-    } else {
-      throw new RuntimeException("Not supported list elements type: "
-          + collectorIssuePatterns.get(0).getClass().getName());
     }
     return NonEstUsageValues.SELECTED;
   }
