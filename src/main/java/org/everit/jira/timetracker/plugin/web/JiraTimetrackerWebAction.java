@@ -1273,8 +1273,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     this.isProgressDaily = isProgressDaily;
   }
 
-  public void setIsRounded(final boolean isRunded) {
-    this.isRounded = isRunded;
+  public void setIsRounded(final boolean isRounded) {
+    this.isRounded = isRounded;
   }
 
   public void setIssueKey(final String issueKey) {
