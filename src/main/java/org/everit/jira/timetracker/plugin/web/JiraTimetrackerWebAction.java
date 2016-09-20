@@ -138,6 +138,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    */
   private String dayFilteredSummary = "";
 
+  private long daySum;
+
   private String daySumIndustryFormatted;
 
   /**
@@ -632,6 +634,11 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return dayFilteredSummary;
   }
 
+  public double getDayIndicatorPrcent() {
+    double hoursPerDay = timeTrackingConfiguration.getHoursPerDay().doubleValue();
+    return daySum / (hoursPerDay * 360);
+  }
+
   public String getDaySumIndustryFormatted() {
     return daySumIndustryFormatted;
   }
@@ -742,6 +749,29 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   public String getWeekFilteredSummary() {
     return weekFilteredSummary;
+  }
+
+  public double getWeekIndicatorPrcent() {
+    double daysPerweek = timeTrackingConfiguration.getDaysPerWeek().doubleValue();
+    // return getWeekStart(date);
+    // TODO continue here, check all the days if the day is non working or extra working day.
+    return 0;
+
+  }
+
+  private Date getWeekStart(final Date date) {
+    ApplicationProperties applicationProperties = ComponentAccessor.getApplicationProperties();
+    boolean useISO8601 = applicationProperties.getOption(APKeys.JIRA_DATE_TIME_PICKER_USE_ISO8601);
+
+    Calendar c = Calendar.getInstance();
+    if (useISO8601) {
+      c.setFirstDayOfWeek(Calendar.MONDAY);
+    }
+    c.setTime(date);
+    int dayOfWeek = c.get(Calendar.DAY_OF_WEEK) - c.getFirstDayOfWeek();
+    c.add(Calendar.DAY_OF_MONTH, -dayOfWeek);
+    Date firstDate = c.getTime();
+    return firstDate;
   }
 
   public String getWeekSummary() {
@@ -900,6 +930,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return SUCCESS;
   }
 
+  public boolean issueRegexIsNullOrEmpty() {
+    return (issuesRegex != null) && !issuesRegex.isEmpty();
+  }
+
   private void loadIssueCollectorSrc() {
     Properties properties = PropertiesUtil.getJttpBuildProperties();
     issueCollectorSrc = properties.getProperty(PropertiesUtil.ISSUE_COLLECTOR_SRC);
@@ -975,8 +1009,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
     Date end = endCalendar.getTime();
     daySummary = jiraTimetrackerPlugin.summaryToGui(start, end, null);
-    long daySum = jiraTimetrackerPlugin.summary(start, end, null);
-    if ((issuesRegex != null) && !issuesRegex.isEmpty()) {
+    daySum = jiraTimetrackerPlugin.summary(start, end, null);
+    if (issueRegexIsNullOrEmpty()) {
       dayFilteredSummary = jiraTimetrackerPlugin.summaryToGui(start, end,
           issuesRegex);
     }
@@ -990,7 +1024,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     endCalendar.add(Calendar.DATE, DateTimeConverterUtil.DAYS_PER_WEEK);
     end = endCalendar.getTime();
     weekSummary = jiraTimetrackerPlugin.summaryToGui(start, end, null);
-    if ((issuesRegex != null) && !issuesRegex.isEmpty()) {
+    if (issueRegexIsNullOrEmpty()) {
       weekFilteredSummary = jiraTimetrackerPlugin.summaryToGui(start, end,
           issuesRegex);
     }
@@ -1006,7 +1040,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     end = endCalendar.getTime();
 
     monthSummary = jiraTimetrackerPlugin.summaryToGui(start, end, null);
-    if ((issuesRegex != null) && !issuesRegex.isEmpty()) {
+    if (issueRegexIsNullOrEmpty()) {
       monthFilteredSummary = jiraTimetrackerPlugin.summaryToGui(start, end,
           issuesRegex);
     }
