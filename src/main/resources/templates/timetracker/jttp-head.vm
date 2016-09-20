@@ -56,29 +56,7 @@
                  </div>
               </div>
                <div class="aui-group aui-group-trio">
-               #if($issueRegexIsNullOrEmpty)
-<div class="aui-item">
-	<label class="progress-label" for="day-progress">Day: $daySummary</label>
-	<div id="day-progress" class="progress" style="height:8px; margin-bottom:0px;">
-		<div class="progress-bar progress-bar-danger" style="width: ${dayIndicatorPrcent}%">                                        
-		</div>
-	</div>
-</div>
-<div class="aui-item">
-	<label class="progress-label" for="day-progress">Week: $weekSummary</label>
-	<div id="day-progress" class="progress" style="height:8px; margin-bottom:0px;">
-		<div class="progress-bar progress-bar-danger" style="width: 50%">                                        
-		</div>
-	</div>
-</div>
-<div class="aui-item">
-	<label class="progress-label" for="day-progress">Month: $monthSummary</label>
-	<div id="day-progress" class="progress" style="height:8px; margin-bottom:0px;">
-		<div class="progress-bar progress-bar-danger" style="width: 50%">                                        
-		</div>
-	</div>
-</div>
-#else
+               #if($issueRegexIsNotEmpty)
 <div class="aui-item">
 	<label class="progress-label" for="day-progress">Day: $daySummary / $dayFilteredSummary</label>
 	<div id="day-progress" class="progress" style="height:8px; margin-bottom:0px;">
@@ -103,6 +81,28 @@
 		<div class="progress-bar progress-bar-danger" style="width: 50%">                                        
 		</div>
 		<div class="progress-bar progress-bar-danger-nowork" style="width: 30%">                                        
+		</div>
+	</div>
+</div>
+#else
+<div class="aui-item">
+	<label class="progress-label" for="day-progress">Day: $daySummary</label>
+	<div id="day-progress" class="progress" style="height:8px; margin-bottom:0px;">
+		<div class="progress-bar progress-bar-danger" style="width: ${dayIndicatorPrcent}%">                                        
+		</div>
+	</div>
+</div>
+<div class="aui-item">
+	<label class="progress-label" for="day-progress">Week: $weekSummary</label>
+	<div id="day-progress" class="progress" style="height:8px; margin-bottom:0px;">
+		<div class="progress-bar progress-bar-danger" style="width: ${weekIndicatorPrcent}%">                                        
+		</div>
+	</div>
+</div>
+<div class="aui-item">
+	<label class="progress-label" for="day-progress">Month: $monthSummary</label>
+	<div id="day-progress" class="progress" style="height:8px; margin-bottom:0px;">
+		<div class="progress-bar progress-bar-danger" style="width: 50%">                                        
 		</div>
 	</div>
 </div>
