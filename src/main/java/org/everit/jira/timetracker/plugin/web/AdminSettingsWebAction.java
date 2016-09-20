@@ -105,6 +105,8 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
 
   private boolean isProgressDaily;
 
+  private boolean isRounded;
+
   private String issueCollectorSrc;
 
   /**
@@ -322,6 +324,7 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     analyticsCheck = pluginSettingsValues.analyticsCheck;
     pluginGroups = pluginSettingsValues.pluginGroups;
     timetrackerGroups = pluginSettingsValues.timetrackingGroups;
+    isRounded = pluginSettingsValues.isRounded;
   }
 
   private void normalizeContextPath() {
@@ -495,7 +498,8 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
         .endTimeChange(endTime)
         .analyticsCheck(analyticsCheck)
         .pluginGroups(pluginGroups)
-        .timetrackingGroups(timetrackerGroups);
+        .timetrackingGroups(timetrackerGroups)
+        .isRounded(isRounded);
 
     jiraTimetrackerPlugin.savePluginSettings(pluginSettingValues);
   }

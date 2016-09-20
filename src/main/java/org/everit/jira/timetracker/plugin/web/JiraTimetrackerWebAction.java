@@ -185,6 +185,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    */
   private boolean isColoring;
 
+  private boolean isRounded;
+
   private boolean isDurationSelected = false;
 
   private boolean isProgressDaily = true;
@@ -684,6 +686,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return isProgressDaily;
   }
 
+  public boolean getIsRounded() {
+    return isRounded;
+  }
+
   public String getIssueCollectorSrc() {
     return issueCollectorSrc;
   }
@@ -916,6 +922,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     endTimeChange = pluginSettingsValues.endTimeChange;
     isColoring = pluginSettingsValues.isColoring;
     installedPluginId = pluginSettingsValues.pluginUUID;
+    isRounded = pluginSettingsValues.isRounded;
   }
 
   /**
@@ -1264,6 +1271,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   public void setIsProgressDaily(final boolean isProgressDaily) {
     this.isProgressDaily = isProgressDaily;
+  }
+
+  public void setIsRounded(final boolean isRounded) {
+    this.isRounded = isRounded;
   }
 
   public void setIssueKey(final String issueKey) {

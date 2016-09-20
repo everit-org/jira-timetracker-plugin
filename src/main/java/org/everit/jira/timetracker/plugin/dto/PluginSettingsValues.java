@@ -74,6 +74,11 @@ public class PluginSettingsValues implements Serializable {
   public Boolean isProgressIndicatorDaily;
 
   /**
+   * Rounded remaining time settings.
+   */
+  public Boolean isRounded;
+
+  /**
    * The plugin groups.
    */
   public List<String> pluginGroups;
@@ -139,6 +144,11 @@ public class PluginSettingsValues implements Serializable {
 
   public PluginSettingsValues isProgressIndicatordaily(final boolean isProgressIndicatorDaily) {
     this.isProgressIndicatorDaily = isProgressIndicatorDaily;
+    return this;
+  }
+
+  public PluginSettingsValues isRounded(final boolean isRounded) {
+    this.isRounded = isRounded;
     return this;
   }
 
