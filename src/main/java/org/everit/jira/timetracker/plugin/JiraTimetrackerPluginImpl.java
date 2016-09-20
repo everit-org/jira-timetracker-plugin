@@ -898,6 +898,12 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
       isColoring = false;
     }
 
+    // the default rounded is TRUE
+    Boolean isRounded = true;
+    if ("false".equals(pluginSettings.get(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_IS_ROUNDED))) {
+      isRounded = false;
+    }
+
     // SET startTime Change the default value is 5
     int startTimeChange = getStartTimeChange();
     // SET endtTime Change the default value is 5
@@ -916,7 +922,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
         .analyticsCheck(analyticsCheckValue)
         .pluginUUID(pluginUUID)
         .pluginGroups(pluginGroups)
-        .timetrackingGroups(timetrackerGroups);
+        .timetrackingGroups(timetrackerGroups)
+        .isRounded(isRounded);
     return pluginSettingsValues;
   }
 
@@ -968,6 +975,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
         Integer.toString(pluginSettingsParameters.startTimeChange));
     pluginSettings.put(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_END_TIME_CHANGE,
         Integer.toString(pluginSettingsParameters.endTimeChange));
+    pluginSettings.put(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_IS_ROUNDED,
+        pluginSettingsParameters.isRounded.toString());
 
     globalSettings = settingsFactory.createGlobalSettings();
     globalSettings.put(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX

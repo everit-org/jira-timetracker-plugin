@@ -44,12 +44,17 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
                     <a href="$contextPath/browse/$worklog.issue" class="issue-link" title="#if($worklog.issueParent != '') $i18n.getText('plugin.parent.issue') $worklog.issueParent &#13 $worklog.issueSummary #else $worklog.issueSummary #end">$worklog.issue</a>
                   </td>
                   <td>
-                  #if($worklog.isClosed)
-                    <div class="tooltip-bottom"  title="$worklog.exactRemaining" style="color: #A3A1A1;">$worklog.roundedRemaining</div>
-                  #elseif($worklog.isMoreEstimatedTime)
-                    <div class="tooltip-bottom"  title="$worklog.exactRemaining">$worklog.roundedRemaining<div>
+                  #if($isRounded)
+                    #set($remainingValue=$worklog.roundedRemaining)
                   #else
-                    <div class="tooltip-bottom"  title="$worklog.exactRemaining" style="color:red;">$worklog.roundedRemaining</div>
+                    #set($remainingValue=$worklog.exactRemaining)
+                  #end
+                  #if($worklog.isClosed)
+                    <div class="tooltip-bottom"  title="$worklog.exactRemaining" style="color: #A3A1A1; white-space: nowrap;">$remainingValue</div>
+                  #elseif($worklog.isMoreEstimatedTime)
+                    <div class="tooltip-bottom"  title="$worklog.exactRemaining" style="white-space: nowrap;">$remainingValue<div>
+                  #else
+                    <div class="tooltip-bottom"  title="$worklog.exactRemaining" style="color:red; white-space: nowrap;">$remainingValue</div>
                   #end
                   </td>
                   <td class="table-starttime">
