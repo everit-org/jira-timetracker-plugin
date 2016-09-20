@@ -45,21 +45,16 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
                   </td>
                   <td>
                   #if($isRounded)
-                    #if($worklog.isClosed)
-                      <div class="tooltip-bottom"  title="$worklog.exactRemaining" style="color: #A3A1A1; white-space: nowrap;">$worklog.roundedRemaining</div>
-                    #elseif($worklog.isMoreEstimatedTime)
-                      <div class="tooltip-bottom"  title="$worklog.exactRemaining" style="white-space: nowrap;">$worklog.roundedRemaining<div>
-                    #else
-                      <div class="tooltip-bottom"  title="$worklog.exactRemaining" style="color:red; white-space: nowrap;">$worklog.roundedRemaining</div>
-                    #end
+                    #set($titleValue=$worklog.roundedRemaining)
                   #else
-                    #if($worklog.isClosed)
-                      <div class="tooltip-bottom"  title="$worklog.exactRemaining" style="color: #A3A1A1; white-space: nowrap;">$worklog.exactRemaining</div>
-                    #elseif($worklog.isMoreEstimatedTime)
-                      <div class="tooltip-bottom"  title="$worklog.exactRemaining" style="white-space: nowrap;">$worklog.exactRemaining<div>
-                    #else
-                      <div class="tooltip-bottom"  title="$worklog.exactRemaining" style="color:red; white-space: nowrap;">$worklog.exactRemaining</div>
-                    #end
+                    #set($titleValue=$worklog.exactRemaining)
+                  #end
+                  #if($worklog.isClosed)
+                    <div class="tooltip-bottom"  title="$titleValue" style="color: #A3A1A1; white-space: nowrap;">$titleValue</div>
+                  #elseif($worklog.isMoreEstimatedTime)
+                    <div class="tooltip-bottom"  title="$titleValue" style="white-space: nowrap;">$titleValue<div>
+                  #else
+                    <div class="tooltip-bottom"  title="$$titleValue" style="color:red; white-space: nowrap;">$titleValue</div>
                   #end
                   </td>
                   <td class="table-starttime">
