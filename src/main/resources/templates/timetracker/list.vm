@@ -45,16 +45,16 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
                   </td>
                   <td>
                   #if($isRounded)
-                    #set($titleValue=$worklog.roundedRemaining)
+                    #set($remainingValue=$worklog.roundedRemaining)
                   #else
-                    #set($titleValue=$worklog.exactRemaining)
+                    #set($remainingValue=$worklog.exactRemaining)
                   #end
                   #if($worklog.isClosed)
-                    <div class="tooltip-bottom"  title="$worklog.exactRemaining" style="color: #A3A1A1; white-space: nowrap;">$titleValue</div>
+                    <div class="tooltip-bottom"  title="$worklog.exactRemaining" style="color: #A3A1A1; white-space: nowrap;">$remainingValue</div>
                   #elseif($worklog.isMoreEstimatedTime)
-                    <div class="tooltip-bottom"  title="$worklog.exactRemaining" style="white-space: nowrap;">$titleValue<div>
+                    <div class="tooltip-bottom"  title="$worklog.exactRemaining" style="white-space: nowrap;">$remainingValue<div>
                   #else
-                    <div class="tooltip-bottom"  title="$worklog.exactRemaining" style="color:red; white-space: nowrap;">$titleValue</div>
+                    <div class="tooltip-bottom"  title="$worklog.exactRemaining" style="color:red; white-space: nowrap;">$remainingValue</div>
                   #end
                   </td>
                   <td class="table-starttime">
