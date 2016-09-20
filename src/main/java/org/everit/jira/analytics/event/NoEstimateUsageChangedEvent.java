@@ -31,8 +31,14 @@ public class NoEstimateUsageChangedEvent implements AnalyticsEvent {
    * Enumeration for representing the three option for the non estimate field.
    */
   private enum NonEstUsageValues {
-    ALL("all"), NONE("none"), SELECTED("selected");
-    public final String lowerCaseValue;
+
+    ALL("all"),
+
+    NONE("none"),
+
+    SELECTED("selected");
+
+    final String lowerCaseValue;
 
     NonEstUsageValues(final String lowerCaseValue) {
       this.lowerCaseValue = lowerCaseValue;
@@ -40,7 +46,7 @@ public class NoEstimateUsageChangedEvent implements AnalyticsEvent {
   }
 
   private static final String ACTION_URL =
-      "http://customer.jira.com/secure/ReportingWebAction!default.jspa";
+      "http://customer.jira.com/secure/admin/JiraTimetrackerAdminSettingsWebAction!default.jspa";
 
   private static final String EVENT_ACTION_NAME = "nonEstUsage";
 
@@ -76,7 +82,7 @@ public class NoEstimateUsageChangedEvent implements AnalyticsEvent {
     nonEstValue = decideNonEstValue(collectorIssuePatterns);
   }
 
-  private NonEstUsageValues decideNonEstValue(final List<?> collectorIssuePatterns) {
+  private NonEstUsageValues decideNonEstValue(final List collectorIssuePatterns) {
     if ((collectorIssuePatterns == null) || collectorIssuePatterns.isEmpty()) {
       return NonEstUsageValues.ALL;
     }
@@ -86,12 +92,15 @@ public class NoEstimateUsageChangedEvent implements AnalyticsEvent {
           return NonEstUsageValues.NONE;
         }
       }
-    } else {
+    } else if (collectorIssuePatterns.get(0) instanceof Pattern) {
       for (Pattern pattern : ((List<Pattern>) collectorIssuePatterns)) {
         if (pattern.pattern().equals(".*")) {
           return NonEstUsageValues.NONE;
         }
       }
+    } else {
+      throw new RuntimeException("Not supported list elements type: "
+          + collectorIssuePatterns.get(0).getClass().getName());
     }
     return NonEstUsageValues.SELECTED;
   }
