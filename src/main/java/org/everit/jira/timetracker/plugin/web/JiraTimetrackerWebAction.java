@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.time.DateUtils;
@@ -356,7 +357,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private Calendar createNewCalendarWithWeekStart() {
     ApplicationProperties applicationProperties = ComponentAccessor.getApplicationProperties();
     boolean useISO8601 = applicationProperties.getOption(APKeys.JIRA_DATE_TIME_PICKER_USE_ISO8601);
-
     Calendar c = Calendar.getInstance();
     if (useISO8601) {
       c.setFirstDayOfWeek(Calendar.MONDAY);
@@ -747,6 +747,36 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return monthFilteredSummary;
   }
 
+  public double getMonthIndicatorPrcent() {
+    Calendar c = createNewCalendarWithWeekStart();
+    c.setTime(date);
+
+    Calendar calendar = createNewCalendarWithWeekStart();
+    calendar.setTime(date);
+    calendar.set(Calendar.DAY_OF_MONTH,
+        calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+
+    long daysInMounth = TimeUnit.DAYS.convert(calendar.getTimeInMillis() - c.getTimeInMillis(),
+        TimeUnit.MILLISECONDS);
+    int excludeDtaes = jiraTimetrackerPlugin.getExcludeDaysOfTheMonth(date).size();
+    int includeDtaes = jiraTimetrackerPlugin.getIncludeDaysOfTheMonth(date).size();
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    int nonWorkDaysCount = 0;
+    for (int i = 0; i < daysInMounth; i++) {
+      int dayOfweek = calendar.get(Calendar.DAY_OF_WEEK);
+      if ((dayOfweek == Calendar.SUNDAY) || (dayOfweek == Calendar.SATURDAY)) {
+        nonWorkDaysCount++;
+      }
+      c.add(Calendar.DAY_OF_MONTH, 1);
+    }
+    // TODO continue here
+    // double realWorkDaysInWeek = jiraTimetrackerPlugin.countRealWorkDaysInWeek(weekdaysAsString);
+    // double expectedWorkSeconds =
+    // realWorkDaysInWeek * timeTrackingConfiguration.getHoursPerDay().doubleValue() * 3600;
+
+    return 100;
+  }
+
   public String getMonthSummary() {
     return monthSummary;
   }
@@ -776,12 +806,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       weekdaysAsString.add(simpleDateFormat.format(c.getTime()));
       c.add(Calendar.DAY_OF_MONTH, 1);
     }
-    int realWorkDaysInWeek = jiraTimetrackerPlugin.countRealWorkDaysInWeek(weekdaysAsString);
-    double ecpectedWorkSeconds =
-        realWorkDaysInWeek * timeTrackingConfiguration.getHoursPerDay().doubleValue() * 360;
-
-    return (weekSummaryInSecond / ecpectedWorkSeconds) * 100;
-
+    double realWorkDaysInWeek = jiraTimetrackerPlugin.countRealWorkDaysInWeek(weekdaysAsString);
+    double expectedWorkSeconds =
+        realWorkDaysInWeek * timeTrackingConfiguration.getHoursPerDay().doubleValue() * 3600;
+    return (weekSummaryInSecond / expectedWorkSeconds) * 100;
   }
 
   private Date getWeekStart(final Date date) {

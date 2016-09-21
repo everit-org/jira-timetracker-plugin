@@ -280,7 +280,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     return initialDelay;
   }
 
-  public int countRealWorkDaysInWeek(final List<String> weekDaysAsString) {
+  @Override
+  public double countRealWorkDaysInWeek(final List<String> weekDaysAsString) {
     int exludeDates = CollectionUtils.countMatches(excludeDatesSet, new Predicate() {
 
       @Override
@@ -295,7 +296,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
         return weekDaysAsString.contains(object);
       }
     });
-    return (7 - exludeDates) + includeDates;
+    return (timeTrackingConfiguration.getDaysPerWeek().doubleValue() - exludeDates) + includeDates;
   }
 
   private List<Long> createProjects(final ApplicationUser loggedInUser) {
@@ -638,16 +639,19 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
 
   @Override
   public List<String> getExcludeDaysOfTheMonth(final Date date) {
+    return getExtraDaysOfTheMonth(date, excludeDatesSet);
+  }
+
+  private List<String> getExtraDaysOfTheMonth(final Date date, final Set<String> dates) {
     String fixDate = DateTimeConverterUtil.dateToFixFormatString(date);
     List<String> resultexcludeDays = new ArrayList<>();
-    for (String exludeDate : excludeDatesSet) {
+    for (String exludeDate : dates) {
       // TODO this if not handle the 2013-4-04 date..... this is wrong or
       // not? .... think about it.
       if (exludeDate.startsWith(fixDate.substring(0, DATE_LENGTH))) {
         resultexcludeDays.add(exludeDate.substring(exludeDate.length() - 2));
       }
     }
-
     return resultexcludeDays;
   }
 
@@ -656,6 +660,11 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
       return ComponentAccessor.getMailServerManager().getDefaultSMTPMailServer().getDefaultFrom();
     }
     return null;
+  }
+
+  @Override
+  public List<String> getIncludeDaysOfTheMonth(final Date date) {
+    return getExtraDaysOfTheMonth(date, includeDatesSet);
   }
 
   @Override

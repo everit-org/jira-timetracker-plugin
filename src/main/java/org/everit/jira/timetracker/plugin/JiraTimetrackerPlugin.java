@@ -35,7 +35,7 @@ import com.atlassian.jira.issue.Issue;
  */
 public interface JiraTimetrackerPlugin {
 
-  public int countRealWorkDaysInWeek(final List<String> weekDaysAsString);
+  public double countRealWorkDaysInWeek(final List<String> weekDaysAsString);
 
   /**
    * Create a worklog whit the given parameters.
@@ -131,6 +131,8 @@ public interface JiraTimetrackerPlugin {
    * @return The list of the days in String format. (Eg. ["12","15"])
    */
   List<String> getExcludeDaysOfTheMonth(Date date);
+
+  List<String> getIncludeDaysOfTheMonth(Date date);
 
   /**
    * Give back the Issues.
