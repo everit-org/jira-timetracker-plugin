@@ -17,7 +17,6 @@ package org.everit.jira.analytics.event;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.regex.Pattern;
 
 import org.everit.jira.analytics.PiwikUrlBuilder;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
@@ -31,8 +30,14 @@ public class NoEstimateUsageChangedEvent implements AnalyticsEvent {
    * Enumeration for representing the three option for the non estimate field.
    */
   private enum NonEstUsageValues {
-    ALL("all"), NONE("none"), SELECTED("selected");
-    public final String lowerCaseValue;
+
+    ALL("all"),
+
+    NONE("none"),
+
+    SELECTED("selected");
+
+    final String lowerCaseValue;
 
     NonEstUsageValues(final String lowerCaseValue) {
       this.lowerCaseValue = lowerCaseValue;
@@ -40,7 +45,7 @@ public class NoEstimateUsageChangedEvent implements AnalyticsEvent {
   }
 
   private static final String ACTION_URL =
-      "http://customer.jira.com/secure/ReportingWebAction!default.jspa";
+      "http://customer.jira.com/secure/admin/JiraTimetrackerAdminSettingsWebAction!default.jspa";
 
   private static final String EVENT_ACTION_NAME = "nonEstUsage";
 
@@ -61,7 +66,7 @@ public class NoEstimateUsageChangedEvent implements AnalyticsEvent {
    *          the Non-estimated field is empty or not.
    */
   public NoEstimateUsageChangedEvent(final String pluginId,
-      final List<?> collectorIssuePatterns) {
+      final List<String> collectorIssuePatterns) {
     this(JiraTimetrackerAnalytics.getUserId(), collectorIssuePatterns, pluginId);
   }
 
@@ -69,28 +74,20 @@ public class NoEstimateUsageChangedEvent implements AnalyticsEvent {
    * Simple constructor.
    */
   public NoEstimateUsageChangedEvent(final String hashUserId,
-      final List<?> collectorIssuePatterns,
+      final List<String> collectorIssuePatterns,
       final String pluginId) {
     this.pluginId = Objects.requireNonNull(pluginId);
     this.hashUserId = hashUserId;
-    nonEstValue = decideNonEstValue(collectorIssuePatterns);
+    nonEstValue = decideNonEstimateValue(collectorIssuePatterns);
   }
 
-  private NonEstUsageValues decideNonEstValue(final List<?> collectorIssuePatterns) {
+  private NonEstUsageValues decideNonEstimateValue(final List<String> collectorIssuePatterns) {
     if ((collectorIssuePatterns == null) || collectorIssuePatterns.isEmpty()) {
       return NonEstUsageValues.ALL;
     }
-    if (collectorIssuePatterns.get(0) instanceof String) {
-      for (String pattern : ((List<String>) collectorIssuePatterns)) {
-        if (".*".equals(pattern)) {
-          return NonEstUsageValues.NONE;
-        }
-      }
-    } else {
-      for (Pattern pattern : ((List<Pattern>) collectorIssuePatterns)) {
-        if (pattern.pattern().equals(".*")) {
-          return NonEstUsageValues.NONE;
-        }
+    for (String pattern : (collectorIssuePatterns)) {
+      if (".*".equals(pattern)) {
+        return NonEstUsageValues.NONE;
       }
     }
     return NonEstUsageValues.SELECTED;

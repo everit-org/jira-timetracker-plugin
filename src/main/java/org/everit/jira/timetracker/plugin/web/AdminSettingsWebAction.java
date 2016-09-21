@@ -29,6 +29,7 @@ import org.apache.log4j.Logger;
 import org.everit.jira.analytics.AnalyticsSender;
 import org.everit.jira.analytics.event.NoEstimateUsageChangedEvent;
 import org.everit.jira.analytics.event.NonWorkingUsageEvent;
+import org.everit.jira.reporting.plugin.util.ConverterUtil;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
 import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
@@ -530,7 +531,8 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
 
   private void sendNonEstAndNonWorkAnaliticsEvent() {
     NoEstimateUsageChangedEvent analyticsEvent =
-        new NoEstimateUsageChangedEvent(pluginId, collectorIssuePatterns);
+        new NoEstimateUsageChangedEvent(pluginId,
+            ConverterUtil.convertPatternsToString(collectorIssuePatterns));
     analyticsSender.send(analyticsEvent);
     NonWorkingUsageEvent nonWorkingUsageEvent =
         new NonWorkingUsageEvent(pluginId, (issuesPatterns == null) || issuesPatterns.isEmpty());

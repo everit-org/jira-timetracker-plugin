@@ -27,7 +27,7 @@ import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 public class NonWorkingUsageEvent implements AnalyticsEvent {
 
   private static final String ACTION_URL =
-      "http://customer.jira.com/secure/ReportingWebAction!default.jspa";
+      "http://customer.jira.com/secure/admin/JiraTimetrackerAdminSettingsWebAction!default.jspa";
 
   private static final String EVENT_ACTION_NAME = "noWorkUsage";
 
