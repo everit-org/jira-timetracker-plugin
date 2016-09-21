@@ -76,7 +76,7 @@ everit.jttp.main = everit.jttp.main || {};
     
     addTooltips();
     headlineProgressIndicator();
-    
+    initProgrssIndicators();
     var original = Calendar.prototype.show;
     Calendar.prototype.show = function() {
       original.call(this);
@@ -291,6 +291,45 @@ everit.jttp.main = everit.jttp.main || {};
     } else {
       AJS.$($progressIndicator).css("background-color", jttp_progress_yellow);  
     }
+  }
+  
+  function initProgrssIndicators(){
+	  var nonWorking=jQuery('#progressBars').attr('data-jttp-nonworking');
+	  if(nonWorking === "false"){
+	  jQuery('.progress-bar').each(function(i, obj) {
+		  var width = $( obj ).css( "width" );
+		  var parentWidth = $( obj ).parent().css( "width" );
+		  var widthInprecent = parseInt(width) / parseInt(parentWidth);
+		  if(widthInprecent < 0.2){
+			  $( obj ).addClass( "progress-bar-danger" );   
+		  } else if(widthInprecent < 1){
+			  $( obj ).addClass( "progress-bar-warning" );   
+		  }else {
+			  $( obj ).addClass( "progress-bar-success" );  
+		  }
+	  });
+	  }else{
+		  jQuery('.progress').each(function(i, obj) {
+			  var width = 0;
+			   $( obj ).children('.progress-bar').each(function(i, obj) {
+				   width+=parseInt($( obj ).css( "width" ));
+			   });
+			   var widthInprecent = (width) / parseInt($( obj ).css( "width" ));
+				  if(widthInprecent < 0.2){
+					  $( obj ).children('.progress-bar').each(function(i, obj) {
+						   $( obj ).addClass( "progress-bar-danger" );   
+					   });
+				  } else if(widthInprecent < 1){
+					  $( obj ).children('.progress-bar').each(function(i, obj) {
+						   $( obj ).addClass( "progress-bar-warning" );   
+					   });
+				  }else {
+					  $( obj ).children('.progress-bar').each(function(i, obj) {
+						   $( obj ).addClass( "progress-bar-success" );  
+					   });
+				  }
+		  });
+	  }
   }
   
   function eventBinding() {

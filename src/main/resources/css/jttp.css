@@ -39,7 +39,7 @@ div.progress .progress-bar-danger {
     background-color: #d04437;
 }
 
-div.progress .progress-bar-danger-nowork {
+div.progress .progress-bar-danger.progress-bar-nowork {
     background: repeating-linear-gradient(
     45deg,
     #d7908b,
@@ -77,7 +77,7 @@ div.progress .progress-bar-danger-nowork {
   );
 }
 
-div.progress .progress-bar-warning-nowork {
+div.progress .progress-bar-warning.progress-bar-nowork {
     background: repeating-linear-gradient(
     45deg,
     #bca979,
@@ -115,7 +115,7 @@ div.progress .progress-bar-warning-nowork {
   );
 }
 
-div.progress .progress-bar-success-nowork {
+div.progress .progress-bar-success.progress-bar-nowork {
     background: repeating-linear-gradient(
     45deg,
     #7ec58b,
