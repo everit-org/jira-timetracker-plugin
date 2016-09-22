@@ -230,40 +230,35 @@ table.aui>thead>tr>th {
 }
 
 table#jttp-worklog-table th#jttp-worklog-actions {
-  min-width: 5rem;
-  width: 5rem;
+  width: 100px;
 }
 
 table#jttp-worklog-table th#jttp-worklog-issue-type {
-  min-width: 1rem;
-  width: 1rem;
+  width: 30px;
 }
 
 table#jttp-worklog-table th#jttp-worklog-issue-key {
-  min-width: 5rem;
-  width: 5rem;
+  width: 120px;
 }
 
 table#jttp-worklog-table th#jttp-worklog-issue-remaining {
-  min-width: 3rem;
-  width: 3rem;
+  width: 90px;
 }
 
 table#jttp-worklog-table th#jttp-worklog-start {
-  min-width: 3rem;
-  width: 3rem;
+  width: 65px;
 }
 
 table#jttp-worklog-table th#jttp-worklog-end {
-  min-width: 3rem;
-  width: 3rem;
+  width: 65px;
 }
 
 table#jttp-worklog-table th#jttp-worklog-duration {
-  min-width: 5rem;
-  width: 5rem;
+  width: 80px;
 }
-
+table#jttp-worklog-table th#jttp-worklog-description {
+  width: 430px;
+}
 .aui-group>.aui-item.summary-module {
     width: 40%;
 }
@@ -319,7 +314,9 @@ h4.sidebar-header span {
 #issueSelect-multi-select{
   max-width: 450px;
 }
-
+.jttpTooltiptext{
+	display: none;
+}
 /*********************************/
 /*********NEW DESING END**********/
 /*********************************/

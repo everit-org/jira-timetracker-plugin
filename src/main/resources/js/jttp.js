@@ -77,6 +77,7 @@ everit.jttp.main = everit.jttp.main || {};
     addTooltips();
     headlineProgressIndicator();
     initProgrssIndicators();
+    initTooltipsForIndicators();
     var original = Calendar.prototype.show;
     Calendar.prototype.show = function() {
       original.call(this);
@@ -331,7 +332,17 @@ everit.jttp.main = everit.jttp.main || {};
 		  });
 	  }
   }
-  
+  function initTooltipsForIndicators(){
+	  $('.jttpTooltip').each(function(i, obj) {
+
+		  AJS.$(obj).tooltip({
+		      title: function () {
+		          return $( obj ).children('.jttpTooltiptext').html();
+		      },
+		    html: true 
+		  });  
+		  });
+  }
   function eventBinding() {
     jQuery('.table-endtime').click(function() {
       var temp = new String(jQuery(this).html());

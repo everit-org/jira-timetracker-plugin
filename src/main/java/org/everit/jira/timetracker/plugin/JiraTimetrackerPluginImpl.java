@@ -38,8 +38,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Predicate;
 import org.apache.log4j.Logger;
 import org.everit.jira.analytics.AnalyticsSender;
 import org.everit.jira.analytics.event.AnalyticsStatusChangedEvent;
@@ -280,22 +278,20 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     return initialDelay;
   }
 
+  private int countDaysInDateSet(final List<String> weekDaysAsString, final Set<String> dateSet) {
+    int counter = 0;
+    for (String weekDay : weekDaysAsString) {
+      if (dateSet.contains(weekDay)) {
+        counter++;
+      }
+    }
+    return counter;
+  }
+
   @Override
   public double countRealWorkDaysInWeek(final List<String> weekDaysAsString) {
-    int exludeDates = CollectionUtils.countMatches(excludeDatesSet, new Predicate() {
-
-      @Override
-      public boolean evaluate(final Object object) {
-        return weekDaysAsString.contains(object);
-      }
-    });
-    int includeDates = CollectionUtils.countMatches(includeDatesSet, new Predicate() {
-
-      @Override
-      public boolean evaluate(final Object object) {
-        return weekDaysAsString.contains(object);
-      }
-    });
+    int exludeDates = countDaysInDateSet(weekDaysAsString, excludeDatesSet);
+    int includeDates = countDaysInDateSet(weekDaysAsString, includeDatesSet);
     return (timeTrackingConfiguration.getDaysPerWeek().doubleValue() - exludeDates) + includeDates;
   }
 

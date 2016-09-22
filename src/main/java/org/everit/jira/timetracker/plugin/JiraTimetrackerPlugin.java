@@ -34,8 +34,15 @@ import com.atlassian.jira.issue.Issue;
  * The JiraTimetrackerPlugin interface.
  */
 public interface JiraTimetrackerPlugin {
-
-  public double countRealWorkDaysInWeek(final List<String> weekDaysAsString);
+  /**
+   * Count the real work days in a week.
+   *
+   * @param weekDaysAsString
+   *          the days of the week in yyyy-hh-mm format.
+   *
+   * @return the counted real work days number.
+   */
+  double countRealWorkDaysInWeek(final List<String> weekDaysAsString);
 
   /**
    * Create a worklog whit the given parameters.

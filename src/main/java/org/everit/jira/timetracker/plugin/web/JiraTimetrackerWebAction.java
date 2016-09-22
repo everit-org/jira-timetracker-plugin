@@ -66,10 +66,14 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
  */
 public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
+  private static final int DAYS_IN_WEEK = 7;
+
   /**
    * The default worklog ID.
    */
   private static final Long DEFAULT_WORKLOG_ID = Long.valueOf(0);
+
+  private static final int HUNDRED = 100;
 
   private static final String INVALID_DURATION_TIME = "plugin.invalid_durationTime";
 
@@ -86,6 +90,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private static final String MISSING_ISSUE = "plugin.missing_issue";
 
   private static final String PARAM_DATE = "date";
+
+  private static final int SECOND_INHOUR = 3600;
 
   private static final String SELF_WITH_DATE_URL_FORMAT =
       "/secure/JiraTimetrackerWebAction.jspa?date=%s";
@@ -177,7 +183,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    */
   private List<String> excludeDays = new ArrayList<>();
 
-  private double expectedSecondsInDay;
+  private double expectedWorkSecondsInDay;
 
   private double expectedWorkSecondsInMonth;
 
@@ -335,8 +341,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   }
 
   private void calculateExpectedHoursInDay() {
-    expectedSecondsInDay = timeTrackingConfiguration.getHoursPerDay().doubleValue() * 3600;
-
+    expectedWorkSecondsInDay =
+        timeTrackingConfiguration.getHoursPerDay().doubleValue() * SECOND_INHOUR;
   }
 
   private void calculateExpectedWorkInWeek() {
@@ -344,13 +350,13 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     Calendar c = createNewCalendarWithWeekStart();
     c.setTime(getWeekStart(date));
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-    for (int i = 0; i < 7; i++) {
+    for (int i = 0; i < DAYS_IN_WEEK; i++) {
       weekdaysAsString.add(simpleDateFormat.format(c.getTime()));
       c.add(Calendar.DAY_OF_MONTH, 1);
     }
     double realWorkDaysInWeek = jiraTimetrackerPlugin.countRealWorkDaysInWeek(weekdaysAsString);
     expectedWorkSecondsInWeek =
-        realWorkDaysInWeek * expectedSecondsInDay;
+        realWorkDaysInWeek * expectedWorkSecondsInDay;
   }
 
   private void calculateExpectedWorkSecondsInMonth() {
@@ -375,7 +381,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       c.add(Calendar.DAY_OF_MONTH, 1);
     }
     long realWorkDaysInMonth = (daysInMonth + includeDtaes) - excludeDtaes - nonWorkDaysCount;
-    expectedWorkSecondsInMonth = realWorkDaysInMonth * expectedWorkSecondsInWeek;
+    expectedWorkSecondsInMonth = realWorkDaysInMonth * expectedWorkSecondsInDay;
   }
 
   private String checkConditions() {
@@ -703,11 +709,12 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   }
 
   public double getDayFilteredNonWorkIndicatorPrecent() {
-    return ((daySummaryInSeconds - dayFilteredSummaryInSecond) / expectedSecondsInDay) * 100;
+    return ((daySummaryInSeconds - dayFilteredSummaryInSecond) / expectedWorkSecondsInDay)
+        * HUNDRED;
   }
 
   public double getDayFilteredRealWorkIndicatorPrecent() {
-    return (dayFilteredSummaryInSecond / expectedSecondsInDay) * 100;
+    return (dayFilteredSummaryInSecond / expectedWorkSecondsInDay) * HUNDRED;
   }
 
   public String getDayFilteredSummary() {
@@ -715,7 +722,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   }
 
   public double getDayIndicatorPrecent() {
-    return (daySummaryInSeconds / expectedSecondsInDay) * 100;
+    return (daySummaryInSeconds / expectedWorkSecondsInDay) * HUNDRED;
   }
 
   public String getDaySumIndustryFormatted() {
@@ -748,6 +755,30 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   public List<String> getExcludeDays() {
     return excludeDays;
+  }
+
+  public String getFormattedExpectedWorkTimeInDay() {
+    return durationFormatter.exactDuration((long) expectedWorkSecondsInDay);
+  }
+
+  public String getFormattedExpectedWorkTimeInMonth() {
+    return durationFormatter.exactDuration((long) expectedWorkSecondsInMonth);
+  }
+
+  public String getFormattedExpectedWorkTimeInWeek() {
+    return durationFormatter.exactDuration((long) expectedWorkSecondsInWeek);
+  }
+
+  public String getFormattedNonWorkTimeInDay() {
+    return durationFormatter.exactDuration(daySummaryInSeconds - dayFilteredSummaryInSecond);
+  }
+
+  public String getFormattedNonWorkTimeInMonth() {
+    return durationFormatter.exactDuration(monthSummaryInSecounds - monthFilteredSummaryInSecond);
+  }
+
+  public String getFormattedNonWorkTimeInWeek() {
+    return durationFormatter.exactDuration(weekSummaryInSecond - weekFilteredSummaryInSecond);
   }
 
   public String getHoursPerDayFormatted() {
@@ -812,11 +843,11 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   public double getMonthFilteredNonWorkIndicatorPrecent() {
     return ((monthSummaryInSecounds - monthFilteredSummaryInSecond) / expectedWorkSecondsInMonth)
-        * 100;
+        * HUNDRED;
   }
 
   public double getMonthFilteredRealWorkIndicatorPrecent() {
-    return (monthFilteredSummaryInSecond / expectedWorkSecondsInMonth) * 100;
+    return (monthFilteredSummaryInSecond / expectedWorkSecondsInMonth) * HUNDRED;
   }
 
   public String getMonthFilteredSummary() {
@@ -824,7 +855,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   }
 
   public double getMonthIndicatorPrecent() {
-    return (monthSummaryInSecounds / expectedWorkSecondsInMonth) * 100;
+    return (monthSummaryInSecounds / expectedWorkSecondsInMonth) * HUNDRED;
   }
 
   public String getMonthSummary() {
@@ -844,11 +875,12 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   }
 
   public double getWeekFilteredNonWorkIndicatorPrecent() {
-    return ((weekSummaryInSecond - weekFilteredSummaryInSecond) / expectedWorkSecondsInWeek) * 100;
+    return ((weekSummaryInSecond - weekFilteredSummaryInSecond) / expectedWorkSecondsInWeek)
+        * HUNDRED;
   }
 
   public double getWeekFilteredRealWorkIndicatorPrecent() {
-    return (weekFilteredSummaryInSecond / expectedWorkSecondsInWeek) * 100;
+    return (weekFilteredSummaryInSecond / expectedWorkSecondsInWeek) * HUNDRED;
   }
 
   public String getWeekFilteredSummary() {
@@ -856,7 +888,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   }
 
   public double getWeekIndicatorPrecent() {
-    return (weekSummaryInSecond / expectedWorkSecondsInWeek) * 100;
+    return (weekSummaryInSecond / expectedWorkSecondsInWeek) * HUNDRED;
   }
 
   private Date getWeekStart(final Date date) {
