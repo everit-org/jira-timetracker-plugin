@@ -70,14 +70,10 @@ public class DurationFormatter implements Serializable {
 
   private boolean appendValue(final StringBuilder rval, final Long value, final String key,
       final boolean nonzeroFragmentVisited) {
-    boolean append = nonzeroFragmentVisited;
     if (value == null) {
       return nonzeroFragmentVisited;
     }
-    if (!nonzeroFragmentVisited && value.longValue() > 0) {
-      append = true;
-    }
-    if (append) {
+    if (nonzeroFragmentVisited || value.longValue() > 0) {
       rval.append(value.longValue()).append(key);
       return true;
     }
@@ -191,6 +187,21 @@ public class DurationFormatter implements Serializable {
     return count;
   }
 
+  private int getIdx(final String key) {
+    switch (key) {
+      case WEEK:
+        return WEEKIDX;
+      case DAY:
+        return DAYIDX;
+      case HOUR:
+        return HOURIDX;
+      case MIN:
+        return MINIDX;
+      default:
+        return -1;
+    }
+  }
+
   /**
    * Convert the seconds to Industry rounded format (8.5h) String.
    *
@@ -212,24 +223,7 @@ public class DurationFormatter implements Serializable {
       final boolean needsTilde, final Long value, final String key) {
     boolean tilde = needsTilde;
     long longValue = value.longValue();
-    int idx;
-    switch (key) {
-      case WEEK:
-        idx = WEEKIDX;
-        break;
-      case DAY:
-        idx = DAYIDX;
-        break;
-      case HOUR:
-        idx = HOURIDX;
-        break;
-      case MIN:
-        idx = MINIDX;
-        break;
-      default:
-        idx = -1;
-        break;
-    }
+    int idx = getIdx(key);
     if (firstNonzeroIdx <= idx && idx <= lastNonzeroIdx && longValue > 0) {
       if (handledFragmentCount < 2) {
         truncatedFragments.put(key, value);
