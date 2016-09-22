@@ -18,7 +18,7 @@
                  <div class="aui-item">
                  #if($isProgressDaily)
                    <div class="jttp-headline-progress" id="jttp-headline-progress">
-                     <div class="jttp-headline-progress-date" id="jttp-headline-progress-date">${dateFormatted}</div>
+                     <div class="jttp-headline-progress-date" id="jttp-headline-progress-date"></div>
                      <div class="jttp-headline-progress-number" id="jttp-headline-progress-number">$daySumIndustryFormatted / $hoursPerDayFormatted</div>
                      <div id="jttp-headline-progress-bar">
                        <div id="jttp-headline-progress-indicator" class="aui-progress-indicator" data-jttp-percent="$dailyPercent">
@@ -28,7 +28,7 @@
                    </div>
                  #else
                    <div class="jttp-headline-date" id="jttp-headline-date">
-                       <p>${dateFormatted}</p>
+                       <p id="jttp-headline-date-span"></p>
                    </div>
                  #end
                  </div>
