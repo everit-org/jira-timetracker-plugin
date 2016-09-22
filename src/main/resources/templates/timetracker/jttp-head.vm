@@ -57,61 +57,61 @@
               </div>
                <div id="progressBars" class="aui-group aui-group-trio" data-jttp-nonworking="${issueRegexIsNotEmpty}">
                #if($issueRegexIsNotEmpty)
-<div class="aui-item jttpTooltip">
-	<label class="progress-label" for="day-progress">Day: $dayFilteredSummary / $daySummary</label>
-	<div id="day-progress" class="progress" style="height:8px; margin-bottom:0px;">
-		<div class="progress-bar" style="width: ${dayFilteredRealWorkIndicatorPrecent}%">                                        
-		</div>
-		<div class="progress-bar progress-bar-nowork" style="width: ${dayFilteredNonWorkIndicatorPrecent}%">                                        
-		</div>
-	</div>
-		<div class="jttpTooltiptext">Expected: $formattedExpectedWorkTimeInDay <br/> Total: $daySummary <br/>Real work: $dayFilteredSummary <br/>Non-work: $formattedNonWorkTimeInDay</div>
-</div>
-<div class="aui-item jttpTooltip">
-	<label class="progress-label" for="week-progress">Week: $weekFilteredSummary / $weekSummary</label>
-	<div id="week-progress" class="progress" style="height:8px; margin-bottom:0px;">
-		<div class="progress-bar" style="width: ${weekFilteredRealWorkIndicatorPrecent}%">                                        
-		</div>
-		<div class="progress-bar progress-bar-nowork" style="width: ${weekFilteredNonWorkIndicatorPrecent}%">                                        
-		</div>
-	</div>
-		<div class="jttpTooltiptext">Expected: $formattedExpectedWorkTimeInWeek <br/> Total:$weekSummary <br/>Real work:$weekFilteredSummary <br/>Non-work: $formattedNonWorkTimeInWeek</div>
-</div>
-<div class="aui-item jttpTooltip">
-	<label class="progress-label" for="month-progress">Month: $monthFilteredSummary / $monthSummary</label>
-	<div id="month-progress" class="progress" style="height:8px; margin-bottom:0px;">
-		<div class="progress-bar" style="width: ${monthFilteredRealWorkIndicatorPrecent}%">                                        
-		</div>
-		<div class="progress-bar progress-bar-nowork" style="width: ${monthFilteredNonWorkIndicatorPrecent}%">                                        
-		</div>
-	</div>
-		<div class="jttpTooltiptext">Expected: $formattedExpectedWorkTimeInMonth<br/> Total: $monthSummary <br/>Real work: $monthFilteredSummary <br/>Non-work: $formattedNonWorkTimeInMonth</div>
-</div>
-#else
-<div class="aui-item jttpTooltip">
-	<label class="progress-label" for="day-progress">Day: $daySummary</label>
-	<div id="day-progress" class="progress" style="height:8px; margin-bottom:0px;">
-		<div class="progress-bar" style="width: ${dayIndicatorPrecent}%">                                        
-		</div>
-	</div>
-	<div class="jttpTooltiptext">Expected: $formattedExpectedWorkTimeInDay<br/> Total: $daySummary</div>
-</div>
-<div class="aui-item jttpTooltip">
-	<label class="progress-label" for="week-progress">Week: $weekSummary</label>
-	<div id="week-progress" class="progress" style="height:8px; margin-bottom:0px;">
-		<div class="progress-bar" style="width: ${weekIndicatorPrecent}%">                                        
-		</div>
-	</div>
-	<div class="jttpTooltiptext">Expected: $formattedExpectedWorkTimeInWeek<br/> Total: $weekSummary</div>
-</div>
-<div class="aui-item jttpTooltip">
-	<label class="progress-label" for="month-progress">Month: $monthSummary</label>
-	<div id="month-progress" class="progress" style="height:8px; margin-bottom:0px;">
-		<div class="progress-bar" style="width: ${monthIndicatorPrecent}%">                                        
-		</div>
-	</div>
-	<div class="jttpTooltiptext">Expected: $formattedExpectedWorkTimeInMonth<br/> Total: $monthSummary</div>
-</div>
-#end
+				<div class="aui-item jttpTooltip">
+					<label class="progress-label" for="day-progress">Day: $dayFilteredSummary / $daySummary</label>
+					<div id="day-progress" class="progress" style="height:8px; margin-bottom:0px;">
+						<div class="progress-bar" style="width: ${dayFilteredRealWorkIndicatorPrecent}%">                                        
+						</div>
+						<div class="progress-bar progress-bar-nowork" style="width: ${dayFilteredNonWorkIndicatorPrecent}%">                                        
+						</div>
+					</div>
+						<div class="jttpTooltiptext">$i18n.getText('plugin.progress.expected'): $formattedExpectedWorkTimeInDay <br/> $i18n.getText('plugin.progress.total'): $daySummary <br/>$i18n.getText('plugin.progress.realWork'): $dayFilteredSummary <br/>$i18n.getText('plugin.progress.nonWork'): $formattedNonWorkTimeInDay</div>
+				</div>
+				<div class="aui-item jttpTooltip">
+					<label class="progress-label" for="week-progress">Week: $weekFilteredSummary / $weekSummary</label>
+					<div id="week-progress" class="progress" style="height:8px; margin-bottom:0px;">
+						<div class="progress-bar" style="width: ${weekFilteredRealWorkIndicatorPrecent}%">                                        
+						</div>
+						<div class="progress-bar progress-bar-nowork" style="width: ${weekFilteredNonWorkIndicatorPrecent}%">                                        
+						</div>
+					</div>
+						<div class="jttpTooltiptext">$i18n.getText('plugin.progress.expected'): $formattedExpectedWorkTimeInWeek <br/> $i18n.getText('plugin.progress.total'): $weekSummary <br/>$i18n.getText('plugin.progress.realWork'):$weekFilteredSummary <br/>$i18n.getText('plugin.progress.nonWork'): $formattedNonWorkTimeInWeek</div>
+				</div>
+				<div class="aui-item jttpTooltip">
+					<label class="progress-label" for="month-progress">Month: $monthFilteredSummary / $monthSummary</label>
+					<div id="month-progress" class="progress" style="height:8px; margin-bottom:0px;">
+						<div class="progress-bar" style="width: ${monthFilteredRealWorkIndicatorPrecent}%">                                        
+						</div>
+						<div class="progress-bar progress-bar-nowork" style="width: ${monthFilteredNonWorkIndicatorPrecent}%">                                        
+						</div>
+					</div>
+						<div class="jttpTooltiptext">$i18n.getText('plugin.progress.expected'): $formattedExpectedWorkTimeInMonth<br/> $i18n.getText('plugin.progress.total'): $monthSummary <br/>$i18n.getText('plugin.progress.realWork'): $monthFilteredSummary <br/>$i18n.getText('plugin.progress.nonWork'): $formattedNonWorkTimeInMonth</div>
+				</div>
+				#else
+				<div class="aui-item jttpTooltip">
+					<label class="progress-label" for="day-progress">Day: $daySummary</label>
+					<div id="day-progress" class="progress" style="height:8px; margin-bottom:0px;">
+						<div class="progress-bar" style="width: ${dayIndicatorPrecent}%">                                        
+						</div>
+					</div>
+					<div class="jttpTooltiptext">$i18n.getText('plugin.progress.expected'): $formattedExpectedWorkTimeInDay<br/> $i18n.getText('plugin.progress.total'): $daySummary</div>
+				</div>
+				<div class="aui-item jttpTooltip">
+					<label class="progress-label" for="week-progress">Week: $weekSummary</label>
+					<div id="week-progress" class="progress" style="height:8px; margin-bottom:0px;">
+						<div class="progress-bar" style="width: ${weekIndicatorPrecent}%">                                        
+						</div>
+					</div>
+					<div class="jttpTooltiptext">$i18n.getText('plugin.progress.expected'): $formattedExpectedWorkTimeInWeek<br/> $i18n.getText('plugin.progress.total'): $weekSummary</div>
+				</div>
+				<div class="aui-item jttpTooltip">
+					<label class="progress-label" for="month-progress">Month: $monthSummary</label>
+					<div id="month-progress" class="progress" style="height:8px; margin-bottom:0px;">
+						<div class="progress-bar" style="width: ${monthIndicatorPrecent}%">                                        
+						</div>
+					</div>
+					<div class="jttpTooltiptext">$i18n.getText('plugin.progress.expected'): $formattedExpectedWorkTimeInMonth<br/> $i18n.getText('plugin.progress.total'): $monthSummary</div>
+				</div>
+				#end
                </div>
             </div>
