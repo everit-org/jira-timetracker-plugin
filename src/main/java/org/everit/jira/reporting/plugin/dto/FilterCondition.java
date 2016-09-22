@@ -23,6 +23,7 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.everit.jira.reporting.plugin.SearcherValue;
 import org.everit.jira.reporting.plugin.util.ConverterUtil;
 
 /**
@@ -36,7 +37,7 @@ public class FilterCondition {
 
   @XmlElement
   private List<String> groups =
-      new ArrayList<String>(Arrays.asList(ConverterUtil.VALUE_NEGATIVE_ONE));
+      new ArrayList<>(Arrays.asList(ConverterUtil.VALUE_NEGATIVE_ONE));
 
   @XmlElement
   private List<String> issueAffectedVersions = Collections.emptyList();
@@ -90,7 +91,7 @@ public class FilterCondition {
   private List<Long> projectIds = Collections.emptyList();
 
   @XmlElement
-  private String searcherValue = ConverterUtil.DEFAULT_SEARCHER_VALUE;
+  private String searcherValue = SearcherValue.BASIC.lowerCaseValue;
 
   @XmlElement
   private List<String> users = Collections.emptyList();

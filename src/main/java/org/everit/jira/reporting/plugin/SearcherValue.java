@@ -13,14 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.jira.analytics;
+package org.everit.jira.reporting.plugin;
 
 /**
  * The searcher values.
  */
 public enum SearcherValue {
 
-  BASIC,
+  BASIC("basic"),
 
-  FILTER;
+  FILTER("filter");
+
+  public final String lowerCaseValue;
+
+  SearcherValue(final String lowerCaseValue) {
+    this.lowerCaseValue = lowerCaseValue;
+  }
+
 }
