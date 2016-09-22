@@ -188,25 +188,18 @@ public class DurationFormatter implements Serializable {
   }
 
   private int getIdx(final String key) {
-    int idx;
     switch (key) {
       case WEEK:
-        idx = WEEKIDX;
-        break;
+        return WEEKIDX;
       case DAY:
-        idx = DAYIDX;
-        break;
+        return DAYIDX;
       case HOUR:
-        idx = HOURIDX;
-        break;
+        return HOURIDX;
       case MIN:
-        idx = MINIDX;
-        break;
+        return MINIDX;
       default:
-        idx = -1;
-        break;
+        return -1;
     }
-    return idx;
   }
 
   /**
@@ -230,8 +223,7 @@ public class DurationFormatter implements Serializable {
       final boolean needsTilde, final Long value, final String key) {
     boolean tilde = needsTilde;
     long longValue = value.longValue();
-    int idx;
-    idx = getIdx(key);
+    int idx = getIdx(key);
     if (firstNonzeroIdx <= idx && idx <= lastNonzeroIdx && longValue > 0) {
       if (handledFragmentCount < 2) {
         truncatedFragments.put(key, value);
