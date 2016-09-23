@@ -33,8 +33,8 @@ everit.jttp.main = everit.jttp.main || {};
     
     var formatedDate =  new Date(jttp.options.dateFormatted).print(jttp.options.dateFormat);  
     
-    jQuery("#jttp-headline-progress-date").text(formatedDate);
-    jQuery("#jttp-headline-date-span").text(formatedDate);
+//    jQuery("#jttp-headline-progress-date").text(formatedDate);
+//    jQuery("#jttp-headline-date-span").text(formatedDate);
     jQuery("#dateHidden").val(formatedDate);
     
    
