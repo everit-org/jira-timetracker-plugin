@@ -110,7 +110,6 @@
     </resource>
     <resource type="download" name="jttp.css" location="/css/jttp.css" />
     <resource type="download" name="bootstrap.min.css" location="/css/bootstrap.min.css" />
-    <resource type="download" name="bootstrap.min.js" location="/js/bootstrap.min.js"/>
     <resource type="download" name="bootstrap-progress.css" location="/js/bootstrap-progress.css"/>
   </web-resource>
 
