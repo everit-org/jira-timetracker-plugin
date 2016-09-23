@@ -45,7 +45,10 @@ everit.jttp.main = everit.jttp.main || {};
         }
     }
     
-    document.getElementById("startTime").focus();
+    if(!$( ".aui-message-error" ).length && window.location.search.indexOf('date') > -1 ){
+    	document.getElementById("comments").focus();
+    }
+    
     jQuery('.aui-ss-editing').attr("style", "width: 250px;");
     jQuery('.aui-ss.aui-ss-editing .aui-ss-field').attr("style", "width: 250px;");
    
