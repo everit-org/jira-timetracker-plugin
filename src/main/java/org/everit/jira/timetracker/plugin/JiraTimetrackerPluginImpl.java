@@ -284,6 +284,23 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     return initialDelay;
   }
 
+  private int countDaysInDateSet(final List<String> weekDaysAsString, final Set<String> dateSet) {
+    int counter = 0;
+    for (String weekDay : weekDaysAsString) {
+      if (dateSet.contains(weekDay)) {
+        counter++;
+      }
+    }
+    return counter;
+  }
+
+  @Override
+  public double countRealWorkDaysInWeek(final List<String> weekDaysAsString) {
+    int exludeDates = countDaysInDateSet(weekDaysAsString, excludeDatesSet);
+    int includeDates = countDaysInDateSet(weekDaysAsString, includeDatesSet);
+    return (timeTrackingConfiguration.getDaysPerWeek().doubleValue() - exludeDates) + includeDates;
+  }
+
   private List<Long> createProjects(final ApplicationUser loggedInUser) {
     Collection<Project> projects = ComponentAccessor.getPermissionManager()
         .getProjects(Permissions.BROWSE, loggedInUser);
@@ -624,17 +641,20 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
 
   @Override
   public List<String> getExcludeDaysOfTheMonth(final Date date) {
+    return getExtraDaysOfTheMonth(date, excludeDatesSet);
+  }
+
+  private List<String> getExtraDaysOfTheMonth(final Date date, final Set<String> dates) {
     String fixDate = DateTimeConverterUtil.dateToFixFormatString(date);
-    List<String> resultexcludeDays = new ArrayList<>();
-    for (String exludeDate : excludeDatesSet) {
+    List<String> resultExtraDays = new ArrayList<>();
+    for (String extraDate : dates) {
       // TODO this if not handle the 2013-4-04 date..... this is wrong or
       // not? .... think about it.
-      if (exludeDate.startsWith(fixDate.substring(0, DATE_LENGTH))) {
-        resultexcludeDays.add(exludeDate.substring(exludeDate.length() - 2));
+      if (extraDate.startsWith(fixDate.substring(0, DATE_LENGTH))) {
+        resultExtraDays.add(extraDate.substring(extraDate.length() - 2));
       }
     }
-
-    return resultexcludeDays;
+    return resultExtraDays;
   }
 
   private String getFromMail() {
@@ -642,6 +662,11 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
       return ComponentAccessor.getMailServerManager().getDefaultSMTPMailServer().getDefaultFrom();
     }
     return null;
+  }
+
+  @Override
+  public List<String> getIncludeDaysOfTheMonth(final Date date) {
+    return getExtraDaysOfTheMonth(date, includeDatesSet);
   }
 
   private List<String> getIssuePatterns() {
@@ -1168,7 +1193,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   public long summary(final Date startSummary,
       final Date finishSummary,
       final List<Pattern> issuePatterns) throws GenericEntityException {
-    // TODO JIRAPLUGIN-348 refactor
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
     ApplicationUser user = authenticationContext.getUser();
@@ -1209,15 +1233,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
       timeSpent += worklog.getLong("timeworked").longValue();
     }
     return timeSpent;
-  }
-
-  @Override
-  public String summaryToGui(final Date startSummary, final Date finishSummary,
-      final List<Pattern> issueIds)
-      throws GenericEntityException {
-    // TODO JIRAPLUGIN-348 this is works for the daily progress indicator
-    long timeSpent = summary(startSummary, finishSummary, issueIds);
-    return new DurationFormatter().exactDuration(timeSpent);
   }
 
   @Override
