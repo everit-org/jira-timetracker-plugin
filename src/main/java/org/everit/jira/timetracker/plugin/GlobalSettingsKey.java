@@ -51,9 +51,14 @@ public final class GlobalSettingsKey {
   public static final String JTTP_PLUGIN_SETTINGS_IS_ACTUAL_DATE = "isActualDate";
 
   /**
-   * The plugin setting is actual date key.
+   * The plugin setting is coloring key.
    */
   public static final String JTTP_PLUGIN_SETTINGS_IS_COLORIG = "isColoring";
+
+  /**
+   * The plugin setting is rounded remaining time key.
+   */
+  public static final String JTTP_PLUGIN_SETTINGS_IS_ROUNDED = "isRounded";
 
   /**
    * The plugin setting is show tutorial key.

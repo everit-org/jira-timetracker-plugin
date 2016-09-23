@@ -41,6 +41,8 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 import org.everit.jira.analytics.AnalyticsSender;
 import org.everit.jira.analytics.event.AnalyticsStatusChangedEvent;
+import org.everit.jira.analytics.event.NoEstimateUsageChangedEvent;
+import org.everit.jira.analytics.event.NonWorkingUsageEvent;
 import org.everit.jira.reporting.plugin.dto.MissingsWorklogsDTO;
 import org.everit.jira.timetracker.plugin.dto.ActionResult;
 import org.everit.jira.timetracker.plugin.dto.ActionResultStatus;
@@ -134,6 +136,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   private static final int THIRTY_MINUTES = 30;
 
   private static final int TWENTY_MINUTES = 20;
+
+  public static final String UNKNOW_USER_NAME = "UNKNOW_USER_NAME";
 
   private static final String WORKLOG_CREATE_FAIL = "plugin.worklog.create.fail";
 
@@ -265,6 +269,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
         .scheduleAtFixedRate(issueEstimatedTimeChecker,
             calculateInitialDelay(issueCheckTimeInMinutes),
             ONE_DAY_IN_MINUTES, TimeUnit.MINUTES);
+
+    sendNonEstAndNonWorkAnaliticsEvent();
   }
 
   private long calculateInitialDelay(final long time) {
@@ -641,7 +647,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   private List<String> getExtraDaysOfTheMonth(final Date date, final Set<String> dates) {
     String fixDate = DateTimeConverterUtil.dateToFixFormatString(date);
     List<String> resultexcludeDays = new ArrayList<>();
-    for (String exludeDate : dates) {
+    for (String exludeDate : excludeDatesSet) {
       // TODO this if not handle the 2013-4-04 date..... this is wrong or
       // not? .... think about it.
       if (exludeDate.startsWith(fixDate.substring(0, DATE_LENGTH))) {
@@ -661,6 +667,13 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   @Override
   public List<String> getIncludeDaysOfTheMonth(final Date date) {
     return getExtraDaysOfTheMonth(date, includeDatesSet);
+  }
+
+  private List<String> getIssuePatterns() {
+    List<String> tempIssuePatternList = (List<String>) globalSettings.get(
+        GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+            + GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_NON_ESTIMATED_ISSUES);
+    return tempIssuePatternList;
   }
 
   @Override
@@ -726,6 +739,13 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
       }
     }
     return startTimeChange;
+  }
+
+  private List<String> getSummaryFiletrs() {
+    List<String> tempSummaryFilter =
+        (List<String>) globalSettings.get(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+            + GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_SUMMARY_FILTERS);
+    return tempSummaryFilter;
   }
 
   @Override
@@ -923,6 +943,12 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
       isColoring = false;
     }
 
+    // the default rounded is TRUE
+    Boolean isRounded = true;
+    if ("false".equals(pluginSettings.get(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_IS_ROUNDED))) {
+      isRounded = false;
+    }
+
     // SET startTime Change the default value is 5
     int startTimeChange = getStartTimeChange();
     // SET endtTime Change the default value is 5
@@ -941,7 +967,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
         .analyticsCheck(analyticsCheckValue)
         .pluginUUID(pluginUUID)
         .pluginGroups(pluginGroups)
-        .timetrackingGroups(timetrackerGroups);
+        .timetrackingGroups(timetrackerGroups)
+        .isRounded(isRounded);
     return pluginSettingsValues;
   }
 
@@ -993,6 +1020,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
         Integer.toString(pluginSettingsParameters.startTimeChange));
     pluginSettings.put(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_END_TIME_CHANGE,
         Integer.toString(pluginSettingsParameters.endTimeChange));
+    pluginSettings.put(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_IS_ROUNDED,
+        pluginSettingsParameters.isRounded.toString());
 
     globalSettings = settingsFactory.createGlobalSettings();
     globalSettings.put(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
@@ -1049,10 +1078,23 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     }
   }
 
+  private void sendNonEstAndNonWorkAnaliticsEvent() {
+    List<String> tempIssuePatterns = getIssuePatterns();
+    List<String> tempSummaryFilter = getSummaryFiletrs();
+    String pluginId =
+        JiraTimetrackerAnalytics.getPluginUUID(globalSettings);
+
+    NoEstimateUsageChangedEvent analyticsEvent =
+        new NoEstimateUsageChangedEvent(pluginId, tempIssuePatterns, UNKNOW_USER_NAME);
+    analyticsSender.send(analyticsEvent);
+    NonWorkingUsageEvent nonWorkingUsageEvent =
+        new NonWorkingUsageEvent(pluginId,
+            (tempSummaryFilter == null) || tempSummaryFilter.isEmpty(), UNKNOW_USER_NAME);
+    analyticsSender.send(nonWorkingUsageEvent);
+  }
+
   private void setCollectorIssuePatterns() {
-    List<String> tempIssuePatternList = (List<String>) globalSettings.get(
-        GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
-            + GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_NON_ESTIMATED_ISSUES);
+    List<String> tempIssuePatternList = getIssuePatterns();
     if (tempIssuePatternList != null) {
       // add collector issues
       collectorIssuePatterns = new ArrayList<>();
@@ -1110,9 +1152,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   }
 
   private void setNonWorkingIssuePatterns() {
-    List<String> tempIssuePatternList = (List<String>) globalSettings.get(
-        GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
-            + GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_SUMMARY_FILTERS);
+    List<String> tempIssuePatternList = getSummaryFiletrs();
     if (tempIssuePatternList != null) {
       // add non working issues
       nonWorkingIssuePatterns = new ArrayList<>();

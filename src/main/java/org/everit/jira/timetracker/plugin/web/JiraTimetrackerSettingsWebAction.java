@@ -89,6 +89,8 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
    */
   private boolean isColoring;
 
+  private boolean isRounded;
+
   private String issueCollectorSrc;
 
   /**
@@ -228,6 +230,10 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     return isColoring;
   }
 
+  public boolean getIsRounded() {
+    return isRounded;
+  }
+
   public String getIssueCollectorSrc() {
     return issueCollectorSrc;
   }
@@ -272,6 +278,7 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     startTime = Integer.toString(pluginSettingsValues.startTimeChange);
     endTime = Integer.toString(pluginSettingsValues.endTimeChange);
     isColoring = pluginSettingsValues.isColoring;
+    isRounded = pluginSettingsValues.isRounded;
   }
 
   private void normalizeContextPath() {
@@ -305,6 +312,9 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 
     String isColoringValue = request.getParameter("isColoring");
     isColoring = (isColoringValue != null);
+
+    String isRoundedValue = request.getParameter("isRounded");
+    isRounded = (isRoundedValue != null);
 
     try {
       if (jiraTimetrackerPlugin.validateTimeChange(startTimeValue)) {
@@ -351,7 +361,8 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
         .collectorIssues(collectorIssuePatterns)
         .startTimeChange(Integer.parseInt(startTime))
         .endTimeChange(Integer.parseInt(endTime))
-        .analyticsCheck(analyticsCheck);
+        .analyticsCheck(analyticsCheck)
+        .isRounded(isRounded);
     jiraTimetrackerPlugin.savePluginSettings(pluginSettingValues);
   }
 
@@ -377,6 +388,10 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 
   public void setIsColoring(final boolean isColoring) {
     this.isColoring = isColoring;
+  }
+
+  public void setIsRounded(final boolean isRunded) {
+    this.isRounded = isRunded;
   }
 
   public void setMessage(final String message) {
