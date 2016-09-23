@@ -203,8 +203,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    */
   private boolean isColoring;
 
-  private boolean isRounded;
-
   private boolean isDurationSelected = false;
 
   private boolean isProgressDaily = true;
