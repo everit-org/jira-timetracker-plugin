@@ -203,11 +203,11 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    */
   private boolean isColoring;
 
-  private boolean isRounded;
-
   private boolean isDurationSelected = false;
 
   private boolean isProgressDaily = true;
+
+  private boolean isRounded;
 
   private String issueCollectorSrc;
 
@@ -348,25 +348,26 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   }
 
   private void calculateExpectedWorkSecondsInMonth() {
-    Calendar c = createNewCalendarWithWeekStart();
-    c.setTime(date);
-    c.set(Calendar.DAY_OF_MONTH, 1);
-    Calendar calendar = createNewCalendarWithWeekStart();
-    calendar.setTime(date);
-    calendar.set(Calendar.DAY_OF_MONTH,
-        calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+    Calendar dayIndex = createNewCalendarWithWeekStart();
+    dayIndex.setTime(date);
+    dayIndex.set(Calendar.DAY_OF_MONTH, 1);
+    Calendar monthLastDay = createNewCalendarWithWeekStart();
+    monthLastDay.setTime(date);
+    monthLastDay.set(Calendar.DAY_OF_MONTH,
+        monthLastDay.getActualMaximum(Calendar.DAY_OF_MONTH));
 
-    long daysInMonth = TimeUnit.DAYS.convert(calendar.getTimeInMillis() - c.getTimeInMillis(),
-        TimeUnit.MILLISECONDS) + 1;
+    long daysInMonth =
+        TimeUnit.DAYS.convert(monthLastDay.getTimeInMillis() - dayIndex.getTimeInMillis(),
+            TimeUnit.MILLISECONDS) + 1;
     int excludeDtaes = jiraTimetrackerPlugin.getExcludeDaysOfTheMonth(date).size();
     int includeDtaes = jiraTimetrackerPlugin.getIncludeDaysOfTheMonth(date).size();
     int nonWorkDaysCount = 0;
     for (int i = 1; i < daysInMonth; i++) {
-      int dayOfweek = c.get(Calendar.DAY_OF_WEEK);
+      int dayOfweek = dayIndex.get(Calendar.DAY_OF_WEEK);
       if ((dayOfweek == Calendar.SUNDAY) || (dayOfweek == Calendar.SATURDAY)) {
         nonWorkDaysCount++;
       }
-      c.add(Calendar.DAY_OF_MONTH, 1);
+      dayIndex.add(Calendar.DAY_OF_MONTH, 1);
     }
     long realWorkDaysInMonth = (daysInMonth + includeDtaes) - excludeDtaes - nonWorkDaysCount;
     expectedWorkSecondsInMonth = realWorkDaysInMonth * expectedWorkSecondsInDay;
@@ -374,12 +375,12 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   private void calculateExpectedWorkSecondsInWeek() {
     List<String> weekdaysAsString = new ArrayList<>();
-    Calendar c = createNewCalendarWithWeekStart();
-    c.setTime(getWeekStart(date));
+    Calendar dayIndex = createNewCalendarWithWeekStart();
+    dayIndex.setTime(getWeekStart(date));
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
     for (int i = 0; i < DAYS_IN_WEEK; i++) {
-      weekdaysAsString.add(simpleDateFormat.format(c.getTime()));
-      c.add(Calendar.DAY_OF_MONTH, 1);
+      weekdaysAsString.add(simpleDateFormat.format(dayIndex.getTime()));
+      dayIndex.add(Calendar.DAY_OF_MONTH, 1);
     }
     double realWorkDaysInWeek = jiraTimetrackerPlugin.countRealWorkDaysInWeek(weekdaysAsString);
     expectedWorkSecondsInWeek =
