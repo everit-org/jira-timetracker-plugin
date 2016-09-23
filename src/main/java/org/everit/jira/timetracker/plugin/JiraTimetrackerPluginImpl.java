@@ -646,15 +646,15 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
 
   private List<String> getExtraDaysOfTheMonth(final Date date, final Set<String> dates) {
     String fixDate = DateTimeConverterUtil.dateToFixFormatString(date);
-    List<String> resultexcludeDays = new ArrayList<>();
-    for (String exludeDate : excludeDatesSet) {
+    List<String> resultExtraDays = new ArrayList<>();
+    for (String extraDate : dates) {
       // TODO this if not handle the 2013-4-04 date..... this is wrong or
       // not? .... think about it.
-      if (exludeDate.startsWith(fixDate.substring(0, DATE_LENGTH))) {
-        resultexcludeDays.add(exludeDate.substring(exludeDate.length() - 2));
+      if (extraDate.startsWith(fixDate.substring(0, DATE_LENGTH))) {
+        resultExtraDays.add(extraDate.substring(extraDate.length() - 2));
       }
     }
-    return resultexcludeDays;
+    return resultExtraDays;
   }
 
   private String getFromMail() {
