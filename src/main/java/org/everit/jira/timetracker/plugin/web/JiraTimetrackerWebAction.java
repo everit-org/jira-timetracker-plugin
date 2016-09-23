@@ -340,23 +340,9 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     atlassianWikiRenderer = rendererManager.getRendererForType("atlassian-wiki-renderer");
   }
 
-  private void calculateExpectedHoursInDay() {
+  private void calculateExpectedWorkSecondsInDay() {
     expectedWorkSecondsInDay =
         timeTrackingConfiguration.getHoursPerDay().doubleValue() * SECOND_INHOUR;
-  }
-
-  private void calculateExpectedWorkInWeek() {
-    List<String> weekdaysAsString = new ArrayList<>();
-    Calendar c = createNewCalendarWithWeekStart();
-    c.setTime(getWeekStart(date));
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-    for (int i = 0; i < DAYS_IN_WEEK; i++) {
-      weekdaysAsString.add(simpleDateFormat.format(c.getTime()));
-      c.add(Calendar.DAY_OF_MONTH, 1);
-    }
-    double realWorkDaysInWeek = jiraTimetrackerPlugin.countRealWorkDaysInWeek(weekdaysAsString);
-    expectedWorkSecondsInWeek =
-        realWorkDaysInWeek * expectedWorkSecondsInDay;
   }
 
   private void calculateExpectedWorkSecondsInMonth() {
@@ -382,6 +368,20 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     }
     long realWorkDaysInMonth = (daysInMonth + includeDtaes) - excludeDtaes - nonWorkDaysCount;
     expectedWorkSecondsInMonth = realWorkDaysInMonth * expectedWorkSecondsInDay;
+  }
+
+  private void calculateExpectedWorkSecondsInWeek() {
+    List<String> weekdaysAsString = new ArrayList<>();
+    Calendar c = createNewCalendarWithWeekStart();
+    c.setTime(getWeekStart(date));
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    for (int i = 0; i < DAYS_IN_WEEK; i++) {
+      weekdaysAsString.add(simpleDateFormat.format(c.getTime()));
+      c.add(Calendar.DAY_OF_MONTH, 1);
+    }
+    double realWorkDaysInWeek = jiraTimetrackerPlugin.countRealWorkDaysInWeek(weekdaysAsString);
+    expectedWorkSecondsInWeek =
+        realWorkDaysInWeek * expectedWorkSecondsInDay;
   }
 
   private String checkConditions() {
@@ -1171,8 +1171,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     double daySumMin = daySummaryInSeconds / (double) DateTimeConverterUtil.SECONDS_PER_MINUTE;
     double daySumHour = daySumMin / DateTimeConverterUtil.MINUTES_PER_HOUR;
     dailyPercent = daySumHour / hoursPerDay;
-    calculateExpectedHoursInDay();
-    calculateExpectedWorkInWeek();
+    calculateExpectedWorkSecondsInDay();
+    calculateExpectedWorkSecondsInWeek();
     calculateExpectedWorkSecondsInMonth();
   }
 

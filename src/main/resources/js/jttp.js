@@ -295,21 +295,6 @@ everit.jttp.main = everit.jttp.main || {};
   }
   
   function initProgrssIndicators(){
-	  var nonWorking=jQuery('#progressBars').attr('data-jttp-nonworking');
-	  if(nonWorking === "false"){
-	  jQuery('.progress-bar').each(function(i, obj) {
-		  var width = $( obj ).css( "width" );
-		  var parentWidth = $( obj ).parent().css( "width" );
-		  var widthInprecent = parseInt(width) / parseInt(parentWidth);
-		  if(widthInprecent < 0.2){
-			  $( obj ).addClass( "progress-bar-danger" );   
-		  } else if(widthInprecent < 1){
-			  $( obj ).addClass( "progress-bar-warning" );   
-		  }else {
-			  $( obj ).addClass( "progress-bar-success" );  
-		  }
-	  });
-	  }else{
 		  jQuery('.progress').each(function(i, obj) {
 			  var width = 0;
 			   $( obj ).children('.progress-bar').each(function(i, obj) {
@@ -330,11 +315,9 @@ everit.jttp.main = everit.jttp.main || {};
 					   });
 				  }
 		  });
-	  }
   }
   function initTooltipsForIndicators(){
 	  $('.jttpTooltip').each(function(i, obj) {
-
 		  AJS.$(obj).tooltip({
 		      title: function () {
 		          return $( obj ).children('.jttpTooltiptext').html();

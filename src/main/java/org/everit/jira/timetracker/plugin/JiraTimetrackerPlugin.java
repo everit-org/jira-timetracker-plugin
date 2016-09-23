@@ -263,22 +263,6 @@ public interface JiraTimetrackerPlugin {
       throws GenericEntityException;
 
   /**
-   * Give back the all worklogs spent time between the two date.
-   *
-   * @param startSummary
-   *          The start date.
-   * @param finishSummary
-   *          The finish date.
-   * @param issueIds
-   *          The filtered issues ids. If null or empty then don't make filtered summary.
-   * @return The summary spent time in Jira format (1h 30m)
-   * @throws GenericEntityException
-   *           GenericEntityException.
-   */
-  String summaryToGui(Date startSummary, Date finishSummary, List<Pattern> issueIds)
-      throws GenericEntityException;
-
-  /**
    * Validate the start and end time changer buttons values. The acceptable values: 1, 5, 10, 15,
    * 20, 30.
    *

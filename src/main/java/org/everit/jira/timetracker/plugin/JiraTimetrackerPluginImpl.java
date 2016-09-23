@@ -1153,7 +1153,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   public long summary(final Date startSummary,
       final Date finishSummary,
       final List<Pattern> issuePatterns) throws GenericEntityException {
-    // TODO JIRAPLUGIN-348 refactor
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
     ApplicationUser user = authenticationContext.getUser();
@@ -1194,15 +1193,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
       timeSpent += worklog.getLong("timeworked").longValue();
     }
     return timeSpent;
-  }
-
-  @Override
-  public String summaryToGui(final Date startSummary, final Date finishSummary,
-      final List<Pattern> issueIds)
-      throws GenericEntityException {
-    // TODO JIRAPLUGIN-348 this is works for the daily progress indicator
-    long timeSpent = summary(startSummary, finishSummary, issueIds);
-    return new DurationFormatter().exactDuration(timeSpent);
   }
 
   @Override

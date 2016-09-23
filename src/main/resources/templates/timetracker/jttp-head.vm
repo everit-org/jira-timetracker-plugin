@@ -55,7 +55,7 @@
                    </form>
                  </div>
               </div>
-               <div id="progressBars" class="aui-group aui-group-trio" data-jttp-nonworking="${issueRegexIsNotEmpty}">
+               <div id="progressBars" class="aui-group aui-group-trio">
                #if($issueRegexIsNotEmpty)
 				<div class="aui-item jttpTooltip">
 					<label class="progress-label" for="day-progress">Day: $dayFilteredSummary / $daySummary</label>
