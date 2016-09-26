@@ -79,7 +79,8 @@ everit.jttp.main = everit.jttp.main || {};
     
     addTooltips();
     headlineProgressIndicator();
-    
+    initProgrssIndicators();
+    initTooltipsForIndicators();
     var original = Calendar.prototype.show;
     Calendar.prototype.show = function() {
       original.call(this);
@@ -296,6 +297,38 @@ everit.jttp.main = everit.jttp.main || {};
     }
   }
   
+  function initProgrssIndicators(){
+		  jQuery('.progress').each(function(i, obj) {
+			  var width = 0;
+			  jQuery( obj ).children('.progress-bar').each(function(i, obj) {
+				   width+=parseInt(jQuery( obj ).css( "width" ));
+			   });
+			   var widthInprecent = (width) / parseInt(jQuery( obj ).css( "width" ));
+				  if(widthInprecent < 0.2){
+					  jQuery( obj ).children('.progress-bar').each(function(i, obj) {
+						  jQuery( obj ).addClass( "progress-bar-danger" );   
+					   });
+				  } else if(widthInprecent < 1){
+					  jQuery( obj ).children('.progress-bar').each(function(i, obj) {
+						  jQuery( obj ).addClass( "progress-bar-warning" );   
+					   });
+				  }else {
+					  jQuery( obj ).children('.progress-bar').each(function(i, obj) {
+						  jQuery( obj ).addClass( "progress-bar-success" );  
+					   });
+				  }
+		  });
+  }
+  function initTooltipsForIndicators(){
+	  jQuery('.jttpTooltip').each(function(i, obj) {
+		  AJS.$(obj).tooltip({
+		      title: function () {
+		          return $( obj ).children('.jttpTooltiptext').html();
+		      },
+		    html: true 
+		  });  
+		  });
+  }
   function eventBinding() {
     jQuery('.table-endtime').click(function() {
       var temp = new String(jQuery(this).html());
