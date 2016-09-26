@@ -19,58 +19,41 @@ everit.jttp = everit.jttp || {};
 everit.jttp.report_common_scripts = everit.jttp.report_common_scripts || {};
 
 (function(jttp, jQuery) {
-    
-  Date.prototype.format = function (formatString) {
-    return fecha.format(this, formatString);
-  };
+
+  var opt;
   
   jQuery(document).ready(function() {
-    fecha.i18n = {
-        dayNamesShort: Calendar._SDN,
-        dayNames: Calendar._DN,
-        monthNamesShort: Calendar._SMN,
-        monthNames: Calendar._MN,
-        amPm: ['am', 'pm'],
-        // D is the day of the month, function returns something like...  3rd or 11th
-        DoFn: function (D) {
-            return D + [ 'th', 'st', 'nd', 'rd' ][ D % 10 > 3 ? 0 : (D - D % 10 !== 10) * D % 10 ];
-        }
-    }
-    
-    var opt = jttp.options;
-    
-    Date.parseDate = function(str, fmt){
-      return fecha.parse(str, AJS.Meta.get("date-dmy").toUpperCase());
-      };
+    opt = jttp.options;
       
-    jQuery("#dateFrom").val(fecha.format(opt.dateFromFormated, AJS.Meta.get("date-dmy").toUpperCase()));
-    jQuery("#dateTo").val(fecha.format(opt.dateToFormated, AJS.Meta.get("date-dmy").toUpperCase()));
-    
+    var dateForm = new Date(opt.dateFromFormated).print(opt.dateFormat); 
+    jQuery("#dateFrom").val(dateForm);
+    var dateTo = new Date(opt.dateToFormated).print(opt.dateFormat);
+    jQuery("#dateTo").val(dateTo);
 
     jttp.calFrom = Calendar.setup({
       firstDay : opt.firstDay,
       inputField : jQuery("#dateFrom"),
       button : jQuery("#date_trigger_from"),
-      date : opt.dateFromFormated,
+      date : dateForm,
+      ifFormat: opt.dateFormat,
       align : 'Br',
       electric : false,
       singleClick : true,
       showOthers : true,
       useISO8601WeekNumbers : opt.useISO8601,
-      onSelect: jttp.onSelect,
     });
 
     var calTo = Calendar.setup({
       firstDay : opt.firstDay,
       inputField : jQuery("#dateTo"),
       button : jQuery("#date_trigger_to"),
-      date : opt.dateToFormated,
+      date : dateTo,
+      ifFormat: opt.dateFormat,
       align : 'Br',
       electric : false,
       singleClick : true,
       showOthers : true,
       useISO8601WeekNumbers : opt.useISO8601,
-      onSelect: jttp.onSelect,
     });
     
     browsePermissionCheck();
@@ -94,33 +77,7 @@ everit.jttp.report_common_scripts = everit.jttp.report_common_scripts || {};
       
     }
   }
-  
-  jttp.onSelect = function(cal) {
-    //Copy of the original onSelect. Only chacnge not use te p.ifFormat
-    var p = cal.params;
-    var update = (cal.dateClicked || p.electric);
-    if (update && p.inputField) {
-      var dmy = AJS.Meta.get("date-dmy").toUpperCase();
-      p.inputField.value = cal.date.format(dmy);
-      jQuery(p.inputField).change();            
-    }
-    if (update && p.displayArea)
-      p.displayArea.innerHTML = cal.date.print(p.daFormat);
-    if (update && typeof p.onUpdate == "function")
-      p.onUpdate(cal);
-    if (update && p.flat) {
-      if (typeof p.flatCallback == "function")
-        p.flatCallback(cal);
-    }
-        if (p.singleClick === "true") {
-            p.singleClick = true;
-        } else if (p.singleClick === "false") {
-            p.singleClick = false;
-        }
-    if (update && p.singleClick && cal.dateClicked)
-      cal.callCloseHandler();
-  }
-  
+
   jttp.jttpSearchOnClick = function(reportName) {
     var loggedUserIn = AJS.params.loggedInUser;
     var selectedUser = document.getElementById("userPicker").value;
@@ -149,7 +106,7 @@ everit.jttp.report_common_scripts = everit.jttp.report_common_scripts || {};
  jttp.beforeSubmitReport = function() {
    try{
      var dateFrom = jQuery('#dateFrom').val();
-     var dateFromMil = fecha.parse(dateFrom,  AJS.Meta.get("date-dmy").toUpperCase());
+     var dateFromMil = Date.parseDate(dateFrom, jttp.options.dateFormat);
      jQuery('#dateFromMil').val(dateFromMil.getTime());
    }catch(err){
      showErrorMessage("error_message_label_df");
@@ -157,7 +114,7 @@ everit.jttp.report_common_scripts = everit.jttp.report_common_scripts || {};
    }
    try{
      var dateTo = jQuery('#dateTo').val();
-     var dateToMil = fecha.parse(dateTo,  AJS.Meta.get("date-dmy").toUpperCase());
+     var dateToMil =  Date.parseDate(dateTo, jttp.options.dateFormat);
      jQuery('#dateToMil').val(dateToMil.getTime());
    }catch(err){
      showErrorMessage("error_message_label_dt");
