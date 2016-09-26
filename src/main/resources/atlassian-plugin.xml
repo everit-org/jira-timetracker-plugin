@@ -108,6 +108,8 @@
       <param name="content-type" value="image/png" />
     </resource>
     <resource type="download" name="jttp.css" location="/css/jttp.css" />
+    <resource type="download" name="bootstrap.min.css" location="/css/bootstrap.min.css" />
+    <resource type="download" name="bootstrap-progress.css" location="/js/bootstrap-progress.css"/>
   </web-resource>
 
   <web-resource name="JTTP Resources" key="table_report-resources">

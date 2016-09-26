@@ -47,7 +47,7 @@
                          </button>
                          <button id="jttp-headline-day-next" class="aui-button" title="Next day" type="submit" id="dayNext" name="dayNext">
                            <span class="aui-icon aui-icon-small aui-iconfont-arrows-right">Next day</span>
-                         </button>>
+                         </button>
                        </div>
                        <input type="text" id="dateHidden" name="dateHidden" style="display: none" onchange="this.form.datesubmit.click()" />
                        <input type="submit" id="datesubmit" name="datesubmit" class="spaced" style="display: none"/>
