@@ -24,6 +24,10 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 import org.everit.jira.querydsl.schema.QComponent;
+import org.everit.jira.querydsl.schema.QCustomfield;
+import org.everit.jira.querydsl.schema.QCustomfieldvalue;
+import org.everit.jira.querydsl.schema.QIssuelink;
+import org.everit.jira.querydsl.schema.QIssuelinktype;
 import org.everit.jira.querydsl.schema.QJiraissue;
 import org.everit.jira.querydsl.schema.QNodeassociation;
 import org.everit.jira.querydsl.schema.QProjectversion;
@@ -50,6 +54,7 @@ import com.querydsl.core.types.dsl.NumberPath;
 import com.querydsl.core.types.dsl.SimpleExpression;
 import com.querydsl.core.types.dsl.StringExpression;
 import com.querydsl.sql.Configuration;
+import com.querydsl.sql.SQLExpressions;
 import com.querydsl.sql.SQLQuery;
 
 /**
@@ -67,6 +72,14 @@ public class WorklogDetailsReportQueryBuilder extends AbstractReportQuery<Worklo
 
   private HashMap<String, Expression<?>> orderByMap;
 
+  QCustomfield qCustomfield = new QCustomfield("customfield");
+
+  QCustomfieldvalue qCustomfieldValue = new QCustomfieldvalue("customfieldvalue");
+
+  private QIssuelink qIssueLink;
+
+  private QIssuelinktype qIssueLinkType;
+
   private SimpleExpression<String> worklogAuthorExpression;
 
   /**
@@ -80,7 +93,8 @@ public class WorklogDetailsReportQueryBuilder extends AbstractReportQuery<Worklo
   public WorklogDetailsReportQueryBuilder(final ReportSearchParam reportSearchParam,
       final OrderBy orderBy) {
     super(reportSearchParam);
-
+    qIssueLink = new QIssuelink("issueLink");
+    qIssueLinkType = new QIssuelinktype("issueLinkType");
     if (orderBy != null) {
       this.orderBy = orderBy;
     } else {
@@ -169,7 +183,23 @@ public class WorklogDetailsReportQueryBuilder extends AbstractReportQuery<Worklo
         qWorklog.startdate.as(WorklogDetailsDTO.AliasNames.WORKLOG_START_DATE),
         qWorklog.created.as(WorklogDetailsDTO.AliasNames.WORKLOG_CREATED),
         qWorklog.updated.as(WorklogDetailsDTO.AliasNames.WORKLOG_UPDATED),
-        worklogAuthorExpression);
+        extendBaseFromWithEpicLink().as(WorklogDetailsDTO.AliasNames.ISSUE_EPIC_LINK));
+  }
+
+  private SQLQuery<String> extendBaseFromWithEpicLink() {
+    QCustomfieldvalue qCustomfieldValue = new QCustomfieldvalue("customfieldvalue");
+    QCustomfield qCustomfield = new QCustomfield("customfield");
+
+    SQLQuery<String> where = SQLExpressions.select(qCustomfieldValue.stringvalue).from(qIssueLink)
+        .join(qIssueLinkType).on(qIssueLink.linktype.eq(qIssueLinkType.id))
+        .join(qCustomfieldValue).on(qIssueLink.source.eq(qCustomfieldValue.issue))
+        .join(qCustomfield).on(qCustomfield.id.eq(qCustomfieldValue.customfield))
+        .where(
+            qIssueLink.source.eq(qIssue.id).or(qIssueLink.destination.eq(qIssue.id))
+                .and(qIssueLinkType.linkname
+                    .eq("Epic-Story Link").and(qCustomfield.cfname.eq("Epic Name"))))
+        .groupBy(qCustomfieldValue.stringvalue);
+    return where;
   }
 
   private void extendResult(final Connection connection, final Configuration configuration,
@@ -265,6 +295,7 @@ public class WorklogDetailsReportQueryBuilder extends AbstractReportQuery<Worklo
 
         return result;
       }
+
     };
   }
 

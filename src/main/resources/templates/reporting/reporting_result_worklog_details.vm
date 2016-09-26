@@ -51,6 +51,7 @@
 	                                          <option value="jtrp_col_timeSpent">$i18n.getText("jtrp.report.wd.col.jtrp_col_timeSpent.select")</option>
 	                                          <option value="jtrp_col_worklogCreated">$i18n.getText("jtrp.report.wd.col.jtrp_col_worklogCreated")</option>
 	                                          <option value="jtrp_col_worklogUpdated">$i18n.getText("jtrp.report.wd.col.jtrp_col_worklogUpdated")</option>
+	                                          <option value="jtrp_col_issueEpicLink">$i18n.getText("jtrp.report.wd.col.jtrp_col_issueEpicLink")</option>
 	                                        </select>
 	                                      </div>
 	                                    </div>

@@ -35,6 +35,8 @@ public class WorklogDetailsDTO {
 
     public static final String ISSUE_CREATED = "issueCreated";
 
+    public static final String ISSUE_EPIC_LINK = "issueEpicLink";
+
     public static final String ISSUE_ID = "issueId";
 
     public static final String ISSUE_KEY = "issueKey";
@@ -92,6 +94,8 @@ public class WorklogDetailsDTO {
   private List<String> issueComponents = Collections.emptyList();
 
   private Timestamp issueCreated;
+
+  private String issueEpicLink;
 
   private List<String> issueFixedVersions = Collections.emptyList();
 
@@ -163,6 +167,10 @@ public class WorklogDetailsDTO {
       return null;
     }
     return (Timestamp) issueCreated.clone();
+  }
+
+  public String getIssueEpicLink() {
+    return issueEpicLink;
   }
 
   public List<String> getIssueFixedVersions() {
@@ -299,6 +307,10 @@ public class WorklogDetailsDTO {
 
   public void setIssueCreated(final Timestamp issueCreated) {
     this.issueCreated = issueCreated;
+  }
+
+  public void setIssueEpicLink(final String issueEpicLink) {
+    this.issueEpicLink = issueEpicLink;
   }
 
   public void setIssueFixedVersions(final List<String> issueFixedVersions) {
