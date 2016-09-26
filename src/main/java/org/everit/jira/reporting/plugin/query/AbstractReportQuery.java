@@ -446,7 +446,7 @@ public abstract class AbstractReportQuery<T> {
       return where.and(SQLExpressions.select(qIssuelink.id)
           .from(qIssuelink)
           .join(qIssuelinktype).on(qIssuelink.linktype.eq(qIssuelinktype.id))
-          .where(qIssuelink.source.eq(qIssue.id)
+          .where(qIssuelink.source.eq(qIssue.id).or(qIssuelink.destination.eq(qIssue.id))
               .and(qIssuelink.source.in(reportSearchParam.issueEpicLinkIssueIds))
               .and(qIssuelinktype.linkname.eq("Epic-Story Link")))
           .exists());
