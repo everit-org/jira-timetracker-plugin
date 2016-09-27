@@ -140,7 +140,7 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   private String order = "ASC";
 
-  private String orderColumn = "jtrp_col_issueKey";
+  private String orderColumn = WorklogDetailsColumns.ISSUE_KEY;
 
   private int pageSizeLimit;
 

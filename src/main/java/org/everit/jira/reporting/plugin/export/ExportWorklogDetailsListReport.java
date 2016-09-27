@@ -125,6 +125,10 @@ public class ExportWorklogDetailsListReport extends AbstractExportListReport {
     columnIndex = insertWorklogDetailsBodyCell(row, columnIndex,
         WorklogDetailsColumns.WORKLOG_DESCRIPTION, worklogDetailsDTO.getWorklogBody());
     columnIndex = insertWorklogDetailsBodyCell(row, columnIndex,
+        WorklogDetailsColumns.ISSUE_EPIC_NAME, worklogDetailsDTO.getIssueEpicName());
+    columnIndex = insertWorklogDetailsBodyCell(row, columnIndex,
+        WorklogDetailsColumns.ISSUE_EPIC_LINK, worklogDetailsDTO.getIssueEpicLink());
+    columnIndex = insertWorklogDetailsBodyCell(row, columnIndex,
         WorklogDetailsColumns.USER, worklogDetailsDTO.getWorklogUser());
     columnIndex = insertWorklogDetailsBodyCell(row, columnIndex,
         WorklogDetailsColumns.START_TIME, worklogDetailsDTO.getWorklogStartDate());
@@ -134,6 +138,7 @@ public class ExportWorklogDetailsListReport extends AbstractExportListReport {
         WorklogDetailsColumns.WORKLOG_CREATED, worklogDetailsDTO.getWorklogCreated());
     insertWorklogDetailsBodyCell(row, columnIndex,
         WorklogDetailsColumns.WORKLOG_UPDATED, worklogDetailsDTO.getWorklogUpdated());
+
   }
 
   private void insertHeaderRow(final HSSFSheet worklogDetailsSheet) {
@@ -165,6 +170,10 @@ public class ExportWorklogDetailsListReport extends AbstractExportListReport {
         insertWorklogDetailsHeaderCell(row, columnIndex, WorklogDetailsColumns.RESOLUTION);
     columnIndex =
         insertWorklogDetailsHeaderCell(row, columnIndex, WorklogDetailsColumns.WORKLOG_DESCRIPTION);
+    columnIndex =
+        insertWorklogDetailsHeaderCell(row, columnIndex, WorklogDetailsColumns.ISSUE_EPIC_NAME);
+    columnIndex =
+        insertWorklogDetailsHeaderCell(row, columnIndex, WorklogDetailsColumns.ISSUE_EPIC_LINK);
     columnIndex = insertWorklogDetailsHeaderCell(row, columnIndex, WorklogDetailsColumns.USER);
     columnIndex =
         insertWorklogDetailsHeaderCell(row, columnIndex, WorklogDetailsColumns.START_TIME);

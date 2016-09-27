@@ -37,6 +37,8 @@ public class WorklogDetailsDTO {
 
     public static final String ISSUE_EPIC_LINK = "issueEpicLink";
 
+    public static final String ISSUE_EPIC_NAME = "issueEpicName";
+
     public static final String ISSUE_ID = "issueId";
 
     public static final String ISSUE_KEY = "issueKey";
@@ -96,6 +98,8 @@ public class WorklogDetailsDTO {
   private Timestamp issueCreated;
 
   private String issueEpicLink;
+
+  private String issueEpicName;
 
   private List<String> issueFixedVersions = Collections.emptyList();
 
@@ -171,6 +175,10 @@ public class WorklogDetailsDTO {
 
   public String getIssueEpicLink() {
     return issueEpicLink;
+  }
+
+  public String getIssueEpicName() {
+    return issueEpicName;
   }
 
   public List<String> getIssueFixedVersions() {
@@ -311,6 +319,10 @@ public class WorklogDetailsDTO {
 
   public void setIssueEpicLink(final String issueEpicLink) {
     this.issueEpicLink = issueEpicLink;
+  }
+
+  public void setIssueEpicName(final String issueEpicName) {
+    this.issueEpicName = issueEpicName;
   }
 
   public void setIssueFixedVersions(final List<String> issueFixedVersions) {

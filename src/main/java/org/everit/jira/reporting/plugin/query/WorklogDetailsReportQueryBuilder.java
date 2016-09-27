@@ -48,6 +48,7 @@ import com.querydsl.core.types.PathMetadata;
 import com.querydsl.core.types.PathType;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.QBean;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberPath;
@@ -62,6 +63,10 @@ import com.querydsl.sql.SQLQuery;
  */
 public class WorklogDetailsReportQueryBuilder extends AbstractReportQuery<WorklogDetailsDTO> {
 
+  private SimpleExpression<String> epicLink;
+
+  private SimpleExpression<String> epicName;
+
   private SimpleExpression<String> issueAssigneeExpression;
 
   private StringExpression issueKey;
@@ -72,13 +77,7 @@ public class WorklogDetailsReportQueryBuilder extends AbstractReportQuery<Worklo
 
   private HashMap<String, Expression<?>> orderByMap;
 
-  QCustomfield qCustomfield = new QCustomfield("customfield");
-
-  QCustomfieldvalue qCustomfieldValue = new QCustomfieldvalue("customfieldvalue");
-
-  private QIssuelink qIssueLink;
-
-  private QIssuelinktype qIssueLinkType;
+  private QCustomfieldvalue qCustomfieldValue = new QCustomfieldvalue("customfieldvalue");
 
   private SimpleExpression<String> worklogAuthorExpression;
 
@@ -93,8 +92,9 @@ public class WorklogDetailsReportQueryBuilder extends AbstractReportQuery<Worklo
   public WorklogDetailsReportQueryBuilder(final ReportSearchParam reportSearchParam,
       final OrderBy orderBy) {
     super(reportSearchParam);
-    qIssueLink = new QIssuelink("issueLink");
-    qIssueLinkType = new QIssuelinktype("issueLinkType");
+    epicLink = epicLinkExpression();
+    epicName = epicNameExpression();
+
     if (orderBy != null) {
       this.orderBy = orderBy;
     } else {
@@ -155,6 +155,8 @@ public class WorklogDetailsReportQueryBuilder extends AbstractReportQuery<Worklo
     orderByMap.put(WorklogDetailsColumns.USER, worklogAuthorExpression);
     orderByMap.put(WorklogDetailsColumns.WORKLOG_CREATED, qWorklog.created);
     orderByMap.put(WorklogDetailsColumns.WORKLOG_UPDATED, qWorklog.updated);
+    orderByMap.put(WorklogDetailsColumns.ISSUE_EPIC_NAME, epicName);
+    orderByMap.put(WorklogDetailsColumns.ISSUE_EPIC_LINK, epicLink);
   }
 
   private QBean<WorklogDetailsDTO> createQuerySelectProjection() {
@@ -183,23 +185,37 @@ public class WorklogDetailsReportQueryBuilder extends AbstractReportQuery<Worklo
         qWorklog.startdate.as(WorklogDetailsDTO.AliasNames.WORKLOG_START_DATE),
         qWorklog.created.as(WorklogDetailsDTO.AliasNames.WORKLOG_CREATED),
         qWorklog.updated.as(WorklogDetailsDTO.AliasNames.WORKLOG_UPDATED),
-        extendBaseFromWithEpicLink().as(WorklogDetailsDTO.AliasNames.ISSUE_EPIC_LINK));
+        epicLink,
+        epicName);
+
   }
 
-  private SQLQuery<String> extendBaseFromWithEpicLink() {
-    QCustomfieldvalue qCustomfieldValue = new QCustomfieldvalue("customfieldvalue");
+  private SimpleExpression<String> epicLinkExpression() {
+    QIssuelink qIssueLink = new QIssuelink("issueLink");
+    return epicProjection(qIssueLink.destination.eq(qIssue.id), qIssueLink)
+        .as(WorklogDetailsDTO.AliasNames.ISSUE_EPIC_LINK);
+  }
+
+  private SQLQuery<String> epicProjection(final BooleanExpression epicExpression,
+      final QIssuelink qIssueLink) {
     QCustomfield qCustomfield = new QCustomfield("customfield");
 
-    SQLQuery<String> where = SQLExpressions.select(qCustomfieldValue.stringvalue).from(qIssueLink)
+    QIssuelinktype qIssueLinkType = new QIssuelinktype("issueLinkType");
+    return SQLExpressions.select(qCustomfieldValue.stringvalue)
+        .from(qIssueLink)
         .join(qIssueLinkType).on(qIssueLink.linktype.eq(qIssueLinkType.id))
         .join(qCustomfieldValue).on(qIssueLink.source.eq(qCustomfieldValue.issue))
         .join(qCustomfield).on(qCustomfield.id.eq(qCustomfieldValue.customfield))
-        .where(
-            qIssueLink.source.eq(qIssue.id).or(qIssueLink.destination.eq(qIssue.id))
-                .and(qIssueLinkType.linkname
-                    .eq("Epic-Story Link").and(qCustomfield.cfname.eq("Epic Name"))))
+        .where(epicExpression
+            .and(qIssueLinkType.linkname.eq("Epic-Story Link"))
+            .and(qCustomfield.cfname.eq("Epic Name")))
         .groupBy(qCustomfieldValue.stringvalue);
-    return where;
+  }
+
+  private SimpleExpression<String> epicNameExpression() {
+    QIssuelink qIssueLink = new QIssuelink("issueLink");
+    return epicProjection(qIssueLink.source.eq(qIssue.id), qIssueLink)
+        .as(WorklogDetailsDTO.AliasNames.ISSUE_EPIC_NAME);
   }
 
   private void extendResult(final Connection connection, final Configuration configuration,
