@@ -104,7 +104,6 @@
     </transformation>
     <resource type="download" name="jttp_feedback.css" location="/css/jttp_feedback.css"/>
     <resource type="download" name="jttp.js" location="/js/jttp.js"/>
-    <resource type="download" name="js-fecha.js" location="/js/js-fecha.js"/>
     <resource type="download" name="E_logo.png" location="/icons/E_logo.png">
       <param name="content-type" value="image/png" />
     </resource>
@@ -124,7 +123,6 @@
     <resource type="download" name="everit_tt_logo.png" location="/icons/everit_tt_logo.png">
       <param name="content-type" value="image/png" />
     </resource>
-    <resource type="download" name="js-fecha.js" location="/js/js-fecha.js" />
     <resource type="download" name="jttp.css" location="/css/jttp.css" />
     <resource type="download" name="reporting.css" location="/css/reporting.css" />
     <resource type="download" name="report_common_scripts.js" location="/js/report_common_scripts.js" />
@@ -138,7 +136,6 @@
     <resource type="download" name="everit_tt_logo.png" location="/icons/everit_tt_logo.png">
       <param name="content-type" value="image/png" />
     </resource>
-    <resource type="download" name="js-fecha.js" location="/js/js-fecha.js" />
     <resource type="download" name="jttp.css" location="/css/jttp.css" />
     <resource type="download" name="reporting.css" location="/css/reporting.css" />
     <resource type="download" name="report_common_scripts.js" location="/js/report_common_scripts.js" />
@@ -175,7 +172,6 @@
     <resource type="download" name="summary.png" location="/images/summary.png">
       <param name="content-type" value="image/png" />
     </resource>
-    <resource type="download" name="js-fecha.js" location="/js/js-fecha.js" />
     <resource type="download" name="reporting.css" location="/css/reporting.css" />
     <resource type="download" name="reporting.js" location="/js/reporting.js" />
     <resource type="download" name="jtrp-aui-table-sortable.css" location="/css/jtrp-aui-table-sortable.css" />
@@ -218,7 +214,6 @@
     <resource type="download" name="everit_tt_logo.png" location="/icons/everit_tt_logo.png">
       <param name="content-type" value="image/png" />
     </resource>
-    <resource type="download" name="js-fecha.js" location="/js/js-fecha.js" />
     <resource type="download" name="jttp.css" location="/css/jttp.css" />
     <resource type="download" name="reporting.css" location="/css/reporting.css" />
     <resource type="download" name="report_common_scripts.js" location="/js/report_common_scripts.js" />

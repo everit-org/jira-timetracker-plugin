@@ -45,7 +45,8 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:table_re
         useISO8601 : ${currentCalendar.useISO8601},
         hasBrowseUsersPermission: ${hasBrowseUsersPermission},
         dateFromFormated : ${dateFromFormated},
-        dateToFormated : ${dateToFormated}
+        dateToFormated : ${dateToFormated},
+        dateFormat: "${dateFormat}"
       }
     );
   })(everit.jttp.report_common_scripts, AJS.$);
