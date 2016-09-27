@@ -68,6 +68,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
             notBrowsableProjectKeys: [ #foreach( $tmp in $notBrowsableProjectKeys )#if($velocityCount> 1),#end "$tmp" #end ],
             selectedFilter: $filterCondition.filter,
             searcherValue: "$filterCondition.searcherValue",
+            dateFormat: "${dateFormat}"
           }
         );
       })(everit.reporting.main, AJS.$);
