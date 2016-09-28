@@ -33,14 +33,11 @@ everit.jttp.main = everit.jttp.main || {};
     issuePickerSetup();
     eventBinding();
     commentsCSSFormat();
-    
+
     var formatedDate =  new Date(jttp.options.dateFormatted).print(jttp.options.dateFormat);  
-    
-//    jQuery("#jttp-headline-progress-date").text(formatedDate);
-//    jQuery("#jttp-headline-date-span").text(formatedDate);
+
     jQuery("#dateHidden").val(formatedDate);
-    
-   
+
     popupCalendarsSetup();
     setExcludeDaysToWeekend(jttp.options.excludeDays);
     setLoggedDaysDesign(jttp.options.isColoring, jttp.options.loggedDays);
