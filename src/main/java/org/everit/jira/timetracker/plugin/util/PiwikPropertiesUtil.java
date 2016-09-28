@@ -47,6 +47,8 @@ public final class PiwikPropertiesUtil {
   public static final String PIWIK_USER_SELECTION_CUSTOM_DIMENSION_INDEX =
       "PIWIK_USER_SELECTION_CUSTOM_DIMENSION_INDEX";
 
+  public static final String PIWIK_USERSETTINGS_SITEID = "PIWIK_USERSETTINGS_SITEID";
+
   public static final String PIWIK_WORKLOGS_SITEID = "PIWIK_WORKLOGS_SITEID";
 
   private PiwikPropertiesUtil() {
