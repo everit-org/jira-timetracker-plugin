@@ -304,7 +304,7 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 
   private void normalizeContextPath() {
     String path = getHttpRequest().getContextPath();
-    if (path.length() > 0 && "/".equals(path.substring(path.length() - 1))) {
+    if ((path.length() > 0) && "/".equals(path.substring(path.length() - 1))) {
       contextPath = path.substring(0, path.length() - 1);
     } else {
       contextPath = path;
