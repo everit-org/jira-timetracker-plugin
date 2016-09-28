@@ -158,15 +158,15 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
     if (!isUserLogged) {
       setReturnUrl(JIRA_HOME_URL);
-      return this.getRedirect(NONE);
+      return getRedirect(NONE);
     }
     if (!timetrackingCondition.shouldDisplay(getLoggedInApplicationUser(), null)) {
       setReturnUrl(JIRA_HOME_URL);
-      return this.getRedirect(NONE);
+      return getRedirect(NONE);
     }
     if (!pluginCondition.shouldDisplay(getLoggedInApplicationUser(), null)) {
       setReturnUrl(JIRA_HOME_URL);
-      return this.getRedirect(NONE);
+      return getRedirect(NONE);
     }
     return null;
   }
@@ -216,7 +216,7 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
       }
       savePluginSettings();
       setReturnUrl("/secure/JiraTimetrackerWebAction!default.jspa");
-      return this.getRedirect(INPUT);
+      return getRedirect(INPUT);
     }
 
     return SUCCESS;
@@ -366,7 +366,7 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
   private void readObject(final java.io.ObjectInputStream stream) throws IOException,
       ClassNotFoundException {
     stream.close();
-    throw new java.io.NotSerializableException(this.getClass().getName());
+    throw new java.io.NotSerializableException(getClass().getName());
   }
 
   /**
@@ -437,7 +437,7 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 
   private void writeObject(final java.io.ObjectOutputStream stream) throws IOException {
     stream.close();
-    throw new java.io.NotSerializableException(this.getClass().getName());
+    throw new java.io.NotSerializableException(getClass().getName());
   }
 
 }

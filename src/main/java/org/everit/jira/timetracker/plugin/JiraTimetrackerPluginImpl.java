@@ -903,29 +903,25 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     // the default is the Daily Progress Indicator
     Boolean isProgressIndicatorDaily = true;
     if ("false"
-        .equals(
-            pluginSettings.get(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_PROGRESS_INDICATOR))) {
+        .equals(pluginSettings.get(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_PROGRESS_INDICATOR))) {
       isProgressIndicatorDaily = false;
     }
 
     // the default is the Actual Date
     Boolean isActualDate = true;
-    if ("false"
-        .equals(pluginSettings.get(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_IS_ACTUAL_DATE))) {
+    if ("false".equals(pluginSettings.get(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_IS_ACTUAL_DATE))) {
       isActualDate = false;
     }
 
     // the default coloring is TRUE
     Boolean isColoring = true;
-    if ("false"
-        .equals(pluginSettings.get(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_IS_COLORIG))) {
+    if ("false".equals(pluginSettings.get(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_IS_COLORIG))) {
       isColoring = false;
     }
 
     // the default rounded is TRUE
     Boolean isRounded = true;
-    if ("false"
-        .equals(pluginSettings.get(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_IS_ROUNDED))) {
+    if ("false".equals(pluginSettings.get(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_IS_ROUNDED))) {
       isRounded = false;
     }
 
@@ -955,7 +951,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   private void readObject(final java.io.ObjectInputStream stream) throws IOException,
       ClassNotFoundException {
     stream.close();
-    throw new java.io.NotSerializableException(this.getClass().getName());
+    throw new java.io.NotSerializableException(getClass().getName());
   }
 
   private void removeNonWorkingIssues(final List<GenericValue> worklogGVList) {
@@ -1022,9 +1018,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
         + GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_TIMETRACKER_PERMISSION,
         pluginSettingsParameters.timetrackingGroups);
 
-    Object analyticsCheckObj =
-        globalSettings.get(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
-            + GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_ANALYTICS_CHECK_CHANGE);
+    Object analyticsCheckObj = globalSettings.get(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+        + GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_ANALYTICS_CHECK_CHANGE);
     boolean analyticsCheck = analyticsCheckObj == null
         ? true
         : Boolean.parseBoolean(analyticsCheckObj.toString());
@@ -1264,6 +1259,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
 
   private void writeObject(final java.io.ObjectOutputStream stream) throws IOException {
     stream.close();
-    throw new java.io.NotSerializableException(this.getClass().getName());
+    throw new java.io.NotSerializableException(getClass().getName());
   }
 }
