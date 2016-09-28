@@ -157,29 +157,29 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
   private String checkConditions() {
     boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
     if (!isUserLogged) {
-      setReturnUrl(JIRA_HOME_URL);
-      return getRedirect(NONE);
+      this.setReturnUrl(JIRA_HOME_URL);
+      return this.getRedirect(NONE);
     }
-    if (!timetrackingCondition.shouldDisplay(getLoggedInApplicationUser(), null)) {
-      setReturnUrl(JIRA_HOME_URL);
-      return getRedirect(NONE);
+    if (!timetrackingCondition.shouldDisplay(this.getLoggedInApplicationUser(), null)) {
+      this.setReturnUrl(JIRA_HOME_URL);
+      return this.getRedirect(NONE);
     }
-    if (!pluginCondition.shouldDisplay(getLoggedInApplicationUser(), null)) {
-      setReturnUrl(JIRA_HOME_URL);
-      return getRedirect(NONE);
+    if (!pluginCondition.shouldDisplay(this.getLoggedInApplicationUser(), null)) {
+      this.setReturnUrl(JIRA_HOME_URL);
+      return this.getRedirect(NONE);
     }
     return null;
   }
 
   @Override
   public String doDefault() throws ParseException {
-    String checkConditionsResult = checkConditions();
+    String checkConditionsResult = this.checkConditions();
     if (checkConditionsResult != null) {
       return checkConditionsResult;
     }
-    loadIssueCollectorSrc();
-    normalizeContextPath();
-    loadPluginSettingAndParseResult();
+    this.loadIssueCollectorSrc();
+    this.normalizeContextPath();
+    this.loadPluginSettingAndParseResult();
     analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(pluginSettingsFactory,
         PiwikPropertiesUtil.PIWIK_USERSETTINGS_SITEID);
     try {
@@ -193,13 +193,13 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 
   @Override
   public String doExecute() throws ParseException {
-    String checkConditionsResult = checkConditions();
+    String checkConditionsResult = this.checkConditions();
     if (checkConditionsResult != null) {
       return checkConditionsResult;
     }
-    loadIssueCollectorSrc();
-    normalizeContextPath();
-    loadPluginSettingAndParseResult();
+    this.loadIssueCollectorSrc();
+    this.normalizeContextPath();
+    this.loadPluginSettingAndParseResult();
     analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(pluginSettingsFactory,
         PiwikPropertiesUtil.PIWIK_USERSETTINGS_SITEID);
     try {
@@ -209,14 +209,14 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
       return ERROR;
     }
 
-    if (getHttpRequest().getParameter("savesettings") != null) {
-      String parseResult = parseSaveSettings(getHttpRequest());
+    if (this.getHttpRequest().getParameter("savesettings") != null) {
+      String parseResult = this.parseSaveSettings(this.getHttpRequest());
       if (parseResult != null) {
         return parseResult;
       }
-      savePluginSettings();
-      setReturnUrl("/secure/JiraTimetrackerWebAction!default.jspa");
-      return getRedirect(INPUT);
+      this.savePluginSettings();
+      this.setReturnUrl("/secure/JiraTimetrackerWebAction!default.jspa");
+      return this.getRedirect(INPUT);
     }
 
     return SUCCESS;
@@ -303,7 +303,7 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
   }
 
   private void normalizeContextPath() {
-    String path = getHttpRequest().getContextPath();
+    String path = this.getHttpRequest().getContextPath();
     if ((path.length() > 0) && "/".equals(path.substring(path.length() - 1))) {
       contextPath = path.substring(0, path.length() - 1);
     } else {
@@ -332,10 +332,10 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     isActualDate = "current".equals(currentOrLastValue);
 
     String isColoringValue = request.getParameter("isColoring");
-    isColoring = isColoringValue != null;
+    isColoring = (isColoringValue != null);
 
     String isRoundedValue = request.getParameter("isRounded");
-    isRounded = isRoundedValue != null;
+    isRounded = (isRoundedValue != null);
 
     try {
       if (jiraTimetrackerPlugin.validateTimeChange(startTimeValue)) {
@@ -366,7 +366,7 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
   private void readObject(final java.io.ObjectInputStream stream) throws IOException,
       ClassNotFoundException {
     stream.close();
-    throw new java.io.NotSerializableException(getClass().getName());
+    throw new java.io.NotSerializableException(this.getClass().getName());
   }
 
   /**
@@ -411,8 +411,8 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     this.isColoring = isColoring;
   }
 
-  public void setIsRounded(final boolean isRunded) {
-    isRounded = isRunded;
+  public void setIsRounded(final boolean isRounded) {
+    this.isRounded = isRounded;
   }
 
   public void setMessage(final String message) {
@@ -437,7 +437,7 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 
   private void writeObject(final java.io.ObjectOutputStream stream) throws IOException {
     stream.close();
-    throw new java.io.NotSerializableException(getClass().getName());
+    throw new java.io.NotSerializableException(this.getClass().getName());
   }
 
 }
