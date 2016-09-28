@@ -150,8 +150,8 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
       final PluginSettingsFactory pluginSettingsFactory) {
     this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
     this.pluginSettingsFactory = pluginSettingsFactory;
-    timetrackingCondition = new TimetrackerCondition(jiraTimetrackerPlugin);
-    pluginCondition = new PluginCondition(jiraTimetrackerPlugin);
+    this.timetrackingCondition = new TimetrackerCondition(jiraTimetrackerPlugin);
+    this.pluginCondition = new PluginCondition(jiraTimetrackerPlugin);
   }
 
   private String checkConditions() {
@@ -160,11 +160,11 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
       this.setReturnUrl(JIRA_HOME_URL);
       return this.getRedirect(NONE);
     }
-    if (!timetrackingCondition.shouldDisplay(this.getLoggedInApplicationUser(), null)) {
+    if (!this.timetrackingCondition.shouldDisplay(this.getLoggedInApplicationUser(), null)) {
       this.setReturnUrl(JIRA_HOME_URL);
       return this.getRedirect(NONE);
     }
-    if (!pluginCondition.shouldDisplay(this.getLoggedInApplicationUser(), null)) {
+    if (!this.pluginCondition.shouldDisplay(this.getLoggedInApplicationUser(), null)) {
       this.setReturnUrl(JIRA_HOME_URL);
       return this.getRedirect(NONE);
     }
@@ -180,10 +180,10 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     this.loadIssueCollectorSrc();
     this.normalizeContextPath();
     this.loadPluginSettingAndParseResult();
-    analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(pluginSettingsFactory,
+    this.analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(this.pluginSettingsFactory,
         PiwikPropertiesUtil.PIWIK_USERSETTINGS_SITEID);
     try {
-      projectsId = jiraTimetrackerPlugin.getProjectsId();
+      this.projectsId = this.jiraTimetrackerPlugin.getProjectsId();
     } catch (Exception e) {
       LOGGER.error("Error when try set the plugin variables.", e);
       return ERROR;
@@ -200,10 +200,10 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     this.loadIssueCollectorSrc();
     this.normalizeContextPath();
     this.loadPluginSettingAndParseResult();
-    analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(pluginSettingsFactory,
+    this.analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(this.pluginSettingsFactory,
         PiwikPropertiesUtil.PIWIK_USERSETTINGS_SITEID);
     try {
-      projectsId = jiraTimetrackerPlugin.getProjectsId();
+      this.projectsId = this.jiraTimetrackerPlugin.getProjectsId();
     } catch (Exception e) {
       LOGGER.error("Error when try set the plugin variables.", e);
       return ERROR;
@@ -223,91 +223,91 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
   }
 
   public boolean getAnalyticsCheck() {
-    return analyticsCheck;
+    return this.analyticsCheck;
   }
 
   public AnalyticsDTO getAnalyticsDTO() {
-    return analyticsDTO;
+    return this.analyticsDTO;
   }
 
   public String getContextPath() {
-    return contextPath;
+    return this.contextPath;
   }
 
   public String getEndTime() {
-    return endTime;
+    return this.endTime;
   }
 
   public int getFdow() {
-    return fdow;
+    return this.fdow;
   }
 
   public boolean getIsActualDate() {
-    return isActualDate;
+    return this.isActualDate;
   }
 
   public boolean getIsColoring() {
-    return isColoring;
+    return this.isColoring;
   }
 
   public boolean getIsRounded() {
-    return isRounded;
+    return this.isRounded;
   }
 
   public String getIssueCollectorSrc() {
-    return issueCollectorSrc;
+    return this.issueCollectorSrc;
   }
 
   public String getMessage() {
-    return message;
+    return this.message;
   }
 
   public String getMessageParameter() {
-    return messageParameter;
+    return this.messageParameter;
   }
 
   public boolean getProgressIndDaily() {
-    return progressIndDaily;
+    return this.progressIndDaily;
   }
 
   public List<String> getProjectsId() {
-    return projectsId;
+    return this.projectsId;
   }
 
   public String getStartTime() {
-    return startTime;
+    return this.startTime;
   }
 
   private void loadIssueCollectorSrc() {
     Properties properties = PropertiesUtil.getJttpBuildProperties();
-    issueCollectorSrc = properties.getProperty(PropertiesUtil.ISSUE_COLLECTOR_SRC);
+    this.issueCollectorSrc = properties.getProperty(PropertiesUtil.ISSUE_COLLECTOR_SRC);
   }
 
   /**
    * Load the plugin settings and set the variables.
    */
   public void loadPluginSettingAndParseResult() {
-    PluginSettingsValues pluginSettingsValues = jiraTimetrackerPlugin
+    PluginSettingsValues pluginSettingsValues = this.jiraTimetrackerPlugin
         .loadPluginSettings();
-    progressIndDaily = pluginSettingsValues.isProgressIndicatorDaily;
-    isActualDate = pluginSettingsValues.isActualDate;
-    issuesPatterns = pluginSettingsValues.filteredSummaryIssues;
-    collectorIssuePatterns = pluginSettingsValues.collectorIssues;
-    excludeDates = pluginSettingsValues.excludeDates;
-    includeDates = pluginSettingsValues.includeDates;
-    startTime = Integer.toString(pluginSettingsValues.startTimeChange);
-    endTime = Integer.toString(pluginSettingsValues.endTimeChange);
-    isColoring = pluginSettingsValues.isColoring;
-    isRounded = pluginSettingsValues.isRounded;
-    analyticsCheck = pluginSettingsValues.analyticsCheck;
+    this.progressIndDaily = pluginSettingsValues.isProgressIndicatorDaily;
+    this.isActualDate = pluginSettingsValues.isActualDate;
+    this.issuesPatterns = pluginSettingsValues.filteredSummaryIssues;
+    this.collectorIssuePatterns = pluginSettingsValues.collectorIssues;
+    this.excludeDates = pluginSettingsValues.excludeDates;
+    this.includeDates = pluginSettingsValues.includeDates;
+    this.startTime = Integer.toString(pluginSettingsValues.startTimeChange);
+    this.endTime = Integer.toString(pluginSettingsValues.endTimeChange);
+    this.isColoring = pluginSettingsValues.isColoring;
+    this.isRounded = pluginSettingsValues.isRounded;
+    this.analyticsCheck = pluginSettingsValues.analyticsCheck;
   }
 
   private void normalizeContextPath() {
     String path = this.getHttpRequest().getContextPath();
     if ((path.length() > 0) && "/".equals(path.substring(path.length() - 1))) {
-      contextPath = path.substring(0, path.length() - 1);
+      this.contextPath = path.substring(0, path.length() - 1);
     } else {
-      contextPath = path;
+      this.contextPath = path;
     }
   }
 
@@ -323,41 +323,41 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     String endTimeValue = request.getParameter("endTime");
 
     if ("daily".equals(popupOrInlineValue)) {
-      progressIndDaily = true;
+      this.progressIndDaily = true;
     } else {
-      progressIndDaily = false;
+      this.progressIndDaily = false;
     }
 
     String currentOrLastValue = request.getParameter("currentOrLast");
-    isActualDate = "current".equals(currentOrLastValue);
+    this.isActualDate = "current".equals(currentOrLastValue);
 
     String isColoringValue = request.getParameter("isColoring");
-    isColoring = (isColoringValue != null);
+    this.isColoring = (isColoringValue != null);
 
     String isRoundedValue = request.getParameter("isRounded");
-    isRounded = (isRoundedValue != null);
+    this.isRounded = (isRoundedValue != null);
 
     try {
-      if (jiraTimetrackerPlugin.validateTimeChange(startTimeValue)) {
-        startTime = startTimeValue;
+      if (this.jiraTimetrackerPlugin.validateTimeChange(startTimeValue)) {
+        this.startTime = startTimeValue;
       } else {
-        message = "plugin.setting.start.time.change.wrong";
+        this.message = "plugin.setting.start.time.change.wrong";
       }
     } catch (NumberFormatException e) {
-      message = "plugin.settings.time.format";
-      messageParameter = startTimeValue;
+      this.message = "plugin.settings.time.format";
+      this.messageParameter = startTimeValue;
     }
     try {
-      if (jiraTimetrackerPlugin.validateTimeChange(endTimeValue)) {
-        endTime = endTimeValue;
+      if (this.jiraTimetrackerPlugin.validateTimeChange(endTimeValue)) {
+        this.endTime = endTimeValue;
       } else {
-        message = "plugin.setting.end.time.change.wrong";
+        this.message = "plugin.setting.end.time.change.wrong";
       }
     } catch (NumberFormatException e) {
-      message = "plugin.settings.time.format";
-      messageParameter = endTimeValue;
+      this.message = "plugin.settings.time.format";
+      this.messageParameter = endTimeValue;
     }
-    if (!"".equals(message)) {
+    if (!"".equals(this.message)) {
       return SUCCESS;
     }
     return null;
@@ -374,17 +374,17 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
    */
   public void savePluginSettings() {
     PluginSettingsValues pluginSettingValues = new PluginSettingsValues()
-        .isProgressIndicatordaily(progressIndDaily)
-        .actualDate(isActualDate)
-        .excludeDates(excludeDates)
-        .includeDates(includeDates).coloring(isColoring)
-        .filteredSummaryIssues(issuesPatterns)
-        .collectorIssues(collectorIssuePatterns)
-        .startTimeChange(Integer.parseInt(startTime))
-        .endTimeChange(Integer.parseInt(endTime))
-        .analyticsCheck(analyticsCheck)
-        .isRounded(isRounded);
-    jiraTimetrackerPlugin.savePluginSettings(pluginSettingValues);
+        .isProgressIndicatordaily(this.progressIndDaily)
+        .actualDate(this.isActualDate)
+        .excludeDates(this.excludeDates)
+        .includeDates(this.includeDates).coloring(this.isColoring)
+        .filteredSummaryIssues(this.issuesPatterns)
+        .collectorIssues(this.collectorIssuePatterns)
+        .startTimeChange(Integer.parseInt(this.startTime))
+        .endTimeChange(Integer.parseInt(this.endTime))
+        .analyticsCheck(this.analyticsCheck)
+        .isRounded(this.isRounded);
+    this.jiraTimetrackerPlugin.savePluginSettings(pluginSettingValues);
   }
 
   public void setAnalyticsCheck(final boolean analyticsCheck) {
@@ -404,7 +404,7 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
   }
 
   public void setIsActualDate(final boolean actualDateOrLastWorklogDate) {
-    isActualDate = actualDateOrLastWorklogDate;
+    this.isActualDate = actualDateOrLastWorklogDate;
   }
 
   public void setIsColoring(final boolean isColoring) {
