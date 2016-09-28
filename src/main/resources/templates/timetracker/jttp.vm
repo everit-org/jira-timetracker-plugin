@@ -73,7 +73,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
             </span>
           </div>
           <div class="aui-page-header-main">
-            <h1>Timetracker</h1>
+            <h1><span>Timetracker</span></h1>
           </div>
           <div class="aui-page-header-actions">
             <div class="aui-buttons">

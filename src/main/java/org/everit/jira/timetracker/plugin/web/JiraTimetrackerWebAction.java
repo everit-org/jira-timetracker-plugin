@@ -419,6 +419,17 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return worklogIds;
   }
 
+  private double correctNoneWorkIndicatorPercent(final double realWorkIndicatorPrecent,
+      final double noneWorkIndicatorPrecent) {
+    double correctedNoneWorkIndicatorPercent = noneWorkIndicatorPrecent;
+    double sumPercent = noneWorkIndicatorPrecent + realWorkIndicatorPrecent;
+    if (sumPercent > HUNDRED) {
+      correctedNoneWorkIndicatorPercent =
+          noneWorkIndicatorPrecent - (sumPercent - HUNDRED);
+    }
+    return correctedNoneWorkIndicatorPercent;
+  }
+
   private Calendar createNewCalendarWithWeekStart() {
     ApplicationProperties applicationProperties = ComponentAccessor.getApplicationProperties();
     boolean useISO8601 = applicationProperties.getOption(APKeys.JIRA_DATE_TIME_PICKER_USE_ISO8601);
@@ -711,9 +722,19 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return dateFormatted;
   }
 
+  /**
+   * Calculate and if necassary correct the day none working indicator percent.
+   *
+   * @return The day filtered none work indicator percent.
+   */
   public double getDayFilteredNonWorkIndicatorPrecent() {
-    return ((daySummaryInSeconds - dayFilteredSummaryInSecond) / expectedWorkSecondsInDay)
-        * HUNDRED;
+    double dayFilteredRealWorkIndicatorPrecent = getDayFilteredRealWorkIndicatorPrecent();
+    double dayFilteredNoneWorkIndicatorPrecent =
+        ((daySummaryInSeconds - dayFilteredSummaryInSecond) / expectedWorkSecondsInDay)
+            * HUNDRED;
+    dayFilteredNoneWorkIndicatorPrecent = correctNoneWorkIndicatorPercent(
+        dayFilteredRealWorkIndicatorPrecent, dayFilteredNoneWorkIndicatorPrecent);
+    return dayFilteredNoneWorkIndicatorPrecent;
   }
 
   public double getDayFilteredRealWorkIndicatorPrecent() {
@@ -848,9 +869,19 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return messageParameter;
   }
 
+  /**
+   * Calculate and if necassary correct the week none working indicator percent.
+   *
+   * @return The week filtered none work indicator percent.
+   */
   public double getMonthFilteredNonWorkIndicatorPrecent() {
-    return ((monthSummaryInSecounds - monthFilteredSummaryInSecond) / expectedWorkSecondsInMonth)
-        * HUNDRED;
+    double monthFilteredRealWorkIndicatorPrecent = getMonthFilteredRealWorkIndicatorPrecent();
+    double monthFilteredNonWorkIndicatorPrecent =
+        ((monthSummaryInSecounds - monthFilteredSummaryInSecond) / expectedWorkSecondsInMonth)
+            * HUNDRED;
+    monthFilteredNonWorkIndicatorPrecent = correctNoneWorkIndicatorPercent(
+        monthFilteredRealWorkIndicatorPrecent, monthFilteredNonWorkIndicatorPrecent);
+    return monthFilteredNonWorkIndicatorPrecent;
   }
 
   public double getMonthFilteredRealWorkIndicatorPrecent() {
@@ -881,9 +912,19 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return startTimeChange;
   }
 
+  /**
+   * Calculate and if necassary correct the week none working indicator percent.
+   *
+   * @return The week filtered none work indicator percent.
+   */
   public double getWeekFilteredNonWorkIndicatorPrecent() {
-    return ((weekSummaryInSecond - weekFilteredSummaryInSecond) / expectedWorkSecondsInWeek)
-        * HUNDRED;
+    double weekFilteredRealWorkIndicatorPrecent = getWeekFilteredRealWorkIndicatorPrecent();
+    double weekFilteredNonWorkIndicatorPrecent =
+        ((weekSummaryInSecond - weekFilteredSummaryInSecond) / expectedWorkSecondsInWeek)
+            * HUNDRED;
+    weekFilteredNonWorkIndicatorPrecent = correctNoneWorkIndicatorPercent(
+        weekFilteredRealWorkIndicatorPrecent, weekFilteredNonWorkIndicatorPrecent);
+    return weekFilteredNonWorkIndicatorPrecent;
   }
 
   public double getWeekFilteredRealWorkIndicatorPrecent() {
