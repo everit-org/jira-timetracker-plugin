@@ -797,6 +797,9 @@ const MAX_ELEMENTS_DISPLAYED = 100; // EQUAL TO JIRA.Issues.SearcherGroupListDia
       jQuery("#issuePicker-textarea").append(" ");
     });
     ip.handleFreeInput();
+    setTimeout(function (){
+    	ip.updateItemsIndent();
+    },0);
   };
   function initFilterSelect(){
     var selectedFilterOption = jQuery('#filterPicker [value="'+ reporting.values.selectedFilter +'"]');
