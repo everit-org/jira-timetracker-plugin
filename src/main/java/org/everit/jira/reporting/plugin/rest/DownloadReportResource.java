@@ -41,7 +41,7 @@ import org.everit.jira.reporting.plugin.dto.ConvertedSearchParam;
 import org.everit.jira.reporting.plugin.dto.DownloadWorklogDetailsParam;
 import org.everit.jira.reporting.plugin.dto.FilterCondition;
 import org.everit.jira.reporting.plugin.dto.OrderBy;
-import org.everit.jira.reporting.plugin.export.CsvExport;
+import org.everit.jira.reporting.plugin.export.ExcelToCsvConverter;
 import org.everit.jira.reporting.plugin.export.ExportSummariesListReport;
 import org.everit.jira.reporting.plugin.export.ExportWorklogDetailsListReport;
 import org.everit.jira.reporting.plugin.util.ConverterUtil;
@@ -79,31 +79,33 @@ public class DownloadReportResource {
     }
   }
 
-  private Response buildResponse(final ByteArrayOutputStream bos, final String fileName,
+  private Response buildCsvResponse(final HSSFWorkbook workbook, final String fileName,
       final String fileExtension) {
-    try {
-      String timeStamp = new SimpleDateFormat("yyyyMMddhhmm").format(new Date());
-      return Response.ok(bos.toByteArray(), MediaType.APPLICATION_OCTET_STREAM)
-          .header("Content-Disposition",
-              "attachment; filename=\"" + fileName + timeStamp + "." + fileExtension + "\"")
-          .build();
-    } finally {
+    try (ByteArrayOutputStream bos = new ByteArrayOutputStream();) {
+      new ExcelToCsvConverter(workbook).printCSV(bos);
+      return buildResponse(bos, fileName, fileExtension);
+    } catch (IOException e) {
       return Response.serverError().build();
     }
   }
 
-  private Response buildResponse(final HSSFWorkbook workbook, final String fileName,
+  private Response buildExcelResponse(final HSSFWorkbook workbbok, final String fileName,
       final String fileExtension) {
     try (ByteArrayOutputStream bos = new ByteArrayOutputStream();) {
-      workbook.write(bos);
-      String timeStamp = new SimpleDateFormat("yyyyMMddhhmm").format(new Date());
-      return Response.ok(bos.toByteArray(), MediaType.APPLICATION_OCTET_STREAM)
-          .header("Content-Disposition",
-              "attachment; filename=\"" + fileName + timeStamp + "." + fileExtension + "\"")
-          .build();
+      workbbok.write(bos);
+      return buildResponse(bos, fileName, fileExtension);
     } catch (IOException e) {
       return Response.serverError().build();
     }
+  }
+
+  private Response buildResponse(final ByteArrayOutputStream bos, final String fileName,
+      final String fileExtension) {
+    String timeStamp = new SimpleDateFormat("yyyyMMddhhmm").format(new Date());
+    return Response.ok(bos.toByteArray(), MediaType.APPLICATION_OCTET_STREAM)
+        .header("Content-Disposition",
+            "attachment; filename=\"" + fileName + timeStamp + "." + fileExtension + "\"")
+        .build();
   }
 
   /**
@@ -120,22 +122,26 @@ public class DownloadReportResource {
   @Path("/downloadSummariesReport")
   public Response downloadSummariesReport(
       @QueryParam("json") @DefaultValue("{}") final String json) {
-    FilterCondition filterCondition = new Gson()
-        .fromJson(json, FilterCondition.class);
+    HSSFWorkbook workbook = makeSummaryExcel(json);
+    return buildExcelResponse(workbook, "summaries-report", "xls");
+  }
 
-    ConvertedSearchParam converSearchParam = ConverterUtil
-        .convertFilterConditionToConvertedSearchParam(filterCondition, reportingPlugin);
-
-    ExportSummariesListReport exportSummariesListReport =
-        new ExportSummariesListReport(querydslSupport, converSearchParam.reportSearchParam,
-            converSearchParam.notBrowsableProjectKeys);
-
-    HSSFWorkbook workbook = exportSummariesListReport.exportToXLS();
-
-    ExportSummaryReportEvent exportSummaryReportEvent = new ExportSummaryReportEvent(pluginId);
-    analyticsSender.send(exportSummaryReportEvent);
-
-    return buildResponse(workbook, "summaries-report", "xls");
+  /**
+   * Download summaries reports (project-, issue-, user summary).
+   *
+   * @param json
+   *          the json string from which the object is to be deserialized to {@link FilterCondition}
+   *          object.
+   * @return the generated XLS document.
+   */
+  @GET
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_OCTET_STREAM)
+  @Path("/downloadSummariesReportAsCSV")
+  public Response downloadSummariesReportAsCSV(
+      @QueryParam("json") @DefaultValue("{}") final String json) {
+    HSSFWorkbook workbook = makeSummaryExcel(json);
+    return buildCsvResponse(workbook, "summaries-report", "xls");
   }
 
   /**
@@ -154,8 +160,7 @@ public class DownloadReportResource {
       @QueryParam("json") @DefaultValue("{}") final String json,
       @QueryParam("orderBy") final String orderByString) {
     HSSFWorkbook workbook = makeExcle(json, orderByString);
-
-    return buildResponse(workbook, "worklog-details-report", "xls");
+    return buildExcelResponse(workbook, "worklog-details-report", "xls");
   }
 
   /**
@@ -174,8 +179,7 @@ public class DownloadReportResource {
       @QueryParam("json") @DefaultValue("{}") final String json,
       @QueryParam("orderBy") final String orderByString) {
     HSSFWorkbook workbook = makeExcle(json, orderByString);
-    ByteArrayOutputStream convertToCSV = new CsvExport(workbook).convertToCSV();
-    return buildResponse(convertToCSV, "worklog-details-report", "csv");
+    return buildCsvResponse(workbook, "worklog-details-report", "csv");
   }
 
   private HSSFWorkbook makeExcle(final String json, final String orderByString) {
@@ -200,6 +204,24 @@ public class DownloadReportResource {
     ExportWorklogDetailsReportEvent exportWorklogDetailsReportEvent =
         new ExportWorklogDetailsReportEvent(pluginId, allFields);
     analyticsSender.send(exportWorklogDetailsReportEvent);
+    return workbook;
+  }
+
+  private HSSFWorkbook makeSummaryExcel(final String json) {
+    FilterCondition filterCondition = new Gson()
+        .fromJson(json, FilterCondition.class);
+
+    ConvertedSearchParam converSearchParam = ConverterUtil
+        .convertFilterConditionToConvertedSearchParam(filterCondition, reportingPlugin);
+
+    ExportSummariesListReport exportSummariesListReport =
+        new ExportSummariesListReport(querydslSupport, converSearchParam.reportSearchParam,
+            converSearchParam.notBrowsableProjectKeys);
+
+    HSSFWorkbook workbook = exportSummariesListReport.exportToXLS();
+
+    ExportSummaryReportEvent exportSummaryReportEvent = new ExportSummaryReportEvent(pluginId);
+    analyticsSender.send(exportSummaryReportEvent);
     return workbook;
   }
 }
