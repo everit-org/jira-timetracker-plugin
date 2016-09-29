@@ -34,6 +34,8 @@ everit.jttp.main = everit.jttp.main || {};
         && window.location.search.indexOf('date') > -1
         && !isContainsAchorExlucdingParts(window.location.search)){
       document.getElementById("issueSelect-textarea").focus();
+      var anchorDiv = document.getElementById("buttons-container");
+      $(window).scrollTop( anchorDiv.offsetTop);
     }
 
     var formatedDate =  new Date(jttp.options.dateFormatted).print(jttp.options.dateFormat);  
