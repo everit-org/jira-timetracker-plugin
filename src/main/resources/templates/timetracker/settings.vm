@@ -126,5 +126,8 @@
   
   <!-- Issue Collector script -->
   <script type="text/javascript" src="$issueCollectorSrc"></script>
+  #if($analyticsDTO.analyticsCheck)
+    #parse("templates/common/analytics.vm")
+  #end
 </body>
 </html>
