@@ -51,6 +51,8 @@
 	                                          <option value="jtrp_col_timeSpent">$i18n.getText("jtrp.report.wd.col.jtrp_col_timeSpent.select")</option>
 	                                          <option value="jtrp_col_worklogCreated">$i18n.getText("jtrp.report.wd.col.jtrp_col_worklogCreated")</option>
 	                                          <option value="jtrp_col_worklogUpdated">$i18n.getText("jtrp.report.wd.col.jtrp_col_worklogUpdated")</option>
+	                                          <option value="jtrp_col_issueEpicLink">$i18n.getText("jtrp.report.wd.col.jtrp_col_issueEpicLink")</option>
+	                                          <option value="jtrp_col_issueEpicName">$i18n.getText("jtrp.report.wd.col.jtrp_col_issueEpicName")</option>
 	                                        </select>
 	                                      </div>
 	                                    </div>
@@ -102,6 +104,8 @@
                                 #set($isNotShowFixVersions = !$selectedWorklogDetailsColumns.contains("jtrp_col_fixVersions"))
                                 #set($isNotShowResolution = !$selectedWorklogDetailsColumns.contains("jtrp_col_resolution"))
                                 #set($isNotShowWorklogDescription = !$selectedWorklogDetailsColumns.contains("jtrp_col_worklogDescription"))
+                                #set($isNotShowIssueEpicName = !$selectedWorklogDetailsColumns.contains("jtrp_col_issueEpicName"))
+                                #set($isNotShowIssueEpicLink = !$selectedWorklogDetailsColumns.contains("jtrp_col_issueEpicLink"))
                                 #set($isNotShowStartTime = !$selectedWorklogDetailsColumns.contains("jtrp_col_startTime"))
                                 #set($isNotShowWorklogCreated = !$selectedWorklogDetailsColumns.contains("jtrp_col_worklogCreated"))
                                 #set($isNotShowWorklogUpdated = !$selectedWorklogDetailsColumns.contains("jtrp_col_worklogUpdated"))
@@ -109,7 +113,7 @@
                                 #set($isNotShowIssueSummary = !$selectedWorklogDetailsColumns.contains("jtrp_col_issueSummary"))
                                 #set($isNotShowUser = !$selectedWorklogDetailsColumns.contains("jtrp_col_user"))
                                 #set($isNotShowTimeSpent = !$selectedWorklogDetailsColumns.contains("jtrp_col_timeSpent"))
-                                
+                                   
                                 #set($defaultOrder = "ASC")
                                 #set($isAscOrder = $order.equals("ASC"))
                                 <thead>
@@ -411,6 +415,45 @@
                                             <span>
                                         </th>
                                         
+                                          #if( $orderColumn.equals("jtrp_col_issueEpicName") ) 
+                                          #if( $isAscOrder ) 
+                                            #set($orderName = 'DESC') 
+                                            #set($className = 'jttp-tablesorter-headerAsc') 
+                                          #else 
+                                            #set($orderName = 'ASC') 
+                                            #set($className = 'jttp-tablesorter-headerDesc') 
+                                          #end 
+                                        #else 
+                                          #set($orderName = $defaultOrder)
+                                          #set($className = '') 
+                                        #end
+                                         <th onclick="everit.reporting.main.getWorklogDetailsPage(0, 'jtrp_col_issueEpicName', '$orderName');" 
+                                           data-jtrp-col-name="jtrp_col_issueEpicName"
+                                          class="jtrp_col_issueEpicName jttp-tablesorter-header $className" style="#if( $isNotShowIssueEpicName )display:none;#end">
+                                            <span class="jttp-aui-table-header-content">
+                                              $i18n.getText("jtrp.report.wd.col.jtrp_col_issueEpicName")
+                                            <span>
+                                        </th>
+                                        
+                                         #if( $orderColumn.equals("jtrp_col_issueEpicLink") ) 
+                                          #if( $isAscOrder ) 
+                                            #set($orderName = 'DESC') 
+                                            #set($className = 'jttp-tablesorter-headerAsc') 
+                                          #else 
+                                            #set($orderName = 'ASC') 
+                                            #set($className = 'jttp-tablesorter-headerDesc') 
+                                          #end 
+                                        #else 
+                                          #set($orderName = $defaultOrder)
+                                          #set($className = '') 
+                                        #end
+                                         <th  onclick="everit.reporting.main.getWorklogDetailsPage(0, 'jtrp_col_issueEpicLink', '$orderName');"
+                                         data-jtrp-col-name="jtrp_col_issueEpicLink" 
+                                          class="jtrp_col_issueEpicLink jttp-tablesorter-header $className" style="#if( $isNotShowIssueEpicLink )display:none;#end">
+                                            <span class="jttp-aui-table-header-content">
+                                              $i18n.getText("jtrp.report.wd.col.jtrp_col_issueEpicLink")
+                                            <span>
+                                        </th>
                                         #if( $orderColumn.equals("jtrp_col_user") ) 
                                           #if( $isAscOrder ) 
                                             #set($orderName = 'DESC') 
@@ -548,6 +591,8 @@
                                         <td class="jtrp_col_fixVersions" style="#if( $isNotShowFixVersions )display:none;#end">#if ( !$wd.issueFixedVersions.isEmpty() ) #foreach ( $fixedVersion in $wd.issueFixedVersions )#if($velocityCount> 1),#end $fixedVersion #end #end</td>
                                         <td class="jtrp_col_resolution" style="#if( $isNotShowResolution )display:none;#end">#if ( !$wd.resolutionName )$i18n.getText("jtrp.picker.unresolved.value") #else $wd.resolutionName #end</td>
                                         <td class="jtrp_col_worklogDescription" style="#if( $isNotShowWorklogDescription )display:none;#end">$atlassianWikiRenderer.render($wd.worklogBody, $issueRenderContext)</td>
+                                        <td class="jtrp_col_issueEpicName" style="#if( $isNotShowIssueEpicName )display:none;#end">#if ( !$wd.issueEpicName ) #else $wd.issueEpicName #end</td>
+                                        <td class="jtrp_col_issueEpicLink" style="#if( $isNotShowIssueEpicLink )display:none;#end">#if ( !$wd.issueEpicLink ) #else $wd.issueEpicLink #end</td>
                                         <td class="jtrp_col_user" style="#if( $isNotShowUser )display:none;#end">$wd.worklogUser</td>
                                         <td class="jtrp_col_startTime" style="#if( $isNotShowStartTime )display:none;#end">$outlookDate.formatDMYHMS($wd.worklogStartDate)</td>
                                         <td class="jtrp_col_timeSpent" style="#if( $isNotShowTimeSpent )display:none;#end">$durationFormatter.exactDuration($wd.worklogTimeWorked)</td>

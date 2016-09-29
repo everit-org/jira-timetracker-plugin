@@ -40,6 +40,10 @@ public final class WorklogDetailsColumns {
 
   public static final String FIX_VERSIONS = "jtrp_col_fixVersions";
 
+  public static final String ISSUE_EPIC_LINK = "jtrp_col_issueEpicLink";
+
+  public static final String ISSUE_EPIC_NAME = "jtrp_col_issueEpicName";
+
   public static final String ISSUE_KEY = "jtrp_col_issueKey";
 
   public static final String ISSUE_SUMMARY = "jtrp_col_issueSummary";
@@ -81,7 +85,7 @@ public final class WorklogDetailsColumns {
   }
 
   private static List<String> createAllColumnsList() {
-    List<String> allColumns = new ArrayList<String>();
+    List<String> allColumns = new ArrayList<>();
     allColumns.add(AFFECTED_VERIONS);
     allColumns.add(ASSIGNEE);
     allColumns.add(COMPONENTS);
@@ -105,11 +109,13 @@ public final class WorklogDetailsColumns {
     allColumns.add(WORKLOG_CREATED);
     allColumns.add(WORKLOG_DESCRIPTION);
     allColumns.add(WORKLOG_UPDATED);
+    allColumns.add(ISSUE_EPIC_NAME);
+    allColumns.add(ISSUE_EPIC_LINK);
     return allColumns;
   }
 
   private static List<String> createDefaultColumnsList() {
-    List<String> requiredColumns = new ArrayList<String>();
+    List<String> requiredColumns = new ArrayList<>();
     requiredColumns.add(ISSUE_KEY);
     requiredColumns.add(ISSUE_SUMMARY);
     requiredColumns.add(TYPE);
