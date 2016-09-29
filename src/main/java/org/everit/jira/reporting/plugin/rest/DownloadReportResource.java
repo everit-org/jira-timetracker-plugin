@@ -41,6 +41,7 @@ import org.everit.jira.reporting.plugin.dto.ConvertedSearchParam;
 import org.everit.jira.reporting.plugin.dto.DownloadWorklogDetailsParam;
 import org.everit.jira.reporting.plugin.dto.FilterCondition;
 import org.everit.jira.reporting.plugin.dto.OrderBy;
+import org.everit.jira.reporting.plugin.export.CsvExport;
 import org.everit.jira.reporting.plugin.export.ExportSummariesListReport;
 import org.everit.jira.reporting.plugin.export.ExportWorklogDetailsListReport;
 import org.everit.jira.reporting.plugin.util.ConverterUtil;
@@ -75,6 +76,19 @@ public class DownloadReportResource {
       querydslSupport = new QuerydslSupportImpl();
     } catch (Exception e) {
       throw new RuntimeException(e);
+    }
+  }
+
+  private Response buildResponse(final ByteArrayOutputStream bos, final String fileName,
+      final String fileExtension) {
+    try {
+      String timeStamp = new SimpleDateFormat("yyyyMMddhhmm").format(new Date());
+      return Response.ok(bos.toByteArray(), MediaType.APPLICATION_OCTET_STREAM)
+          .header("Content-Disposition",
+              "attachment; filename=\"" + fileName + timeStamp + "." + fileExtension + "\"")
+          .build();
+    } finally {
+      return Response.serverError().build();
     }
   }
 
@@ -139,6 +153,32 @@ public class DownloadReportResource {
   public Response downloadWorklogDetailsReport(
       @QueryParam("json") @DefaultValue("{}") final String json,
       @QueryParam("orderBy") final String orderByString) {
+    HSSFWorkbook workbook = makeExcle(json, orderByString);
+
+    return buildResponse(workbook, "worklog-details-report", "xls");
+  }
+
+  /**
+   * Download worklog details report.
+   *
+   * @param json
+   *          the json string from which the object is to be deserialized to
+   *          {@link DownloadWorklogDetailsParam} object.
+   * @return the generated CSV file.
+   */
+  @GET
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_OCTET_STREAM)
+  @Path("/downloadWorklogDetailsReportAsCSV")
+  public Response downloadWorklogDetailsReportAsCSV(
+      @QueryParam("json") @DefaultValue("{}") final String json,
+      @QueryParam("orderBy") final String orderByString) {
+    HSSFWorkbook workbook = makeExcle(json, orderByString);
+    ByteArrayOutputStream convertToCSV = new CsvExport(workbook).convertToCSV();
+    return buildResponse(convertToCSV, "worklog-details-report", "csv");
+  }
+
+  private HSSFWorkbook makeExcle(final String json, final String orderByString) {
     DownloadWorklogDetailsParam downloadWorklogDetailsParam = new Gson()
         .fromJson(json, DownloadWorklogDetailsParam.class);
     ConvertedSearchParam converSearchParam = ConverterUtil
@@ -160,8 +200,6 @@ public class DownloadReportResource {
     ExportWorklogDetailsReportEvent exportWorklogDetailsReportEvent =
         new ExportWorklogDetailsReportEvent(pluginId, allFields);
     analyticsSender.send(exportWorklogDetailsReportEvent);
-
-    return buildResponse(workbook, "worklog-details-report", "xls");
+    return workbook;
   }
-
 }
