@@ -43,6 +43,7 @@ import org.everit.jira.analytics.AnalyticsSender;
 import org.everit.jira.analytics.event.AnalyticsStatusChangedEvent;
 import org.everit.jira.analytics.event.NoEstimateUsageChangedEvent;
 import org.everit.jira.analytics.event.NonWorkingUsageEvent;
+import org.everit.jira.analytics.event.ProgressIndicatorChangedEvent;
 import org.everit.jira.reporting.plugin.dto.MissingsWorklogsDTO;
 import org.everit.jira.timetracker.plugin.dto.ActionResult;
 import org.everit.jira.timetracker.plugin.dto.ActionResultStatus;
@@ -1010,8 +1011,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     pluginSettings = settingsFactory
         .createSettingsForKey(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
             + user.getName());
-    pluginSettings.put(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_PROGRESS_INDICATOR,
-        pluginSettingsParameters.isProgressIndicatorDaily.toString());
     pluginSettings.put(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_IS_ACTUAL_DATE,
         pluginSettingsParameters.isActualDate.toString());
     pluginSettings.put(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_IS_COLORIG,
@@ -1058,6 +1057,22 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     globalSettings.put(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
         + GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_ANALYTICS_CHECK_CHANGE,
         Boolean.toString(pluginSettingsParameters.analyticsCheck));
+
+    Object indicatorCheckObj =
+        pluginSettings.get(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_PROGRESS_INDICATOR);
+    boolean indicatorCheck = indicatorCheckObj == null
+        ? true
+        : Boolean.parseBoolean(indicatorCheckObj.toString());
+
+    if ((indicatorCheck != pluginSettingsParameters.isProgressIndicatorDaily)
+        || (indicatorCheckObj == null)) {
+      setPluginUUID();
+      analyticsSender.send(new ProgressIndicatorChangedEvent(pluginUUID,
+          pluginSettingsParameters.isProgressIndicatorDaily));
+    }
+
+    pluginSettings.put(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_PROGRESS_INDICATOR,
+        pluginSettingsParameters.isProgressIndicatorDaily.toString());
   }
 
   @Override
