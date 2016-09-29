@@ -199,7 +199,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
           </div>
         </form>
 
-              <div class="buttons-container">
+              <div id="buttons-container" class="buttons-container">
                 <form class="aui top-label" id="jttp-logwork-form" method="post" action="JiraTimetrackerWebAction.jspa"  onsubmit="return everit.jttp.main.beforeSubmit();" >
                 <!-- Worklog submit form -->
                   <div class="buttons">
