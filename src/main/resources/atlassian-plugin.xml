@@ -153,25 +153,20 @@
     <resource type="download" name="E_logo.png" location="/icons/E_logo.png">
       <param name="content-type" value="image/png" />
     </resource>
-    <resource type="download" name="permission920.png" location="/images/permission920.png">
+    <resource type="download" name="indicatorDone.png" location="/images/indicatorDone.png">
       <param name="content-type" value="image/png" />
     </resource>
-    <resource type="download" name="usersettings920.png" location="/images/usersettings920.png">
+    <resource type="download" name="newdesign.png" location="/images/newdesign.png">
       <param name="content-type" value="image/png" />
     </resource>
-    <resource type="download" name="search1.png" location="/images/search1.png">
+    <resource type="download" name="permission.png" location="/images/permission.png">
       <param name="content-type" value="image/png" />
     </resource>
-    <resource type="download" name="search2.png" location="/images/search2.png">
-      <param name="content-type" value="image/png" />
-    </resource>
-    <resource type="download" name="details.png" location="/images/details.png">
-      <param name="content-type" value="image/png" />
-    </resource>
-    <resource type="download" name="summary.png" location="/images/summary.png">
+    <resource type="download" name="reportingDone.png" location="/images/reportingDone.png">
       <param name="content-type" value="image/png" />
     </resource>
     <resource type="download" name="reporting.css" location="/css/reporting.css" />
+    <resource type="download" name="news_popup.css" location="/css/news_popup.css" />
     <resource type="download" name="reporting.js" location="/js/reporting.js" />
     <resource type="download" name="jtrp-aui-table-sortable.css" location="/css/jtrp-aui-table-sortable.css" />
   </web-resource>
