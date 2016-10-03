@@ -13,15 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
+ .everit_logo{
+  content:url(E_logo.png);
+}
+
  /* Chart report new design */
  .chart-search-criteria-container {
     padding: 5px 20px 5px 20px;
     border-top: 1px solid #ccc; 
 }
- 
-  /* Missings report new design */
- .missing-search-criteria-container {
+
+/* Missings report new design */
+.missing-search-criteria-container {
     padding: 5px 20px 5px 20px;
     border-top: 1px solid #ccc; 
 }

@@ -21,3 +21,7 @@ form.aui div.field-group textarea {
 	max-width: 500px;
 	width: 100%;
 }
+
+.everit_logo{
+  content:url(E_logo.png);
+}
