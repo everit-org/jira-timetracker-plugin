@@ -1251,8 +1251,19 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       dateFormatted = Long.valueOf(dateFromParam);
       date = new Date(dateFormatted);
     } else {
-      date = new Date();
+      if (isActualDate) {
+        date = Calendar.getInstance().getTime();
+        dateFormatted = date.getTime();
+      } else {
+        try {
+          date = jiraTimetrackerPlugin.firstMissingWorklogsDate();
+          dateFormatted = date.getTime();
+        } catch (GenericEntityException e) {
+          LOGGER.error("Error when try set the plugin date.", e);
+        }
+      }
     }
+
   }
 
   private void parseEditAllAction() {
