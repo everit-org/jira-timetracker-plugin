@@ -30,12 +30,14 @@ everit.jttp.main = everit.jttp.main || {};
     eventBinding();
     commentsCSSFormat();
 
-    if(!$( ".aui-message-error" ).length 
+    if(!jQuery( ".aui-message-error" ).length 
         && window.location.search.indexOf('date') > -1
         && !isContainsAchorExlucdingParts(window.location.search)){
       document.getElementById("issueSelect-textarea").focus();
       var anchorDiv = document.getElementById("buttons-container");
-      $(window).scrollTop( anchorDiv.offsetTop);
+      jQuery(window).scrollTop( anchorDiv.offsetTop);
+    }else{
+      jQuery("#jttp-headline-day-calendar").blur();
     }
 
     var formatedDate =  new Date(jttp.options.dateFormatted).print(jttp.options.dateFormat);  
