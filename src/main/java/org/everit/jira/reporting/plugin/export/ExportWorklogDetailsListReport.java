@@ -27,6 +27,7 @@ import org.everit.jira.reporting.plugin.dto.OrderBy;
 import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
 import org.everit.jira.reporting.plugin.dto.WorklogDetailsDTO;
 import org.everit.jira.reporting.plugin.query.WorklogDetailsReportQueryBuilder;
+import org.everit.jira.timetracker.plugin.DurationFormatter;
 
 /**
  * Class that export worklog details list report.
@@ -34,6 +35,8 @@ import org.everit.jira.reporting.plugin.query.WorklogDetailsReportQueryBuilder;
 public class ExportWorklogDetailsListReport extends AbstractExportListReport {
 
   private static final String WORKLOG_DETAILS_PREFIX = "jtrp.report.export.wd.col.";
+
+  private DurationFormatter durationFormatter;
 
   private OrderBy orderBy;
 
@@ -81,6 +84,10 @@ public class ExportWorklogDetailsListReport extends AbstractExportListReport {
 
   private boolean containsColumn(final String columnName) {
     return selectedWorklogDetailsColumns.contains(columnName);
+  }
+
+  public DurationFormatter getDurationFormatter() {
+    return durationFormatter;
   }
 
   private void insertBodyRow(final HSSFSheet worklogDetailsSheet,
@@ -215,6 +222,10 @@ public class ExportWorklogDetailsListReport extends AbstractExportListReport {
           i18nHelper.getText(WORKLOG_DETAILS_PREFIX + column));
     }
     return columnIndex;
+  }
+
+  public void setDurationFormatter(final DurationFormatter durationFormatter) {
+    this.durationFormatter = durationFormatter;
   }
 
 }

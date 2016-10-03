@@ -68,6 +68,8 @@ public class ReportingUserSettingsWebAction extends JiraWebActionSupport {
 
   private boolean userPopupVisible;
 
+  private boolean worklogTimeInSeconds;
+
   /**
    * ReportingUserSettingsWebAction constructor.
    *
@@ -158,6 +160,10 @@ public class ReportingUserSettingsWebAction extends JiraWebActionSupport {
     return userPopupVisible;
   }
 
+  public boolean isWorklogTimeInSeconds() {
+    return worklogTimeInSeconds;
+  }
+
   private void loadIssueCollectorSrc() {
     Properties properties = PropertiesUtil.getJttpBuildProperties();
     issueCollectorSrc = properties.getProperty(PropertiesUtil.ISSUE_COLLECTOR_SRC);
@@ -171,6 +177,7 @@ public class ReportingUserSettingsWebAction extends JiraWebActionSupport {
         new UserReportingSettingsHelper(settingsFactory, JiraTimetrackerUtil.getLoggedUserName());
     pageSize = userReportingSettingsHelper.getPageSize();
     userPopupVisible = userReportingSettingsHelper.getIsShowTutorialDialog();
+    worklogTimeInSeconds = userReportingSettingsHelper.getWorklogTimeInSeconds();
 
   }
 
@@ -200,8 +207,10 @@ public class ReportingUserSettingsWebAction extends JiraWebActionSupport {
   public String parseSaveSettings(final HttpServletRequest request) {
     String pageSizeValue = request.getParameter("pageSizeInput");
     String userPopupVisibleValue = getHttpRequest().getParameter("user_popup");
+    String worklogTimeInSecondsValue = getHttpRequest().getParameter("worklogTimeInSeconds");
     parseUserPopupVisible(userPopupVisibleValue);
     parsePageSizeInput(pageSizeValue);
+    parseWorklogTimeInSeconds(worklogTimeInSecondsValue);
     return null;
   }
 
@@ -209,6 +218,13 @@ public class ReportingUserSettingsWebAction extends JiraWebActionSupport {
     userPopupVisible = true;
     if (userPopupVisibleValue != null) {
       userPopupVisible = false;
+    }
+  }
+
+  private void parseWorklogTimeInSeconds(final String worklogTimeInSecondsValue) {
+    worklogTimeInSeconds = true;
+    if ("default".equals(worklogTimeInSecondsValue)) {
+      worklogTimeInSeconds = false;
     }
   }
 
@@ -226,6 +242,7 @@ public class ReportingUserSettingsWebAction extends JiraWebActionSupport {
         new UserReportingSettingsHelper(settingsFactory, JiraTimetrackerUtil.getLoggedUserName());
     userReportingSettingsHelper.saveIsShowTutorialDialog(userPopupVisible);
     userReportingSettingsHelper.savePageSize(pageSize);
+    userReportingSettingsHelper.saveWorklogTimeInSeconds(worklogTimeInSeconds);
   }
 
   public void setContextPath(final String contextPath) {
@@ -246,6 +263,10 @@ public class ReportingUserSettingsWebAction extends JiraWebActionSupport {
 
   public void setUserPopupVisible(final boolean userPopupVisible) {
     this.userPopupVisible = userPopupVisible;
+  }
+
+  public void setWorklogTimeInSeconds(final boolean worklogTimeInSeconds) {
+    this.worklogTimeInSeconds = worklogTimeInSeconds;
   }
 
   private void writeObject(final java.io.ObjectOutputStream stream) throws IOException {

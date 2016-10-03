@@ -26,6 +26,11 @@ public final class GlobalSettingsKey {
   public static final String JTTP_PLUGIN_REPORTING_SETTINGS_PAGER_SIZE = "pagerSize";
 
   /**
+   * The plugin reporting settings worklog time in seconds value.
+   */
+  public static final String JTTP_PLUGIN_REPORTING_SETTINGS_WORKLOG_IN_SEC = "worklogTimeInSeconds";
+
+  /**
    * The plugin settings analytics check.
    */
   public static final String JTTP_PLUGIN_SETTINGS_ANALYTICS_CHECK_CHANGE = "analyticsCheckChange";
