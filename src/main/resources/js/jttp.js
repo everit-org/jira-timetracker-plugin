@@ -656,6 +656,15 @@ everit.jttp.main = everit.jttp.main || {};
     jQuery("#endTime").val(time);
   }
   
+  jttp.selectCalculationType = function(){
+    var $endInput = jQuery('#endTime');
+    if($endInput.attr("disabled")){
+      jttp.calculateEndTime();
+    }else{
+      jttp.calculateDuration();
+    }
+  }
+  
   jttp.calculateDuration = function(){
     var $startInput = jQuery('#startTime');
     var $endInput = jQuery('#endTime');

@@ -22,6 +22,7 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -130,6 +131,8 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
    */
   private JiraTimetrackerPlugin jiraTimetrackerPlugin;
 
+  private Date lastDate;
+
   /**
    * The message.
    */
@@ -142,6 +145,8 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
   private ReportingCondition reportingCondition;
 
   private ReportingPlugin reportingPlugin;
+
+  private Date startDate;
 
   private transient ApplicationUser userPickerObject;
 
@@ -225,15 +230,8 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(pluginSettingsFactory,
         PiwikPropertiesUtil.PIWIK_CHART_SITEID);
 
-    Calendar startDate = null;
-    Calendar lastDate = null;
-    try {
-      setCurrentUserFromParam();
-      setUserPickerObjectBasedOnCurrentUser();
-      startDate = parseDateFrom();
-      lastDate = parseDateTo();
-    } catch (IllegalArgumentException e) {
-      message = e.getMessage();
+    parseParams();
+    if (!"".equals(message)) {
       return INPUT;
     }
 
@@ -244,8 +242,8 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
     List<EveritWorklog> worklogs = new ArrayList<>();
     try {
-      worklogs.addAll(jiraTimetrackerPlugin.getWorklogs(currentUser, startDate.getTime(),
-          lastDate.getTime()));
+      worklogs.addAll(jiraTimetrackerPlugin.getWorklogs(currentUser, startDate,
+          lastDate));
       saveDataToSession();
     } catch (DataAccessException e) {
       LOGGER.error(GET_WORKLOGS_ERROR_MESSAGE, e);
@@ -388,27 +386,46 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     }
   }
 
-  private Calendar parseDateFrom() throws IllegalArgumentException {
+  private Date parseDateFrom() throws IllegalArgumentException {
     String dateFromParam = getHttpRequest().getParameter(PARAM_DATEFROM);
     if ((dateFromParam != null) && !"".equals(dateFromParam)) {
       dateFromFormated = Long.valueOf(dateFromParam);
-      Calendar parsedCalendarFrom = Calendar.getInstance();
-      parsedCalendarFrom.setTimeInMillis(dateFromFormated);
-      return parsedCalendarFrom;
+      return new Date(dateFromFormated);
     } else {
       throw new IllegalArgumentException(INVALID_START_TIME);
     }
   }
 
-  private Calendar parseDateTo() throws IllegalArgumentException {
+  private Date parseDateTo() throws IllegalArgumentException {
     String dateToParam = getHttpRequest().getParameter(PARAM_DATETO);
     if ((dateToParam != null) && !"".equals(dateToParam)) {
       dateToFormated = Long.valueOf(dateToParam);
-      Calendar parsedCalendarTo = Calendar.getInstance();
-      parsedCalendarTo.setTimeInMillis(dateToFormated);
-      return parsedCalendarTo;
+      return new Date(dateToFormated);
     } else {
       throw new IllegalArgumentException(INVALID_END_TIME);
+    }
+  }
+
+  private void parseParams() {
+    try {
+      startDate = parseDateFrom();
+    } catch (IllegalArgumentException e) {
+      message = e.getMessage();
+    }
+    try {
+      lastDate = parseDateTo();
+    } catch (IllegalArgumentException e) {
+      if ("".equals(message)) {
+        message = e.getMessage();
+      }
+    }
+    try {
+      setCurrentUserFromParam();
+      setUserPickerObjectBasedOnCurrentUser();
+    } catch (IllegalArgumentException e) {
+      if ("".equals(message)) {
+        message = e.getMessage();
+      }
     }
   }
 

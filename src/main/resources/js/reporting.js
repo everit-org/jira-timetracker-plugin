@@ -1073,6 +1073,10 @@ const MAX_ELEMENTS_DISPLAYED = 100; // EQUAL TO JIRA.Issues.SearcherGroupListDia
     if(createdPicker != ""){
       try{
         var issueCreateDate = Date.parseDate(createdPicker, reporting.values.dateFormat);
+        if(createdPicker != issueCreateDate.print(reporting.values.dateFormat)){
+          showErrorMessage("error_message_label_cd");
+          return false;
+        }
         var issueCreateDateMilis = issueCreateDate.getTime();
       }catch(err){
         showErrorMessage("error_message_label_cd");
@@ -1083,6 +1087,10 @@ const MAX_ELEMENTS_DISPLAYED = 100; // EQUAL TO JIRA.Issues.SearcherGroupListDia
     try{
       var dateFrom = jQuery('#dateFrom').val();
       var worklogStartDate = Date.parseDate(dateFrom, reporting.values.dateFormat);
+      if(dateFrom != worklogStartDate.print(reporting.values.dateFormat)){
+        showErrorMessage("error_message_label_df");
+        return false;
+      }
       filterCondition["worklogStartDate"] = worklogStartDate.getTime();
     }catch(err){
       showErrorMessage("error_message_label_df");
@@ -1091,6 +1099,10 @@ const MAX_ELEMENTS_DISPLAYED = 100; // EQUAL TO JIRA.Issues.SearcherGroupListDia
     try{
       var dateTo = jQuery('#dateTo').val();
       var worklogEndDate = Date.parseDate(dateTo, reporting.values.dateFormat);
+      if(dateTo != worklogEndDate.print(reporting.values.dateFormat)){
+        showErrorMessage("error_message_label_dt");
+        return false;
+      }
       filterCondition["worklogEndDate"] = worklogEndDate.getTime();
     }catch(err){
       showErrorMessage("error_message_label_dt");
