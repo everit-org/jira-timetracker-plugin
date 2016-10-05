@@ -154,7 +154,7 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.plug
                       value="$startTime" onkeypress="everit.jttp.main.handleEnterKey(event, '#endTime');"
                       name="startTime" maxlength="5" tabindex="2"
                       pattern="^([01][0-9]|2[0-3]):[0-5][0-9]$" title="hh:mm"
-                      onblur="everit.jttp.main.calculateDuration();"
+                      onblur="everit.jttp.main.selectCalculationType();"
                       list="time-options" autocomplete="off">
                     <input id="startNow" name="startNow" class="button" type="button" value="$i18n.getText('plugin.now')"
                       onclick="everit.jttp.main.startNowClick($startTimeChange);">
