@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
- .everit_logo{
+.everit_logo{
   content:url(E_logo.png);
 }
+
 
  /* Chart report new design */
  .chart-search-criteria-container {

@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
@@ -157,6 +158,8 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
    */
   private final JiraTimetrackerPlugin jiraTimetrackerPlugin;
 
+  private Date lastDate;
+
   /**
    * The message.
    */
@@ -177,6 +180,8 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   private ReportingCondition reportingCondition;
 
   private ReportingPlugin reportingPlugin;
+
+  private Date startDate;
 
   private transient ApplicationUser userPickerObject;
 
@@ -351,13 +356,11 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(pluginSettingsFactory,
         PiwikPropertiesUtil.PIWIK_TABLE_SITEID);
 
-    Calendar startDate = null;
-    Calendar lastDate = null;
+    parseParams();
+    if (!"".equals(message)) {
+      return INPUT;
+    }
     try {
-      setCurrentUserFromParam();
-      setUserPickerObjectBasedOnCurrentUser();
-      startDate = parseDateFrom();
-      lastDate = parseDateTo();
       validateDates(startDate, lastDate);
     } catch (IllegalArgumentException e) {
       message = e.getMessage();
@@ -366,8 +369,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
     worklogs = new ArrayList<>();
     try {
-      worklogs.addAll(jiraTimetrackerPlugin.getWorklogs(currentUser, startDate.getTime(),
-          lastDate.getTime()));
+      worklogs.addAll(jiraTimetrackerPlugin.getWorklogs(currentUser, startDate, lastDate));
       saveDataToSession();
     } catch (DataAccessException | SQLException e) {
       LOGGER.error(GET_WORKLOGS_ERROR_MESSAGE, e);
@@ -560,27 +562,46 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     }
   }
 
-  private Calendar parseDateFrom() throws IllegalArgumentException {
+  private Date parseDateFrom() throws IllegalArgumentException {
     String dateFromParam = getHttpRequest().getParameter(PARAM_DATEFROM);
     if ((dateFromParam != null) && !"".equals(dateFromParam)) {
       dateFromFormated = Long.valueOf(dateFromParam);
-      Calendar parsedCalendarFrom = Calendar.getInstance();
-      parsedCalendarFrom.setTimeInMillis(dateFromFormated);
-      return parsedCalendarFrom;
+      return new Date(dateFromFormated);
     } else {
       throw new IllegalArgumentException(INVALID_START_TIME);
     }
   }
 
-  private Calendar parseDateTo() throws IllegalArgumentException {
+  private Date parseDateTo() throws IllegalArgumentException {
     String dateToParam = getHttpRequest().getParameter(PARAM_DATETO);
     if ((dateToParam != null) && !"".equals(dateToParam)) {
       dateToFormated = Long.valueOf(dateToParam);
-      Calendar parsedCalendarTo = Calendar.getInstance();
-      parsedCalendarTo.setTimeInMillis(dateToFormated);
-      return parsedCalendarTo;
+      return new Date(dateToFormated);
     } else {
       throw new IllegalArgumentException(INVALID_END_TIME);
+    }
+  }
+
+  private void parseParams() {
+    try {
+      startDate = parseDateFrom();
+    } catch (IllegalArgumentException e) {
+      message = e.getMessage();
+    }
+    try {
+      lastDate = parseDateTo();
+    } catch (IllegalArgumentException e) {
+      if ("".equals(message)) {
+        message = e.getMessage();
+      }
+    }
+    try {
+      setCurrentUserFromParam();
+      setUserPickerObjectBasedOnCurrentUser();
+    } catch (IllegalArgumentException e) {
+      if ("".equals(message)) {
+        message = e.getMessage();
+      }
     }
   }
 
@@ -687,14 +708,15 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     this.worklogs = worklogs;
   }
 
-  private void validateDates(final Calendar startDate, final Calendar lastDate) {
+  private void validateDates(final Date startDate, final Date lastDate) {
     if (startDate.after(lastDate)) {
       throw new IllegalArgumentException(WRONG_DATES);
     }
 
-    Calendar yearCheckCal = (Calendar) lastDate.clone();
+    Calendar yearCheckCal = Calendar.getInstance();
+    yearCheckCal.setTime(lastDate);
     yearCheckCal.add(Calendar.YEAR, -1);
-    if (startDate.before(yearCheckCal)) {
+    if (startDate.before(yearCheckCal.getTime())) {
       throw new IllegalArgumentException(EXCEEDED_A_YEAR);
     }
   }

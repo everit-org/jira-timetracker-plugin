@@ -421,15 +421,18 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
   private String parseParams() throws ParseException {
     String searchValue = getHttpRequest().getParameter("search");
+    // set actual page default! we start the new query with the first page
+    actualPage = 1;
     if (searchValue != null) {
-      // set actual page default! we start the new query with the first page
       parseDateParams();
-      actualPage = 1;
       if (dateFrom.compareTo(dateTo) >= 0) {
         message = "plugin.wrong.dates";
         return INPUT;
       }
-    } else {
+    }
+    String pagingValue = getHttpRequest().getParameter("paging");
+    if (pagingValue != null) {
+      // TODO add paging check if not working add default init
       parsePagingParams();
       dateFrom = new Date(dateFromFormated);
       dateTo = new Date(dateToFormated);
