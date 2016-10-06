@@ -13,6 +13,65 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+.everit_logo{
+  content:url(E_logo.png);
+}
+
+
+ /* Chart report new design */
+ .chart-search-criteria-container {
+    padding: 5px 20px 5px 20px;
+    border-top: 1px solid #ccc; 
+}
+
+/* Missings report new design */
+.missing-search-criteria-container {
+    padding: 5px 20px 5px 20px;
+    border-top: 1px solid #ccc; 
+}
+
+.missings-paging-strong{
+    bottom: 8px;
+}
+
+.missings-paging~.missings-paging{
+    margin-left: 0px !important;
+}
+
+.container {
+    width: 20%;
+    min-width: 20rem;
+    max-width: 30rem;
+}
+
+.missing-message{
+     margin-bottom: 1rem;
+}
+
+.missing-worklog-table tbody tr:hover {
+   background-color: #f5f5f5;
+}
+
+ table.missing-worklog-table thead > tr > th{
+    text-align: center;
+    color: #707070;
+}
+
+table.missing-worklog-table > tbody > tr > td{
+   text-align: center;
+}
+ 
+  /* Reporting */
+ .h1-button{
+     color: #000000 !important;
+     padding-bottom: 30px !important;
+ }
+ 
+ .h1-button.aui-button.aui-dropdown2-trigger:not(.aui-dropdown2-trigger-arrowless):after{
+  top: 17px;
+ }
+ 
  .criteria-dropdown-calendar-icon{
     position: absolute;
     top: 19px;
@@ -46,80 +105,6 @@
     font-size: 14px;
  }
 
- .tabImage{
-    padding-top: 10px;
-    border: 0;
-    width: 660px;
-    height: 300px;
- }
-  
-  .tab-new1-img{
-   background-image: url(permission920.png);
-   background-position-x: 50%;
-   background-position-y: 10%;
-   background-size: 70%;
-   background-repeat-x: no-repeat;
-   background-repeat-y: no-repeat;
- }
- 
- .tab-new2-img{
-   background-image: url(usersettings920.png);
-   background-position-x: 50%;
-   background-position-y: 10%;
-   background-size: 70%;
-   background-repeat-x: no-repeat;
-   background-repeat-y: no-repeat;
- }
-  
- .tab1-img{
-   background-image: url(opening.png);
-   background-position-x: 50%;
-   background-position-y: 10%;
-   background-size: 70%;
-   background-repeat-x: no-repeat;
-   background-repeat-y: no-repeat;
- }
- 
- .tab2-img{
-   background-image: url(search1.png);
-   background-position-x: 90%;
-   background-position-y: 10%;
-   background-size: 85%;
-   background-repeat-x: no-repeat;
-   background-repeat-y: no-repeat;
-   
- }
- 
- .tab3-img{
-   background-image: url(search2.png);
-   background-position-x: 90%;
-   background-position-y: 10%;
-   background-size: 85%;
-   background-repeat-x: no-repeat;
-   background-repeat-y: no-repeat;
-   
- }
- 
- .tab4-img{
-   background-image: url(details.png);
-   background-position-x: 90%;
-   background-position-y: 10%;
-   background-size: 85%;
-   background-repeat-x: no-repeat;
-   background-repeat-y: no-repeat;
-   
- }
- 
- .tab5-img{
-   background-image: url(summary.png);
-   background-position-x: 90%;
-   background-position-y: 10%;
-   background-size: 85%;
-   background-repeat-x: no-repeat;
-   background-repeat-y: no-repeat;
-   
- }
- 
   .criteria-dropdown-textarea{
     width: 100%;
     min-width: 200px;
@@ -140,11 +125,12 @@
     font-family: inherit;
     font-size: 14px;
  }
- 
+
 .criteria-selector.aui-button {
     text-align: left;
     margin: 0
 }
+
 .criteria-selector>.criteria-wrap {
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -330,4 +316,14 @@ table.aui > thead > tr > th, div.grand-total p.grand-total-header {
     display:inline;
     width:16px;
     padding-left:32px;
+}
+
+/* Table report new design */
+.table-report-search-criteria-container {
+    padding: 5px 20px 5px 20px;
+    border-top: 1px solid #ccc;
+}
+
+.table-report-summary-cell {
+  background-color: rgb(245,245,245);
 }

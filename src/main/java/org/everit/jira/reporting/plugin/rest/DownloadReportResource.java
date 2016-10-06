@@ -36,12 +36,13 @@ import org.everit.jira.analytics.event.ExportWorklogDetailsReportEvent;
 import org.everit.jira.querydsl.support.QuerydslSupport;
 import org.everit.jira.querydsl.support.ri.QuerydslSupportImpl;
 import org.everit.jira.reporting.plugin.ReportingPlugin;
+import org.everit.jira.reporting.plugin.column.WorklogDetailsColumns;
 import org.everit.jira.reporting.plugin.dto.ConvertedSearchParam;
 import org.everit.jira.reporting.plugin.dto.DownloadWorklogDetailsParam;
 import org.everit.jira.reporting.plugin.dto.FilterCondition;
+import org.everit.jira.reporting.plugin.dto.OrderBy;
 import org.everit.jira.reporting.plugin.export.ExportSummariesListReport;
 import org.everit.jira.reporting.plugin.export.ExportWorklogDetailsListReport;
-import org.everit.jira.reporting.plugin.export.column.WorklogDetailsColumns;
 import org.everit.jira.reporting.plugin.util.ConverterUtil;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 
@@ -136,18 +137,21 @@ public class DownloadReportResource {
   @Produces(MediaType.APPLICATION_OCTET_STREAM)
   @Path("/downloadWorklogDetailsReport")
   public Response downloadWorklogDetailsReport(
-      @QueryParam("json") @DefaultValue("{}") final String json) {
+      @QueryParam("json") @DefaultValue("{}") final String json,
+      @QueryParam("orderBy") final String orderByString) {
     DownloadWorklogDetailsParam downloadWorklogDetailsParam = new Gson()
         .fromJson(json, DownloadWorklogDetailsParam.class);
     ConvertedSearchParam converSearchParam = ConverterUtil
         .convertFilterConditionToConvertedSearchParam(downloadWorklogDetailsParam.filterCondition,
             reportingPlugin);
+    OrderBy orderBy = ConverterUtil.convertToOrderBy(orderByString);
 
     ExportWorklogDetailsListReport exportWorklogDetailsListReport =
         new ExportWorklogDetailsListReport(querydslSupport,
             downloadWorklogDetailsParam.selectedWorklogDetailsColumns,
             converSearchParam.reportSearchParam,
-            converSearchParam.notBrowsableProjectKeys);
+            converSearchParam.notBrowsableProjectKeys,
+            orderBy);
 
     HSSFWorkbook workbook = exportWorklogDetailsListReport.exportToXLS();
 

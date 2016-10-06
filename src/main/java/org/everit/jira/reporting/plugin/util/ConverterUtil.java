@@ -23,11 +23,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Pattern;
 
-import org.everit.jira.analytics.SearcherValue;
 import org.everit.jira.reporting.plugin.ReportingPlugin;
+import org.everit.jira.reporting.plugin.SearcherValue;
 import org.everit.jira.reporting.plugin.dto.ConvertedSearchParam;
 import org.everit.jira.reporting.plugin.dto.FilterCondition;
+import org.everit.jira.reporting.plugin.dto.OrderBy;
 import org.everit.jira.reporting.plugin.dto.PickerComponentDTO;
 import org.everit.jira.reporting.plugin.dto.PickerUserDTO;
 import org.everit.jira.reporting.plugin.dto.PickerVersionDTO;
@@ -61,8 +63,6 @@ import com.google.gson.Gson;
  */
 public final class ConverterUtil {
 
-  public static final String DEFAULT_SEARCHER_VALUE = "basic";
-
   private static final String KEY_MISSING_JQL = "jtrp.plugin.missing.jql";
 
   private static final String KEY_WRONG_DATES = "plugin.wrong.dates";
@@ -75,7 +75,7 @@ public final class ConverterUtil {
 
   private static void appendIssueAffectedVersions(final ReportSearchParam reportSearchParam,
       final List<String> issueAffectedVersions) {
-    ArrayList<String> affectedVersions = new ArrayList<String>();
+    ArrayList<String> affectedVersions = new ArrayList<>();
     for (String affectedVersion : issueAffectedVersions) {
       if (JiraTimetrackerUtil.getI18nText(PickerVersionDTO.NO_VERSION).equals(affectedVersion)) {
         reportSearchParam.selectNoAffectedVersionIssue(true);
@@ -88,7 +88,7 @@ public final class ConverterUtil {
 
   private static void appendIssueAssignees(final ReportSearchParam reportSearchParam,
       final List<String> issueAssignees) {
-    ArrayList<String> assignees = new ArrayList<String>();
+    ArrayList<String> assignees = new ArrayList<>();
     for (String assignee : issueAssignees) {
       if (JiraTimetrackerUtil.getI18nText(PickerUserDTO.UNASSIGNED_USER_NAME).equals(assignee)) {
         reportSearchParam.selectUnassgined(true);
@@ -104,7 +104,7 @@ public final class ConverterUtil {
 
   private static void appendIssueComponents(final ReportSearchParam reportSearchParam,
       final List<String> issueComponents) {
-    ArrayList<String> components = new ArrayList<String>();
+    ArrayList<String> components = new ArrayList<>();
     for (String component : issueComponents) {
       if (JiraTimetrackerUtil.getI18nText(PickerComponentDTO.NO_COMPONENT).equals(component)) {
         reportSearchParam.selectNoComponentIssue(true);
@@ -117,7 +117,7 @@ public final class ConverterUtil {
 
   private static void appendIssueFixedVersions(final ReportSearchParam reportSearchParam,
       final List<String> issueFixedVersions) {
-    ArrayList<String> fixedVersions = new ArrayList<String>();
+    ArrayList<String> fixedVersions = new ArrayList<>();
     for (String fixedVersion : issueFixedVersions) {
       if (JiraTimetrackerUtil.getI18nText(PickerVersionDTO.NO_VERSION).equals(fixedVersion)) {
         reportSearchParam.selectNoFixedVersionIssue(true);
@@ -136,7 +136,7 @@ public final class ConverterUtil {
 
   private static void appendIssueReportes(final ReportSearchParam reportSearchParam,
       final List<String> issueReporters) {
-    ArrayList<String> reporters = new ArrayList<String>();
+    ArrayList<String> reporters = new ArrayList<>();
     for (String reporter : issueReporters) {
       if (PickerUserDTO.CURRENT_USER_NAME.equals(reporter)) {
         reporters.add(JiraTimetrackerUtil.getLoggedUserName());
@@ -149,7 +149,7 @@ public final class ConverterUtil {
 
   private static void appendIssueResolution(final ReportSearchParam reportSearchParam,
       final List<String> issueResolutionIds) {
-    ArrayList<String> resolutionIds = new ArrayList<String>();
+    ArrayList<String> resolutionIds = new ArrayList<>();
     for (String resolutionId : issueResolutionIds) {
       if (VALUE_NEGATIVE_ONE.equals(resolutionId)) {
         reportSearchParam.selectUnresolvedResolution(true);
@@ -166,35 +166,35 @@ public final class ConverterUtil {
    */
   private static List<String> appendProjectIds(final ReportSearchParam reportSearchParam,
       final List<Long> projectIds) {
-    Map<Long, String> projectIdProjectKeys = new HashMap<Long, String>();
+    Map<Long, String> projectIdProjectKeys = new HashMap<>();
     PermissionManager permissionManager = ComponentAccessor.getPermissionManager();
     JiraAuthenticationContext jiraAuthenticationContext =
         ComponentAccessor.getJiraAuthenticationContext();
     ApplicationUser user = jiraAuthenticationContext.getUser();
     Collection<Project> projects =
         permissionManager.getProjects(ProjectPermissions.BROWSE_PROJECTS, user);
-    List<Long> allBrowsableProjectIds = new ArrayList<Long>();
+    List<Long> allBrowsableProjectIds = new ArrayList<>();
     for (Project project : projects) {
       Long projectId = project.getId();
       allBrowsableProjectIds.add(projectId);
       projectIdProjectKeys.put(projectId, project.getKey());
     }
 
-    List<Long> notBrowsableProjectIds = new ArrayList<Long>();
+    List<Long> notBrowsableProjectIds = new ArrayList<>();
 
     if (projectIds.isEmpty()) {
       reportSearchParam.projectIds(allBrowsableProjectIds);
     } else {
-      notBrowsableProjectIds = new ArrayList<Long>(projectIds);
+      notBrowsableProjectIds = new ArrayList<>(projectIds);
       notBrowsableProjectIds.removeAll(allBrowsableProjectIds);
 
-      List<Long> browsableProjectIds = new ArrayList<Long>(projectIds);
+      List<Long> browsableProjectIds = new ArrayList<>(projectIds);
       browsableProjectIds.removeAll(notBrowsableProjectIds);
 
       reportSearchParam.projectIds(browsableProjectIds);
     }
 
-    List<String> notBrowsableProjectKeys = new ArrayList<String>();
+    List<String> notBrowsableProjectKeys = new ArrayList<>();
     for (Long projectId : notBrowsableProjectIds) {
       String projectKey = projectIdProjectKeys.get(projectId);
       notBrowsableProjectKeys.add(projectKey == null ? projectId.toString() : projectKey);
@@ -204,7 +204,7 @@ public final class ConverterUtil {
 
   private static void collectUsersFromParams(final FilterCondition filterCondition,
       final ReportSearchParam reportSearchParam, final ReportingPlugin reportingPlugin) {
-    ArrayList<String> users = new ArrayList<String>(filterCondition.getUsers());
+    ArrayList<String> users = new ArrayList<>(filterCondition.getUsers());
     JiraAuthenticationContext jiraAuthenticationContext =
         ComponentAccessor.getJiraAuthenticationContext();
     ApplicationUser user = jiraAuthenticationContext.getUser();
@@ -256,7 +256,7 @@ public final class ConverterUtil {
     List<String> searchParamIssueKeys;
     List<String> notBrowsableProjectKeys;
 
-    if (SearcherValue.FILTER.name().toLowerCase(Locale.getDefault())
+    if (SearcherValue.FILTER.lowerCaseValue
         .equals(filterCondition.getSearcherValue())) {
       try {
         searchParamIssueKeys = ConverterUtil.getIssueKeysFromFilterSearcerValue(filterCondition);
@@ -333,6 +333,42 @@ public final class ConverterUtil {
         .fromJson(json, FilterCondition.class);
   }
 
+  /**
+   * Convert a {@link Pattern} list to string list.
+   */
+  public static List<String> convertPatternsToString(final List<Pattern> patterns) {
+    List<String> convertedPatterns = new ArrayList<>(patterns.size());
+    for (Pattern pattern : patterns) {
+      convertedPatterns.add(pattern.pattern());
+    }
+    return convertedPatterns;
+  }
+
+  /**
+   * Convert string to {@link OrderBy} object.
+   *
+   * @param orderBy
+   *          the string that representation orderby. Example jtrp_col_issueKey-ASC.
+   * @return the {@link OrderBy} object. If orderby string null or invalid return the
+   *         {@link OrderBy#DEFAULT}.
+   */
+  public static OrderBy convertToOrderBy(final String orderBy) {
+    if (orderBy == null) {
+      return OrderBy.DEFAULT;
+    }
+
+    String[] splitOrderBy = orderBy.split("-");
+    if (splitOrderBy.length != 2) {
+      return OrderBy.DEFAULT;
+    }
+
+    String order = splitOrderBy[1];
+    return new OrderBy()
+        .columnName(splitOrderBy[0])
+        .order(order)
+        .asc("ASC".equals(order));
+  }
+
   private static Date getDate(final Long date) {
     if (date == null) {
       return null;
@@ -367,7 +403,7 @@ public final class ConverterUtil {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
     User loggedInUser = authenticationContext.getLoggedInUser();
-    List<String> issuesKeys = new ArrayList<String>();
+    List<String> issuesKeys = new ArrayList<>();
     SearchService searchService = ComponentAccessor.getComponentOfType(SearchService.class);
     ParseResult parseResult = searchService.parseQuery(loggedInUser, jql);
     if (parseResult.isValid()) {
@@ -384,7 +420,7 @@ public final class ConverterUtil {
   }
 
   private static ArrayList<String> getUserNamesFromGroup(final List<String> groupNames) {
-    ArrayList<String> userNames = new ArrayList<String>();
+    ArrayList<String> userNames = new ArrayList<>();
     GroupManager groupManager = ComponentAccessor.getGroupManager();
     for (String groupName : groupNames) {
       Collection<String> userNamesInGroup = groupManager.getUserNamesInGroup(groupName);

@@ -16,8 +16,9 @@
 package org.everit.jira.timetracker.plugin;
 
 import java.io.Serializable;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.LinkedHashMap;
-import java.util.Map;
 
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 
@@ -31,7 +32,23 @@ import com.atlassian.jira.component.ComponentAccessor;
  */
 public class DurationFormatter implements Serializable {
 
+  private static final String DAY = "d ";
+
+  private static final int DAYIDX = 1;
+
+  private static final String HOUR = "h ";
+
+  private static final int HOURIDX = 2;
+
+  private static final String MIN = "m ";
+
+  private static final int MINIDX = 3;
+
   private static final long serialVersionUID = 8497858288910306739L;
+
+  private static final String WEEK = "w ";
+
+  private static final int WEEKIDX = 0;
 
   private long durationInSeconds;
 
@@ -51,18 +68,25 @@ public class DurationFormatter implements Serializable {
     workHoursPerDay = timeTrackingConfiguration.getHoursPerDay().doubleValue();
   }
 
+  private boolean appendValue(final StringBuilder rval, final Long value, final String key,
+      final boolean nonzeroFragmentVisited) {
+    if (value == null) {
+      return nonzeroFragmentVisited;
+    }
+    if (nonzeroFragmentVisited || value.longValue() > 0) {
+      rval.append(value.longValue()).append(key);
+      return true;
+    }
+    return false;
+  }
+
   private String buildFromFragments(final boolean needsTilde) {
     StringBuilder rval = new StringBuilder(needsTilde ? "~" : "");
     boolean nonzeroFragmentVisited = false;
-    for (Map.Entry<String, Long> fragment : fragments.entrySet()) {
-      Long value = fragment.getValue();
-      if (value.longValue() > 0) {
-        nonzeroFragmentVisited = true;
-      }
-      if (nonzeroFragmentVisited) {
-        rval.append(value.longValue()).append(fragment.getKey());
-      }
-    }
+    nonzeroFragmentVisited = appendValue(rval, fragments.get(WEEK), WEEK, nonzeroFragmentVisited);
+    nonzeroFragmentVisited = appendValue(rval, fragments.get(DAY), DAY, nonzeroFragmentVisited);
+    nonzeroFragmentVisited = appendValue(rval, fragments.get(HOUR), HOUR, nonzeroFragmentVisited);
+    nonzeroFragmentVisited = appendValue(rval, fragments.get(MIN), MIN, nonzeroFragmentVisited);
     if (nonzeroFragmentVisited) {
       return rval.toString().trim();
     } else {
@@ -72,23 +96,22 @@ public class DurationFormatter implements Serializable {
 
   private String buildRoundedEstimateString(final int firstNonzeroIdx, final int lastNonzeroIdx) {
     LinkedHashMap<String, Long> truncatedFragments = new LinkedHashMap<>();
-    int idx = 0;
     int handledFragmentCount = 0;
     boolean needsTilde = false;
-    for (Map.Entry<String, Long> fragment : fragments.entrySet()) {
-      Long value = fragment.getValue();
-      if ((firstNonzeroIdx <= idx) && (idx <= lastNonzeroIdx)) {
-        if (value.longValue() > 0) {
-          if (handledFragmentCount < 2) {
-            truncatedFragments.put(fragment.getKey(), value);
-          } else {
-            needsTilde = true;
-          }
-        }
-        ++handledFragmentCount;
-      }
-      ++idx;
-    }
+    needsTilde = needsTildeValue(firstNonzeroIdx, lastNonzeroIdx, truncatedFragments,
+        handledFragmentCount, needsTilde, fragments.get(WEEK), WEEK);
+    handledFragmentCount =
+        fragmentCount(firstNonzeroIdx, lastNonzeroIdx, handledFragmentCount, WEEKIDX);
+    needsTilde = needsTildeValue(firstNonzeroIdx, lastNonzeroIdx, truncatedFragments,
+        handledFragmentCount, needsTilde, fragments.get(DAY), DAY);
+    handledFragmentCount =
+        fragmentCount(firstNonzeroIdx, lastNonzeroIdx, handledFragmentCount, DAYIDX);
+    needsTilde = needsTildeValue(firstNonzeroIdx, lastNonzeroIdx, truncatedFragments,
+        handledFragmentCount, needsTilde, fragments.get(HOUR), HOUR);
+    handledFragmentCount =
+        fragmentCount(firstNonzeroIdx, lastNonzeroIdx, handledFragmentCount, HOURIDX);
+    needsTilde = needsTildeValue(firstNonzeroIdx, lastNonzeroIdx, truncatedFragments,
+        handledFragmentCount, needsTilde, fragments.get(MIN), MIN);
     fragments = truncatedFragments;
     return buildFromFragments(needsTilde);
   }
@@ -97,15 +120,29 @@ public class DurationFormatter implements Serializable {
     constructFragmentsOfRemainingEstimate();
     int firstNonzeroIdx = -1;
     int lastNonzeroIdx = 0;
-    int idx = 0;
-    for (Map.Entry<String, Long> fragment : fragments.entrySet()) {
-      if (fragment.getValue().longValue() != 0) {
-        if (firstNonzeroIdx == -1) {
-          firstNonzeroIdx = idx;
-        }
-        lastNonzeroIdx = idx;
+    if (fragments.get(WEEK).longValue() != 0) {
+      if (firstNonzeroIdx == -1) {
+        firstNonzeroIdx = WEEKIDX;
       }
-      ++idx;
+      lastNonzeroIdx = WEEKIDX;
+    }
+    if (fragments.get(DAY).longValue() != 0) {
+      if (firstNonzeroIdx == -1) {
+        firstNonzeroIdx = DAYIDX;
+      }
+      lastNonzeroIdx = DAYIDX;
+    }
+    if (fragments.get(HOUR).longValue() != 0) {
+      if (firstNonzeroIdx == -1) {
+        firstNonzeroIdx = HOURIDX;
+      }
+      lastNonzeroIdx = HOURIDX;
+    }
+    if (fragments.get(MIN).longValue() != 0) {
+      if (firstNonzeroIdx == -1) {
+        firstNonzeroIdx = MINIDX;
+      }
+      lastNonzeroIdx = MINIDX;
     }
     lastNonzeroIdx = Math.max(lastNonzeroIdx, firstNonzeroIdx + 1);
     return buildRoundedEstimateString(firstNonzeroIdx, lastNonzeroIdx);
@@ -141,6 +178,62 @@ public class DurationFormatter implements Serializable {
     return buildFromFragments(false);
   }
 
+  private int fragmentCount(final int firstNonzeroIdx, final int lastNonzeroIdx,
+      final int handledFragmentCount, final int idx) {
+    int count = handledFragmentCount;
+    if (firstNonzeroIdx <= idx && idx <= lastNonzeroIdx) {
+      ++count;
+    }
+    return count;
+  }
+
+  private int getIdx(final String key) {
+    switch (key) {
+      case WEEK:
+        return WEEKIDX;
+      case DAY:
+        return DAYIDX;
+      case HOUR:
+        return HOURIDX;
+      case MIN:
+        return MINIDX;
+      default:
+        return -1;
+    }
+  }
+
+  /**
+   * Convert the seconds to Industry rounded format (8.5h) String.
+   *
+   * @param durationInSeconds
+   *          dutation in seconds.
+   * @return the formatted duration string.
+   */
+  public String industryDuration(final long durationInSeconds) {
+    double durationInMins = durationInSeconds / (double) DateTimeConverterUtil.SECONDS_PER_MINUTE;
+    double hours = durationInMins / DateTimeConverterUtil.MINUTES_PER_HOUR;
+    DecimalFormat df = new DecimalFormat("#.#");
+    df.setRoundingMode(RoundingMode.FLOOR);
+    return df.format(hours) + "h";
+  }
+
+  private boolean needsTildeValue(final int firstNonzeroIdx, final int lastNonzeroIdx,
+      final LinkedHashMap<String, Long> truncatedFragments,
+      final int handledFragmentCount,
+      final boolean needsTilde, final Long value, final String key) {
+    boolean tilde = needsTilde;
+    long longValue = value.longValue();
+    int idx = getIdx(key);
+    if (firstNonzeroIdx <= idx && idx <= lastNonzeroIdx && longValue > 0) {
+      if (handledFragmentCount < 2) {
+        truncatedFragments.put(key, value);
+      } else {
+        tilde = true;
+      }
+    }
+    return tilde;
+  }
+
   /**
    * Convert the seconds to jira rounded format (1h 30m) String.
    *
@@ -154,4 +247,14 @@ public class DurationFormatter implements Serializable {
     return calculateFormattedRemaining();
   }
 
+  /**
+   * Convert the working hours per day to Industry rounded format (8.5h) String.
+   *
+   * @return the formatted work hours per day string.
+   */
+  public String workHoursDayIndustryDuration() {
+    DecimalFormat df = new DecimalFormat("#.#");
+    df.setRoundingMode(RoundingMode.FLOOR);
+    return df.format(workHoursPerDay) + "h";
+  }
 }

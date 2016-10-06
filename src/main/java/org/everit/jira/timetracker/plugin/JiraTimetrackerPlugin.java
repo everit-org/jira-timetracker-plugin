@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.everit.jira.reporting.plugin.dto.MissingsWorklogsDTO;
 import org.everit.jira.timetracker.plugin.dto.ActionResult;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
@@ -33,6 +34,15 @@ import com.atlassian.jira.issue.Issue;
  * The JiraTimetrackerPlugin interface.
  */
 public interface JiraTimetrackerPlugin {
+  /**
+   * Count the real work days in a week.
+   *
+   * @param weekDaysAsString
+   *          the days of the week in yyyy-hh-mm format.
+   *
+   * @return the counted real work days number.
+   */
+  double countRealWorkDaysInWeek(final List<String> weekDaysAsString);
 
   /**
    * Create a worklog whit the given parameters.
@@ -42,14 +52,14 @@ public interface JiraTimetrackerPlugin {
    * @param comment
    *          The note of the worklog.
    * @param date
-   *          The date of the worklog. (yyyy-MM-dd)
+   *          The date of the worklog.
    * @param startTime
    *          The start time of the worklog. (kk:mm)
    * @param timeSpent
    *          The spent time in the worklog (Jira format : 1h 30m)
    * @return {@link ActionResult} Success if the worklog created and Fail if not.
    */
-  ActionResult createWorklog(String issueId, String comment, String date,
+  ActionResult createWorklog(String issueId, String comment, Date date,
       String startTime, String timeSpent);
 
   /**
@@ -70,8 +80,8 @@ public interface JiraTimetrackerPlugin {
    *          The worklog Issue.
    * @param comment
    *          The worklog note.
-   * @param dateFormatted
-   *          The date of the worklog (yyyy-MM-dd).
+   * @param date
+   *          The date of the worklog.
    * @param time
    *          When start the worklog. (kk:mm)
    * @param timeSpent
@@ -79,19 +89,17 @@ public interface JiraTimetrackerPlugin {
    * @return {@link ActionResult} Success if the worklog edited and Fail if not.
    */
   ActionResult editWorklog(Long worklogId, String issueId, String comment,
-      String dateFormatted, String time, String timeSpent);
+      Date date, String time, String timeSpent);
 
   /**
    * Give back the date of the first day where missing worklogs. Use the properties files includes
    * and excludes date settings.
    *
-   * @param selectedUser
-   *          The selected User.
    * @return The Date representation of the day.
    * @throws GenericEntityException
    *           GenericEntityException
    */
-  Date firstMissingWorklogsDate(String selectedUser) throws GenericEntityException;
+  Date firstMissingWorklogsDate() throws GenericEntityException;
 
   /**
    * Give back the collector issue patterns. If the list will be null, then give back the propeties
@@ -115,11 +123,11 @@ public interface JiraTimetrackerPlugin {
    * @param nonWorking
    *          Exclude or not the non-working issues.
    *
-   * @return The list of the dates.
+   * @return The list of the MissingsWorklogsDTO.
    * @throws GenericEntityException
    *           If GenericEntity Exception.
    */
-  List<Date> getDates(String selectedUser, Date from, Date to, boolean workingHours,
+  List<MissingsWorklogsDTO> getDates(String selectedUser, Date from, Date to, boolean workingHours,
       boolean nonWorking) throws GenericEntityException;
 
   /**
@@ -130,6 +138,8 @@ public interface JiraTimetrackerPlugin {
    * @return The list of the days in String format. (Eg. ["12","15"])
    */
   List<String> getExcludeDaysOfTheMonth(Date date);
+
+  List<String> getIncludeDaysOfTheMonth(Date date);
 
   /**
    * Give back the Issues.
@@ -143,13 +153,11 @@ public interface JiraTimetrackerPlugin {
   /**
    * The method find the logged days of the given date month.
    *
-   * @param selectedUser
-   *          The selected User.
    * @param date
    *          The date.
    * @return The list of the days in String format. (Eg. ["12","15"])
    */
-  List<String> getLoggedDaysOfTheMonth(String selectedUser, Date date)
+  List<String> getLoggedDaysOfTheMonth(Date date)
       throws GenericEntityException;
 
   /**
@@ -165,10 +173,8 @@ public interface JiraTimetrackerPlugin {
    * Give back the Projects.
    *
    * @return whit Projects.
-   * @throws GenericEntityException
-   *           GenericEntityException.
    */
-  List<String> getProjectsId() throws GenericEntityException;
+  List<String> getProjectsId();
 
   /**
    * Give back the Worklog by ID.
@@ -185,7 +191,7 @@ public interface JiraTimetrackerPlugin {
    * Give back the days all worklog of the selectedUser. If selectedUser null or empty the actual
    * logged in user will used.
    *
-   * @param date
+   * @param startDate
    *          The date.
    * @param selectedUser
    *          The selected User.
@@ -243,19 +249,17 @@ public interface JiraTimetrackerPlugin {
   /**
    * Give back the all worklogs spent time between the two date.
    *
-   * @param selectedUser
-   *          The seleced User.
    * @param startSummary
    *          The start date.
    * @param finishSummary
    *          The finish date.
    * @param issueIds
    *          The filtered issues ids. If null or empty then don't make filtered summary.
-   * @return The summary spent time in Jira format (1h 30m)
+   * @return The summary spent time in seconds.
    * @throws GenericEntityException
    *           GenericEntityException.
    */
-  String summary(String selectedUser, Date startSummary, Date finishSummary, List<Pattern> issueIds)
+  long summary(Date startSummary, Date finishSummary, List<Pattern> issueIds)
       throws GenericEntityException;
 
   /**
@@ -270,5 +274,4 @@ public interface JiraTimetrackerPlugin {
    */
   boolean validateTimeChange(final String changeValue)
       throws NumberFormatException;
-
 }

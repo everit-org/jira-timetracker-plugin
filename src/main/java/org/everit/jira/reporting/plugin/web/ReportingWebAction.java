@@ -32,25 +32,29 @@ import org.everit.jira.analytics.AnalyticsSender;
 import org.everit.jira.analytics.event.CreateReportEvent;
 import org.everit.jira.reporting.plugin.ReportingCondition;
 import org.everit.jira.reporting.plugin.ReportingPlugin;
+import org.everit.jira.reporting.plugin.column.WorklogDetailsColumns;
 import org.everit.jira.reporting.plugin.dto.ConvertedSearchParam;
 import org.everit.jira.reporting.plugin.dto.FilterCondition;
 import org.everit.jira.reporting.plugin.dto.IssueSummaryReportDTO;
+import org.everit.jira.reporting.plugin.dto.OrderBy;
 import org.everit.jira.reporting.plugin.dto.PickerUserDTO;
 import org.everit.jira.reporting.plugin.dto.ProjectSummaryReportDTO;
 import org.everit.jira.reporting.plugin.dto.ReportingSessionData;
 import org.everit.jira.reporting.plugin.dto.UserSummaryReportDTO;
 import org.everit.jira.reporting.plugin.dto.WorklogDetailsReportDTO;
 import org.everit.jira.reporting.plugin.exception.JTRPException;
-import org.everit.jira.reporting.plugin.export.column.WorklogDetailsColumns;
 import org.everit.jira.reporting.plugin.util.ConverterUtil;
 import org.everit.jira.reporting.plugin.util.PermissionUtil;
 import org.everit.jira.timetracker.plugin.DurationFormatter;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
+import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
+import org.everit.jira.timetracker.plugin.PluginCondition;
 import org.everit.jira.timetracker.plugin.UserReportingSettingsHelper;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
+import org.everit.jira.updatenotifier.UpdateNotifier;
 
 import com.atlassian.jira.bc.filter.DefaultSearchRequestService;
 import com.atlassian.jira.component.ComponentAccessor;
@@ -83,11 +87,6 @@ public class ReportingWebAction extends JiraWebActionSupport {
       "selectedWorklogDetailsColumns";
 
   private static final String HTTP_PARAM_TUTORIAL_DNS = "tutorial_dns";
-
-  /**
-   * The Issue Collector jttp_build.porperties key.
-   */
-  private static final String ISSUE_COLLECTOR_SRC = "ISSUE_COLLECTOR_SRC";
 
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
 
@@ -139,7 +138,13 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   private List<String> notBrowsableProjectKeys = Collections.emptyList();
 
+  private String order = "ASC";
+
+  private String orderColumn = "jtrp_col_issueKey";
+
   private int pageSizeLimit;
+
+  private PluginCondition pluginCondition;
 
   private ProjectSummaryReportDTO projectSummaryReport = new ProjectSummaryReportDTO();
 
@@ -167,15 +172,34 @@ public class ReportingWebAction extends JiraWebActionSupport {
    * Simple constructor.
    */
   public ReportingWebAction(final ReportingPlugin reportingPlugin,
-      final PluginSettingsFactory settingsFactory, final AnalyticsSender analyticsSender) {
+      final JiraTimetrackerPlugin timetrackerPlugin, final PluginSettingsFactory settingsFactory,
+      final AnalyticsSender analyticsSender) {
     this.reportingPlugin = reportingPlugin;
     reportingCondition = new ReportingCondition(this.reportingPlugin);
     gson = new Gson();
+    pluginCondition = new PluginCondition(timetrackerPlugin);
     issueRenderContext = new IssueRenderContext(null);
     RendererManager rendererManager = ComponentAccessor.getRendererManager();
     atlassianWikiRenderer = rendererManager.getRendererForType("atlassian-wiki-renderer");
     this.settingsFactory = settingsFactory;
     this.analyticsSender = analyticsSender;
+  }
+
+  private String checkConditions() {
+    boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
+    if (!isUserLogged) {
+      setReturnUrl(JIRA_HOME_URL);
+      return getRedirect(NONE);
+    }
+    if (!reportingCondition.shouldDisplay(getLoggedInApplicationUser(), null)) {
+      setReturnUrl(JIRA_HOME_URL);
+      return getRedirect(NONE);
+    }
+    if (!pluginCondition.shouldDisplay(getLoggedInApplicationUser(), null)) {
+      setReturnUrl(JIRA_HOME_URL);
+      return getRedirect(NONE);
+    }
+    return null;
   }
 
   private String createReport(final String selectedMoreJson, final String selectedActiveTab,
@@ -202,7 +226,8 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
     try {
       worklogDetailsReport =
-          reportingPlugin.getWorklogDetailsReport(convertedSearchParam.reportSearchParam);
+          reportingPlugin.getWorklogDetailsReport(convertedSearchParam.reportSearchParam,
+              OrderBy.DEFAULT);
       if (worklogDetailsReport.getWorklogDetailsCount() == 0) {
         worklogDetailsEmpty = true;
       }
@@ -225,7 +250,7 @@ public class ReportingWebAction extends JiraWebActionSupport {
   }
 
   private void defaultInitalizeData() {
-    selectedMore = new ArrayList<String>();
+    selectedMore = new ArrayList<>();
     filterCondition = new FilterCondition();
     if (!hasBrowseUsersPermission) {
       filterCondition.setUsers(Arrays.asList(PickerUserDTO.CURRENT_USER_NAME));
@@ -239,14 +264,9 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   @Override
   public String doDefault() throws ParseException {
-    boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
-    if (!isUserLogged) {
-      setReturnUrl(JIRA_HOME_URL);
-      return getRedirect(NONE);
-    }
-    if (!reportingCondition.shouldDisplay(getLoggedInApplicationUser(), null)) {
-      setReturnUrl(JIRA_HOME_URL);
-      return getRedirect(NONE);
+    String checkConditionsResult = checkConditions();
+    if (checkConditionsResult != null) {
+      return checkConditionsResult;
     }
 
     loadFavoriteFilters();
@@ -269,14 +289,9 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   @Override
   public String doExecute() throws ParseException {
-    boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
-    if (!isUserLogged) {
-      setReturnUrl(JIRA_HOME_URL);
-      return getRedirect(NONE);
-    }
-    if (!reportingCondition.shouldDisplay(getLoggedInApplicationUser(), null)) {
-      setReturnUrl(JIRA_HOME_URL);
-      return getRedirect(NONE);
+    String checkConditionsResult = checkConditions();
+    if (checkConditionsResult != null) {
+      return checkConditionsResult;
     }
 
     normalizeContextPath();
@@ -389,6 +404,14 @@ public class ReportingWebAction extends JiraWebActionSupport {
     return notBrowsableProjectKeys;
   }
 
+  public String getOrder() {
+    return order;
+  }
+
+  public String getOrderColumn() {
+    return orderColumn;
+  }
+
   public int getPageSizeLimit() {
     return pageSizeLimit;
   }
@@ -485,7 +508,7 @@ public class ReportingWebAction extends JiraWebActionSupport {
   private void loadFavoriteFilters() {
     DefaultSearchRequestService defaultSearchRequestService =
         ComponentAccessor.getComponentOfType(DefaultSearchRequestService.class);
-    favouriteFilters = new ArrayList<SearchRequest>(
+    favouriteFilters = new ArrayList<>(
         defaultSearchRequestService.getFavouriteFilters(getLoggedInApplicationUser()));
   }
 
@@ -497,7 +520,7 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   private void loadIssueCollectorSrc() {
     Properties properties = PropertiesUtil.getJttpBuildProperties();
-    issueCollectorSrc = properties.getProperty(ISSUE_COLLECTOR_SRC);
+    issueCollectorSrc = properties.getProperty(PropertiesUtil.ISSUE_COLLECTOR_SRC);
   }
 
   private void loadPageSizeLimit() {
@@ -532,6 +555,16 @@ public class ReportingWebAction extends JiraWebActionSupport {
       ClassNotFoundException {
     stream.close();
     throw new java.io.NotSerializableException(getClass().getName());
+  }
+
+  /**
+   * Decide render or not the update information bar.
+   *
+   * @return true if bar should be render
+   */
+  public boolean renderUpdateNotifier() {
+    return new UpdateNotifier(settingsFactory, JiraTimetrackerUtil.getLoggedUserName())
+        .isShowUpdater();
   }
 
   private void saveDataToSession(final String selectedMoreJson, final String selectedActiveTab,

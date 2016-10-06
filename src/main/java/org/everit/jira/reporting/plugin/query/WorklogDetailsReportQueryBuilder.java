@@ -17,6 +17,7 @@ package org.everit.jira.reporting.plugin.query;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -27,6 +28,8 @@ import org.everit.jira.querydsl.schema.QJiraissue;
 import org.everit.jira.querydsl.schema.QNodeassociation;
 import org.everit.jira.querydsl.schema.QProjectversion;
 import org.everit.jira.querydsl.support.QuerydslCallable;
+import org.everit.jira.reporting.plugin.column.WorklogDetailsColumns;
+import org.everit.jira.reporting.plugin.dto.OrderBy;
 import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
 import org.everit.jira.reporting.plugin.dto.WorklogDetailsDTO;
 import org.everit.jira.reporting.plugin.query.util.QueryUtil;
@@ -34,6 +37,9 @@ import org.everit.jira.reporting.plugin.query.util.QueryUtil;
 import com.atlassian.jira.entity.Entity;
 import com.atlassian.jira.issue.IssueRelationConstants;
 import com.querydsl.core.group.GroupBy;
+import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.PathMetadata;
 import com.querydsl.core.types.PathType;
 import com.querydsl.core.types.Projections;
@@ -41,6 +47,7 @@ import com.querydsl.core.types.QBean;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberPath;
+import com.querydsl.core.types.dsl.SimpleExpression;
 import com.querydsl.core.types.dsl.StringExpression;
 import com.querydsl.sql.Configuration;
 import com.querydsl.sql.SQLQuery;
@@ -50,8 +57,38 @@ import com.querydsl.sql.SQLQuery;
  */
 public class WorklogDetailsReportQueryBuilder extends AbstractReportQuery<WorklogDetailsDTO> {
 
-  public WorklogDetailsReportQueryBuilder(final ReportSearchParam reportSearchParam) {
+  private SimpleExpression<String> issueAssigneeExpression;
+
+  private StringExpression issueKey;
+
+  private SimpleExpression<String> issueReporterExpression;
+
+  private OrderBy orderBy;
+
+  private HashMap<String, Expression<?>> orderByMap;
+
+  private SimpleExpression<String> worklogAuthorExpression;
+
+  /**
+   * Simple constructor.
+   *
+   * @param reportSearchParam
+   *          the {@link ReportSearchParam} object, that contains parameters to filter condition.
+   * @param orderBy
+   *          the {@link OrderBy} object.
+   */
+  public WorklogDetailsReportQueryBuilder(final ReportSearchParam reportSearchParam,
+      final OrderBy orderBy) {
     super(reportSearchParam);
+
+    if (orderBy != null) {
+      this.orderBy = orderBy;
+    } else {
+      this.orderBy = OrderBy.DEFAULT;
+    }
+
+    createExpressions();
+    createOrderByMap();
   }
 
   private ConcurrentSkipListSet<Long> collectIssueIds(final List<WorklogDetailsDTO> result) {
@@ -62,7 +99,51 @@ public class WorklogDetailsReportQueryBuilder extends AbstractReportQuery<Worklo
     return issueIds;
   }
 
-  private QBean<WorklogDetailsDTO> createQuerySelectProjection(final StringExpression issueKey) {
+  private void createExpressions() {
+    issueKey = QueryUtil.createIssueKeyExpression(qIssue, qProject);
+
+    issueAssigneeExpression = new CaseBuilder()
+        .when(QueryUtil.selectDisplayNameForUserExist(qIssue.assignee))
+        .then(QueryUtil.selectDisplayNameForUser(qIssue.assignee))
+        .otherwise(qIssue.assignee)
+        .as(WorklogDetailsDTO.AliasNames.ISSUE_ASSIGNEE);
+
+    issueReporterExpression = new CaseBuilder()
+        .when(QueryUtil.selectDisplayNameForUserExist(qIssue.reporter))
+        .then(QueryUtil.selectDisplayNameForUser(qIssue.reporter))
+        .otherwise(qIssue.reporter)
+        .as(WorklogDetailsDTO.AliasNames.ISSUE_REPORTER);
+
+    worklogAuthorExpression = new CaseBuilder()
+        .when(QueryUtil.selectDisplayNameForUserExist(qWorklog.author))
+        .then(QueryUtil.selectDisplayNameForUser(qWorklog.author))
+        .otherwise(qWorklog.author)
+        .as(WorklogDetailsDTO.AliasNames.WORKLOG_USER);
+  }
+
+  private void createOrderByMap() {
+    orderByMap = new HashMap<>();
+    orderByMap.put(WorklogDetailsColumns.ASSIGNEE, issueAssigneeExpression);
+    orderByMap.put(WorklogDetailsColumns.CREATED, qIssue.created);
+    orderByMap.put(WorklogDetailsColumns.ESTIMATED, qIssue.timeoriginalestimate);
+    orderByMap.put(WorklogDetailsColumns.ISSUE_KEY, issueKey);
+    orderByMap.put(WorklogDetailsColumns.ISSUE_SUMMARY, qIssue.summary);
+    orderByMap.put(WorklogDetailsColumns.PRIORITY, qPriority.sequence);
+    orderByMap.put(WorklogDetailsColumns.PROJECT, qProject.pname);
+    orderByMap.put(WorklogDetailsColumns.REMAINING, qIssue.timeestimate);
+    orderByMap.put(WorklogDetailsColumns.REPORTER, issueReporterExpression);
+    orderByMap.put(WorklogDetailsColumns.RESOLUTION, qResolution.sequence);
+    orderByMap.put(WorklogDetailsColumns.START_TIME, qWorklog.startdate);
+    orderByMap.put(WorklogDetailsColumns.STATUS, qIssuestatus.sequence);
+    orderByMap.put(WorklogDetailsColumns.TIME_SPENT, qWorklog.timeworked);
+    orderByMap.put(WorklogDetailsColumns.TYPE, qIssuetype.sequence);
+    orderByMap.put(WorklogDetailsColumns.UPDATED, qIssue.updated);
+    orderByMap.put(WorklogDetailsColumns.USER, worklogAuthorExpression);
+    orderByMap.put(WorklogDetailsColumns.WORKLOG_CREATED, qWorklog.created);
+    orderByMap.put(WorklogDetailsColumns.WORKLOG_UPDATED, qWorklog.updated);
+  }
+
+  private QBean<WorklogDetailsDTO> createQuerySelectProjection() {
     return Projections.bean(WorklogDetailsDTO.class,
         qProject.pname.as(WorklogDetailsDTO.AliasNames.PROJECT_NAME),
         qProject.pkey.as(WorklogDetailsDTO.AliasNames.PROJECT_KEY),
@@ -73,11 +154,7 @@ public class WorklogDetailsReportQueryBuilder extends AbstractReportQuery<Worklo
         qIssuetype.iconurl.as(WorklogDetailsDTO.AliasNames.ISSUE_TYPE_ICON_URL),
         qIssuetype.avatar.as(WorklogDetailsDTO.AliasNames.ISSUE_AVATAR_ID),
         qIssuestatus.pname.as(WorklogDetailsDTO.AliasNames.ISSUE_STATUS_P_NAME),
-        new CaseBuilder()
-            .when(QueryUtil.selectDisplayNameForUserExist(qIssue.assignee))
-            .then(QueryUtil.selectDisplayNameForUser(qIssue.assignee))
-            .otherwise(qIssue.assignee)
-            .as(WorklogDetailsDTO.AliasNames.ISSUE_ASSIGNEE),
+        issueAssigneeExpression,
         qIssue.timeoriginalestimate.as(WorklogDetailsDTO.AliasNames.ISSUE_TIME_ORIGINAL_ESTIMATE),
         qIssue.timeestimate.as(WorklogDetailsDTO.AliasNames.ISSUE_TIME_ESTIMATE),
         qWorklog.worklogbody.as(WorklogDetailsDTO.AliasNames.WORKLOG_BODY),
@@ -85,22 +162,14 @@ public class WorklogDetailsReportQueryBuilder extends AbstractReportQuery<Worklo
         qProject.description.as(WorklogDetailsDTO.AliasNames.PROJECT_DESCRIPTION),
         qPriority.pname.as(WorklogDetailsDTO.AliasNames.PRIORITY_NAME),
         qPriority.iconurl.as(WorklogDetailsDTO.AliasNames.PRIORITY_ICON_URL),
-        new CaseBuilder()
-            .when(QueryUtil.selectDisplayNameForUserExist(qIssue.reporter))
-            .then(QueryUtil.selectDisplayNameForUser(qIssue.reporter))
-            .otherwise(qIssue.reporter)
-            .as(WorklogDetailsDTO.AliasNames.ISSUE_REPORTER),
+        issueReporterExpression,
         qIssue.created.as(WorklogDetailsDTO.AliasNames.ISSUE_CREATED),
         qIssue.updated.as(WorklogDetailsDTO.AliasNames.ISSUE_UPDATED),
         qResolution.pname.as(WorklogDetailsDTO.AliasNames.RESOLUTION_NAME),
         qWorklog.startdate.as(WorklogDetailsDTO.AliasNames.WORKLOG_START_DATE),
         qWorklog.created.as(WorklogDetailsDTO.AliasNames.WORKLOG_CREATED),
         qWorklog.updated.as(WorklogDetailsDTO.AliasNames.WORKLOG_UPDATED),
-        new CaseBuilder()
-            .when(QueryUtil.selectDisplayNameForUserExist(qWorklog.author))
-            .then(QueryUtil.selectDisplayNameForUser(qWorklog.author))
-            .otherwise(qWorklog.author)
-            .as(WorklogDetailsDTO.AliasNames.WORKLOG_USER));
+        worklogAuthorExpression);
   }
 
   private void extendResult(final Connection connection, final Configuration configuration,
@@ -169,16 +238,26 @@ public class WorklogDetailsReportQueryBuilder extends AbstractReportQuery<Worklo
       @Override
       public List<WorklogDetailsDTO> call(final Connection connection,
           final Configuration configuration) throws SQLException {
-        StringExpression issueKey = QueryUtil.createIssueKeyExpression(qIssue, qProject);
 
         SQLQuery<WorklogDetailsDTO> query =
             new SQLQuery<WorklogDetailsDTO>(connection, configuration)
-                .select(createQuerySelectProjection(issueKey));
+                .select(createQuerySelectProjection());
 
         appendBaseFromAndJoin(query);
         appendBaseWhere(query);
         appendQueryRange(query);
-        query.orderBy(issueKey.asc(), qWorklog.startdate.asc());
+
+        Expression<?> expression = orderByMap.get(orderBy.columnName);
+        Order order = Order.DESC;
+        if (expression == null) {
+          expression = orderByMap.get(OrderBy.DEFAULT.columnName);
+          order = Order.ASC;
+        } else {
+          if (orderBy.asc) {
+            order = Order.ASC;
+          }
+        }
+        query.orderBy(new OrderSpecifier(order, expression));
 
         List<WorklogDetailsDTO> result = query.fetch();
 

@@ -25,6 +25,7 @@ import org.everit.jira.querydsl.support.QuerydslSupport;
 import org.everit.jira.querydsl.support.ri.QuerydslSupportImpl;
 import org.everit.jira.reporting.plugin.dto.IssueSummaryDTO;
 import org.everit.jira.reporting.plugin.dto.IssueSummaryReportDTO;
+import org.everit.jira.reporting.plugin.dto.OrderBy;
 import org.everit.jira.reporting.plugin.dto.PagingDTO;
 import org.everit.jira.reporting.plugin.dto.ProjectSummaryDTO;
 import org.everit.jira.reporting.plugin.dto.ProjectSummaryReportDTO;
@@ -212,9 +213,9 @@ public class ReportingPluginImpl implements ReportingPlugin, InitializingBean,
 
   @Override
   public WorklogDetailsReportDTO getWorklogDetailsReport(
-      final ReportSearchParam reportSearchParam) {
+      final ReportSearchParam reportSearchParam, final OrderBy orderBy) {
     WorklogDetailsReportQueryBuilder worklogDetailsReportQueryBuilder =
-        new WorklogDetailsReportQueryBuilder(reportSearchParam);
+        new WorklogDetailsReportQueryBuilder(reportSearchParam, orderBy);
 
     QuerydslCallable<List<WorklogDetailsDTO>> worklogDetailsQuery = worklogDetailsReportQueryBuilder
         .buildQuery();

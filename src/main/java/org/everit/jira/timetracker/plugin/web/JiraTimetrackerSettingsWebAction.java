@@ -15,18 +15,27 @@
  */
 package org.everit.jira.timetracker.plugin.web;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
+import java.util.Properties;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
+import org.everit.jira.analytics.AnalyticsDTO;
+import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
+import org.everit.jira.timetracker.plugin.PluginCondition;
+import org.everit.jira.timetracker.plugin.TimetrackerCondition;
 import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
+import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
+import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 
 import com.atlassian.jira.web.action.JiraWebActionSupport;
+import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
 /**
  * The settings page.
@@ -34,55 +43,67 @@ import com.atlassian.jira.web.action.JiraWebActionSupport;
 public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
+
   /**
    * Logger.
    */
-  private static final Logger LOGGER = Logger
-      .getLogger(JiraTimetrackerSettingsWebAction.class);
+  private static final Logger LOGGER = Logger.getLogger(JiraTimetrackerSettingsWebAction.class);
+
   /**
    * Serial version UID.
    */
   private static final long serialVersionUID = 1L;
 
   private boolean analyticsCheck;
+
+  private AnalyticsDTO analyticsDTO;
+
   /**
    * The collector issue ids.
    */
   private List<Pattern> collectorIssuePatterns;
 
   private String contextPath;
+
   /**
    * The endTime.
    */
   private String endTime;
+
   /**
    * The exclude dates in String format.
    */
   private String excludeDates = "";
+
   /**
    * The first day of the week.
    */
   private int fdow;
+
   /**
    * The include dates in String format.
    */
   private String includeDates = "";
+
   /**
    * The calenar show the actualDate or the last unfilled date.
    */
   private boolean isActualDate;
+
   /**
    * The calendar highlights coloring.
    */
   private boolean isColoring;
-  /**
-   * The calendar is popup, inLine or both.
-   */
-  private int isPopup;
+
+  private boolean isRounded;
+
+  private String issueCollectorSrc;
+
   /**
    * The filtered Issues id.
    */
   private List<Pattern> issuesPatterns;
+
   /**
    * The {@link JiraTimetrackerPlugin}.
    */
@@ -98,6 +119,12 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
    */
   private String messageParameter = "";
 
+  private PluginCondition pluginCondition;
+
+  private final PluginSettingsFactory pluginSettingsFactory;
+
+  private boolean progressIndDaily;
+
   /**
    * The IDs of the projects.
    */
@@ -108,20 +135,53 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
    */
   private String startTime;
 
+  private TimetrackerCondition timetrackingCondition;
+
+  /**
+   * Simpe consturctor.
+   *
+   * @param jiraTimetrackerPlugin
+   *          The {@link JiraTimetrackerPlugin}.
+   * @param pluginSettingsFactory
+   *          the {@link PluginSettingsFactory}.
+   */
   public JiraTimetrackerSettingsWebAction(
-      final JiraTimetrackerPlugin jiraTimetrackerPlugin) {
+      final JiraTimetrackerPlugin jiraTimetrackerPlugin,
+      final PluginSettingsFactory pluginSettingsFactory) {
     this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
+    this.pluginSettingsFactory = pluginSettingsFactory;
+    timetrackingCondition = new TimetrackerCondition(jiraTimetrackerPlugin);
+    pluginCondition = new PluginCondition(jiraTimetrackerPlugin);
   }
 
-  @Override
-  public String doDefault() throws ParseException {
+  private String checkConditions() {
     boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
     if (!isUserLogged) {
       setReturnUrl(JIRA_HOME_URL);
       return getRedirect(NONE);
     }
+    if (!timetrackingCondition.shouldDisplay(getLoggedInApplicationUser(), null)) {
+      setReturnUrl(JIRA_HOME_URL);
+      return getRedirect(NONE);
+    }
+    if (!pluginCondition.shouldDisplay(getLoggedInApplicationUser(), null)) {
+      setReturnUrl(JIRA_HOME_URL);
+      return getRedirect(NONE);
+    }
+    return null;
+  }
+
+  @Override
+  public String doDefault() throws ParseException {
+    String checkConditionsResult = checkConditions();
+    if (checkConditionsResult != null) {
+      return checkConditionsResult;
+    }
+    loadIssueCollectorSrc();
     normalizeContextPath();
     loadPluginSettingAndParseResult();
+    analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(pluginSettingsFactory,
+        PiwikPropertiesUtil.PIWIK_USERSETTINGS_SITEID);
     try {
       projectsId = jiraTimetrackerPlugin.getProjectsId();
     } catch (Exception e) {
@@ -133,13 +193,15 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 
   @Override
   public String doExecute() throws ParseException {
-    boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
-    if (!isUserLogged) {
-      setReturnUrl(JIRA_HOME_URL);
-      return getRedirect(NONE);
+    String checkConditionsResult = checkConditions();
+    if (checkConditionsResult != null) {
+      return checkConditionsResult;
     }
+    loadIssueCollectorSrc();
     normalizeContextPath();
     loadPluginSettingAndParseResult();
+    analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(pluginSettingsFactory,
+        PiwikPropertiesUtil.PIWIK_USERSETTINGS_SITEID);
     try {
       projectsId = jiraTimetrackerPlugin.getProjectsId();
     } catch (Exception e) {
@@ -164,6 +226,10 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     return analyticsCheck;
   }
 
+  public AnalyticsDTO getAnalyticsDTO() {
+    return analyticsDTO;
+  }
+
   public String getContextPath() {
     return contextPath;
   }
@@ -184,8 +250,12 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     return isColoring;
   }
 
-  public int getIsPopup() {
-    return isPopup;
+  public boolean getIsRounded() {
+    return isRounded;
+  }
+
+  public String getIssueCollectorSrc() {
+    return issueCollectorSrc;
   }
 
   public String getMessage() {
@@ -196,6 +266,10 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     return messageParameter;
   }
 
+  public boolean getProgressIndDaily() {
+    return progressIndDaily;
+  }
+
   public List<String> getProjectsId() {
     return projectsId;
   }
@@ -204,13 +278,18 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     return startTime;
   }
 
+  private void loadIssueCollectorSrc() {
+    Properties properties = PropertiesUtil.getJttpBuildProperties();
+    issueCollectorSrc = properties.getProperty(PropertiesUtil.ISSUE_COLLECTOR_SRC);
+  }
+
   /**
    * Load the plugin settings and set the variables.
    */
   public void loadPluginSettingAndParseResult() {
     PluginSettingsValues pluginSettingsValues = jiraTimetrackerPlugin
         .loadPluginSettings();
-    isPopup = pluginSettingsValues.isCalendarPopup;
+    progressIndDaily = pluginSettingsValues.isProgressIndicatorDaily;
     isActualDate = pluginSettingsValues.isActualDate;
     issuesPatterns = pluginSettingsValues.filteredSummaryIssues;
     collectorIssuePatterns = pluginSettingsValues.collectorIssues;
@@ -219,6 +298,8 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     startTime = Integer.toString(pluginSettingsValues.startTimeChange);
     endTime = Integer.toString(pluginSettingsValues.endTimeChange);
     isColoring = pluginSettingsValues.isColoring;
+    isRounded = pluginSettingsValues.isRounded;
+    analyticsCheck = pluginSettingsValues.analyticsCheck;
   }
 
   private void normalizeContextPath() {
@@ -237,16 +318,14 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
    *          The HttpServletRequest.
    */
   public String parseSaveSettings(final HttpServletRequest request) {
-    String popupOrInlineValue = request.getParameter("popupOrInline");
+    String popupOrInlineValue = request.getParameter("progressInd");
     String startTimeValue = request.getParameter("startTime");
     String endTimeValue = request.getParameter("endTime");
 
-    if ("popup".equals(popupOrInlineValue)) {
-      isPopup = JiraTimetrackerUtil.POPUP_CALENDAR_CODE;
-    } else if ("inline".equals(popupOrInlineValue)) {
-      isPopup = JiraTimetrackerUtil.INLINE_CALENDAR_CODE;
+    if ("daily".equals(popupOrInlineValue)) {
+      progressIndDaily = true;
     } else {
-      isPopup = JiraTimetrackerUtil.BOTH_TYPE_CALENDAR_CODE;
+      progressIndDaily = false;
     }
 
     String currentOrLastValue = request.getParameter("currentOrLast");
@@ -254,6 +333,9 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 
     String isColoringValue = request.getParameter("isColoring");
     isColoring = (isColoringValue != null);
+
+    String isRoundedValue = request.getParameter("isRounded");
+    isRounded = (isRoundedValue != null);
 
     try {
       if (jiraTimetrackerPlugin.validateTimeChange(startTimeValue)) {
@@ -281,15 +363,27 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     return null;
   }
 
+  private void readObject(final java.io.ObjectInputStream stream) throws IOException,
+      ClassNotFoundException {
+    stream.close();
+    throw new java.io.NotSerializableException(getClass().getName());
+  }
+
   /**
    * Save the plugin settings.
    */
   public void savePluginSettings() {
     PluginSettingsValues pluginSettingValues = new PluginSettingsValues()
-        .isCalendarPopup(isPopup).actualDate(isActualDate).excludeDates(excludeDates)
-        .includeDates(includeDates).coloring(isColoring).filteredSummaryIssues(issuesPatterns)
-        .collectorIssues(collectorIssuePatterns).startTimeChange(Integer.parseInt(startTime))
-        .endTimeChange(Integer.parseInt(endTime)).analyticsCheck(analyticsCheck);
+        .isProgressIndicatordaily(progressIndDaily)
+        .actualDate(isActualDate)
+        .excludeDates(excludeDates)
+        .includeDates(includeDates).coloring(isColoring)
+        .filteredSummaryIssues(issuesPatterns)
+        .collectorIssues(collectorIssuePatterns)
+        .startTimeChange(Integer.parseInt(startTime))
+        .endTimeChange(Integer.parseInt(endTime))
+        .analyticsCheck(analyticsCheck)
+        .isRounded(isRounded);
     jiraTimetrackerPlugin.savePluginSettings(pluginSettingValues);
   }
 
@@ -317,8 +411,8 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     this.isColoring = isColoring;
   }
 
-  public void setIsPopup(final int isPopup) {
-    this.isPopup = isPopup;
+  public void setIsRounded(final boolean isRounded) {
+    this.isRounded = isRounded;
   }
 
   public void setMessage(final String message) {
@@ -329,12 +423,21 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     this.messageParameter = messageParameter;
   }
 
+  public void setProgressIndDaily(final boolean progressIndDaily) {
+    this.progressIndDaily = progressIndDaily;
+  }
+
   public void setProjectsId(final List<String> projectsId) {
     this.projectsId = projectsId;
   }
 
   public void setStartTime(final String startTime) {
     this.startTime = startTime;
+  }
+
+  private void writeObject(final java.io.ObjectOutputStream stream) throws IOException {
+    stream.close();
+    throw new java.io.NotSerializableException(getClass().getName());
   }
 
 }

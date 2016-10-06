@@ -18,6 +18,7 @@ package org.everit.jira.timetracker.plugin;
 import java.io.IOException;
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -40,13 +41,16 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 import org.everit.jira.analytics.AnalyticsSender;
 import org.everit.jira.analytics.event.AnalyticsStatusChangedEvent;
+import org.everit.jira.analytics.event.NoEstimateUsageChangedEvent;
+import org.everit.jira.analytics.event.NonWorkingUsageEvent;
+import org.everit.jira.analytics.event.ProgressIndicatorChangedEvent;
+import org.everit.jira.reporting.plugin.dto.MissingsWorklogsDTO;
 import org.everit.jira.timetracker.plugin.dto.ActionResult;
 import org.everit.jira.timetracker.plugin.dto.ActionResultStatus;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklogComparator;
 import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
-import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 import org.ofbiz.core.entity.EntityCondition;
@@ -134,6 +138,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
 
   private static final int TWENTY_MINUTES = 20;
 
+  public static final String UNKNOW_USER_NAME = "UNKNOW_USER_NAME";
+
   private static final String WORKLOG_CREATE_FAIL = "plugin.worklog.create.fail";
 
   /**
@@ -142,22 +148,26 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   private boolean analyticsCheckValue;
 
   private AnalyticsSender analyticsSender;
+
   /**
    * The collector issues ids.
    */
   private List<Pattern> collectorIssuePatterns;
+
   /**
    * The collector issues ids.
    */
-  private List<Pattern> defaultNonEstimedIssuePatterns = new ArrayList<Pattern>();
+  private List<Pattern> defaultNonEstimedIssuePatterns = new ArrayList<>();
+
   /**
    * The summary filter issues ids.
    */
-  private final List<Pattern> defaultNonWorkingIssueIds = new ArrayList<Pattern>();
+  private final List<Pattern> defaultNonWorkingIssueIds = new ArrayList<>();
+
   /**
    * The parsed exclude dates.
    */
-  private Set<String> excludeDatesSet = new HashSet<String>();
+  private Set<String> excludeDatesSet = new HashSet<>();
 
   /**
    * The exclude dates from the properties file.
@@ -174,7 +184,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   /**
    * The parsed include dates.
    */
-  private Set<String> includeDatesSet = new HashSet<String>();
+  private Set<String> includeDatesSet = new HashSet<>();
 
   /**
    * The include dates from the properties file.
@@ -197,6 +207,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   private List<Pattern> nonWorkingIssuePatterns;
 
   private Map<String, String> piwikPorpeties;
+
+  private List<String> pluginGroups;
 
   /**
    * The plugin setting form the settingsFactory.
@@ -224,6 +236,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
    * The PluginSettingsFactory.
    */
   private final PluginSettingsFactory settingsFactory;
+
+  private List<String> timetrackerGroups;
 
   /**
    * Time tracking configuration.
@@ -256,6 +270,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
         .scheduleAtFixedRate(issueEstimatedTimeChecker,
             calculateInitialDelay(issueCheckTimeInMinutes),
             ONE_DAY_IN_MINUTES, TimeUnit.MINUTES);
+
+    sendNonEstAndNonWorkAnaliticsEvent();
   }
 
   private long calculateInitialDelay(final long time) {
@@ -269,11 +285,28 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     return initialDelay;
   }
 
+  private int countDaysInDateSet(final List<String> weekDaysAsString, final Set<String> dateSet) {
+    int counter = 0;
+    for (String weekDay : weekDaysAsString) {
+      if (dateSet.contains(weekDay)) {
+        counter++;
+      }
+    }
+    return counter;
+  }
+
+  @Override
+  public double countRealWorkDaysInWeek(final List<String> weekDaysAsString) {
+    int exludeDates = countDaysInDateSet(weekDaysAsString, excludeDatesSet);
+    int includeDates = countDaysInDateSet(weekDaysAsString, includeDatesSet);
+    return (timeTrackingConfiguration.getDaysPerWeek().doubleValue() - exludeDates) + includeDates;
+  }
+
   private List<Long> createProjects(final ApplicationUser loggedInUser) {
     Collection<Project> projects = ComponentAccessor.getPermissionManager()
         .getProjects(Permissions.BROWSE, loggedInUser);
 
-    List<Long> projectList = new ArrayList<Long>();
+    List<Long> projectList = new ArrayList<>();
     for (Project project : projects) {
       projectList.add(project.getId());
     }
@@ -282,7 +315,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
 
   @Override
   public ActionResult createWorklog(final String issueId,
-      final String comment, final String dateFormatted,
+      final String comment, final Date date,
       final String startTime, final String timeSpent) {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
@@ -300,16 +333,16 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
       return new ActionResult(ActionResultStatus.FAIL,
           NOPERMISSION_ISSUE, issueId);
     }
-    Date date;
+    Date startDate;
     try {
-      date = DateTimeConverterUtil.stringToDateAndTime(dateFormatted, startTime);
+      startDate = DateTimeConverterUtil.stringToDateAndTime(date, startTime);
     } catch (ParseException e) {
       return new ActionResult(ActionResultStatus.FAIL,
-          DATE_PARSE, dateFormatted + " " + startTime);
+          DATE_PARSE, date + " " + startTime);
     }
 
     WorklogNewEstimateInputParameters params = WorklogInputParametersImpl
-        .issue(issue).startDate(date).timeSpent(timeSpent)
+        .issue(issue).startDate(startDate).timeSpent(timeSpent)
         .comment(comment).buildNewEstimate();
     WorklogService worklogService = ComponentAccessor.getComponent(WorklogService.class);
     if (!worklogService.hasPermissionToCreate(serviceContext, issue, true)) {
@@ -346,7 +379,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     EntityExpr userExpr = new EntityExpr("author", EntityOperator.EQUALS,
         userKey);
 
-    List<EntityCondition> exprList = new ArrayList<EntityCondition>();
+    List<EntityCondition> exprList = new ArrayList<>();
     exprList.add(userExpr);
     exprList.add(startExpr);
     exprList.add(endExpr);
@@ -370,7 +403,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
         EntityOperator.LESS_THAN, new Timestamp(endDate.getTimeInMillis()));
     EntityExpr userExpr = new EntityExpr("author", EntityOperator.EQUALS,
         userKey);
-    List<EntityCondition> exprList = new ArrayList<EntityCondition>();
+    List<EntityCondition> exprList = new ArrayList<>();
     exprList.add(userExpr);
     exprList.add(startExpr);
     exprList.add(endExpr);
@@ -415,7 +448,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
 
   @Override
   public ActionResult editWorklog(final Long id, final String issueId,
-      final String comment, final String dateFormatted, final String time,
+      final String comment, final Date date, final String time,
       final String timeSpent) {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
@@ -437,13 +470,12 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
         return new ActionResult(ActionResultStatus.FAIL,
             NOPERMISSION_ISSUE, issueId);
       }
-      // ProjectPermissions.WORK_ON_ISSUES;
       ActionResult deleteResult = deleteWorklog(id);
       if (deleteResult.getStatus() == ActionResultStatus.FAIL) {
         return deleteResult;
       }
       ActionResult createResult = createWorklog(issueId, comment,
-          dateFormatted, time, timeSpent);
+          date, time, timeSpent);
       if (createResult.getStatus() == ActionResultStatus.FAIL) {
         return createResult;
       }
@@ -451,10 +483,10 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
       Date dateCreate;
       try {
         dateCreate = DateTimeConverterUtil
-            .stringToDateAndTime(dateFormatted, time);
+            .stringToDateAndTime(date, time);
       } catch (ParseException e) {
         return new ActionResult(ActionResultStatus.FAIL,
-            DATE_PARSE + dateFormatted + " " + time);
+            DATE_PARSE + date + " " + time);
       }
       WorklogInputParameters params = WorklogInputParametersImpl
           .issue(issue).startDate(dateCreate).timeSpent(timeSpent)
@@ -481,7 +513,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   }
 
   @Override
-  public Date firstMissingWorklogsDate(final String selectedUser) throws GenericEntityException {
+  public Date firstMissingWorklogsDate() throws GenericEntityException {
     Calendar scannedDate = Calendar.getInstance();
     // one week
     scannedDate.set(Calendar.DAY_OF_YEAR,
@@ -537,10 +569,11 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   }
 
   @Override
-  public List<Date> getDates(final String selectedUser, final Date from, final Date to,
+  public List<MissingsWorklogsDTO> getDates(final String selectedUser, final Date from,
+      final Date to,
       final boolean workingHour, final boolean checkNonWorking)
-          throws GenericEntityException {
-    List<Date> datesWhereNoWorklog = new ArrayList<Date>();
+      throws GenericEntityException {
+    List<MissingsWorklogsDTO> datesWhereNoWorklog = new ArrayList<>();
     Calendar fromDate = Calendar.getInstance();
     fromDate.setTime(from);
     Calendar toDate = Calendar.getInstance();
@@ -560,16 +593,28 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
         continue;
       }
       // check worklog. if no worklog set result else ++ scanedDate
-      boolean isDateContainsWorklog;
+      DecimalFormat decimalFormat = new DecimalFormat("#.#");
+
       if (workingHour) {
-        isDateContainsWorklog = isContainsEnoughWorklog(fromDate.getTime(),
+        double missingsTime = isContainsEnoughWorklog(fromDate.getTime(),
             checkNonWorking);
+        if (missingsTime > 0) {
+          missingsTime = missingsTime / DateTimeConverterUtil.SECONDS_PER_MINUTE
+              / DateTimeConverterUtil.MINUTES_PER_HOUR;
+          // BigDecimal bd =
+          // new BigDecimal(Double.toString(missingsTime)).setScale(2, RoundingMode.HALF_EVEN);
+          // missingsTime = bd.doubleValue();
+          datesWhereNoWorklog
+              .add(new MissingsWorklogsDTO((Date) fromDate.getTime().clone(),
+                  decimalFormat.format(missingsTime)));
+        }
       } else {
-        isDateContainsWorklog = isContainsWorklog(fromDate.getTime());
+        if (!isContainsWorklog(fromDate.getTime())) {
+          datesWhereNoWorklog.add(new MissingsWorklogsDTO((Date) fromDate.getTime().clone(),
+              decimalFormat.format(timeTrackingConfiguration.getHoursPerDay().doubleValue())));
+        }
       }
-      if (!isDateContainsWorklog) {
-        datesWhereNoWorklog.add((Date) fromDate.getTime().clone());
-      }
+
       fromDate.add(Calendar.DATE, 1);
 
     }
@@ -597,17 +642,20 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
 
   @Override
   public List<String> getExcludeDaysOfTheMonth(final Date date) {
+    return getExtraDaysOfTheMonth(date, excludeDatesSet);
+  }
+
+  private List<String> getExtraDaysOfTheMonth(final Date date, final Set<String> dates) {
     String fixDate = DateTimeConverterUtil.dateToFixFormatString(date);
-    List<String> resultexcludeDays = new ArrayList<String>();
-    for (String exludeDate : excludeDatesSet) {
+    List<String> resultExtraDays = new ArrayList<>();
+    for (String extraDate : dates) {
       // TODO this if not handle the 2013-4-04 date..... this is wrong or
       // not? .... think about it.
-      if (exludeDate.startsWith(fixDate.substring(0, DATE_LENGTH))) {
-        resultexcludeDays.add(exludeDate.substring(exludeDate.length() - 2));
+      if (extraDate.startsWith(fixDate.substring(0, DATE_LENGTH))) {
+        resultExtraDays.add(extraDate.substring(extraDate.length() - 2));
       }
     }
-
-    return resultexcludeDays;
+    return resultExtraDays;
   }
 
   private String getFromMail() {
@@ -618,10 +666,22 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   }
 
   @Override
+  public List<String> getIncludeDaysOfTheMonth(final Date date) {
+    return getExtraDaysOfTheMonth(date, includeDatesSet);
+  }
+
+  private List<String> getIssuePatterns() {
+    List<String> tempIssuePatternList = (List<String>) globalSettings.get(
+        GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+            + GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_NON_ESTIMATED_ISSUES);
+    return tempIssuePatternList;
+  }
+
+  @Override
   public List<Issue> getIssues() throws GenericEntityException {
     // List<GenericValue> issuesGV = null;
     // issuesGV = ComponentAccessor.getOfBizDelegator().findAll("Issue");
-    List<Issue> issues = new ArrayList<Issue>();
+    List<Issue> issues = new ArrayList<>();
     // for (GenericValue issueGV : issuesGV) {
     // issues.add(IssueImpl.getIssueObject(issueGV));
     // }
@@ -629,9 +689,9 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   }
 
   @Override
-  public List<String> getLoggedDaysOfTheMonth(final String selectedUser, final Date date)
+  public List<String> getLoggedDaysOfTheMonth(final Date date)
       throws GenericEntityException {
-    List<String> resultDays = new ArrayList<String>();
+    List<String> resultDays = new ArrayList<>();
     int dayOfMonth = 1;
     Calendar startCalendar = Calendar.getInstance();
     startCalendar.setTime(date);
@@ -655,8 +715,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   }
 
   @Override
-  public List<String> getProjectsId() throws GenericEntityException {
-    List<String> projectsId = new ArrayList<String>();
+  public List<String> getProjectsId() {
+    List<String> projectsId = new ArrayList<>();
     List<GenericValue> projectsGV = ComponentAccessor.getOfBizDelegator().findAll("Project");
     for (GenericValue project : projectsGV) {
       projectsId.add(project.getString("id"));
@@ -682,6 +742,13 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     return startTimeChange;
   }
 
+  private List<String> getSummaryFiletrs() {
+    List<String> tempSummaryFilter =
+        (List<String>) globalSettings.get(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+            + GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_SUMMARY_FILTERS);
+    return tempSummaryFilter;
+  }
+
   @Override
   public EveritWorklog getWorklog(final Long worklogId) throws ParseException {
     WorklogManager worklogManager = ComponentAccessor.getWorklogManager();
@@ -692,7 +759,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   @Override
   public List<EveritWorklog> getWorklogs(final String selectedUser, final Date date,
       final Date finalDate)
-          throws ParseException {
+      throws ParseException {
     Calendar startDate = DateTimeConverterUtil.setDateToDayStart(date);
     Calendar endDate = (Calendar) startDate.clone();
     if (finalDate == null) {
@@ -702,7 +769,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
       endDate.add(Calendar.DAY_OF_MONTH, 1);
     }
 
-    List<EveritWorklog> worklogs = new ArrayList<EveritWorklog>();
+    List<EveritWorklog> worklogs = new ArrayList<>();
 
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
@@ -738,11 +805,11 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
    *          The date what have to check.
    * @param checkNonWorking
    *          Exclude or not the non-working issues.
-   * @return True if the day contains enough worklog or weeked or exclude date.
+   * @return The number of missings hours.
    * @throws GenericEntityException
    *           If GenericEntity Exception.
    */
-  private boolean isContainsEnoughWorklog(final Date date,
+  private double isContainsEnoughWorklog(final Date date,
       final boolean checkNonWorking) throws GenericEntityException {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
@@ -751,12 +818,15 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     Calendar startDate = DateTimeConverterUtil.setDateToDayStart(date);
     Calendar endDate = (Calendar) startDate.clone();
     endDate.add(Calendar.DAY_OF_MONTH, 1);
+    double workHoursPerDay = timeTrackingConfiguration.getHoursPerDay().doubleValue();
+    double expectedTimeSpent = workHoursPerDay * DateTimeConverterUtil.SECONDS_PER_MINUTE
+        * DateTimeConverterUtil.MINUTES_PER_HOUR;
 
     List<EntityCondition> exprList = createWorklogQueryExprList(user, startDate, endDate);
     List<GenericValue> worklogGVList = ComponentAccessor.getOfBizDelegator().findByAnd("Worklog",
         exprList);
     if ((worklogGVList == null) || worklogGVList.isEmpty()) {
-      return false;
+      return expectedTimeSpent;
     }
     if (checkNonWorking) {
       removeNonWorkingIssues(worklogGVList);
@@ -765,10 +835,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     for (GenericValue worklog : worklogGVList) {
       timeSpent += worklog.getLong("timeworked").longValue();
     }
-    double workHoursPerDay = timeTrackingConfiguration.getHoursPerDay().doubleValue();
-    double expectedTimeSpent = workHoursPerDay * DateTimeConverterUtil.SECONDS_PER_MINUTE
-        * DateTimeConverterUtil.MINUTES_PER_HOUR;
-    return timeSpent >= expectedTimeSpent;
+    double missingsTime = expectedTimeSpent - timeSpent;
+    return missingsTime;
   }
 
   /**
@@ -825,7 +893,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
 
     feedBackEmailTo = properties.getProperty(FEEDBACK_EMAIL_TO);
 
-    piwikPorpeties = new HashMap<String, String>();
+    piwikPorpeties = new HashMap<>();
     piwikPorpeties.put(PiwikPropertiesUtil.PIWIK_HOST,
         properties.getProperty(PiwikPropertiesUtil.PIWIK_HOST));
     piwikPorpeties.put(PiwikPropertiesUtil.PIWIK_TIMETRACKER_SITEID,
@@ -849,23 +917,19 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     setCollectorIssuePatterns();
     setExcludeDates();
     setIncludeDates();
+    setTimetrackerGroups();
+    setPluginGroups();
     analyticsCheckValue = JiraTimetrackerAnalytics.getAnalyticsCheck(globalSettings);
     setPluginUUID();
 
     pluginSettings = settingsFactory.createSettingsForKey(
         GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX + user.getName());
 
-    Integer isPopup = JiraTimetrackerUtil.POPUP_CALENDAR_CODE;
-    Object isCalendarPopup =
-        pluginSettings.get(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_IS_CALENDAR_POPUP);
-    if (isCalendarPopup != null) {
-      try {
-        isPopup = Integer.valueOf(isCalendarPopup.toString());
-      } catch (NumberFormatException e) {
-        // the default is the popup calendar
-        LOGGER.error("Wrong formated calender type. Set the default value (popup).", e);
-        isPopup = JiraTimetrackerUtil.POPUP_CALENDAR_CODE;
-      }
+    // the default is the Daily Progress Indicator
+    Boolean isProgressIndicatorDaily = true;
+    if ("false"
+        .equals(pluginSettings.get(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_PROGRESS_INDICATOR))) {
+      isProgressIndicatorDaily = false;
     }
 
     // the default is the Actual Date
@@ -880,17 +944,32 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
       isColoring = false;
     }
 
+    // the default rounded is TRUE
+    Boolean isRounded = true;
+    if ("false".equals(pluginSettings.get(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_IS_ROUNDED))) {
+      isRounded = false;
+    }
+
     // SET startTime Change the default value is 5
     int startTimeChange = getStartTimeChange();
     // SET endtTime Change the default value is 5
     int endTimeChange = getEndTimeChange();
     // Here set the other values
     pluginSettingsValues = new PluginSettingsValues()
-        .isCalendarPopup(isPopup).actualDate(isActualDate).excludeDates(excludeDatesString)
-        .includeDates(includeDatesString).coloring(isColoring)
-        .filteredSummaryIssues(nonWorkingIssuePatterns).collectorIssues(collectorIssuePatterns)
-        .startTimeChange(startTimeChange).endTimeChange(endTimeChange)
-        .analyticsCheck(analyticsCheckValue).pluginUUID(pluginUUID);
+        .isProgressIndicatordaily(isProgressIndicatorDaily)
+        .actualDate(isActualDate)
+        .excludeDates(excludeDatesString)
+        .includeDates(includeDatesString)
+        .coloring(isColoring)
+        .filteredSummaryIssues(nonWorkingIssuePatterns)
+        .collectorIssues(collectorIssuePatterns)
+        .startTimeChange(startTimeChange)
+        .endTimeChange(endTimeChange)
+        .analyticsCheck(analyticsCheckValue)
+        .pluginUUID(pluginUUID)
+        .pluginGroups(pluginGroups)
+        .timetrackingGroups(timetrackerGroups)
+        .isRounded(isRounded);
     return pluginSettingsValues;
   }
 
@@ -901,7 +980,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   }
 
   private void removeNonWorkingIssues(final List<GenericValue> worklogGVList) {
-    List<GenericValue> worklogsCopy = new ArrayList<GenericValue>(worklogGVList);
+    List<GenericValue> worklogsCopy = new ArrayList<>(worklogGVList);
     // if we have non-estimated issues
 
     // TODO FIXME summaryFilteredIssuePatterns rename nonworking
@@ -932,8 +1011,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     pluginSettings = settingsFactory
         .createSettingsForKey(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
             + user.getName());
-    pluginSettings.put(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_IS_CALENDAR_POPUP,
-        Integer.toString(pluginSettingsParameters.isCalendarPopup));
     pluginSettings.put(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_IS_ACTUAL_DATE,
         pluginSettingsParameters.isActualDate.toString());
     pluginSettings.put(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_IS_COLORIG,
@@ -942,6 +1019,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
         Integer.toString(pluginSettingsParameters.startTimeChange));
     pluginSettings.put(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_END_TIME_CHANGE,
         Integer.toString(pluginSettingsParameters.endTimeChange));
+    pluginSettings.put(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_IS_ROUNDED,
+        pluginSettingsParameters.isRounded.toString());
 
     globalSettings = settingsFactory.createGlobalSettings();
     globalSettings.put(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
@@ -957,6 +1036,13 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
         + GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_INCLUDE_DATES,
         pluginSettingsParameters.includeDates);
 
+    globalSettings.put(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+        + GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_PLUGIN_PERMISSION,
+        pluginSettingsParameters.pluginGroups);
+    globalSettings.put(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+        + GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_TIMETRACKER_PERMISSION,
+        pluginSettingsParameters.timetrackingGroups);
+
     Object analyticsCheckObj = globalSettings.get(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
         + GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_ANALYTICS_CHECK_CHANGE);
     boolean analyticsCheck = analyticsCheckObj == null
@@ -971,6 +1057,22 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     globalSettings.put(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
         + GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_ANALYTICS_CHECK_CHANGE,
         Boolean.toString(pluginSettingsParameters.analyticsCheck));
+
+    Object indicatorCheckObj =
+        pluginSettings.get(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_PROGRESS_INDICATOR);
+    boolean indicatorCheck = indicatorCheckObj == null
+        ? true
+        : Boolean.parseBoolean(indicatorCheckObj.toString());
+
+    if ((indicatorCheck != pluginSettingsParameters.isProgressIndicatorDaily)
+        || (indicatorCheckObj == null)) {
+      setPluginUUID();
+      analyticsSender.send(new ProgressIndicatorChangedEvent(pluginUUID,
+          pluginSettingsParameters.isProgressIndicatorDaily));
+    }
+
+    pluginSettings.put(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_PROGRESS_INDICATOR,
+        pluginSettingsParameters.isProgressIndicatorDaily.toString());
   }
 
   @Override
@@ -991,13 +1093,26 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     }
   }
 
+  private void sendNonEstAndNonWorkAnaliticsEvent() {
+    List<String> tempIssuePatterns = getIssuePatterns();
+    List<String> tempSummaryFilter = getSummaryFiletrs();
+    String pluginId =
+        JiraTimetrackerAnalytics.getPluginUUID(globalSettings);
+
+    NoEstimateUsageChangedEvent analyticsEvent =
+        new NoEstimateUsageChangedEvent(pluginId, tempIssuePatterns, UNKNOW_USER_NAME);
+    analyticsSender.send(analyticsEvent);
+    NonWorkingUsageEvent nonWorkingUsageEvent =
+        new NonWorkingUsageEvent(pluginId,
+            (tempSummaryFilter == null) || tempSummaryFilter.isEmpty(), UNKNOW_USER_NAME);
+    analyticsSender.send(nonWorkingUsageEvent);
+  }
+
   private void setCollectorIssuePatterns() {
-    List<String> tempIssuePatternList = (List<String>) globalSettings.get(
-        GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
-            + GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_NON_ESTIMATED_ISSUES);
+    List<String> tempIssuePatternList = getIssuePatterns();
     if (tempIssuePatternList != null) {
       // add collector issues
-      collectorIssuePatterns = new ArrayList<Pattern>();
+      collectorIssuePatterns = new ArrayList<>();
       for (String tempIssuePattern : tempIssuePatternList) {
         collectorIssuePatterns.add(Pattern.compile(tempIssuePattern));
       }
@@ -1016,7 +1131,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     // Default: no non working issue. we simple use the empty list
     // defaultNonWorkingIssueIds = new ArrayList<Long>();
     // The default non estimted issues regex. All issue non estimeted.
-    defaultNonEstimedIssuePatterns = new ArrayList<Pattern>();
+    defaultNonEstimedIssuePatterns = new ArrayList<>();
     defaultNonEstimedIssuePatterns.add(Pattern.compile(".*"));
   }
 
@@ -1024,7 +1139,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     String tempSpecialDates = (String) globalSettings.get(
         GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
             + GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_EXCLUDE_DATES);
-    excludeDatesSet = new HashSet<String>();
+    excludeDatesSet = new HashSet<>();
     excludeDatesString = "";
     if (tempSpecialDates != null) {
       excludeDatesString = tempSpecialDates;
@@ -1040,24 +1155,22 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
             + GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_INCLUDE_DATES);
     if (tempSpecialDates != null) {
       includeDatesString = tempSpecialDates;
-      includeDatesSet = new HashSet<String>();
+      includeDatesSet = new HashSet<>();
       for (String includeDate : includeDatesString.split(",")) {
         includeDatesSet.add(includeDate);
       }
     } else {
       // Default Empty
-      includeDatesSet = new HashSet<String>();
+      includeDatesSet = new HashSet<>();
       includeDatesString = "";
     }
   }
 
   private void setNonWorkingIssuePatterns() {
-    List<String> tempIssuePatternList = (List<String>) globalSettings.get(
-        GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
-            + GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_SUMMARY_FILTERS);
+    List<String> tempIssuePatternList = getSummaryFiletrs();
     if (tempIssuePatternList != null) {
       // add non working issues
-      nonWorkingIssuePatterns = new ArrayList<Pattern>();
+      nonWorkingIssuePatterns = new ArrayList<>();
       for (String tempIssuePattern : tempIssuePatternList) {
         nonWorkingIssuePatterns.add(Pattern.compile(tempIssuePattern));
       }
@@ -1067,12 +1180,32 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     }
   }
 
+  private void setPluginGroups() {
+    List<String> pluginGroupsNames = (List<String>) globalSettings
+        .get(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+            + GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_PLUGIN_PERMISSION);
+    pluginGroups = new ArrayList<>();
+    if (pluginGroupsNames != null) {
+      pluginGroups = pluginGroupsNames;
+    }
+  }
+
   private void setPluginUUID() {
     pluginUUID = JiraTimetrackerAnalytics.getPluginUUID(globalSettings);
   }
 
+  private void setTimetrackerGroups() {
+    List<String> timetrackerGroupsNames = (List<String>) globalSettings
+        .get(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+            + GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_TIMETRACKER_PERMISSION);
+    timetrackerGroups = new ArrayList<>();
+    if (timetrackerGroupsNames != null) {
+      timetrackerGroups = timetrackerGroupsNames;
+    }
+  }
+
   @Override
-  public String summary(final String selectedUser, final Date startSummary,
+  public long summary(final Date startSummary,
       final Date finishSummary,
       final List<Pattern> issuePatterns) throws GenericEntityException {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
@@ -1084,8 +1217,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     Calendar finish = Calendar.getInstance();
     finish.setTime(finishSummary);
 
-    // List<EntityExpr> exprList = createWorklogQueryExprList(selectedUser, user,
-    // startSummary, finishSummary);
     List<EntityCondition> exprList = createWorklogQueryExprList(user,
         start, finish);
 
@@ -1093,7 +1224,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     // worklog query
     worklogs = ComponentAccessor.getOfBizDelegator().findByAnd("Worklog",
         exprList);
-    List<GenericValue> worklogsCopy = new ArrayList<GenericValue>();
+    List<GenericValue> worklogsCopy = new ArrayList<>();
     worklogsCopy.addAll(worklogs);
     // if we have non-estimated issues
     if ((issuePatterns != null) && !issuePatterns.isEmpty()) {
@@ -1113,15 +1244,10 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
       }
     }
     long timeSpent = 0;
-    // Iterator<GenericValue> worklogsIterator = worklogs.iterator();
-    // while (worklogsIterator.hasNext()) {
-    // GenericValue worklog = worklogsIterator.next();
-    // timeSpent = timeSpent + worklog.getLong("timeworked").longValue();
-    // }
     for (GenericValue worklog : worklogs) {
       timeSpent += worklog.getLong("timeworked").longValue();
     }
-    return new DurationFormatter().exactDuration(timeSpent);
+    return timeSpent;
   }
 
   @Override

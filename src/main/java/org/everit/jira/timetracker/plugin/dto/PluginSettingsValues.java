@@ -64,14 +64,24 @@ public class PluginSettingsValues implements Serializable {
   public Boolean isActualDate;
 
   /**
-   * The plugin calendar is popup.
-   */
-  public int isCalendarPopup;
-
-  /**
    * Coloring settings.
    */
   public Boolean isColoring;
+
+  /**
+   * The timetracker progress indicator is daily type.
+   */
+  public Boolean isProgressIndicatorDaily;
+
+  /**
+   * Rounded remaining time settings.
+   */
+  public Boolean isRounded;
+
+  /**
+   * The plugin groups.
+   */
+  public List<String> pluginGroups;
 
   /**
    * The plugin UUID.
@@ -83,6 +93,11 @@ public class PluginSettingsValues implements Serializable {
    */
   public int startTimeChange;
 
+  /**
+   * The timetarckning groups.
+   */
+  public List<String> timetrackingGroups;
+
   public PluginSettingsValues() {
   }
 
@@ -93,11 +108,6 @@ public class PluginSettingsValues implements Serializable {
 
   public PluginSettingsValues analyticsCheck(final boolean analyticsCheck) {
     this.analyticsCheck = analyticsCheck;
-    return this;
-  }
-
-  public PluginSettingsValues calendarPopup(final int isCalendarPopup) {
-    this.isCalendarPopup = isCalendarPopup;
     return this;
   }
 
@@ -132,8 +142,18 @@ public class PluginSettingsValues implements Serializable {
     return this;
   }
 
-  public PluginSettingsValues isCalendarPopup(final int isCalendarPopup) {
-    this.isCalendarPopup = isCalendarPopup;
+  public PluginSettingsValues isProgressIndicatordaily(final boolean isProgressIndicatorDaily) {
+    this.isProgressIndicatorDaily = isProgressIndicatorDaily;
+    return this;
+  }
+
+  public PluginSettingsValues isRounded(final boolean isRounded) {
+    this.isRounded = isRounded;
+    return this;
+  }
+
+  public PluginSettingsValues pluginGroups(final List<String> pluginGroups) {
+    this.pluginGroups = pluginGroups;
     return this;
   }
 
@@ -144,6 +164,11 @@ public class PluginSettingsValues implements Serializable {
 
   public PluginSettingsValues startTimeChange(final int startTimeChange) {
     this.startTimeChange = startTimeChange;
+    return this;
+  }
+
+  public PluginSettingsValues timetrackingGroups(final List<String> timetrackingGroups) {
+    this.timetrackingGroups = timetrackingGroups;
     return this;
   }
 
