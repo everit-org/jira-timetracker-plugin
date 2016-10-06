@@ -45,6 +45,7 @@ import org.everit.jira.reporting.plugin.export.ExportSummariesListReport;
 import org.everit.jira.reporting.plugin.export.ExportWorklogDetailsListReport;
 import org.everit.jira.reporting.plugin.util.ConverterUtil;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
+import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.google.gson.Gson;
@@ -63,14 +64,18 @@ public class DownloadReportResource {
 
   private ReportingPlugin reportingPlugin;
 
+  private PluginSettingsFactory settingsFactory;
+
   /**
    * Simple constructor.
    */
   public DownloadReportResource(final PluginSettingsFactory pluginSettingsFactory,
-      final AnalyticsSender analyticsSender, final ReportingPlugin reportingPlugin) {
+      final AnalyticsSender analyticsSender, final ReportingPlugin reportingPlugin,
+      final PluginSettingsFactory settingsFactory) {
     pluginId = JiraTimetrackerAnalytics.getPluginUUID(pluginSettingsFactory.createGlobalSettings());
     this.analyticsSender = analyticsSender;
     this.reportingPlugin = reportingPlugin;
+    this.settingsFactory = settingsFactory;
     try {
       querydslSupport = new QuerydslSupportImpl();
     } catch (Exception e) {
@@ -114,7 +119,8 @@ public class DownloadReportResource {
 
     ExportSummariesListReport exportSummariesListReport =
         new ExportSummariesListReport(querydslSupport, converSearchParam.reportSearchParam,
-            converSearchParam.notBrowsableProjectKeys);
+            converSearchParam.notBrowsableProjectKeys, settingsFactory,
+            JiraTimetrackerUtil.getLoggedUserName());
 
     HSSFWorkbook workbook = exportSummariesListReport.exportToXLS();
 
@@ -151,7 +157,7 @@ public class DownloadReportResource {
             downloadWorklogDetailsParam.selectedWorklogDetailsColumns,
             converSearchParam.reportSearchParam,
             converSearchParam.notBrowsableProjectKeys,
-            orderBy);
+            orderBy, settingsFactory, JiraTimetrackerUtil.getLoggedUserName());
 
     HSSFWorkbook workbook = exportWorklogDetailsListReport.exportToXLS();
 

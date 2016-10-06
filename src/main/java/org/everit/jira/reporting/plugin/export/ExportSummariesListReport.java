@@ -32,6 +32,8 @@ import org.everit.jira.reporting.plugin.query.IssueSummaryReportQueryBuilder;
 import org.everit.jira.reporting.plugin.query.ProjectSummaryReportQueryBuilder;
 import org.everit.jira.reporting.plugin.query.UserSummaryReportQueryBuilder;
 
+import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
+
 /**
  * Class that export summaries list report (project summary, issue summary, user summary).
  */
@@ -44,8 +46,11 @@ public class ExportSummariesListReport extends AbstractExportListReport {
   private static final String USER_SUMMARY_PREFIX = "jtrp.report.export.us.col.";
 
   public ExportSummariesListReport(final QuerydslSupport querydslSupport,
-      final ReportSearchParam reportSearchParam, final List<String> notBrowsableProjectKeys) {
-    super(querydslSupport, reportSearchParam, notBrowsableProjectKeys);
+      final ReportSearchParam reportSearchParam, final List<String> notBrowsableProjectKeys,
+      final PluginSettingsFactory pluginSettingsFactory,
+      final String userName) {
+    super(querydslSupport, reportSearchParam, notBrowsableProjectKeys, pluginSettingsFactory,
+        userName);
   }
 
   private void addIssueSummarySheet(final HSSFWorkbook workbook) {
@@ -113,10 +118,13 @@ public class ExportSummariesListReport extends AbstractExportListReport {
     columnIndex = insertBodyCell(row, columnIndex, issueSummaryDTO.getPriorityName());
     columnIndex = insertBodyCell(row, columnIndex, issueSummaryDTO.getStatusName());
     columnIndex = insertBodyCell(row, columnIndex, issueSummaryDTO.getAssignee());
-    columnIndex = insertBodyCell(row, columnIndex, issueSummaryDTO.getOrginalEstimatedSum());
-    columnIndex = insertBodyCell(row, columnIndex, issueSummaryDTO.getReaminingTimeSum());
-    columnIndex = insertBodyCell(row, columnIndex, issueSummaryDTO.getWorkloggedTimeSum());
-    insertBodyCell(row, columnIndex, issueSummaryDTO.getExpected());
+    columnIndex =
+        insertBodyCell(row, columnIndex, worklogInSec(issueSummaryDTO.getOrginalEstimatedSum()));
+    columnIndex =
+        insertBodyCell(row, columnIndex, worklogInSec(issueSummaryDTO.getReaminingTimeSum()));
+    columnIndex =
+        insertBodyCell(row, columnIndex, worklogInSec(issueSummaryDTO.getWorkloggedTimeSum()));
+    insertBodyCell(row, columnIndex, worklogInSec(issueSummaryDTO.getExpected()));
 
     return newRowIndex;
   }
@@ -140,13 +148,13 @@ public class ExportSummariesListReport extends AbstractExportListReport {
         i18nHelper.getText(ISSUE_SUMMARY_PREFIX + IssueSummaryColumns.STATUS));
     columnIndex = insertHeaderCell(row, columnIndex,
         i18nHelper.getText(ISSUE_SUMMARY_PREFIX + IssueSummaryColumns.ASSIGNEE));
-    columnIndex = insertHeaderCell(row, columnIndex,
+    columnIndex = insertHeaderCellInSec(row, columnIndex,
         i18nHelper.getText(ISSUE_SUMMARY_PREFIX + IssueSummaryColumns.ESTIMATED));
-    columnIndex = insertHeaderCell(row, columnIndex,
+    columnIndex = insertHeaderCellInSec(row, columnIndex,
         i18nHelper.getText(ISSUE_SUMMARY_PREFIX + IssueSummaryColumns.REMAINING));
-    columnIndex = insertHeaderCell(row, columnIndex,
+    columnIndex = insertHeaderCellInSec(row, columnIndex,
         i18nHelper.getText(ISSUE_SUMMARY_PREFIX + IssueSummaryColumns.TOTAL_LOGGED));
-    insertHeaderCell(row, columnIndex,
+    insertHeaderCellInSec(row, columnIndex,
         i18nHelper.getText(ISSUE_SUMMARY_PREFIX + IssueSummaryColumns.EXPECTED));
 
     return newRowIndex;
@@ -162,11 +170,13 @@ public class ExportSummariesListReport extends AbstractExportListReport {
     columnIndex = insertBodyCell(row, columnIndex, projectSummaryDTO.getProjectName());
     columnIndex = insertBodyCell(row, columnIndex, projectSummaryDTO.getProjectKey());
 
+    columnIndex = insertBodyCell(row, columnIndex,
+        worklogInSec(projectSummaryDTO.getIssuesOrginalEstimatedSum()));
     columnIndex =
-        insertBodyCell(row, columnIndex, projectSummaryDTO.getIssuesOrginalEstimatedSum());
-    columnIndex = insertBodyCell(row, columnIndex, projectSummaryDTO.getWorkloggedTimeSum());
-    columnIndex = insertBodyCell(row, columnIndex, projectSummaryDTO.getIssuesReaminingTimeSum());
-    insertBodyCell(row, columnIndex, projectSummaryDTO.getExpectedTotal());
+        insertBodyCell(row, columnIndex, worklogInSec(projectSummaryDTO.getWorkloggedTimeSum()));
+    columnIndex = insertBodyCell(row, columnIndex,
+        worklogInSec(projectSummaryDTO.getIssuesReaminingTimeSum()));
+    insertBodyCell(row, columnIndex, worklogInSec(projectSummaryDTO.getExpectedTotal()));
 
     return newRowIndex;
   }
@@ -182,13 +192,13 @@ public class ExportSummariesListReport extends AbstractExportListReport {
         i18nHelper.getText(PROJECT_SUMMARY_PREFIX + ProjectSummaryColumns.PROJECT));
     columnIndex = insertHeaderCell(row, columnIndex,
         i18nHelper.getText(PROJECT_SUMMARY_PREFIX + ProjectSummaryColumns.PROJECT_KEY));
-    columnIndex = insertHeaderCell(row, columnIndex,
+    columnIndex = insertHeaderCellInSec(row, columnIndex,
         i18nHelper.getText(PROJECT_SUMMARY_PREFIX + ProjectSummaryColumns.ESTIMATED));
-    columnIndex = insertHeaderCell(row, columnIndex,
+    columnIndex = insertHeaderCellInSec(row, columnIndex,
         i18nHelper.getText(PROJECT_SUMMARY_PREFIX + ProjectSummaryColumns.TOTAL_LOGGED));
-    columnIndex = insertHeaderCell(row, columnIndex,
+    columnIndex = insertHeaderCellInSec(row, columnIndex,
         i18nHelper.getText(PROJECT_SUMMARY_PREFIX + ProjectSummaryColumns.REMAINING));
-    insertHeaderCell(row, columnIndex,
+    insertHeaderCellInSec(row, columnIndex,
         i18nHelper.getText(PROJECT_SUMMARY_PREFIX + ProjectSummaryColumns.EXPECTED_TOTAL));
 
     return newRowIndex;
@@ -202,7 +212,7 @@ public class ExportSummariesListReport extends AbstractExportListReport {
     HSSFRow row = userSummarySheet.createRow(newRowIndex++);
 
     columnIndex = insertBodyCell(row, columnIndex, userSummaryDTO.getUserDisplayName());
-    insertBodyCell(row, columnIndex, userSummaryDTO.getWorkloggedTimeSum());
+    insertBodyCell(row, columnIndex, worklogInSec(userSummaryDTO.getWorkloggedTimeSum()));
     return newRowIndex;
   }
 
@@ -215,7 +225,7 @@ public class ExportSummariesListReport extends AbstractExportListReport {
 
     columnIndex = insertHeaderCell(row, columnIndex,
         i18nHelper.getText(USER_SUMMARY_PREFIX + UserSummaryColumns.USER));
-    insertHeaderCell(row, columnIndex,
+    insertHeaderCellInSec(row, columnIndex,
         i18nHelper.getText(USER_SUMMARY_PREFIX + UserSummaryColumns.TOTAL_LOGGED));
 
     return newRowIndex;

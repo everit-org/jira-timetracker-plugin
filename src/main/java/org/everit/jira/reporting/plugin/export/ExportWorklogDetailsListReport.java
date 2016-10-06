@@ -28,6 +28,8 @@ import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
 import org.everit.jira.reporting.plugin.dto.WorklogDetailsDTO;
 import org.everit.jira.reporting.plugin.query.WorklogDetailsReportQueryBuilder;
 
+import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
+
 /**
  * Class that export worklog details list report.
  */
@@ -57,8 +59,11 @@ public class ExportWorklogDetailsListReport extends AbstractExportListReport {
    */
   public ExportWorklogDetailsListReport(final QuerydslSupport querydslSupport,
       final List<String> selectedWorklogDetailsColumns, final ReportSearchParam reportSearchParam,
-      final List<String> notBrowsableProjectKeys, final OrderBy orderBy) {
-    super(querydslSupport, reportSearchParam, notBrowsableProjectKeys);
+      final List<String> notBrowsableProjectKeys, final OrderBy orderBy,
+      final PluginSettingsFactory pluginSettingsFactory,
+      final String userName) {
+    super(querydslSupport, reportSearchParam, notBrowsableProjectKeys, pluginSettingsFactory,
+        userName);
     this.selectedWorklogDetailsColumns = selectedWorklogDetailsColumns;
     this.orderBy = orderBy;
   }
@@ -106,10 +111,10 @@ public class ExportWorklogDetailsListReport extends AbstractExportListReport {
         WorklogDetailsColumns.ASSIGNEE, worklogDetailsDTO.getIssueAssignee());
     columnIndex = insertWorklogDetailsBodyCell(row, columnIndex,
         WorklogDetailsColumns.REPORTER, worklogDetailsDTO.getIssueReporter());
-    columnIndex = insertWorklogDetailsBodyCell(row, columnIndex,
-        WorklogDetailsColumns.ESTIMATED, worklogDetailsDTO.getIssueOriginalEstimate());
-    columnIndex = insertWorklogDetailsBodyCell(row, columnIndex,
-        WorklogDetailsColumns.REMAINING, worklogDetailsDTO.getIssueRemainingEstimate());
+    columnIndex = insertWorklogDetailsBodyCell(row, columnIndex, WorklogDetailsColumns.ESTIMATED,
+        worklogInSec(worklogDetailsDTO.getIssueOriginalEstimate()));
+    columnIndex = insertWorklogDetailsBodyCell(row, columnIndex, WorklogDetailsColumns.REMAINING,
+        worklogInSec(worklogDetailsDTO.getIssueRemainingEstimate()));
     columnIndex = insertWorklogDetailsBodyCell(row, columnIndex,
         WorklogDetailsColumns.CREATED, worklogDetailsDTO.getIssueCreated());
     columnIndex = insertWorklogDetailsBodyCell(row, columnIndex,
@@ -129,7 +134,7 @@ public class ExportWorklogDetailsListReport extends AbstractExportListReport {
     columnIndex = insertWorklogDetailsBodyCell(row, columnIndex,
         WorklogDetailsColumns.START_TIME, worklogDetailsDTO.getWorklogStartDate());
     columnIndex = insertWorklogDetailsBodyCell(row, columnIndex,
-        WorklogDetailsColumns.TIME_SPENT, worklogDetailsDTO.getWorklogTimeWorked());
+        WorklogDetailsColumns.TIME_SPENT, worklogInSec(worklogDetailsDTO.getWorklogTimeWorked()));
     columnIndex = insertWorklogDetailsBodyCell(row, columnIndex,
         WorklogDetailsColumns.WORKLOG_CREATED, worklogDetailsDTO.getWorklogCreated());
     insertWorklogDetailsBodyCell(row, columnIndex,
@@ -151,8 +156,10 @@ public class ExportWorklogDetailsListReport extends AbstractExportListReport {
     columnIndex = insertWorklogDetailsHeaderCell(row, columnIndex, WorklogDetailsColumns.PRIORITY);
     columnIndex = insertWorklogDetailsHeaderCell(row, columnIndex, WorklogDetailsColumns.ASSIGNEE);
     columnIndex = insertWorklogDetailsHeaderCell(row, columnIndex, WorklogDetailsColumns.REPORTER);
-    columnIndex = insertWorklogDetailsHeaderCell(row, columnIndex, WorklogDetailsColumns.ESTIMATED);
-    columnIndex = insertWorklogDetailsHeaderCell(row, columnIndex, WorklogDetailsColumns.REMAINING);
+    columnIndex =
+        insertWorklogDetailsHeaderCellInSec(row, columnIndex, WorklogDetailsColumns.ESTIMATED);
+    columnIndex =
+        insertWorklogDetailsHeaderCellInSec(row, columnIndex, WorklogDetailsColumns.REMAINING);
     columnIndex = insertWorklogDetailsHeaderCell(row, columnIndex, WorklogDetailsColumns.CREATED);
     columnIndex = insertWorklogDetailsHeaderCell(row, columnIndex, WorklogDetailsColumns.UPDATED);
     columnIndex =
@@ -169,7 +176,7 @@ public class ExportWorklogDetailsListReport extends AbstractExportListReport {
     columnIndex =
         insertWorklogDetailsHeaderCell(row, columnIndex, WorklogDetailsColumns.START_TIME);
     columnIndex =
-        insertWorklogDetailsHeaderCell(row, columnIndex, WorklogDetailsColumns.TIME_SPENT);
+        insertWorklogDetailsHeaderCellInSec(row, columnIndex, WorklogDetailsColumns.TIME_SPENT);
     columnIndex =
         insertWorklogDetailsHeaderCell(row, columnIndex, WorklogDetailsColumns.WORKLOG_CREATED);
     insertWorklogDetailsHeaderCell(row, columnIndex, WorklogDetailsColumns.WORKLOG_UPDATED);
@@ -178,14 +185,6 @@ public class ExportWorklogDetailsListReport extends AbstractExportListReport {
 
   private int insertWorklogDetailsBodyCell(final HSSFRow headerRow, final int columnIndex,
       final String column, final List<String> value) {
-    if (containsColumn(column)) {
-      return insertBodyCell(headerRow, columnIndex, value);
-    }
-    return columnIndex;
-  }
-
-  private int insertWorklogDetailsBodyCell(final HSSFRow headerRow, final int columnIndex,
-      final String column, final Long value) {
     if (containsColumn(column)) {
       return insertBodyCell(headerRow, columnIndex, value);
     }
@@ -212,6 +211,15 @@ public class ExportWorklogDetailsListReport extends AbstractExportListReport {
       final String column) {
     if (containsColumn(column)) {
       return insertHeaderCell(headerRow, columnIndex,
+          i18nHelper.getText(WORKLOG_DETAILS_PREFIX + column));
+    }
+    return columnIndex;
+  }
+
+  private int insertWorklogDetailsHeaderCellInSec(final HSSFRow headerRow, final int columnIndex,
+      final String column) {
+    if (containsColumn(column)) {
+      return insertHeaderCellInSec(headerRow, columnIndex,
           i18nHelper.getText(WORKLOG_DETAILS_PREFIX + column));
     }
     return columnIndex;
