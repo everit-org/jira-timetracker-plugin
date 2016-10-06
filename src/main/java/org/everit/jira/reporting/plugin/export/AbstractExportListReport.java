@@ -28,10 +28,14 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
 import org.everit.jira.querydsl.support.QuerydslSupport;
 import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
+import org.everit.jira.timetracker.plugin.DurationFormatter;
+import org.everit.jira.timetracker.plugin.GlobalSettingsKey;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.util.I18nHelper;
+import com.atlassian.sal.api.pluginsettings.PluginSettings;
+import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
 /**
  * Helper class to export list reports to XLS.
@@ -44,7 +48,11 @@ public abstract class AbstractExportListReport {
 
   protected I18nHelper i18nHelper;
 
+  protected boolean isWorklogInSec;
+
   protected List<String> notBrowsableProjectKeys;
+
+  protected PluginSettings pluginSettings;
 
   protected QuerydslSupport querydslSupport;
 
@@ -61,11 +69,16 @@ public abstract class AbstractExportListReport {
    *          the list of not browsable project keys.
    */
   public AbstractExportListReport(final QuerydslSupport querydslSupport,
-      final ReportSearchParam reportSearchParam, final List<String> notBrowsableProjectKeys) {
+      final ReportSearchParam reportSearchParam, final List<String> notBrowsableProjectKeys,
+      final PluginSettingsFactory pluginSettingsFactory,
+      final String userName) {
     this.querydslSupport = querydslSupport;
     this.reportSearchParam = reportSearchParam;
     this.notBrowsableProjectKeys = notBrowsableProjectKeys;
     i18nHelper = ComponentAccessor.getJiraAuthenticationContext().getI18nHelper();
+    pluginSettings =
+        pluginSettingsFactory.createSettingsForKey(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+            + userName);
   }
 
   protected abstract void appendContent(HSSFWorkbook workbook);
@@ -154,27 +167,6 @@ public abstract class AbstractExportListReport {
    *          the List that contains cell value.
    * @return the next column index.
    */
-  protected int insertBodyCell(final HSSFRow bodyRow, final int columnIndex, final Long value) {
-    int newColumnIndex = columnIndex;
-    HSSFCell cell = bodyRow.createCell(newColumnIndex++);
-    cell.setCellStyle(bodyCellStyle);
-    if (value != null) {
-      cell.setCellValue(value);
-    }
-    return newColumnIndex;
-  }
-
-  /**
-   * Insert body cell to workbook.
-   *
-   * @param bodyRow
-   *          the row where to insert cell.
-   * @param columnIndex
-   *          the columns in row.
-   * @param value
-   *          the List that contains cell value.
-   * @return the next column index.
-   */
   protected int insertBodyCell(final HSSFRow bodyRow, final int columnIndex, final String value) {
     int newColumnIndex = columnIndex;
     HSSFCell cell = bodyRow.createCell(newColumnIndex++);
@@ -225,6 +217,53 @@ public abstract class AbstractExportListReport {
     cell.setCellStyle(headerCellStyle);
     cell.setCellValue(value);
     return newColumnIndex;
+  }
+
+  /**
+   * Insert header cell to workbook in seconds.
+   *
+   * @param headerRow
+   *          the row where to insert cell.
+   * @param columnIndex
+   *          the columns in row.
+   * @param value
+   *          the cell value.
+   * @return the next column index.
+   */
+  protected int insertHeaderCellInSec(final HSSFRow headerRow, final int columnIndex,
+      final String value) {
+    int newColumnIndex = columnIndex;
+    HSSFCell cell = headerRow.createCell(newColumnIndex++);
+    cell.setCellStyle(headerCellStyle);
+    if ("false".equals(
+        pluginSettings.get(GlobalSettingsKey.JTTP_PLUGIN_REPORTING_SETTINGS_WORKLOG_IN_SEC))) {
+      cell.setCellValue(value);
+    } else {
+      cell.setCellValue(value + " (s)");
+    }
+    return newColumnIndex;
+  }
+
+  /**
+   * Worklog in seconds or default.
+   *
+   * @param worklog
+   *          worklog in seconds
+   */
+  protected String worklogInSec(final Long worklog) {
+    DurationFormatter durationFormatter = new DurationFormatter();
+    isWorklogInSec = true;
+    if ("false".equals(
+        pluginSettings.get(GlobalSettingsKey.JTTP_PLUGIN_REPORTING_SETTINGS_WORKLOG_IN_SEC))) {
+      isWorklogInSec = false;
+    }
+    if (worklog != null) {
+      if (isWorklogInSec) {
+        return worklog.toString();
+      }
+      return durationFormatter.exactDuration(worklog);
+    }
+    return "";
   }
 
 }
