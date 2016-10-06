@@ -20,7 +20,7 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.everit.jira.reporting.plugin.export.column.WorklogDetailsColumns;
+import org.everit.jira.reporting.plugin.column.WorklogDetailsColumns;
 
 /**
  * Download worklog details parameter that containt the filter condition and the showable columns.

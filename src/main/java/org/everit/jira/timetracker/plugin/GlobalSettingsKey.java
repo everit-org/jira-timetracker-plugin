@@ -51,14 +51,14 @@ public final class GlobalSettingsKey {
   public static final String JTTP_PLUGIN_SETTINGS_IS_ACTUAL_DATE = "isActualDate";
 
   /**
-   * The plugin setting is calendar popup key.
-   */
-  public static final String JTTP_PLUGIN_SETTINGS_IS_CALENDAR_POPUP = "isCalendarPopup";
-
-  /**
-   * The plugin setting is actual date key.
+   * The plugin setting is coloring key.
    */
   public static final String JTTP_PLUGIN_SETTINGS_IS_COLORIG = "isColoring";
+
+  /**
+   * The plugin setting is rounded remaining time key.
+   */
+  public static final String JTTP_PLUGIN_SETTINGS_IS_ROUNDED = "isRounded";
 
   /**
    * The plugin setting is show tutorial key.
@@ -76,6 +76,16 @@ public final class GlobalSettingsKey {
   public static final String JTTP_PLUGIN_SETTINGS_NON_ESTIMATED_ISSUES = "NonEstimated";
 
   /**
+   * The plugin setting Plugin Permission key.
+   */
+  public static final String JTTP_PLUGIN_SETTINGS_PLUGIN_PERMISSION = "pluginPermission";
+
+  /**
+   * The plugin setting is progress indicator date key.
+   */
+  public static final String JTTP_PLUGIN_SETTINGS_PROGRESS_INDICATOR = "progressIndicator";
+
+  /**
    * The plugin setting is show tutoriak version key.
    */
   public static final String JTTP_PLUGIN_SETTINGS_SHOW_TUTORIAL_VERSION = "showTutorialVersion";
@@ -91,6 +101,11 @@ public final class GlobalSettingsKey {
   public static final String JTTP_PLUGIN_SETTINGS_SUMMARY_FILTERS = "SummaryFilters";
 
   /**
+   * The plugin setting Timetracker Permission key.
+   */
+  public static final String JTTP_PLUGIN_SETTINGS_TIMETRACKER_PERMISSION = "timetrackerPermission";
+
+  /**
    * The plugin setting is show tutorila key.
    */
   public static final String JTTP_PLUGIN_USER_WD_SELECTED_COLUMNS = "worklogDetialsSelectedColumns";
@@ -99,6 +114,20 @@ public final class GlobalSettingsKey {
    * The plugin UUDI global setting key.
    */
   public static final String JTTP_PLUGIN_UUID = "PluginUUID";
+
+  /**
+   * The update notifier last update time global setting key.
+   */
+  public static final String JTTP_UPDATE_NOTIFIER_LAST_UPDATE = "UPDATE_NOTIFIER";
+
+  /**
+   * The update notifier latest version of the JTTP global setting key.
+   */
+  public static final String JTTP_UPDATE_NOTIFIER_LATEST_VERSION = "JTTP_LATEST_VERSION";
+  /**
+   * User specific key for the version which the user canceled.
+   */
+  public static final String JTTP_USER_CANCELED_UPDATE = "USER_CANCELED_UPDATE";
 
   private GlobalSettingsKey() {
   }

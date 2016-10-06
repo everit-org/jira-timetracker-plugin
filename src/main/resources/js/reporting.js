@@ -17,80 +17,64 @@
 window.everit = window.everit || {};
 everit.reporting = everit.reporting || {};
 everit.reporting.main = everit.reporting.main || {};
-
+const MAX_ELEMENTS_DISPLAYED = 100; // EQUAL TO JIRA.Issues.SearcherGroupListDialogView.CRITERIA_DISPLAY_LIMIT	
 (function(reporting, jQuery) {
 
-  Date.prototype.format = function (formatString) {
-    return fecha.format(this, formatString);
-  };
   
   jQuery(document).ready(function() {
-    fecha.i18n = {
-        dayNamesShort: Calendar._SDN,
-        dayNames: Calendar._DN,
-        monthNamesShort: Calendar._SMN,
-        monthNames: Calendar._MN,
-        amPm: ['am', 'pm'],
-        // D is the day of the month, function returns something like...  3rd or 11th
-        DoFn: function (D) {
-            return D + [ 'th', 'st', 'nd', 'rd' ][ D % 10 > 3 ? 0 : (D - D % 10 !== 10) * D % 10 ];
-        }
-    }
     
     var opt = reporting.values;
-     
-    Date.parseDate = function(str, fmt){
-      return fecha.parse(str, AJS.Meta.get("date-dmy").toUpperCase());
-      };
       
-    jQuery("#dateFrom").val(fecha.format(opt.dateFromFormated, AJS.Meta.get("date-dmy").toUpperCase()));
-    jQuery("#dateTo").val(fecha.format(opt.dateToFormated, AJS.Meta.get("date-dmy").toUpperCase()));
+    var dateForm = new Date(opt.dateFromFormated).print(opt.dateFormat); 
+    jQuery("#dateFrom").val(dateForm);
+    var dateTo = new Date(opt.dateToFormated).print(opt.dateFormat);
+    jQuery("#dateTo").val(dateTo);
     
     var calFrom = Calendar.setup({
       firstDay : opt.firstDay,
       inputField : jQuery("#dateFrom"),
       button : jQuery("#date_trigger_from"),
-      date : opt.dateFromFormated,
+      date : dateForm,
+      ifFormat: opt.dateFormat,
       align : 'Br',
       electric : false,
       singleClick : true,
       showOthers : true,
       useISO8601WeekNumbers : opt.useISO8601,
-      onSelect: reporting.onSelect,
     });
 
     var calTo = Calendar.setup({
       firstDay : opt.firstDay,
       inputField : jQuery("#dateTo"),
       button : jQuery("#date_trigger_to"),
-      date : opt.dateToFormated,
+      date : dateTo,
+      ifFormat: opt.dateFormat,
       align : 'Br',
       electric : false,
       singleClick : true,
       showOthers : true,
       useISO8601WeekNumbers : opt.useISO8601,
-      onSelect: reporting.onSelect,
     });
 
     jQuery('.aui-ss, .aui-ss-editing, .aui-ss-field').attr("style", "width: 300px;");
-    
+
     initProjectSelect();
     initTypeSelect();
     initStatusSelect();
     initMoreSelect();
-    
+
     initUserSelect();
     initGroupSelect();
-    
+
     initWorklogDetailsColumns();
-    
+
     //this three not use rest
     initCreatedDatePicker();
     initEpicNameSelect();
     initFilterSelect();
-    
+
     tutorialDialogInit();
-    
+
     if( reporting.values.notBrowsableProjectKeys.length ) {
       var keys = "";
       var length = reporting.values.notBrowsableProjectKeys.length;
@@ -105,15 +89,14 @@ everit.reporting.main = everit.reporting.main || {};
         body: AJS.I18n.getText("jtrp.report.worklogs_no_display_body") + " " + keys +"."
       });
     }
-    
+
     if(reporting.values.worklogDetailsEmpty){
       AJS.messages.info({
         title: AJS.I18n.getText("jtrp.report.result_not_found_head"),
         body: AJS.I18n.getText("jtrp.report.result_not_found_body")
       });
     }
-    
-    
+
     addTooltips();
     browsePermissionCheck();
 
@@ -317,19 +300,19 @@ everit.reporting.main = everit.reporting.main || {};
   
  function initCreatedDatePicker(){
     if(!isNaN(reporting.values.dateCreatedFormated)){
-      jQuery("#createdPicker").val(fecha.format(reporting.values.dateCreatedFormated, AJS.Meta.get("date-dmy").toUpperCase()));
+      jQuery("#createdPicker").val(new Date(reporting.values.dateCreatedFormated).print(reporting.values.dateFormat));
     }
     var createdDate = Calendar.setup({
       firstDay : reporting.values.firstDay,
       inputField : jQuery("#createdPicker"),
       button : jQuery("#createdPickerTrigger"),
-      date : reporting.values.dateCreatedFormated,
+      date : new Date(reporting.values.dateCreatedFormated).print(reporting.values.dateFormat),
+      ifFormat: reporting.values.dateFormat,
       align : 'Br',
       electric : false,
       singleClick : true,
       showOthers : true,
       useISO8601WeekNumbers : reporting.values.useISO8601,
-      onSelect: reporting.onSelect,
     });
     updateInputFieldPickButtonText("#createdPicker" , "#createdPickerButton",AJS.I18n.getText("jtrp.picker.all.create.date"));
     jQuery("#createdPicker").on("change onblur", function() {
@@ -358,11 +341,9 @@ everit.reporting.main = everit.reporting.main || {};
           var avatarId =  obj.iconUrl;
           jQuery("#priorityPicker").append('<option data-icon="' + avatarId + '" value="'+obj.id + '" '+ selected + '>' +obj.name +'</option>');
 
-        }
-        var pp = new AJS.CheckboxMultiSelect({
-            element:  jQuery("#priorityPicker"),
-            submitInputVal: true,
-        });
+        } 
+        var options= initializeOptionsForSelect(result.length,"#priorityPicker");
+        var pp = new AJS.CheckboxMultiSelect(options);
         updatePickerButtonText("#priorityPicker" , "#priorityPickerButton", AJS.I18n.getText("jtrp.picker.all.priority"));
         jQuery("#priorityPicker").on("change unselect", function() {
           updatePickerButtonText("#priorityPicker" , "#priorityPickerButton", AJS.I18n.getText("jtrp.picker.all.priority"));
@@ -387,10 +368,8 @@ everit.reporting.main = everit.reporting.main || {};
           var avatarId =  obj.avatarUrls["16x16"];
           jQuery("#projectPicker").append('<option data-icon="' + avatarId + '" value="' + obj.id + '" '+ selected +'>' +obj.name+ '(' + obj.key + ' )</option>');
         }
-        var pp = new AJS.CheckboxMultiSelect({
-            element:  jQuery("#projectPicker"),
-            submitInputVal: true,
-        });
+        var options= initializeOptionsForSelect(result.length,"#projectPicker");
+        var pp = new AJS.CheckboxMultiSelect(options);
         updatePickerButtonText("#projectPicker" , "#projectPickerButton", AJS.I18n.getText("jtrp.picker.all.project"));
         jQuery("#projectPicker").on("change unselect", function() {
           updatePickerButtonText("#projectPicker" , "#projectPickerButton", AJS.I18n.getText("jtrp.picker.all.project"));
@@ -415,10 +394,8 @@ everit.reporting.main = everit.reporting.main || {};
           var selected = checkSelected(obj.userName, selectedArray);
           jQuery("#assignePicker").append('<option data-icon="' + avatarId + '" value="'+obj.userName + '" '+ selected + '>' +obj.displayName +'</option>');
         }
-        var pp = new AJS.CheckboxMultiSelect({
-          element:  AJS.$("#assignePicker"),
-          submitInputVal: true,
-        });
+        var options= initializeOptionsForSelect(result.length,"#assignePicker");
+        var pp = new AJS.CheckboxMultiSelect(options);
         updatePickerButtonText("#assignePicker" , "#assignePickerButton", AJS.I18n.getText("jtrp.picker.all.assigne"));
         jQuery("#assignePicker").on("change unselect", function() {
           updatePickerButtonText("#assignePicker" , "#assignePickerButton", AJS.I18n.getText("jtrp.picker.all.assigne"));
@@ -443,10 +420,8 @@ everit.reporting.main = everit.reporting.main || {};
           var selected = checkSelected(obj.userName, selectedArray);
           jQuery("#reporterPicker").append('<option data-icon="' + avatarId + '" value="'+obj.userName + '" '+ selected + '>' +obj.displayName +'</option>');
         }
-        var pp = new AJS.CheckboxMultiSelect({
-          element:  AJS.$("#reporterPicker"),
-          submitInputVal: true,
-        });
+        var options= initializeOptionsForSelect(result.length,"#reporterPicker");
+        var pp = new AJS.CheckboxMultiSelect(options);
         updatePickerButtonText("#reporterPicker" , "#reporterPickerButton", AJS.I18n.getText("jtrp.picker.all.reporter"));
         jQuery("#reporterPicker").on("change unselect", function() {
           updatePickerButtonText("#reporterPicker" , "#reporterPickerButton", AJS.I18n.getText("jtrp.picker.all.reporter"));
@@ -471,10 +446,8 @@ everit.reporting.main = everit.reporting.main || {};
           var selected = checkSelected(obj.userName, selectedArray);
           jQuery("#userPicker").append('<option data-icon="' + avatarId + '" value="'+obj.userName + '" '+ selected + '>' +obj.displayName +'</option>');
         }
-        var pp = new AJS.CheckboxMultiSelect({
-          element:  AJS.$("#userPicker"),
-          submitInputVal: true,
-        });
+        var options= initializeOptionsForSelect(result.length,"#userPicker");
+        var pp = new AJS.CheckboxMultiSelect(options);
         pp._setDescriptorSelection = function(descriptor, $input) {
           var descriptValue = descriptor.value();
           if (!descriptor.selected()) {
@@ -543,7 +516,7 @@ everit.reporting.main = everit.reporting.main || {};
       async: true,
       type: 'GET',
       url : contextPath + "/rest/api/2/groups/picker",
-      data : [],
+      data : {maxResults : 1000},
       success : function(result){
         //Add None before result parse
         var selected = checkSelected("-1", selectedArray);
@@ -553,10 +526,8 @@ everit.reporting.main = everit.reporting.main || {};
           var selected = checkSelected(obj.name, selectedArray);
           jQuery("#groupPicker").append('<option value="'+obj.name + '" '+ selected + '>' +obj.name +'</option>');
         }
-        var pp = new AJS.CheckboxMultiSelect({
-              element:  AJS.$("#groupPicker"),
-              submitInputVal: true,
-        });
+        var options= initializeOptionsForSelect(result.groups.length,"#groupPicker");
+        var pp = new AJS.CheckboxMultiSelect(options);
         pp._setDescriptorSelection = function(descriptor, $input) {
           var descriptValue = descriptor.value();
           if (!descriptor.selected()) {
@@ -584,7 +555,11 @@ everit.reporting.main = everit.reporting.main || {};
       }
     });
   };
-  
+  function addMaxInlineRsultIfNecessary(numOfelements,options){
+	  if(numOfelements>MAX_ELEMENTS_DISPLAYED){
+		  options.maxInlineResultsDisplayed =MAX_ELEMENTS_DISPLAYED;
+     }
+  }
   function initTypeSelect(){
     var selectedArray =  jQuery.makeArray( reporting.values.selectedTypes ); 
     jQuery.ajax({
@@ -599,10 +574,8 @@ everit.reporting.main = everit.reporting.main || {};
           var selected = checkSelected(obj.id, selectedArray);
           jQuery("#typePicker").append('<option data-icon="' + avatarId + '" value="'+obj.id + '" '+ selected + '>' +obj.name +'</option>');
         }
-        var pp = new AJS.CheckboxMultiSelect({
-              element:  AJS.$("#typePicker"),
-              submitInputVal: true,
-        });
+        var options= initializeOptionsForSelect(result.length,"#typePicker");
+        var pp = new AJS.CheckboxMultiSelect(options);
         updatePickerButtonText("#typePicker" , "#typePickerButton", AJS.I18n.getText("jtrp.picker.all.type"));
         jQuery("#typePicker").on("change unselect", function() {
           updatePickerButtonText("#typePicker" , "#typePickerButton", AJS.I18n.getText("jtrp.picker.all.type"));
@@ -629,10 +602,8 @@ everit.reporting.main = everit.reporting.main || {};
           var selected = checkSelected(obj.id, selectedArray);
           jQuery("#resolutionPicker").append('<option value="'+obj.id+ '" '+ selected + '>' +obj.name +'</option>');
         }
-        var pp = new AJS.CheckboxMultiSelect({
-              element:  AJS.$("#resolutionPicker"),
-              submitInputVal: true,
-        });
+        var options= initializeOptionsForSelect(result.length,"#resolutionPicker");
+        var pp = new AJS.CheckboxMultiSelect(options);
         updatePickerButtonText("#resolutionPicker" , "#resolutionPickerButton", AJS.I18n.getText("jtrp.picker.all.resolution"));
         jQuery("#resolutionPicker").on("change unselect", function() {
           updatePickerButtonText("#resolutionPicker" , "#resolutionPickerButton", AJS.I18n.getText("jtrp.picker.all.resolution"));
@@ -657,10 +628,8 @@ everit.reporting.main = everit.reporting.main || {};
           var lozengeStatus = JSON.stringify(obj).replace(/"/g, "&quot;");
           jQuery("#statusPicker").append('<option value="'+obj.id+ '" data-simple-status="' + lozengeStatus +'"  ' + selected + '>' +obj.name +'</option>');
         }
-        var pp = new AJS.CheckboxMultiSelectStatusLozenge({
-              element:  AJS.$("#statusPicker"),
-              submitInputVal: true,
-        });
+        var options= initializeOptionsForSelect(result.length,"#statusPicker");
+        var pp = new AJS.CheckboxMultiSelectStatusLozenge(options);
         updatePickerButtonText("#statusPicker" , "#statusPickerButton", AJS.I18n.getText("jtrp.picker.all.status"));
         jQuery("#statusPicker").on("change unselect", function() {
           updatePickerButtonText("#statusPicker" , "#statusPickerButton", AJS.I18n.getText("jtrp.picker.all.status"));
@@ -684,10 +653,8 @@ everit.reporting.main = everit.reporting.main || {};
           var selected = checkSelected(obj.name, selectedArray);
           jQuery("#affectedVersionPicker").append('<option value="'+obj.name+ '" '+ selected + '>' +obj.name +'</option>');
         }
-        var pp = new AJS.CheckboxMultiSelect({
-              element:  AJS.$("#affectedVersionPicker"),
-              submitInputVal: true,
-        });
+        var options= initializeOptionsForSelect(result.length,"#affectedVersionPicker");
+        var pp = new AJS.CheckboxMultiSelect(options);
         updatePickerButtonText("#affectedVersionPicker" , "#affectedVersionPickerButton", AJS.I18n.getText("jtrp.picker.all.affects.version"));
         jQuery("#affectedVersionPicker").on("change unselect", function() {
           updatePickerButtonText("#affectedVersionPicker" , "#affectedVersionPickerButton", AJS.I18n.getText("jtrp.picker.all.affects.version"));
@@ -711,10 +678,8 @@ everit.reporting.main = everit.reporting.main || {};
           var selected = checkSelected(obj.name, selectedArray);
           jQuery("#fixVersionPicker").append('<option value="'+obj.name+ '" '+ selected + '>' +obj.name +'</option>');
         }
-        var pp = new AJS.CheckboxMultiSelect({
-              element:  AJS.$("#fixVersionPicker"),
-              submitInputVal: true,
-        });
+        var options= initializeOptionsForSelect(result.length,"#fixVersionPicker");
+        var pp = new AJS.CheckboxMultiSelect(options);
         updatePickerButtonText("#fixVersionPicker" , "#fixVersionPickerButton", AJS.I18n.getText("jtrp.picker.all.fix.version"));
         jQuery("#fixVersionPicker").on("change unselect", function() {
           updatePickerButtonText("#fixVersionPicker" , "#fixVersionPickerButton", AJS.I18n.getText("jtrp.picker.all.fix.version"));
@@ -736,10 +701,10 @@ everit.reporting.main = everit.reporting.main || {};
    };
 
    reporting.nextTutorialPage = function(){
-     if(actualTutorialPage < 5){
+     if(actualTutorialPage < 4){
        actualTutorialPage++;
      }else{
-       actualTutorialPage = 5;
+       actualTutorialPage = 4;
       }
       changeNavigationButtonVisibility();
       showActiveTutotialPage();
@@ -751,7 +716,7 @@ everit.reporting.main = everit.reporting.main || {};
      }else{
        jQuery("#reporting-tutorial-prev").show();
      }
-     if(actualTutorialPage == 5){
+     if(actualTutorialPage == 4){
        jQuery("#reporting-tutorial-next").hide();
      }else{
        jQuery("#reporting-tutorial-next").show();
@@ -776,10 +741,8 @@ everit.reporting.main = everit.reporting.main || {};
           var selected = checkSelected(obj.name, selectedArray);
           jQuery("#labelPicker").append('<option value="'+obj.name+ '" '+ selected + '>' +obj.name +'</option>');
         }
-        var pp = new AJS.CheckboxMultiSelect({
-              element:  AJS.$("#labelPicker"),
-              submitInputVal: true,
-        });
+        var options= initializeOptionsForSelect(result.length,"#labelPicker");
+        var pp = new AJS.CheckboxMultiSelect(options);
         updatePickerButtonText("#labelPicker" , "#labelPickerButton",AJS.I18n.getText("jtrp.picker.all.label"));
         jQuery("#labelPicker").on("change unselect", function() {
           updatePickerButtonText("#labelPicker" , "#labelPickerButton", AJS.I18n.getText("jtrp.picker.all.label"));
@@ -789,7 +752,14 @@ everit.reporting.main = everit.reporting.main || {};
       }
     });
   };
-    
+   function initializeOptionsForSelect(numOfelements,elementIdSelector){
+	   var options={
+      		 element:  jQuery(elementIdSelector),
+             submitInputVal: true,
+      };
+      addMaxInlineRsultIfNecessary(numOfelements,options);
+      return options;
+   }
   function initIssueSelect(){
     var selectedArray =  jQuery.makeArray( reporting.values.selectedIssues ); 
     var ip = new AJS.IssuePicker({
@@ -838,10 +808,12 @@ everit.reporting.main = everit.reporting.main || {};
           var selected = checkSelected(obj.epicLinkId, selectedArray);
           jQuery("#epicLinkPicker").append('<option value="'+obj.epicLinkId+ '" '+ selected + '>' +obj.epicName + ' - ('+ obj.issueKey +') </option>');
         }
-        var pp = new AJS.CheckboxMultiSelect({
-              element:  AJS.$("#epicLinkPicker"),
-              submitInputVal: true,
-        });
+        var options={
+        		 element:  AJS.$("#epicLinkPicker"),
+                 submitInputVal: true,
+        };
+        addMaxInlineRsultIfNecessary(result.length,options);
+        var pp = new AJS.CheckboxMultiSelect(options);
         updatePickerButtonText("#epicLinkPicker" , "#epicLinkPickerButton", AJS.I18n.getText("jtrp.picker.all.epic.link"));
         jQuery("#epicLinkPicker").on("change unselect", function() {
           updatePickerButtonText("#epicLinkPicker" , "#epicLinkPickerButton", AJS.I18n.getText("jtrp.picker.all.epic.link"));
@@ -865,10 +837,8 @@ everit.reporting.main = everit.reporting.main || {};
           var selected = checkSelected(obj.name, selectedArray);
           jQuery("#componentPicker").append('<option value="'+obj.name+ '" '+ selected + '>' +obj.name +'</option>');
         }
-        var pp = new AJS.CheckboxMultiSelect({
-              element:  AJS.$("#componentPicker"),
-              submitInputVal: true,
-        });
+        var options= initializeOptionsForSelect(result.length,"#componentPicker");
+        var pp = new AJS.CheckboxMultiSelect(options);           
         updatePickerButtonText("#componentPicker" , "#componentPickerButton", AJS.I18n.getText("jtrp.picker.all.component"));
         jQuery("#componentPicker").on("change unselect", function() {
           updatePickerButtonText("#componentPicker" , "#componentPickerButton", AJS.I18n.getText("jtrp.picker.all.component"));
@@ -914,33 +884,7 @@ everit.reporting.main = everit.reporting.main || {};
     }
     jQuery(button).text(newButtonText);
   };
-  
-  reporting.onSelect = function(cal) {
-    //Copy of the original onSelect. Only chacnge not use te p.ifFormat
-    var p = cal.params;
-    var update = (cal.dateClicked || p.electric);
-    if (update && p.inputField) {
-      var dmy = AJS.Meta.get("date-dmy").toUpperCase();
-      p.inputField.value = cal.date.format(dmy);
-      jQuery(p.inputField).change();            
-    }
-    if (update && p.displayArea)
-      p.displayArea.innerHTML = cal.date.print(p.daFormat);
-    if (update && typeof p.onUpdate == "function")
-      p.onUpdate(cal);
-    if (update && p.flat) {
-      if (typeof p.flatCallback == "function")
-        p.flatCallback(cal);
-    }
-        if (p.singleClick === "true") {
-            p.singleClick = true;
-        } else if (p.singleClick === "false") {
-            p.singleClick = false;
-        }
-    if (update && p.singleClick && cal.dateClicked)
-      cal.callCloseHandler();
-  }
-  
+
   reporting.toggleModContent = function(type) {
     var module = jQuery("#" + type + "Module");
     jQuery(".mod-content", module).toggle(0, function() {
@@ -1042,6 +986,18 @@ everit.reporting.main = everit.reporting.main || {};
     return filterCondition;
   }
   
+  function getOrderBy(){
+    var th = jQuery('#worklogDetailsTable').find('th.jttp-tablesorter-headerAsc')[0];
+    var order = "ASC";
+    if(typeof th === 'undefined') {
+      th = jQuery('#worklogDetailsTable').find('th.jttp-tablesorter-headerDesc')[0];
+      order = "DESC";
+    }
+    var column = jQuery(th).attr('data-jtrp-col-name')
+    
+    return column + "-" + order;
+  }
+  
   reporting.updateDetailsAllExportHref = function() {
     var filterConditionString = jQuery('#filterConditionJson').val();
     var filterCondition = JSON.parse(filterConditionString);
@@ -1057,7 +1013,7 @@ everit.reporting.main = everit.reporting.main || {};
     var json = JSON.stringify(downloadWorklogDetailsParam);
     var $detailsAllExport = jQuery('#detials-all-export')
     var href = $detailsAllExport.attr('data-jttp-href');
-    $detailsAllExport.attr('href', href + '?json=' + json);
+    $detailsAllExport.attr('href', href + '?json=' + json + "&orderBy=" + getOrderBy());
     return true;
   }
   
@@ -1077,7 +1033,7 @@ everit.reporting.main = everit.reporting.main || {};
     var json = JSON.stringify(downloadWorklogDetailsParam);
     var $detailsCustomExport = jQuery('#detials-custom-export')
     var href = $detailsCustomExport.attr('data-jttp-href');
-    $detailsCustomExport.attr('href', href + '?json=' + json);
+    $detailsCustomExport.attr('href', href + '?json=' + json + "&orderBy=" + getOrderBy());
     return true;
   }
   
@@ -1116,7 +1072,11 @@ everit.reporting.main = everit.reporting.main || {};
     var createdPicker = jQuery('#createdPicker').val();
     if(createdPicker != ""){
       try{
-        var issueCreateDate = fecha.parse(createdPicker,  AJS.Meta.get("date-dmy").toUpperCase());
+        var issueCreateDate = Date.parseDate(createdPicker, reporting.values.dateFormat);
+        if(createdPicker != issueCreateDate.print(reporting.values.dateFormat)){
+          showErrorMessage("error_message_label_cd");
+          return false;
+        }
         var issueCreateDateMilis = issueCreateDate.getTime();
       }catch(err){
         showErrorMessage("error_message_label_cd");
@@ -1126,7 +1086,11 @@ everit.reporting.main = everit.reporting.main || {};
     filterCondition["issueCreateDate"] = issueCreateDateMilis;
     try{
       var dateFrom = jQuery('#dateFrom').val();
-      var worklogStartDate = fecha.parse(dateFrom,  AJS.Meta.get("date-dmy").toUpperCase());
+      var worklogStartDate = Date.parseDate(dateFrom, reporting.values.dateFormat);
+      if(dateFrom != worklogStartDate.print(reporting.values.dateFormat)){
+        showErrorMessage("error_message_label_df");
+        return false;
+      }
       filterCondition["worklogStartDate"] = worklogStartDate.getTime();
     }catch(err){
       showErrorMessage("error_message_label_df");
@@ -1134,7 +1098,11 @@ everit.reporting.main = everit.reporting.main || {};
     }
     try{
       var dateTo = jQuery('#dateTo').val();
-      var worklogEndDate = fecha.parse(dateTo,  AJS.Meta.get("date-dmy").toUpperCase());
+      var worklogEndDate = Date.parseDate(dateTo, reporting.values.dateFormat);
+      if(dateTo != worklogEndDate.print(reporting.values.dateFormat)){
+        showErrorMessage("error_message_label_dt");
+        return false;
+      }
       filterCondition["worklogEndDate"] = worklogEndDate.getTime();
     }catch(err){
       showErrorMessage("error_message_label_dt");
@@ -1170,7 +1138,7 @@ everit.reporting.main = everit.reporting.main || {};
     return true;
   }
   
-  reporting.getWorklogDetailsPage = function(offset) {
+  reporting.getWorklogDetailsPage = function(offset, column, order) {
     var url = contextPath + "/rest/jttp-rest/1/paging-report/pageWorklogDetails?filterConditionJson=";
     var filterConditionJson = jQuery('#filterConditionJson').val();
     var filterCondition = JSON.parse(filterConditionJson);
@@ -1180,7 +1148,7 @@ everit.reporting.main = everit.reporting.main || {};
     var selectedColumnsJson = JSON.stringify(selectedWorklogDetailsColumns);
     var $detailsModule = jQuery('#detailsModule');
     $detailsModule.addClass("pending");
-    jQuery.get(url + filterConditionJson + "&selectedColumnsJson=" + selectedColumnsJson, function(data) {
+    jQuery.get(url + filterConditionJson + "&selectedColumnsJson=" + selectedColumnsJson + "&orderBy=" + column + "-" + order, function(data) {
       $detailsModule.replaceWith(data);
     }).done(function() {
       initWorklogDetailsColumns();

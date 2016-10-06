@@ -29,6 +29,11 @@ import com.atlassian.plugin.util.ClassLoaderUtils;
  */
 public final class PropertiesUtil {
 
+  /**
+   * The Issue Collector jttp_build.porperties key.
+   */
+  public static final String ISSUE_COLLECTOR_SRC = "ISSUE_COLLECTOR_SRC";
+
   private static final String JTTP_PROPERTIES = "jttp_build.properties";
 
   /**

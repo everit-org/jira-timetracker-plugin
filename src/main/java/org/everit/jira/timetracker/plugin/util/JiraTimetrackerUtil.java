@@ -24,12 +24,15 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpSession;
 
+import org.everit.jira.timetracker.plugin.dto.WorklogValues;
+
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.status.Status;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.util.I18nHelper;
+import com.google.gson.Gson;
 
 /**
  * The Jira Timetracker plugin utils class.
@@ -61,11 +64,6 @@ public final class JiraTimetrackerUtil {
   public static final int MONDAY_CALENDAR_FDOW = 1;
 
   public static final int MONTH_INTERVAL = 2;
-
-  /**
-   * The plugin calendar popup code.
-   */
-  public static final int POPUP_CALENDAR_CODE = 1;
 
   private static final String PREFIX_PLUGIN_RATED = "The plugin rated to: ";
 
@@ -150,6 +148,39 @@ public final class JiraTimetrackerUtil {
       return false;
     }
     return true;
+  }
+
+  /**
+   * Convert Json in to WorklogValues.
+   *
+   * @param json
+   *          The worklog values in Json.
+   * @return The Worklog values objcet.
+   */
+  public static WorklogValues convertJsonToWorklogValues(final String json) {
+    if (json == null) {
+      throw new NullPointerException("EMPTY_JSON");
+    }
+    return new Gson()
+        .fromJson(json, WorklogValues.class);
+  }
+
+  /**
+   * Convert {@link WorklogValues} class to json string.
+   *
+   * @param worklogValues
+   *          the {@link WorklogValues} object. Cannot be <code>null</code>.
+   *
+   * @return the json string.
+   *
+   * @throws NullPointerException
+   *           if worklogValues parameter is <code>null</code>.
+   */
+  public static String convertWorklogValuesToJson(final WorklogValues worklogValues) {
+    if (worklogValues == null) {
+      throw new NullPointerException("EMPTY_FILTER");
+    }
+    return new Gson().toJson(worklogValues);
   }
 
   /**

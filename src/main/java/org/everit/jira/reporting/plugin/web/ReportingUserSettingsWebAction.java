@@ -21,6 +21,10 @@ import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.everit.jira.reporting.plugin.ReportingCondition;
+import org.everit.jira.reporting.plugin.ReportingPlugin;
+import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
+import org.everit.jira.timetracker.plugin.PluginCondition;
 import org.everit.jira.timetracker.plugin.UserReportingSettingsHelper;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
@@ -34,11 +38,6 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 public class ReportingUserSettingsWebAction extends JiraWebActionSupport {
 
   private static final int DEFAULT_PAGE_SIZE = 20;
-
-  /**
-   * The Issue Collector jttp_build.porperties key.
-   */
-  private static final String ISSUE_COLLECTOR_SRC = "ISSUE_COLLECTOR_SRC";
 
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
 
@@ -61,20 +60,53 @@ public class ReportingUserSettingsWebAction extends JiraWebActionSupport {
 
   private int pageSize;
 
+  private PluginCondition pluginCondition;
+
+  private ReportingCondition reportingCondition;
+
   private PluginSettingsFactory settingsFactory;
 
   private boolean userPopupVisible;
 
-  public ReportingUserSettingsWebAction(final PluginSettingsFactory settingsFactory) {
+  /**
+   * ReportingUserSettingsWebAction constructor.
+   *
+   * @param settingsFactory
+   *          Jira plugin settings factory.
+   * @param reportingPlugin
+   *          Reporting plugin.
+   * @param timetrackerPlugin
+   *          Timetarcker plugin.
+   */
+  public ReportingUserSettingsWebAction(final PluginSettingsFactory settingsFactory,
+      final ReportingPlugin reportingPlugin, final JiraTimetrackerPlugin timetrackerPlugin) {
     this.settingsFactory = settingsFactory;
+    reportingCondition = new ReportingCondition(reportingPlugin);
+    pluginCondition = new PluginCondition(timetrackerPlugin);
   }
 
-  @Override
-  public String doDefault() throws ParseException {
+  private String checkConditions() {
     boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
     if (!isUserLogged) {
       setReturnUrl(JIRA_HOME_URL);
       return getRedirect(NONE);
+    }
+    if (!reportingCondition.shouldDisplay(getLoggedInApplicationUser(), null)) {
+      setReturnUrl(JIRA_HOME_URL);
+      return getRedirect(NONE);
+    }
+    if (!pluginCondition.shouldDisplay(getLoggedInApplicationUser(), null)) {
+      setReturnUrl(JIRA_HOME_URL);
+      return getRedirect(NONE);
+    }
+    return null;
+  }
+
+  @Override
+  public String doDefault() throws ParseException {
+    String checkConditionsResult = checkConditions();
+    if (checkConditionsResult != null) {
+      return checkConditionsResult;
     }
     normalizeContextPath();
     loadIssueCollectorSrc();
@@ -85,10 +117,9 @@ public class ReportingUserSettingsWebAction extends JiraWebActionSupport {
 
   @Override
   public String doExecute() throws ParseException {
-    boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
-    if (!isUserLogged) {
-      setReturnUrl(JIRA_HOME_URL);
-      return getRedirect(NONE);
+    String checkConditionsResult = checkConditions();
+    if (checkConditionsResult != null) {
+      return checkConditionsResult;
     }
     normalizeContextPath();
     loadIssueCollectorSrc();
@@ -129,7 +160,7 @@ public class ReportingUserSettingsWebAction extends JiraWebActionSupport {
 
   private void loadIssueCollectorSrc() {
     Properties properties = PropertiesUtil.getJttpBuildProperties();
-    issueCollectorSrc = properties.getProperty(ISSUE_COLLECTOR_SRC);
+    issueCollectorSrc = properties.getProperty(PropertiesUtil.ISSUE_COLLECTOR_SRC);
   }
 
   /**
