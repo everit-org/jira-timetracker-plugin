@@ -185,6 +185,7 @@ public class WorklogDetailsReportQueryBuilder extends AbstractReportQuery<Worklo
         qWorklog.startdate.as(WorklogDetailsDTO.AliasNames.WORKLOG_START_DATE),
         qWorklog.created.as(WorklogDetailsDTO.AliasNames.WORKLOG_CREATED),
         qWorklog.updated.as(WorklogDetailsDTO.AliasNames.WORKLOG_UPDATED),
+        worklogAuthorExpression,
         epicLink,
         epicName);
 
@@ -194,6 +195,12 @@ public class WorklogDetailsReportQueryBuilder extends AbstractReportQuery<Worklo
     QIssuelink qIssueLink = new QIssuelink("issueLink");
     return epicProjection(qIssueLink.destination.eq(qIssue.id), qIssueLink)
         .as(WorklogDetailsDTO.AliasNames.ISSUE_EPIC_LINK);
+  }
+
+  private SimpleExpression<String> epicNameExpression() {
+    QIssuelink qIssueLink = new QIssuelink("issueLink");
+    return epicProjection(qIssueLink.source.eq(qIssue.id), qIssueLink)
+        .as(WorklogDetailsDTO.AliasNames.ISSUE_EPIC_NAME);
   }
 
   private SQLQuery<String> epicProjection(final BooleanExpression epicExpression,
@@ -210,12 +217,6 @@ public class WorklogDetailsReportQueryBuilder extends AbstractReportQuery<Worklo
             .and(qIssueLinkType.linkname.eq("Epic-Story Link"))
             .and(qCustomfield.cfname.eq("Epic Name")))
         .groupBy(qCustomfieldValue.stringvalue);
-  }
-
-  private SimpleExpression<String> epicNameExpression() {
-    QIssuelink qIssueLink = new QIssuelink("issueLink");
-    return epicProjection(qIssueLink.source.eq(qIssue.id), qIssueLink)
-        .as(WorklogDetailsDTO.AliasNames.ISSUE_EPIC_NAME);
   }
 
   private void extendResult(final Connection connection, final Configuration configuration,
