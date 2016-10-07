@@ -322,7 +322,7 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 
     String isRoundedValue = request.getParameter("isRounded");
     isRounded = (isRoundedValue != null);
-    request.getParameterNames();
+
     String isShowFutureLogWarningValue = request.getParameter("isShowFutureLogWarning");
     isShowFutureLogWarning = (isShowFutureLogWarningValue != null);
     try {
