@@ -461,7 +461,12 @@ const MAX_ELEMENTS_DISPLAYED = 100; // EQUAL TO JIRA.Issues.SearcherGroupListDia
           var obj = result[i];
           var avatarId =  contextPath + "/secure/useravatar?size=xsmall&ownerId=" + obj.avatarOwner;
           var selected = checkSelected(obj.userName, selectedArray);
-          jQuery("#userPicker").append('<option data-icon="' + avatarId + '" value="'+obj.userName + '" '+ selected + '>' +obj.displayName +'</option>');
+          var activeSuffux="";
+          if(obj.active==0){
+        	  activeSuffux=" (Inactive)";
+          }
+          jQuery("#userPicker").append('<option data-icon="' + avatarId + '" value="'+obj.userName + '" '+ selected + '>'
+        		  +obj.displayName + activeSuffux +'</option>');
         }
         var options= initializeOptionsForSelect(result.length,"#userPicker");
         var pp = new AJS.CheckboxMultiSelect(options);
@@ -797,6 +802,9 @@ const MAX_ELEMENTS_DISPLAYED = 100; // EQUAL TO JIRA.Issues.SearcherGroupListDia
       jQuery("#issuePicker-textarea").append(" ");
     });
     ip.handleFreeInput();
+    setTimeout(function (){
+    	ip.updateItemsIndent();
+    },0);
   };
   function initFilterSelect(){
     var selectedFilterOption = jQuery('#filterPicker [value="'+ reporting.values.selectedFilter +'"]');
