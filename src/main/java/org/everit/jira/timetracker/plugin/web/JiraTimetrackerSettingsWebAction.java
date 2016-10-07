@@ -91,6 +91,8 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 
   private boolean isRounded;
 
+  private boolean isShowFutureLogWarning;
+
   private String issueCollectorSrc;
 
   /**
@@ -258,6 +260,10 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     return startTime;
   }
 
+  public boolean isShowFutureLogWarning() {
+    return isShowFutureLogWarning;
+  }
+
   private void loadIssueCollectorSrc() {
     Properties properties = PropertiesUtil.getJttpBuildProperties();
     issueCollectorSrc = properties.getProperty(PropertiesUtil.ISSUE_COLLECTOR_SRC);
@@ -279,6 +285,7 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     endTime = Integer.toString(pluginSettingsValues.endTimeChange);
     isColoring = pluginSettingsValues.isColoring;
     isRounded = pluginSettingsValues.isRounded;
+    isShowFutureLogWarning = pluginSettingsValues.isShowFutureLogWarning;
   }
 
   private void normalizeContextPath() {
@@ -391,7 +398,7 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
   }
 
   public void setIsRounded(final boolean isRunded) {
-    this.isRounded = isRunded;
+    isRounded = isRunded;
   }
 
   public void setMessage(final String message) {
@@ -408,6 +415,10 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 
   public void setProjectsId(final List<String> projectsId) {
     this.projectsId = projectsId;
+  }
+
+  public void setShowFutureLogWarning(final boolean isShowWarningFutureLog) {
+    isShowFutureLogWarning = isShowWarningFutureLog;
   }
 
   public void setStartTime(final String startTime) {

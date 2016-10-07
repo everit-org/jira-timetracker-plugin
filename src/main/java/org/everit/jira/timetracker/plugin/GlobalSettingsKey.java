@@ -86,6 +86,11 @@ public final class GlobalSettingsKey {
   public static final String JTTP_PLUGIN_SETTINGS_PROGRESS_INDICATOR = "progressIndicator";
 
   /**
+   * The plugin setting is show warning message in future log.
+   */
+  public static final String JTTP_PLUGIN_SETTINGS_SHOW_FUTURE_LOG_WARNING = "showFutureLogWarning";
+
+  /**
    * The plugin setting is show tutoriak version key.
    */
   public static final String JTTP_PLUGIN_SETTINGS_SHOW_TUTORIAL_VERSION = "showTutorialVersion";

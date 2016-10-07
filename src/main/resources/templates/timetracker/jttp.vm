@@ -83,7 +83,16 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
           </div>
         </div>
       </header>
-
+		<div class="jttp-message-container" style="display:none" id="futorelog-warning">
+		  <div class="jttp-message">
+		    <div class="aui-message aui-message-warning closeable">
+		    <p class="title">
+		        <strong>$i18n.getText('jttp-warning.future.log.title')</strong>
+		    </p>
+		    <p>$i18n.getText('jttp-warning.future.log.message')</p>
+		    </div>
+		  </div>
+		</div>
       <div class="aui-page-panel">
         <div class="aui-page-panel-inner">
           <section class="aui-page-panel-content" id="jttp-panel-head-fields">
