@@ -87,7 +87,7 @@ everit.jttp.main = everit.jttp.main || {};
       setLoggedDaysDesign(jttp.options.isColoring, jttp.options.loggedDays);
     }
     if(location.href.indexOf('showWarning')>=0){
-    	jQuery("#futorelog-warning").show();
+    	jQuery("#futorelog-warning").slideToggle("slow");
     }
   });
   

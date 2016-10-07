@@ -426,8 +426,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private boolean decideToShowWarning() {
     try {
       Date startDate = DateTimeConverterUtil.stringToDateAndTime(date, startTime);
-      // TODO check config
-      if (new Date().before(startDate)) {
+      if (isShowFutureLogWarning && new Date().before(startDate)) {
         return true;
       }
     } catch (ParseException e) {

@@ -236,6 +236,10 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     return isRounded;
   }
 
+  public boolean getIsShowFutureLogWarning() {
+    return isShowFutureLogWarning;
+  }
+
   public String getIssueCollectorSrc() {
     return issueCollectorSrc;
   }
@@ -258,10 +262,6 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 
   public String getStartTime() {
     return startTime;
-  }
-
-  public boolean isShowFutureLogWarning() {
-    return isShowFutureLogWarning;
   }
 
   private void loadIssueCollectorSrc() {
@@ -322,7 +322,9 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 
     String isRoundedValue = request.getParameter("isRounded");
     isRounded = (isRoundedValue != null);
-
+    request.getParameterNames();
+    String isShowFutureLogWarningValue = request.getParameter("isShowFutureLogWarning");
+    isShowFutureLogWarning = (isShowFutureLogWarningValue != null);
     try {
       if (jiraTimetrackerPlugin.validateTimeChange(startTimeValue)) {
         startTime = startTimeValue;
@@ -369,7 +371,8 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
         .startTimeChange(Integer.parseInt(startTime))
         .endTimeChange(Integer.parseInt(endTime))
         .analyticsCheck(analyticsCheck)
-        .isRounded(isRounded);
+        .isRounded(isRounded)
+        .isShowFutureLogWarning(isShowFutureLogWarning);
     jiraTimetrackerPlugin.savePluginSettings(pluginSettingValues);
   }
 
@@ -401,6 +404,10 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     isRounded = isRunded;
   }
 
+  public void setIsShowFutureLogWarning(final boolean isShowFutureLogWarning) {
+    this.isShowFutureLogWarning = isShowFutureLogWarning;
+  }
+
   public void setMessage(final String message) {
     this.message = message;
   }
@@ -415,10 +422,6 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 
   public void setProjectsId(final List<String> projectsId) {
     this.projectsId = projectsId;
-  }
-
-  public void setShowFutureLogWarning(final boolean isShowWarningFutureLog) {
-    isShowFutureLogWarning = isShowWarningFutureLog;
   }
 
   public void setStartTime(final String startTime) {
