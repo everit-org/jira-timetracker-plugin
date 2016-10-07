@@ -72,6 +72,13 @@
           <input id="isColoring" type="checkbox" value="use color" class="settings-input" name="isColoring" #if($isColoring) checked #end/>
           <div class="description">$i18n.getText("plugin.setting.coloring.help")</div>
         </div>
+       
+       <h3>$i18n.getText("jttp.future.log.notification")</h3>
+        <div class="field-group">
+          <label>$i18n.getText("jttp.future.log.notification.title"):</label>
+          <input id="isShowFutureLogWarning" type="checkbox" value="showWarning" class="settings-input" name="isShowFutureLogWarning" #if($isShowFutureLogWarning) checked #end/>
+          <div class="description">$i18n.getText("jttp.future.log.notification.help")</div>
+        </div>
         
         <h3>$i18n.getText("plugin.setting.progress.ind.appearance")</h3>
         <div class="field-group">
