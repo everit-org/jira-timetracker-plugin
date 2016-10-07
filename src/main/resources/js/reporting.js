@@ -1049,46 +1049,35 @@ const MAX_ELEMENTS_DISPLAYED = 100; // EQUAL TO JIRA.Issues.SearcherGroupListDia
     return column + "-" + order;
   }
   
-  reporting.updateDetailsAllExportHref = function() {
-    var filterConditionString = jQuery('#filterConditionJson').val();
-    var filterCondition = JSON.parse(filterConditionString);
-    filterCondition["issueCreateDate"] = reporting.values.dateCreatedFormated;
-    filterCondition["worklogStartDate"] = reporting.values.dateFromFormated;
-    filterCondition["worklogEndDate"] = reporting.values.dateToFormated;
-    delete filterCondition['limit'];
-    delete filterCondition['offset'];
-    var downloadWorklogDetailsParam = {
-        "filterCondition": filterCondition,
-        "selectedWorklogDetailsColumns": reporting.values.worklogDetailsAllColumns
-    }
-    var json = JSON.stringify(downloadWorklogDetailsParam);
-    var $detailsAllExport = jQuery('#detials-all-export')
-    var href = $detailsAllExport.attr('data-jttp-href');
-    $detailsAllExport.attr('href', href + '?json=' + json + "&orderBy=" + getOrderBy());
+  reporting.updateDetailsAllExportHref = function(element) {
+	  reporting.updateDetailsExportHref(element,reporting.values.worklogDetailsAllColumns);
     return true;
   }
   
-  reporting.updateDetailsCustomExportHref = function() {
-    var filterConditionString = jQuery('#filterConditionJson').val();
-    var filterCondition = JSON.parse(filterConditionString);
-    var createdPicker = jQuery('#createdPicker').val();
-    filterCondition["issueCreateDate"] = reporting.values.dateCreatedFormated;
-    filterCondition["worklogStartDate"] = reporting.values.dateFromFormated;
-    filterCondition["worklogEndDate"] = reporting.values.dateToFormated;
-    delete filterCondition['limit'];
-    delete filterCondition['offset'];
-    var downloadWorklogDetailsParam = {
-        "filterCondition": filterCondition,
-        "selectedWorklogDetailsColumns": reporting.values.worklogDetailsColumns
-    }
-    var json = JSON.stringify(downloadWorklogDetailsParam);
-    var $detailsCustomExport = jQuery('#detials-custom-export')
-    var href = $detailsCustomExport.attr('data-jttp-href');
-    $detailsCustomExport.attr('href', href + '?json=' + json + "&orderBy=" + getOrderBy());
-    return true;
+  reporting.updateDetailsCustomExportHref = function(element) {
+	  reporting.updateDetailsExportHref(element,reporting.values.worklogDetailsColumns);
+	return true;
   }
-  
-  reporting.updateSummariesExportHref = function() {
+  reporting.updateDetailsExportHref = function(element, columns) {
+	  var filterConditionString = jQuery('#filterConditionJson').val();
+	    var filterCondition = JSON.parse(filterConditionString);
+	    var createdPicker = jQuery('#createdPicker').val();
+	    filterCondition["issueCreateDate"] = reporting.values.dateCreatedFormated;
+	    filterCondition["worklogStartDate"] = reporting.values.dateFromFormated;
+	    filterCondition["worklogEndDate"] = reporting.values.dateToFormated;
+	    delete filterCondition['limit'];
+	    delete filterCondition['offset'];
+	    var downloadWorklogDetailsParam = {
+	        "filterCondition": filterCondition,
+	        "selectedWorklogDetailsColumns": columns
+	    }
+	    var json = JSON.stringify(downloadWorklogDetailsParam);
+	    var $detailsCustomExport = jQuery(element);
+	    var href = $detailsCustomExport.attr('data-jttp-href');
+	    $detailsCustomExport.attr('href', href + '?json=' + json + "&orderBy=" + getOrderBy());
+	    return true;
+  }
+  reporting.updateSummariesExportHref = function(element) {
     var filterConditionString = jQuery('#filterConditionJson').val();
     var filterCondition = JSON.parse(filterConditionString);
     var createdPicker = jQuery('#createdPicker').val();
@@ -1098,7 +1087,7 @@ const MAX_ELEMENTS_DISPLAYED = 100; // EQUAL TO JIRA.Issues.SearcherGroupListDia
     delete filterCondition['limit'];
     delete filterCondition['offset'];
     var json = JSON.stringify(filterCondition);
-    var $detailsCustomExport = jQuery('#summaries-export')
+    var $detailsCustomExport = jQuery(element)
     var href = $detailsCustomExport.attr('data-jttp-href');
     $detailsCustomExport.attr('href', href + '?json=' + json);
     return true;
