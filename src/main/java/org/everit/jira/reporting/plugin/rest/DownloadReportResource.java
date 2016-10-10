@@ -48,6 +48,7 @@ import org.everit.jira.reporting.plugin.export.ExportWorklogDetailsListReport;
 import org.everit.jira.reporting.plugin.util.ConverterUtil;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.UserReportingSettingsHelper;
+import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.google.gson.Gson;
@@ -76,12 +77,12 @@ public class DownloadReportResource {
    * Simple constructor.
    */
   public DownloadReportResource(final PluginSettingsFactory pluginSettingsFactory,
-      final AnalyticsSender analyticsSender, final ReportingPlugin reportingPlugin,
-      final UserReportingSettingsHelper userReportingSettingsHelper) {
+      final AnalyticsSender analyticsSender, final ReportingPlugin reportingPlugin) {
     pluginId = JiraTimetrackerAnalytics.getPluginUUID(pluginSettingsFactory.createGlobalSettings());
     this.analyticsSender = analyticsSender;
     this.reportingPlugin = reportingPlugin;
-    this.userReportingSettingsHelper = userReportingSettingsHelper;
+    userReportingSettingsHelper = new UserReportingSettingsHelper(pluginSettingsFactory,
+        JiraTimetrackerUtil.getLoggedUserName());
     try {
       querydslSupport = new QuerydslSupportImpl();
     } catch (Exception e) {
