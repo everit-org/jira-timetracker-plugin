@@ -31,6 +31,8 @@ public class PickerUserDTO {
    */
   public static final class AliasNames {
 
+    public static final String ACTIVE = "active";
+
     public static final String AVATAR_OWNER = "avatarOwner";
 
     public static final String DISPLAY_NAME = "displayName";
@@ -62,6 +64,7 @@ public class PickerUserDTO {
     currentUser.setDisplayName(JiraTimetrackerUtil.getI18nText(CURRENT_USER_DISPLAY_NAME));
     currentUser.setUserName(CURRENT_USER_NAME);
     currentUser.setAvatarOwner(loggedUserName);
+    currentUser.setActive(1);
     return currentUser;
   }
 
@@ -73,6 +76,7 @@ public class PickerUserDTO {
     unassigned.setDisplayName(JiraTimetrackerUtil.getI18nText(NONE_DISPLAY_NAME));
     unassigned.setUserName(NONE_USER_NAME);
     unassigned.setAvatarOwner(NONE_USER_NAME);
+    unassigned.setActive(1);
     return unassigned;
   }
 
@@ -84,8 +88,12 @@ public class PickerUserDTO {
     unassigned.setDisplayName(JiraTimetrackerUtil.getI18nText(UNASSIGNED_DISPLAY_NAME));
     unassigned.setUserName(UNASSIGNED_USER_NAME);
     unassigned.setAvatarOwner(UNASSIGNED_USER_NAME);
+    unassigned.setActive(1);
     return unassigned;
   }
+
+  @XmlElement
+  private int active;
 
   @XmlElement
   private String avatarOwner;
@@ -95,6 +103,10 @@ public class PickerUserDTO {
 
   @XmlElement
   private String userName;
+
+  public int getActive() {
+    return active;
+  }
 
   public String getAvatarOwner() {
     return avatarOwner;
@@ -106,6 +118,10 @@ public class PickerUserDTO {
 
   public String getUserName() {
     return userName;
+  }
+
+  public void setActive(final int active) {
+    this.active = active;
   }
 
   public void setAvatarOwner(final String avatarOwner) {

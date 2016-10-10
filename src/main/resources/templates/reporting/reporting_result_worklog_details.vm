@@ -72,10 +72,16 @@
 	                                      <div class='field-group aui-field-issuetype'>
 	                                        <ul class="aui-list-section">
 	                                          <li class="aui-list-item">
-	                                            <a id="detials-all-export" class="aui-list-item-link" target="_blank" href="#" data-jttp-href="$contextPath/rest/jttp-rest/1/download-report/downloadWorklogDetailsReport" onclick="return everit.reporting.main.updateDetailsAllExportHref()">$i18n.getText("jtrp.report.btn.export.all")</a>
+	                                            <a id="detials-all-export" class="aui-list-item-link" target="hiddenFrameForDownload" href="#" data-jttp-href="$contextPath/rest/jttp-rest/1/download-report/downloadWorklogDetailsReport" onclick="return everit.reporting.main.updateDetailsAllExportHref(this)">$i18n.getText("jtrp.report.btn.export.excel.all")</a>
 	                                          </li>
 	                                          <li class="aui-list-item">
-	                                            <a id="detials-custom-export" class="aui-list-item-link" target="_blank" href="#" data-jttp-href="$contextPath/rest/jttp-rest/1/download-report/downloadWorklogDetailsReport" onclick="return everit.reporting.main.updateDetailsCustomExportHref()">$i18n.getText("jtrp.report.btn.export.current")</a>
+	                                            <a id="detials-custom-export" class="aui-list-item-link" target="hiddenFrameForDownload" href="#" data-jttp-href="$contextPath/rest/jttp-rest/1/download-report/downloadWorklogDetailsReport" onclick="return everit.reporting.main.updateDetailsCustomExportHref(this)">$i18n.getText("jtrp.report.btn.export.excel.current")</a>
+	                                          </li>
+	                                           <li class="aui-list-item">
+	                                            <a id="detials-custom-export" class="aui-list-item-link" target="hiddenFrameForDownload" href="#" data-jttp-href="$contextPath/rest/jttp-rest/1/download-report/downloadWorklogDetailsReportAsCSV" onclick="return everit.reporting.main.updateDetailsAllExportHref(this)">$i18n.getText("jtrp.report.btn.export.csv.all")</a>
+	                                          </li>
+	                                           <li class="aui-list-item">
+	                                            <a id="detials-custom-export" class="aui-list-item-link" target="hiddenFrameForDownload" href="#" data-jttp-href="$contextPath/rest/jttp-rest/1/download-report/downloadWorklogDetailsReportAsCSV" onclick="return everit.reporting.main.updateDetailsCustomExportHref(this)">$i18n.getText("jtrp.report.btn.export.csv.current")</a>
 	                                          </li>
 	                                        </ul>
 	                                      </div>
@@ -593,7 +599,7 @@
                                         <td class="jtrp_col_worklogDescription" style="#if( $isNotShowWorklogDescription )display:none;#end">$atlassianWikiRenderer.render($wd.worklogBody, $issueRenderContext)</td>
                                         <td class="jtrp_col_issueEpicName" style="#if( $isNotShowIssueEpicName )display:none;#end">#if ( !$wd.issueEpicName ) #else $wd.issueEpicName #end</td>
                                         <td class="jtrp_col_issueEpicLink" style="#if( $isNotShowIssueEpicLink )display:none;#end">#if ( !$wd.issueEpicLink ) #else $wd.issueEpicLink #end</td>
-                                        <td class="jtrp_col_user" style="#if( $isNotShowUser )display:none;#end">$wd.worklogUser</td>
+                                        <td class="jtrp_col_user" style="#if( $isNotShowUser )display:none;#end">#if ($wd.worklogUser) $wd.worklogUser #else $i18n.getText("jtrp.plugin.anonymus") #end</td>
                                         <td class="jtrp_col_startTime" style="#if( $isNotShowStartTime )display:none;#end">$outlookDate.formatDMYHMS($wd.worklogStartDate)</td>
                                         <td class="jtrp_col_timeSpent" style="#if( $isNotShowTimeSpent )display:none;#end">$durationFormatter.exactDuration($wd.worklogTimeWorked)</td>
                                         <td class="jtrp_col_worklogCreated" style="#if( $isNotShowWorklogCreated )display:none;#end">$outlookDate.formatDMY($wd.worklogCreated)</td>
@@ -660,5 +666,5 @@
                                 </div>
                             </div>
                         </div>
-                    </div>            
+                    </div>
                 </div>
