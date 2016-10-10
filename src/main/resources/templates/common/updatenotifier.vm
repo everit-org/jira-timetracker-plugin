@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *#
- $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:update_notifier-resources")
+ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.plugin.update_notifier-resources")
   #if($renderUpdateNotifier)
 <div class="update-notification-banner">
             <div class="update-notification-banner-content">

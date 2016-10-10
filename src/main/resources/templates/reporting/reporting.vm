@@ -20,7 +20,7 @@
 $webResourceManager.requireResource("jira.webresources:global-static")
 $webResourceManager.requireResource("jira.webresources:calendar")
 $webResourceManager.requireResource("jira.webresources:calendar-en")
-$webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reporting-resources")
+$webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.plugin.reporting-resources")
   <body>
   	#set ($useISO8601 = $currentCalendar.useISO8601)
     #if($useISO8601 == true)
@@ -68,6 +68,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
             notBrowsableProjectKeys: [ #foreach( $tmp in $notBrowsableProjectKeys )#if($velocityCount> 1),#end "$tmp" #end ],
             selectedFilter: $filterCondition.filter,
             searcherValue: "$filterCondition.searcherValue",
+            dateFormat: "${dateFormat}"
           }
         );
       })(everit.reporting.main, AJS.$);
@@ -81,7 +82,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:reportin
                     <span class="aui-avatar aui-avatar-large">
                         <span class="aui-avatar-inner">
                           <a href="http://www.everit.biz/index.php?nyelv=en" target="_blank">
-                            <img src="$contextPath/download/resources/org.everit.jira.timetracker.plugin:reporting-resources/E_logo.png" alt="Everit reporting logo">
+                            <img class="everit_logo" alt="Everit reporting logo">
                           </a>
                         </span>
                     </span>
