@@ -95,7 +95,8 @@
     <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition" />
   </web-item>
 
-  <web-resource name="JTTP Resources" key="jttp-resources">
+  <web-resource name="JTTP Resources" key="jttp-resources-${project.version}-${build.time}">
+    <context>org.everit.jira.timetracker.plugin.jttp-resources</context>
     <dependency>com.atlassian.auiplugin:ajs</dependency>
     <dependency>com.atlassian.auiplugin:aui-experimental-progress-indicator</dependency>
     <dependency>com.atlassian.auiplugin:aui-date-picker</dependency>
@@ -104,14 +105,15 @@
     </transformation>
     <resource type="download" name="jttp_feedback.css" location="/css/jttp_feedback.css"/>
     <resource type="download" name="jttp.js" location="/js/jttp.js"/>
-    <resource type="download" name="js-fecha.js" location="/js/js-fecha.js"/>
     <resource type="download" name="E_logo.png" location="/icons/E_logo.png">
       <param name="content-type" value="image/png" />
     </resource>
     <resource type="download" name="jttp.css" location="/css/jttp.css" />
+    <resource type="download" name="bootstrap-progress.css" location="/css/bootstrap-progress.css"/>
   </web-resource>
 
-  <web-resource name="JTTP Resources" key="table_report-resources">
+  <web-resource name="JTTP Resources" key="table_report-resources-${project.version}-${build.time}">
+    <context>org.everit.jira.timetracker.plugin.table_report-resources</context>
     <dependency>com.atlassian.auiplugin:ajs</dependency>
     <dependency>com.atlassian.auiplugin:dialog2</dependency>
     <dependency>com.atlassian.auiplugin:aui-date-picker</dependency>
@@ -119,32 +121,32 @@
       <transformer key="jsI18n" />
     </transformation>
     <resource type="download" name="jttp_feedback.css" location="/css/jttp_feedback.css" />
-    <resource type="download" name="everit_tt_logo.png" location="/icons/everit_tt_logo.png">
+    <resource type="download" name="E_logo.png" location="/icons/E_logo.png">
       <param name="content-type" value="image/png" />
     </resource>
-    <resource type="download" name="js-fecha.js" location="/js/js-fecha.js" />
     <resource type="download" name="jttp.css" location="/css/jttp.css" />
     <resource type="download" name="reporting.css" location="/css/reporting.css" />
     <resource type="download" name="report_common_scripts.js" location="/js/report_common_scripts.js" />
   </web-resource>
 
-  <web-resource name="JTTP Resources" key="missing_days_report-resources">
+  <web-resource name="JTTP Resources" key="missing_days_report-resources-${project.version}-${build.time}">
+    <context>org.everit.jira.timetracker.plugin.missing_days_report-resources</context>
     <dependency>com.atlassian.auiplugin:ajs</dependency>
     <dependency>com.atlassian.auiplugin:dialog2</dependency>
     <dependency>com.atlassian.auiplugin:aui-date-picker</dependency>
     <resource type="download" name="jttp_feedback.css" location="/css/jttp_feedback.css" />
-    <resource type="download" name="everit_tt_logo.png" location="/icons/everit_tt_logo.png">
+    <resource type="download" name="E_logo.png" location="/icons/E_logo.png">
       <param name="content-type" value="image/png" />
     </resource>
-    <resource type="download" name="js-fecha.js" location="/js/js-fecha.js" />
     <resource type="download" name="jttp.css" location="/css/jttp.css" />
     <resource type="download" name="reporting.css" location="/css/reporting.css" />
     <resource type="download" name="report_common_scripts.js" location="/js/report_common_scripts.js" />
     <resource type="download" name="missing_days_report.js" location="/js/missing_days_report.js" />
   </web-resource>
 
-  <web-resource name="JTRP Resources" key="reporting-resources"
-    i18n-name-key="admin.web.resources.plugin.labels.editor.name">
+  <web-resource name="JTRP Resources" i18n-name-key="admin.web.resources.plugin.labels.editor.name" 
+       key="reporting-resources-${project.version}-${build.time}">
+    <context>org.everit.jira.timetracker.plugin.reporting-resources</context>
     <dependency>com.atlassian.auiplugin:ajs</dependency>
     <dependency>com.atlassian.auiplugin:dialog2</dependency>
     <dependency>com.atlassian.auiplugin:aui-experimental-tooltips</dependency>
@@ -155,32 +157,27 @@
     <resource type="download" name="E_logo.png" location="/icons/E_logo.png">
       <param name="content-type" value="image/png" />
     </resource>
-    <resource type="download" name="permission920.png" location="/images/permission920.png">
+    <resource type="download" name="indicatorDone.png" location="/images/indicatorDone.png">
       <param name="content-type" value="image/png" />
     </resource>
-    <resource type="download" name="usersettings920.png" location="/images/usersettings920.png">
+    <resource type="download" name="newdesign.png" location="/images/newdesign.png">
       <param name="content-type" value="image/png" />
     </resource>
-    <resource type="download" name="search1.png" location="/images/search1.png">
+    <resource type="download" name="permission.png" location="/images/permission.png">
       <param name="content-type" value="image/png" />
     </resource>
-    <resource type="download" name="search2.png" location="/images/search2.png">
+    <resource type="download" name="reportingDone.png" location="/images/reportingDone.png">
       <param name="content-type" value="image/png" />
     </resource>
-    <resource type="download" name="details.png" location="/images/details.png">
-      <param name="content-type" value="image/png" />
-    </resource>
-    <resource type="download" name="summary.png" location="/images/summary.png">
-      <param name="content-type" value="image/png" />
-    </resource>
-    <resource type="download" name="js-fecha.js" location="/js/js-fecha.js" />
     <resource type="download" name="reporting.css" location="/css/reporting.css" />
+    <resource type="download" name="news_popup.css" location="/css/news_popup.css" />
     <resource type="download" name="reporting.js" location="/js/reporting.js" />
     <resource type="download" name="jtrp-aui-table-sortable.css" location="/css/jtrp-aui-table-sortable.css" />
   </web-resource>
 
   
-  <web-resource name="JTRP Resources" key="admin-settings-resources">
+  <web-resource name="JTRP Resources" key="admin-settings-resources-${project.version}-${build.time}">
+    <context>org.everit.jira.timetracker.plugin.admin-settings-resources</context>
     <dependency>com.atlassian.auiplugin:ajs</dependency>
     <resource type="download" name="E_logo.png" location="/icons/E_logo.png">
       <param name="content-type" value="image/png" />
@@ -188,7 +185,8 @@
     <resource type="download" name="admin_setting.css" location="/css/admin_settings.css"/>
   </web-resource>
   
-  <web-resource name="JTRP Resources" key="reporting-user-settings-resources">
+  <web-resource name="JTRP Resources" key="reporting-user-settings-resources-${project.version}-${build.time}">
+    <context>org.everit.jira.timetracker.plugin.reporting-user-settings-resources</context>
     <dependency>com.atlassian.auiplugin:ajs</dependency>
     <resource type="download" name="E_logo.png" location="/icons/E_logo.png">
       <param name="content-type" value="image/png" />
@@ -197,7 +195,8 @@
     <resource type="download" name="reporting_user_settings.js" location="/js/reporting_user_settings.js"/>
   </web-resource>
   
-  <web-resource name="JTRP Resources" key="timetracker-user-settings-resources">
+  <web-resource name="JTRP Resources" key="timetracker-user-settings-resources-${project.version}-${build.time}">
+    <context>org.everit.jira.timetracker.plugin.timetracker-user-settings-resources</context>
     <dependency>com.atlassian.auiplugin:ajs</dependency>
     <resource type="download" name="E_logo.png" location="/icons/E_logo.png">
       <param name="content-type" value="image/png" />
@@ -205,7 +204,8 @@
     <resource type="download" name="user_settings.css" location="/css/user_settings.css"/>
   </web-resource>
 
-  <web-resource name="JTTP Resources" key="chart_report-resources">
+  <web-resource name="JTTP Resources" key="chart_report-resources-${project.version}-${build.time}">
+    <context>org.everit.jira.timetracker.plugin.chart_report-resources</context>
     <dependency>com.atlassian.auiplugin:ajs</dependency>
     <dependency>com.atlassian.auiplugin:dialog2</dependency>
     <dependency>com.atlassian.auiplugin:aui-date-picker</dependency>
@@ -213,17 +213,17 @@
       <transformer key="jsI18n" />
     </transformation>
     <resource type="download" name="jttp_feedback.css" location="/css/jttp_feedback.css" />
-    <resource type="download" name="everit_tt_logo.png" location="/icons/everit_tt_logo.png">
+    <resource type="download" name="E_logo.png" location="/icons/E_logo.png">
       <param name="content-type" value="image/png" />
     </resource>
-    <resource type="download" name="js-fecha.js" location="/js/js-fecha.js" />
     <resource type="download" name="jttp.css" location="/css/jttp.css" />
     <resource type="download" name="reporting.css" location="/css/reporting.css" />
     <resource type="download" name="report_common_scripts.js" location="/js/report_common_scripts.js" />
     <resource type="download" name="chart_report.js" location="/js/chart_report.js" />
   </web-resource>
   
-   <web-resource name="JTTP Resources" key="update_notifier-resources">
+  <web-resource name="JTTP Resources" key="update_notifier-resources-${project.version}-${build.time}">
+    <context>org.everit.jira.timetracker.plugin.update_notifier-resources</context>
     <resource type="download" name="update_notifier.css" location="/css/update_notifier.css" />
     <resource type="download" name="update_notifier.js" location="/js/update_notifier.js" />
   </web-resource>

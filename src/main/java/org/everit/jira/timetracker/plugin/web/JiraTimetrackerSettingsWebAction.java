@@ -24,14 +24,18 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
+import org.everit.jira.analytics.AnalyticsDTO;
+import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
 import org.everit.jira.timetracker.plugin.PluginCondition;
 import org.everit.jira.timetracker.plugin.TimetrackerCondition;
 import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
+import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 
 import com.atlassian.jira.web.action.JiraWebActionSupport;
+import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
 /**
  * The settings page.
@@ -51,6 +55,8 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
   private static final long serialVersionUID = 1L;
 
   private boolean analyticsCheck;
+
+  private AnalyticsDTO analyticsDTO;
 
   /**
    * The collector issue ids.
@@ -117,6 +123,8 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 
   private PluginCondition pluginCondition;
 
+  private final PluginSettingsFactory pluginSettingsFactory;
+
   private boolean progressIndDaily;
 
   /**
@@ -135,11 +143,15 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
    * Simpe consturctor.
    *
    * @param jiraTimetrackerPlugin
-   *          The jiraTimetrackerPlugin.
+   *          The {@link JiraTimetrackerPlugin}.
+   * @param pluginSettingsFactory
+   *          the {@link PluginSettingsFactory}.
    */
   public JiraTimetrackerSettingsWebAction(
-      final JiraTimetrackerPlugin jiraTimetrackerPlugin) {
+      final JiraTimetrackerPlugin jiraTimetrackerPlugin,
+      final PluginSettingsFactory pluginSettingsFactory) {
     this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
+    this.pluginSettingsFactory = pluginSettingsFactory;
     timetrackingCondition = new TimetrackerCondition(jiraTimetrackerPlugin);
     pluginCondition = new PluginCondition(jiraTimetrackerPlugin);
   }
@@ -170,6 +182,8 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     loadIssueCollectorSrc();
     normalizeContextPath();
     loadPluginSettingAndParseResult();
+    analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(pluginSettingsFactory,
+        PiwikPropertiesUtil.PIWIK_USERSETTINGS_SITEID);
     try {
       projectsId = jiraTimetrackerPlugin.getProjectsId();
     } catch (Exception e) {
@@ -188,6 +202,8 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     loadIssueCollectorSrc();
     normalizeContextPath();
     loadPluginSettingAndParseResult();
+    analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(pluginSettingsFactory,
+        PiwikPropertiesUtil.PIWIK_USERSETTINGS_SITEID);
     try {
       projectsId = jiraTimetrackerPlugin.getProjectsId();
     } catch (Exception e) {
@@ -210,6 +226,10 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 
   public boolean getAnalyticsCheck() {
     return analyticsCheck;
+  }
+
+  public AnalyticsDTO getAnalyticsDTO() {
+    return analyticsDTO;
   }
 
   public String getContextPath() {
@@ -286,6 +306,7 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     isColoring = pluginSettingsValues.isColoring;
     isRounded = pluginSettingsValues.isRounded;
     isShowFutureLogWarning = pluginSettingsValues.isShowFutureLogWarning;
+    analyticsCheck = pluginSettingsValues.analyticsCheck;
   }
 
   private void normalizeContextPath() {
@@ -400,8 +421,8 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     this.isColoring = isColoring;
   }
 
-  public void setIsRounded(final boolean isRunded) {
-    isRounded = isRunded;
+  public void setIsRounded(final boolean isRounded) {
+    this.isRounded = isRounded;
   }
 
   public void setIsShowFutureLogWarning(final boolean isShowFutureLogWarning) {

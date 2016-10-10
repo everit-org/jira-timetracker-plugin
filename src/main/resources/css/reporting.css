@@ -13,15 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
+.everit_logo{
+  content:url(E_logo.png);
+}
+
+
  /* Chart report new design */
  .chart-search-criteria-container {
     padding: 5px 20px 5px 20px;
     border-top: 1px solid #ccc; 
 }
- 
-  /* Missings report new design */
- .missing-search-criteria-container {
+
+/* Missings report new design */
+.missing-search-criteria-container {
     padding: 5px 20px 5px 20px;
     border-top: 1px solid #ccc; 
 }
@@ -100,80 +105,6 @@ table.missing-worklog-table > tbody > tr > td{
     font-size: 14px;
  }
 
- .tabImage{
-    padding-top: 10px;
-    border: 0;
-    width: 660px;
-    height: 300px;
- }
-  
-  .tab-new1-img{
-   background-image: url(permission920.png);
-   background-position-x: 50%;
-   background-position-y: 10%;
-   background-size: 70%;
-   background-repeat-x: no-repeat;
-   background-repeat-y: no-repeat;
- }
- 
- .tab-new2-img{
-   background-image: url(usersettings920.png);
-   background-position-x: 50%;
-   background-position-y: 10%;
-   background-size: 70%;
-   background-repeat-x: no-repeat;
-   background-repeat-y: no-repeat;
- }
-  
- .tab1-img{
-   background-image: url(opening.png);
-   background-position-x: 50%;
-   background-position-y: 10%;
-   background-size: 70%;
-   background-repeat-x: no-repeat;
-   background-repeat-y: no-repeat;
- }
- 
- .tab2-img{
-   background-image: url(search1.png);
-   background-position-x: 90%;
-   background-position-y: 10%;
-   background-size: 85%;
-   background-repeat-x: no-repeat;
-   background-repeat-y: no-repeat;
-   
- }
- 
- .tab3-img{
-   background-image: url(search2.png);
-   background-position-x: 90%;
-   background-position-y: 10%;
-   background-size: 85%;
-   background-repeat-x: no-repeat;
-   background-repeat-y: no-repeat;
-   
- }
- 
- .tab4-img{
-   background-image: url(details.png);
-   background-position-x: 90%;
-   background-position-y: 10%;
-   background-size: 85%;
-   background-repeat-x: no-repeat;
-   background-repeat-y: no-repeat;
-   
- }
- 
- .tab5-img{
-   background-image: url(summary.png);
-   background-position-x: 90%;
-   background-position-y: 10%;
-   background-size: 85%;
-   background-repeat-x: no-repeat;
-   background-repeat-y: no-repeat;
-   
- }
- 
   .criteria-dropdown-textarea{
     width: 100%;
     min-width: 200px;
@@ -194,11 +125,12 @@ table.missing-worklog-table > tbody > tr > td{
     font-family: inherit;
     font-size: 14px;
  }
- 
+
 .criteria-selector.aui-button {
     text-align: left;
     margin: 0
 }
+
 .criteria-selector>.criteria-wrap {
     white-space: nowrap;
     text-overflow: ellipsis;

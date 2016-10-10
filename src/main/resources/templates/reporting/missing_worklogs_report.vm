@@ -23,7 +23,7 @@ $webResourceManager.requireResource("jira.webresources:calendar")
 $webResourceManager.requireResource("jira.webresources:calendar-en")
 $webResourceManager.requireResource("jira.webresources:dwr", null)
 $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
-$webResourceManager.requireResource("org.everit.jira.timetracker.plugin:missing_days_report-resources")
+$webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.plugin.missing_days_report-resources")
 
 	#set($rendererType = "atlassian-wiki-renderer")
 	#if($currentCalendar.useISO8601 == true)
@@ -45,7 +45,8 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:missing_
 				firstDay : ${firstDay},
 				useISO8601 : ${currentCalendar.useISO8601},
 				dateFromFormated : ${dateFromFormated},
-				dateToFormated : ${dateToFormated}
+				dateToFormated : ${dateToFormated},
+				dateFormat: "${dateFormat}"
 			}
 		);
 	})(everit.jttp.report_common_scripts, AJS.$);
@@ -53,10 +54,11 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:missing_
 	everit.jttp.missing_days_report = everit.jttp.missing_days_report || {};
 
 	(function(jttp, jQuery) {
-		jttp.options = jQuery.extend( 
+		everit.jttp.missing_days_report.options = jQuery.extend( 
 			{},
 			jttp.options,
 			{
+			dateFormat: "${dateFormat}"
 			}
 		);
 	})(everit.jttp.missing_days_report, AJS.$);
@@ -68,7 +70,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:missing_
          <span class="aui-avatar aui-avatar-large">
            <span class="aui-avatar-inner">
              <a href="http://www.everit.biz/index.php?nyelv=en" target="_blank">
-               <img src="$contextPath/download/resources/org.everit.jira.timetracker.plugin:reporting-resources/E_logo.png" alt="Everit reporting logo">
+               <img class="everit_logo" alt="Everit reporting logo">
              </a>
            </span>
          </span>
@@ -133,9 +135,9 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:missing_
                   </div>
                   </form>
                      <div class="aui-group">
-                        <form action="JiraTimetrackerWorklogsWebAction.jspa" id="reporting-form" method="get" onsubmit="return everit.jttp.missing_days_report.beforeSubmitMissingsReport()" >
+                        <form action="JiraTimetrackerWorklogsWebAction.jspa" id="reporting-form" method="get" onsubmit="return everit.jttp.missing_days_report.beforeSubmitMissingsReport();" >
                           <div class="aui-item">
-                            <button id="search" name="search" type="submit" tabindex="3" class="aui-button aui-button-primary" onclick="_paq.push(['trackEvent', 'User', 'Missings']); ">$i18n.getText('plugin.search')</button> <!-- Submit the search form -->
+                            <button id="search" name="search" type="submit" tabindex="3" class="aui-button aui-button-primary" onclick="_paq.push(['trackEvent', 'User', 'Missings']); return true;">$i18n.getText('plugin.search')</button> <!-- Submit the search form -->
                           </div>
                           <input type="hidden" id="dateFromMil" name="dateFromMil">
                           <input type="hidden" id="dateToMil" name="dateToMil">
@@ -144,7 +146,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:missing_
                 
         </div>
 
-        <form action="JiraTimetrackerWorklogsWebAction.jspa" class="aui top-label reporting-form" id="paging-form" method="get" onsubmit="return everit.jttp.missing_days_report.beforeSubmitMissingsPagingReport()">
+        <form action="JiraTimetrackerWorklogsWebAction.jspa" class="aui top-label reporting-form" id="paging-form" method="get" onsubmit="return everit.jttp.missing_days_report.beforeSubmitMissingsPagingReport();">
           <div class="aui-page-panel">
             <div class="aui-page-panel-inner">
               <section class="aui-page-panel-content">
