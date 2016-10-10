@@ -23,26 +23,16 @@
       <div class="aui-dialog2-content form-body" style="height: 500px;">
        	<div class="aui-tabs horizontal-tabs">
             <div class="tabs-pane active-pane" id="tutorialPage-1">
-              <h2>$i18n.getText('jtrp.tutorial.tab.header.new.1')</h2>
+              <h2>$i18n.getText('jtrp.tutorial.tab.header.1')</h2>
               <div class="aui-group">
                 <div class="aui-item">
-                  $i18n.getText('jtrp.tutorial.tab.text.new.1')
+                  $i18n.getText('jtrp.tutorial.tab.text.1')
                 </div>
-                <div class="aui-item tabImage tab-new1-img">
+                <div class="aui-item tabImage tab1-img">
                 </div>
               </div>
             </div>
             <div class="tabs-pane" id="tutorialPage-2">
-              <h2>$i18n.getText('jtrp.tutorial.tab.header.new.2')</h2>
-              <div class="aui-group">
-                <div class="aui-item">
-                  $i18n.getText('jtrp.tutorial.tab.text.new.2')
-                </div>
-                <div class="aui-item tabImage tab-new2-img">
-                </div>
-              </div>
-            </div>
-            <div class="tabs-pane" id="tutorialPage-3">
               <h2>$i18n.getText('jtrp.tutorial.tab.header.2')</h2>
               <div class="aui-group">
                 <div class="aui-item">
@@ -52,35 +42,25 @@
                 </div>
               </div>
             </div>
-            <div class="tabs-pane" id="tutorialPage-4">
+            <div class="tabs-pane" id="tutorialPage-3">
               <h2>$i18n.getText('jtrp.tutorial.tab.header.3')</h2>
               <div class="aui-group">
                 <div class="aui-item">
                   $i18n.getText('jtrp.tutorial.tab.text.3')
-                 </div>
-                 <div class="aui-item tabImage tab3-img">
-                 </div>
-               </div>
+                </div>
+                <div class="aui-item tabImage tab3-img">
+                </div>
+              </div>
             </div>
-            <div class="tabs-pane" id="tutorialPage-5">
+            <div class="tabs-pane" id="tutorialPage-4">
               <h2>$i18n.getText('jtrp.tutorial.tab.header.4')</h2>
               <div class="aui-group">
                 <div class="aui-item">
                   $i18n.getText('jtrp.tutorial.tab.text.4')
-                </div>
-                <div class="aui-item tabImage tab4-img">
-                </div>
-              </div>
-            </div>
-            <div class="tabs-pane" id="tutorialPage-6">
-              <h2>$i18n.getText('jtrp.tutorial.tab.header.5')</h2>
-              <div class="aui-group">
-                <div class="aui-item">
-                  $i18n.getText('jtrp.tutorial.tab.text.5')
-                </div>
-                <div class="aui-item tabImage tab5-img">
-                </div>
-              </div>
+                 </div>
+                 <div class="aui-item tabImage tab4-img">
+                 </div>
+               </div>
             </div>
         </div>
       </div>

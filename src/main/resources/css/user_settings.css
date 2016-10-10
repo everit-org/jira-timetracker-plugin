@@ -14,10 +14,27 @@
  * limitations under the License.
  */
 form.aui div.description {
-	clear: none;
+  clear: none;
 }
 
 form.aui div.field-group textarea {
-	max-width: 500px;
-	width: 100%;
+  max-width: 500px;
+  width: 100%;
+}
+
+.red-text {
+  color: red;
+}
+
+#error_message{
+  color: white;
+  text-align: center;
+  border: 1px solid;
+  border-color: #d04437;
+  border-radius: 3px;
+  background-color: #d04437;
+}
+
+.everit_logo{
+  content:url(E_logo.png);
 }
