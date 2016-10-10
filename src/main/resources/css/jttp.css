@@ -530,3 +530,10 @@ p {
 	width: 95%;
 	height: 75px;
 }
+
+.error {
+  clear: both;
+  color: #d04437;
+  display: block;
+  margin: 5px 0 0 0;
+}

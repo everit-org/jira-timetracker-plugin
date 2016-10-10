@@ -27,8 +27,7 @@ import org.everit.jira.reporting.plugin.dto.OrderBy;
 import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
 import org.everit.jira.reporting.plugin.dto.WorklogDetailsDTO;
 import org.everit.jira.reporting.plugin.query.WorklogDetailsReportQueryBuilder;
-
-import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
+import org.everit.jira.timetracker.plugin.UserReportingSettingsHelper;
 
 /**
  * Class that export worklog details list report.
@@ -56,14 +55,14 @@ public class ExportWorklogDetailsListReport extends AbstractExportListReport {
    *          the list of not browsable project keys.
    * @param orderBy
    *          the {@link OrderBy} object.
+   * @param userReportingSettingsHelper
+   *          the user settings.
    */
   public ExportWorklogDetailsListReport(final QuerydslSupport querydslSupport,
       final List<String> selectedWorklogDetailsColumns, final ReportSearchParam reportSearchParam,
       final List<String> notBrowsableProjectKeys, final OrderBy orderBy,
-      final PluginSettingsFactory pluginSettingsFactory,
-      final String userName) {
-    super(querydslSupport, reportSearchParam, notBrowsableProjectKeys, pluginSettingsFactory,
-        userName);
+      final UserReportingSettingsHelper userReportingSettingsHelper) {
+    super(querydslSupport, reportSearchParam, notBrowsableProjectKeys, userReportingSettingsHelper);
     this.selectedWorklogDetailsColumns = selectedWorklogDetailsColumns;
     this.orderBy = orderBy;
   }

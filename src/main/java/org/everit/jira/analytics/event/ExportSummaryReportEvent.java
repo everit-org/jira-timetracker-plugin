@@ -29,9 +29,13 @@ public class ExportSummaryReportEvent implements AnalyticsEvent {
   private static final String ACTION_URL =
       "http://customer.jira.com/secure/ReportingWebAction!default.jspa";
 
-  private static final String EVENT_ACTION = "Export Summary";
+  public static final String EVENT_ACTION_CSV = "Export Summary CSV";
+
+  public static final String EVENT_ACTION_EXCEL = "Export Summary";
 
   private static final String EVENT_CATEGORY = "Reporting";
+
+  private final String eventAction;
 
   private final String hashUserId;
 
@@ -43,9 +47,10 @@ public class ExportSummaryReportEvent implements AnalyticsEvent {
    * @param pluginId
    *          the installed plugin id.
    */
-  public ExportSummaryReportEvent(final String pluginId) {
+  public ExportSummaryReportEvent(final String pluginId, final String eventAction) {
     this.pluginId = Objects.requireNonNull(pluginId);
     hashUserId = JiraTimetrackerAnalytics.getUserId();
+    this.eventAction = eventAction;
   }
 
   @Override
@@ -53,7 +58,7 @@ public class ExportSummaryReportEvent implements AnalyticsEvent {
     return new PiwikUrlBuilder(ACTION_URL, PiwikPropertiesUtil.PIWIK_REPORTING_SITEID,
         pluginId, hashUserId)
             .addEventCategory(EVENT_CATEGORY)
-            .addEventAction(EVENT_ACTION)
+            .addEventAction(eventAction)
             .buildUrl();
   }
 

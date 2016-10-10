@@ -548,5 +548,6 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.plug
     #if($analyticsDTO.analyticsCheck)
       #parse("templates/common/analytics.vm")
     #end
+    <iframe name="hiddenFrameForDownload" style="display:none"></iframe>          
   </body>
 </html>
