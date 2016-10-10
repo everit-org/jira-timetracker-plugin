@@ -18,7 +18,7 @@
 <title>Timetracker Settings</title>
 </head>
 <body>
-  $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:timetracker-user-settings-resources")
+  $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.plugin.timetracker-user-settings-resources")
   
   <header class="aui-page-header">
     <div class="aui-page-header-inner">
@@ -26,7 +26,7 @@
         <span class="aui-avatar aui-avatar-large">
           <span class="aui-avatar-inner">
             <a href="http://www.everit.biz/index.php?nyelv=en" target="_blank">
-              <img src="$contextPath/download/resources/org.everit.jira.timetracker.plugin:timetracker-user-settings-resources/E_logo.png" alt="Everit reporting logo">
+              <img class="everit_logo" alt="Everit reporting logo">
             </a>
           </span>
         </span>
@@ -133,5 +133,8 @@
   
   <!-- Issue Collector script -->
   <script type="text/javascript" src="$issueCollectorSrc"></script>
+  #if($analyticsDTO.analyticsCheck)
+    #parse("templates/common/analytics.vm")
+  #end
 </body>
 </html>

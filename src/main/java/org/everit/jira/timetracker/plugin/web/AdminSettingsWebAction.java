@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.regex.Pattern;
@@ -364,12 +365,14 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
       excludeDates = "";
     } else {
       String excludeDatesValueString = excludeDatesValue;
+      String validExvcludeDates = "";
       if (!excludeDatesValueString.isEmpty()) {
         excludeDatesValueString = excludeDatesValueString
             .replace(" ", "").replace("\r", "").replace("\n", "");
         for (String dateString : excludeDatesValueString.split(",")) {
           try {
-            DateTimeConverterUtil.fixFormatStringToDate(dateString);
+            Date validDate = DateTimeConverterUtil.fixFormatStringToDate(dateString);
+            validExvcludeDates += DateTimeConverterUtil.dateToFixFormatString(validDate) + ", ";
           } catch (ParseException e) {
             parseExcludeException = true;
             messageExclude = "plugin.parse.exception.exclude";
@@ -381,7 +384,7 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
           }
         }
       }
-      excludeDates = excludeDatesValueString;
+      excludeDates = validExvcludeDates;
     }
     return parseExcludeException;
   }
@@ -419,12 +422,14 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
       includeDates = "";
     } else {
       String includeDatesValueString = includeDatesValue;
+      String validIncludeDates = "";
       if (!includeDatesValueString.isEmpty()) {
         includeDatesValueString = includeDatesValueString
             .replace(" ", "").replace("\r", "").replace("\n", "");
         for (String dateString : includeDatesValueString.split(",")) {
           try {
-            DateTimeConverterUtil.fixFormatStringToDate(dateString);
+            Date validDate = DateTimeConverterUtil.fixFormatStringToDate(dateString);
+            validIncludeDates += DateTimeConverterUtil.dateToFixFormatString(validDate) + ", ";
           } catch (ParseException e) {
             parseIncludeDateException = true;
             messageInclude = "plugin.parse.exception.include";
@@ -436,7 +441,7 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
           }
         }
       }
-      includeDates = includeDatesValueString;
+      includeDates = validIncludeDates;
     }
     return parseIncludeDateException;
   }

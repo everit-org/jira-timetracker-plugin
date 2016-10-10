@@ -18,7 +18,7 @@
   <title>Reporting Global Settings</title>
 </head>
 <body>
-  $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:admin-settings-resources")
+  $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.plugin.admin-settings-resources")
   
   <script type="text/javascript">
     window.everit = window.everit || {};
@@ -40,7 +40,7 @@
          <span class="aui-avatar aui-avatar-large">
            <span class="aui-avatar-inner">
              <a href="http://www.everit.biz/index.php?nyelv=en" target="_blank">
-               <img src="$contextPath/download/resources/org.everit.jira.timetracker.plugin:admin-settings-resources/E_logo.png" alt="Everit reporting logo">
+               <img class="everit_logo" alt="Everit reporting logo">
              </a>
            </span>
          </span>
