@@ -22,43 +22,50 @@ import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 
 /**
- * Export summary report event.
+ * Progress indicator appearance changed (daily/summary) event.
  */
-public class ExportSummaryReportEvent implements AnalyticsEvent {
+public class ProgressIndicatorChangedEvent implements AnalyticsEvent {
 
   private static final String ACTION_URL =
-      "http://customer.jira.com/secure/ReportingWebAction!default.jspa";
+      "http://customer.jira.com/secure/JiraTimetrackerSettingsWebAction!default.jspa";
 
-  public static final String EVENT_ACTION_CSV = "Export Summary CSV";
+  private static final String EVENT_ACTION = "IndicatorChange";
 
-  public static final String EVENT_ACTION_EXCEL = "Export Summary";
+  private static final String EVENT_CATEGORY = "User";
 
-  private static final String EVENT_CATEGORY = "Reporting";
+  private static final String EVENT_NAME_DAILY = "dailyInd";
 
-  private final String eventAction;
+  private static final String EVENT_NAME_SUMMARY = "summaryInd";
 
   private final String hashUserId;
 
   private final String pluginId;
+
+  private final boolean status;
 
   /**
    * Simple constructor.
    *
    * @param pluginId
    *          the installed plugin id.
+   * @param status
+   *          the status of indicator (daily (true) or summary (false)).
    */
-  public ExportSummaryReportEvent(final String pluginId, final String eventAction) {
+  public ProgressIndicatorChangedEvent(final String pluginId, final boolean status) {
     this.pluginId = Objects.requireNonNull(pluginId);
+    this.status = status;
     hashUserId = JiraTimetrackerAnalytics.getUserId();
-    this.eventAction = eventAction;
   }
 
   @Override
   public String getUrl() {
-    return new PiwikUrlBuilder(ACTION_URL, PiwikPropertiesUtil.PIWIK_REPORTING_SITEID,
+    return new PiwikUrlBuilder(ACTION_URL, PiwikPropertiesUtil.PIWIK_USERSETTINGS_SITEID,
         pluginId, hashUserId)
             .addEventCategory(EVENT_CATEGORY)
-            .addEventAction(eventAction)
+            .addEventAction(EVENT_ACTION)
+            .addEventName(status
+                ? EVENT_NAME_DAILY
+                : EVENT_NAME_SUMMARY)
             .buildUrl();
   }
 
