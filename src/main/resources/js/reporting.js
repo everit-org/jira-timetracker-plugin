@@ -444,7 +444,12 @@ const MAX_ELEMENTS_DISPLAYED = 100; // EQUAL TO JIRA.Issues.SearcherGroupListDia
           var obj = result[i];
           var avatarId =  contextPath + "/secure/useravatar?size=xsmall&ownerId=" + obj.avatarOwner;
           var selected = checkSelected(obj.userName, selectedArray);
-          jQuery("#userPicker").append('<option data-icon="' + avatarId + '" value="'+obj.userName + '" '+ selected + '>' +obj.displayName +'</option>');
+          var activeSuffux="";
+          if(obj.active==0){
+        	  activeSuffux=" (Inactive)";
+          }
+          jQuery("#userPicker").append('<option data-icon="' + avatarId + '" value="'+obj.userName + '" '+ selected + '>'
+        		  +obj.displayName + activeSuffux +'</option>');
         }
         var options= initializeOptionsForSelect(result.length,"#userPicker");
         var pp = new AJS.CheckboxMultiSelect(options);
@@ -701,10 +706,10 @@ const MAX_ELEMENTS_DISPLAYED = 100; // EQUAL TO JIRA.Issues.SearcherGroupListDia
    };
 
    reporting.nextTutorialPage = function(){
-     if(actualTutorialPage < 5){
+     if(actualTutorialPage < 4){
        actualTutorialPage++;
      }else{
-       actualTutorialPage = 5;
+       actualTutorialPage = 4;
       }
       changeNavigationButtonVisibility();
       showActiveTutotialPage();
@@ -716,7 +721,7 @@ const MAX_ELEMENTS_DISPLAYED = 100; // EQUAL TO JIRA.Issues.SearcherGroupListDia
      }else{
        jQuery("#reporting-tutorial-prev").show();
      }
-     if(actualTutorialPage == 5){
+     if(actualTutorialPage == 4){
        jQuery("#reporting-tutorial-next").hide();
      }else{
        jQuery("#reporting-tutorial-next").show();
@@ -780,6 +785,9 @@ const MAX_ELEMENTS_DISPLAYED = 100; // EQUAL TO JIRA.Issues.SearcherGroupListDia
       jQuery("#issuePicker-textarea").append(" ");
     });
     ip.handleFreeInput();
+    setTimeout(function (){
+    	ip.updateItemsIndent();
+    },0);
   };
   function initFilterSelect(){
     var selectedFilterOption = jQuery('#filterPicker [value="'+ reporting.values.selectedFilter +'"]');
@@ -998,46 +1006,35 @@ const MAX_ELEMENTS_DISPLAYED = 100; // EQUAL TO JIRA.Issues.SearcherGroupListDia
     return column + "-" + order;
   }
   
-  reporting.updateDetailsAllExportHref = function() {
-    var filterConditionString = jQuery('#filterConditionJson').val();
-    var filterCondition = JSON.parse(filterConditionString);
-    filterCondition["issueCreateDate"] = reporting.values.dateCreatedFormated;
-    filterCondition["worklogStartDate"] = reporting.values.dateFromFormated;
-    filterCondition["worklogEndDate"] = reporting.values.dateToFormated;
-    delete filterCondition['limit'];
-    delete filterCondition['offset'];
-    var downloadWorklogDetailsParam = {
-        "filterCondition": filterCondition,
-        "selectedWorklogDetailsColumns": reporting.values.worklogDetailsAllColumns
-    }
-    var json = JSON.stringify(downloadWorklogDetailsParam);
-    var $detailsAllExport = jQuery('#detials-all-export')
-    var href = $detailsAllExport.attr('data-jttp-href');
-    $detailsAllExport.attr('href', href + '?json=' + json + "&orderBy=" + getOrderBy());
+  reporting.updateDetailsAllExportHref = function(element) {
+	  reporting.updateDetailsExportHref(element,reporting.values.worklogDetailsAllColumns);
     return true;
   }
   
-  reporting.updateDetailsCustomExportHref = function() {
-    var filterConditionString = jQuery('#filterConditionJson').val();
-    var filterCondition = JSON.parse(filterConditionString);
-    var createdPicker = jQuery('#createdPicker').val();
-    filterCondition["issueCreateDate"] = reporting.values.dateCreatedFormated;
-    filterCondition["worklogStartDate"] = reporting.values.dateFromFormated;
-    filterCondition["worklogEndDate"] = reporting.values.dateToFormated;
-    delete filterCondition['limit'];
-    delete filterCondition['offset'];
-    var downloadWorklogDetailsParam = {
-        "filterCondition": filterCondition,
-        "selectedWorklogDetailsColumns": reporting.values.worklogDetailsColumns
-    }
-    var json = JSON.stringify(downloadWorklogDetailsParam);
-    var $detailsCustomExport = jQuery('#detials-custom-export')
-    var href = $detailsCustomExport.attr('data-jttp-href');
-    $detailsCustomExport.attr('href', href + '?json=' + json + "&orderBy=" + getOrderBy());
-    return true;
+  reporting.updateDetailsCustomExportHref = function(element) {
+	  reporting.updateDetailsExportHref(element,reporting.values.worklogDetailsColumns);
+	return true;
   }
-  
-  reporting.updateSummariesExportHref = function() {
+  reporting.updateDetailsExportHref = function(element, columns) {
+	  var filterConditionString = jQuery('#filterConditionJson').val();
+	    var filterCondition = JSON.parse(filterConditionString);
+	    var createdPicker = jQuery('#createdPicker').val();
+	    filterCondition["issueCreateDate"] = reporting.values.dateCreatedFormated;
+	    filterCondition["worklogStartDate"] = reporting.values.dateFromFormated;
+	    filterCondition["worklogEndDate"] = reporting.values.dateToFormated;
+	    delete filterCondition['limit'];
+	    delete filterCondition['offset'];
+	    var downloadWorklogDetailsParam = {
+	        "filterCondition": filterCondition,
+	        "selectedWorklogDetailsColumns": columns
+	    }
+	    var json = JSON.stringify(downloadWorklogDetailsParam);
+	    var $detailsCustomExport = jQuery(element);
+	    var href = $detailsCustomExport.attr('data-jttp-href');
+	    $detailsCustomExport.attr('href', href + '?json=' + json + "&orderBy=" + getOrderBy());
+	    return true;
+  }
+  reporting.updateSummariesExportHref = function(element) {
     var filterConditionString = jQuery('#filterConditionJson').val();
     var filterCondition = JSON.parse(filterConditionString);
     var createdPicker = jQuery('#createdPicker').val();
@@ -1047,7 +1044,7 @@ const MAX_ELEMENTS_DISPLAYED = 100; // EQUAL TO JIRA.Issues.SearcherGroupListDia
     delete filterCondition['limit'];
     delete filterCondition['offset'];
     var json = JSON.stringify(filterCondition);
-    var $detailsCustomExport = jQuery('#summaries-export')
+    var $detailsCustomExport = jQuery(element)
     var href = $detailsCustomExport.attr('data-jttp-href');
     $detailsCustomExport.attr('href', href + '?json=' + json);
     return true;
@@ -1073,6 +1070,10 @@ const MAX_ELEMENTS_DISPLAYED = 100; // EQUAL TO JIRA.Issues.SearcherGroupListDia
     if(createdPicker != ""){
       try{
         var issueCreateDate = Date.parseDate(createdPicker, reporting.values.dateFormat);
+        if(createdPicker != issueCreateDate.print(reporting.values.dateFormat)){
+          showErrorMessage("error_message_label_cd");
+          return false;
+        }
         var issueCreateDateMilis = issueCreateDate.getTime();
       }catch(err){
         showErrorMessage("error_message_label_cd");
@@ -1083,6 +1084,10 @@ const MAX_ELEMENTS_DISPLAYED = 100; // EQUAL TO JIRA.Issues.SearcherGroupListDia
     try{
       var dateFrom = jQuery('#dateFrom').val();
       var worklogStartDate = Date.parseDate(dateFrom, reporting.values.dateFormat);
+      if(dateFrom != worklogStartDate.print(reporting.values.dateFormat)){
+        showErrorMessage("error_message_label_df");
+        return false;
+      }
       filterCondition["worklogStartDate"] = worklogStartDate.getTime();
     }catch(err){
       showErrorMessage("error_message_label_df");
@@ -1091,6 +1096,10 @@ const MAX_ELEMENTS_DISPLAYED = 100; // EQUAL TO JIRA.Issues.SearcherGroupListDia
     try{
       var dateTo = jQuery('#dateTo').val();
       var worklogEndDate = Date.parseDate(dateTo, reporting.values.dateFormat);
+      if(dateTo != worklogEndDate.print(reporting.values.dateFormat)){
+        showErrorMessage("error_message_label_dt");
+        return false;
+      }
       filterCondition["worklogEndDate"] = worklogEndDate.getTime();
     }catch(err){
       showErrorMessage("error_message_label_dt");

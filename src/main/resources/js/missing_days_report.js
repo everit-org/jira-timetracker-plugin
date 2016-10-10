@@ -34,6 +34,10 @@ everit.jttp.missing_days_report = everit.jttp.missing_days_report || {};
     try{
       var dateFrom = jQuery('#dateFrom').val();
       var dateFromMil = Date.parseDate(dateFrom, everit.jttp.report_common_scripts.options.dateFormat);
+      if(dateFrom != dateFromMil.print(everit.jttp.report_common_scripts.options.dateFormat)){
+        showErrorMessage("error_message_label_df");
+        return false;
+      }
       jQuery('#dateFromMil').val(dateFromMil.getTime());
     }catch(err){
       showErrorMessage("error_message_label_df");
@@ -42,6 +46,10 @@ everit.jttp.missing_days_report = everit.jttp.missing_days_report || {};
     try{
       var dateTo = jQuery('#dateTo').val();
       var dateToMil = Date.parseDate(dateTo, everit.jttp.report_common_scripts.options.dateFormat);
+      if(dateTo != dateToMil.print(everit.jttp.report_common_scripts.options.dateFormat)){
+        showErrorMessage("error_message_label_dt");
+        return false;
+      }
       jQuery('#dateToMil').val(dateToMil.getTime());
     }catch(err){
       showErrorMessage("error_message_label_dt");

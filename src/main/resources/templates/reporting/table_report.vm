@@ -22,7 +22,7 @@ $webResourceManager.requireResource("jira.webresources:calendar")
 $webResourceManager.requireResource("jira.webresources:calendar-en")
 $webResourceManager.requireResource("jira.webresources:dwr", null)   
 $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
-$webResourceManager.requireResource("org.everit.jira.timetracker.plugin:table_report-resources")
+$webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.plugin.table_report-resources")
 <body>
 #set($rendererType = "atlassian-wiki-renderer")
   #if($currentCalendar.useISO8601 == true)
@@ -58,7 +58,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:table_re
          <span class="aui-avatar aui-avatar-large">
            <span class="aui-avatar-inner">
              <a href="http://www.everit.biz/index.php?nyelv=en" target="_blank">
-               <img src="$contextPath/download/resources/org.everit.jira.timetracker.plugin:reporting-resources/E_logo.png" alt="Everit reporting logo">
+               <img class="everit_logo" alt="Everit reporting logo">
              </a>
            </span>
          </span>

@@ -29,13 +29,11 @@ import org.apache.poi.ss.usermodel.Font;
 import org.everit.jira.querydsl.support.QuerydslSupport;
 import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
 import org.everit.jira.timetracker.plugin.DurationFormatter;
-import org.everit.jira.timetracker.plugin.GlobalSettingsKey;
+import org.everit.jira.timetracker.plugin.UserReportingSettingsHelper;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.util.I18nHelper;
-import com.atlassian.sal.api.pluginsettings.PluginSettings;
-import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
 /**
  * Helper class to export list reports to XLS.
@@ -52,11 +50,11 @@ public abstract class AbstractExportListReport {
 
   protected List<String> notBrowsableProjectKeys;
 
-  protected PluginSettings pluginSettings;
-
   protected QuerydslSupport querydslSupport;
 
   protected ReportSearchParam reportSearchParam;
+
+  protected UserReportingSettingsHelper userReportingSettingsHelper;
 
   /**
    * Simple constructor.
@@ -67,18 +65,17 @@ public abstract class AbstractExportListReport {
    *          the {@link ReportSearchParam} object, that contains parameters to filter condition.
    * @param notBrowsableProjectKeys
    *          the list of not browsable project keys.
+   * @param userReportingSettingsHelper
+   *          the user settings.
    */
   public AbstractExportListReport(final QuerydslSupport querydslSupport,
       final ReportSearchParam reportSearchParam, final List<String> notBrowsableProjectKeys,
-      final PluginSettingsFactory pluginSettingsFactory,
-      final String userName) {
+      final UserReportingSettingsHelper userReportingSettingsHelper) {
     this.querydslSupport = querydslSupport;
     this.reportSearchParam = reportSearchParam;
     this.notBrowsableProjectKeys = notBrowsableProjectKeys;
+    this.userReportingSettingsHelper = userReportingSettingsHelper;
     i18nHelper = ComponentAccessor.getJiraAuthenticationContext().getI18nHelper();
-    pluginSettings =
-        pluginSettingsFactory.createSettingsForKey(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
-            + userName);
   }
 
   protected abstract void appendContent(HSSFWorkbook workbook);
@@ -235,11 +232,10 @@ public abstract class AbstractExportListReport {
     int newColumnIndex = columnIndex;
     HSSFCell cell = headerRow.createCell(newColumnIndex++);
     cell.setCellStyle(headerCellStyle);
-    if ("false".equals(
-        pluginSettings.get(GlobalSettingsKey.JTTP_PLUGIN_REPORTING_SETTINGS_WORKLOG_IN_SEC))) {
-      cell.setCellValue(value);
-    } else {
+    if (userReportingSettingsHelper.getWorklogTimeInSeconds()) {
       cell.setCellValue(value + " (s)");
+    } else {
+      cell.setCellValue(value);
     }
     return newColumnIndex;
   }
@@ -253,8 +249,7 @@ public abstract class AbstractExportListReport {
   protected String worklogInSec(final Long worklog) {
     DurationFormatter durationFormatter = new DurationFormatter();
     isWorklogInSec = true;
-    if ("false".equals(
-        pluginSettings.get(GlobalSettingsKey.JTTP_PLUGIN_REPORTING_SETTINGS_WORKLOG_IN_SEC))) {
+    if (!userReportingSettingsHelper.getWorklogTimeInSeconds()) {
       isWorklogInSec = false;
     }
     if (worklog != null) {

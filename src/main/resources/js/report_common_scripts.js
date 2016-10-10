@@ -107,6 +107,10 @@ everit.jttp.report_common_scripts = everit.jttp.report_common_scripts || {};
    try{
      var dateFrom = jQuery('#dateFrom').val();
      var dateFromMil = Date.parseDate(dateFrom, jttp.options.dateFormat);
+     if(dateFrom != dateFromMil.print(jttp.options.dateFormat)){
+       showErrorMessage("error_message_label_df");
+       return false;
+     }
      jQuery('#dateFromMil').val(dateFromMil.getTime());
    }catch(err){
      showErrorMessage("error_message_label_df");
@@ -115,6 +119,10 @@ everit.jttp.report_common_scripts = everit.jttp.report_common_scripts || {};
    try{
      var dateTo = jQuery('#dateTo').val();
      var dateToMil =  Date.parseDate(dateTo, jttp.options.dateFormat);
+     if(dateTo != dateToMil.print(jttp.options.dateFormat)){
+       showErrorMessage("error_message_label_dt");
+       return false;
+     }
      jQuery('#dateToMil').val(dateToMil.getTime());
    }catch(err){
      showErrorMessage("error_message_label_dt");

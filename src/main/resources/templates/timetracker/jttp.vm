@@ -23,7 +23,7 @@ $webResourceManager.requireResource("jira.webresources:global-static")
 $webResourceManager.requireResource("jira.webresources:calendar")
 $webResourceManager.requireResource("jira.webresources:calendar-en")
 $webResourceManager.requireResource("com.atlassian.auiplugin:aui-progress-indicator")
-$webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-resources")
+$webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.plugin.jttp-resources")
 
 #set($rendererType = "atlassian-wiki-renderer")
     #if($currentCalendar.useISO8601 == true)
@@ -67,7 +67,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
             <span class="aui-avatar aui-avatar-large">
               <span class="aui-avatar-inner">
                 <a href="http://www.everit.biz/index.php?nyelv=en" target="_blank">
-                  <img src="$contextPath/download/resources/org.everit.jira.timetracker.plugin:jttp-resources/E_logo.png" alt="Everit reporting logo">
+                  <img class="everit_logo" alt="Everit reporting logo">
                 </a>
               </span>
             </span>
@@ -116,7 +116,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
           </div>
         </form>
 
-        <h4 name="add_worklog" class="sidebar-header"><span>$i18n.getText('plugin.header.add.worklog')</span></h4>
+        <h4 id="add_worklog" name="add_worklog" class="sidebar-header"><span>$i18n.getText('plugin.header.add.worklog')</span></h4>
 
         <form name="dummyForm" class="aui top-label" id="dummyForm" method="get" onsubmit="return false;" >
           <div class="aui-group aui-group-split bottom-module">
@@ -154,7 +154,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
                       value="$startTime" onkeypress="everit.jttp.main.handleEnterKey(event, '#endTime');"
                       name="startTime" maxlength="5" tabindex="2"
                       pattern="^([01][0-9]|2[0-3]):[0-5][0-9]$" title="hh:mm"
-                      onblur="everit.jttp.main.calculateDuration();"
+                      onblur="everit.jttp.main.selectCalculationType();"
                       list="time-options" autocomplete="off">
                     <input id="startNow" name="startNow" class="button" type="button" value="$i18n.getText('plugin.now')"
                       onclick="everit.jttp.main.startNowClick($startTimeChange);">
@@ -199,7 +199,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
           </div>
         </form>
 
-              <div class="buttons-container">
+              <div id="buttons-container" class="buttons-container">
                 <form class="aui top-label" id="jttp-logwork-form" method="post" action="JiraTimetrackerWebAction.jspa"  onsubmit="return everit.jttp.main.beforeSubmit();" >
                 <!-- Worklog submit form -->
                   <div class="buttons">
@@ -211,7 +211,7 @@ $webResourceManager.requireResource("org.everit.jira.timetracker.plugin:jttp-res
                     <input type="hidden" id="date" name="date" >
                     <input type="hidden" id="editAll" name="editAll" value="$editAllIds" >
                     <input type="hidden" id="worklogValuesJson" name="worklogValuesJson" >
-                    <input class="aui-button aui-button-light" type="reset" value="Cancel"
+                    <input class="aui-button" type="reset" value="Cancel"
                       id="jttp-logwork-cancel" name="lw_cancel" onclick="everit.jttp.main.cancelClick();">
                   </div>
                 </form>

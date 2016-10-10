@@ -21,18 +21,24 @@ everit.jttp.main = everit.jttp.main || {};
 (function(jttp, jQuery) {
   
   jQuery(document).ready(function() {
-    
-    if(!$( ".aui-message-error" ).length && window.location.search.indexOf('date') > -1 ){
-    	document.getElementById("comments").focus();
-    }
-    
+
     jQuery('.aui-ss-editing').attr("style", "width: 250px;");
     jQuery('.aui-ss.aui-ss-editing .aui-ss-field').attr("style", "width: 250px;");
-   
+
     durationSelectionSetup();
     issuePickerSetup();
     eventBinding();
     commentsCSSFormat();
+
+    if(!jQuery( ".aui-message-error" ).length 
+        && window.location.search.indexOf('date') > -1
+        && !isContainsAchorExlucdingParts(window.location.search)){
+      document.getElementById("issueSelect-textarea").focus();
+      var anchorDiv = document.getElementById("buttons-container");
+      jQuery(window).scrollTop( anchorDiv.offsetTop);
+    }else{
+      jQuery("#jttp-headline-day-calendar").blur();
+    }
 
     var formatedDate =  new Date(jttp.options.dateFormatted).print(jttp.options.dateFormat);  
 
@@ -52,8 +58,7 @@ everit.jttp.main = everit.jttp.main || {};
         closeable: false,
       });
     }
-    
-    
+
     addTooltips();
     headlineProgressIndicator();
     initProgrssIndicators();
@@ -64,7 +69,19 @@ everit.jttp.main = everit.jttp.main || {};
       setExcludeDaysToWeekend(jttp.options.excludeDays);
       setLoggedDaysDesign(jttp.options.isColoring, jttp.options.loggedDays);
     }
+
   });
+  
+  function isContainsAchorExlucdingParts(search){
+    var exlucdingParts = ["datesubmit", "dayBack", "dayNext","today", "actionFlag=delete","actionFlag=copy", "lw_chgdate" ];
+    var contains = false;
+    exlucdingParts.forEach(function(item){
+      if(search.indexOf(item) != -1){
+        contains = true;
+      }
+    });
+    return contains;
+  }
   
   function addTooltips(){
     var $issueTypeTooltip = AJS.$('#jttp-worklog-issue-type');
@@ -637,6 +654,15 @@ everit.jttp.main = everit.jttp.main || {};
     jttp.endState = 2;
     var time = calculateTimeForInputfileds(hour, min);
     jQuery("#endTime").val(time);
+  }
+  
+  jttp.selectCalculationType = function(){
+    var $endInput = jQuery('#endTime');
+    if($endInput.attr("disabled")){
+      jttp.calculateEndTime();
+    }else{
+      jttp.calculateDuration();
+    }
   }
   
   jttp.calculateDuration = function(){
