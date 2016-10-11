@@ -261,6 +261,7 @@ everit.jttp.main = everit.jttp.main || {};
   }
 
   function disableInputFields() {
+	jQuery("#dummyFormWrapper").hide();
     jQuery("#startTime").prop("disabled", true);
     jQuery("#startNow").prop("disabled", true);
     jQuery("#endTime").prop("disabled", true);
