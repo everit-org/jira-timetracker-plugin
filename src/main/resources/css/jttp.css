@@ -537,3 +537,11 @@ p {
   display: block;
   margin: 5px 0 0 0;
 }
+#wokrlogChangeDateMessage{
+	color: #707070;
+	font-weight: bold;
+	font-size: small;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	display: none;
+}
