@@ -264,7 +264,6 @@ everit.jttp.main = everit.jttp.main || {};
 
   function disableInputFields() {
 	jQuery("#dummyFormWrapper").hide();
-	$("#wokrlogChangeDateMessage").append( new Date(jttp.options.dateFormatted).print(jttp.options.dateFormat) );
 	jQuery("#wokrlogChangeDateMessage").show();
     jQuery("#startTime").prop("disabled", true);
     jQuery("#startNow").prop("disabled", true);
