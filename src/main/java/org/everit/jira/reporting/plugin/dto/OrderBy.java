@@ -15,6 +15,8 @@
  */
 package org.everit.jira.reporting.plugin.dto;
 
+import org.everit.jira.reporting.plugin.column.WorklogDetailsColumns;
+
 /**
  * Represents the ordering of the a search query.
  */
@@ -24,7 +26,7 @@ public class OrderBy {
 
   static {
     DEFAULT = new OrderBy()
-        .columnName("jtrp_col_issueKey")
+        .columnName(WorklogDetailsColumns.ISSUE_KEY)
         .order("ASC")
         .asc(true);
   }
