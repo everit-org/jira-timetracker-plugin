@@ -115,6 +115,7 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.plug
             </div>
           </div>
         </form>
+	  <p id="wokrlogChangeDateMessage">$i18n.getText('plugin.jttp-worklog-change-date-for-all')</p>
 	  <div id="dummyFormWrapper">
         <h4 id="add_worklog" name="add_worklog" class="sidebar-header"><span>$i18n.getText('plugin.header.add.worklog')</span></h4>
 
