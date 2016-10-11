@@ -100,6 +100,21 @@ public class UserReportingSettingsHelper {
   }
 
   /**
+   * Get the user saved worklog time format value.
+   *
+   * @return The saved value from settings.
+   */
+
+  public boolean getWorklogTimeInSeconds() {
+    boolean worklogValue = true;
+    if ("false".equals(
+        pluginSettings.get(GlobalSettingsKey.JTTP_PLUGIN_REPORTING_SETTINGS_WORKLOG_IN_SEC))) {
+      worklogValue = false;
+    }
+    return worklogValue;
+  }
+
+  /**
    * Get the user saved show tutorial value.
    *
    * @param isShowTutorial
@@ -133,6 +148,18 @@ public class UserReportingSettingsHelper {
    */
   public void saveSelectedColumnsJSon(final String selectedColumnsJson) {
     pluginSettings.put(GlobalSettingsKey.JTTP_PLUGIN_USER_WD_SELECTED_COLUMNS, selectedColumnsJson);
+  }
+
+  /**
+   * Get the user saved worklog time format value.
+   *
+   * @param isWorklogTimeInSeconds
+   *          The new value.
+   */
+
+  public void saveWorklogTimeInSeconds(final boolean worklogTimeInSeconds) {
+    pluginSettings.put(GlobalSettingsKey.JTTP_PLUGIN_REPORTING_SETTINGS_WORKLOG_IN_SEC,
+        Boolean.toString(worklogTimeInSeconds));
   }
 
 }

@@ -28,6 +28,8 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
 import org.everit.jira.querydsl.support.QuerydslSupport;
 import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
+import org.everit.jira.timetracker.plugin.DurationFormatter;
+import org.everit.jira.timetracker.plugin.UserReportingSettingsHelper;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 
 import com.atlassian.jira.component.ComponentAccessor;
@@ -44,11 +46,15 @@ public abstract class AbstractExportListReport {
 
   protected I18nHelper i18nHelper;
 
+  protected boolean isWorklogInSec;
+
   protected List<String> notBrowsableProjectKeys;
 
   protected QuerydslSupport querydslSupport;
 
   protected ReportSearchParam reportSearchParam;
+
+  protected UserReportingSettingsHelper userReportingSettingsHelper;
 
   /**
    * Simple constructor.
@@ -59,12 +65,16 @@ public abstract class AbstractExportListReport {
    *          the {@link ReportSearchParam} object, that contains parameters to filter condition.
    * @param notBrowsableProjectKeys
    *          the list of not browsable project keys.
+   * @param userReportingSettingsHelper
+   *          the user settings.
    */
   public AbstractExportListReport(final QuerydslSupport querydslSupport,
-      final ReportSearchParam reportSearchParam, final List<String> notBrowsableProjectKeys) {
+      final ReportSearchParam reportSearchParam, final List<String> notBrowsableProjectKeys,
+      final UserReportingSettingsHelper userReportingSettingsHelper) {
     this.querydslSupport = querydslSupport;
     this.reportSearchParam = reportSearchParam;
     this.notBrowsableProjectKeys = notBrowsableProjectKeys;
+    this.userReportingSettingsHelper = userReportingSettingsHelper;
     i18nHelper = ComponentAccessor.getJiraAuthenticationContext().getI18nHelper();
   }
 
@@ -154,27 +164,6 @@ public abstract class AbstractExportListReport {
    *          the List that contains cell value.
    * @return the next column index.
    */
-  protected int insertBodyCell(final HSSFRow bodyRow, final int columnIndex, final Long value) {
-    int newColumnIndex = columnIndex;
-    HSSFCell cell = bodyRow.createCell(newColumnIndex++);
-    cell.setCellStyle(bodyCellStyle);
-    if (value != null) {
-      cell.setCellValue(value);
-    }
-    return newColumnIndex;
-  }
-
-  /**
-   * Insert body cell to workbook.
-   *
-   * @param bodyRow
-   *          the row where to insert cell.
-   * @param columnIndex
-   *          the columns in row.
-   * @param value
-   *          the List that contains cell value.
-   * @return the next column index.
-   */
   protected int insertBodyCell(final HSSFRow bodyRow, final int columnIndex, final String value) {
     int newColumnIndex = columnIndex;
     HSSFCell cell = bodyRow.createCell(newColumnIndex++);
@@ -225,6 +214,51 @@ public abstract class AbstractExportListReport {
     cell.setCellStyle(headerCellStyle);
     cell.setCellValue(value);
     return newColumnIndex;
+  }
+
+  /**
+   * Insert header cell to workbook in seconds.
+   *
+   * @param headerRow
+   *          the row where to insert cell.
+   * @param columnIndex
+   *          the columns in row.
+   * @param value
+   *          the cell value.
+   * @return the next column index.
+   */
+  protected int insertHeaderCellInSec(final HSSFRow headerRow, final int columnIndex,
+      final String value) {
+    int newColumnIndex = columnIndex;
+    HSSFCell cell = headerRow.createCell(newColumnIndex++);
+    cell.setCellStyle(headerCellStyle);
+    if (userReportingSettingsHelper.getWorklogTimeInSeconds()) {
+      cell.setCellValue(value + " (s)");
+    } else {
+      cell.setCellValue(value);
+    }
+    return newColumnIndex;
+  }
+
+  /**
+   * Worklog in seconds or default.
+   *
+   * @param worklog
+   *          worklog in seconds
+   */
+  protected String worklogInSec(final Long worklog) {
+    DurationFormatter durationFormatter = new DurationFormatter();
+    isWorklogInSec = true;
+    if (!userReportingSettingsHelper.getWorklogTimeInSeconds()) {
+      isWorklogInSec = false;
+    }
+    if (worklog != null) {
+      if (isWorklogInSec) {
+        return worklog.toString();
+      }
+      return durationFormatter.exactDuration(worklog);
+    }
+    return "";
   }
 
 }

@@ -73,6 +73,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    */
   private static final Long DEFAULT_WORKLOG_ID = Long.valueOf(0);
 
+  private static final String FUTURE_WORKLOG_WARNING_URL_PARAMETER = "&showWarning=true";
+
   private static final int HUNDRED = 100;
 
   private static final String INVALID_DURATION_TIME = "plugin.invalid_durationTime";
@@ -80,7 +82,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private static final String INVALID_START_TIME = "plugin.invalid_startTime";
 
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
-
   /**
    * The JiraTimetrackerWebAction logger..
    */
@@ -208,6 +209,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private boolean isProgressDaily = true;
 
   private boolean isRounded;
+
+  private boolean isShowFutureLogWarning;
 
   private String issueCollectorSrc;
 
@@ -450,9 +453,13 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       if ((actionWorklogId != null) && !DEFAULT_WORKLOG_ID.equals(actionWorklogId)
           && "copy".equals(actionFlag)) {
         actionFlag = "";
-        return redirectWithDateFormattedParameterOnly(result);
+        return redirectWidthDateFormattedParameterOnlyAndShowWarning(result);
       }
-      return redirectWithDateAndWorklogParams(result);
+      if (decideToShowWarning()) {
+        return redirectWithDateAndWorklogParams(result, FUTURE_WORKLOG_WARNING_URL_PARAMETER);
+      } else {
+        return redirectWithDateAndWorklogParams(result, "");
+      }
     }
     return result;
 
@@ -506,6 +513,18 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       date = new Date();
       dateFormatted = date.getTime();
     }
+  }
+
+  private boolean decideToShowWarning() {
+    try {
+      Date startDate = DateTimeConverterUtil.stringToDateAndTime(date, startTime);
+      if (isShowFutureLogWarning && new Date().before(startDate)) {
+        return true;
+      }
+    } catch (ParseException e) {
+      LOGGER.error("parse failed", e);
+    }
+    return false;
   }
 
   private String deleteWorklog() {
@@ -593,7 +612,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
         return ERROR;
       }
       if (SUCCESS.equals(deleteResult)) {
-        return redirectWithDateFormattedParameterOnly(deleteResult);
+        return redirectWithDateFormattedParameterOnly(deleteResult, "");
       } else {
         return deleteResult;
       }
@@ -1076,7 +1095,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       result = createOrCopyAction();
     }
     if (SUCCESS.equals(result)) {
-      result = redirectWithDateFormattedParameterOnly(result);
+      result = redirectWidthDateFormattedParameterOnlyAndShowWarning(result);
     }
     return result;
   }
@@ -1121,6 +1140,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     isColoring = pluginSettingsValues.isColoring;
     installedPluginId = pluginSettingsValues.pluginUUID;
     isRounded = pluginSettingsValues.isRounded;
+    isShowFutureLogWarning = pluginSettingsValues.isShowFutureLogWarning;
   }
 
   /**
@@ -1315,20 +1335,33 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     issues = new ArrayList<>();
   }
 
-  private String redirectWithDateAndWorklogParams(final String action) {
+  private String redirectWidthDateFormattedParameterOnlyAndShowWarning(final String result) {
+    String res;
+    if (decideToShowWarning()) {
+      res =
+          redirectWithDateFormattedParameterOnly(result, FUTURE_WORKLOG_WARNING_URL_PARAMETER);
+    } else {
+      res = redirectWithDateFormattedParameterOnly(result, "");
+    }
+    return res;
+  }
+
+  private String redirectWithDateAndWorklogParams(final String action,
+      final String warningUrlParameter) {
     worklogValue.setComment("");
     String returnJson = JiraTimetrackerUtil.convertWorklogValuesToJson(worklogValue);
     setReturnUrl(
         String.format(SELF_WITH_DATE_WORKLOG_URL_FORMAT,
             dateFormatted,
-            JiraTimetrackerUtil.urlEndcodeHandleException(returnJson)));
+            JiraTimetrackerUtil.urlEndcodeHandleException(returnJson)) + warningUrlParameter);
     return getRedirect(action);
   }
 
-  private String redirectWithDateFormattedParameterOnly(final String action) {
+  private String redirectWithDateFormattedParameterOnly(final String action,
+      final String warningUrlParameter) {
     setReturnUrl(
         String.format(SELF_WITH_DATE_URL_FORMAT,
-            dateFormatted));
+            dateFormatted) + warningUrlParameter);
     return getRedirect(action);
   }
 

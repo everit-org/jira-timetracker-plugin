@@ -47,6 +47,8 @@ import org.everit.jira.reporting.plugin.export.ExportSummariesListReport;
 import org.everit.jira.reporting.plugin.export.ExportWorklogDetailsListReport;
 import org.everit.jira.reporting.plugin.util.ConverterUtil;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
+import org.everit.jira.timetracker.plugin.UserReportingSettingsHelper;
+import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.google.gson.Gson;
@@ -69,6 +71,8 @@ public class DownloadReportResource {
 
   private ReportingPlugin reportingPlugin;
 
+  private UserReportingSettingsHelper userReportingSettingsHelper;
+
   /**
    * Simple constructor.
    */
@@ -77,6 +81,8 @@ public class DownloadReportResource {
     pluginId = JiraTimetrackerAnalytics.getPluginUUID(pluginSettingsFactory.createGlobalSettings());
     this.analyticsSender = analyticsSender;
     this.reportingPlugin = reportingPlugin;
+    userReportingSettingsHelper = new UserReportingSettingsHelper(pluginSettingsFactory,
+        JiraTimetrackerUtil.getLoggedUserName());
     try {
       querydslSupport = new QuerydslSupportImpl();
     } catch (Exception e) {
@@ -113,6 +119,21 @@ public class DownloadReportResource {
         .build();
   }
 
+  private HSSFWorkbook createSummaryExcel(final String json) {
+    FilterCondition filterCondition = new Gson()
+        .fromJson(json, FilterCondition.class);
+
+    ConvertedSearchParam converSearchParam = ConverterUtil
+        .convertFilterConditionToConvertedSearchParam(filterCondition, reportingPlugin);
+
+    ExportSummariesListReport exportSummariesListReport =
+        new ExportSummariesListReport(querydslSupport, converSearchParam.reportSearchParam,
+            converSearchParam.notBrowsableProjectKeys, userReportingSettingsHelper);
+
+    HSSFWorkbook workbook = exportSummariesListReport.exportToXLS();
+    return workbook;
+  }
+
   private HSSFWorkbook createWorkBook(final String orderByString,
       final DownloadWorklogDetailsParam downloadWorklogDetailsParam) {
     ConvertedSearchParam converSearchParam = ConverterUtil
@@ -127,12 +148,14 @@ public class DownloadReportResource {
   private HSSFWorkbook createWorklogDetailsExcel(
       final DownloadWorklogDetailsParam downloadWorklogDetailsParam,
       final ConvertedSearchParam converSearchParam, final OrderBy orderBy) {
+
     ExportWorklogDetailsListReport exportWorklogDetailsListReport =
         new ExportWorklogDetailsListReport(querydslSupport,
             downloadWorklogDetailsParam.selectedWorklogDetailsColumns,
             converSearchParam.reportSearchParam,
             converSearchParam.notBrowsableProjectKeys,
-            orderBy);
+            orderBy, userReportingSettingsHelper);
+
     HSSFWorkbook workbook = exportWorklogDetailsListReport.exportToXLS();
     return workbook;
   }
@@ -221,21 +244,6 @@ public class DownloadReportResource {
     HSSFWorkbook workbook = createWorkBook(orderByString, downloadWorklogDetailsParam);
     sendWorklogDetailsAnalytics(WorkLogDetailsExportFormat.CSV, downloadWorklogDetailsParam);
     return buildCsvResponse(workbook, "worklog-details-report", CSV_FILE_EXTENSION);
-  }
-
-  private HSSFWorkbook createSummaryExcel(final String json) {
-    FilterCondition filterCondition = new Gson()
-        .fromJson(json, FilterCondition.class);
-
-    ConvertedSearchParam converSearchParam = ConverterUtil
-        .convertFilterConditionToConvertedSearchParam(filterCondition, reportingPlugin);
-
-    ExportSummariesListReport exportSummariesListReport =
-        new ExportSummariesListReport(querydslSupport, converSearchParam.reportSearchParam,
-            converSearchParam.notBrowsableProjectKeys);
-
-    HSSFWorkbook workbook = exportSummariesListReport.exportToXLS();
-    return workbook;
   }
 
   private void sendWorklogDetailsAnalytics(final WorkLogDetailsExportFormat exportFormat,

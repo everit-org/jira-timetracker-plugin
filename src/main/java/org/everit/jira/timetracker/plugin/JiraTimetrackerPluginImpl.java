@@ -958,6 +958,13 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
       isRounded = false;
     }
 
+    // the default show warning is TRUE
+    boolean isShowFutureLogWarning = true;
+    if ("false".equals(
+        pluginSettings.get(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_SHOW_FUTURE_LOG_WARNING))) {
+      isShowFutureLogWarning = false;
+    }
+
     // SET startTime Change the default value is 5
     int startTimeChange = getStartTimeChange();
     // SET endtTime Change the default value is 5
@@ -977,6 +984,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
         .pluginUUID(pluginUUID)
         .pluginGroups(pluginGroups)
         .timetrackingGroups(timetrackerGroups)
+        .isShowFutureLogWarning(isShowFutureLogWarning)
         .isRounded(isRounded);
     return pluginSettingsValues;
   }
@@ -1029,6 +1037,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
         Integer.toString(pluginSettingsParameters.endTimeChange));
     pluginSettings.put(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_IS_ROUNDED,
         pluginSettingsParameters.isRounded.toString());
+    pluginSettings.put(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_SHOW_FUTURE_LOG_WARNING,
+        String.valueOf(pluginSettingsParameters.isShowFutureLogWarning));
 
     globalSettings = settingsFactory.createGlobalSettings();
     globalSettings.put(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
