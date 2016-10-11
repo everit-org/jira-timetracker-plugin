@@ -56,6 +56,7 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.plug
 				worklogSize: ${worklogs.size()},
 				isRounded : ${isRounded},
 				dateFormat: '${dateFormat}',
+				moveAllWorklogIds: [ #foreach( $tmp in $worklogIds )#if($velocityCount> 1),#end "$tmp"  #end ],
 			}
 		);
 	})(everit.jttp.main, AJS.$);
@@ -110,8 +111,9 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.plug
           <div class="buttons-container">
             <div class="buttons">
               <input type="hidden" id="worklogsIds" name="worklogsIds" value="$worklogsIds" >
-              <input class="aui-button change-button" type="submit" value="Move all" #if($worklogs.size() == 0) disabled #end
-                      id="jttp-logwork-change-date-all" name="lw_chgdate" title="Move all the worklogs to a particular day">
+              <input class="aui-button change-button" type="submit" value="Move all" #if($worklogsIds.size() == 0) disabled #end
+                      id="jttp-logwork-change-date-all" name="lw_chgdate" title="Move all the worklogs to a particular day"
+                      onclick="everit.jttp.main.moveAll()">
             </div>
           </div>
         </form>
