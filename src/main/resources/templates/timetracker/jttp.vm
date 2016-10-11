@@ -56,7 +56,6 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.plug
 				worklogSize: ${worklogs.size()},
 				isRounded : ${isRounded},
 				dateFormat: '${dateFormat}',
-				moveAllWorklogIds: [ #foreach( $tmp in $worklogIds )#if($velocityCount> 1),#end "$tmp"  #end ],
 			}
 		);
 	})(everit.jttp.main, AJS.$);
@@ -108,6 +107,11 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.plug
                 #end
               </div>
             #end
+            #if(!$parsedEditAllIds.isEmpty() && $worklogsIds.containsAll($parsedEditAllIds))
+              <div class="aui-message aui-message-error">
+                <p>$i18n.getText('jttp.error.moveall.no.permission')</p>
+              </div>
+            #end
 
         #parse("templates/timetracker/jttp-head.vm")
         #if(!$isProgressDaily)
@@ -121,8 +125,7 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.plug
             <div class="buttons">
               <input type="hidden" id="worklogsIds" name="worklogsIds" value="$worklogsIds" >
               <input class="aui-button change-button" type="submit" value="Move all" #if($worklogsIds.size() == 0) disabled #end
-                      id="jttp-logwork-change-date-all" name="lw_chgdate" title="Move all the worklogs to a particular day"
-                      onclick="everit.jttp.main.moveAll()">
+                      id="jttp-logwork-change-date-all" name="lw_chgdate" title="Move all the worklogs to a particular day">
             </div>
           </div>
         </form>

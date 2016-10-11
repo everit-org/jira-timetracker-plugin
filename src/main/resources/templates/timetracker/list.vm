@@ -36,7 +36,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
             #else
               <tbody>
               #foreach ($worklog in $worklogs)
-                <tr #if($worklog.worklogId == $actionWorklogId) class="rowEdit"#end data-jttp-wid="$worklog.worklogId">
+                <tr #if(($worklog.worklogId == $actionWorklogId) || ($actionFlag == "editAll" && $parsedEditAllIds.contains($worklog.worklogId))) class="rowEdit"#end>
                   <td>
                     <img class="img-tooltip" src="#if(!$worklog.issueAvatarId) #if( $worklog.issueTypeIconUrl.startsWith("http") )$worklog.issueTypeIconUrl#else$contextPath$worklog.issueTypeIconUrl#end#else$contextPath/secure/viewavatar?size=xsmall&avatarId=$worklog.issueAvatarId&avatarType=issuetype#end" alt="$worklog.issueTypeName" title="$worklog.issueTypeName"></img>
                   </td>

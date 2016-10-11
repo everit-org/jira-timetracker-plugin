@@ -759,12 +759,5 @@ everit.jttp.main = everit.jttp.main || {};
     
     $endInput.val(endHourString + ":" + endMinString);
   }
-  
-  jttp.moveAll = function (){
-    var worklogIds = jttp.options.moveAllWorklogIds;
-    for (i = 0; i < worklogIds.length; i++) {
-      jQuery('[data-jttp-wid=' + worklogIds[i] + ']').addClass('rowEdit');
-    }
-  }
 
 })(everit.jttp.main, jQuery);
