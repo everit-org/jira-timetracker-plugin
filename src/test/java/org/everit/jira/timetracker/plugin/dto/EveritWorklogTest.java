@@ -38,9 +38,13 @@ import org.ofbiz.core.entity.model.ModelEntity;
 
 import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
 import com.atlassian.jira.config.properties.ApplicationProperties;
+import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.mock.component.MockComponentWorker;
 import com.atlassian.jira.security.JiraAuthenticationContext;
+import com.atlassian.jira.security.PermissionManager;
+import com.atlassian.jira.security.plugin.ProjectPermissionKey;
+import com.atlassian.jira.user.ApplicationUser;
 
 @RunWith(Parameterized.class)
 public class EveritWorklogTest {
@@ -80,16 +84,16 @@ public class EveritWorklogTest {
   @Parameters(name = "{0} from {1}")
   public static final List<Object[]> params() {
     return Arrays.asList(
-        param("0m", duration()),
-        param("3m", duration().min(3)),
-        param("1h 3m", duration().hour(1).min(3)),
-        param("2h 3m", duration().hour(2).min(3)),
-        param("2w 2d", duration().week(2).day(2)),
-        param("2d", duration().day(2)),
-        param("~2d 1h", duration().day(2).hour(1).min(3)),
-        param("~2w", duration().week(2).hour(3).min(3)),
-        param("~5w 4d", duration().week(5).day(4).min(3)),
-        param("~5w", duration().week(5).hour(4).min(3)));
+        EveritWorklogTest.param("0m", EveritWorklogTest.duration()),
+        EveritWorklogTest.param("3m", EveritWorklogTest.duration().min(3)),
+        EveritWorklogTest.param("1h 3m", EveritWorklogTest.duration().hour(1).min(3)),
+        EveritWorklogTest.param("2h 3m", EveritWorklogTest.duration().hour(2).min(3)),
+        EveritWorklogTest.param("2w 2d", EveritWorklogTest.duration().week(2).day(2)),
+        EveritWorklogTest.param("2d", EveritWorklogTest.duration().day(2)),
+        EveritWorklogTest.param("~2d 1h", EveritWorklogTest.duration().day(2).hour(1).min(3)),
+        EveritWorklogTest.param("~2w", EveritWorklogTest.duration().week(2).hour(3).min(3)),
+        EveritWorklogTest.param("~5w 4d", EveritWorklogTest.duration().week(5).day(4).min(3)),
+        EveritWorklogTest.param("~5w", EveritWorklogTest.duration().week(5).hour(4).min(3)));
   }
 
   private final String expectedRemaining;
@@ -116,6 +120,13 @@ public class EveritWorklogTest {
         .getSimpleStatus().getStatusCategory().getKey()).thenReturn("done");
     mockComponentWorker.addMock(IssueManager.class, mockIssueManager);
 
+    PermissionManager mockPermissionManager =
+        Mockito.mock(PermissionManager.class, Mockito.RETURNS_DEEP_STUBS);
+    Mockito.when(mockPermissionManager.hasPermission((ProjectPermissionKey) Matchers.anyObject(),
+        (Issue) Matchers.anyObject(),
+        (ApplicationUser) Matchers.anyObject())).thenReturn(true);
+    mockComponentWorker.addMock(PermissionManager.class, mockPermissionManager);
+
     ApplicationProperties mockApplicationProperties =
         Mockito.mock(ApplicationProperties.class, Mockito.RETURNS_DEEP_STUBS);
     Mockito.when(
@@ -130,6 +141,7 @@ public class EveritWorklogTest {
         Mockito.mock(JiraAuthenticationContext.class, Mockito.RETURNS_DEEP_STUBS);
     Mockito.when(mockJiraAuthenticationContext.getI18nHelper().getLocale())
         .thenReturn(new Locale("en", "US"));
+    Mockito.when(mockJiraAuthenticationContext.getUser()).thenReturn(null);
     mockComponentWorker.addMock(JiraAuthenticationContext.class, mockJiraAuthenticationContext);
 
     BigDecimal daysPerWeek = new BigDecimal(5);
