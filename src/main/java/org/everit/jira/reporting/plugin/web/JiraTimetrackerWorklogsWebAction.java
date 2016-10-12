@@ -38,6 +38,8 @@ import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 import org.everit.jira.updatenotifier.UpdateNotifier;
 import org.ofbiz.core.entity.GenericEntityException;
 
+import com.atlassian.jira.datetime.DateTimeFormatter;
+import com.atlassian.jira.datetime.DateTimeStyle;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
@@ -308,6 +310,11 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
   public List<MissingsWorklogsDTO> getDateswhereNoWorklog() {
     return allDatesWhereNoWorklog;
+  }
+
+  @Override
+  public DateTimeFormatter getDateTimeFormatter() {
+    return super.getDateTimeFormatter().withStyle(DateTimeStyle.DATE).withSystemZone();
   }
 
   public Long getDateToFormated() {

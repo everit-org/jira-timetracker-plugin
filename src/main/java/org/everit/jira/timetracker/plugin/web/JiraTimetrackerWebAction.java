@@ -53,6 +53,8 @@ import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.config.properties.APKeys;
 import com.atlassian.jira.config.properties.ApplicationProperties;
+import com.atlassian.jira.datetime.DateTimeFormatter;
+import com.atlassian.jira.datetime.DateTimeStyle;
 import com.atlassian.jira.exception.DataAccessException;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.RendererManager;
@@ -720,6 +722,11 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   public Long getDateFormatted() {
     return dateFormatted;
+  }
+
+  @Override
+  public DateTimeFormatter getDateTimeFormatter() {
+    return super.getDateTimeFormatter().withStyle(DateTimeStyle.DATE).withSystemZone();
   }
 
   /**
