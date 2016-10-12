@@ -70,7 +70,7 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.plug
          <span class="aui-avatar aui-avatar-large">
            <span class="aui-avatar-inner">
              <a href="http://www.everit.biz/index.php?nyelv=en" target="_blank">
-               <img class="everit_logo" alt="Everit reporting logo">
+               <div class="everit_logo" alt="Everit reporting logo"></div>
              </a>
            </span>
          </span>
