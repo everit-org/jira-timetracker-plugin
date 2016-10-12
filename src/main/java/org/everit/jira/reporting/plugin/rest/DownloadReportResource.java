@@ -148,6 +148,7 @@ public class DownloadReportResource {
   private HSSFWorkbook createWorklogDetailsExcel(
       final DownloadWorklogDetailsParam downloadWorklogDetailsParam,
       final ConvertedSearchParam converSearchParam, final OrderBy orderBy) {
+
     ExportWorklogDetailsListReport exportWorklogDetailsListReport =
         new ExportWorklogDetailsListReport(querydslSupport,
             downloadWorklogDetailsParam.selectedWorklogDetailsColumns,

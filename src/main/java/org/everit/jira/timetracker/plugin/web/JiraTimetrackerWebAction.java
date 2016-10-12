@@ -265,6 +265,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   private long monthSummaryInSecounds;
 
+  private List<Long> parsedEditAllIds = Collections.emptyList();
+
   private PluginCondition pluginCondition;
 
   private final PluginSettingsFactory pluginSettingsFactory;
@@ -417,7 +419,9 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private List<Long> copyWorklogIdsToArray(final List<EveritWorklog> worklogsParam) {
     List<Long> worklogIds = new ArrayList<>();
     for (EveritWorklog worklog : worklogsParam) {
-      worklogIds.add(worklog.getWorklogId());
+      if (worklog.isDeleteOwnWorklogs() && worklog.isEditOwnWorklogs()) {
+        worklogIds.add(worklog.getWorklogId());
+      }
     }
     return worklogIds;
   }
@@ -598,6 +602,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
     dateSwitcherAction();
     parseActionParams();
+    parsedEditAllIds = parseEditAllIds(getHttpRequest().getParameter("editAll"));
     parseEditAllAction();
 
     excludeDays = jiraTimetrackerPlugin.getExcludeDaysOfTheMonth(date);
@@ -677,7 +682,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    */
   public String editAllAction() throws ParseException {
     // parse the editAllIds
-    List<Long> editWorklogIds = parseEditAllIds();
+    List<Long> editWorklogIds = parseEditAllIds(getHttpRequest().getParameter("editAll"));
     // edit the worklogs!
     for (Long editWorklogId : editWorklogIds) {
       EveritWorklog editWorklog = jiraTimetrackerPlugin
@@ -917,6 +922,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   public String getMonthSummary() {
     return monthSummary;
+  }
+
+  public List<Long> getParsedEditAllIds() {
+    return parsedEditAllIds;
   }
 
   public List<String> getProjectsId() {
@@ -1292,6 +1301,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       if ((worklogsIdsValues != null) && !"".equals(worklogsIdsValues)) {
         editAllIds = worklogsIdsValues;
         actionFlag = "editAll";
+        parsedEditAllIds = parseEditAllIds(editAllIds);
       }
     }
   }
@@ -1299,10 +1309,9 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   /**
    * Parses the {@link #editAllIds} string to a list of {@code Long} values.
    */
-  public List<Long> parseEditAllIds() {
-    String editAllValues = getHttpRequest().getParameter("editAll");
+  public List<Long> parseEditAllIds(final String editAllValues) {
     List<Long> editWorklogIds = new ArrayList<>();
-    if (editAllValues != null) {
+    if ((editAllValues != null) && !"$editAllIds".equals(editAllValues)) {
       String editAllIdsCopy = editAllValues;
       editAllIdsCopy = editAllIdsCopy.replace("[", "");
       editAllIdsCopy = editAllIdsCopy.replace("]", "");
