@@ -322,7 +322,9 @@ h4.sidebar-header span {
 /*********************************/
 
 .everit_logo{
-  content:url(E_logo.png);
+  background-image:url(E_logo.png);
+  background-size: 48px 48px;
+  height: 48px;
 }
 
 .table-endtime:hover, .table-starttime:hover, .table-issue:hover, .table-comment:hover{
