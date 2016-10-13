@@ -214,6 +214,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   private boolean isShowFutureLogWarning;
 
+  private boolean isShowIssueSummary;
+
   private String issueCollectorSrc;
 
   /**
@@ -860,6 +862,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return isRounded;
   }
 
+  public boolean getIsShowIssueSummary() {
+    return isShowIssueSummary;
+  }
+
   public String getIssueCollectorSrc() {
     return issueCollectorSrc;
   }
@@ -1157,6 +1163,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     installedPluginId = pluginSettingsValues.pluginUUID;
     isRounded = pluginSettingsValues.isRounded;
     isShowFutureLogWarning = pluginSettingsValues.isShowFutureLogWarning;
+    isShowIssueSummary = pluginSettingsValues.isShowIssueSummary;
   }
 
   /**
