@@ -1018,6 +1018,14 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
       isShowFutureLogWarning = false;
     }
 
+    // the default show issue summary is FALSE
+    boolean isShowIssueSummary = false;
+    if ("true".equals(
+        pluginSettings
+            .get(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_SHOW_ISSUE_SUMMARY_IN_WORKLOG_TABLE))) {
+      isShowIssueSummary = true;
+    }
+
     // SET startTime Change the default value is 5
     int startTimeChange = getStartTimeChange();
     // SET endtTime Change the default value is 5
@@ -1038,6 +1046,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
         .pluginGroups(pluginGroups)
         .timetrackingGroups(timetrackerGroups)
         .isShowFutureLogWarning(isShowFutureLogWarning)
+        .isShowIssueSummary(isShowIssueSummary)
         .isRounded(isRounded);
     return pluginSettingsValues;
   }
@@ -1092,6 +1101,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
         pluginSettingsParameters.isRounded.toString());
     pluginSettings.put(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_SHOW_FUTURE_LOG_WARNING,
         String.valueOf(pluginSettingsParameters.isShowFutureLogWarning));
+    pluginSettings.put(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_SHOW_ISSUE_SUMMARY_IN_WORKLOG_TABLE,
+        String.valueOf(pluginSettingsParameters.isShowIssueSummary));
 
     globalSettings = settingsFactory.createGlobalSettings();
     globalSettings.put(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
