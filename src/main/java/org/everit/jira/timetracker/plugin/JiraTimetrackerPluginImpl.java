@@ -383,6 +383,13 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     exprList.add(userExpr);
     exprList.add(startExpr);
     exprList.add(endExpr);
+
+    List<Long> projects = createProjects(user);
+    EntityExpr projectExpr = new EntityExpr("project", EntityOperator.EQUALS, null);
+    if (!projects.isEmpty()) {
+      projectExpr = new EntityExpr("project", EntityOperator.IN, projects);
+    }
+    exprList.add(projectExpr);
     return exprList;
   }
 
@@ -408,10 +415,11 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     exprList.add(startExpr);
     exprList.add(endExpr);
 
+    EntityExpr projectExpr = new EntityExpr("project", EntityOperator.EQUALS, null);
     if (!projects.isEmpty()) {
-      EntityExpr projectExpr = new EntityExpr("project", EntityOperator.IN, projects);
-      exprList.add(projectExpr);
+      projectExpr = new EntityExpr("project", EntityOperator.IN, projects);
     }
+    exprList.add(projectExpr);
     return exprList;
   }
 
@@ -572,7 +580,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   public List<MissingsWorklogsDTO> getDates(final String selectedUser, final Date from,
       final Date to,
       final boolean workingHour, final boolean checkNonWorking)
-      throws GenericEntityException {
+          throws GenericEntityException {
     List<MissingsWorklogsDTO> datesWhereNoWorklog = new ArrayList<>();
     Calendar fromDate = Calendar.getInstance();
     fromDate.setTime(from);
@@ -759,7 +767,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   @Override
   public List<EveritWorklog> getWorklogs(final String selectedUser, final Date date,
       final Date finalDate)
-      throws ParseException {
+          throws ParseException {
     Calendar startDate = DateTimeConverterUtil.setDateToDayStart(date);
     Calendar endDate = (Calendar) startDate.clone();
     if (finalDate == null) {
@@ -823,8 +831,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
         * DateTimeConverterUtil.MINUTES_PER_HOUR;
 
     List<EntityCondition> exprList = createWorklogQueryExprList(user, startDate, endDate);
-    List<GenericValue> worklogGVList = ComponentAccessor.getOfBizDelegator().findByAnd("Worklog",
-        exprList);
+    List<GenericValue> worklogGVList =
+        ComponentAccessor.getOfBizDelegator().findByAnd("IssueWorklogView", exprList);
     if ((worklogGVList == null) || worklogGVList.isEmpty()) {
       return expectedTimeSpent;
     }
@@ -861,8 +869,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     List<EntityCondition> exprList = createWorklogQueryExprList(user, startDate,
         endDate);
 
-    List<GenericValue> worklogGVList = ComponentAccessor.getOfBizDelegator().findByAnd("Worklog",
-        exprList);
+    List<GenericValue> worklogGVList =
+        ComponentAccessor.getOfBizDelegator().findByAnd("IssueWorklogView", exprList);
 
     return !((worklogGVList == null) || worklogGVList.isEmpty());
   }
@@ -1243,8 +1251,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
 
     List<GenericValue> worklogs;
     // worklog query
-    worklogs = ComponentAccessor.getOfBizDelegator().findByAnd("Worklog",
-        exprList);
+    worklogs = ComponentAccessor.getOfBizDelegator().findByAnd("IssueWorklogView", exprList);
     List<GenericValue> worklogsCopy = new ArrayList<>();
     worklogsCopy.addAll(worklogs);
     // if we have non-estimated issues
