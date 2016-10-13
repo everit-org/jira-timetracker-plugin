@@ -554,6 +554,14 @@ p {
 	position: relative;
 	transition: opacity .2s, top .5s;
 }
+#wokrlogChangeDateMessage{
+	color: #707070;
+	font-weight: bold;
+	font-size: small;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	display: none;
+}
 
 table.operation-table {
   width: 100%;
