@@ -133,10 +133,11 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.plug
             </div>
           </div>
         </form>
-
+	  <p id="wokrlogChangeDateMessage">$i18n.getText('plugin.jttp-worklog-change-date-for-all')</p>
+	  <div id="dummyFormWrapper">
         <h4 id="add_worklog" name="add_worklog" class="sidebar-header"><span>$i18n.getText('plugin.header.add.worklog')</span></h4>
 
-        <form name="dummyForm" class="aui top-label" id="dummyForm" method="get" onsubmit="return false;" >
+        <form name="dummyFormForView" class="aui top-label" id="dummyFormForView" method="get" onsubmit="return false;" >
           <div class="aui-group aui-group-split bottom-module">
             <div class="aui-item">
                <div class="issue-desc-container">
@@ -216,7 +217,7 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.plug
             #parse("templates/plugins/renderers/wiki/wiki-renderer-edit.vm")
           </div>
         </form>
-
+      </div>
               <div id="buttons-container" class="buttons-container">
                 <form class="aui top-label" id="jttp-logwork-form" method="post" action="JiraTimetrackerWebAction.jspa"  onsubmit="return everit.jttp.main.beforeSubmit();" >
                 <!-- Worklog submit form -->
