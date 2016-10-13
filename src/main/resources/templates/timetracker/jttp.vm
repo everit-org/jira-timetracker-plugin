@@ -112,7 +112,11 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.plug
                 <p>$i18n.getText('jttp.error.moveall.no.permission')</p>
               </div>
             #end
-
+            #if($worklogsSizeWithoutPermissionChecks != $worklogs.size()) 
+              <div class="aui-message aui-message-warning">
+                <p>$i18n.getText('jttp.warning.no.permission.to.all.worklogs')</p>
+              </div>
+            #end
         #parse("templates/timetracker/jttp-head.vm")
         #if(!$isProgressDaily)
           #parse("templates/timetracker/summary.vm")
