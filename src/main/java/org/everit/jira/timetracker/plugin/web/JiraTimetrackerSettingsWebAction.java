@@ -99,6 +99,8 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 
   private boolean isShowFutureLogWarning;
 
+  private boolean isShowIssueSummary;
+
   private String issueCollectorSrc;
 
   /**
@@ -260,6 +262,10 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     return isShowFutureLogWarning;
   }
 
+  public boolean getIsShowIssueSummary() {
+    return isShowIssueSummary;
+  }
+
   public String getIssueCollectorSrc() {
     return issueCollectorSrc;
   }
@@ -306,6 +312,7 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     isColoring = pluginSettingsValues.isColoring;
     isRounded = pluginSettingsValues.isRounded;
     isShowFutureLogWarning = pluginSettingsValues.isShowFutureLogWarning;
+    isShowIssueSummary = pluginSettingsValues.isShowIssueSummary;
     analyticsCheck = pluginSettingsValues.analyticsCheck;
   }
 
@@ -346,6 +353,14 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 
     String isShowFutureLogWarningValue = request.getParameter("isShowFutureLogWarning");
     isShowFutureLogWarning = (isShowFutureLogWarningValue != null);
+
+    String isShowIssueSummaryValue = request.getParameter("isShowIssueSummary");
+    if ("showIssueSummary".equals(isShowIssueSummaryValue)) {
+      isShowIssueSummary = true;
+    } else {
+      isShowIssueSummary = false;
+    }
+
     try {
       if (jiraTimetrackerPlugin.validateTimeChange(startTimeValue)) {
         startTime = startTimeValue;
@@ -393,6 +408,7 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
         .endTimeChange(Integer.parseInt(endTime))
         .analyticsCheck(analyticsCheck)
         .isRounded(isRounded)
+        .isShowIssueSummary(isShowIssueSummary)
         .isShowFutureLogWarning(isShowFutureLogWarning);
     jiraTimetrackerPlugin.savePluginSettings(pluginSettingValues);
   }
@@ -427,6 +443,10 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 
   public void setIsShowFutureLogWarning(final boolean isShowFutureLogWarning) {
     this.isShowFutureLogWarning = isShowFutureLogWarning;
+  }
+
+  public void setIsShowIssueSummary(final boolean isShowIssueSummary) {
+    this.isShowIssueSummary = isShowIssueSummary;
   }
 
   public void setMessage(final String message) {

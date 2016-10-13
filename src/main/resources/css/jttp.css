@@ -240,6 +240,9 @@ table#jttp-worklog-table th#jttp-worklog-issue-type {
 table#jttp-worklog-table th#jttp-worklog-issue-key {
   width: 120px;
 }
+table#jttp-worklog-table th#jttp-worklog-issue-summary {
+  width: 220px;
+}
 
 table#jttp-worklog-table th#jttp-worklog-issue-remaining {
   width: 90px;
@@ -258,6 +261,9 @@ table#jttp-worklog-table th#jttp-worklog-duration {
 }
 table#jttp-worklog-table th#jttp-worklog-description {
   width: 430px;
+}
+table#jttp-worklog-table th#jttp-worklog-description-small {
+  width: 330px;
 }
 .aui-group>.aui-item.summary-module {
     width: 40%;

@@ -96,6 +96,12 @@ public final class GlobalSettingsKey {
   public static final String JTTP_PLUGIN_SETTINGS_SHOW_FUTURE_LOG_WARNING = "showFutureLogWarning";
 
   /**
+   * User specific key for show the issue summary or the issue key in worklog table.
+   */
+  public static final String JTTP_PLUGIN_SETTINGS_SHOW_ISSUE_SUMMARY_IN_WORKLOG_TABLE =
+      "showIssueSummaryInWoroklogTable";
+
+  /**
    * The plugin setting is show tutoriak version key.
    */
   public static final String JTTP_PLUGIN_SETTINGS_SHOW_TUTORIAL_VERSION = "showTutorialVersion";
@@ -129,7 +135,6 @@ public final class GlobalSettingsKey {
    * The update notifier last update time global setting key.
    */
   public static final String JTTP_UPDATE_NOTIFIER_LAST_UPDATE = "UPDATE_NOTIFIER";
-
   /**
    * The update notifier latest version of the JTTP global setting key.
    */

@@ -80,6 +80,8 @@ public class PluginSettingsValues implements Serializable {
 
   public boolean isShowFutureLogWarning;
 
+  public boolean isShowIssueSummary;
+
   /**
    * The plugin groups.
    */
@@ -156,6 +158,11 @@ public class PluginSettingsValues implements Serializable {
 
   public PluginSettingsValues isShowFutureLogWarning(final boolean isShowFutureLogWarning) {
     this.isShowFutureLogWarning = isShowFutureLogWarning;
+    return this;
+  }
+
+  public PluginSettingsValues isShowIssueSummary(final boolean isShowIssueSummary) {
+    this.isShowIssueSummary = isShowIssueSummary;
     return this;
   }
 
