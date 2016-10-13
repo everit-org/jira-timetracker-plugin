@@ -45,6 +45,17 @@ public interface JiraTimetrackerPlugin {
   double countRealWorkDaysInWeek(final List<String> weekDaysAsString);
 
   /**
+   * Count worklog size without permission check beetween start and end date for the logged user.
+   *
+   * @param startDate
+   *          the start date.
+   * @param endDate
+   *          the end date.
+   * @return the size of worklogs.
+   */
+  long countWorklogsWithoutPermissionChecks(Date startDate, Date endDate);
+
+  /**
    * Create a worklog whit the given parameters.
    *
    * @param issueId
