@@ -18,7 +18,9 @@ package org.everit.jira.reporting.plugin.query;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -37,6 +39,7 @@ import org.everit.jira.querydsl.schema.QLabel;
 import org.everit.jira.querydsl.schema.QNodeassociation;
 import org.everit.jira.querydsl.schema.QPriority;
 import org.everit.jira.querydsl.schema.QProject;
+import org.everit.jira.querydsl.schema.QProjectroleactor;
 import org.everit.jira.querydsl.schema.QProjectversion;
 import org.everit.jira.querydsl.schema.QResolution;
 import org.everit.jira.querydsl.schema.QWorklog;
@@ -44,8 +47,10 @@ import org.everit.jira.querydsl.support.QuerydslCallable;
 import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
 import org.everit.jira.reporting.plugin.exception.JTRPException;
 
+import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.entity.Entity;
 import com.atlassian.jira.issue.IssueRelationConstants;
+import com.atlassian.jira.user.ApplicationUser;
 import com.querydsl.core.types.PathMetadata;
 import com.querydsl.core.types.PathType;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -151,6 +156,7 @@ public abstract class AbstractReportQuery<T> {
     where = filterToWorklogAuhtors(qWorklog, where);
     where = filterToWorklogStartDate(qWorklog, where);
     where = filterToWorklogEndDate(qWorklog, where);
+    where = filterToWorklogVisibility(qWorklog, where);
 
     query.where(where);
   }
@@ -603,6 +609,31 @@ public abstract class AbstractReportQuery<T> {
               .getTime())));
     }
     return where;
+  }
+
+  private BooleanExpression filterToWorklogVisibility(final QWorklog qWorklog,
+      final BooleanExpression where) {
+    BooleanExpression nullExpressions =
+        qWorklog.rolelevel.isNull().and(qWorklog.grouplevel.isNull());
+
+    ApplicationUser loggedUser = ComponentAccessor.getJiraAuthenticationContext().getUser();
+    Collection<String> loggedUserGroupNames =
+        ComponentAccessor.getGroupManager().getGroupNamesForUser(loggedUser);
+
+    ArrayList<String> roleTypeParameters = new ArrayList<>(loggedUserGroupNames);
+    roleTypeParameters.add(loggedUser.getKey());
+
+    QProjectroleactor qProjectroleactor = new QProjectroleactor("practor");
+    BooleanExpression roleLevelExpression = SQLExpressions.select(qProjectroleactor.id)
+        .from(qProjectroleactor)
+        .where(qProjectroleactor.projectroleid.eq(qWorklog.rolelevel)
+            .and(qProjectroleactor.pid.eq(qProject.id))
+            .and(qProjectroleactor.roletypeparameter.in(roleTypeParameters)))
+        .exists();
+
+    BooleanExpression groupLevelExpression = qWorklog.grouplevel.in(loggedUserGroupNames);
+
+    return where.and(nullExpressions.or(roleLevelExpression).or(groupLevelExpression));
   }
 
   protected abstract QuerydslCallable<Long> getCountQuery();

@@ -319,6 +319,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    */
   private List<Long> worklogsIds = new ArrayList<>();
 
+  private long worklogsSizeWithoutPermissionChecks;
+
   private WorklogValues worklogValue;
 
   private String worklogValuesJson;
@@ -988,6 +990,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return worklogsIds;
   }
 
+  public long getWorklogsSizeWithoutPermissionChecks() {
+    return worklogsSizeWithoutPermissionChecks;
+  }
+
   /**
    * Date change action handler.
    *
@@ -1178,6 +1184,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     }
     worklogs = jiraTimetrackerPlugin.getWorklogs(null, date, null);
     worklogsIds = copyWorklogIdsToArray(worklogs);
+    worklogsSizeWithoutPermissionChecks =
+        jiraTimetrackerPlugin.countWorklogsWithoutPermissionChecks(date, null);
 
     makeSummary();
   }
