@@ -73,7 +73,7 @@
         
           <h3>$i18n.getText("plugin.setting.progress.ind.appearance")</h3>
         <div class="field-group">
-          <label>asdf</label>
+          <label>$i18n.getText("plugin.setting.progress.ind"):</label>
           <div>
             <input id="radioDaily" type="radio" name="progressInd" value="daily" class="settings-input" #if($progressIndDaily) checked="true" #end>
             <label for="radioDaily">$i18n.getText("plugin.setting.progress.ind.daily")</label>
