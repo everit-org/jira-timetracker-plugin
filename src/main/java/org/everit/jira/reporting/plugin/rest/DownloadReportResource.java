@@ -46,11 +46,8 @@ import org.everit.jira.reporting.plugin.export.ExcelToCsvConverter;
 import org.everit.jira.reporting.plugin.export.ExportSummariesListReport;
 import org.everit.jira.reporting.plugin.export.ExportWorklogDetailsListReport;
 import org.everit.jira.reporting.plugin.util.ConverterUtil;
-import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
-import org.everit.jira.timetracker.plugin.UserReportingSettingsHelper;
-import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
+import org.everit.jira.settings.TimetrackerSettingsHelper;
 
-import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.google.gson.Gson;
 
 /**
@@ -71,18 +68,18 @@ public class DownloadReportResource {
 
   private ReportingPlugin reportingPlugin;
 
-  private UserReportingSettingsHelper userReportingSettingsHelper;
+  private TimetrackerSettingsHelper settingsHelper;
 
   /**
    * Simple constructor.
    */
-  public DownloadReportResource(final PluginSettingsFactory pluginSettingsFactory,
-      final AnalyticsSender analyticsSender, final ReportingPlugin reportingPlugin) {
-    pluginId = JiraTimetrackerAnalytics.getPluginUUID(pluginSettingsFactory.createGlobalSettings());
+  public DownloadReportResource(final AnalyticsSender analyticsSender,
+      final ReportingPlugin reportingPlugin,
+      final TimetrackerSettingsHelper settingsHelper) {
+    pluginId = settingsHelper.loadGlobalSettings().getPluginUUID();
     this.analyticsSender = analyticsSender;
     this.reportingPlugin = reportingPlugin;
-    userReportingSettingsHelper = new UserReportingSettingsHelper(pluginSettingsFactory,
-        JiraTimetrackerUtil.getLoggedUserName());
+    this.settingsHelper = settingsHelper;
     try {
       querydslSupport = new QuerydslSupportImpl();
     } catch (Exception e) {
@@ -128,7 +125,7 @@ public class DownloadReportResource {
 
     ExportSummariesListReport exportSummariesListReport =
         new ExportSummariesListReport(querydslSupport, converSearchParam.reportSearchParam,
-            converSearchParam.notBrowsableProjectKeys, userReportingSettingsHelper);
+            converSearchParam.notBrowsableProjectKeys, settingsHelper.loadUserSettings());
 
     HSSFWorkbook workbook = exportSummariesListReport.exportToXLS();
     return workbook;
@@ -154,7 +151,7 @@ public class DownloadReportResource {
             downloadWorklogDetailsParam.selectedWorklogDetailsColumns,
             converSearchParam.reportSearchParam,
             converSearchParam.notBrowsableProjectKeys,
-            orderBy, userReportingSettingsHelper);
+            orderBy, settingsHelper.loadUserSettings());
 
     HSSFWorkbook workbook = exportWorklogDetailsListReport.exportToXLS();
     return workbook;

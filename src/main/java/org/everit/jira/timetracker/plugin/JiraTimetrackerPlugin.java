@@ -233,7 +233,7 @@ public interface JiraTimetrackerPlugin {
    *
    * @return {@link PluginSettingsValues} object what contains the settings.
    */
-  PluginSettingsValues loadPluginSettings();
+  PluginSettingsValues loadGlobalPluginSettings();
 
   /**
    * Set the plugin settings and save them.
@@ -242,7 +242,7 @@ public interface JiraTimetrackerPlugin {
    *          The plugin settings parameters.
    * @return {@link ActionResult} if the plugin settings was saved successful SUCCESS else FAIL.
    */
-  void savePluginSettings(PluginSettingsValues pluginSettingsParameter);
+  void saveGlobalSettings(PluginSettingsValues pluginSettingsParameter);
 
   /**
    * Send a email through the Jira to the given FEEDBACK_EMAIL_TO address. The address come form the
@@ -273,16 +273,4 @@ public interface JiraTimetrackerPlugin {
   long summary(Date startSummary, Date finishSummary, List<Pattern> issueIds)
       throws GenericEntityException;
 
-  /**
-   * Validate the start and end time changer buttons values. The acceptable values: 1, 5, 10, 15,
-   * 20, 30.
-   *
-   * @param changeValue
-   *          The new value.
-   * @return True if the value acceptable else false.
-   * @throws NumberFormatException
-   *           If the value can't parse to int.
-   */
-  boolean validateTimeChange(final String changeValue)
-      throws NumberFormatException;
 }

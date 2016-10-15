@@ -38,11 +38,6 @@ public class PluginSettingsValues implements Serializable {
   public List<Pattern> collectorIssues;
 
   /**
-   * End time rounding change value.
-   */
-  public int endTimeChange;
-
-  /**
    * Exclude dates.
    */
   public String excludeDates;
@@ -58,31 +53,6 @@ public class PluginSettingsValues implements Serializable {
   public String includeDates;
 
   /**
-   * The plugin calendar show the actual date when start or the latest day what not contains
-   * worklog.
-   */
-  public Boolean isActualDate;
-
-  /**
-   * Coloring settings.
-   */
-  public Boolean isColoring;
-
-  /**
-   * The timetracker progress indicator is daily type.
-   */
-  public Boolean isProgressIndicatorDaily;
-
-  /**
-   * Rounded remaining time settings.
-   */
-  public Boolean isRounded;
-
-  public boolean isShowFutureLogWarning;
-
-  public boolean isShowIssueSummary;
-
-  /**
    * The plugin groups.
    */
   public List<String> pluginGroups;
@@ -93,21 +63,11 @@ public class PluginSettingsValues implements Serializable {
   public String pluginUUID;
 
   /**
-   * Start time rounding value change.
-   */
-  public int startTimeChange;
-
-  /**
    * The timetarckning groups.
    */
   public List<String> timetrackingGroups;
 
   public PluginSettingsValues() {
-  }
-
-  public PluginSettingsValues actualDate(final boolean actualDateOrLastWorklogDate) {
-    isActualDate = actualDateOrLastWorklogDate;
-    return this;
   }
 
   public PluginSettingsValues analyticsCheck(final boolean analyticsCheck) {
@@ -117,16 +77,6 @@ public class PluginSettingsValues implements Serializable {
 
   public PluginSettingsValues collectorIssues(final List<Pattern> collectorIssues) {
     this.collectorIssues = collectorIssues;
-    return this;
-  }
-
-  public PluginSettingsValues coloring(final boolean isColoring) {
-    this.isColoring = isColoring;
-    return this;
-  }
-
-  public PluginSettingsValues endTimeChange(final int endTimeChange) {
-    this.endTimeChange = endTimeChange;
     return this;
   }
 
@@ -146,26 +96,6 @@ public class PluginSettingsValues implements Serializable {
     return this;
   }
 
-  public PluginSettingsValues isProgressIndicatordaily(final boolean isProgressIndicatorDaily) {
-    this.isProgressIndicatorDaily = isProgressIndicatorDaily;
-    return this;
-  }
-
-  public PluginSettingsValues isRounded(final boolean isRounded) {
-    this.isRounded = isRounded;
-    return this;
-  }
-
-  public PluginSettingsValues isShowFutureLogWarning(final boolean isShowFutureLogWarning) {
-    this.isShowFutureLogWarning = isShowFutureLogWarning;
-    return this;
-  }
-
-  public PluginSettingsValues isShowIssueSummary(final boolean isShowIssueSummary) {
-    this.isShowIssueSummary = isShowIssueSummary;
-    return this;
-  }
-
   public PluginSettingsValues pluginGroups(final List<String> pluginGroups) {
     this.pluginGroups = pluginGroups;
     return this;
@@ -173,11 +103,6 @@ public class PluginSettingsValues implements Serializable {
 
   public PluginSettingsValues pluginUUID(final String pluginUUID) {
     this.pluginUUID = pluginUUID;
-    return this;
-  }
-
-  public PluginSettingsValues startTimeChange(final int startTimeChange) {
-    this.startTimeChange = startTimeChange;
     return this;
   }
 

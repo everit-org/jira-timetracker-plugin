@@ -24,6 +24,7 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpSession;
 
+import org.everit.jira.timetracker.plugin.JiraTimetrackerPluginImpl;
 import org.everit.jira.timetracker.plugin.dto.WorklogValues;
 
 import com.atlassian.jira.component.ComponentAccessor;
@@ -385,6 +386,27 @@ public final class JiraTimetrackerUtil {
   }
 
   private JiraTimetrackerUtil() {
+  }
+
+  public static boolean validateTimeChange(final String changeValue)
+      throws NumberFormatException {
+    int changeValueInt = Integer.parseInt(changeValue);
+  
+    switch (changeValueInt) {
+      case JiraTimetrackerPluginImpl.FIVE_MINUTES:
+        return true;
+      case JiraTimetrackerPluginImpl.TEN_MINUTES:
+        return true;
+      case JiraTimetrackerPluginImpl.FIFTEEN_MINUTES:
+        return true;
+      case JiraTimetrackerPluginImpl.TWENTY_MINUTES:
+        return true;
+      case JiraTimetrackerPluginImpl.THIRTY_MINUTES:
+        return true;
+      default:
+        return false;
+    }
+  
   }
 
 }

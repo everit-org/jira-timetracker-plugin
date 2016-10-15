@@ -18,7 +18,7 @@ package org.everit.jira.timetracker.plugin;
 import java.util.Collection;
 import java.util.List;
 
-import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
+import org.everit.jira.settings.TimetrackerSettingsHelper;
 
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.plugin.webfragment.conditions.AbstractWebCondition;
@@ -32,16 +32,15 @@ import com.atlassian.jira.user.ApplicationUser;
  */
 public class TimetrackerCondition extends AbstractWebCondition {
 
-  private JiraTimetrackerPlugin timetrackerPlugin;
+  private TimetrackerSettingsHelper settingsHelper;
 
-  public TimetrackerCondition(final JiraTimetrackerPlugin timetrackerPlugin) {
-    this.timetrackerPlugin = timetrackerPlugin;
+  public TimetrackerCondition(final TimetrackerSettingsHelper settingsHelper) {
+    this.settingsHelper = settingsHelper;
   }
 
   @Override
   public boolean shouldDisplay(final ApplicationUser user, final JiraHelper jiraHelper) {
-    PluginSettingsValues loadPluginSettings = timetrackerPlugin.loadPluginSettings();
-    List<String> timetrackingGroups = loadPluginSettings.timetrackingGroups;
+    List<String> timetrackingGroups = settingsHelper.loadGlobalSettings().getTimetrackerGroups();
     if ((timetrackingGroups == null) || timetrackingGroups.isEmpty()) {
       return true;
     }

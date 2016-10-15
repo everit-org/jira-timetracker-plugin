@@ -32,6 +32,8 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.everit.jira.analytics.AnalyticsDTO;
+import org.everit.jira.settings.TimetrackerSettingsHelper;
+import org.everit.jira.settings.dto.TimeTrackerUserSettings;
 import org.everit.jira.timetracker.plugin.DurationFormatter;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
@@ -61,7 +63,6 @@ import com.atlassian.jira.issue.RendererManager;
 import com.atlassian.jira.issue.fields.renderer.IssueRenderContext;
 import com.atlassian.jira.issue.fields.renderer.JiraRendererPlugin;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
-import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
 /**
  * The timetracker web action support class.
@@ -273,12 +274,12 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   private PluginCondition pluginCondition;
 
-  private final PluginSettingsFactory pluginSettingsFactory;
-
   /**
    * The IDs of the projects.
    */
   private List<String> projectsId;
+
+  private TimetrackerSettingsHelper settingsHelper;
 
   /**
    * The worklog start time.
@@ -336,20 +337,18 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    *          The {@link JiraTimetrackerPlugin}.
    * @param timeTrackingConfiguration
    *          the {@link TimeTrackingConfiguration}.
-   * @param pluginSettingsFactory
-   *          the {@link PluginSettingsFactory}.
    */
   public JiraTimetrackerWebAction(
       final JiraTimetrackerPlugin jiraTimetrackerPlugin,
       final TimeTrackingConfiguration timeTrackingConfiguration,
-      final PluginSettingsFactory pluginSettingsFactory) {
+      final TimetrackerSettingsHelper settingsHelper) {
     this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
     this.timeTrackingConfiguration = timeTrackingConfiguration;
-    this.pluginSettingsFactory = pluginSettingsFactory;
-    timetrackingCondition = new TimetrackerCondition(jiraTimetrackerPlugin);
-    pluginCondition = new PluginCondition(jiraTimetrackerPlugin);
+    timetrackingCondition = new TimetrackerCondition(settingsHelper);
+    pluginCondition = new PluginCondition(settingsHelper);
     issueRenderContext = new IssueRenderContext(null);
     RendererManager rendererManager = ComponentAccessor.getRendererManager();
+    this.settingsHelper = settingsHelper;
     atlassianWikiRenderer = rendererManager.getRendererForType("atlassian-wiki-renderer");
   }
 
@@ -559,8 +558,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       return checkConditionsResult;
     }
 
-    analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(pluginSettingsFactory,
-        PiwikPropertiesUtil.PIWIK_TIMETRACKER_SITEID);
+    analyticsDTO = JiraTimetrackerAnalytics
+        .getAnalyticsDTO(PiwikPropertiesUtil.PIWIK_TIMETRACKER_SITEID, settingsHelper);
 
     normalizeContextPath();
     loadIssueCollectorSrc();
@@ -598,8 +597,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       return checkConditionsResult;
     }
 
-    analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(pluginSettingsFactory,
-        PiwikPropertiesUtil.PIWIK_TIMETRACKER_SITEID);
+    analyticsDTO = JiraTimetrackerAnalytics
+        .getAnalyticsDTO(PiwikPropertiesUtil.PIWIK_TIMETRACKER_SITEID, settingsHelper);
 
     normalizeContextPath();
     loadIssueCollectorSrc();
@@ -1157,19 +1156,20 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   }
 
   private void loadPluginSettingAndParseResult() {
+    TimeTrackerUserSettings userSettings = settingsHelper.loadUserSettings();
     PluginSettingsValues pluginSettingsValues = jiraTimetrackerPlugin
-        .loadPluginSettings();
+        .loadGlobalPluginSettings();
 
-    isProgressDaily = pluginSettingsValues.isProgressIndicatorDaily;
-    isActualDate = pluginSettingsValues.isActualDate;
+    isProgressDaily = userSettings.getisProgressIndicatordaily();
+    isActualDate = userSettings.getActualDate();
     issuesRegex = pluginSettingsValues.filteredSummaryIssues;
-    startTimeChange = pluginSettingsValues.startTimeChange;
-    endTimeChange = pluginSettingsValues.endTimeChange;
-    isColoring = pluginSettingsValues.isColoring;
+    startTimeChange = userSettings.getStartTimeChange();
+    endTimeChange = userSettings.getEndTimeChange();
+    isColoring = userSettings.getColoring();
     installedPluginId = pluginSettingsValues.pluginUUID;
-    isRounded = pluginSettingsValues.isRounded;
-    isShowFutureLogWarning = pluginSettingsValues.isShowFutureLogWarning;
-    isShowIssueSummary = pluginSettingsValues.isShowIssueSummary;
+    isRounded = userSettings.getisRounded();
+    isShowFutureLogWarning = userSettings.getisShowFutureLogWarning();
+    isShowIssueSummary = userSettings.getisShowIssueSummary();
   }
 
   /**
@@ -1402,8 +1402,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * @return true if bar should be render
    */
   public boolean renderUpdateNotifier() {
-    return new UpdateNotifier(pluginSettingsFactory, JiraTimetrackerUtil.getLoggedUserName())
-        .isShowUpdater();
+    return new UpdateNotifier(settingsHelper).isShowUpdater();
 
   }
 

@@ -274,7 +274,7 @@ public class ReportingPluginImpl implements ReportingPlugin, InitializingBean,
     List<String> browseGroupsNames = (List<String>) reportingSettings
         .get(JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX
             + JTTP_PLUGIN_REPORTING_SETTINGS_BROWSE_GROUPS);
-    browseGroups = new ArrayList<String>();
+    browseGroups = new ArrayList<>();
     if (browseGroupsNames != null) {
       browseGroups = browseGroupsNames;
     }
@@ -283,7 +283,7 @@ public class ReportingPluginImpl implements ReportingPlugin, InitializingBean,
   private void setReportingGroups() {
     List<String> reportingGroupsNames = (List<String>) reportingSettings
         .get(JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX + JTTP_PLUGIN_REPORTING_SETTINGS_GROUPS);
-    reportingGroups = new ArrayList<String>();
+    reportingGroups = new ArrayList<>();
     if (reportingGroupsNames != null) {
       reportingGroups = reportingGroupsNames;
     }

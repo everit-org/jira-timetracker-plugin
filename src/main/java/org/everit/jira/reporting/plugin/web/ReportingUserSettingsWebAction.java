@@ -23,14 +23,14 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.everit.jira.reporting.plugin.ReportingCondition;
 import org.everit.jira.reporting.plugin.ReportingPlugin;
+import org.everit.jira.settings.TimetrackerSettingsHelper;
+import org.everit.jira.settings.dto.TimeTrackerUserSettings;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
 import org.everit.jira.timetracker.plugin.PluginCondition;
-import org.everit.jira.timetracker.plugin.UserReportingSettingsHelper;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 
 import com.atlassian.jira.web.action.JiraWebActionSupport;
-import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
 /**
  * Admin settings page.
@@ -64,7 +64,7 @@ public class ReportingUserSettingsWebAction extends JiraWebActionSupport {
 
   private ReportingCondition reportingCondition;
 
-  private PluginSettingsFactory settingsFactory;
+  private TimetrackerSettingsHelper settingsHelper;
 
   private boolean userPopupVisible;
 
@@ -80,11 +80,12 @@ public class ReportingUserSettingsWebAction extends JiraWebActionSupport {
    * @param timetrackerPlugin
    *          Timetarcker plugin.
    */
-  public ReportingUserSettingsWebAction(final PluginSettingsFactory settingsFactory,
-      final ReportingPlugin reportingPlugin, final JiraTimetrackerPlugin timetrackerPlugin) {
-    this.settingsFactory = settingsFactory;
+  public ReportingUserSettingsWebAction(final ReportingPlugin reportingPlugin,
+      final JiraTimetrackerPlugin timetrackerPlugin,
+      final TimetrackerSettingsHelper settingsHelper) {
     reportingCondition = new ReportingCondition(reportingPlugin);
-    pluginCondition = new PluginCondition(timetrackerPlugin);
+    pluginCondition = new PluginCondition(settingsHelper);
+    this.settingsHelper = settingsHelper;
   }
 
   private String checkConditions() {
@@ -112,7 +113,7 @@ public class ReportingUserSettingsWebAction extends JiraWebActionSupport {
     }
     normalizeContextPath();
     loadIssueCollectorSrc();
-    loadPluginSettingAndParseResult();
+    loadPluginSettings();
 
     return INPUT;
   }
@@ -125,7 +126,7 @@ public class ReportingUserSettingsWebAction extends JiraWebActionSupport {
     }
     normalizeContextPath();
     loadIssueCollectorSrc();
-    loadPluginSettingAndParseResult();
+    loadPluginSettings();
 
     if (getHttpRequest().getParameter("savesettings") != null) {
       String parseResult = parseSaveSettings(getHttpRequest());
@@ -172,12 +173,11 @@ public class ReportingUserSettingsWebAction extends JiraWebActionSupport {
   /**
    * Load the plugin settings and set the variables.
    */
-  public void loadPluginSettingAndParseResult() {
-    UserReportingSettingsHelper userReportingSettingsHelper =
-        new UserReportingSettingsHelper(settingsFactory, JiraTimetrackerUtil.getLoggedUserName());
-    pageSize = userReportingSettingsHelper.getPageSize();
-    userPopupVisible = userReportingSettingsHelper.getIsShowTutorialDialog();
-    worklogTimeInSeconds = userReportingSettingsHelper.getWorklogTimeInSeconds();
+  public void loadPluginSettings() {
+    TimeTrackerUserSettings userSettings = settingsHelper.loadUserSettings();
+    pageSize = userSettings.getPageSize();
+    userPopupVisible = userSettings.getIsShowTutorialDialog();
+    worklogTimeInSeconds = userSettings.getWorklogTimeInSeconds();
 
   }
 
@@ -238,11 +238,11 @@ public class ReportingUserSettingsWebAction extends JiraWebActionSupport {
    * Save the user reporting settings.
    */
   public void savePluginSettings() {
-    UserReportingSettingsHelper userReportingSettingsHelper =
-        new UserReportingSettingsHelper(settingsFactory, JiraTimetrackerUtil.getLoggedUserName());
-    userReportingSettingsHelper.saveIsShowTutorialDialog(userPopupVisible);
-    userReportingSettingsHelper.savePageSize(pageSize);
-    userReportingSettingsHelper.saveWorklogTimeInSeconds(worklogTimeInSeconds);
+    TimeTrackerUserSettings userSettings = new TimeTrackerUserSettings()
+        .isShowTutorialDialog(userPopupVisible)
+        .pageSize(pageSize)
+        .worklogTimeInSeconds(worklogTimeInSeconds);
+    settingsHelper.saveUserSettings(userSettings);
   }
 
   public void setContextPath(final String contextPath) {

@@ -31,6 +31,7 @@ import org.everit.jira.analytics.AnalyticsSender;
 import org.everit.jira.analytics.event.NoEstimateUsageChangedEvent;
 import org.everit.jira.analytics.event.NonWorkingUsageEvent;
 import org.everit.jira.reporting.plugin.util.ConverterUtil;
+import org.everit.jira.settings.TimetrackerSettingsHelper;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
 import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
@@ -40,7 +41,6 @@ import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
-import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
 /**
  * Admin settings page.
@@ -86,11 +86,6 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
   private String contextPath;
 
   /**
-   * The pluginSetting endTime value.
-   */
-  private int endTime;
-
-  /**
    * The exclude dates in String format.
    */
   private String excludeDates = "";
@@ -101,20 +96,6 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    * The include dates in String format.
    */
   private String includeDates = "";
-
-  /**
-   * The calenar show the actualDate or the last unfilled date.
-   */
-  private boolean isActualDate;
-
-  /**
-   * The pluginSetting isColoring value.
-   */
-  private boolean isColoring;
-
-  private boolean isProgressDaily;
-
-  private boolean isRounded;
 
   private String issueCollectorSrc;
 
@@ -167,28 +148,22 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    */
   private List<String> projectsId;
 
-  /**
-   * The pluginSetting startTime value.
-   */
-  private int startTime;
-
   private List<String> timetrackerGroups;
 
   /**
    * Simple constructor.
    *
-   * @param pluginSettingsFactory
-   *          the {@link PluginSettingsFactory}.
    * @param jiraTimetrackerPlugin
    *          The {@link JiraTimetrackerPlugin}.
    * @param analyticsSender
    *          The {@link AnalyticsSender}.
    */
-  public AdminSettingsWebAction(final PluginSettingsFactory pluginSettingsFactory,
-      final JiraTimetrackerPlugin jiraTimetrackerPlugin, final AnalyticsSender analyticsSender) {
+  public AdminSettingsWebAction(
+      final JiraTimetrackerPlugin jiraTimetrackerPlugin, final AnalyticsSender analyticsSender,
+      final TimetrackerSettingsHelper settingsHelper) {
     this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
     this.analyticsSender = analyticsSender;
-    pluginId = JiraTimetrackerAnalytics.getPluginUUID(pluginSettingsFactory.createGlobalSettings());
+    pluginId = settingsHelper.loadGlobalSettings().getPluginUUID();
   }
 
   private void checkMailServer() {
@@ -328,12 +303,7 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    */
   public void loadPluginSettingAndParseResult() {
     PluginSettingsValues pluginSettingsValues = jiraTimetrackerPlugin
-        .loadPluginSettings();
-    isProgressDaily = pluginSettingsValues.isProgressIndicatorDaily;
-    isActualDate = pluginSettingsValues.isActualDate;
-    startTime = pluginSettingsValues.startTimeChange;
-    endTime = pluginSettingsValues.endTimeChange;
-    isColoring = pluginSettingsValues.isColoring;
+        .loadGlobalPluginSettings();
     issuesPatterns = pluginSettingsValues.filteredSummaryIssues;
     for (Pattern issueId : issuesPatterns) {
       issueKey += issueId.toString() + " ";
@@ -347,7 +317,6 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     analyticsCheck = pluginSettingsValues.analyticsCheck;
     pluginGroups = pluginSettingsValues.pluginGroups;
     timetrackerGroups = pluginSettingsValues.timetrackingGroups;
-    isRounded = pluginSettingsValues.isRounded;
   }
 
   private void normalizeContextPath() {
@@ -520,21 +489,15 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    */
   public void savePluginSettings() {
     PluginSettingsValues pluginSettingValues = new PluginSettingsValues()
-        .isProgressIndicatordaily(isProgressDaily)
-        .actualDate(isActualDate)
         .excludeDates(excludeDates)
         .includeDates(includeDates)
-        .coloring(isColoring)
         .filteredSummaryIssues(issuesPatterns)
         .collectorIssues(collectorIssuePatterns)
-        .startTimeChange(startTime)
-        .endTimeChange(endTime)
         .analyticsCheck(analyticsCheck)
         .pluginGroups(pluginGroups)
-        .timetrackingGroups(timetrackerGroups)
-        .isRounded(isRounded);
+        .timetrackingGroups(timetrackerGroups);
 
-    jiraTimetrackerPlugin.savePluginSettings(pluginSettingValues);
+    jiraTimetrackerPlugin.saveGlobalSettings(pluginSettingValues);
     sendNonEstAndNonWorkAnaliticsEvent();
   }
 

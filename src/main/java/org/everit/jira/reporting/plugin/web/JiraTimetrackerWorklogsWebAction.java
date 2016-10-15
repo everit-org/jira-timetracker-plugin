@@ -29,6 +29,7 @@ import org.everit.jira.reporting.plugin.ReportingCondition;
 import org.everit.jira.reporting.plugin.ReportingPlugin;
 import org.everit.jira.reporting.plugin.dto.MissingsPageingDTO;
 import org.everit.jira.reporting.plugin.dto.MissingsWorklogsDTO;
+import org.everit.jira.settings.TimetrackerSettingsHelper;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
 import org.everit.jira.timetracker.plugin.PluginCondition;
@@ -41,7 +42,6 @@ import org.ofbiz.core.entity.GenericEntityException;
 import com.atlassian.jira.datetime.DateTimeFormatter;
 import com.atlassian.jira.datetime.DateTimeStyle;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
-import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
 /**
  * Missing worklogs page.
@@ -137,11 +137,11 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
   private PluginCondition pluginCondition;
 
-  private final PluginSettingsFactory pluginSettingsFactory;
-
   private ReportingCondition reportingCondition;
 
   private ReportingPlugin reportingPlugin;
+
+  private TimetrackerSettingsHelper settingsHelper;
 
   private List<MissingsWorklogsDTO> showDatesWhereNoWorklog;
 
@@ -150,18 +150,16 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    *
    * @param jiraTimetrackerPlugin
    *          The {@link JiraTimetrackerPlugin}.
-   * @param pluginSettingsFactory
-   *          the {@link PluginSettingsFactory}.
    */
   public JiraTimetrackerWorklogsWebAction(
       final JiraTimetrackerPlugin jiraTimetrackerPlugin,
       final ReportingPlugin reportingPlugin,
-      final PluginSettingsFactory pluginSettingsFactory) {
+      final TimetrackerSettingsHelper settingsHelper) {
     this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
     this.reportingPlugin = reportingPlugin;
+    this.settingsHelper = settingsHelper;
     reportingCondition = new ReportingCondition(this.reportingPlugin);
-    this.pluginSettingsFactory = pluginSettingsFactory;
-    pluginCondition = new PluginCondition(jiraTimetrackerPlugin);
+    pluginCondition = new PluginCondition(settingsHelper);
   }
 
   private String checkConditions() {
@@ -222,8 +220,8 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     normalizeContextPath();
     loadIssueCollectorSrc();
 
-    analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(pluginSettingsFactory,
-        PiwikPropertiesUtil.PIWIK_WORKLOGS_SITEID);
+    analyticsDTO = JiraTimetrackerAnalytics
+        .getAnalyticsDTO(PiwikPropertiesUtil.PIWIK_WORKLOGS_SITEID, settingsHelper);
 
     if (dateToFormated == null) {
       dateToDefaultInit();
@@ -259,8 +257,8 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     normalizeContextPath();
     loadIssueCollectorSrc();
 
-    analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(pluginSettingsFactory,
-        PiwikPropertiesUtil.PIWIK_WORKLOGS_SITEID);
+    analyticsDTO = JiraTimetrackerAnalytics
+        .getAnalyticsDTO(PiwikPropertiesUtil.PIWIK_WORKLOGS_SITEID, settingsHelper);
 
     initVariables();
     String searchActionResult = parseParams();
@@ -460,8 +458,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    * @return true if bar should be render
    */
   public boolean renderUpdateNotifier() {
-    return new UpdateNotifier(pluginSettingsFactory, JiraTimetrackerUtil.getLoggedUserName())
-        .isShowUpdater();
+    return new UpdateNotifier(settingsHelper).isShowUpdater();
   }
 
   public void setActualPage(final int actualPage) {
