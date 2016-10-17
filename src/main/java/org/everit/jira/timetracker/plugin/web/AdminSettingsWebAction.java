@@ -31,11 +31,10 @@ import org.apache.log4j.Logger;
 import org.everit.jira.analytics.AnalyticsSender;
 import org.everit.jira.analytics.event.NoEstimateUsageChangedEvent;
 import org.everit.jira.analytics.event.NonWorkingUsageEvent;
-import org.everit.jira.reporting.plugin.util.ConverterUtil;
 import org.everit.jira.settings.TimetrackerSettingsHelper;
+import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
-import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
@@ -153,6 +152,8 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    */
   private List<String> projectsId;
 
+  private TimetrackerSettingsHelper settingsHelper;
+
   private List<String> timetrackerGroups;
 
   /**
@@ -168,6 +169,7 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
       final TimetrackerSettingsHelper settingsHelper) {
     this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
     this.analyticsSender = analyticsSender;
+    this.settingsHelper = settingsHelper;
     pluginId = settingsHelper.loadGlobalSettings().getPluginUUID();
   }
 
@@ -307,21 +309,20 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    * Load the plugin settings and set the variables.
    */
   public void loadPluginSettingAndParseResult() {
-    PluginSettingsValues pluginSettingsValues = jiraTimetrackerPlugin
-        .loadGlobalPluginSettings();
-    issuesPatterns = pluginSettingsValues.filteredSummaryIssues;
+    TimeTrackerGlobalSettings loadGlobalSettings = settingsHelper.loadGlobalSettings();
+    issuesPatterns = loadGlobalSettings.getSummaryFiletrs();
     for (Pattern issueId : issuesPatterns) {
       issueKey += issueId.toString() + " ";
     }
-    collectorIssuePatterns = pluginSettingsValues.collectorIssues;
+    collectorIssuePatterns = loadGlobalSettings.getIssuePatterns();
     for (Pattern issuePattern : collectorIssuePatterns) {
       collectorIssueKey += issuePattern.toString() + " ";
     }
-    excludeDatesSet = pluginSettingsValues.excludeDates;
-    includeDatesSet = pluginSettingsValues.includeDates;
-    analyticsCheck = pluginSettingsValues.analyticsCheck;
-    pluginGroups = pluginSettingsValues.pluginGroups;
-    timetrackerGroups = pluginSettingsValues.timetrackingGroups;
+    excludeDatesSet = loadGlobalSettings.getExcludeDatesAsSet();
+    includeDatesSet = loadGlobalSettings.getIncludeDatesAsSet();
+    analyticsCheck = loadGlobalSettings.getAnalyticsCheck();
+    pluginGroups = loadGlobalSettings.getPluginGroups();
+    timetrackerGroups = loadGlobalSettings.getTimetrackerGroups();
   }
 
   private void normalizeContextPath() {
@@ -495,23 +496,21 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    * Save the plugin settings.
    */
   public void savePluginSettings() {
-    PluginSettingsValues pluginSettingValues = new PluginSettingsValues()
-        .excludeDates(excludeDatesSet)
+    TimeTrackerGlobalSettings globalSettings = new TimeTrackerGlobalSettings();
+    globalSettings.excludeDates(excludeDatesSet)
         .includeDates(includeDatesSet)
         .filteredSummaryIssues(issuesPatterns)
         .collectorIssues(collectorIssuePatterns)
         .analyticsCheck(analyticsCheck)
         .pluginGroups(pluginGroups)
-        .timetrackingGroups(timetrackerGroups);
-
-    jiraTimetrackerPlugin.saveGlobalSettings(pluginSettingValues);
+        .timetrackerGroups(timetrackerGroups);
+    settingsHelper.saveGlobalSettings(globalSettings);
     sendNonEstAndNonWorkAnaliticsEvent();
   }
 
   private void sendNonEstAndNonWorkAnaliticsEvent() {
     NoEstimateUsageChangedEvent analyticsEvent =
-        new NoEstimateUsageChangedEvent(pluginId,
-            ConverterUtil.convertPatternsToString(collectorIssuePatterns));
+        new NoEstimateUsageChangedEvent(pluginId, collectorIssuePatterns);
     analyticsSender.send(analyticsEvent);
     NonWorkingUsageEvent nonWorkingUsageEvent =
         new NonWorkingUsageEvent(pluginId, (issuesPatterns == null) || issuesPatterns.isEmpty());

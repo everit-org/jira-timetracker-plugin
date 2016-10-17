@@ -63,22 +63,42 @@ public class TimeTrackerGlobalSettings {
     return analyticsCheckValue;
   }
 
-  public Set<String> getExcludeDates() {
-    String tempSpecialDates =
-        (String) pluginSettingsKeyValues.get(GlobalsSettingsKey.EXCLUDE_DATES);
+  public Set<String> getExcludeDatesAsSet() {
+    String excludeDatesString = getExcludeDatesAsString();
     Set<String> excludeDatesSet = new HashSet<>();
-    String excludeDatesString = "";
-    if (tempSpecialDates != null) {
-      excludeDatesString = tempSpecialDates;
-      for (String excludeDate : excludeDatesString.split(",")) {
-        excludeDatesSet.add(excludeDate);
-      }
+    for (String excludeDate : excludeDatesString.split(",")) {
+      excludeDatesSet.add(excludeDate);
     }
     return excludeDatesSet;
   }
 
+  public String getExcludeDatesAsString() {
+    String tempSpecialDates =
+        (String) pluginSettingsKeyValues.get(GlobalsSettingsKey.EXCLUDE_DATES);
+    String excludeDatesString = "";
+    if (tempSpecialDates != null) {
+      excludeDatesString = tempSpecialDates;
+    }
+    return excludeDatesString;
+  }
+
   public String getIncludeDates() {
-    return (String) pluginSettingsKeyValues.get(GlobalsSettingsKey.INCLUDE_DATES);
+    String tempSpecialDates =
+        (String) pluginSettingsKeyValues.get(GlobalsSettingsKey.INCLUDE_DATES);
+    String includeDatesString = "";
+    if (tempSpecialDates != null) {
+      includeDatesString = tempSpecialDates;
+    }
+    return includeDatesString;
+  }
+
+  public Set<String> getIncludeDatesAsSet() {
+    Set<String> includeDatesSet = new HashSet<>();
+    String tempSpecialDates = getIncludeDates();
+    for (String includeDate : tempSpecialDates.split(",")) {
+      includeDatesSet.add(includeDate);
+    }
+    return includeDatesSet;
   }
 
   public List<Pattern> getIssuePatterns() {

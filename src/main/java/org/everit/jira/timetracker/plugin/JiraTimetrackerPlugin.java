@@ -19,12 +19,12 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.everit.jira.reporting.plugin.dto.MissingsWorklogsDTO;
 import org.everit.jira.timetracker.plugin.dto.ActionResult;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
-import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
 import org.ofbiz.core.entity.GenericEntityException;
 
 import com.atlassian.jira.exception.DataAccessException;
@@ -42,7 +42,8 @@ public interface JiraTimetrackerPlugin {
    *
    * @return the counted real work days number.
    */
-  double countRealWorkDaysInWeek(final List<String> weekDaysAsString);
+  double countRealWorkDaysInWeek(final List<String> weekDaysAsString,
+      final Set<String> excludeDatesSet, final Set<String> includeDatesSet);
 
   /**
    * Count worklog size without permission check beetween start and end date for the logged user.
@@ -105,18 +106,18 @@ public interface JiraTimetrackerPlugin {
   /**
    * Give back the date of the first day where missing worklogs. Use the properties files includes
    * and excludes date settings.
+   * 
+   * @param excludeDatesSet
+   *          TODO
+   * @param includeDatesSet
+   *          TODO
    *
    * @return The Date representation of the day.
    * @throws GenericEntityException
    *           GenericEntityException
    */
-  Date firstMissingWorklogsDate() throws GenericEntityException;
-
-  /**
-   * Give back the collector issue patterns. If the list will be null, then give back the propeties
-   * file default collecter issues patterns list.
-   */
-  List<Pattern> getCollectorIssuePatterns();
+  Date firstMissingWorklogsDate(Set<String> excludeDatesSet, Set<String> includeDatesSet)
+      throws GenericEntityException;
 
   /**
    * Create a query and give back the list of dates where are no worklogs. The query examine the
@@ -133,24 +134,26 @@ public interface JiraTimetrackerPlugin {
    *          The report have to check the spent time or not.
    * @param nonWorking
    *          Exclude or not the non-working issues.
-   *
+   * @param excludeDatesSet TODO
+   * @param includeDatesSet TODO
    * @return The list of the MissingsWorklogsDTO.
    * @throws GenericEntityException
    *           If GenericEntity Exception.
    */
   List<MissingsWorklogsDTO> getDates(String selectedUser, Date from, Date to, boolean workingHours,
-      boolean nonWorking) throws GenericEntityException;
+      boolean nonWorking, Set<String> excludeDatesSet, Set<String> includeDatesSet) throws GenericEntityException;
 
   /**
    * The method find the exclude date of the given date month.
    *
    * @param date
    *          The date.
+   * @param excludeDateSet TODO
    * @return The list of the days in String format. (Eg. ["12","15"])
    */
-  List<String> getExcludeDaysOfTheMonth(Date date);
+  List<String> getExcludeDaysOfTheMonth(Date date, Set<String> excludeDateSet);
 
-  List<String> getIncludeDaysOfTheMonth(Date date);
+  List<String> getIncludeDaysOfTheMonth(Date date, Set<String> includeDatesSet);
 
   /**
    * Give back the Issues.
@@ -227,22 +230,6 @@ public interface JiraTimetrackerPlugin {
    *           When can't parse the worklog date.
    */
   String lastEndTime(List<EveritWorklog> worklogs) throws ParseException;
-
-  /**
-   * Give back the plugin settings values.
-   *
-   * @return {@link PluginSettingsValues} object what contains the settings.
-   */
-  PluginSettingsValues loadGlobalPluginSettings();
-
-  /**
-   * Set the plugin settings and save them.
-   *
-   * @param pluginSettingsParameter
-   *          The plugin settings parameters.
-   * @return {@link ActionResult} if the plugin settings was saved successful SUCCESS else FAIL.
-   */
-  void saveGlobalSettings(PluginSettingsValues pluginSettingsParameter);
 
   /**
    * Send a email through the Jira to the given FEEDBACK_EMAIL_TO address. The address come form the

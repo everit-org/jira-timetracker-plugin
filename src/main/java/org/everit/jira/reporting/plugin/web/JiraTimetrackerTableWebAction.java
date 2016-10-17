@@ -44,7 +44,6 @@ import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
 import org.everit.jira.timetracker.plugin.PluginCondition;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
-import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
 import org.everit.jira.timetracker.plugin.dto.TimetrackerReportsSessionData;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
@@ -546,9 +545,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   }
 
   private void loadPluginSettingAndParseResult() {
-    PluginSettingsValues pluginSettingsValues = jiraTimetrackerPlugin
-        .loadGlobalPluginSettings();
-    setIssuesRegex(pluginSettingsValues.filteredSummaryIssues);
+    setIssuesRegex(settingsHelper.loadGlobalSettings().getSummaryFiletrs());
   }
 
   private void normalizeContextPath() {
