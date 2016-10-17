@@ -84,6 +84,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private static final String INVALID_START_TIME = "plugin.invalid_startTime";
 
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
+
   /**
    * The JiraTimetrackerWebAction logger..
    */
@@ -161,6 +162,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private long daySummaryInSeconds;
 
   private String debugMessage = "";
+
+  private boolean defaultCommand = false;
 
   private DurationFormatter durationFormatter = new DurationFormatter();
 
@@ -554,6 +557,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   @Override
   public String doDefault() throws ParseException {
+    defaultCommand = true;
     String checkConditionsResult = checkConditions();
     if (checkConditionsResult != null) {
       return checkConditionsResult;
@@ -1149,6 +1153,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       return INPUT;
     }
     return SUCCESS;
+  }
+
+  public boolean isDefaultCommand() {
+    return defaultCommand;
   }
 
   private void loadIssueCollectorSrc() {
