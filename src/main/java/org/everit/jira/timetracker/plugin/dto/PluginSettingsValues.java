@@ -17,6 +17,7 @@ package org.everit.jira.timetracker.plugin.dto;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
@@ -40,7 +41,7 @@ public class PluginSettingsValues implements Serializable {
   /**
    * Exclude dates.
    */
-  public String excludeDates;
+  public Set<String> excludeDates;
 
   /**
    * The non working issues list.
@@ -50,7 +51,7 @@ public class PluginSettingsValues implements Serializable {
   /**
    * Include dates.
    */
-  public String includeDates;
+  public Set<String> includeDates;
 
   /**
    * The plugin groups.
@@ -80,7 +81,7 @@ public class PluginSettingsValues implements Serializable {
     return this;
   }
 
-  public PluginSettingsValues excludeDates(final String excludeDates) {
+  public PluginSettingsValues excludeDates(final Set<String> excludeDates) {
     this.excludeDates = excludeDates;
     return this;
   }
@@ -91,7 +92,7 @@ public class PluginSettingsValues implements Serializable {
     return this;
   }
 
-  public PluginSettingsValues includeDates(final String includeDates) {
+  public PluginSettingsValues includeDates(final Set<String> includeDates) {
     this.includeDates = includeDates;
     return this;
   }

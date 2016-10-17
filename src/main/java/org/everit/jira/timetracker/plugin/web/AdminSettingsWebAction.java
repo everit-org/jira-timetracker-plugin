@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
@@ -90,12 +91,16 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    */
   private String excludeDates = "";
 
+  private Set<String> excludeDatesSet;
+
   private boolean feedBackSendAviable;
 
   /**
    * The include dates in String format.
    */
   private String includeDates = "";
+
+  private Set<String> includeDatesSet;
 
   private String issueCollectorSrc;
 
@@ -312,8 +317,8 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     for (Pattern issuePattern : collectorIssuePatterns) {
       collectorIssueKey += issuePattern.toString() + " ";
     }
-    excludeDates = pluginSettingsValues.excludeDates;
-    includeDates = pluginSettingsValues.includeDates;
+    excludeDatesSet = pluginSettingsValues.excludeDates;
+    includeDatesSet = pluginSettingsValues.includeDates;
     analyticsCheck = pluginSettingsValues.analyticsCheck;
     pluginGroups = pluginSettingsValues.pluginGroups;
     timetrackerGroups = pluginSettingsValues.timetrackingGroups;
@@ -341,7 +346,9 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
         for (String dateString : excludeDatesValueString.split(",")) {
           try {
             Date validDate = DateTimeConverterUtil.fixFormatStringToDate(dateString);
-            validExvcludeDates += DateTimeConverterUtil.dateToFixFormatString(validDate) + ", ";
+            String dateToFixFormatString = DateTimeConverterUtil.dateToFixFormatString(validDate);
+            excludeDatesSet.add(dateToFixFormatString);
+            validExvcludeDates += dateToFixFormatString + ", ";
           } catch (ParseException e) {
             parseExcludeException = true;
             messageExclude = "plugin.parse.exception.exclude";
@@ -489,8 +496,8 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    */
   public void savePluginSettings() {
     PluginSettingsValues pluginSettingValues = new PluginSettingsValues()
-        .excludeDates(excludeDates)
-        .includeDates(includeDates)
+        .excludeDates(excludeDatesSet)
+        .includeDates(includeDatesSet)
         .filteredSummaryIssues(issuesPatterns)
         .collectorIssues(collectorIssuePatterns)
         .analyticsCheck(analyticsCheck)

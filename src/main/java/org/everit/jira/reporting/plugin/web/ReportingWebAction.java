@@ -176,7 +176,7 @@ public class ReportingWebAction extends JiraWebActionSupport {
       final AnalyticsSender analyticsSender,
       final TimetrackerSettingsHelper settingsHelper) {
     this.reportingPlugin = reportingPlugin;
-    reportingCondition = new ReportingCondition(this.reportingPlugin);
+    reportingCondition = new ReportingCondition(settingsHelper);
     gson = new Gson();
     pluginCondition = new PluginCondition(settingsHelper);
     issueRenderContext = new IssueRenderContext(null);
@@ -219,7 +219,7 @@ public class ReportingWebAction extends JiraWebActionSupport {
     try {
       filterCondition = ConverterUtil.convertJsonToFilterCondition(filterConditionJson);
       convertedSearchParam = ConverterUtil
-          .convertFilterConditionToConvertedSearchParam(filterCondition, reportingPlugin);
+          .convertFilterConditionToConvertedSearchParam(filterCondition, settingsHelper);
     } catch (IllegalArgumentException e) {
       message = e.getMessage();
       return INPUT;
@@ -278,7 +278,7 @@ public class ReportingWebAction extends JiraWebActionSupport {
     loadIssueCollectorSrc();
     normalizeContextPath();
     hasBrowseUsersPermission =
-        PermissionUtil.hasBrowseUserPermission(getLoggedInApplicationUser(), reportingPlugin);
+        PermissionUtil.hasBrowseUserPermission(getLoggedInApplicationUser(), settingsHelper);
 
     analyticsDTO = JiraTimetrackerAnalytics
         .getAnalyticsDTO(PiwikPropertiesUtil.PIWIK_REPORTING_SITEID, settingsHelper);
@@ -299,7 +299,7 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
     loadFavoriteFilters();
     hasBrowseUsersPermission =
-        PermissionUtil.hasBrowseUserPermission(getLoggedInApplicationUser(), reportingPlugin);
+        PermissionUtil.hasBrowseUserPermission(getLoggedInApplicationUser(), settingsHelper);
 
     loadPageSizeLimit();
     loadIssueCollectorSrc();

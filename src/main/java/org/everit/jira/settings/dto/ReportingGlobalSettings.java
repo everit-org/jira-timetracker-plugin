@@ -41,6 +41,11 @@ public class ReportingGlobalSettings {
     return reportingGroups;
   }
 
+  public void putSettings(final ReportingSettingKey reportingSettingsKey, final Object object) {
+    pluginSettingsKeyValues.put(reportingSettingsKey, object);
+
+  }
+
   public ReportingGlobalSettings reportingGroups(final List<String> reportingGroups) {
     pluginSettingsKeyValues.put(ReportingSettingKey.GROUPS, reportingGroups);
     return this;

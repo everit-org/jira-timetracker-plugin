@@ -883,18 +883,14 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   @Override
   public PluginSettingsValues loadGlobalPluginSettings() {
     TimeTrackerGlobalSettings loadGlobalSettings = settingsHelper.loadGlobalSettings();
-    setNonWorkingIssuePatterns();
-    setCollectorIssuePatterns();
-    setExcludeDates();
     setIncludeDates();
-    analyticsCheckValue = loadGlobalSettings.getAnalyticsCheck();
 
     pluginSettingsValues = new PluginSettingsValues()
-        .excludeDates(excludeDatesString)
-        .includeDates(includeDatesString)
-        .filteredSummaryIssues(nonWorkingIssuePatterns)
-        .collectorIssues(collectorIssuePatterns)
-        .analyticsCheck(analyticsCheckValue)
+        .excludeDates(excludeDatesSet)
+        .includeDates(includeDatesSet)
+        .filteredSummaryIssues(loadGlobalSettings.getSummaryFiletrs())
+        .collectorIssues(loadGlobalSettings.getIssuePatterns())
+        .analyticsCheck(loadGlobalSettings.getAnalyticsCheck())
         .pluginUUID(loadGlobalSettings.getPluginUUID())
         .pluginGroups(loadGlobalSettings.getPluginGroups())
         .timetrackingGroups(loadGlobalSettings.getTimetrackerGroups());
@@ -994,19 +990,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     analyticsSender.send(nonWorkingUsageEvent);
   }
 
-  private void setCollectorIssuePatterns() {
-    List<String> tempIssuePatternList = settingsHelper.loadGlobalSettings().getIssuePatterns();
-    if (tempIssuePatternList != null) {
-      // add collector issues
-      collectorIssuePatterns = new ArrayList<>();
-      for (String tempIssuePattern : tempIssuePatternList) {
-        collectorIssuePatterns.add(Pattern.compile(tempIssuePattern));
-      }
-    } else {
-      collectorIssuePatterns = defaultNonEstimedIssuePatterns;
-    }
-  }
-
   /**
    * Set the default values of the important variables.
    */
@@ -1021,18 +1004,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     defaultNonEstimedIssuePatterns.add(Pattern.compile(".*"));
   }
 
-  private void setExcludeDates() {
-    String tempSpecialDates = settingsHelper.loadGlobalSettings().getExcludeDates();
-    excludeDatesSet = new HashSet<>();
-    excludeDatesString = "";
-    if (tempSpecialDates != null) {
-      excludeDatesString = tempSpecialDates;
-      for (String excludeDate : excludeDatesString.split(",")) {
-        excludeDatesSet.add(excludeDate);
-      }
-    }
-  }
-
   private void setIncludeDates() {
     String tempSpecialDates = settingsHelper.loadGlobalSettings().getIncludeDates();
     if (tempSpecialDates != null) {
@@ -1045,20 +1016,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
       // Default Empty
       includeDatesSet = new HashSet<>();
       includeDatesString = "";
-    }
-  }
-
-  private void setNonWorkingIssuePatterns() {
-    List<String> tempIssuePatternList = settingsHelper.loadGlobalSettings().getSummaryFiletrs();
-    if (tempIssuePatternList != null) {
-      // add non working issues
-      nonWorkingIssuePatterns = new ArrayList<>();
-      for (String tempIssuePattern : tempIssuePatternList) {
-        nonWorkingIssuePatterns.add(Pattern.compile(tempIssuePattern));
-      }
-    } else {
-      // default! from properties load default issues!!
-      nonWorkingIssuePatterns = defaultNonWorkingIssueIds;
     }
   }
 

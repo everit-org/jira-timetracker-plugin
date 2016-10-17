@@ -163,7 +163,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
     this.reportingPlugin = reportingPlugin;
     this.settingsHelper = settingsHelper;
-    reportingCondition = new ReportingCondition(this.reportingPlugin);
+    reportingCondition = new ReportingCondition(settingsHelper);
     pluginCondition = new PluginCondition(settingsHelper);
   }
 
@@ -194,7 +194,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     loadIssueCollectorSrc();
 
     hasBrowseUsersPermission =
-        PermissionUtil.hasBrowseUserPermission(getLoggedInApplicationUser(), reportingPlugin);
+        PermissionUtil.hasBrowseUserPermission(getLoggedInApplicationUser(), settingsHelper);
 
     analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(PiwikPropertiesUtil.PIWIK_CHART_SITEID,
         settingsHelper);
@@ -223,7 +223,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     loadIssueCollectorSrc();
 
     hasBrowseUsersPermission =
-        PermissionUtil.hasBrowseUserPermission(getLoggedInApplicationUser(), reportingPlugin);
+        PermissionUtil.hasBrowseUserPermission(getLoggedInApplicationUser(), settingsHelper);
 
     analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(PiwikPropertiesUtil.PIWIK_CHART_SITEID,
         settingsHelper);

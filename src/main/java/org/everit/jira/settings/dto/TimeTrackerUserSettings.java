@@ -293,9 +293,8 @@ public class TimeTrackerUserSettings {
     return this;
   }
 
-  public TimeTrackerUserSettings putUserSettingValue(final UserSettingKey key, final String value) {
+  public void putUserSettingValue(final UserSettingKey key, final String value) {
     pluginSettingsKeyValues.put(key, value);
-    return this;
   }
 
   public TimeTrackerUserSettings selectedColumnsJSon(final String selectedColumnsJson) {

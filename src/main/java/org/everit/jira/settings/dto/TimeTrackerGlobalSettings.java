@@ -17,8 +17,10 @@ package org.everit.jira.settings.dto;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 public class TimeTrackerGlobalSettings {
@@ -37,7 +39,7 @@ public class TimeTrackerGlobalSettings {
     return this;
   }
 
-  public TimeTrackerGlobalSettings excludeDates(final String excludeDates) {
+  public TimeTrackerGlobalSettings excludeDates(final Set<String> excludeDates) {
     pluginSettingsKeyValues.put(GlobalsSettingsKey.EXCLUDE_DATES, excludeDates);
     return this;
   }
@@ -61,19 +63,36 @@ public class TimeTrackerGlobalSettings {
     return analyticsCheckValue;
   }
 
-  public String getExcludeDates() {
-    return (String) pluginSettingsKeyValues.get(GlobalsSettingsKey.EXCLUDE_DATES);
+  public Set<String> getExcludeDates() {
+    String tempSpecialDates =
+        (String) pluginSettingsKeyValues.get(GlobalsSettingsKey.EXCLUDE_DATES);
+    Set<String> excludeDatesSet = new HashSet<>();
+    String excludeDatesString = "";
+    if (tempSpecialDates != null) {
+      excludeDatesString = tempSpecialDates;
+      for (String excludeDate : excludeDatesString.split(",")) {
+        excludeDatesSet.add(excludeDate);
+      }
+    }
+    return excludeDatesSet;
   }
 
   public String getIncludeDates() {
     return (String) pluginSettingsKeyValues.get(GlobalsSettingsKey.INCLUDE_DATES);
   }
 
-  public List<String> getIssuePatterns() {
+  public List<Pattern> getIssuePatterns() {
     // TODO in pattern out string
     List<String> tempIssuePatternList = (List<String>) pluginSettingsKeyValues.get(
         GlobalsSettingsKey.NON_ESTIMATED_ISSUES);
-    return tempIssuePatternList;
+    List<Pattern> collectorIssuePatterns = new ArrayList<>();
+    if (tempIssuePatternList != null) {
+      // add collector issues
+      for (String tempIssuePattern : tempIssuePatternList) {
+        collectorIssuePatterns.add(Pattern.compile(tempIssuePattern));
+      }
+    }
+    return collectorIssuePatterns;
   }
 
   public long getLastUpdate() {
@@ -105,10 +124,17 @@ public class TimeTrackerGlobalSettings {
     return (String) pluginSettingsKeyValues.get(GlobalsSettingsKey.PLUGIN_UUID);
   }
 
-  public List<String> getSummaryFiletrs() {
+  public List<Pattern> getSummaryFiletrs() {
     List<String> tempSummaryFilter =
         (List<String>) pluginSettingsKeyValues.get(GlobalsSettingsKey.SUMMARY_FILTERS);
-    return tempSummaryFilter;
+    List<Pattern> nonWorkingIssuePatterns = new ArrayList<>();
+    if (tempSummaryFilter != null) {
+      // add non working issues
+      for (String tempIssuePattern : tempSummaryFilter) {
+        nonWorkingIssuePatterns.add(Pattern.compile(tempIssuePattern));
+      }
+    }
+    return nonWorkingIssuePatterns;
   }
 
   public List<String> getTimetrackerGroups() {
@@ -121,7 +147,7 @@ public class TimeTrackerGlobalSettings {
     return timetrackerGroups;
   }
 
-  public TimeTrackerGlobalSettings includeDates(final String includeDates) {
+  public TimeTrackerGlobalSettings includeDates(final Set<String> includeDates) {
     pluginSettingsKeyValues.put(GlobalsSettingsKey.INCLUDE_DATES, includeDates);
     return this;
   }
@@ -145,6 +171,10 @@ public class TimeTrackerGlobalSettings {
   public TimeTrackerGlobalSettings pluginUUID(final String pluginUUID) {
     pluginSettingsKeyValues.put(GlobalsSettingsKey.PLUGIN_UUID, pluginUUID);
     return this;
+  }
+
+  public void putGlobalSettingValue(final GlobalsSettingsKey key, final Object value) {
+    pluginSettingsKeyValues.put(key, value);
   }
 
   public TimeTrackerGlobalSettings timetrackerGroups(final List<String> timetrackingGroups) {

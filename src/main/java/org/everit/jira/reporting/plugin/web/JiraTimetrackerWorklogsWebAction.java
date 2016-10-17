@@ -158,7 +158,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
     this.reportingPlugin = reportingPlugin;
     this.settingsHelper = settingsHelper;
-    reportingCondition = new ReportingCondition(this.reportingPlugin);
+    reportingCondition = new ReportingCondition(settingsHelper);
     pluginCondition = new PluginCondition(settingsHelper);
   }
 

@@ -90,14 +90,27 @@ public class TimeTrackerSettingsHelperImpl implements TimetrackerSettingsHelper 
 
   @Override
   public TimeTrackerGlobalSettings loadGlobalSettings() {
-    // TODO Auto-generated method stub
-    return null;
+    PluginSettings globalSettings = settingsFactory.createGlobalSettings();
+    TimeTrackerGlobalSettings timeTrackerGlobalSettings = new TimeTrackerGlobalSettings();
+    for (GlobalsSettingsKey settingKey : GlobalsSettingsKey.values()) {
+      timeTrackerGlobalSettings.putGlobalSettingValue(settingKey,
+          globalSettings.get(
+              GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX + settingKey.getSettingsKey()));
+    }
+    return timeTrackerGlobalSettings;
   }
 
   @Override
   public ReportingGlobalSettings loadReportingGlobalSettings() {
-    // TODO Auto-generated method stub
-    return null;
+    PluginSettings reportingSettings = settingsFactory
+        .createSettingsForKey(GlobalSettingsKey.JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX);
+    ReportingGlobalSettings reportingGlobalSettings = new ReportingGlobalSettings();
+    for (ReportingSettingKey reportingSettingsKey : ReportingSettingKey.values()) {
+      reportingGlobalSettings.putSettings(reportingSettingsKey,
+          reportingSettings.get(GlobalSettingsKey.JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX
+              + reportingSettingsKey.getSettingsKey()));
+    }
+    return reportingGlobalSettings;
   }
 
   @Override

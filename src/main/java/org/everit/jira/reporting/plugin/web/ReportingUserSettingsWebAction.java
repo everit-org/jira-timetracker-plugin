@@ -73,8 +73,6 @@ public class ReportingUserSettingsWebAction extends JiraWebActionSupport {
   /**
    * ReportingUserSettingsWebAction constructor.
    *
-   * @param settingsFactory
-   *          Jira plugin settings factory.
    * @param reportingPlugin
    *          Reporting plugin.
    * @param timetrackerPlugin
@@ -83,7 +81,7 @@ public class ReportingUserSettingsWebAction extends JiraWebActionSupport {
   public ReportingUserSettingsWebAction(final ReportingPlugin reportingPlugin,
       final JiraTimetrackerPlugin timetrackerPlugin,
       final TimetrackerSettingsHelper settingsHelper) {
-    reportingCondition = new ReportingCondition(reportingPlugin);
+    reportingCondition = new ReportingCondition(settingsHelper);
     pluginCondition = new PluginCondition(settingsHelper);
     this.settingsHelper = settingsHelper;
   }

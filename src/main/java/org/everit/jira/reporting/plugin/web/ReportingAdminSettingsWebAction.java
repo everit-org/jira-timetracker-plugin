@@ -23,10 +23,10 @@ import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.everit.jira.reporting.plugin.ReportingPlugin;
+import org.everit.jira.settings.TimetrackerSettingsHelper;
+import org.everit.jira.settings.dto.ReportingGlobalSettings;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
-import org.everit.jira.timetracker.plugin.dto.ReportingSettingsValues;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 
@@ -69,12 +69,13 @@ public class ReportingAdminSettingsWebAction extends JiraWebActionSupport {
 
   private List<String> reportingGroups;
 
-  private ReportingPlugin reportingPlugin;
+  private TimetrackerSettingsHelper settingsHelper;
 
   public ReportingAdminSettingsWebAction(
-      final JiraTimetrackerPlugin jiraTimetrackerPlugin, final ReportingPlugin reportingPlugin) {
+      final JiraTimetrackerPlugin jiraTimetrackerPlugin,
+      final TimetrackerSettingsHelper settingsHelper) {
     this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
-    this.reportingPlugin = reportingPlugin;
+    this.settingsHelper = settingsHelper;
   }
 
   private void checkMailServer() {
@@ -163,10 +164,10 @@ public class ReportingAdminSettingsWebAction extends JiraWebActionSupport {
    * Load the plugin settings and set the variables.
    */
   public void loadPluginSettingAndParseResult() {
-    ReportingSettingsValues pluginSettingsValues = reportingPlugin
-        .loadReportingSettings();
-    reportingGroups = pluginSettingsValues.reportingGroups;
-    browseGroups = pluginSettingsValues.browseGroups;
+    ReportingGlobalSettings loadReportingGlobalSettings =
+        settingsHelper.loadReportingGlobalSettings();
+    reportingGroups = loadReportingGlobalSettings.getReportingGroups();
+    browseGroups = loadReportingGlobalSettings.getBrowseGroups();
   }
 
   private void normalizeContextPath() {
@@ -180,7 +181,7 @@ public class ReportingAdminSettingsWebAction extends JiraWebActionSupport {
 
   private void parseBrowseGroups(final String[] browseGroupsValue) {
     if (browseGroupsValue == null) {
-      browseGroups = new ArrayList<String>();
+      browseGroups = new ArrayList<>();
     } else {
       browseGroups = Arrays.asList(browseGroupsValue);
     }
@@ -215,7 +216,7 @@ public class ReportingAdminSettingsWebAction extends JiraWebActionSupport {
 
   private void parseReportingGroups(final String[] reportingGroupsValue) {
     if (reportingGroupsValue == null) {
-      reportingGroups = new ArrayList<String>();
+      reportingGroups = new ArrayList<>();
     } else {
       reportingGroups = Arrays.asList(reportingGroupsValue);
     }
@@ -239,9 +240,9 @@ public class ReportingAdminSettingsWebAction extends JiraWebActionSupport {
    * Save the plugin settings.
    */
   public void savePluginSettings() {
-    ReportingSettingsValues reportingSettingsValues =
-        new ReportingSettingsValues().reportingGroups(reportingGroups).browseGroups(browseGroups);
-    reportingPlugin.saveReportingSettings(reportingSettingsValues);
+    ReportingGlobalSettings reportingGroups2 =
+        new ReportingGlobalSettings().browseGroups(browseGroups).reportingGroups(reportingGroups);
+    settingsHelper.saveReportingGlobalSettings(reportingGroups2);
   }
 
   public void setBrowseGroups(final List<String> browseGroups) {

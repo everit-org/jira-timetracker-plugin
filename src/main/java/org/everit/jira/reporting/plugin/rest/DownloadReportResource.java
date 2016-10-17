@@ -121,7 +121,7 @@ public class DownloadReportResource {
         .fromJson(json, FilterCondition.class);
 
     ConvertedSearchParam converSearchParam = ConverterUtil
-        .convertFilterConditionToConvertedSearchParam(filterCondition, reportingPlugin);
+        .convertFilterConditionToConvertedSearchParam(filterCondition, settingsHelper);
 
     ExportSummariesListReport exportSummariesListReport =
         new ExportSummariesListReport(querydslSupport, converSearchParam.reportSearchParam,
@@ -135,7 +135,7 @@ public class DownloadReportResource {
       final DownloadWorklogDetailsParam downloadWorklogDetailsParam) {
     ConvertedSearchParam converSearchParam = ConverterUtil
         .convertFilterConditionToConvertedSearchParam(downloadWorklogDetailsParam.filterCondition,
-            reportingPlugin);
+            settingsHelper);
     OrderBy orderBy = ConverterUtil.convertToOrderBy(orderByString);
     HSSFWorkbook workbook =
         createWorklogDetailsExcel(downloadWorklogDetailsParam, converSearchParam, orderBy);
