@@ -15,6 +15,7 @@
  */
 package org.everit.jira.settings;
 
+import org.everit.jira.settings.dto.ReportingGlobalSettings;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
 import org.everit.jira.settings.dto.TimeTrackerUserSettings;
 
@@ -22,9 +23,13 @@ public interface TimetrackerSettingsHelper {
 
   TimeTrackerGlobalSettings loadGlobalSettings();
 
+  ReportingGlobalSettings loadReportingGlobalSettings();
+
   TimeTrackerUserSettings loadUserSettings();
 
   void saveGlobalSettings(TimeTrackerGlobalSettings pluginSettingsValues);
+
+  void saveReportingGlobalSettings(ReportingGlobalSettings settings);
 
   void saveUserSettings(TimeTrackerUserSettings userSettings);
 }

@@ -21,6 +21,21 @@ package org.everit.jira.settings.dto;
 public final class GlobalSettingsKey {
 
   /**
+   * The plugin reporting settings groups that have browse user permission.
+   */
+  public static final String JTTP_PLUGIN_REPORTING_SETTINGS_BROWSE_GROUPS = "browseGroups";
+
+  /**
+   * The plugin reporting settings user reporting groups.
+   */
+  public static final String JTTP_PLUGIN_REPORTING_SETTINGS_GROUPS = "reportingGroups";
+
+  /**
+   * The plugin repoting settings key prefix.
+   */
+  public static final String JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX = "jttp_report";
+
+  /**
    * The plugin reporting settings is use Noworks.
    */
   static final String JTTP_PLUGIN_REPORTING_SETTINGS_PAGER_SIZE = "pagerSize";
@@ -120,12 +135,10 @@ public final class GlobalSettingsKey {
    * The plugin setting Timetracker Permission key.
    */
   static final String JTTP_PLUGIN_SETTINGS_TIMETRACKER_PERMISSION = "timetrackerPermission";
-
   /**
    * The plugin setting is show tutorila key.
    */
   static final String JTTP_PLUGIN_USER_WD_SELECTED_COLUMNS = "worklogDetialsSelectedColumns";
-
   /**
    * The plugin UUDI global setting key.
    */
@@ -135,10 +148,12 @@ public final class GlobalSettingsKey {
    * The update notifier last update time global setting key.
    */
   static final String JTTP_UPDATE_NOTIFIER_LAST_UPDATE = "UPDATE_NOTIFIER";
+
   /**
    * The update notifier latest version of the JTTP global setting key.
    */
   static final String JTTP_UPDATE_NOTIFIER_LATEST_VERSION = "JTTP_LATEST_VERSION";
+
   /**
    * User specific key for the version which the user canceled.
    */
