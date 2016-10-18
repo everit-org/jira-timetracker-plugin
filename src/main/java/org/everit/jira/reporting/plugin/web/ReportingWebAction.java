@@ -159,6 +159,8 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   private TimetrackerSettingsHelper settingsHelper;
 
+  private TimeTrackerUserSettings userSettings;
+
   private UserSummaryReportDTO userSummaryReport = new UserSummaryReportDTO();
 
   private List<String> worklogDetailsAllColumns = WorklogDetailsColumns.ALL_COLUMNS;
@@ -254,9 +256,8 @@ public class ReportingWebAction extends JiraWebActionSupport {
     if (!hasBrowseUsersPermission) {
       filterCondition.setUsers(Arrays.asList(PickerUserDTO.CURRENT_USER_NAME));
     }
-    String selectedWorklogDetailsColumnsJson = loadUserWorklogDetialsSelectedColumnsJson();
     String[] selectedWorklogDetailsColumnsArray =
-        gson.fromJson(selectedWorklogDetailsColumnsJson, String[].class);
+        gson.fromJson(userSettings.getUserSelectedColumns(), String[].class);
     selectedWorklogDetailsColumns = Arrays.asList(selectedWorklogDetailsColumnsArray);
     initDatesIfNecessary();
   }
@@ -267,11 +268,9 @@ public class ReportingWebAction extends JiraWebActionSupport {
     if (checkConditionsResult != null) {
       return checkConditionsResult;
     }
+    loadSettings();
 
     loadFavoriteFilters();
-
-    loadPageSizeLimit();
-    loadIsShowTutorial();
 
     loadIssueCollectorSrc();
     normalizeContextPath();
@@ -292,14 +291,13 @@ public class ReportingWebAction extends JiraWebActionSupport {
     if (checkConditionsResult != null) {
       return checkConditionsResult;
     }
-
+    loadSettings();
     normalizeContextPath();
 
     loadFavoriteFilters();
     hasBrowseUsersPermission =
         PermissionUtil.hasBrowseUserPermission(getLoggedInApplicationUser(), settingsHelper);
 
-    loadPageSizeLimit();
     loadIssueCollectorSrc();
 
     analyticsDTO = JiraTimetrackerAnalytics
@@ -511,21 +509,15 @@ public class ReportingWebAction extends JiraWebActionSupport {
         defaultSearchRequestService.getFavouriteFilters(getLoggedInApplicationUser()));
   }
 
-  private void loadIsShowTutorial() {
-    isShowTutorialDialog = settingsHelper.loadUserSettings().getIsShowTutorialDialog();
-  }
-
   private void loadIssueCollectorSrc() {
     Properties properties = PropertiesUtil.getJttpBuildProperties();
     issueCollectorSrc = properties.getProperty(PropertiesUtil.ISSUE_COLLECTOR_SRC);
   }
 
-  private void loadPageSizeLimit() {
-    pageSizeLimit = settingsHelper.loadUserSettings().getPageSize();
-  }
-
-  private String loadUserWorklogDetialsSelectedColumnsJson() {
-    return settingsHelper.loadUserSettings().getUserSelectedColumns();
+  private void loadSettings() {
+    userSettings = settingsHelper.loadUserSettings();
+    isShowTutorialDialog = userSettings.getIsShowTutorialDialog();
+    pageSizeLimit = userSettings.getPageSize();
   }
 
   private void morePickerParse(final String selectedMoreJson) {

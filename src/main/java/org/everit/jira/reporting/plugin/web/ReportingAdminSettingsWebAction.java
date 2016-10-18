@@ -240,9 +240,9 @@ public class ReportingAdminSettingsWebAction extends JiraWebActionSupport {
    * Save the plugin settings.
    */
   public void savePluginSettings() {
-    ReportingGlobalSettings reportingGroups2 =
+    ReportingGlobalSettings reportingGlobalSettings =
         new ReportingGlobalSettings().browseGroups(browseGroups).reportingGroups(reportingGroups);
-    settingsHelper.saveReportingGlobalSettings(reportingGroups2);
+    settingsHelper.saveReportingGlobalSettings(reportingGlobalSettings);
   }
 
   public void setBrowseGroups(final List<String> browseGroups) {
