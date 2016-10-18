@@ -162,14 +162,6 @@ div.progress .progress-bar-success.progress-bar-nowork {
 /**********NEW DESING*************/
 /*********************************/
 
-.aui-page-hybrid .aui-page-header, .aui-page-hybrid .aui-navgroup-horizontal .aui-navgroup-inner, .aui-page-hybrid .aui-page-panel-inner{
-    width: 980px;
-}
-
-.aui-page-hybrid #footer .footer-body{
-    width: 100%;
-}
-
 .jttp-headline {
     padding-bottom: 25px;
 }
