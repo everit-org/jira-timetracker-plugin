@@ -156,9 +156,11 @@ public class TimeTrackerSettingsHelperImpl implements TimetrackerSettingsHelper,
   @Override
   public void saveGlobalSettings(final TimeTrackerGlobalSettings pluginSettingsValues) {
     PluginSettings globalSettings = settingsFactory.createGlobalSettings();
-    Boolean newValue = Boolean.valueOf((String) pluginSettingsValues.getPluginSettingsKeyValues()
-        .get(GlobalSettingsKey.ANALYTICS_CHECK_CHANGE));
-    checkSendAnalyticsForAnalytics(globalSettings, newValue);
+    String newValue = (String) pluginSettingsValues.getPluginSettingsKeyValues()
+        .get(GlobalSettingsKey.ANALYTICS_CHECK_CHANGE);
+    if (newValue != null) {
+      checkSendAnalyticsForAnalytics(globalSettings, Boolean.valueOf(newValue));
+    }
     for (Entry<GlobalSettingsKey, Object> globalSettingEntry : pluginSettingsValues
         .getPluginSettingsKeyValues().entrySet()) {
       globalSettings.put(JTTPSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
