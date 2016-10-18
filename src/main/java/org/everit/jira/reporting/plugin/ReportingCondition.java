@@ -42,7 +42,7 @@ public class ReportingCondition extends AbstractWebCondition {
   public boolean shouldDisplay(final ApplicationUser user, final JiraHelper jiraHelper) {
     List<String> reportingGroups =
         settingsHelper.loadReportingGlobalSettings().getReportingGroups();
-    if ((reportingGroups == null) || reportingGroups.isEmpty()) {
+    if (reportingGroups.isEmpty()) {
       return true;
     }
     Collection<String> groupNamesForUser =

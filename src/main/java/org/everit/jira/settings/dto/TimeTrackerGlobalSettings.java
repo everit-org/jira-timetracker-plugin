@@ -23,30 +23,45 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+/**
+ * Mapping and converter class for the timetracker global settings.
+ */
 public class TimeTrackerGlobalSettings {
 
-  private Map<GlobalsSettingsKey, Object> pluginSettingsKeyValues = new HashMap<>();
+  private Map<GlobalSettingsKey, Object> pluginSettingsKeyValues = new HashMap<>();
 
+  /**
+   * Put the analytics check value.
+   */
   public TimeTrackerGlobalSettings analyticsCheck(final boolean analyticsCheck) {
-    pluginSettingsKeyValues.put(GlobalsSettingsKey.ANALYTICS_CHECK_CHANGE,
+    pluginSettingsKeyValues.put(GlobalSettingsKey.ANALYTICS_CHECK_CHANGE,
         Boolean.toString(analyticsCheck));
     return null;
   }
 
+  /**
+   * Put collector issues.
+   */
   public TimeTrackerGlobalSettings collectorIssues(final List<Pattern> collectorIssues) {
     // TODO in pattern out string
-    pluginSettingsKeyValues.put(GlobalsSettingsKey.NON_ESTIMATED_ISSUES, collectorIssues);
+    pluginSettingsKeyValues.put(GlobalSettingsKey.NON_ESTIMATED_ISSUES, collectorIssues);
     return this;
   }
 
-  public TimeTrackerGlobalSettings excludeDates(final Set<String> excludeDates) {
-    pluginSettingsKeyValues.put(GlobalsSettingsKey.EXCLUDE_DATES, excludeDates);
+  /**
+   * Put exclude dates.
+   */
+  public TimeTrackerGlobalSettings excludeDates(final String excludeDates) {
+    pluginSettingsKeyValues.put(GlobalSettingsKey.EXCLUDE_DATES, excludeDates);
     return this;
   }
 
+  /**
+   * Put filtered summary issues.
+   */
   public TimeTrackerGlobalSettings filteredSummaryIssues(
       final List<Pattern> filteredSummaryIssues) {
-    pluginSettingsKeyValues.put(GlobalsSettingsKey.SUMMARY_FILTERS, filteredSummaryIssues);
+    pluginSettingsKeyValues.put(GlobalSettingsKey.SUMMARY_FILTERS, filteredSummaryIssues);
     return this;
   }
 
@@ -57,12 +72,15 @@ public class TimeTrackerGlobalSettings {
    */
   public boolean getAnalyticsCheck() {
     boolean analyticsCheckValue = true;
-    if ("false".equals(pluginSettingsKeyValues.get(GlobalsSettingsKey.ANALYTICS_CHECK_CHANGE))) {
+    if ("false".equals(pluginSettingsKeyValues.get(GlobalSettingsKey.ANALYTICS_CHECK_CHANGE))) {
       analyticsCheckValue = false;
     }
     return analyticsCheckValue;
   }
 
+  /**
+   * Get the exclude dates as Set.
+   */
   public Set<String> getExcludeDatesAsSet() {
     String excludeDatesString = getExcludeDatesAsString();
     Set<String> excludeDatesSet = new HashSet<>();
@@ -72,9 +90,12 @@ public class TimeTrackerGlobalSettings {
     return excludeDatesSet;
   }
 
+  /**
+   * Get the exclude dates as String.
+   */
   public String getExcludeDatesAsString() {
     String tempSpecialDates =
-        (String) pluginSettingsKeyValues.get(GlobalsSettingsKey.EXCLUDE_DATES);
+        (String) pluginSettingsKeyValues.get(GlobalSettingsKey.EXCLUDE_DATES);
     String excludeDatesString = "";
     if (tempSpecialDates != null) {
       excludeDatesString = tempSpecialDates;
@@ -82,9 +103,24 @@ public class TimeTrackerGlobalSettings {
     return excludeDatesString;
   }
 
-  public String getIncludeDates() {
+  /**
+   * Get include dates as Set.
+   */
+  public Set<String> getIncludeDatesAsSet() {
+    Set<String> includeDatesSet = new HashSet<>();
+    String tempSpecialDates = getIncludeDatesAsString();
+    for (String includeDate : tempSpecialDates.split(",")) {
+      includeDatesSet.add(includeDate);
+    }
+    return includeDatesSet;
+  }
+
+  /**
+   * Get include dates as String.
+   */
+  public String getIncludeDatesAsString() {
     String tempSpecialDates =
-        (String) pluginSettingsKeyValues.get(GlobalsSettingsKey.INCLUDE_DATES);
+        (String) pluginSettingsKeyValues.get(GlobalSettingsKey.INCLUDE_DATES);
     String includeDatesString = "";
     if (tempSpecialDates != null) {
       includeDatesString = tempSpecialDates;
@@ -92,19 +128,13 @@ public class TimeTrackerGlobalSettings {
     return includeDatesString;
   }
 
-  public Set<String> getIncludeDatesAsSet() {
-    Set<String> includeDatesSet = new HashSet<>();
-    String tempSpecialDates = getIncludeDates();
-    for (String includeDate : tempSpecialDates.split(",")) {
-      includeDatesSet.add(includeDate);
-    }
-    return includeDatesSet;
-  }
-
+  /**
+   * Get the issue patterns.
+   */
   public List<Pattern> getIssuePatterns() {
     // TODO in pattern out string
     List<String> tempIssuePatternList = (List<String>) pluginSettingsKeyValues.get(
-        GlobalsSettingsKey.NON_ESTIMATED_ISSUES);
+        GlobalSettingsKey.NON_ESTIMATED_ISSUES);
     List<Pattern> collectorIssuePatterns = new ArrayList<>();
     if (tempIssuePatternList != null) {
       // add collector issues
@@ -115,38 +145,29 @@ public class TimeTrackerGlobalSettings {
     return collectorIssuePatterns;
   }
 
-  public long getLastUpdate() {
+  /**
+   * Get the last update time in milisec.
+   */
+  public Long getLastUpdate() {
     String lastUpdateInMilisec = (String) pluginSettingsKeyValues.get(
-        GlobalsSettingsKey.UPDATE_NOTIFIER_LAST_UPDATE);
+        GlobalSettingsKey.UPDATE_NOTIFIER_LAST_UPDATE);
     return lastUpdateInMilisec == null ? null : Long.parseLong(lastUpdateInMilisec);
 
   }
 
+  /**
+   * Get the latest version which the user is canceled.
+   */
   public String getLatestVersion() {
-    return (String) pluginSettingsKeyValues.get(GlobalsSettingsKey.LATEST_VERSION);
+    return (String) pluginSettingsKeyValues.get(GlobalSettingsKey.LATEST_VERSION);
   }
 
-  public List<String> getPluginGroups() {
-    List<String> pluginGroupsNames =
-        (List<String>) pluginSettingsKeyValues.get(GlobalsSettingsKey.PLUGIN_PERMISSION);
-    List<String> pluginGroups = new ArrayList<>();
-    if (pluginGroupsNames != null) {
-      pluginGroups = pluginGroupsNames;
-    }
-    return pluginGroups;
-  }
-
-  public Map<GlobalsSettingsKey, Object> getPluginSettingsKeyValues() {
-    return pluginSettingsKeyValues;
-  }
-
-  public String getPluginUUID() {
-    return (String) pluginSettingsKeyValues.get(GlobalsSettingsKey.PLUGIN_UUID);
-  }
-
-  public List<Pattern> getSummaryFiletrs() {
+  /**
+   * Get the non working issue filters.
+   */
+  public List<Pattern> getNonWorkingIssuePatterns() {
     List<String> tempSummaryFilter =
-        (List<String>) pluginSettingsKeyValues.get(GlobalsSettingsKey.SUMMARY_FILTERS);
+        (List<String>) pluginSettingsKeyValues.get(GlobalSettingsKey.SUMMARY_FILTERS);
     List<Pattern> nonWorkingIssuePatterns = new ArrayList<>();
     if (tempSummaryFilter != null) {
       // add non working issues
@@ -157,9 +178,33 @@ public class TimeTrackerGlobalSettings {
     return nonWorkingIssuePatterns;
   }
 
+  /**
+   * Get the plugin groups.
+   */
+  public List<String> getPluginGroups() {
+    List<String> pluginGroupsNames =
+        (List<String>) pluginSettingsKeyValues.get(GlobalSettingsKey.PLUGIN_PERMISSION);
+    List<String> pluginGroups = new ArrayList<>();
+    if (pluginGroupsNames != null) {
+      pluginGroups = pluginGroupsNames;
+    }
+    return pluginGroups;
+  }
+
+  public Map<GlobalSettingsKey, Object> getPluginSettingsKeyValues() {
+    return pluginSettingsKeyValues;
+  }
+
+  public String getPluginUUID() {
+    return (String) pluginSettingsKeyValues.get(GlobalSettingsKey.PLUGIN_UUID);
+  }
+
+  /**
+   * Get the time tracker groups.
+   */
   public List<String> getTimetrackerGroups() {
     List<String> timetrackerGroupsNames =
-        (List<String>) pluginSettingsKeyValues.get(GlobalsSettingsKey.TIMETRACKER_PERMISSION);
+        (List<String>) pluginSettingsKeyValues.get(GlobalSettingsKey.TIMETRACKER_PERMISSION);
     List<String> timetrackerGroups = new ArrayList<>();
     if (timetrackerGroupsNames != null) {
       timetrackerGroups = timetrackerGroupsNames;
@@ -167,38 +212,59 @@ public class TimeTrackerGlobalSettings {
     return timetrackerGroups;
   }
 
-  public TimeTrackerGlobalSettings includeDates(final Set<String> includeDates) {
-    pluginSettingsKeyValues.put(GlobalsSettingsKey.INCLUDE_DATES, includeDates);
+  /**
+   * Put the include dates.
+   */
+  public TimeTrackerGlobalSettings includeDates(final String includeDates) {
+    pluginSettingsKeyValues.put(GlobalSettingsKey.INCLUDE_DATES, includeDates);
     return this;
   }
 
+  /**
+   * Put the update notifier last update time.
+   */
   public TimeTrackerGlobalSettings lastUpdateTime(final long time) {
     pluginSettingsKeyValues.put(
-        GlobalsSettingsKey.UPDATE_NOTIFIER_LAST_UPDATE, String.valueOf(time));
+        GlobalSettingsKey.UPDATE_NOTIFIER_LAST_UPDATE, String.valueOf(time));
     return this;
   }
 
+  /**
+   * Put the latest version of the JTTP plugin.
+   */
   public TimeTrackerGlobalSettings latestVersion(final String latestVersion) {
-    pluginSettingsKeyValues.put(GlobalsSettingsKey.UPDATE_NOTIFIER_LATEST_VERSION, latestVersion);
+    pluginSettingsKeyValues.put(GlobalSettingsKey.UPDATE_NOTIFIER_LATEST_VERSION, latestVersion);
     return this;
   }
 
+  /**
+   * Put the JTTP plugin groups.
+   */
   public TimeTrackerGlobalSettings pluginGroups(final List<String> pluginGroups) {
-    pluginSettingsKeyValues.put(GlobalsSettingsKey.PLUGIN_PERMISSION, pluginGroups);
+    pluginSettingsKeyValues.put(GlobalSettingsKey.PLUGIN_PERMISSION, pluginGroups);
     return this;
   }
 
+  /**
+   * Put the plugin UUID.
+   */
   public TimeTrackerGlobalSettings pluginUUID(final String pluginUUID) {
-    pluginSettingsKeyValues.put(GlobalsSettingsKey.PLUGIN_UUID, pluginUUID);
+    pluginSettingsKeyValues.put(GlobalSettingsKey.PLUGIN_UUID, pluginUUID);
     return this;
   }
 
-  public void putGlobalSettingValue(final GlobalsSettingsKey key, final Object value) {
+  /**
+   * Put a settings value with the specified key.
+   */
+  public void putGlobalSettingValue(final GlobalSettingsKey key, final Object value) {
     pluginSettingsKeyValues.put(key, value);
   }
 
+  /**
+   * Put the timetracking groups.
+   */
   public TimeTrackerGlobalSettings timetrackerGroups(final List<String> timetrackingGroups) {
-    pluginSettingsKeyValues.put(GlobalsSettingsKey.TIMETRACKER_PERMISSION, timetrackingGroups);
+    pluginSettingsKeyValues.put(GlobalSettingsKey.TIMETRACKER_PERMISSION, timetrackingGroups);
     return this;
   }
 }

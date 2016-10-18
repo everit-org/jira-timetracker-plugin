@@ -34,7 +34,6 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 import org.everit.jira.analytics.AnalyticsDTO;
 import org.everit.jira.reporting.plugin.ReportingCondition;
-import org.everit.jira.reporting.plugin.ReportingPlugin;
 import org.everit.jira.reporting.plugin.util.PermissionUtil;
 import org.everit.jira.settings.TimetrackerSettingsHelper;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
@@ -142,8 +141,6 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
   private ReportingCondition reportingCondition;
 
-  private ReportingPlugin reportingPlugin;
-
   private TimetrackerSettingsHelper settingsHelper;
 
   private Date startDate;
@@ -158,10 +155,8 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
    */
   public JiraTimetrackerChartWebAction(
       final JiraTimetrackerPlugin jiraTimetrackerPlugin,
-      final ReportingPlugin reportingPlugin,
       final TimetrackerSettingsHelper settingsHelper) {
     this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
-    this.reportingPlugin = reportingPlugin;
     this.settingsHelper = settingsHelper;
     reportingCondition = new ReportingCondition(settingsHelper);
     pluginCondition = new PluginCondition(settingsHelper);

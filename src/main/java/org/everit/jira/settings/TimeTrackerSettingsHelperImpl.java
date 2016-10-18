@@ -15,13 +15,16 @@
  */
 package org.everit.jira.settings;
 
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.Map.Entry;
+import java.util.UUID;
 
 import org.everit.jira.analytics.AnalyticsSender;
 import org.everit.jira.analytics.event.AnalyticsStatusChangedEvent;
 import org.everit.jira.analytics.event.ProgressIndicatorChangedEvent;
 import org.everit.jira.settings.dto.GlobalSettingsKey;
-import org.everit.jira.settings.dto.GlobalsSettingsKey;
+import org.everit.jira.settings.dto.JTTPSettingsKey;
 import org.everit.jira.settings.dto.ReportingGlobalSettings;
 import org.everit.jira.settings.dto.ReportingSettingKey;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
@@ -34,19 +37,28 @@ import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
-public class TimeTrackerSettingsHelperImpl implements TimetrackerSettingsHelper {
+/**
+ * The implementation of {@link TimetrackerSettingsHelper} interface.
+ */
+public class TimeTrackerSettingsHelperImpl implements TimetrackerSettingsHelper, Serializable {
 
-  private AnalyticsSender analyticsSender;
+  private static final long serialVersionUID = 8873665767837959963L;
 
-  private PluginSettingsFactory settingsFactory;
+  private transient AnalyticsSender analyticsSender;
 
+  private transient PluginSettingsFactory settingsFactory;
+
+  /**
+   * Crate the settings helper. Set the plugin UUID in global settings.
+   */
   public TimeTrackerSettingsHelperImpl(final PluginSettingsFactory settingsFactory,
       final AnalyticsSender analyticsSender) {
     this.settingsFactory = settingsFactory;
     this.analyticsSender = analyticsSender;
+    generateAndSavePluginUUID();
   }
 
-  private void checkAnalyticsForprogressIndicator(final PluginSettings pluginSettings,
+  private void checkAnalyticsForProgressIndicator(final PluginSettings pluginSettings,
       final String isProgressIndicatorDaily) {
     Object indicatorCheckObj =
         pluginSettings.get(UserSettingKey.PROGRESS_INDICATOR.getSettingsKey());
@@ -64,17 +76,27 @@ public class TimeTrackerSettingsHelperImpl implements TimetrackerSettingsHelper 
   }
 
   private void checkSendAnalyticsForAnalytics(final PluginSettings globalSettings,
-      final boolean AnalyticChange) {
-    Object analyticsCheckObj = globalSettings.get(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
-        + GlobalsSettingsKey.ANALYTICS_CHECK_CHANGE.getSettingsKey());
+      final boolean analyticChange) {
+    Object analyticsCheckObj = globalSettings.get(JTTPSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+        + GlobalSettingsKey.ANALYTICS_CHECK_CHANGE.getSettingsKey());
     boolean analyticsCheck = analyticsCheckObj == null
         ? true
         : Boolean.parseBoolean(analyticsCheckObj.toString());
 
-    if (analyticsCheck != AnalyticChange) {
+    if (analyticsCheck != analyticChange) {
       analyticsSender
           .send(new AnalyticsStatusChangedEvent(loadGlobalSettings().getPluginUUID(),
-              AnalyticChange));
+              analyticChange));
+    }
+  }
+
+  private void generateAndSavePluginUUID() {
+    String temppluginUUID = loadGlobalSettings().getPluginUUID();
+    if ((temppluginUUID == null) || temppluginUUID.isEmpty()) {
+      temppluginUUID = UUID.randomUUID().toString();
+      TimeTrackerGlobalSettings globalSettings =
+          new TimeTrackerGlobalSettings().pluginUUID(temppluginUUID);
+      saveGlobalSettings(globalSettings);
     }
   }
 
@@ -83,7 +105,7 @@ public class TimeTrackerSettingsHelperImpl implements TimetrackerSettingsHelper 
         .getJiraAuthenticationContext();
     ApplicationUser user = authenticationContext.getUser();
     PluginSettings pluginSettings = settingsFactory
-        .createSettingsForKey(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+        .createSettingsForKey(JTTPSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
             + user.getName());
     return pluginSettings;
   }
@@ -92,10 +114,10 @@ public class TimeTrackerSettingsHelperImpl implements TimetrackerSettingsHelper 
   public TimeTrackerGlobalSettings loadGlobalSettings() {
     PluginSettings globalSettings = settingsFactory.createGlobalSettings();
     TimeTrackerGlobalSettings timeTrackerGlobalSettings = new TimeTrackerGlobalSettings();
-    for (GlobalsSettingsKey settingKey : GlobalsSettingsKey.values()) {
+    for (GlobalSettingsKey settingKey : GlobalSettingsKey.values()) {
       timeTrackerGlobalSettings.putGlobalSettingValue(settingKey,
           globalSettings.get(
-              GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX + settingKey.getSettingsKey()));
+              JTTPSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX + settingKey.getSettingsKey()));
     }
     return timeTrackerGlobalSettings;
   }
@@ -103,11 +125,11 @@ public class TimeTrackerSettingsHelperImpl implements TimetrackerSettingsHelper 
   @Override
   public ReportingGlobalSettings loadReportingGlobalSettings() {
     PluginSettings reportingSettings = settingsFactory
-        .createSettingsForKey(GlobalSettingsKey.JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX);
+        .createSettingsForKey(JTTPSettingsKey.JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX);
     ReportingGlobalSettings reportingGlobalSettings = new ReportingGlobalSettings();
     for (ReportingSettingKey reportingSettingsKey : ReportingSettingKey.values()) {
       reportingGlobalSettings.putSettings(reportingSettingsKey,
-          reportingSettings.get(GlobalSettingsKey.JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX
+          reportingSettings.get(JTTPSettingsKey.JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX
               + reportingSettingsKey.getSettingsKey()));
     }
     return reportingGlobalSettings;
@@ -125,15 +147,21 @@ public class TimeTrackerSettingsHelperImpl implements TimetrackerSettingsHelper 
     return timeTrackerUserSettings;
   }
 
+  private void readObject(final java.io.ObjectInputStream stream) throws IOException,
+      ClassNotFoundException {
+    stream.close();
+    throw new java.io.NotSerializableException(getClass().getName());
+  }
+
   @Override
   public void saveGlobalSettings(final TimeTrackerGlobalSettings pluginSettingsValues) {
     PluginSettings globalSettings = settingsFactory.createGlobalSettings();
     checkSendAnalyticsForAnalytics(globalSettings,
         (boolean) pluginSettingsValues.getPluginSettingsKeyValues()
-            .get(GlobalsSettingsKey.ANALYTICS_CHECK_CHANGE));
-    for (Entry<GlobalsSettingsKey, Object> globalSettingEntry : pluginSettingsValues
+            .get(GlobalSettingsKey.ANALYTICS_CHECK_CHANGE));
+    for (Entry<GlobalSettingsKey, Object> globalSettingEntry : pluginSettingsValues
         .getPluginSettingsKeyValues().entrySet()) {
-      globalSettings.put(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+      globalSettings.put(JTTPSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
           + globalSettingEntry.getKey().getSettingsKey(),
           globalSettingEntry.getValue());
     }
@@ -142,10 +170,10 @@ public class TimeTrackerSettingsHelperImpl implements TimetrackerSettingsHelper 
   @Override
   public void saveReportingGlobalSettings(final ReportingGlobalSettings settings) {
     PluginSettings reportingSettings = settingsFactory
-        .createSettingsForKey(GlobalSettingsKey.JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX);
+        .createSettingsForKey(JTTPSettingsKey.JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX);
     for (Entry<ReportingSettingKey, Object> settingEntry : settings.getPluginSettingsKeyValues()
         .entrySet()) {
-      reportingSettings.put(GlobalSettingsKey.JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX
+      reportingSettings.put(JTTPSettingsKey.JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX
           + settingEntry.getKey().getSettingsKey(),
           settingEntry.getValue());
     }
@@ -155,7 +183,7 @@ public class TimeTrackerSettingsHelperImpl implements TimetrackerSettingsHelper 
   @Override
   public void saveUserSettings(final TimeTrackerUserSettings userSettings) {
     PluginSettings pluginSettings = getUserPluginSettings();
-    checkAnalyticsForprogressIndicator(pluginSettings,
+    checkAnalyticsForProgressIndicator(pluginSettings,
         userSettings.getUserSettingValue(UserSettingKey.PROGRESS_INDICATOR));
     for (Entry<UserSettingKey, String> settingEntry : userSettings.getPluginSettingsKeyValues()
         .entrySet()) {

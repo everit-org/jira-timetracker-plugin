@@ -38,7 +38,7 @@ public final class PermissionUtil {
   public static boolean hasBrowseUserPermission(final ApplicationUser user,
       final TimetrackerSettingsHelper settingsHelper) {
     List<String> browseGroups = settingsHelper.loadReportingGlobalSettings().getBrowseGroups();
-    if ((browseGroups == null) || browseGroups.isEmpty()) {
+    if (browseGroups.isEmpty()) {
       return true;
     }
     Collection<String> groupNamesForUser =

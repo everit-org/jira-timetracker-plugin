@@ -27,6 +27,9 @@ import org.everit.jira.timetracker.plugin.util.VersionComperatorUtil;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.google.gson.Gson;
 
+/**
+ * The Time tracker user settings mapper class.
+ */
 public class TimeTrackerUserSettings {
 
   private static final int DEFAULT_PAGE_SIZE = 20;
@@ -38,29 +41,40 @@ public class TimeTrackerUserSettings {
 
   private Map<UserSettingKey, String> pluginSettingsKeyValues = new HashMap<>();
 
-  public TimeTrackerUserSettings() {
-  }
-
+  /**
+   * Put the actual date or last non work logged day configuration.
+   *
+   * @param actualDateOrLastWorklogDate
+   *          true if show the actual date, false if show the last non work logged date.
+   */
   public TimeTrackerUserSettings actualDate(final boolean actualDateOrLastWorklogDate) {
     pluginSettingsKeyValues.put(UserSettingKey.IS_ACTUAL_DATE,
         String.valueOf(actualDateOrLastWorklogDate));
     return this;
   }
 
+  /**
+   * Put the coloring the calendar or not.
+   */
   public TimeTrackerUserSettings coloring(final boolean isColoring) {
     pluginSettingsKeyValues.put(UserSettingKey.IS_COLORING,
         String.valueOf(isColoring));
     return this;
   }
 
+  /**
+   * Put the end time change.
+   */
   public TimeTrackerUserSettings endTimeChange(final int endTimeChange) {
     pluginSettingsKeyValues.put(UserSettingKey.END_TIME_CHANGE,
         String.valueOf(endTimeChange));
     return this;
   }
 
+  /**
+   * Get the actual date setting value. The default is true.
+   */
   public boolean getActualDate() {
-    // the default is the Actual Date
     boolean isActualDate = true;
     if ("false"
         .equals(pluginSettingsKeyValues.get(UserSettingKey.IS_ACTUAL_DATE))) {
@@ -69,8 +83,10 @@ public class TimeTrackerUserSettings {
     return isActualDate;
   }
 
+  /**
+   * Get the coloring setting value. The default is true.
+   */
   public boolean getColoring() {
-    // the default coloring is TRUE
     boolean isColoring = true;
     if ("false".equals(pluginSettingsKeyValues.get(UserSettingKey.IS_COLORING))) {
       isColoring = false;
@@ -78,6 +94,9 @@ public class TimeTrackerUserSettings {
     return isColoring;
   }
 
+  /**
+   * Get the end time change settings value. The default is 5.
+   */
   public int getEndTimeChange() {
     int endTimeChange = JiraTimetrackerPluginImpl.FIVE_MINUTES;
 
@@ -96,8 +115,10 @@ public class TimeTrackerUserSettings {
     return endTimeChange;
   }
 
+  /**
+   * Get the progress indicator daily or not. The default is true.
+   */
   public boolean getisProgressIndicatordaily() {
-    // the default is the Daily Progress Indicator
     boolean isProgressIndicatorDaily = true;
     if ("false"
         .equals(pluginSettingsKeyValues.get(UserSettingKey.PROGRESS_INDICATOR))) {
@@ -106,8 +127,10 @@ public class TimeTrackerUserSettings {
     return isProgressIndicatorDaily;
   }
 
-  public boolean getisRounded() {
-    // the default rounded is TRUE
+  /**
+   * Get the rounding settings value. The default is true.
+   */
+  public boolean getIsRounded() {
     boolean isRounded = true;
     if ("false".equals(pluginSettingsKeyValues.get(UserSettingKey.IS_ROUNDED))) {
       isRounded = false;
@@ -115,8 +138,10 @@ public class TimeTrackerUserSettings {
     return isRounded;
   }
 
-  public boolean getisShowFutureLogWarning() {
-    // the default show warning is TRUE
+  /**
+   * Get the show future worklog warning settings value. Default is true.
+   */
+  public boolean getIsShowFutureLogWarning() {
     boolean isShowFutureLogWarning = true;
     if ("false".equals(
         pluginSettingsKeyValues.get(UserSettingKey.SHOW_FUTURE_LOG_WARNING))) {
@@ -125,8 +150,10 @@ public class TimeTrackerUserSettings {
     return isShowFutureLogWarning;
   }
 
-  public boolean getisShowIssueSummary() {
-    // the default show issue summary is FALSE
+  /**
+   * Get the settings value of show issue summary column visible or not. Default is false.
+   */
+  public boolean getIsShowIssueSummary() {
     boolean isShowIssueSummary = false;
     if ("true".equals(
         pluginSettingsKeyValues.get(
@@ -176,24 +203,9 @@ public class TimeTrackerUserSettings {
     return pluginSettingsKeyValues;
   }
 
-  public int getstartTimeChange() {
-    int startTimeChange = JiraTimetrackerPluginImpl.FIVE_MINUTES;
-
-    Object startTimeChangeObj =
-        pluginSettingsKeyValues.get(UserSettingKey.START_TIME_CHANGE);
-    if (startTimeChangeObj != null) {
-      try {
-        startTimeChange = Integer.parseInt(startTimeChangeObj.toString());
-        if (!JiraTimetrackerUtil.validateTimeChange(Integer.toString(startTimeChange))) {
-          startTimeChange = JiraTimetrackerPluginImpl.FIVE_MINUTES;
-        }
-      } catch (NumberFormatException e) {
-        LOGGER.error("Wrong formated startTime change value. Set the default value (1).", e);
-      }
-    }
-    return startTimeChange;
-  }
-
+  /**
+   * Get the start time change settings value. The default is 5.
+   */
   public int getStartTimeChange() {
     int startTimeChange = JiraTimetrackerPluginImpl.FIVE_MINUTES;
 
@@ -212,6 +224,9 @@ public class TimeTrackerUserSettings {
     return startTimeChange;
   }
 
+  /**
+   * Get the settings value of the user canceled last update version.
+   */
   public String getUserCanceledUpdate() {
     return pluginSettingsKeyValues.get(UserSettingKey.USER_CANCELED_UPDATE);
   }
@@ -249,24 +264,36 @@ public class TimeTrackerUserSettings {
     return worklogValue;
   }
 
+  /**
+   * Put progress indicator setting.
+   */
   public TimeTrackerUserSettings isProgressIndicatordaily(final boolean isProgressIndicatorDaily) {
     pluginSettingsKeyValues.put(UserSettingKey.PROGRESS_INDICATOR,
         String.valueOf(isProgressIndicatorDaily));
     return this;
   }
 
+  /**
+   * Put rounded setting.
+   */
   public TimeTrackerUserSettings isRounded(final boolean isRounded) {
     pluginSettingsKeyValues.put(UserSettingKey.IS_ROUNDED,
         String.valueOf(isRounded));
     return this;
   }
 
+  /**
+   * Put show future worklog warning setting.
+   */
   public TimeTrackerUserSettings isShowFutureLogWarning(final boolean isShowFutureLogWarning) {
     pluginSettingsKeyValues.put(UserSettingKey.SHOW_FUTURE_LOG_WARNING,
         String.valueOf(isShowFutureLogWarning));
     return this;
   }
 
+  /**
+   * Put the show issue summary setting.
+   */
   public TimeTrackerUserSettings isShowIssueSummary(final boolean isShowIssueSummary) {
     pluginSettingsKeyValues.put(
         UserSettingKey.SHOW_ISSUE_SUMMARY_IN_WORKLOG_TABLE,
@@ -275,7 +302,7 @@ public class TimeTrackerUserSettings {
   }
 
   /**
-   * Save the SHOW_TUTORIAL_VERSION and the IS_SHOW_TUTORIAL values.
+   * Put the is show tutorial setting value and store the tutorial version.
    */
   public TimeTrackerUserSettings isShowTutorialDialog(final boolean isShowTutorial) {
     String pluginVersion =
@@ -287,6 +314,9 @@ public class TimeTrackerUserSettings {
     return this;
   }
 
+  /**
+   * Put the page size setting value.
+   */
   public TimeTrackerUserSettings pageSize(final int pageSize) {
     pluginSettingsKeyValues.put(UserSettingKey.REPORTING_SETTINGS_PAGER_SIZE,
         String.valueOf(pageSize));
@@ -297,23 +327,35 @@ public class TimeTrackerUserSettings {
     pluginSettingsKeyValues.put(key, value);
   }
 
+  /**
+   * Put the selected columns in JSON format.
+   */
   public TimeTrackerUserSettings selectedColumnsJSon(final String selectedColumnsJson) {
     pluginSettingsKeyValues.put(UserSettingKey.USER_WD_SELECTED_COLUMNS, selectedColumnsJson);
     return this;
   }
 
+  /**
+   * Put the start time change value.
+   */
   public TimeTrackerUserSettings startTimeChange(final int startTimeChange) {
     pluginSettingsKeyValues.put(UserSettingKey.START_TIME_CHANGE,
         String.valueOf(startTimeChange));
     return this;
   }
 
+  /**
+   * Put the user canceled update JTTP version.
+   */
   public TimeTrackerUserSettings userCanceledUpdate(final String latestVersionWithoutUpdate) {
     pluginSettingsKeyValues.put(UserSettingKey.USER_CANCELED_UPDATE,
         latestVersionWithoutUpdate);
     return this;
   }
 
+  /**
+   * Put the worklog time in seconds value.
+   */
   public TimeTrackerUserSettings worklogTimeInSeconds(final boolean worklogTimeInSeconds) {
     pluginSettingsKeyValues.put(UserSettingKey.REPORTING_SETTINGS_WORKLOG_IN_SEC,
         Boolean.toString(worklogTimeInSeconds));

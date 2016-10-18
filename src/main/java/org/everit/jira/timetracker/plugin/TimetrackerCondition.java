@@ -41,7 +41,7 @@ public class TimetrackerCondition extends AbstractWebCondition {
   @Override
   public boolean shouldDisplay(final ApplicationUser user, final JiraHelper jiraHelper) {
     List<String> timetrackingGroups = settingsHelper.loadGlobalSettings().getTimetrackerGroups();
-    if ((timetrackingGroups == null) || timetrackingGroups.isEmpty()) {
+    if (timetrackingGroups.isEmpty()) {
       return true;
     }
     Collection<String> groupNamesForUser =

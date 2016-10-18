@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.everit.jira.reporting.plugin.dto.MissingsWorklogsDTO;
+import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
 import org.everit.jira.timetracker.plugin.dto.ActionResult;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.ofbiz.core.entity.GenericEntityException;
@@ -43,7 +44,7 @@ public interface JiraTimetrackerPlugin {
    * @return the counted real work days number.
    */
   double countRealWorkDaysInWeek(final List<String> weekDaysAsString,
-      final Set<String> excludeDatesSet, final Set<String> includeDatesSet);
+      final Set<String> exludeDates, final Set<String> includeDates);
 
   /**
    * Count worklog size without permission check beetween start and end date for the logged user.
@@ -106,17 +107,17 @@ public interface JiraTimetrackerPlugin {
   /**
    * Give back the date of the first day where missing worklogs. Use the properties files includes
    * and excludes date settings.
-   * 
-   * @param excludeDatesSet
-   *          TODO
-   * @param includeDatesSet
-   *          TODO
+   *
+   * @param exludeDates
+   *          the excluded dates.
+   * @param includeDates
+   *          the included dates.
    *
    * @return The Date representation of the day.
    * @throws GenericEntityException
    *           GenericEntityException
    */
-  Date firstMissingWorklogsDate(Set<String> excludeDatesSet, Set<String> includeDatesSet)
+  Date firstMissingWorklogsDate(Set<String> exludeDates, Set<String> includeDates)
       throws GenericEntityException;
 
   /**
@@ -134,26 +135,35 @@ public interface JiraTimetrackerPlugin {
    *          The report have to check the spent time or not.
    * @param nonWorking
    *          Exclude or not the non-working issues.
-   * @param excludeDatesSet TODO
-   * @param includeDatesSet TODO
+   * @param settings TODO
    * @return The list of the MissingsWorklogsDTO.
    * @throws GenericEntityException
    *           If GenericEntity Exception.
    */
   List<MissingsWorklogsDTO> getDates(String selectedUser, Date from, Date to, boolean workingHours,
-      boolean nonWorking, Set<String> excludeDatesSet, Set<String> includeDatesSet) throws GenericEntityException;
+      boolean nonWorking, TimeTrackerGlobalSettings settings) throws GenericEntityException;
 
   /**
-   * The method find the exclude date of the given date month.
+   * The method find the exclude dates of the given date month.
    *
    * @param date
    *          The date.
-   * @param excludeDateSet TODO
+   * @param exludeDates
+   *          the excluded dates.
    * @return The list of the days in String format. (Eg. ["12","15"])
    */
-  List<String> getExcludeDaysOfTheMonth(Date date, Set<String> excludeDateSet);
+  List<String> getExcludeDaysOfTheMonth(Date date, Set<String> exludeDates);
 
-  List<String> getIncludeDaysOfTheMonth(Date date, Set<String> includeDatesSet);
+  /**
+   * The method find the include dates of the given date month.
+   *
+   * @param date
+   *          The date.
+   * @param exludeDates
+   *          the excluded dates.
+   * @return The list of the days in String format. (Eg. ["12","15"])
+   */
+  List<String> getIncludeDaysOfTheMonth(Date date, Set<String> includeDates);
 
   /**
    * Give back the Issues.

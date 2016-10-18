@@ -15,12 +15,15 @@
  */
 package org.everit.jira.settings.dto;
 
+/**
+ * The reporting global settings key enumeration.
+ */
 public enum ReportingSettingKey {
   BROWSE_GROUPS {
 
     @Override
     public String getSettingsKey() {
-      return GlobalSettingsKey.JTTP_PLUGIN_REPORTING_SETTINGS_BROWSE_GROUPS;
+      return JTTPSettingsKey.JTTP_PLUGIN_REPORTING_SETTINGS_BROWSE_GROUPS;
     }
 
   },
@@ -28,7 +31,7 @@ public enum ReportingSettingKey {
 
     @Override
     public String getSettingsKey() {
-      return GlobalSettingsKey.JTTP_PLUGIN_REPORTING_SETTINGS_GROUPS;
+      return JTTPSettingsKey.JTTP_PLUGIN_REPORTING_SETTINGS_GROUPS;
     }
 
   };

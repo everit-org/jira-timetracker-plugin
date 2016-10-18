@@ -49,7 +49,6 @@ import org.everit.jira.settings.TimetrackerSettingsHelper;
 import org.everit.jira.settings.dto.TimeTrackerUserSettings;
 import org.everit.jira.timetracker.plugin.DurationFormatter;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
-import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
 import org.everit.jira.timetracker.plugin.PluginCondition;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
@@ -172,7 +171,6 @@ public class ReportingWebAction extends JiraWebActionSupport {
    * Simple constructor.
    */
   public ReportingWebAction(final ReportingPlugin reportingPlugin,
-      final JiraTimetrackerPlugin timetrackerPlugin,
       final AnalyticsSender analyticsSender,
       final TimetrackerSettingsHelper settingsHelper) {
     this.reportingPlugin = reportingPlugin;

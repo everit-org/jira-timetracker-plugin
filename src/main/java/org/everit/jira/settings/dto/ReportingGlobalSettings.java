@@ -20,6 +20,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Mapping and converter class for the reporting global settings.
+ */
 public class ReportingGlobalSettings {
 
   private Map<ReportingSettingKey, Object> pluginSettingsKeyValues = new HashMap<>();
@@ -32,6 +35,9 @@ public class ReportingGlobalSettings {
     return this;
   }
 
+  /**
+   * Convert and get the browse groups. Default is empty list.
+   */
   public List<String> getBrowseGroups() {
     List<String> browseGroupsNames = (List<String>) pluginSettingsKeyValues
         .get(ReportingSettingKey.BROWSE_GROUPS);
@@ -46,6 +52,9 @@ public class ReportingGlobalSettings {
     return pluginSettingsKeyValues;
   }
 
+  /**
+   * Convert and get the reporting groups. Default is empty list.
+   */
   public List<String> getReportingGroups() {
     List<String> reportingGroupsNames = (List<String>) pluginSettingsKeyValues
         .get(ReportingSettingKey.GROUPS);

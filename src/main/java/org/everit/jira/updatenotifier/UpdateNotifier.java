@@ -88,6 +88,9 @@ public class UpdateNotifier {
     }
   }
 
+  /**
+   * Set the settings to disable the notifier for the latest version.
+   */
   public void putDisableNotifierForVersion() {
     TimeTrackerUserSettings userSettings =
         new TimeTrackerUserSettings().userCanceledUpdate(getLatestVersionWithoutUpdate());
@@ -99,6 +102,9 @@ public class UpdateNotifier {
     settingsHelper.saveGlobalSettings(globalSettings);
   }
 
+  /**
+   * Put the latest JTTP version to the settings.
+   */
   public void putLatestVersion(final String latestVersion) {
     TimeTrackerGlobalSettings globalSettings =
         new TimeTrackerGlobalSettings().latestVersion(latestVersion);

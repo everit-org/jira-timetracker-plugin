@@ -25,7 +25,6 @@ import org.everit.jira.analytics.AnalyticsDTO;
 import org.everit.jira.settings.TimetrackerSettingsHelper;
 import org.everit.jira.settings.dto.TimeTrackerUserSettings;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
-import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
 import org.everit.jira.timetracker.plugin.PluginCondition;
 import org.everit.jira.timetracker.plugin.TimetrackerCondition;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
@@ -97,11 +96,8 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
   /**
    * Simpe consturctor.
    *
-   * @param jiraTimetrackerPlugin
-   *          The {@link JiraTimetrackerPlugin}.
    */
   public JiraTimetrackerSettingsWebAction(
-      final JiraTimetrackerPlugin jiraTimetrackerPlugin,
       final TimetrackerSettingsHelper settingsHelper) {
     timetrackingCondition = new TimetrackerCondition(settingsHelper);
     pluginCondition = new PluginCondition(settingsHelper);
@@ -223,13 +219,13 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     endTime = loaduserSettings.getEndTimeChange();
     isActualDate = loaduserSettings.getActualDate();
     isColoring = loaduserSettings.getColoring();
-    isRounded = loaduserSettings.getisRounded();
+    isRounded = loaduserSettings.getIsRounded();
     progressIndDaily = loaduserSettings.getisProgressIndicatordaily();
     isShowFutureLogWarning =
-        loaduserSettings.getisShowFutureLogWarning();
+        loaduserSettings.getIsShowFutureLogWarning();
     isShowIssueSummary =
-        loaduserSettings.getisShowIssueSummary();
-    startTime = loaduserSettings.getstartTimeChange();
+        loaduserSettings.getIsShowIssueSummary();
+    startTime = loaduserSettings.getStartTimeChange();
   }
 
   /**

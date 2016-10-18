@@ -24,7 +24,7 @@ public enum UserSettingKey {
 
     @Override
     public String getSettingsKey() {
-      return GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_END_TIME_CHANGE;
+      return JTTPSettingsKey.JTTP_PLUGIN_SETTINGS_END_TIME_CHANGE;
     }
 
   },
@@ -32,7 +32,7 @@ public enum UserSettingKey {
 
     @Override
     public String getSettingsKey() {
-      return GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_IS_ACTUAL_DATE;
+      return JTTPSettingsKey.JTTP_PLUGIN_SETTINGS_IS_ACTUAL_DATE;
     }
 
   },
@@ -40,7 +40,7 @@ public enum UserSettingKey {
 
     @Override
     public String getSettingsKey() {
-      return GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_IS_COLORIG;
+      return JTTPSettingsKey.JTTP_PLUGIN_SETTINGS_IS_COLORIG;
     }
 
   },
@@ -48,7 +48,7 @@ public enum UserSettingKey {
 
     @Override
     public String getSettingsKey() {
-      return GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_IS_ROUNDED;
+      return JTTPSettingsKey.JTTP_PLUGIN_SETTINGS_IS_ROUNDED;
     }
 
   },
@@ -56,7 +56,7 @@ public enum UserSettingKey {
 
     @Override
     public String getSettingsKey() {
-      return GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_IS_SHOW_TUTORIAL;
+      return JTTPSettingsKey.JTTP_PLUGIN_SETTINGS_IS_SHOW_TUTORIAL;
     }
 
   },
@@ -64,7 +64,7 @@ public enum UserSettingKey {
 
     @Override
     public String getSettingsKey() {
-      return GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_PROGRESS_INDICATOR;
+      return JTTPSettingsKey.JTTP_PLUGIN_SETTINGS_PROGRESS_INDICATOR;
     }
 
   },
@@ -72,7 +72,7 @@ public enum UserSettingKey {
 
     @Override
     public String getSettingsKey() {
-      return GlobalSettingsKey.JTTP_PLUGIN_REPORTING_SETTINGS_PAGER_SIZE;
+      return JTTPSettingsKey.JTTP_PLUGIN_REPORTING_SETTINGS_PAGER_SIZE;
     }
 
   },
@@ -81,7 +81,7 @@ public enum UserSettingKey {
 
     @Override
     public String getSettingsKey() {
-      return GlobalSettingsKey.JTTP_PLUGIN_REPORTING_SETTINGS_WORKLOG_IN_SEC;
+      return JTTPSettingsKey.JTTP_PLUGIN_REPORTING_SETTINGS_WORKLOG_IN_SEC;
     }
 
   },
@@ -89,7 +89,7 @@ public enum UserSettingKey {
 
     @Override
     public String getSettingsKey() {
-      return GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_SHOW_FUTURE_LOG_WARNING;
+      return JTTPSettingsKey.JTTP_PLUGIN_SETTINGS_SHOW_FUTURE_LOG_WARNING;
     }
 
   },
@@ -97,14 +97,14 @@ public enum UserSettingKey {
 
     @Override
     public String getSettingsKey() {
-      return GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_SHOW_ISSUE_SUMMARY_IN_WORKLOG_TABLE;
+      return JTTPSettingsKey.JTTP_PLUGIN_SETTINGS_SHOW_ISSUE_SUMMARY_IN_WORKLOG_TABLE;
     }
   },
   SHOW_TUTORIAL_VERSION {
 
     @Override
     public String getSettingsKey() {
-      return GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_SHOW_TUTORIAL_VERSION;
+      return JTTPSettingsKey.JTTP_PLUGIN_SETTINGS_SHOW_TUTORIAL_VERSION;
     }
 
   },
@@ -112,14 +112,14 @@ public enum UserSettingKey {
 
     @Override
     public String getSettingsKey() {
-      return GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_START_TIME_CHANGE;
+      return JTTPSettingsKey.JTTP_PLUGIN_SETTINGS_START_TIME_CHANGE;
     }
   },
   USER_CANCELED_UPDATE {
 
     @Override
     public String getSettingsKey() {
-      return GlobalSettingsKey.JTTP_USER_CANCELED_UPDATE;
+      return JTTPSettingsKey.JTTP_USER_CANCELED_UPDATE;
     }
 
   },
@@ -127,7 +127,7 @@ public enum UserSettingKey {
 
     @Override
     public String getSettingsKey() {
-      return GlobalSettingsKey.JTTP_PLUGIN_USER_WD_SELECTED_COLUMNS;
+      return JTTPSettingsKey.JTTP_PLUGIN_USER_WD_SELECTED_COLUMNS;
     }
 
   };

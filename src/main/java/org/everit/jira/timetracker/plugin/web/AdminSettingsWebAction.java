@@ -22,7 +22,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
@@ -90,16 +89,12 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    */
   private String excludeDates = "";
 
-  private Set<String> excludeDatesSet;
-
   private boolean feedBackSendAviable;
 
   /**
    * The include dates in String format.
    */
   private String includeDates = "";
-
-  private Set<String> includeDatesSet;
 
   private String issueCollectorSrc;
 
@@ -117,6 +112,8 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    * The {@link JiraTimetrackerPlugin}.
    */
   private JiraTimetrackerPlugin jiraTimetrackerPlugin;
+
+  private TimeTrackerGlobalSettings loadGlobalSettings;
 
   /**
    * The message.
@@ -170,7 +167,6 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
     this.analyticsSender = analyticsSender;
     this.settingsHelper = settingsHelper;
-    pluginId = settingsHelper.loadGlobalSettings().getPluginUUID();
   }
 
   private void checkMailServer() {
@@ -309,8 +305,9 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    * Load the plugin settings and set the variables.
    */
   public void loadPluginSettingAndParseResult() {
-    TimeTrackerGlobalSettings loadGlobalSettings = settingsHelper.loadGlobalSettings();
-    issuesPatterns = loadGlobalSettings.getSummaryFiletrs();
+    loadGlobalSettings = settingsHelper.loadGlobalSettings();
+    pluginId = loadGlobalSettings.getPluginUUID();
+    issuesPatterns = loadGlobalSettings.getNonWorkingIssuePatterns();
     for (Pattern issueId : issuesPatterns) {
       issueKey += issueId.toString() + " ";
     }
@@ -318,8 +315,8 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     for (Pattern issuePattern : collectorIssuePatterns) {
       collectorIssueKey += issuePattern.toString() + " ";
     }
-    excludeDatesSet = loadGlobalSettings.getExcludeDatesAsSet();
-    includeDatesSet = loadGlobalSettings.getIncludeDatesAsSet();
+    excludeDates = loadGlobalSettings.getExcludeDatesAsString();
+    includeDates = loadGlobalSettings.getIncludeDatesAsString();
     analyticsCheck = loadGlobalSettings.getAnalyticsCheck();
     pluginGroups = loadGlobalSettings.getPluginGroups();
     timetrackerGroups = loadGlobalSettings.getTimetrackerGroups();
@@ -348,7 +345,6 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
           try {
             Date validDate = DateTimeConverterUtil.fixFormatStringToDate(dateString);
             String dateToFixFormatString = DateTimeConverterUtil.dateToFixFormatString(validDate);
-            excludeDatesSet.add(dateToFixFormatString);
             validExvcludeDates += dateToFixFormatString + ", ";
           } catch (ParseException e) {
             parseExcludeException = true;
@@ -406,7 +402,8 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
         for (String dateString : includeDatesValueString.split(",")) {
           try {
             Date validDate = DateTimeConverterUtil.fixFormatStringToDate(dateString);
-            validIncludeDates += DateTimeConverterUtil.dateToFixFormatString(validDate) + ", ";
+            String dateToFixFormatString = DateTimeConverterUtil.dateToFixFormatString(validDate);
+            validIncludeDates += dateToFixFormatString + ", ";
           } catch (ParseException e) {
             parseIncludeDateException = true;
             messageInclude = "plugin.parse.exception.include";
@@ -497,8 +494,8 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    */
   public void savePluginSettings() {
     TimeTrackerGlobalSettings globalSettings = new TimeTrackerGlobalSettings();
-    globalSettings.excludeDates(excludeDatesSet)
-        .includeDates(includeDatesSet)
+    globalSettings.excludeDates(excludeDates)
+        .includeDates(includeDates)
         .filteredSummaryIssues(issuesPatterns)
         .collectorIssues(collectorIssuePatterns)
         .analyticsCheck(analyticsCheck)

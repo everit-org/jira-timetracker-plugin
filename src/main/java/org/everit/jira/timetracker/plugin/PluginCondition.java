@@ -41,7 +41,7 @@ public class PluginCondition extends AbstractWebCondition {
   @Override
   public boolean shouldDisplay(final ApplicationUser user, final JiraHelper jiraHelper) {
     List<String> pluginGroups = settingsHelper.loadGlobalSettings().getPluginGroups();
-    if ((pluginGroups == null) || pluginGroups.isEmpty()) {
+    if (pluginGroups.isEmpty()) {
       return true;
     }
     Collection<String> groupNamesForUser =

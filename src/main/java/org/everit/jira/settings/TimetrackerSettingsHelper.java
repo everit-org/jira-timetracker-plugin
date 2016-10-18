@@ -19,17 +19,59 @@ import org.everit.jira.settings.dto.ReportingGlobalSettings;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
 import org.everit.jira.settings.dto.TimeTrackerUserSettings;
 
+/**
+ * The time tracker plugin configuration helper class. Provides save and load methods for the
+ * configurations.
+ */
 public interface TimetrackerSettingsHelper {
-
+  /**
+   * Load all timetracker global configuration from the
+   * {@link com.atlassian.sal.api.pluginsettings.PluginSettings}.
+   *
+   * @return the timetracker settings.
+   */
   TimeTrackerGlobalSettings loadGlobalSettings();
 
+  /**
+   * Load all reporting global configuration from the
+   * {@link com.atlassian.sal.api.pluginsettings.PluginSettings}.
+   *
+   * @return the timetracker settings.
+   */
   ReportingGlobalSettings loadReportingGlobalSettings();
 
+  /**
+   * Load all user configuration from the
+   * {@link com.atlassian.sal.api.pluginsettings.PluginSettings}.
+   *
+   * @return the timetracker settings.
+   */
   TimeTrackerUserSettings loadUserSettings();
 
-  void saveGlobalSettings(TimeTrackerGlobalSettings pluginSettingsValues);
+  /**
+   * Save all specified settings from the {@link TimeTrackerGlobalSettings} into
+   * {@link com.atlassian.sal.api.pluginsettings.PluginSettings}.
+   *
+   * @param settings
+   *          the timetracker global settings.
+   */
+  void saveGlobalSettings(TimeTrackerGlobalSettings settings);
 
+  /**
+   * Save all specified settings from the {@link ReportingGlobalSettings} into
+   * {@link com.atlassian.sal.api.pluginsettings.PluginSettings}.
+   *
+   * @param settings
+   *          the reporting settings.
+   */
   void saveReportingGlobalSettings(ReportingGlobalSettings settings);
 
+  /**
+   * Save all specified settings from the {@link TimeTrackerUserSettings} into
+   * {@link com.atlassian.sal.api.pluginsettings.PluginSettings}.
+   *
+   * @param settings
+   *          the timetracker user settings.
+   */
   void saveUserSettings(TimeTrackerUserSettings userSettings);
 }

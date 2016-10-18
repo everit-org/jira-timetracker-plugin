@@ -36,7 +36,6 @@ import org.everit.jira.analytics.event.ExportWorklogDetailsReportEvent;
 import org.everit.jira.analytics.event.ExportWorklogDetailsReportEvent.WorkLogDetailsExportFormat;
 import org.everit.jira.querydsl.support.QuerydslSupport;
 import org.everit.jira.querydsl.support.ri.QuerydslSupportImpl;
-import org.everit.jira.reporting.plugin.ReportingPlugin;
 import org.everit.jira.reporting.plugin.column.WorklogDetailsColumns;
 import org.everit.jira.reporting.plugin.dto.ConvertedSearchParam;
 import org.everit.jira.reporting.plugin.dto.DownloadWorklogDetailsParam;
@@ -66,19 +65,15 @@ public class DownloadReportResource {
 
   private final QuerydslSupport querydslSupport;
 
-  private ReportingPlugin reportingPlugin;
-
   private TimetrackerSettingsHelper settingsHelper;
 
   /**
    * Simple constructor.
    */
   public DownloadReportResource(final AnalyticsSender analyticsSender,
-      final ReportingPlugin reportingPlugin,
       final TimetrackerSettingsHelper settingsHelper) {
     pluginId = settingsHelper.loadGlobalSettings().getPluginUUID();
     this.analyticsSender = analyticsSender;
-    this.reportingPlugin = reportingPlugin;
     this.settingsHelper = settingsHelper;
     try {
       querydslSupport = new QuerydslSupportImpl();

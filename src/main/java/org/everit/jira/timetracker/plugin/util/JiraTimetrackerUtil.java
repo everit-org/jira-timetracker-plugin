@@ -93,11 +93,12 @@ public final class JiraTimetrackerUtil {
    */
   public static void addAnswersToReportingMailBody(final String answerKey, final String[] answers) {
     if ((answers != null) && (answers.length != 0)) {
-      reportingMailBody.append(getI18nQuestion(answerKey));
+      reportingMailBody.append(JiraTimetrackerUtil.getI18nQuestion(answerKey));
       reportingMailBody.append(": ");
       for (String answer : answers) {
         if ((answer != null) && !answer.isEmpty()) {
-          reportingMailBody.append(getI18nAnswerOrTheAnswer(answerKey, answer.trim()));
+          reportingMailBody
+              .append(JiraTimetrackerUtil.getI18nAnswerOrTheAnswer(answerKey, answer.trim()));
           reportingMailBody.append("; ");
         }
       }
@@ -115,9 +116,10 @@ public final class JiraTimetrackerUtil {
    */
   public static void addAnswerToReportingMailBody(final String answerKey, final String answer) {
     if ((answer != null) && !answer.isEmpty()) {
-      reportingMailBody.append(getI18nQuestion(answerKey));
+      reportingMailBody.append(JiraTimetrackerUtil.getI18nQuestion(answerKey));
       reportingMailBody.append(": ");
-      reportingMailBody.append(getI18nAnswerOrTheAnswer(answerKey, answer.trim()));
+      reportingMailBody
+          .append(JiraTimetrackerUtil.getI18nAnswerOrTheAnswer(answerKey, answer.trim()));
       reportingMailBody.append("\n");
     }
   }
@@ -385,13 +387,20 @@ public final class JiraTimetrackerUtil {
 
   }
 
-  private JiraTimetrackerUtil() {
-  }
-
+  /**
+   * Validate the time change value. Possible values is 5, 10, 15, 20, 30.
+   *
+   * @param changeValue
+   *          the change value.
+   *
+   * @return true if changeValue is valid change time value.
+   * @throws NumberFormatException
+   *           if parse failed.
+   */
   public static boolean validateTimeChange(final String changeValue)
       throws NumberFormatException {
     int changeValueInt = Integer.parseInt(changeValue);
-  
+
     switch (changeValueInt) {
       case JiraTimetrackerPluginImpl.FIVE_MINUTES:
         return true;
@@ -406,7 +415,10 @@ public final class JiraTimetrackerUtil {
       default:
         return false;
     }
-  
+
+  }
+
+  private JiraTimetrackerUtil() {
   }
 
 }

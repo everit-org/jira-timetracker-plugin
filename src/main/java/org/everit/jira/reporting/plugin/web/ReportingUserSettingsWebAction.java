@@ -22,10 +22,8 @@ import java.util.Properties;
 import javax.servlet.http.HttpServletRequest;
 
 import org.everit.jira.reporting.plugin.ReportingCondition;
-import org.everit.jira.reporting.plugin.ReportingPlugin;
 import org.everit.jira.settings.TimetrackerSettingsHelper;
 import org.everit.jira.settings.dto.TimeTrackerUserSettings;
-import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
 import org.everit.jira.timetracker.plugin.PluginCondition;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
@@ -73,13 +71,10 @@ public class ReportingUserSettingsWebAction extends JiraWebActionSupport {
   /**
    * ReportingUserSettingsWebAction constructor.
    *
-   * @param reportingPlugin
-   *          Reporting plugin.
-   * @param timetrackerPlugin
-   *          Timetarcker plugin.
+   * @param settingsHelper
+   *          the settings helper.
    */
-  public ReportingUserSettingsWebAction(final ReportingPlugin reportingPlugin,
-      final JiraTimetrackerPlugin timetrackerPlugin,
+  public ReportingUserSettingsWebAction(
       final TimetrackerSettingsHelper settingsHelper) {
     reportingCondition = new ReportingCondition(settingsHelper);
     pluginCondition = new PluginCondition(settingsHelper);

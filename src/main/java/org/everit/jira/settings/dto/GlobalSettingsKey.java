@@ -16,149 +16,94 @@
 package org.everit.jira.settings.dto;
 
 /**
- * The plugin global setting keys.
+ * The timetracker global settings key enumeration.
  */
-public final class GlobalSettingsKey {
+public enum GlobalSettingsKey {
+  ANALYTICS_CHECK_CHANGE {
 
-  /**
-   * The plugin reporting settings groups that have browse user permission.
-   */
-  public static final String JTTP_PLUGIN_REPORTING_SETTINGS_BROWSE_GROUPS = "browseGroups";
+    @Override
+    public String getSettingsKey() {
+      return JTTPSettingsKey.JTTP_PLUGIN_SETTINGS_ANALYTICS_CHECK_CHANGE;
+    }
 
-  /**
-   * The plugin reporting settings user reporting groups.
-   */
-  public static final String JTTP_PLUGIN_REPORTING_SETTINGS_GROUPS = "reportingGroups";
+  },
+  EXCLUDE_DATES {
 
-  /**
-   * The plugin repoting settings key prefix.
-   */
-  public static final String JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX = "jttp_report";
+    @Override
+    public String getSettingsKey() {
+      return JTTPSettingsKey.JTTP_PLUGIN_SETTINGS_EXCLUDE_DATES;
+    }
 
-  /**
-   * The plugin reporting settings is use Noworks.
-   */
-  static final String JTTP_PLUGIN_REPORTING_SETTINGS_PAGER_SIZE = "pagerSize";
+  },
+  INCLUDE_DATES {
 
-  /**
-   * The plugin reporting settings worklog time in seconds value.
-   */
-  static final String JTTP_PLUGIN_REPORTING_SETTINGS_WORKLOG_IN_SEC = "worklogTimeInSeconds";
+    @Override
+    public String getSettingsKey() {
+      return JTTPSettingsKey.JTTP_PLUGIN_SETTINGS_INCLUDE_DATES;
+    }
 
-  /**
-   * The plugin settings analytics check.
-   */
-  static final String JTTP_PLUGIN_SETTINGS_ANALYTICS_CHECK_CHANGE = "analyticsCheckChange";
+  },
+  LATEST_VERSION {
 
-  /**
-   * The plugin setting is calendar popup key.
-   */
-  static final String JTTP_PLUGIN_SETTINGS_END_TIME_CHANGE = "endTimechange";
+    @Override
+    public String getSettingsKey() {
+      return JTTPSettingsKey.JTTP_UPDATE_NOTIFIER_LATEST_VERSION;
+    }
 
-  /**
-   * The plugin setting Exclude dates key.
-   */
-  static final String JTTP_PLUGIN_SETTINGS_EXCLUDE_DATES = "ExcludeDates";
+  },
+  NON_ESTIMATED_ISSUES {
 
-  /**
-   * The plugin setting Include dates key.
-   */
-  static final String JTTP_PLUGIN_SETTINGS_INCLUDE_DATES = "IncludeDates";
+    @Override
+    public String getSettingsKey() {
+      return JTTPSettingsKey.JTTP_PLUGIN_SETTINGS_NON_ESTIMATED_ISSUES;
+    }
 
-  /**
-   * The plugin setting is actual date key.
-   */
-  static final String JTTP_PLUGIN_SETTINGS_IS_ACTUAL_DATE = "isActualDate";
+  },
+  PLUGIN_PERMISSION {
 
-  /**
-   * The plugin setting is coloring key.
-   */
-  static final String JTTP_PLUGIN_SETTINGS_IS_COLORIG = "isColoring";
+    @Override
+    public String getSettingsKey() {
+      return JTTPSettingsKey.JTTP_PLUGIN_SETTINGS_PLUGIN_PERMISSION;
+    }
 
-  /**
-   * The plugin setting is rounded remaining time key.
-   */
-  static final String JTTP_PLUGIN_SETTINGS_IS_ROUNDED = "isRounded";
+  },
+  PLUGIN_UUID {
 
-  /**
-   * The plugin setting is show tutorial key.
-   */
-  static final String JTTP_PLUGIN_SETTINGS_IS_SHOW_TUTORIAL = "isShowTutorial";
+    @Override
+    public String getSettingsKey() {
+      return JTTPSettingsKey.JTTP_PLUGIN_UUID;
+    }
 
-  /**
-   * The plugin settings key prefix.
-   */
-  public static final String JTTP_PLUGIN_SETTINGS_KEY_PREFIX = "jttp";
+  },
+  SUMMARY_FILTERS {
 
-  /**
-   * The plugin setting Summary Filters key.
-   */
-  static final String JTTP_PLUGIN_SETTINGS_NON_ESTIMATED_ISSUES = "NonEstimated";
+    @Override
+    public String getSettingsKey() {
+      return JTTPSettingsKey.JTTP_PLUGIN_SETTINGS_SUMMARY_FILTERS;
+    }
 
-  /**
-   * The plugin setting Plugin Permission key.
-   */
-  static final String JTTP_PLUGIN_SETTINGS_PLUGIN_PERMISSION = "pluginPermission";
+  },
+  TIMETRACKER_PERMISSION {
 
-  /**
-   * The plugin setting is progress indicator date key.
-   */
-  static final String JTTP_PLUGIN_SETTINGS_PROGRESS_INDICATOR = "progressIndicator";
+    @Override
+    public String getSettingsKey() {
+      return JTTPSettingsKey.JTTP_PLUGIN_SETTINGS_TIMETRACKER_PERMISSION;
+    }
+  },
+  UPDATE_NOTIFIER_LAST_UPDATE {
 
-  /**
-   * The plugin setting is show warning message in future log.
-   */
-  static final String JTTP_PLUGIN_SETTINGS_SHOW_FUTURE_LOG_WARNING = "showFutureLogWarning";
+    @Override
+    public String getSettingsKey() {
+      return JTTPSettingsKey.JTTP_UPDATE_NOTIFIER_LAST_UPDATE;
+    }
+  },
+  UPDATE_NOTIFIER_LATEST_VERSION {
 
-  /**
-   * User specific key for show the issue summary or the issue key in worklog table.
-   */
-  static final String JTTP_PLUGIN_SETTINGS_SHOW_ISSUE_SUMMARY_IN_WORKLOG_TABLE =
-      "showIssueSummaryInWoroklogTable";
+    @Override
+    public String getSettingsKey() {
+      return JTTPSettingsKey.JTTP_UPDATE_NOTIFIER_LATEST_VERSION;
+    }
+  };
 
-  /**
-   * The plugin setting is show tutoriak version key.
-   */
-  static final String JTTP_PLUGIN_SETTINGS_SHOW_TUTORIAL_VERSION = "showTutorialVersion";
-
-  /**
-   * The plugin setting is calendar popup key.
-   */
-  static final String JTTP_PLUGIN_SETTINGS_START_TIME_CHANGE = "startTimeChange";
-
-  /**
-   * The plugin setting Summary Filters key.
-   */
-  static final String JTTP_PLUGIN_SETTINGS_SUMMARY_FILTERS = "SummaryFilters";
-
-  /**
-   * The plugin setting Timetracker Permission key.
-   */
-  static final String JTTP_PLUGIN_SETTINGS_TIMETRACKER_PERMISSION = "timetrackerPermission";
-  /**
-   * The plugin setting is show tutorila key.
-   */
-  static final String JTTP_PLUGIN_USER_WD_SELECTED_COLUMNS = "worklogDetialsSelectedColumns";
-  /**
-   * The plugin UUDI global setting key.
-   */
-  static final String JTTP_PLUGIN_UUID = "PluginUUID";
-
-  /**
-   * The update notifier last update time global setting key.
-   */
-  static final String JTTP_UPDATE_NOTIFIER_LAST_UPDATE = "UPDATE_NOTIFIER";
-
-  /**
-   * The update notifier latest version of the JTTP global setting key.
-   */
-  static final String JTTP_UPDATE_NOTIFIER_LATEST_VERSION = "JTTP_LATEST_VERSION";
-
-  /**
-   * User specific key for the version which the user canceled.
-   */
-  static final String JTTP_USER_CANCELED_UPDATE = "USER_CANCELED_UPDATE";
-
-  private GlobalSettingsKey() {
-  }
+  public abstract String getSettingsKey();
 }
