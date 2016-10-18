@@ -35,8 +35,8 @@ public class TimeTrackerGlobalSettings {
    */
   public TimeTrackerGlobalSettings analyticsCheck(final boolean analyticsCheck) {
     pluginSettingsKeyValues.put(GlobalSettingsKey.ANALYTICS_CHECK_CHANGE,
-        Boolean.toString(analyticsCheck));
-    return null;
+        String.valueOf(analyticsCheck));
+    return this;
   }
 
   /**

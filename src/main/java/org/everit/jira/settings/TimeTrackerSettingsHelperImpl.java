@@ -76,17 +76,17 @@ public class TimeTrackerSettingsHelperImpl implements TimetrackerSettingsHelper,
   }
 
   private void checkSendAnalyticsForAnalytics(final PluginSettings globalSettings,
-      final boolean analyticChange) {
+      final boolean newValue) {
     Object analyticsCheckObj = globalSettings.get(JTTPSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
         + GlobalSettingsKey.ANALYTICS_CHECK_CHANGE.getSettingsKey());
     boolean analyticsCheck = analyticsCheckObj == null
         ? true
         : Boolean.parseBoolean(analyticsCheckObj.toString());
 
-    if (analyticsCheck != analyticChange) {
+    if (analyticsCheck != newValue) {
       analyticsSender
           .send(new AnalyticsStatusChangedEvent(loadGlobalSettings().getPluginUUID(),
-              analyticChange));
+              newValue));
     }
   }
 
@@ -156,9 +156,9 @@ public class TimeTrackerSettingsHelperImpl implements TimetrackerSettingsHelper,
   @Override
   public void saveGlobalSettings(final TimeTrackerGlobalSettings pluginSettingsValues) {
     PluginSettings globalSettings = settingsFactory.createGlobalSettings();
-    checkSendAnalyticsForAnalytics(globalSettings,
-        (boolean) pluginSettingsValues.getPluginSettingsKeyValues()
-            .get(GlobalSettingsKey.ANALYTICS_CHECK_CHANGE));
+    Boolean newValue = Boolean.valueOf((String) pluginSettingsValues.getPluginSettingsKeyValues()
+        .get(GlobalSettingsKey.ANALYTICS_CHECK_CHANGE));
+    checkSendAnalyticsForAnalytics(globalSettings, newValue);
     for (Entry<GlobalSettingsKey, Object> globalSettingEntry : pluginSettingsValues
         .getPluginSettingsKeyValues().entrySet()) {
       globalSettings.put(JTTPSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
