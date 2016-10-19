@@ -37,6 +37,7 @@ import org.ofbiz.core.entity.GenericValue;
 import org.ofbiz.core.entity.model.ModelEntity;
 
 import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
+import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration.TimeFormat;
 import com.atlassian.jira.config.properties.ApplicationProperties;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.IssueManager;
@@ -136,9 +137,6 @@ public class EveritWorklogTest {
     Mockito.when(
         mockApplicationProperties.getDefaultBackedString(Matchers.matches("jira.lf.date.dmy")))
         .thenReturn("yy-MM-dd");
-    Mockito.when(mockApplicationProperties
-        .getDefaultBackedString(Matchers.matches("jira.timetracking.format")))
-        .thenReturn("pretty");
     mockComponentWorker.addMock(ApplicationProperties.class, mockApplicationProperties);
 
     JiraAuthenticationContext mockJiraAuthenticationContext =
@@ -156,6 +154,7 @@ public class EveritWorklogTest {
     TimeTrackingConfiguration ttConfig = EasyMock.createNiceMock(TimeTrackingConfiguration.class);
     EasyMock.expect(ttConfig.getDaysPerWeek()).andReturn(daysPerWeek).anyTimes();
     EasyMock.expect(ttConfig.getHoursPerDay()).andReturn(hoursPerDay).anyTimes();
+    EasyMock.expect(ttConfig.getTimeFormat()).andReturn(TimeFormat.pretty).anyTimes();
     EasyMock.replay(ttConfig);
     mockComponentWorker.addMock(TimeTrackingConfiguration.class, ttConfig).init();
   }

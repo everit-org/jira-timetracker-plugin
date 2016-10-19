@@ -26,11 +26,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import org.mockito.Matchers;
 import org.mockito.Mockito;
 
 import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
-import com.atlassian.jira.config.properties.ApplicationProperties;
+import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration.TimeFormat;
 import com.atlassian.jira.mock.component.MockComponentWorker;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.util.I18nHelper.BeanFactory;
@@ -92,15 +91,10 @@ public class DurationFormatterTest {
         .anyTimes();
     EasyMock.expect(ttConfig.getHoursPerDay()).andReturn(hoursPerDay)
         .anyTimes();
+    EasyMock.expect(ttConfig.getTimeFormat()).andReturn(TimeFormat.pretty)
+        .anyTimes();
     EasyMock.replay(ttConfig);
     mockComponentWorker.addMock(TimeTrackingConfiguration.class, ttConfig);
-
-    ApplicationProperties mockApplicationProperties =
-        Mockito.mock(ApplicationProperties.class, Mockito.RETURNS_DEEP_STUBS);
-    Mockito.when(mockApplicationProperties
-        .getDefaultBackedString(Matchers.matches("jira.timetracking.format")))
-        .thenReturn("pretty");
-    mockComponentWorker.addMock(ApplicationProperties.class, mockApplicationProperties);
 
     BeanFactory mockBeanFactory = Mockito.mock(BeanFactory.class, Mockito.RETURNS_DEEP_STUBS);
     mockComponentWorker.addMock(BeanFactory.class, mockBeanFactory);
