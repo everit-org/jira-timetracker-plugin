@@ -45,6 +45,7 @@ import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.PermissionManager;
 import com.atlassian.jira.security.plugin.ProjectPermissionKey;
 import com.atlassian.jira.user.ApplicationUser;
+import com.atlassian.jira.util.I18nHelper.BeanFactory;
 
 @RunWith(Parameterized.class)
 public class EveritWorklogTest {
@@ -135,6 +136,9 @@ public class EveritWorklogTest {
     Mockito.when(
         mockApplicationProperties.getDefaultBackedString(Matchers.matches("jira.lf.date.dmy")))
         .thenReturn("yy-MM-dd");
+    Mockito.when(mockApplicationProperties
+        .getDefaultBackedString(Matchers.matches("jira.timetracking.format")))
+        .thenReturn("pretty");
     mockComponentWorker.addMock(ApplicationProperties.class, mockApplicationProperties);
 
     JiraAuthenticationContext mockJiraAuthenticationContext =
@@ -143,6 +147,9 @@ public class EveritWorklogTest {
         .thenReturn(new Locale("en", "US"));
     Mockito.when(mockJiraAuthenticationContext.getUser()).thenReturn(null);
     mockComponentWorker.addMock(JiraAuthenticationContext.class, mockJiraAuthenticationContext);
+
+    BeanFactory mockBeanFactory = Mockito.mock(BeanFactory.class, Mockito.RETURNS_DEEP_STUBS);
+    mockComponentWorker.addMock(BeanFactory.class, mockBeanFactory);
 
     BigDecimal daysPerWeek = new BigDecimal(5);
     BigDecimal hoursPerDay = new BigDecimal(8);
