@@ -18,7 +18,7 @@ package org.everit.jira.settings.dto;
 /**
  * The user settings keys enumeration.
  */
-public enum UserSettingKey {
+public enum UserSettingKey implements SettingsMapper {
 
   END_TIME_CHANGE {
 
@@ -131,6 +131,5 @@ public enum UserSettingKey {
     }
 
   };
-  public abstract String getSettingsKey();
 
 }

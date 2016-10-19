@@ -16,23 +16,14 @@
 package org.everit.jira.settings.dto;
 
 /**
- * The reporting global settings key enumeration.
+ *
+ * Interface for the settings keys enumerations to map the enum instance to a JTTP settings key.
+ *
  */
-public enum ReportingSettingKey implements SettingsMapper {
-  BROWSE_GROUPS {
+public interface SettingsMapper {
+  /**
+   * Get the JTTP settings key without prefix.
+   */
+  String getSettingsKey();
 
-    @Override
-    public String getSettingsKey() {
-      return JTTPSettingsKey.JTTP_PLUGIN_REPORTING_SETTINGS_BROWSE_GROUPS;
-    }
-
-  },
-  GROUPS {
-
-    @Override
-    public String getSettingsKey() {
-      return JTTPSettingsKey.JTTP_PLUGIN_REPORTING_SETTINGS_GROUPS;
-    }
-
-  };
 }

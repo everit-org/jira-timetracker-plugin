@@ -84,6 +84,9 @@ public class TimeTrackerGlobalSettings {
   public Set<String> getExcludeDatesAsSet() {
     String excludeDatesString = getExcludeDatesAsString();
     Set<String> excludeDatesSet = new HashSet<>();
+    if (excludeDatesString.isEmpty()) {
+      return excludeDatesSet;
+    }
     for (String excludeDate : excludeDatesString.split(",")) {
       excludeDatesSet.add(excludeDate);
     }
@@ -107,8 +110,11 @@ public class TimeTrackerGlobalSettings {
    * Get include dates as Set.
    */
   public Set<String> getIncludeDatesAsSet() {
-    Set<String> includeDatesSet = new HashSet<>();
     String tempSpecialDates = getIncludeDatesAsString();
+    Set<String> includeDatesSet = new HashSet<>();
+    if (tempSpecialDates.isEmpty()) {
+      return includeDatesSet;
+    }
     for (String includeDate : tempSpecialDates.split(",")) {
       includeDatesSet.add(includeDate);
     }
@@ -159,7 +165,7 @@ public class TimeTrackerGlobalSettings {
    * Get the latest version which the user is canceled.
    */
   public String getLatestVersion() {
-    return (String) pluginSettingsKeyValues.get(GlobalSettingsKey.LATEST_VERSION);
+    return (String) pluginSettingsKeyValues.get(GlobalSettingsKey.UPDATE_NOTIFIER_LATEST_VERSION);
   }
 
   /**

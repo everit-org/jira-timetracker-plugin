@@ -185,7 +185,7 @@ public class TimeTrackerUserSettings {
   }
 
   /**
-   * Get the user saved page size setting.
+   * Get the user saved page size setting. The default is 20.
    *
    * @return The saved value from settigns.
    */

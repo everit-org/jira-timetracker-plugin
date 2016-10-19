@@ -18,7 +18,7 @@ package org.everit.jira.settings.dto;
 /**
  * The timetracker global settings key enumeration.
  */
-public enum GlobalSettingsKey {
+public enum GlobalSettingsKey implements SettingsMapper {
   ANALYTICS_CHECK_CHANGE {
 
     @Override
@@ -40,14 +40,6 @@ public enum GlobalSettingsKey {
     @Override
     public String getSettingsKey() {
       return JTTPSettingsKey.JTTP_PLUGIN_SETTINGS_INCLUDE_DATES;
-    }
-
-  },
-  LATEST_VERSION {
-
-    @Override
-    public String getSettingsKey() {
-      return JTTPSettingsKey.JTTP_UPDATE_NOTIFIER_LATEST_VERSION;
     }
 
   },
@@ -104,6 +96,4 @@ public enum GlobalSettingsKey {
       return JTTPSettingsKey.JTTP_UPDATE_NOTIFIER_LATEST_VERSION;
     }
   };
-
-  public abstract String getSettingsKey();
 }
