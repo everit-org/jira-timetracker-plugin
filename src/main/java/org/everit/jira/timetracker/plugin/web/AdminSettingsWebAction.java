@@ -30,17 +30,16 @@ import org.apache.log4j.Logger;
 import org.everit.jira.analytics.AnalyticsSender;
 import org.everit.jira.analytics.event.NoEstimateUsageChangedEvent;
 import org.everit.jira.analytics.event.NonWorkingUsageEvent;
-import org.everit.jira.reporting.plugin.util.ConverterUtil;
+import org.everit.jira.settings.TimetrackerSettingsHelper;
+import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
-import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
-import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
 /**
  * Admin settings page.
@@ -86,11 +85,6 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
   private String contextPath;
 
   /**
-   * The pluginSetting endTime value.
-   */
-  private int endTime;
-
-  /**
    * The exclude dates in String format.
    */
   private String excludeDates = "";
@@ -101,20 +95,6 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    * The include dates in String format.
    */
   private String includeDates = "";
-
-  /**
-   * The calenar show the actualDate or the last unfilled date.
-   */
-  private boolean isActualDate;
-
-  /**
-   * The pluginSetting isColoring value.
-   */
-  private boolean isColoring;
-
-  private boolean isProgressDaily;
-
-  private boolean isRounded;
 
   private String issueCollectorSrc;
 
@@ -132,6 +112,8 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    * The {@link JiraTimetrackerPlugin}.
    */
   private JiraTimetrackerPlugin jiraTimetrackerPlugin;
+
+  private TimeTrackerGlobalSettings loadGlobalSettings;
 
   /**
    * The message.
@@ -167,28 +149,24 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    */
   private List<String> projectsId;
 
-  /**
-   * The pluginSetting startTime value.
-   */
-  private int startTime;
+  private TimetrackerSettingsHelper settingsHelper;
 
   private List<String> timetrackerGroups;
 
   /**
    * Simple constructor.
    *
-   * @param pluginSettingsFactory
-   *          the {@link PluginSettingsFactory}.
    * @param jiraTimetrackerPlugin
    *          The {@link JiraTimetrackerPlugin}.
    * @param analyticsSender
    *          The {@link AnalyticsSender}.
    */
-  public AdminSettingsWebAction(final PluginSettingsFactory pluginSettingsFactory,
-      final JiraTimetrackerPlugin jiraTimetrackerPlugin, final AnalyticsSender analyticsSender) {
+  public AdminSettingsWebAction(
+      final JiraTimetrackerPlugin jiraTimetrackerPlugin, final AnalyticsSender analyticsSender,
+      final TimetrackerSettingsHelper settingsHelper) {
     this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
     this.analyticsSender = analyticsSender;
-    pluginId = JiraTimetrackerAnalytics.getPluginUUID(pluginSettingsFactory.createGlobalSettings());
+    this.settingsHelper = settingsHelper;
   }
 
   private void checkMailServer() {
@@ -327,27 +305,21 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    * Load the plugin settings and set the variables.
    */
   public void loadPluginSettingAndParseResult() {
-    PluginSettingsValues pluginSettingsValues = jiraTimetrackerPlugin
-        .loadPluginSettings();
-    isProgressDaily = pluginSettingsValues.isProgressIndicatorDaily;
-    isActualDate = pluginSettingsValues.isActualDate;
-    startTime = pluginSettingsValues.startTimeChange;
-    endTime = pluginSettingsValues.endTimeChange;
-    isColoring = pluginSettingsValues.isColoring;
-    issuesPatterns = pluginSettingsValues.filteredSummaryIssues;
+    loadGlobalSettings = settingsHelper.loadGlobalSettings();
+    pluginId = loadGlobalSettings.getPluginUUID();
+    issuesPatterns = loadGlobalSettings.getNonWorkingIssuePatterns();
     for (Pattern issueId : issuesPatterns) {
       issueKey += issueId.toString() + " ";
     }
-    collectorIssuePatterns = pluginSettingsValues.collectorIssues;
+    collectorIssuePatterns = loadGlobalSettings.getIssuePatterns();
     for (Pattern issuePattern : collectorIssuePatterns) {
       collectorIssueKey += issuePattern.toString() + " ";
     }
-    excludeDates = pluginSettingsValues.excludeDates;
-    includeDates = pluginSettingsValues.includeDates;
-    analyticsCheck = pluginSettingsValues.analyticsCheck;
-    pluginGroups = pluginSettingsValues.pluginGroups;
-    timetrackerGroups = pluginSettingsValues.timetrackingGroups;
-    isRounded = pluginSettingsValues.isRounded;
+    excludeDates = loadGlobalSettings.getExcludeDatesAsString();
+    includeDates = loadGlobalSettings.getIncludeDatesAsString();
+    analyticsCheck = loadGlobalSettings.getAnalyticsCheck();
+    pluginGroups = loadGlobalSettings.getPluginGroups();
+    timetrackerGroups = loadGlobalSettings.getTimetrackerGroups();
   }
 
   private void normalizeContextPath() {
@@ -372,7 +344,8 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
         for (String dateString : excludeDatesValueString.split(",")) {
           try {
             Date validDate = DateTimeConverterUtil.fixFormatStringToDate(dateString);
-            validExvcludeDates += DateTimeConverterUtil.dateToFixFormatString(validDate) + ", ";
+            String dateToFixFormatString = DateTimeConverterUtil.dateToFixFormatString(validDate);
+            validExvcludeDates += dateToFixFormatString + ", ";
           } catch (ParseException e) {
             parseExcludeException = true;
             messageExclude = "plugin.parse.exception.exclude";
@@ -429,7 +402,8 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
         for (String dateString : includeDatesValueString.split(",")) {
           try {
             Date validDate = DateTimeConverterUtil.fixFormatStringToDate(dateString);
-            validIncludeDates += DateTimeConverterUtil.dateToFixFormatString(validDate) + ", ";
+            String dateToFixFormatString = DateTimeConverterUtil.dateToFixFormatString(validDate);
+            validIncludeDates += dateToFixFormatString + ", ";
           } catch (ParseException e) {
             parseIncludeDateException = true;
             messageInclude = "plugin.parse.exception.include";
@@ -519,29 +493,21 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    * Save the plugin settings.
    */
   public void savePluginSettings() {
-    PluginSettingsValues pluginSettingValues = new PluginSettingsValues()
-        .isProgressIndicatordaily(isProgressDaily)
-        .actualDate(isActualDate)
-        .excludeDates(excludeDates)
+    TimeTrackerGlobalSettings globalSettings = new TimeTrackerGlobalSettings();
+    globalSettings.excludeDates(excludeDates)
         .includeDates(includeDates)
-        .coloring(isColoring)
         .filteredSummaryIssues(issuesPatterns)
         .collectorIssues(collectorIssuePatterns)
-        .startTimeChange(startTime)
-        .endTimeChange(endTime)
         .analyticsCheck(analyticsCheck)
         .pluginGroups(pluginGroups)
-        .timetrackingGroups(timetrackerGroups)
-        .isRounded(isRounded);
-
-    jiraTimetrackerPlugin.savePluginSettings(pluginSettingValues);
+        .timetrackerGroups(timetrackerGroups);
+    settingsHelper.saveGlobalSettings(globalSettings);
     sendNonEstAndNonWorkAnaliticsEvent();
   }
 
   private void sendNonEstAndNonWorkAnaliticsEvent() {
     NoEstimateUsageChangedEvent analyticsEvent =
-        new NoEstimateUsageChangedEvent(pluginId,
-            ConverterUtil.convertPatternsToString(collectorIssuePatterns));
+        new NoEstimateUsageChangedEvent(pluginId, collectorIssuePatterns);
     analyticsSender.send(analyticsEvent);
     NonWorkingUsageEvent nonWorkingUsageEvent =
         new NonWorkingUsageEvent(pluginId, (issuesPatterns == null) || issuesPatterns.isEmpty());

@@ -26,12 +26,16 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.everit.jira.analytics.AnalyticsDTO;
+import org.everit.jira.settings.TimetrackerSettingsHelper;
+import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
+import org.everit.jira.settings.dto.TimeTrackerUserSettings;
 import org.everit.jira.timetracker.plugin.DurationFormatter;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
@@ -40,7 +44,6 @@ import org.everit.jira.timetracker.plugin.TimetrackerCondition;
 import org.everit.jira.timetracker.plugin.dto.ActionResult;
 import org.everit.jira.timetracker.plugin.dto.ActionResultStatus;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
-import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
 import org.everit.jira.timetracker.plugin.dto.WorklogValues;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
@@ -61,7 +64,6 @@ import com.atlassian.jira.issue.RendererManager;
 import com.atlassian.jira.issue.fields.renderer.IssueRenderContext;
 import com.atlassian.jira.issue.fields.renderer.JiraRendererPlugin;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
-import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
 /**
  * The timetracker web action support class.
@@ -181,6 +183,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    */
   private int endTimeChange;
 
+  private Set<String> excludeDatesAsSet;
+
   /**
    * List of the exclude days of the date variable current months.
    */
@@ -194,7 +198,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   private String hoursPerDayFormatted;
 
-  private String installedPluginId;
+  private Set<String> includeDatesAsSet;
 
   /**
    * The calendar show actual Date Or Last Worklog Date.
@@ -273,12 +277,12 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   private PluginCondition pluginCondition;
 
-  private final PluginSettingsFactory pluginSettingsFactory;
-
   /**
    * The IDs of the projects.
    */
   private List<String> projectsId;
+
+  private TimetrackerSettingsHelper settingsHelper;
 
   /**
    * The worklog start time.
@@ -336,20 +340,18 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    *          The {@link JiraTimetrackerPlugin}.
    * @param timeTrackingConfiguration
    *          the {@link TimeTrackingConfiguration}.
-   * @param pluginSettingsFactory
-   *          the {@link PluginSettingsFactory}.
    */
   public JiraTimetrackerWebAction(
       final JiraTimetrackerPlugin jiraTimetrackerPlugin,
       final TimeTrackingConfiguration timeTrackingConfiguration,
-      final PluginSettingsFactory pluginSettingsFactory) {
+      final TimetrackerSettingsHelper settingsHelper) {
     this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
     this.timeTrackingConfiguration = timeTrackingConfiguration;
-    this.pluginSettingsFactory = pluginSettingsFactory;
-    timetrackingCondition = new TimetrackerCondition(jiraTimetrackerPlugin);
-    pluginCondition = new PluginCondition(jiraTimetrackerPlugin);
+    timetrackingCondition = new TimetrackerCondition(settingsHelper);
+    pluginCondition = new PluginCondition(settingsHelper);
     issueRenderContext = new IssueRenderContext(null);
     RendererManager rendererManager = ComponentAccessor.getRendererManager();
+    this.settingsHelper = settingsHelper;
     atlassianWikiRenderer = rendererManager.getRendererForType("atlassian-wiki-renderer");
   }
 
@@ -370,8 +372,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     long daysInMonth =
         TimeUnit.DAYS.convert(monthLastDay.getTimeInMillis() - dayIndex.getTimeInMillis(),
             TimeUnit.MILLISECONDS) + 1;
-    int excludeDtaes = jiraTimetrackerPlugin.getExcludeDaysOfTheMonth(date).size();
-    int includeDtaes = jiraTimetrackerPlugin.getIncludeDaysOfTheMonth(date).size();
+    int excludeDtaes =
+        jiraTimetrackerPlugin.getExcludeDaysOfTheMonth(date, excludeDatesAsSet).size();
+    int includeDtaes =
+        jiraTimetrackerPlugin.getIncludeDaysOfTheMonth(date, includeDatesAsSet).size();
     int nonWorkDaysCount = 0;
     for (int i = 1; i < daysInMonth; i++) {
       int dayOfweek = dayIndex.get(Calendar.DAY_OF_WEEK);
@@ -393,7 +397,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       weekdaysAsString.add(simpleDateFormat.format(dayIndex.getTime()));
       dayIndex.add(Calendar.DAY_OF_MONTH, 1);
     }
-    double realWorkDaysInWeek = jiraTimetrackerPlugin.countRealWorkDaysInWeek(weekdaysAsString);
+    double realWorkDaysInWeek = jiraTimetrackerPlugin.countRealWorkDaysInWeek(weekdaysAsString,
+        excludeDatesAsSet, includeDatesAsSet);
     expectedWorkSecondsInWeek =
         realWorkDaysInWeek * expectedWorkSecondsInDay;
   }
@@ -559,8 +564,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       return checkConditionsResult;
     }
 
-    analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(pluginSettingsFactory,
-        PiwikPropertiesUtil.PIWIK_TIMETRACKER_SITEID);
+    analyticsDTO = JiraTimetrackerAnalytics
+        .getAnalyticsDTO(PiwikPropertiesUtil.PIWIK_TIMETRACKER_SITEID, settingsHelper);
 
     normalizeContextPath();
     loadIssueCollectorSrc();
@@ -570,7 +575,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       return ERROR;
     }
 
-    excludeDays = jiraTimetrackerPlugin.getExcludeDaysOfTheMonth(date);
+    excludeDays = jiraTimetrackerPlugin.getExcludeDaysOfTheMonth(date, excludeDatesAsSet);
     projectsId = jiraTimetrackerPlugin.getProjectsId();
     try {
       loggedDays = jiraTimetrackerPlugin.getLoggedDaysOfTheMonth(date);
@@ -598,8 +603,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       return checkConditionsResult;
     }
 
-    analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(pluginSettingsFactory,
-        PiwikPropertiesUtil.PIWIK_TIMETRACKER_SITEID);
+    analyticsDTO = JiraTimetrackerAnalytics
+        .getAnalyticsDTO(PiwikPropertiesUtil.PIWIK_TIMETRACKER_SITEID, settingsHelper);
 
     normalizeContextPath();
     loadIssueCollectorSrc();
@@ -611,7 +616,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     parsedEditAllIds = parseEditAllIds(getHttpRequest().getParameter("editAll"));
     parseEditAllAction();
 
-    excludeDays = jiraTimetrackerPlugin.getExcludeDaysOfTheMonth(date);
+    excludeDays = jiraTimetrackerPlugin.getExcludeDaysOfTheMonth(date, excludeDatesAsSet);
     projectsId = jiraTimetrackerPlugin.getProjectsId();
 
     String deleteResult = deleteWorklog();
@@ -842,10 +847,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   public String getHoursPerDayFormatted() {
     return hoursPerDayFormatted;
-  }
-
-  public String getInstalledPluginId() {
-    return installedPluginId;
   }
 
   public boolean getIsColoring() {
@@ -1157,19 +1158,20 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   }
 
   private void loadPluginSettingAndParseResult() {
-    PluginSettingsValues pluginSettingsValues = jiraTimetrackerPlugin
-        .loadPluginSettings();
+    TimeTrackerUserSettings userSettings = settingsHelper.loadUserSettings();
+    TimeTrackerGlobalSettings globalSettings = settingsHelper.loadGlobalSettings();
 
-    isProgressDaily = pluginSettingsValues.isProgressIndicatorDaily;
-    isActualDate = pluginSettingsValues.isActualDate;
-    issuesRegex = pluginSettingsValues.filteredSummaryIssues;
-    startTimeChange = pluginSettingsValues.startTimeChange;
-    endTimeChange = pluginSettingsValues.endTimeChange;
-    isColoring = pluginSettingsValues.isColoring;
-    installedPluginId = pluginSettingsValues.pluginUUID;
-    isRounded = pluginSettingsValues.isRounded;
-    isShowFutureLogWarning = pluginSettingsValues.isShowFutureLogWarning;
-    isShowIssueSummary = pluginSettingsValues.isShowIssueSummary;
+    isProgressDaily = userSettings.getisProgressIndicatordaily();
+    isActualDate = userSettings.getActualDate();
+    issuesRegex = globalSettings.getNonWorkingIssuePatterns();
+    startTimeChange = userSettings.getStartTimeChange();
+    endTimeChange = userSettings.getEndTimeChange();
+    isColoring = userSettings.getColoring();
+    isRounded = userSettings.getIsRounded();
+    isShowFutureLogWarning = userSettings.getIsShowFutureLogWarning();
+    isShowIssueSummary = userSettings.getIsShowIssueSummary();
+    excludeDatesAsSet = globalSettings.getExcludeDatesAsSet();
+    includeDatesAsSet = globalSettings.getIncludeDatesAsSet();
   }
 
   /**
@@ -1307,7 +1309,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
         dateFormatted = date.getTime();
       } else {
         try {
-          date = jiraTimetrackerPlugin.firstMissingWorklogsDate();
+          date =
+              jiraTimetrackerPlugin.firstMissingWorklogsDate(excludeDatesAsSet, includeDatesAsSet);
           dateFormatted = date.getTime();
         } catch (GenericEntityException e) {
           LOGGER.error("Error when try set the plugin date.", e);
@@ -1402,8 +1405,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * @return true if bar should be render
    */
   public boolean renderUpdateNotifier() {
-    return new UpdateNotifier(pluginSettingsFactory, JiraTimetrackerUtil.getLoggedUserName())
-        .isShowUpdater();
+    return new UpdateNotifier(settingsHelper).isShowUpdater();
 
   }
 
@@ -1443,7 +1445,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
         dateFormatted = date.getTime();
       } else {
         try {
-          date = jiraTimetrackerPlugin.firstMissingWorklogsDate();
+          date =
+              jiraTimetrackerPlugin.firstMissingWorklogsDate(excludeDatesAsSet, includeDatesAsSet);
           dateFormatted = date.getTime();
         } catch (GenericEntityException e) {
           LOGGER.error("Error when try set the plugin date.", e);
@@ -1533,10 +1536,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     }
 
     return null;
-  }
-
-  public void setInstalledPluginId(final String installedPluginId) {
-    this.installedPluginId = installedPluginId;
   }
 
   public void setIsDurationSelected(final boolean isDurationSelected) {
