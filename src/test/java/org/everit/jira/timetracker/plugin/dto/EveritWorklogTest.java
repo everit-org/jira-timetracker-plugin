@@ -39,7 +39,6 @@ import org.mockito.Mockito;
 import org.ofbiz.core.entity.GenericValue;
 import org.ofbiz.core.entity.model.ModelEntity;
 
-import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
 import com.atlassian.jira.config.properties.ApplicationProperties;
 import com.atlassian.jira.datetime.DateTimeFormatter;
@@ -70,7 +69,7 @@ public class EveritWorklogTest {
     }
 
     @Override
-    public DateTimeFormatter forUser(final User arg0) {
+    public DateTimeFormatter forUser(final ApplicationUser arg0) {
       return this;
     }
 
