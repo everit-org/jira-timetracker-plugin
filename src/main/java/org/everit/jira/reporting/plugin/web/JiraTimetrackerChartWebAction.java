@@ -34,8 +34,8 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 import org.everit.jira.analytics.AnalyticsDTO;
 import org.everit.jira.reporting.plugin.ReportingCondition;
-import org.everit.jira.reporting.plugin.ReportingPlugin;
 import org.everit.jira.reporting.plugin.util.PermissionUtil;
+import org.everit.jira.settings.TimetrackerSettingsHelper;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
 import org.everit.jira.timetracker.plugin.PluginCondition;
@@ -55,7 +55,6 @@ import com.atlassian.jira.exception.DataAccessException;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
-import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.velocity.htmlsafe.HtmlSafe;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -140,11 +139,9 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
   private PluginCondition pluginCondition;
 
-  private final PluginSettingsFactory pluginSettingsFactory;
-
   private ReportingCondition reportingCondition;
 
-  private ReportingPlugin reportingPlugin;
+  private TimetrackerSettingsHelper settingsHelper;
 
   private Date startDate;
 
@@ -155,18 +152,14 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
    *
    * @param jiraTimetrackerPlugin
    *          The {@link JiraTimetrackerPlugin}.
-   * @param pluginSettingsFactory
-   *          the {@link PluginSettingsFactory}.
    */
   public JiraTimetrackerChartWebAction(
       final JiraTimetrackerPlugin jiraTimetrackerPlugin,
-      final ReportingPlugin reportingPlugin,
-      final PluginSettingsFactory pluginSettingsFactory) {
+      final TimetrackerSettingsHelper settingsHelper) {
     this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
-    this.reportingPlugin = reportingPlugin;
-    reportingCondition = new ReportingCondition(this.reportingPlugin);
-    this.pluginSettingsFactory = pluginSettingsFactory;
-    pluginCondition = new PluginCondition(jiraTimetrackerPlugin);
+    this.settingsHelper = settingsHelper;
+    reportingCondition = new ReportingCondition(settingsHelper);
+    pluginCondition = new PluginCondition(settingsHelper);
   }
 
   private String checkConditions() {
@@ -196,10 +189,10 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     loadIssueCollectorSrc();
 
     hasBrowseUsersPermission =
-        PermissionUtil.hasBrowseUserPermission(getLoggedInApplicationUser(), reportingPlugin);
+        PermissionUtil.hasBrowseUserPermission(getLoggedInApplicationUser(), settingsHelper);
 
-    analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(pluginSettingsFactory,
-        PiwikPropertiesUtil.PIWIK_CHART_SITEID);
+    analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(PiwikPropertiesUtil.PIWIK_CHART_SITEID,
+        settingsHelper);
 
     boolean loadedFromSession = loadDataFromSession();
     initDatesIfNecessary();
@@ -225,10 +218,10 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     loadIssueCollectorSrc();
 
     hasBrowseUsersPermission =
-        PermissionUtil.hasBrowseUserPermission(getLoggedInApplicationUser(), reportingPlugin);
+        PermissionUtil.hasBrowseUserPermission(getLoggedInApplicationUser(), settingsHelper);
 
-    analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(pluginSettingsFactory,
-        PiwikPropertiesUtil.PIWIK_CHART_SITEID);
+    analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(PiwikPropertiesUtil.PIWIK_CHART_SITEID,
+        settingsHelper);
 
     parseParams();
     if (!"".equals(message)) {
@@ -441,7 +434,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
    * @return true if bar should be render
    */
   public boolean renderUpdateNotifier() {
-    return new UpdateNotifier(pluginSettingsFactory, JiraTimetrackerUtil.getLoggedUserName())
+    return new UpdateNotifier(settingsHelper)
         .isShowUpdater();
   }
 

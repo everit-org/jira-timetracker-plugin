@@ -18,7 +18,7 @@ package org.everit.jira.reporting.plugin;
 import java.util.Collection;
 import java.util.List;
 
-import org.everit.jira.timetracker.plugin.dto.ReportingSettingsValues;
+import org.everit.jira.settings.TimetrackerSettingsHelper;
 
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.plugin.webfragment.conditions.AbstractWebCondition;
@@ -32,17 +32,17 @@ import com.atlassian.jira.user.ApplicationUser;
  */
 public class ReportingCondition extends AbstractWebCondition {
 
-  private ReportingPlugin reportingPlugin;
+  private TimetrackerSettingsHelper settingsHelper;
 
-  public ReportingCondition(final ReportingPlugin reportingPlugin) {
-    this.reportingPlugin = reportingPlugin;
+  public ReportingCondition(final TimetrackerSettingsHelper settingsHelper) {
+    this.settingsHelper = settingsHelper;
   }
 
   @Override
   public boolean shouldDisplay(final ApplicationUser user, final JiraHelper jiraHelper) {
-    ReportingSettingsValues loadReportingSettings = reportingPlugin.loadReportingSettings();
-    List<String> reportingGroups = loadReportingSettings.reportingGroups;
-    if ((reportingGroups == null) || reportingGroups.isEmpty()) {
+    List<String> reportingGroups =
+        settingsHelper.loadReportingGlobalSettings().getReportingGroups();
+    if (reportingGroups.isEmpty()) {
       return true;
     }
     Collection<String> groupNamesForUser =

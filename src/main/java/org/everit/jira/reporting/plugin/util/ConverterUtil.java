@@ -25,7 +25,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import org.everit.jira.reporting.plugin.ReportingPlugin;
 import org.everit.jira.reporting.plugin.SearcherValue;
 import org.everit.jira.reporting.plugin.dto.ConvertedSearchParam;
 import org.everit.jira.reporting.plugin.dto.FilterCondition;
@@ -34,6 +33,7 @@ import org.everit.jira.reporting.plugin.dto.PickerComponentDTO;
 import org.everit.jira.reporting.plugin.dto.PickerUserDTO;
 import org.everit.jira.reporting.plugin.dto.PickerVersionDTO;
 import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
+import org.everit.jira.settings.TimetrackerSettingsHelper;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 
@@ -202,12 +202,12 @@ public final class ConverterUtil {
   }
 
   private static void collectUsersFromParams(final FilterCondition filterCondition,
-      final ReportSearchParam reportSearchParam, final ReportingPlugin reportingPlugin) {
+      final ReportSearchParam reportSearchParam, final TimetrackerSettingsHelper settingsHelper) {
     ArrayList<String> users = new ArrayList<>(filterCondition.getUsers());
     JiraAuthenticationContext jiraAuthenticationContext =
         ComponentAccessor.getJiraAuthenticationContext();
     ApplicationUser user = jiraAuthenticationContext.getUser();
-    if (!PermissionUtil.hasBrowseUserPermission(user, reportingPlugin)) {
+    if (!PermissionUtil.hasBrowseUserPermission(user, settingsHelper)) {
       if ((users.size() == 1) && (users.contains(PickerUserDTO.CURRENT_USER_NAME)
           || users.contains(JiraTimetrackerUtil.getLoggedUserName()))) {
         if (users.remove(PickerUserDTO.CURRENT_USER_NAME)) {
@@ -239,7 +239,7 @@ public final class ConverterUtil {
    *           if has problem in convert. Contains property key name in message.
    */
   public static ConvertedSearchParam convertFilterConditionToConvertedSearchParam(
-      final FilterCondition filterCondition, final ReportingPlugin reportingPlugin) {
+      final FilterCondition filterCondition, final TimetrackerSettingsHelper settingsHelper) {
     if (filterCondition == null) {
       throw new NullPointerException("filterCondition parameter is null");
     }
@@ -280,7 +280,7 @@ public final class ConverterUtil {
     if (!reportSearchParam.worklogStartDate.before(reportSearchParam.worklogEndDate)) {
       throw new IllegalArgumentException(KEY_WRONG_DATES);
     }
-    ConverterUtil.collectUsersFromParams(filterCondition, reportSearchParam, reportingPlugin);
+    ConverterUtil.collectUsersFromParams(filterCondition, reportSearchParam, settingsHelper);
 
     if (filterCondition.getOffset() != null) {
       reportSearchParam.offset(filterCondition.getOffset());
