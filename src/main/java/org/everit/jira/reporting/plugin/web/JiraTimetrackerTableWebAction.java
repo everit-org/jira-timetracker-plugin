@@ -36,14 +36,13 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 import org.everit.jira.analytics.AnalyticsDTO;
 import org.everit.jira.reporting.plugin.ReportingCondition;
-import org.everit.jira.reporting.plugin.ReportingPlugin;
 import org.everit.jira.reporting.plugin.util.PermissionUtil;
+import org.everit.jira.settings.TimetrackerSettingsHelper;
 import org.everit.jira.timetracker.plugin.DurationFormatter;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
 import org.everit.jira.timetracker.plugin.PluginCondition;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
-import org.everit.jira.timetracker.plugin.dto.PluginSettingsValues;
 import org.everit.jira.timetracker.plugin.dto.TimetrackerReportsSessionData;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
@@ -61,7 +60,6 @@ import com.atlassian.jira.issue.fields.renderer.JiraRendererPlugin;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
-import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
 /**
  * The Timetracker table report action support class.
@@ -169,8 +167,6 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   private PluginCondition pluginCondition;
 
-  private final PluginSettingsFactory pluginSettingsFactory;
-
   private final HashMap<Integer, List<Object>> realDaySum = new HashMap<>();
 
   private final HashMap<Integer, List<Object>> realMonthSum = new HashMap<>();
@@ -179,7 +175,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   private ReportingCondition reportingCondition;
 
-  private ReportingPlugin reportingPlugin;
+  private TimetrackerSettingsHelper settingsHelper;
 
   private Date startDate;
 
@@ -194,18 +190,14 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
    *
    * @param jiraTimetrackerPlugin
    *          The {@link JiraTimetrackerPlugin}.
-   * @param pluginSettingsFactory
-   *          the {@link PluginSettingsFactory}.
    */
   public JiraTimetrackerTableWebAction(
       final JiraTimetrackerPlugin jiraTimetrackerPlugin,
-      final ReportingPlugin reportingPlugin,
-      final PluginSettingsFactory pluginSettingsFactory) {
+      final TimetrackerSettingsHelper settingsHelper) {
     this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
-    this.reportingPlugin = reportingPlugin;
-    reportingCondition = new ReportingCondition(this.reportingPlugin);
-    this.pluginSettingsFactory = pluginSettingsFactory;
-    pluginCondition = new PluginCondition(jiraTimetrackerPlugin);
+    this.settingsHelper = settingsHelper;
+    reportingCondition = new ReportingCondition(settingsHelper);
+    pluginCondition = new PluginCondition(settingsHelper);
     issueRenderContext = new IssueRenderContext(null);
     RendererManager rendererManager = ComponentAccessor.getRendererManager();
     atlassianWikiRenderer = rendererManager.getRendererForType("atlassian-wiki-renderer");
@@ -313,9 +305,9 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     if (checkConditionsResult != null) {
       return checkConditionsResult;
     }
-
     hasBrowseUsersPermission =
-        PermissionUtil.hasBrowseUserPermission(getLoggedInApplicationUser(), reportingPlugin);
+        PermissionUtil.hasBrowseUserPermission(getLoggedInApplicationUser(),
+            settingsHelper);
 
     createDurationFormatter();
 
@@ -323,8 +315,8 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     normalizeContextPath();
 
     loadPluginSettingAndParseResult();
-    analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(pluginSettingsFactory,
-        PiwikPropertiesUtil.PIWIK_TABLE_SITEID);
+    analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(PiwikPropertiesUtil.PIWIK_TABLE_SITEID,
+        settingsHelper);
 
     boolean loadedFromSession = loadDataFromSession();
     initDatesIfNecessary();
@@ -349,12 +341,11 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
     loadIssueCollectorSrc();
     normalizeContextPath();
-    loadPluginSettingAndParseResult();
     hasBrowseUsersPermission =
-        PermissionUtil.hasBrowseUserPermission(getLoggedInApplicationUser(), reportingPlugin);
+        PermissionUtil.hasBrowseUserPermission(getLoggedInApplicationUser(), settingsHelper);
 
-    analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(pluginSettingsFactory,
-        PiwikPropertiesUtil.PIWIK_TABLE_SITEID);
+    analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(PiwikPropertiesUtil.PIWIK_TABLE_SITEID,
+        settingsHelper);
 
     parseParams();
     if (!"".equals(message)) {
@@ -548,9 +539,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   }
 
   private void loadPluginSettingAndParseResult() {
-    PluginSettingsValues pluginSettingsValues = jiraTimetrackerPlugin
-        .loadPluginSettings();
-    setIssuesRegex(pluginSettingsValues.filteredSummaryIssues);
+    setIssuesRegex(settingsHelper.loadGlobalSettings().getNonWorkingIssuePatterns());
   }
 
   private void normalizeContextPath() {
@@ -617,7 +606,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
    * @return true if bar should be render
    */
   public boolean renderUpdateNotifier() {
-    return new UpdateNotifier(pluginSettingsFactory, JiraTimetrackerUtil.getLoggedUserName())
+    return new UpdateNotifier(settingsHelper)
         .isShowUpdater();
   }
 

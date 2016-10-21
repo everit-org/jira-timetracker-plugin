@@ -22,7 +22,9 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
+import org.everit.jira.settings.TimetrackerSettingsHelper;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.ofbiz.core.entity.EntityCondition;
 import org.ofbiz.core.entity.EntityExpr;
@@ -54,10 +56,7 @@ public class IssueEstimatedTimeChecker implements Runnable {
    */
   private Calendar checkerCalendar;
 
-  /**
-   * The {@link JiraTimetrackerPlugin}.
-   */
-  private JiraTimetrackerPlugin jiraTimetrackerPlugin;
+  private TimetrackerSettingsHelper settingsHelper;
 
   /**
    * Simple constructor.
@@ -65,8 +64,8 @@ public class IssueEstimatedTimeChecker implements Runnable {
    * @param emailSender
    *          TThe email address of the sender, come from the plugin properties file.
    */
-  public IssueEstimatedTimeChecker(final JiraTimetrackerPlugin jiraTimetrackerPlugin) {
-    this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
+  public IssueEstimatedTimeChecker(final TimetrackerSettingsHelper settingsHelper) {
+    this.settingsHelper = settingsHelper;
   }
 
   /**
@@ -111,23 +110,23 @@ public class IssueEstimatedTimeChecker implements Runnable {
     EntityExpr endExpr =
         new EntityExpr("updated", EntityOperator.LESS_THAN, new Timestamp(end.getTime()));
 
-    List<EntityCondition> exprList = new ArrayList<EntityCondition>();
+    List<EntityCondition> exprList = new ArrayList<>();
     exprList.add(startExpr);
     exprList.add(endExpr);
     Set<Long> issueIdSet = null;
     List<GenericValue> worklogGVList = ComponentAccessor.getOfBizDelegator().findByAnd("Worklog",
         exprList);
-    issueIdSet = new HashSet<Long>();
+    issueIdSet = new HashSet<>();
     for (GenericValue worklogGv : worklogGVList) {
       Long issueId = Long.valueOf(worklogGv.getString("issue"));
       issueIdSet.add(issueId);
     }
-
+    List<Pattern> issuePatterns = settingsHelper.loadGlobalSettings().getIssuePatterns();
     IssueManager issueManager = ComponentAccessor.getIssueManager();
     for (Long issueId : issueIdSet) {
       MutableIssue issueObject = issueManager.getIssueObject(issueId);
       if (!JiraTimetrackerUtil.checkIssueEstimatedTime(issueObject,
-          jiraTimetrackerPlugin.getCollectorIssuePatterns())) {
+          issuePatterns)) {
         // send mail
         sendNotificationEmail(issueObject.getReporterUser().getEmailAddress(), issueObject
             .getProjectObject()

@@ -17,6 +17,7 @@ package org.everit.jira.analytics.event;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 import org.everit.jira.analytics.PiwikUrlBuilder;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
@@ -66,7 +67,7 @@ public class NoEstimateUsageChangedEvent implements AnalyticsEvent {
    *          the Non-estimated field is empty or not.
    */
   public NoEstimateUsageChangedEvent(final String pluginId,
-      final List<String> collectorIssuePatterns) {
+      final List<Pattern> collectorIssuePatterns) {
     this(JiraTimetrackerAnalytics.getUserId(), collectorIssuePatterns, pluginId);
   }
 
@@ -74,19 +75,19 @@ public class NoEstimateUsageChangedEvent implements AnalyticsEvent {
    * Simple constructor.
    */
   public NoEstimateUsageChangedEvent(final String hashUserId,
-      final List<String> collectorIssuePatterns,
+      final List<Pattern> collectorIssuePatterns,
       final String pluginId) {
     this.pluginId = Objects.requireNonNull(pluginId);
     this.hashUserId = hashUserId;
     nonEstValue = decideNonEstimateValue(collectorIssuePatterns);
   }
 
-  private NonEstUsageValues decideNonEstimateValue(final List<String> collectorIssuePatterns) {
+  private NonEstUsageValues decideNonEstimateValue(final List<Pattern> collectorIssuePatterns) {
     if ((collectorIssuePatterns == null) || collectorIssuePatterns.isEmpty()) {
       return NonEstUsageValues.ALL;
     }
-    for (String pattern : (collectorIssuePatterns)) {
-      if (".*".equals(pattern)) {
+    for (Pattern pattern : (collectorIssuePatterns)) {
+      if (".*".equals(pattern.pattern())) {
         return NonEstUsageValues.NONE;
       }
     }

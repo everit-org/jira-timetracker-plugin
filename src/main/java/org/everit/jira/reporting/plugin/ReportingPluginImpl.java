@@ -17,7 +17,6 @@ package org.everit.jira.reporting.plugin;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.everit.jira.querydsl.support.QuerydslCallable;
@@ -38,12 +37,8 @@ import org.everit.jira.reporting.plugin.query.IssueSummaryReportQueryBuilder;
 import org.everit.jira.reporting.plugin.query.ProjectSummaryReportQueryBuilder;
 import org.everit.jira.reporting.plugin.query.UserSummaryReportQueryBuilder;
 import org.everit.jira.reporting.plugin.query.WorklogDetailsReportQueryBuilder;
-import org.everit.jira.timetracker.plugin.dto.ReportingSettingsValues;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
-
-import com.atlassian.sal.api.pluginsettings.PluginSettings;
-import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
 /**
  * The implementation of the {@link ReportingPlugin}.
@@ -54,49 +49,18 @@ public class ReportingPluginImpl implements ReportingPlugin, InitializingBean,
   /**
    * The plugin reporting settings groups that have browse user permission.
    */
-  private static final String JTTP_PLUGIN_REPORTING_SETTINGS_BROWSE_GROUPS = "browseGroups";
-
-  /**
-   * The plugin reporting settings user reporting groups.
-   */
-  private static final String JTTP_PLUGIN_REPORTING_SETTINGS_GROUPS = "reportingGroups";
-
-  /**
-   * The plugin repoting settings key prefix.
-   */
-  private static final String JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX = "jttp_report";
 
   /**
    * Serial Version UID.
    */
   private static final long serialVersionUID = -3872710932298672883L;
 
-  private List<String> browseGroups;
-
   private QuerydslSupport querydslSupport;
-
-  private List<String> reportingGroups;
-
-  /**
-   * The plugin reporting setting form the settingsFactory.
-   */
-  private PluginSettings reportingSettings;
-
-  /**
-   * The plugin reporting setting values.
-   */
-  private ReportingSettingsValues reportingSettingsValues;
-
-  /**
-   * The PluginSettingsFactory.
-   */
-  private final PluginSettingsFactory settingsFactory;
 
   /**
    * Default constructor.
    */
-  public ReportingPluginImpl(final PluginSettingsFactory settingsFactory) {
-    this.settingsFactory = settingsFactory;
+  public ReportingPluginImpl() {
     try {
       querydslSupport = new QuerydslSupportImpl();
     } catch (Exception e) {
@@ -243,50 +207,10 @@ public class ReportingPluginImpl implements ReportingPlugin, InitializingBean,
         .paging(paging);
   }
 
-  @Override
-  public ReportingSettingsValues loadReportingSettings() {
-    reportingSettings = settingsFactory
-        .createSettingsForKey(JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX);
-    setReportingGroups();
-    setBrowseGroups();
-    reportingSettingsValues =
-        new ReportingSettingsValues().reportingGroups(reportingGroups).browseGroups(browseGroups);
-    return reportingSettingsValues;
-  }
-
   private void readObject(final java.io.ObjectInputStream stream) throws IOException,
       ClassNotFoundException {
     stream.close();
     throw new java.io.NotSerializableException(getClass().getName());
-  }
-
-  @Override
-  public void saveReportingSettings(final ReportingSettingsValues reportingSettingsParameter) {
-    reportingSettings = settingsFactory
-        .createSettingsForKey(JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX);
-    reportingSettings.put(JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX
-        + JTTP_PLUGIN_REPORTING_SETTINGS_GROUPS, reportingSettingsParameter.reportingGroups);
-    reportingSettings.put(JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX
-        + JTTP_PLUGIN_REPORTING_SETTINGS_BROWSE_GROUPS, reportingSettingsParameter.browseGroups);
-  }
-
-  private void setBrowseGroups() {
-    List<String> browseGroupsNames = (List<String>) reportingSettings
-        .get(JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX
-            + JTTP_PLUGIN_REPORTING_SETTINGS_BROWSE_GROUPS);
-    browseGroups = new ArrayList<String>();
-    if (browseGroupsNames != null) {
-      browseGroups = browseGroupsNames;
-    }
-  }
-
-  private void setReportingGroups() {
-    List<String> reportingGroupsNames = (List<String>) reportingSettings
-        .get(JTTP_PLUGIN_REPORTING_SETTINGS_KEY_PREFIX + JTTP_PLUGIN_REPORTING_SETTINGS_GROUPS);
-    reportingGroups = new ArrayList<String>();
-    if (reportingGroupsNames != null) {
-      reportingGroups = reportingGroupsNames;
-    }
   }
 
   private void writeObject(final java.io.ObjectOutputStream stream) throws IOException {
