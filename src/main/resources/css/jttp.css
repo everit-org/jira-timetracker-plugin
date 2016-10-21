@@ -265,6 +265,12 @@ table#jttp-worklog-table th#jttp-worklog-description {
 table#jttp-worklog-table th#jttp-worklog-description-small {
   width: 330px;
 }
+table#jttp-worklog-table tbody > tr > td, table#jttp-worklog-table thead > tr > th {
+  padding-right: 5px;
+  padding-left: 5px;
+  vertical-align: middle;
+}
+
 .aui-group>.aui-item.summary-module {
     width: 40%;
 }

@@ -108,6 +108,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
 
   private static final int FIVE_MINUTES = 5;
 
+  private static final int HOUR_EIGHT = 8;
+
   private static final String INVALID_ISSUE = "plugin.invalid_issue";
 
   /**
@@ -932,7 +934,12 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   public String lastEndTime(final List<EveritWorklog> worklogs)
       throws ParseException {
     if ((worklogs == null) || (worklogs.size() == 0)) {
-      return "08:00";
+      Calendar c = Calendar.getInstance();
+      c.setTime(new Date());
+      c.set(Calendar.HOUR, HOUR_EIGHT);
+      c.set(Calendar.MINUTE, 0);
+      c.set(Calendar.SECOND, 0);
+      return DateTimeConverterUtil.dateTimeToString(c.getTime());
     }
     String endTime = worklogs.get(0).getEndTime();
     for (int i = 1; i < worklogs.size(); i++) {
