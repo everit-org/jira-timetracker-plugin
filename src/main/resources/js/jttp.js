@@ -489,8 +489,13 @@ everit.jttp.main = everit.jttp.main || {};
     if (min < 10) {
       min = "0" + min
     }
-    var time = hour + ':' + min;
-    return time;
+    var dateTime = AJS.Meta.get('date-time');
+    var locale = AJS.Meta.get('user-locale');
+    evmoment.locale(locale);
+    var timeVal = evmoment('2000-10-10 ' + hour + ':' + min, 
+        ['YYYY-MM-DD hh:mm'])
+        .format(dateTime);
+    return timeVal.toUpperCase();
   }
 
   function setLoggedDaysDesign(isColoring, loggedDays) {
@@ -536,9 +541,12 @@ everit.jttp.main = everit.jttp.main || {};
 
   function setStartDecTemporary(startTimeChange) {
     setStartNow();
-    var startTimeValParts = jQuery("#startTime").val().split(':');
-    var hour = parseInt(startTimeValParts[0]);
-    var minString = startTimeValParts[1];
+    var dateTime = AJS.Meta.get('date-time');
+    var locale = AJS.Meta.get('user-locale');
+    var statTimeDate = evmoment('2000-10-10 ' + jQuery("#startTime").val(), 'YYYY-MM-DD ' + dateTime, locale);
+
+    var hour = parseInt(statTimeDate.hours());
+    var minString = statTimeDate.minutes().toString();
     var min = parseInt(minString);
     var minSubInt = parseInt(minString.substring(1, 2));
     if ((minSubInt != 0) && (minSubInt != 5)) {
@@ -556,9 +564,12 @@ everit.jttp.main = everit.jttp.main || {};
 
   function setStartInc(startTimeChange) {
     setStartNow();
-    var startTimeValParts = jQuery("#startTime").val().split(':');
-    var hour = parseInt(startTimeValParts[0]);
-    var min = parseInt(startTimeValParts[1]);
+    var dateTime = AJS.Meta.get('date-time');
+    var locale = AJS.Meta.get('user-locale');
+    var statTimeDate = evmoment('2000-10-10 ' + jQuery("#startTime").val(), 'YYYY-MM-DD ' + dateTime, locale);
+    
+    var hour = parseInt(statTimeDate.hours());
+    var min = parseInt(statTimeDate.minutes());
     min = min + startTimeChange;
     if (min >= 60) {
       min = min - 60;
@@ -595,9 +606,12 @@ everit.jttp.main = everit.jttp.main || {};
 
   function setEndDecTemporary(endTimeChange) {
     setEndNow();
-    var endTimeValParts = jQuery("#endTime").val().split(':');
-    var hour = parseInt(endTimeValParts[0]);
-    var minString = endTimeValParts[1];
+    var dateTime = AJS.Meta.get('date-time');
+    var locale = AJS.Meta.get('user-locale');
+    var endTimeDate = evmoment('2000-10-10 ' + jQuery("#endTime").val(), 'YYYY-MM-DD ' + dateTime, locale);
+    
+    var hour = parseInt(endTimeDate.hours());
+    var minString = endTimeDate.minutes().toString();
     var min = parseInt(minString);
     var minSubInt = parseInt(minString.substring(1, 2));
     if ((minSubInt != 0) && (minSubInt != 5)) {
@@ -632,9 +646,12 @@ everit.jttp.main = everit.jttp.main || {};
 
   function setEndInc(endTimeChange) {
     setEndNow();
-    var endTimeValParts = jQuery("#endTime").val().split(':');
-    var hour = parseInt(endTimeValParts[0]);
-    var min = parseInt(endTimeValParts[1]);
+    var dateTime = AJS.Meta.get('date-time');
+    var locale = AJS.Meta.get('user-locale');
+    var endTimeDate = evmoment('2000-10-10 ' + jQuery("#endTime").val(), 'YYYY-MM-DD ' + dateTime, locale);
+    
+    var hour = parseInt(endTimeDate.hours());
+    var min = parseInt(endTimeDate.minutes());
     min = min + endTimeChange;
     if (min >= 60) {
       min = min - 60;
@@ -674,20 +691,16 @@ everit.jttp.main = everit.jttp.main || {};
     var $endInput = jQuery('#endTime');
     var $durationInput = jQuery('#durationTime');
     
-    var startTime = $startInput.val();
-    var endTime = $endInput.val();
+    var dateTime = AJS.Meta.get('date-time');
+    var locale = AJS.Meta.get('user-locale');
+    var statTimeDate = evmoment('2000-10-10 ' + $startInput.val(), 'YYYY-MM-DD ' + dateTime, locale);
+    var endTimeDate = evmoment('2000-10-10 ' + $endInput.val(), 'YYYY-MM-DD ' + dateTime, locale);
     
-    if(startTime.length != 5 || endTime.length != 5) {
-      return false;
-    }
+    var endTimeHour = parseInt(endTimeDate.hours());
+    var endTimeMin = parseInt(endTimeDate.minutes());
     
-    var endTimeParts = endTime.split(':');
-    var endTimeHour = parseInt(endTimeParts[0]);
-    var endTimeMin = parseInt(endTimeParts[1]);
-    
-    var startTimeParts = startTime.split(':');
-    var startTimeHour = parseInt(startTimeParts[0]);
-    var startTimeMin = parseInt(startTimeParts[1]);
+    var startTimeHour = parseInt(statTimeDate.hours());
+    var startTimeMin = parseInt(statTimeDate.minutes());
     
     var durationHour = endTimeHour - startTimeHour;
     var durationMin = endTimeMin - startTimeMin;
@@ -721,10 +734,14 @@ everit.jttp.main = everit.jttp.main || {};
     var $endInput = jQuery('#endTime');
     var $durationInput = jQuery('#durationTime');
     
+    var dateTime = AJS.Meta.get('date-time');
+    var locale = AJS.Meta.get('user-locale');
+    var statTimeDate = evmoment('2000-10-10 ' + $startInput.val(), 'YYYY-MM-DD ' + dateTime, locale);
+
     var startTime = $startInput.val();
     var durationTime = $durationInput.val();
     
-    if(startTime.length != 5 || durationTime.length != 5) {
+    if(durationTime.length != 5) {
       return false;
     }
     
@@ -732,9 +749,8 @@ everit.jttp.main = everit.jttp.main || {};
     var durationTimeHour = parseInt(durationTimeParts[0]);
     var durationTimeMin = parseInt(durationTimeParts[1]);
     
-    var startTimeParts = startTime.split(':');
-    var startTimeHour = parseInt(startTimeParts[0]);
-    var startTimeMin = parseInt(startTimeParts[1]);
+    var startTimeHour = parseInt(statTimeDate.hours());
+    var startTimeMin = parseInt(statTimeDate.minutes());
     
     var endHour = durationTimeHour + startTimeHour;
     var endMin = durationTimeMin + startTimeMin;
@@ -759,7 +775,11 @@ everit.jttp.main = everit.jttp.main || {};
       endMinString = "0" + String(endMin);
     }
     
-    $endInput.val(endHourString + ":" + endMinString);
+    evmoment.locale(locale);
+    var endTimeVal = evmoment('2000-10-10 ' + endHourString + ':' + endMinString, 
+        ['YYYY-MM-DD hh:mm'])
+        .format(dateTime);
+    $endInput.val(endTimeVal.toUpperCase());
   }
 
 })(everit.jttp.main, jQuery);

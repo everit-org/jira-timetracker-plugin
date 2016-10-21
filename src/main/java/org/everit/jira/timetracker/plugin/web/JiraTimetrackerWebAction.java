@@ -1072,8 +1072,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     Date startDateTime;
     Date endDateTime;
     try {
-      startDateTime = DateTimeConverterUtil.stringTimeToDateTimeGMT(startTime);
-      endDateTime = DateTimeConverterUtil.stringTimeToDateTimeGMT(endTime);
+      startDateTime = DateTimeConverterUtil.stringTimeToDateTime(startTime);
+      endDateTime = DateTimeConverterUtil.stringTimeToDateTime(endTime);
     } catch (ParseException e) {
       message = "plugin.invalid_endTime";
       return INPUT;
@@ -1132,7 +1132,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     Date durationDateTime;
     try {
       durationDateTime = DateTimeConverterUtil
-          .stringTimeToDateTimeGMT(durationTime);
+          .stringTimeToDateTime(durationTime);
     } catch (ParseException e) {
       message = INVALID_DURATION_TIME;
       return INPUT;
