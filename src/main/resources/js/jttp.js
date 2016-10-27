@@ -297,11 +297,11 @@ everit.jttp.main = everit.jttp.main || {};
   
   function initProgrssIndicators(){
 		  jQuery('.progress').each(function(i, obj) {
-			  var width = 0;
-			  jQuery( obj ).children('.progress-bar').each(function(i, obj) {
-				   width+=parseInt(jQuery( obj ).css( "width" ));
-			   });
-			   var widthInprecent = (width) / parseInt(jQuery( obj ).css( "width" ));
+		    var $obj = jQuery(obj);
+			   var widthInprecent = parseFloat($obj.attr('data-jttp-percent'));
+			   if(widthInprecent > 1.0) {
+			     widthInprecent = 1;
+			    }
 				  if(widthInprecent < 0.2){
 					  jQuery( obj ).children('.progress-bar').each(function(i, obj) {
 						  jQuery( obj ).addClass( "progress-bar-danger" );   

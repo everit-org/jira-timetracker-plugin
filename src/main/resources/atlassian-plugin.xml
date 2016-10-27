@@ -23,7 +23,8 @@
     <description>Timetracker for JIRA provides an easy and fast time tracking and reporting
       solution. Manage work logs on a simple screen designed for effective daily time tracking.
       Create and export detailed reports with multiple search criteria or one of your favorite
-      filters and view every work log related to the users.</description>
+      filters and view every work log related to the users.
+    </description>
     <application-version min="6.3" />
     <vendor name="EverIT Kft." url="https://www.everit.biz" />
     <param name="plugin-icon">icons/jttp16.png</param>
@@ -84,7 +85,9 @@
   <web-item key="jttp_documentation_link" name="JTTP Documentaion Link" section="jttp_menu/jttp_doc_section"
     weight="47">
     <label>Help</label>
-    <link linkId="jttp_doc_link">https://confluence.everit.biz/display/TD/Timetracker+Documentation" target="_blank</link>
+    <link linkId="jttp_doc_link">https://confluence.everit.biz/display/TD/Timetracker+Documentation"
+      target="_blank
+    </link>
     <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserLoggedInCondition" />
   </web-item>
 
@@ -101,7 +104,7 @@
     <dependency>com.atlassian.auiplugin:aui-experimental-progress-indicator</dependency>
     <dependency>com.atlassian.auiplugin:aui-date-picker</dependency>
     <transformation extension="js">
-        <transformer key="jsI18n"/>
+      <transformer key="jsI18n" />
     </transformation>
     <resource type="download" name="jttp_feedback.css" location="/css/jttp_feedback.css"/>
     <resource type="download" name="jttp.js" location="/js/jttp.js"/>
@@ -110,7 +113,7 @@
       <param name="content-type" value="image/png" />
     </resource>
     <resource type="download" name="jttp.css" location="/css/jttp.css" />
-    <resource type="download" name="bootstrap-progress.css" location="/css/bootstrap-progress.css"/>
+    <resource type="download" name="bootstrap-progress.css" location="/css/bootstrap-progress.css" />
   </web-resource>
 
   <web-resource name="JTTP Resources" key="table_report-resources-${project.version}-${build.time}">
@@ -145,8 +148,8 @@
     <resource type="download" name="missing_days_report.js" location="/js/missing_days_report.js" />
   </web-resource>
 
-  <web-resource name="JTRP Resources" i18n-name-key="admin.web.resources.plugin.labels.editor.name" 
-       key="reporting-resources-${project.version}-${build.time}">
+  <web-resource name="JTRP Resources" i18n-name-key="admin.web.resources.plugin.labels.editor.name"
+    key="reporting-resources-${project.version}-${build.time}">
     <context>org.everit.jira.timetracker.plugin.reporting-resources</context>
     <dependency>com.atlassian.auiplugin:ajs</dependency>
     <dependency>com.atlassian.auiplugin:dialog2</dependency>
@@ -176,33 +179,35 @@
     <resource type="download" name="jtrp-aui-table-sortable.css" location="/css/jtrp-aui-table-sortable.css" />
   </web-resource>
 
-  
+
   <web-resource name="JTRP Resources" key="admin-settings-resources-${project.version}-${build.time}">
     <context>org.everit.jira.timetracker.plugin.admin-settings-resources</context>
     <dependency>com.atlassian.auiplugin:ajs</dependency>
     <resource type="download" name="E_logo.png" location="/icons/E_logo.png">
       <param name="content-type" value="image/png" />
     </resource>
-    <resource type="download" name="admin_setting.css" location="/css/admin_settings.css"/>
+    <resource type="download" name="admin_setting.css" location="/css/admin_settings.css" />
   </web-resource>
-  
-  <web-resource name="JTRP Resources" key="reporting-user-settings-resources-${project.version}-${build.time}">
+
+  <web-resource name="JTRP Resources"
+    key="reporting-user-settings-resources-${project.version}-${build.time}">
     <context>org.everit.jira.timetracker.plugin.reporting-user-settings-resources</context>
     <dependency>com.atlassian.auiplugin:ajs</dependency>
     <resource type="download" name="E_logo.png" location="/icons/E_logo.png">
       <param name="content-type" value="image/png" />
     </resource>
-    <resource type="download" name="user_settings.css" location="/css/user_settings.css"/>
-    <resource type="download" name="reporting_user_settings.js" location="/js/reporting_user_settings.js"/>
+    <resource type="download" name="user_settings.css" location="/css/user_settings.css" />
+    <resource type="download" name="reporting_user_settings.js" location="/js/reporting_user_settings.js" />
   </web-resource>
-  
-  <web-resource name="JTRP Resources" key="timetracker-user-settings-resources-${project.version}-${build.time}">
+
+  <web-resource name="JTRP Resources"
+    key="timetracker-user-settings-resources-${project.version}-${build.time}">
     <context>org.everit.jira.timetracker.plugin.timetracker-user-settings-resources</context>
     <dependency>com.atlassian.auiplugin:ajs</dependency>
     <resource type="download" name="E_logo.png" location="/icons/E_logo.png">
       <param name="content-type" value="image/png" />
     </resource>
-    <resource type="download" name="user_settings.css" location="/css/user_settings.css"/>
+    <resource type="download" name="user_settings.css" location="/css/user_settings.css" />
   </web-resource>
 
   <web-resource name="JTTP Resources" key="chart_report-resources-${project.version}-${build.time}">
@@ -222,7 +227,7 @@
     <resource type="download" name="report_common_scripts.js" location="/js/report_common_scripts.js" />
     <resource type="download" name="chart_report.js" location="/js/chart_report.js" />
   </web-resource>
-  
+
   <web-resource name="JTTP Resources" key="update_notifier-resources-${project.version}-${build.time}">
     <context>org.everit.jira.timetracker.plugin.update_notifier-resources</context>
     <resource type="download" name="update_notifier.css" location="/css/update_notifier.css" />
@@ -316,4 +321,22 @@
   <rest key="JTTP-REST" path="/jttp-rest" version="1">
     <description>Provides the REST resource for the Timetracker plugin.</description>
   </rest>
+
+  <webwork1 key="jttp-survey-dialog" name="JTTP Survey Dialog" class="java.lang.Object">
+    <actions>
+      <action name="org.everit.jira.timetracker.popup.SurveyDialogWebAction" alias="SurveyDialogWebAction">
+        <view name="success">/templates/popup/survey-dialog.vm</view>
+        <view name="input">/templates/popup/survey-dialog.vm</view>
+        <view name="error">/templates/common/error.vm</view>
+      </action>
+    </actions>
+  </webwork1>
+  <web-resource name="Survey Dialog Resources" key="jttp-survey-dialog-resources-${project.version}-${build.time}">
+    <dependency>com.atlassian.auiplugin:ajs</dependency>
+    <dependency>com.atlassian.auiplugin:dialog2</dependency>
+    <dependency>com.atlassian.auiplugin:aui-spinner</dependency>
+    <resource type="download" name="survey-dialog.js" location="/js/popup/survey-dialog.js" />
+    <context>org.everit.jira.timetracker.popup.jttp-survey-dialog-resources</context>
+  </web-resource>
+
 </atlassian-plugin>
