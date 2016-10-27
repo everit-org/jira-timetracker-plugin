@@ -24,6 +24,9 @@ $webResourceManager.requireResource("jira.webresources:calendar")
 $webResourceManager.requireResource("jira.webresources:calendar-en")
 $webResourceManager.requireResource("com.atlassian.auiplugin:aui-progress-indicator")
 $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.plugin.jttp-resources")
+#if($defaultCommand)
+$webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.popup.jttp-survey-dialog-resources")
+#end
 
 #set($rendererType = "atlassian-wiki-renderer")
     #if($currentCalendar.useISO8601 == true)
@@ -59,6 +62,19 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.plug
 			}
 		);
 	})(everit.jttp.main, AJS.$);
+
+	everit.survey = everit.survey || {};
+	everit.survey.main = everit.survey.main || {};
+
+	(function(survey, jQuery) {
+		survey.options = jQuery.extend( 
+			{},
+			survey.options,
+			{
+				contextPath : '$contextPath',
+			}
+		);
+	})(everit.survey.main, AJS.$);
 </script>
       #parse("templates/common/updatenotifier.vm")
       <header class="aui-page-header">

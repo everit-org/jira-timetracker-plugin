@@ -40,6 +40,7 @@ import org.ofbiz.core.entity.GenericValue;
 import org.ofbiz.core.entity.model.ModelEntity;
 
 import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
+import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration.TimeFormat;
 import com.atlassian.jira.config.properties.ApplicationProperties;
 import com.atlassian.jira.datetime.DateTimeFormatter;
 import com.atlassian.jira.datetime.DateTimeFormatterFactory;
@@ -51,6 +52,7 @@ import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.PermissionManager;
 import com.atlassian.jira.security.plugin.ProjectPermissionKey;
 import com.atlassian.jira.user.ApplicationUser;
+import com.atlassian.jira.util.I18nHelper.BeanFactory;
 
 @RunWith(Parameterized.class)
 public class EveritWorklogTest {
@@ -237,11 +239,15 @@ public class EveritWorklogTest {
         .thenReturn(new DummyDateTimeFromatter());
     mockComponentWorker.addMock(DateTimeFormatterFactory.class, mockDateTimeFormatterFactory);
 
+    BeanFactory mockBeanFactory = Mockito.mock(BeanFactory.class, Mockito.RETURNS_DEEP_STUBS);
+    mockComponentWorker.addMock(BeanFactory.class, mockBeanFactory);
+
     BigDecimal daysPerWeek = new BigDecimal(5);
     BigDecimal hoursPerDay = new BigDecimal(8);
     TimeTrackingConfiguration ttConfig = EasyMock.createNiceMock(TimeTrackingConfiguration.class);
     EasyMock.expect(ttConfig.getDaysPerWeek()).andReturn(daysPerWeek).anyTimes();
     EasyMock.expect(ttConfig.getHoursPerDay()).andReturn(hoursPerDay).anyTimes();
+    EasyMock.expect(ttConfig.getTimeFormat()).andReturn(TimeFormat.pretty).anyTimes();
     EasyMock.replay(ttConfig);
     mockComponentWorker.addMock(TimeTrackingConfiguration.class, ttConfig).init();
   }
