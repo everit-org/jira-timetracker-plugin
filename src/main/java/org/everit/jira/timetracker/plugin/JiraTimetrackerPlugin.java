@@ -15,7 +15,6 @@
  */
 package org.everit.jira.timetracker.plugin;
 
-import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
@@ -24,11 +23,9 @@ import java.util.regex.Pattern;
 
 import org.everit.jira.reporting.plugin.dto.MissingsWorklogsDTO;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
-import org.everit.jira.timetracker.plugin.dto.ActionResult;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.ofbiz.core.entity.GenericEntityException;
 
-import com.atlassian.jira.exception.DataAccessException;
 import com.atlassian.jira.issue.Issue;
 
 /**
@@ -45,64 +42,6 @@ public interface JiraTimetrackerPlugin {
    */
   double countRealWorkDaysInWeek(final List<String> weekDaysAsString,
       final Set<String> exludeDates, final Set<String> includeDates);
-
-  /**
-   * Count worklog size without permission check beetween start and end date for the logged user.
-   *
-   * @param startDate
-   *          the start date.
-   * @param endDate
-   *          the end date.
-   * @return the size of worklogs.
-   */
-  long countWorklogsWithoutPermissionChecks(Date startDate, Date endDate);
-
-  /**
-   * Create a worklog whit the given parameters.
-   *
-   * @param issueId
-   *          The ID of the Issue.
-   * @param comment
-   *          The note of the worklog.
-   * @param date
-   *          The date of the worklog.
-   * @param startTime
-   *          The start time of the worklog. (kk:mm)
-   * @param timeSpent
-   *          The spent time in the worklog (Jira format : 1h 30m)
-   * @return {@link ActionResult} Success if the worklog created and Fail if not.
-   */
-  ActionResult createWorklog(String issueId, String comment, Date date,
-      String startTime, String timeSpent);
-
-  /**
-   * Delete the worklog whit the given worklog ID.
-   *
-   * @param worklogId
-   *          The ID of the worklog.
-   * @return {@link ActionResult} Success if the worklog deleted and Fail if not.
-   */
-  ActionResult deleteWorklog(Long worklogId);
-
-  /**
-   * Edit an existing worklog whit the given parameters.
-   *
-   * @param worklogId
-   *          The ID of the worklog.
-   * @param issueId
-   *          The worklog Issue.
-   * @param comment
-   *          The worklog note.
-   * @param date
-   *          The date of the worklog.
-   * @param time
-   *          When start the worklog. (kk:mm)
-   * @param timeSpent
-   *          The spent time in the worklog (Jira format : 1h 30m)
-   * @return {@link ActionResult} Success if the worklog edited and Fail if not.
-   */
-  ActionResult editWorklog(Long worklogId, String issueId, String comment,
-      Date date, String time, String timeSpent);
 
   /**
    * Give back the date of the first day where missing worklogs. Use the properties files includes
@@ -135,7 +74,8 @@ public interface JiraTimetrackerPlugin {
    *          The report have to check the spent time or not.
    * @param nonWorking
    *          Exclude or not the non-working issues.
-   * @param settings TODO
+   * @param settings
+   *          TODO
    * @return The list of the MissingsWorklogsDTO.
    * @throws GenericEntityException
    *           If GenericEntity Exception.
@@ -199,36 +139,6 @@ public interface JiraTimetrackerPlugin {
    * @return whit Projects.
    */
   List<String> getProjectsId();
-
-  /**
-   * Give back the Worklog by ID.
-   *
-   * @param worklogId
-   *          The ID of the worklog.
-   * @return The result {@link EveritWorklog}.
-   * @throws ParseException
-   *           If cannot parse the worklog date.
-   */
-  EveritWorklog getWorklog(Long worklogId) throws ParseException;
-
-  /**
-   * Give back the days all worklog of the selectedUser. If selectedUser null or empty the actual
-   * logged in user will used.
-   *
-   * @param startDate
-   *          The date.
-   * @param selectedUser
-   *          The selected User.
-   * @return The list of the date all worklogs.
-   * @throws GenericEntityException
-   *           GenericEntityException .
-   * @throws ParseException
-   *           When can't parse the worklog date.
-   */
-  List<EveritWorklog> getWorklogs(String selectedUser, Date startDate, Date endDate)
-      throws DataAccessException,
-      SQLException,
-      ParseException, GenericEntityException;
 
   /**
    * Give back the biggest end time of the date after worklogs method. Or give back 08:00.

@@ -33,6 +33,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.everit.jira.analytics.AnalyticsDTO;
+import org.everit.jira.core.EVWorklogManager;
 import org.everit.jira.settings.TimetrackerSettingsHelper;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
 import org.everit.jira.settings.dto.TimeTrackerUserSettings;
@@ -317,6 +318,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   private long weekSummaryInSecond;
 
+  private EVWorklogManager worklogManager;
+
   /**
    * The worklogs.
    */
@@ -335,18 +338,15 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   /**
    * Simple constructor.
-   *
-   * @param jiraTimetrackerPlugin
-   *          The {@link JiraTimetrackerPlugin}.
-   * @param timeTrackingConfiguration
-   *          the {@link TimeTrackingConfiguration}.
    */
   public JiraTimetrackerWebAction(
       final JiraTimetrackerPlugin jiraTimetrackerPlugin,
       final TimeTrackingConfiguration timeTrackingConfiguration,
-      final TimetrackerSettingsHelper settingsHelper) {
+      final TimetrackerSettingsHelper settingsHelper,
+      final EVWorklogManager worklogManager) {
     this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
     this.timeTrackingConfiguration = timeTrackingConfiguration;
+    this.worklogManager = worklogManager;
     timetrackingCondition = new TimetrackerCondition(settingsHelper);
     pluginCondition = new PluginCondition(settingsHelper);
     issueRenderContext = new IssueRenderContext(null);
@@ -481,7 +481,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   }
 
   private String createWorklog() {
-    ActionResult createResult = jiraTimetrackerPlugin.createWorklog(
+    ActionResult createResult = worklogManager.createWorklog(
         issueKey, commentForActions, date, startTime, timeSpent);
     if (createResult.getStatus() == ActionResultStatus.FAIL) {
       message = createResult.getMessage();
@@ -545,7 +545,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private String deleteWorklog() {
     if ("delete".equals(actionFlag) && (actionWorklogId != null)
         && !DEFAULT_WORKLOG_ID.equals(actionWorklogId)) {
-      ActionResult deleteResult = jiraTimetrackerPlugin.deleteWorklog(actionWorklogId);
+      ActionResult deleteResult = worklogManager.deleteWorklog(actionWorklogId);
       if (deleteResult.getStatus() == ActionResultStatus.FAIL) {
         message = deleteResult.getMessage();
         messageParameter = deleteResult.getMessageParameter();
@@ -660,7 +660,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     if (validateInputFieldsResult.equals(INPUT)) {
       return INPUT;
     }
-    ActionResult updateResult = jiraTimetrackerPlugin.editWorklog(
+    ActionResult updateResult = worklogManager.editWorklog(
         actionWorklogId, issueKey, commentForActions, date,
         startTime, timeSpent);
     if (updateResult.getStatus() == ActionResultStatus.FAIL) {
@@ -696,9 +696,9 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     List<Long> editWorklogIds = parseEditAllIds(getHttpRequest().getParameter("editAll"));
     // edit the worklogs!
     for (Long editWorklogId : editWorklogIds) {
-      EveritWorklog editWorklog = jiraTimetrackerPlugin
+      EveritWorklog editWorklog = worklogManager
           .getWorklog(editWorklogId);
-      jiraTimetrackerPlugin.editWorklog(editWorklog
+      worklogManager.editWorklog(editWorklog
           .getWorklogId(), editWorklog.getIssue(), editWorklog
               .getBody(),
           date, editWorklog.getStartTime(),
@@ -1100,7 +1100,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    */
   private void handleInputWorklogId() throws ParseException {
     if ((actionWorklogId != null) && !DEFAULT_WORKLOG_ID.equals(actionWorklogId)) {
-      EveritWorklog editWorklog = jiraTimetrackerPlugin.getWorklog(actionWorklogId);
+      EveritWorklog editWorklog = worklogManager.getWorklog(actionWorklogId);
       if ("edit".equals(actionFlag)) {
         startTime = editWorklog.getStartTime();
         endTime = editWorklog.getEndTime();
@@ -1198,10 +1198,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
           e1);
       message = "plugin.calendar.logged.coloring.fail";
     }
-    worklogs = jiraTimetrackerPlugin.getWorklogs(null, date, null);
+    worklogs = worklogManager.getWorklogs(null, date, null);
     worklogsIds = copyWorklogIdsToArray(worklogs);
     worklogsSizeWithoutPermissionChecks =
-        jiraTimetrackerPlugin.countWorklogsWithoutPermissionChecks(date, null);
+        worklogManager.countWorklogsWithoutPermissionChecks(date, null);
 
     makeSummary();
   }

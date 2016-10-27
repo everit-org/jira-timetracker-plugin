@@ -35,12 +35,12 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.everit.jira.analytics.AnalyticsDTO;
+import org.everit.jira.core.EVWorklogManager;
 import org.everit.jira.reporting.plugin.ReportingCondition;
 import org.everit.jira.reporting.plugin.util.PermissionUtil;
 import org.everit.jira.settings.TimetrackerSettingsHelper;
 import org.everit.jira.timetracker.plugin.DurationFormatter;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
-import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
 import org.everit.jira.timetracker.plugin.PluginCondition;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.dto.TimetrackerReportsSessionData;
@@ -151,11 +151,6 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   private List<Pattern> issuesRegex;
 
-  /**
-   * The {@link JiraTimetrackerPlugin}.
-   */
-  private final JiraTimetrackerPlugin jiraTimetrackerPlugin;
-
   private Date lastDate;
 
   /**
@@ -183,19 +178,18 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   private HashMap<Integer, List<Object>> weekSum = new HashMap<>();
 
+  private EVWorklogManager worklogManager;
+
   private List<EveritWorklog> worklogs;
 
   /**
    * Simple constructor.
-   *
-   * @param jiraTimetrackerPlugin
-   *          The {@link JiraTimetrackerPlugin}.
    */
   public JiraTimetrackerTableWebAction(
-      final JiraTimetrackerPlugin jiraTimetrackerPlugin,
-      final TimetrackerSettingsHelper settingsHelper) {
-    this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
+      final TimetrackerSettingsHelper settingsHelper,
+      final EVWorklogManager worklogManager) {
     this.settingsHelper = settingsHelper;
+    this.worklogManager = worklogManager;
     reportingCondition = new ReportingCondition(settingsHelper);
     pluginCondition = new PluginCondition(settingsHelper);
     issueRenderContext = new IssueRenderContext(null);
@@ -360,7 +354,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
     worklogs = new ArrayList<>();
     try {
-      worklogs.addAll(jiraTimetrackerPlugin.getWorklogs(currentUser, startDate, lastDate));
+      worklogs.addAll(worklogManager.getWorklogs(currentUser, startDate, lastDate));
       saveDataToSession();
     } catch (DataAccessException | SQLException e) {
       LOGGER.error(GET_WORKLOGS_ERROR_MESSAGE, e);

@@ -17,12 +17,10 @@ package org.everit.jira.timetracker.plugin;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -40,45 +38,28 @@ import org.apache.log4j.Logger;
 import org.everit.jira.analytics.AnalyticsSender;
 import org.everit.jira.analytics.event.NoEstimateUsageChangedEvent;
 import org.everit.jira.analytics.event.NonWorkingUsageEvent;
+import org.everit.jira.core.util.WorklogUtil;
 import org.everit.jira.reporting.plugin.dto.MissingsWorklogsDTO;
 import org.everit.jira.settings.TimetrackerSettingsHelper;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
-import org.everit.jira.timetracker.plugin.dto.ActionResult;
-import org.everit.jira.timetracker.plugin.dto.ActionResultStatus;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
-import org.everit.jira.timetracker.plugin.dto.EveritWorklogComparator;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 import org.ofbiz.core.entity.EntityCondition;
-import org.ofbiz.core.entity.EntityExpr;
-import org.ofbiz.core.entity.EntityOperator;
 import org.ofbiz.core.entity.GenericEntityException;
 import org.ofbiz.core.entity.GenericValue;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
-import com.atlassian.jira.bc.JiraServiceContext;
-import com.atlassian.jira.bc.JiraServiceContextImpl;
 import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
-import com.atlassian.jira.bc.issue.worklog.WorklogInputParameters;
-import com.atlassian.jira.bc.issue.worklog.WorklogInputParametersImpl;
-import com.atlassian.jira.bc.issue.worklog.WorklogNewEstimateInputParameters;
-import com.atlassian.jira.bc.issue.worklog.WorklogResult;
-import com.atlassian.jira.bc.issue.worklog.WorklogService;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.MutableIssue;
-import com.atlassian.jira.issue.worklog.Worklog;
-import com.atlassian.jira.issue.worklog.WorklogManager;
 import com.atlassian.jira.mail.Email;
-import com.atlassian.jira.project.Project;
 import com.atlassian.jira.security.JiraAuthenticationContext;
-import com.atlassian.jira.security.PermissionManager;
-import com.atlassian.jira.security.Permissions;
 import com.atlassian.jira.security.groups.GroupManager;
-import com.atlassian.jira.security.roles.ProjectRole;
 import com.atlassian.jira.security.roles.ProjectRoleManager;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.mail.queue.SingleMailQueueItem;
@@ -91,8 +72,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
 
   private static final int DATE_LENGTH = 7;
 
-  private static final String DATE_PARSE = "plugin.date_parse";
-
   private static final int DEFAULT_CHECK_TIME_IN_MINUTES = 1200;
 
   private static final String FEEDBACK_EMAIL_DEFAULT_VALUE = "${jttp.feedback.email}";
@@ -103,22 +82,12 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
 
   public static final int FIVE_MINUTES = 5;
 
-  private static final String INVALID_ISSUE = "plugin.invalid_issue";
-
   /**
    * Logger.
    */
   private static final Logger LOGGER = Logger.getLogger(JiraTimetrackerPluginImpl.class);
 
   private static final int MINUTES_IN_HOUR = 60;
-
-  private static final String NOPERMISSION_CREATE_WORKLOG = "jttp.nopermission.worklog.create";
-
-  private static final String NOPERMISSION_DELETE_WORKLOG = "jttp.nopermission.worklog.delete";
-
-  private static final String NOPERMISSION_ISSUE = "plugin.nopermission_issue";
-
-  private static final String NOPERMISSION_UPDATE_WORKLOG = "jttp.nopermission.worklog.update";
 
   /**
    * A day in minutes.
@@ -138,7 +107,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
 
   public static final String UNKNOW_USER_NAME = "UNKNOW_USER_NAME";
 
-  private static final String WORKLOG_CREATE_FAIL = "plugin.worklog.create.fail";
+  // private static final String WORKLOG_CREATE_FAIL = "plugin.worklog.create.fail";
 
   private AnalyticsSender analyticsSender;
 
@@ -224,233 +193,9 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   }
 
   @Override
-  public long countWorklogsWithoutPermissionChecks(final Date date, final Date finalDate) {
-    Calendar startDate = DateTimeConverterUtil.setDateToDayStart(date);
-    Calendar endDate = (Calendar) startDate.clone();
-    if (finalDate == null) {
-      endDate.add(Calendar.DAY_OF_MONTH, 1);
-    } else {
-      endDate = DateTimeConverterUtil.setDateToDayStart(finalDate);
-      endDate.add(Calendar.DAY_OF_MONTH, 1);
-    }
-
-    JiraAuthenticationContext authenticationContext = ComponentAccessor
-        .getJiraAuthenticationContext();
-    ApplicationUser loggedInUser = authenticationContext.getUser();
-
-    List<EntityCondition> exprList = createWorklogQueryExprList(startDate, endDate,
-        loggedInUser.getKey());
-
-    List<GenericValue> worklogGVList = ComponentAccessor.getOfBizDelegator()
-        .findByAnd("IssueWorklogView", exprList);
-    return worklogGVList.size();
-  }
-
-  private List<Long> createProjects(final ApplicationUser loggedInUser) {
-    Collection<Project> projects = ComponentAccessor.getPermissionManager()
-        .getProjects(Permissions.BROWSE, loggedInUser);
-
-    List<Long> projectList = new ArrayList<>();
-    for (Project project : projects) {
-      projectList.add(project.getId());
-    }
-    return projectList;
-  }
-
-  @Override
-  public ActionResult createWorklog(final String issueId,
-      final String comment, final Date date,
-      final String startTime, final String timeSpent) {
-    JiraAuthenticationContext authenticationContext = ComponentAccessor
-        .getJiraAuthenticationContext();
-    ApplicationUser user = authenticationContext.getUser();
-    JiraServiceContext serviceContext = new JiraServiceContextImpl(user);
-    IssueManager issueManager = ComponentAccessor.getIssueManager();
-    MutableIssue issue = issueManager.getIssueObject(issueId);
-    if (issue == null) {
-      return new ActionResult(ActionResultStatus.FAIL,
-          INVALID_ISSUE, issueId);
-    }
-    PermissionManager permissionManager = ComponentAccessor.getPermissionManager();
-    if (!permissionManager.hasPermission(Permissions.WORK_ISSUE, issue,
-        user)) {
-      return new ActionResult(ActionResultStatus.FAIL,
-          NOPERMISSION_ISSUE, issueId);
-    }
-    Date startDate;
-    try {
-      startDate = DateTimeConverterUtil.stringToDateAndTime(date, startTime);
-    } catch (ParseException e) {
-      return new ActionResult(ActionResultStatus.FAIL,
-          DATE_PARSE, date + " " + startTime);
-    }
-
-    WorklogNewEstimateInputParameters params = WorklogInputParametersImpl
-        .issue(issue).startDate(startDate).timeSpent(timeSpent)
-        .comment(comment).buildNewEstimate();
-    WorklogService worklogService = ComponentAccessor.getComponent(WorklogService.class);
-    if (!worklogService.hasPermissionToCreate(serviceContext, issue, true)) {
-      return new ActionResult(ActionResultStatus.FAIL,
-          NOPERMISSION_CREATE_WORKLOG, issueId);
-    }
-    WorklogResult worklogResult = worklogService.validateCreate(
-        serviceContext, params);
-    if (worklogResult == null) {
-      return new ActionResult(ActionResultStatus.FAIL,
-          WORKLOG_CREATE_FAIL);
-    }
-    Worklog createdWorklog = worklogService.createAndAutoAdjustRemainingEstimate(serviceContext,
-        worklogResult, true);
-    if (createdWorklog == null) {
-      return new ActionResult(ActionResultStatus.FAIL,
-          WORKLOG_CREATE_FAIL);
-    }
-
-    return new ActionResult(ActionResultStatus.SUCCESS,
-        "plugin.worklog.create.success");
-  }
-
-  private List<EntityCondition> createWorklogQueryExprList(final Calendar startDate,
-      final Calendar endDate,
-      final String userKey) {
-    EntityExpr startExpr = new EntityExpr("startdate",
-        EntityOperator.GREATER_THAN_EQUAL_TO, new Timestamp(
-            startDate.getTimeInMillis()));
-    EntityExpr endExpr = new EntityExpr("startdate",
-        EntityOperator.LESS_THAN, new Timestamp(endDate.getTimeInMillis()));
-    EntityExpr userExpr = new EntityExpr("author", EntityOperator.EQUALS,
-        userKey);
-    List<EntityCondition> exprList = new ArrayList<>();
-    exprList.add(userExpr);
-    exprList.add(startExpr);
-    exprList.add(endExpr);
-    return exprList;
-  }
-
-  private List<EntityCondition> createWorklogQueryExprListWithPermissionCheck(
-      final ApplicationUser user,
-      final Calendar startDate, final Calendar endDate) {
-
-    String userKey = user.getKey();
-
-    return createWorklogQueryExprListWithPermissionCheck(userKey, user, startDate, endDate);
-  }
-
-  private List<EntityCondition> createWorklogQueryExprListWithPermissionCheck(
-      final String selectedUser,
-      final ApplicationUser loggedInUser,
-      final Calendar startDate, final Calendar endDate) {
-
-    String userKey = ((selectedUser == null) || "".equals(selectedUser))
-        ? loggedInUser.getKey() : selectedUser;
-
-    List<Long> projects = createProjects(loggedInUser);
-
-    List<EntityCondition> exprList = createWorklogQueryExprList(startDate, endDate, userKey);
-
-    EntityExpr projectExpr = new EntityExpr("project", EntityOperator.EQUALS, null);
-    if (!projects.isEmpty()) {
-      projectExpr = new EntityExpr("project", EntityOperator.IN, projects);
-    }
-    exprList.add(projectExpr);
-    return exprList;
-  }
-
-  @Override
-  public ActionResult deleteWorklog(final Long id) {
-    JiraAuthenticationContext authenticationContext = ComponentAccessor
-        .getJiraAuthenticationContext();
-    ApplicationUser user = authenticationContext.getUser();
-    JiraServiceContext serviceContext = new JiraServiceContextImpl(user);
-    WorklogService worklogService = ComponentAccessor.getComponent(WorklogService.class);
-    WorklogManager worklogManager = ComponentAccessor.getWorklogManager();
-    Worklog worklog = worklogManager.getById(id);
-    if (!worklogService.hasPermissionToDelete(serviceContext, worklog)) {
-      return new ActionResult(ActionResultStatus.FAIL,
-          NOPERMISSION_DELETE_WORKLOG, worklog.getIssue().getKey());
-    }
-    WorklogResult deleteWorklogResult = worklogService.validateDelete(
-        serviceContext, id);
-    if (deleteWorklogResult == null) {
-      return new ActionResult(ActionResultStatus.FAIL,
-          "plugin.worklog.delete.fail", id.toString());
-    }
-    worklogService.deleteAndAutoAdjustRemainingEstimate(serviceContext,
-        deleteWorklogResult, true);
-    return new ActionResult(ActionResultStatus.SUCCESS,
-        "plugin.worklog.delete.success", id.toString());
-  }
-
-  @Override
   public void destroy() throws Exception {
     scheduledExecutorService.shutdown();
     issueEstimatedTimeCheckerFuture.cancel(true);
-  }
-
-  @Override
-  public ActionResult editWorklog(final Long id, final String issueId,
-      final String comment, final Date date, final String time,
-      final String timeSpent) {
-    JiraAuthenticationContext authenticationContext = ComponentAccessor
-        .getJiraAuthenticationContext();
-    ApplicationUser user = authenticationContext.getUser();
-    JiraServiceContext serviceContext = new JiraServiceContextImpl(user);
-
-    WorklogManager worklogManager = ComponentAccessor.getWorklogManager();
-    Worklog worklog = worklogManager.getById(id);
-    IssueManager issueManager = ComponentAccessor.getIssueManager();
-    MutableIssue issue = issueManager.getIssueObject(issueId);
-    if (issue == null) {
-      return new ActionResult(ActionResultStatus.FAIL,
-          "plugin.invalide_issue", issueId);
-    }
-    if (!worklog.getIssue().getKey().equals(issueId)) {
-      PermissionManager permissionManager = ComponentAccessor.getPermissionManager();
-      if (!permissionManager.hasPermission(Permissions.WORK_ISSUE, issue,
-          user)) {
-        return new ActionResult(ActionResultStatus.FAIL,
-            NOPERMISSION_ISSUE, issueId);
-      }
-      ActionResult deleteResult = deleteWorklog(id);
-      if (deleteResult.getStatus() == ActionResultStatus.FAIL) {
-        return deleteResult;
-      }
-      ActionResult createResult = createWorklog(issueId, comment,
-          date, time, timeSpent);
-      if (createResult.getStatus() == ActionResultStatus.FAIL) {
-        return createResult;
-      }
-    } else {
-      Date dateCreate;
-      try {
-        dateCreate = DateTimeConverterUtil
-            .stringToDateAndTime(date, time);
-      } catch (ParseException e) {
-        return new ActionResult(ActionResultStatus.FAIL,
-            DATE_PARSE + date + " " + time);
-      }
-      WorklogInputParameters params = WorklogInputParametersImpl
-          .issue(issue).startDate(dateCreate).timeSpent(timeSpent)
-          .comment(comment).worklogId(id).issue(issue).build();
-      WorklogService worklogService = ComponentAccessor.getComponent(WorklogService.class);
-      if (!worklogService.hasPermissionToUpdate(serviceContext, worklog)) {
-        return new ActionResult(ActionResultStatus.FAIL,
-            NOPERMISSION_UPDATE_WORKLOG, issueId);
-      }
-      WorklogResult worklogResult = worklogService.validateUpdate(
-          serviceContext, params);
-      if (worklogResult == null) {
-        return new ActionResult(ActionResultStatus.FAIL,
-            "plugin.worklog.update.fail");
-      }
-
-      worklogService.updateAndAutoAdjustRemainingEstimate(serviceContext,
-          worklogResult, true);
-
-    }
-    return new ActionResult(ActionResultStatus.SUCCESS,
-        "plugin.worklog.update.success");
-
   }
 
   @Override
@@ -496,7 +241,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
       final Date to,
       final boolean workingHour, final boolean checkNonWorking,
       final TimeTrackerGlobalSettings settings)
-      throws GenericEntityException {
+          throws GenericEntityException {
     List<MissingsWorklogsDTO> datesWhereNoWorklog = new ArrayList<>();
     Calendar fromDate = Calendar.getInstance();
     fromDate.setTime(from);
@@ -623,91 +368,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     return projectsId;
   }
 
-  @Override
-  public EveritWorklog getWorklog(final Long worklogId) throws ParseException {
-    WorklogManager worklogManager = ComponentAccessor.getWorklogManager();
-    Worklog worklog = worklogManager.getById(worklogId);
-    return new EveritWorklog(worklog);
-  }
-
-  @Override
-  public List<EveritWorklog> getWorklogs(final String selectedUser, final Date date,
-      final Date finalDate)
-      throws ParseException {
-    Calendar startDate = DateTimeConverterUtil.setDateToDayStart(date);
-    Calendar endDate = (Calendar) startDate.clone();
-    if (finalDate == null) {
-      endDate.add(Calendar.DAY_OF_MONTH, 1);
-    } else {
-      endDate = DateTimeConverterUtil.setDateToDayStart(finalDate);
-      endDate.add(Calendar.DAY_OF_MONTH, 1);
-    }
-
-    List<EveritWorklog> worklogs = new ArrayList<>();
-
-    JiraAuthenticationContext authenticationContext = ComponentAccessor
-        .getJiraAuthenticationContext();
-    ApplicationUser loggedInUser = authenticationContext.getUser();
-
-    String userKey;
-    if ((selectedUser == null) || "".equals(selectedUser)) {
-      userKey = loggedInUser.getKey();
-    } else {
-      userKey = ComponentAccessor.getUserUtil().getUserByName(selectedUser).getKey();
-    }
-
-    List<EntityCondition> exprList = createWorklogQueryExprListWithPermissionCheck(userKey,
-        loggedInUser, startDate, endDate);
-
-    List<GenericValue> worklogGVList = ComponentAccessor.getOfBizDelegator()
-        .findByAnd("IssueWorklogView", exprList);
-
-    IssueManager issueManager = ComponentAccessor.getIssueManager();
-    GroupManager groupManager = ComponentAccessor.getGroupManager();
-    ProjectRoleManager projectRoleManager =
-        ComponentAccessor.getComponent(ProjectRoleManager.class);
-
-    for (GenericValue worklogGv : worklogGVList) {
-      boolean hasWorklogVisibility = hasWorklogVisibility(loggedInUser,
-          issueManager,
-          groupManager,
-          projectRoleManager,
-          worklogGv);
-      if (hasWorklogVisibility) {
-        EveritWorklog worklog = new EveritWorklog(worklogGv);
-        worklogs.add(worklog);
-      }
-    }
-
-    Collections.sort(worklogs, EveritWorklogComparator.INSTANCE);
-    return worklogs;
-  }
-
-  private boolean hasWorklogVisibility(final ApplicationUser loggedInUser,
-      final IssueManager issueManager,
-      final GroupManager groupManager, final ProjectRoleManager projectRoleManager,
-      final GenericValue worklogGv) {
-    Collection<String> loggedUserGroupNames = groupManager.getGroupNamesForUser(loggedInUser);
-    Long roleLevelId = worklogGv.getLong("rolelevel");
-    String groupLevel = worklogGv.getString("grouplevel");
-    Long issueId = worklogGv.getLong("issue");
-    MutableIssue issue = issueManager.getIssueObject(issueId);
-    boolean hasWorklogVisibility = true;
-    if ((roleLevelId != null)) {
-      hasWorklogVisibility = false;
-      Collection<ProjectRole> projectRoles =
-          projectRoleManager.getProjectRoles(loggedInUser, issue.getProjectObject());
-      for (ProjectRole projectRole : projectRoles) {
-        if (projectRole.getId().equals(roleLevelId)) {
-          hasWorklogVisibility = true;
-        }
-      }
-    } else if ((groupLevel != null) && !loggedUserGroupNames.contains(groupLevel)) {
-      hasWorklogVisibility = false;
-    }
-    return hasWorklogVisibility;
-  }
-
   /**
    * Check the given date is contains enough worklog. The worklog spent time have to be equal or
    * greater then 8 hours.
@@ -722,7 +382,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
    */
   private double isContainsEnoughWorklog(final Date date,
       final boolean checkNonWorking, final List<Pattern> nonWorkingIssuePatterns)
-      throws GenericEntityException {
+          throws GenericEntityException {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
     ApplicationUser user = authenticationContext.getUser();
@@ -735,7 +395,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
         * DateTimeConverterUtil.MINUTES_PER_HOUR;
 
     List<EntityCondition> exprList =
-        createWorklogQueryExprListWithPermissionCheck(user, startDate, endDate);
+        WorklogUtil.createWorklogQueryExprListWithPermissionCheck(user, startDate, endDate);
     List<GenericValue> worklogGVList =
         ComponentAccessor.getOfBizDelegator().findByAnd("IssueWorklogView", exprList);
     if ((worklogGVList == null) || worklogGVList.isEmpty()) {
@@ -771,8 +431,9 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     Calendar endDate = (Calendar) startDate.clone();
     endDate.add(Calendar.DAY_OF_MONTH, 1);
 
-    List<EntityCondition> exprList = createWorklogQueryExprListWithPermissionCheck(user, startDate,
-        endDate);
+    List<EntityCondition> exprList =
+        WorklogUtil.createWorklogQueryExprListWithPermissionCheck(user, startDate,
+            endDate);
 
     List<GenericValue> worklogGVList =
         ComponentAccessor.getOfBizDelegator().findByAnd("IssueWorklogView", exprList);
@@ -895,8 +556,9 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     Calendar finish = Calendar.getInstance();
     finish.setTime(finishSummary);
 
-    List<EntityCondition> exprList = createWorklogQueryExprListWithPermissionCheck(user,
-        start, finish);
+    List<EntityCondition> exprList =
+        WorklogUtil.createWorklogQueryExprListWithPermissionCheck(user,
+            start, finish);
 
     List<GenericValue> worklogs;
     // worklog query
@@ -923,7 +585,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
           }
         }
       }
-      boolean hasWorklogVisibility = hasWorklogVisibility(user,
+      boolean hasWorklogVisibility = WorklogUtil.hasWorklogVisibility(user,
           issueManager,
           groupManager,
           projectRoleManager,
