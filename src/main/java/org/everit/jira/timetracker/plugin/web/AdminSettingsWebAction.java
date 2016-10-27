@@ -18,10 +18,10 @@ package org.everit.jira.timetracker.plugin.web;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
@@ -34,7 +34,6 @@ import org.everit.jira.settings.TimetrackerSettingsHelper;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
-import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 
@@ -54,6 +53,10 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    * Logger.
    */
   private static final Logger LOGGER = Logger.getLogger(AdminSettingsWebAction.class);
+
+  private static final String NON_EST_NONE = "nonEstNone";
+
+  private static final String NON_EST_SELECTED = "nonEstSelected";
 
   private static final String NOT_RATED = "Not rated";
 
@@ -85,16 +88,16 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
   private String contextPath;
 
   /**
-   * The exclude dates in String format.
+   * The exclude dates in UNIX long format. Ordered by natural order.
    */
-  private String excludeDates = "";
+  private Set<Long> excludeDates = new TreeSet<>();
 
   private boolean feedBackSendAviable;
 
   /**
-   * The include dates in String format.
+   * The include dates in UNIX long format. Ordered by natural order.
    */
-  private String includeDates = "";
+  private Set<Long> includeDates = new TreeSet<>();
 
   private String issueCollectorSrc;
 
@@ -120,28 +123,6 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    */
   private String message = "";
 
-  /**
-   * The settings page message parameter.
-   */
-  private String messageExclude = "";
-
-  /**
-   * The settings page message parameter.
-   */
-  private String messageInclude = "";
-
-  /**
-   * The paramater of the message.
-   */
-  private String messageParameterExclude = "";
-
-  /**
-   * The paramater of the message.
-   */
-  private String messageParameterInclude = "";
-
-  private List<String> pluginGroups;
-
   private String pluginId;
 
   /**
@@ -150,8 +131,6 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
   private List<String> projectsId;
 
   private TimetrackerSettingsHelper settingsHelper;
-
-  private List<String> timetrackerGroups;
 
   /**
    * Simple constructor.
@@ -179,6 +158,9 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     if (!isUserLogged) {
       setReturnUrl(JIRA_HOME_URL);
       return getRedirect(NONE);
+    }
+    if ("doExecute".equals(getHttpRequest().getParameter("action"))) {
+      return doExecute();
     }
     loadIssueCollectorSrc();
     normalizeContextPath();
@@ -211,7 +193,7 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
       LOGGER.error("Error when try set the plugin variables.", e);
       return ERROR;
     }
-
+    getHttpRequest().getParameterNames();
     if (getHttpRequest().getParameter("sendfeedback") != null) {
       String feedbacktResult = parseFeedback();
       if (feedbacktResult != null) {
@@ -222,11 +204,10 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     if (getHttpRequest().getParameter("savesettings") != null) {
       String parseResult = parseSaveSettings(getHttpRequest());
       if (parseResult != null) {
+        setReturnUrl("/secure/admin/JiraTimetrackerAdminSettingsWebAction!default.jspa");
         return parseResult;
       }
       savePluginSettings();
-      setReturnUrl("/secure/JiraTimetrackerWebAction!default.jspa");
-      return getRedirect(INPUT);
     }
     setReturnUrl("/secure/admin/JiraTimetrackerAdminSettingsWebAction!default.jspa");
     return getRedirect(INPUT);
@@ -244,7 +225,7 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     return contextPath;
   }
 
-  public String getExcludeDates() {
+  public Set<Long> getExcludeDates() {
     return excludeDates;
   }
 
@@ -252,7 +233,7 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     return feedBackSendAviable;
   }
 
-  public String getIncludeDates() {
+  public Set<Long> getIncludeDates() {
     return includeDates;
   }
 
@@ -268,32 +249,22 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     return message;
   }
 
-  public String getMessageExclude() {
-    return messageExclude;
-  }
-
-  public String getMessageInclude() {
-    return messageInclude;
-  }
-
-  public String getMessageParameterExclude() {
-    return messageParameterExclude;
-  }
-
-  public String getMessageParameterInclude() {
-    return messageParameterInclude;
-  }
-
-  public List<String> getPluginGroups() {
-    return pluginGroups;
+  /**
+   * Decide which check box is selected.
+   */
+  public String getNonEstSelect() {
+    if (collectorIssuePatterns.isEmpty()) {
+      return "nonEstAll";
+    } else if ((collectorIssuePatterns.size() == 1)
+        && collectorIssuePatterns.get(0).pattern().equals(".*")) {
+      return NON_EST_NONE;
+    } else {
+      return NON_EST_SELECTED;
+    }
   }
 
   public List<String> getProjectsId() {
     return projectsId;
-  }
-
-  public List<String> getTimetrackerGroups() {
-    return timetrackerGroups;
   }
 
   private void loadIssueCollectorSrc() {
@@ -315,11 +286,9 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     for (Pattern issuePattern : collectorIssuePatterns) {
       collectorIssueKey += issuePattern.toString() + " ";
     }
-    excludeDates = loadGlobalSettings.getExcludeDatesAsString();
-    includeDates = loadGlobalSettings.getIncludeDatesAsString();
+    excludeDates = loadGlobalSettings.getExcludeDatesAsLongSet();
+    includeDates = loadGlobalSettings.getIncludeDatesAsLongList();
     analyticsCheck = loadGlobalSettings.getAnalyticsCheck();
-    pluginGroups = loadGlobalSettings.getPluginGroups();
-    timetrackerGroups = loadGlobalSettings.getTimetrackerGroups();
   }
 
   private void normalizeContextPath() {
@@ -331,35 +300,16 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     }
   }
 
-  private boolean parseExcludeDatesValue(final String excludeDatesValue) {
-    boolean parseExcludeException = false;
-    if (excludeDatesValue == null) {
-      excludeDates = "";
-    } else {
-      String excludeDatesValueString = excludeDatesValue;
-      String validExvcludeDates = "";
-      if (!excludeDatesValueString.isEmpty()) {
-        excludeDatesValueString = excludeDatesValueString
-            .replace(" ", "").replace("\r", "").replace("\n", "");
-        for (String dateString : excludeDatesValueString.split(",")) {
-          try {
-            Date validDate = DateTimeConverterUtil.fixFormatStringToDate(dateString);
-            String dateToFixFormatString = DateTimeConverterUtil.dateToFixFormatString(validDate);
-            validExvcludeDates += dateToFixFormatString + ", ";
-          } catch (ParseException e) {
-            parseExcludeException = true;
-            messageExclude = "plugin.parse.exception.exclude";
-            if (messageParameterExclude.isEmpty()) {
-              messageParameterExclude += dateString;
-            } else {
-              messageParameterExclude += ", " + dateString;
-            }
-          }
-        }
+  private Set<Long> parseDates(final String[] excludeDatesValue) {
+    Set<Long> tempDates = new TreeSet<>();
+    for (String string : excludeDatesValue) {
+      try {
+        tempDates.add(Long.valueOf(string));
+      } catch (NumberFormatException e) {
+        LOGGER.warn("Failed to parse long to Date " + string);
       }
-      excludeDates = validExvcludeDates;
     }
-    return parseExcludeException;
+    return tempDates;
   }
 
   private String parseFeedback() {
@@ -389,43 +339,22 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     return null;
   }
 
-  private boolean parseIncludeDatesValue(final String includeDatesValue) {
-    boolean parseIncludeDateException = false;
-    if (includeDatesValue == null) {
-      includeDates = "";
-    } else {
-      String includeDatesValueString = includeDatesValue;
-      String validIncludeDates = "";
-      if (!includeDatesValueString.isEmpty()) {
-        includeDatesValueString = includeDatesValueString
-            .replace(" ", "").replace("\r", "").replace("\n", "");
-        for (String dateString : includeDatesValueString.split(",")) {
-          try {
-            Date validDate = DateTimeConverterUtil.fixFormatStringToDate(dateString);
-            String dateToFixFormatString = DateTimeConverterUtil.dateToFixFormatString(validDate);
-            validIncludeDates += dateToFixFormatString + ", ";
-          } catch (ParseException e) {
-            parseIncludeDateException = true;
-            messageInclude = "plugin.parse.exception.include";
-            if (messageParameterInclude.isEmpty()) {
-              messageParameterInclude += dateString;
-            } else {
-              messageParameterInclude += ", " + dateString;
-            }
-          }
+  private boolean parseNonEstValues(final HttpServletRequest request) {
+    String nonEstSelectValue = request.getParameter("nonEstSelect");
+    if (nonEstSelectValue.equals(NON_EST_SELECTED)) {
+      String[] collectorIssueSelectValue = request.getParameterValues("issueSelect_collector");
+      if ((collectorIssueSelectValue != null) && (collectorIssueSelectValue.length != 0)) {
+        for (String filteredIssueKey : collectorIssueSelectValue) {
+          collectorIssuePatterns.add(Pattern.compile(filteredIssueKey));
         }
+      } else {
+        message = "plugin.nonestimated.empty.value";
+        return true;
       }
-      includeDates = validIncludeDates;
+    } else if (nonEstSelectValue.equals(NON_EST_NONE)) {
+      collectorIssuePatterns.add(Pattern.compile(".*"));
     }
-    return parseIncludeDateException;
-  }
-
-  private void parsePluginGroups(final String[] pluginGroupsvalue) {
-    if (pluginGroupsvalue == null) {
-      pluginGroups = new ArrayList<>();
-    } else {
-      pluginGroups = Arrays.asList(pluginGroupsvalue);
-    }
+    return false;
   }
 
   /**
@@ -436,14 +365,9 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    */
   public String parseSaveSettings(final HttpServletRequest request) {
     String[] issueSelectValue = request.getParameterValues("issueSelect");
-    String[] collectorIssueSelectValue = request.getParameterValues("issueSelect_collector");
-    String excludeDatesValue = request.getParameter("excludedates");
-    String includeDatesValue = request.getParameter("includedates");
+    String[] excludeDatesValue = request.getParameterValues("excludedates");
+    String[] includeDatesValue = request.getParameterValues("includedates");
     String analyticsCheckValue = request.getParameter("analyticsCheck");
-    String[] pluginGroupsvalue = request.getParameterValues("pluginGroupSelect");
-    String[] timetrackerGroupsValue = request.getParameterValues("timetrackerGroupSelect");
-    parsePluginGroups(pluginGroupsvalue);
-    parseTimetrackerGroups(timetrackerGroupsValue);
 
     if ((analyticsCheckValue != null) && "enable".equals(analyticsCheckValue)) {
       analyticsCheck = true;
@@ -457,30 +381,15 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
         issuesPatterns.add(Pattern.compile(filteredIssueKey));
       }
     }
-
     collectorIssuePatterns = new ArrayList<>();
-    if (collectorIssueSelectValue != null) {
-      for (String filteredIssueKey : collectorIssueSelectValue) {
-        collectorIssuePatterns.add(Pattern.compile(filteredIssueKey));
-      }
-    }
+    boolean parseNonEstException = parseNonEstValues(request);
 
-    // Handle exclude and include date in the parse method end.
-    boolean parseExcludeException = parseExcludeDatesValue(excludeDatesValue);
-    boolean parseIncludeException = parseIncludeDatesValue(includeDatesValue);
-
-    if (parseExcludeException || parseIncludeException) {
+    excludeDates = parseDates(excludeDatesValue);
+    includeDates = parseDates(includeDatesValue);
+    if (parseNonEstException) {
       return SUCCESS;
     }
     return null;
-  }
-
-  private void parseTimetrackerGroups(final String[] timetrackerGroupsValue) {
-    if (timetrackerGroupsValue == null) {
-      timetrackerGroups = new ArrayList<>();
-    } else {
-      timetrackerGroups = Arrays.asList(timetrackerGroupsValue);
-    }
   }
 
   private void readObject(final java.io.ObjectInputStream stream) throws IOException,
@@ -498,9 +407,7 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
         .includeDates(includeDates)
         .filteredSummaryIssues(issuesPatterns)
         .collectorIssues(collectorIssuePatterns)
-        .analyticsCheck(analyticsCheck)
-        .pluginGroups(pluginGroups)
-        .timetrackerGroups(timetrackerGroups);
+        .analyticsCheck(analyticsCheck);
     settingsHelper.saveGlobalSettings(globalSettings);
     sendNonEstAndNonWorkAnaliticsEvent();
   }
@@ -526,52 +433,16 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     this.contextPath = contextPath;
   }
 
-  public void setExcludeDates(final String excludeDates) {
-    this.excludeDates = excludeDates;
-  }
-
   public void setFeedBackSendAviable(final boolean feedBackSendAviable) {
     this.feedBackSendAviable = feedBackSendAviable;
-  }
-
-  public void setIncludeDates(final String includeDates) {
-    this.includeDates = includeDates;
   }
 
   public void setIssueKey(final String issueKey) {
     this.issueKey = issueKey;
   }
 
-  public void setMessage(final String message) {
-    this.message = message;
-  }
-
-  public void setMessageExclude(final String messageExclude) {
-    this.messageExclude = messageExclude;
-  }
-
-  public void setMessageInclude(final String messageInclude) {
-    this.messageInclude = messageInclude;
-  }
-
-  public void setMessageParameterExclude(final String messageParameterExclude) {
-    this.messageParameterExclude = messageParameterExclude;
-  }
-
-  public void setMessageParameterInclude(final String messageParameterInclude) {
-    this.messageParameterInclude = messageParameterInclude;
-  }
-
-  public void setPluginGroups(final List<String> pluginGroups) {
-    this.pluginGroups = pluginGroups;
-  }
-
   public void setProjectsId(final List<String> projectsId) {
     this.projectsId = projectsId;
-  }
-
-  public void setTimetrackerGroups(final List<String> timetrackerGroups) {
-    this.timetrackerGroups = timetrackerGroups;
   }
 
   private void writeObject(final java.io.ObjectOutputStream stream) throws IOException {

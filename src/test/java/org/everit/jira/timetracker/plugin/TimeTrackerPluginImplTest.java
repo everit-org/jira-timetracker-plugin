@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2011 Everit Kft. (http://www.everit.org)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,38 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-form.aui div.description {
-  clear: none;
-}
+package org.everit.jira.timetracker.plugin;
 
-form.aui div.field-group textarea {
-  max-width: 500px;
-  width: 100%;
-}
+import org.junit.Test;
 
-.red-text {
-  color: red;
-}
+public class TimeTrackerPluginImplTest {
 
-.everit_logo{
-  background-image:url(E_logo.png);
-  background-size: 48px 48px;
-  height: 48px;
-}
-#reveal-text-content {
-    min-height: 1.5em;
-}
-form.aui.rightMargin{
-    margin-right: 10rem;
-}
-.jttpDatePickerCollector{
-	border: 1px solid #ccc;
-    padding: 10px;
-    width: 65%;
-    float: left;
-    margin-right: 20px;
-    min-height: 50px;
-}
-.jttpDataPickerAddButton{
-	margin-top: 10px;
+  @Test
+  public void test() {
+
+  }
 }
