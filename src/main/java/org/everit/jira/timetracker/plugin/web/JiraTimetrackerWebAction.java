@@ -776,6 +776,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return dayFilteredNoneWorkIndicatorPrecent;
   }
 
+  public double getDayFilteredPercent() {
+    return daySummaryInSeconds / expectedWorkSecondsInDay;
+  }
+
   public double getDayFilteredRealWorkIndicatorPrecent() {
     return (dayFilteredSummaryInSecond / expectedWorkSecondsInDay) * HUNDRED;
   }
@@ -927,6 +931,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return monthFilteredNonWorkIndicatorPrecent;
   }
 
+  public double getMonthFilteredPercent() {
+    return monthSummaryInSecounds / expectedWorkSecondsInMonth;
+  }
+
   public double getMonthFilteredRealWorkIndicatorPrecent() {
     return (monthFilteredSummaryInSecond / expectedWorkSecondsInMonth) * HUNDRED;
   }
@@ -972,6 +980,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     weekFilteredNonWorkIndicatorPrecent = correctNoneWorkIndicatorPercent(
         weekFilteredRealWorkIndicatorPrecent, weekFilteredNonWorkIndicatorPrecent);
     return weekFilteredNonWorkIndicatorPrecent;
+  }
+
+  public double getWeekFilteredPercent() {
+    return weekSummaryInSecond / expectedWorkSecondsInWeek;
   }
 
   public double getWeekFilteredRealWorkIndicatorPrecent() {
