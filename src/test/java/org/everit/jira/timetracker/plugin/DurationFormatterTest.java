@@ -26,9 +26,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.mockito.Mockito;
 
 import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
+import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration.TimeFormat;
 import com.atlassian.jira.mock.component.MockComponentWorker;
+import com.atlassian.jira.security.JiraAuthenticationContext;
+import com.atlassian.jira.util.I18nHelper.BeanFactory;
 
 @RunWith(Parameterized.class)
 public class DurationFormatterTest {
@@ -44,15 +48,15 @@ public class DurationFormatterTest {
         new Object[] { "0m", DurationFormatterTest.duration(8, 5), 8, 5 },
         new Object[] { "3m", DurationFormatterTest.duration(8, 5).min(3), 8, 5 },
         new Object[] { "2h 3m", DurationFormatterTest.duration(8, 5).hour(2).min(3), 8, 5 },
-        new Object[] { "2h 0m", DurationFormatterTest.duration(8, 5).hour(2), 8, 5 },
-        new Object[] { "2d 2h 0m", DurationFormatterTest.duration(8, 5).day(2).hour(2), 8, 5 },
-        new Object[] { "3w 2d 0h 0m", DurationFormatterTest.duration(8, 5).week(3).day(2), 8, 5 },
-        new Object[] { "1d 0h 0m", DurationFormatterTest.duration(7, 5).hour(7), 7, 5 },
-        new Object[] { "7h 0m", DurationFormatterTest.duration(7.5, 5).hour(7), 7.5, 5 },
-        new Object[] { "1d 0h 0m", DurationFormatterTest.duration(7.5, 5).hour(7).min(30), 7.5, 5 },
-        new Object[] { "1d 0h 30m", DurationFormatterTest.duration(7.5, 5).hour(8), 7.5, 5 },
-        new Object[] { "1w 0d 4h 0m", DurationFormatterTest.duration(8, 4.5).hour(40), 8, 4.5 },
-        new Object[] { "1w 0d 6h 15m", DurationFormatterTest.duration(7.5, 4.5).hour(40), 7.5,
+        new Object[] { "2h", DurationFormatterTest.duration(8, 5).hour(2), 8, 5 },
+        new Object[] { "2d 2h", DurationFormatterTest.duration(8, 5).day(2).hour(2), 8, 5 },
+        new Object[] { "3w 2d", DurationFormatterTest.duration(8, 5).week(3).day(2), 8, 5 },
+        new Object[] { "1d", DurationFormatterTest.duration(7, 5).hour(7), 7, 5 },
+        new Object[] { "7h", DurationFormatterTest.duration(7.5, 5).hour(7), 7.5, 5 },
+        new Object[] { "1d", DurationFormatterTest.duration(7.5, 5).hour(7).min(30), 7.5, 5 },
+        new Object[] { "1d 30m", DurationFormatterTest.duration(7.5, 5).hour(8), 7.5, 5 },
+        new Object[] { "1w 4h", DurationFormatterTest.duration(8, 4.5).hour(40), 8, 4.5 },
+        new Object[] { "1w 6h 15m", DurationFormatterTest.duration(7.5, 4.5).hour(40), 7.5,
             4.5 });
   }
 
@@ -79,6 +83,7 @@ public class DurationFormatterTest {
    */
   public void setupMockTimeTrackerConfig(final double hoursPerDayParam,
       final double daysPerWeekParam) {
+    MockComponentWorker mockComponentWorker = new MockComponentWorker();
     BigDecimal daysPerWeek = new BigDecimal(daysPerWeekParam);
     BigDecimal hoursPerDay = new BigDecimal(hoursPerDayParam);
     TimeTrackingConfiguration ttConfig = EasyMock.createNiceMock(TimeTrackingConfiguration.class);
@@ -86,8 +91,19 @@ public class DurationFormatterTest {
         .anyTimes();
     EasyMock.expect(ttConfig.getHoursPerDay()).andReturn(hoursPerDay)
         .anyTimes();
+    EasyMock.expect(ttConfig.getTimeFormat()).andReturn(TimeFormat.pretty)
+        .anyTimes();
     EasyMock.replay(ttConfig);
-    new MockComponentWorker().addMock(TimeTrackingConfiguration.class, ttConfig).init();
+    mockComponentWorker.addMock(TimeTrackingConfiguration.class, ttConfig);
+
+    BeanFactory mockBeanFactory = Mockito.mock(BeanFactory.class, Mockito.RETURNS_DEEP_STUBS);
+    mockComponentWorker.addMock(BeanFactory.class, mockBeanFactory);
+
+    JiraAuthenticationContext mockJiraAuthenticationContext =
+        Mockito.mock(JiraAuthenticationContext.class, Mockito.RETURNS_DEEP_STUBS);
+    mockComponentWorker.addMock(JiraAuthenticationContext.class, mockJiraAuthenticationContext);
+
+    mockComponentWorker.init();
   }
 
   @Test
