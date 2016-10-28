@@ -125,8 +125,8 @@ public class SettingsLoadTest {
 
   @Test
   public void testDates() throws ParseException {
-    Assert.assertEquals(DateTimeConverterUtil.fixFormatStringToDate("2012-12-13"),
-        DateTimeConverterUtil.fixFormatStringToDate("2012-12-13"));
+    Assert.assertEquals(1355356800000L,
+        DateTimeConverterUtil.fixFormatStringToDate("2012-12-13").getTime());
 
   }
 
