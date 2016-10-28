@@ -568,16 +568,16 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     return getExtraDaysOfTheMonth(date, excludeDatesSet);
   }
 
-  private List<Date> getExtraDaysOfTheMonth(final Date date, final Set<Date> dates) {
+  private List<Date> getExtraDaysOfTheMonth(final Date dateForMonth, final Set<Date> extraDates) {
     List<Date> resultExtraDays = new ArrayList<>();
-    Calendar c2 = Calendar.getInstance();
-    c2.setTime(date);
-    for (Date extraDate : dates) {
-      Calendar c1 = Calendar.getInstance();
-      c1.setTime(extraDate);
-      if ((c1.get(Calendar.ERA) == c2.get(Calendar.ERA))
-          && (c1.get(Calendar.YEAR) == c2.get(Calendar.YEAR))
-          && (c1.get(Calendar.MONTH) == c2.get(Calendar.MONTH))) {
+    Calendar dayInMonth = Calendar.getInstance();
+    dayInMonth.setTime(dateForMonth);
+    for (Date extraDate : extraDates) {
+      Calendar currentExtraDate = Calendar.getInstance();
+      currentExtraDate.setTime(extraDate);
+      if ((currentExtraDate.get(Calendar.ERA) == dayInMonth.get(Calendar.ERA))
+          && (currentExtraDate.get(Calendar.YEAR) == dayInMonth.get(Calendar.YEAR))
+          && (currentExtraDate.get(Calendar.MONTH) == dayInMonth.get(Calendar.MONTH))) {
         resultExtraDays.add(extraDate);
       }
     }

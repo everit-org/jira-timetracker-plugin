@@ -21,10 +21,9 @@ everit.jttp.admin = everit.jttp.admin || {};
 	     
   jQuery(document).ready(function() {
     var calFrom = Calendar.setup({
-      firstDay : 0,
+      firstDay : jttpadmin.options.firstDay,
       inputField : jQuery("#excludeDate"),
       button : jQuery("#excludedate_trigger_from"),
-      //date : "17/Oct/16",
       ifFormat: jttpadmin.options.dateFormat,
       align : 'Br',
       electric : false,
@@ -33,10 +32,9 @@ everit.jttp.admin = everit.jttp.admin || {};
       useISO8601WeekNumbers : false,
     });
     var calFrom = Calendar.setup({
-        firstDay : 0,
+        firstDay : jttpadmin.options.firstDay,
         inputField : jQuery("#includeDate"),
         button : jQuery("#includedate_trigger_from"),
-        //date : "17/Oct/16",
         ifFormat: jttpadmin.options.dateFormat,
         align : 'Br',
         electric : false,
@@ -114,7 +112,7 @@ everit.jttp.admin = everit.jttp.admin || {};
 	  }
 	  jQuery('#'+errorDiv +' span').remove();
 	  var dateInMilis=Date.parseDate(dateValue, jttpadmin.options.dateFormat);
-	  if(jQuery('#' +targetDivId +' #'+diffCar+jttpadmin.getTimeWithoutTimezone(dateInMilis).length >0)){
+	  if(jQuery('#' +targetDivId +' #'+diffCar+jttpadmin.getTimeWithoutTimezone(dateInMilis)).length >0){
 		  jQuery('#'+errorDiv).append('<span>'+ errorMsg +' '+dateValue+' </span>');
 		  return;
 	  }
