@@ -43,8 +43,8 @@ public interface JiraTimetrackerPlugin {
    *
    * @return the counted real work days number.
    */
-  double countRealWorkDaysInWeek(final List<String> weekDaysAsString,
-      final Set<String> exludeDates, final Set<String> includeDates);
+  double countRealWorkDaysInWeek(List<Date> weekDaysAsString, Set<Date> excludeDatesSet,
+      Set<Date> includeDatesSet);
 
   /**
    * Count worklog size without permission check beetween start and end date for the logged user.
@@ -117,7 +117,7 @@ public interface JiraTimetrackerPlugin {
    * @throws GenericEntityException
    *           GenericEntityException
    */
-  Date firstMissingWorklogsDate(Set<String> exludeDates, Set<String> includeDates)
+  Date firstMissingWorklogsDate(Set<Date> exludeDates, Set<Date> includeDates)
       throws GenericEntityException;
 
   /**
@@ -135,7 +135,8 @@ public interface JiraTimetrackerPlugin {
    *          The report have to check the spent time or not.
    * @param nonWorking
    *          Exclude or not the non-working issues.
-   * @param settings TODO
+   * @param settings
+   *          TODO
    * @return The list of the MissingsWorklogsDTO.
    * @throws GenericEntityException
    *           If GenericEntity Exception.
@@ -152,7 +153,7 @@ public interface JiraTimetrackerPlugin {
    *          the excluded dates.
    * @return The list of the days in String format. (Eg. ["12","15"])
    */
-  List<String> getExcludeDaysOfTheMonth(Date date, Set<String> exludeDates);
+  List<Date> getExcludeDaysOfTheMonth(Date date, Set<Date> exludeDates);
 
   /**
    * The method find the include dates of the given date month.
@@ -163,7 +164,7 @@ public interface JiraTimetrackerPlugin {
    *          the excluded dates.
    * @return The list of the days in String format. (Eg. ["12","15"])
    */
-  List<String> getIncludeDaysOfTheMonth(Date date, Set<String> includeDates);
+  List<Date> getIncludeDaysOfTheMonth(Date date, Set<Date> includeDates);
 
   /**
    * Give back the Issues.

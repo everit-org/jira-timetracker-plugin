@@ -31,3 +31,20 @@ form.aui div.field-group textarea {
   background-size: 48px 48px;
   height: 48px;
 }
+#reveal-text-content {
+    min-height: 1.5em;
+}
+form.aui.rightMargin{
+    margin-right: 10rem;
+}
+.jttpDatePickerCollector{
+	border: 1px solid #ccc;
+    padding: 10px;
+    width: 65%;
+    float: left;
+    margin-right: 20px;
+    min-height: 50px;
+}
+.jttpDataPickerAddButton{
+	margin-top: 10px;
+}

@@ -18,8 +18,29 @@
   <title>Timetracker Global Settings</title>
 </head>
 <body>
+$webResourceManager.requireResource("jira.webresources:calendar")
+$webResourceManager.requireResource("jira.webresources:calendar-en")
   $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.plugin.admin-settings-resources")
-
+<script type="text/javascript">
+  window.everit = window.everit || {};
+  everit.jttp = everit.jttp || {};
+  everit.jttp.admin = everit.jttp.admin || {};
+  
+	(function(jttp, jQuery) {
+		jttp.options = jQuery.extend( 
+			{},
+			jttp.options,
+			{
+				dateFormat: "${dateFormat}",
+				excludeDates: ${excludeDates},
+				includeDates: ${includeDates},
+				collectorIssueKey: "$collectorIssueKey",
+				duplicateDateMessage: "${i18n.getText("plugin.setting.date.exitst.include.exclude")}"
+			}
+		);
+	})(everit.jttp.admin, AJS.$);
+   
+  </script>
   <header class="aui-page-header">
     <div class="aui-page-header-inner">
       <div class="aui-page-header-image">
@@ -36,95 +57,61 @@
       </div>
     </div>
   </header>
-  <form name="adminSettingForm"  method="post" action="JiraTimetrackerAdminSettingsWebAction.jspa" class="aui">
+  <form name="adminSettingForm"  method="post" action="JiraTimetrackerAdminSettingsWebAction!default.jspa" class="aui rightMargin"  onsubmit=" return everit.jttp.admin.beforeSubmit();">
+  <input hidden="hidden" name="action" value="doExecute"/>
     #if(!$message.isEmpty())
-    <div id="error_message">
-      $i18n.getText($message)
+    <div id="error_message" class="aui-message aui-message-error">
+      $i18n.getText($message) 
     </div>
     #end
-    
+    <div id="error_messageJS" class="aui-message aui-message-error" style="display:none" ></div>
     <div class="field-group">
-      <label for="pluginGroupSelect">$i18n.getText("plugin.setting.plugin.permission")</label>
-      <select multiple="multiple"
-        name="pluginGroupSelect" 
-        id="pluginGroupSelect" 
+      <label for="issueSelect_collector">$i18n.getText("plugin.setting.nonestimated.issues")</label>
+      <div style="padding-top: 5px;">
+        <input id="nonEstAll" type="radio" onclick="everit.jttp.admin.handleNonEstClick(this);" name="nonEstSelect" value="nonEstAll" #if($nonEstSelect == "nonEstAll") checked #end/>
+        $i18n.getText("plugin.settings.nonestimated.issues.all")
+        <input id="nonEstNone" type="radio" onclick="everit.jttp.admin.handleNonEstClick(this);" name="nonEstSelect" value="nonEstNone" #if($nonEstSelect == "nonEstNone") checked #end/>
+        $i18n.getText("plugin.settings.nonestimated.issues.none")
+        <input id="nonEstSelected" type="radio" onclick="everit.jttp.admin.handleNonEstClick(this);" name="nonEstSelect" value="nonEstSelected" #if($nonEstSelect == "nonEstSelected") checked #end/>
+        $i18n.getText("plugin.settings.nonestimated.issues.selected")
+      </div>
+      <div id="issueSelect_collector_container" #if($collectorIssueKey==".* " || $collectorIssueKey=="") style="display: none;" #end >
+      <select class="hidden"
+        multiple="none" 
+        name="issueSelect_collector" 
+        id="issueSelect_collector" 
         data-popup-link-message="" 
         data-popup-width="620" 
         data-popup-height="500" 
         data-remove-on-un-select="true" 
-        data-ajax-options.query="-" 
-        data-ajax-options.url="${req.contextPath}/rest/api/2/groups/picker" 
+        data-ajax-options.query="true" 
+        data-ajax-options.url="${req.contextPath}/rest/api/1.0/issues/picker" 
         data-ajax-options.data.query="-" 
+        data-ajax-options.data.current-issue-key=""
+        data-ajax-options.data.show-sub-tasks="true" 
+        data-ajax-options.data.show-sub-task-parent="true"
       #if (${action.currentJQL})
         data-ajax-options.data.current_jql=${action.currentJQL}
       #end
         >
-      </select>
+      </select> 
       <script>
-        var gp = new AJS.MultiSelect({
-          element : AJS.$("#pluginGroupSelect"),
-          itemAttrDisplayed : "label",
-          showDropdownButton : false,
-          ajaxOptions : {
-            url : "${req.contextPath}/rest/api/2/groups/picker",
-            query : true, // keep going back to the sever for each keystroke
-            formatResponse : JIRA.GroupPickerUtil.formatResponse
-          }
+        var ip = new AJS.IssuePicker({
+          element: AJS.$("#issueSelect_collector"),
+          userEnteredOptionsMsg: AJS.params.enterIssueKey,
+          uppercaseUserEnteredOnSelect: true,
+          singleSelectOnly: true,
+          currentProjectId: $projectsId,
         });
-      #if($pluginGroups.size() != 0)
-        var list =[];
-        #foreach ($pluginGroup in $pluginGroups)
-        list.push("$pluginGroup");
+        //Set the issues key all of them  
+        #if($collectorIssueKey!=".* " && $collectorIssueKey!="")
+          AJS.$("#issueSelect_collector-textarea").append("$collectorIssueKey");
         #end
-        var groups = jQuery.map(list, function(value) {
-          return { value: value, label: value };
-        });
-        gp._addMultipleItems(groups,true);
-      #end
+        AJS.$('.issue-picker-popup').attr("style","margin-bottom: 15px;");
+        ip.handleFreeInput();
       </script>
-      <div class="description">$i18n.getText("plugin.setting.plugin.permission.desc")</div>
-    </div>
-    
-    <div class="field-group">
-      <label for="timetrackerGroupSelect">$i18n.getText("plugin.setting.timetracker.permission")</label>
-      <select multiple="multiple"
-        name="timetrackerGroupSelect" 
-        id="timetrackerGroupSelect" 
-        data-popup-link-message="" 
-        data-popup-width="620" 
-        data-popup-height="500" 
-        data-remove-on-un-select="true" 
-        data-ajax-options.query="-" 
-        data-ajax-options.url="${req.contextPath}/rest/api/2/groups/picker" 
-        data-ajax-options.data.query="-" 
-      #if (${action.currentJQL})
-        data-ajax-options.data.current_jql=${action.currentJQL}
-      #end
-        >
-      </select>
-      <script>
-        var gp = new AJS.MultiSelect({
-          element : AJS.$("#timetrackerGroupSelect"),
-          itemAttrDisplayed : "label",
-          showDropdownButton : false,
-          ajaxOptions : {
-            url : "${req.contextPath}/rest/api/2/groups/picker",
-            query : true, // keep going back to the sever for each keystroke
-            formatResponse : JIRA.GroupPickerUtil.formatResponse
-          }
-        });
-      #if($timetrackerGroups.size() != 0)
-        var list =[];
-        #foreach ($timetrackerGroup in $timetrackerGroups)
-        list.push("$timetrackerGroup");
-        #end
-        var groups = jQuery.map(list, function(value) {
-          return { value: value, label: value };
-        });
-        gp._addMultipleItems(groups,true);
-      #end
-      </script>
-      <div class="description">$i18n.getText("plugin.setting.timetracker.permission.desc")</div>
+      </div>
+      <div class="description">$i18n.getText("plugin.setting.nonestimated.issues.help")</div>
     </div>
     
     <div class="field-group">
@@ -164,68 +151,41 @@
     </div>
     
     <div class="field-group">
-      <label for="issueSelect_collector">$i18n.getText("plugin.setting.nonestimated.issues")</label>
-      <select class="hidden"
-        multiple="none" 
-        name="issueSelect_collector" 
-        id="issueSelect_collector" 
-        data-popup-link-message="" 
-        data-popup-width="620" 
-        data-popup-height="500" 
-        data-remove-on-un-select="true" 
-        data-ajax-options.query="true" 
-        data-ajax-options.url="${req.contextPath}/rest/api/1.0/issues/picker" 
-        data-ajax-options.data.query="-" 
-        data-ajax-options.data.current-issue-key=""
-        data-ajax-options.data.show-sub-tasks="true" 
-        data-ajax-options.data.show-sub-task-parent="true"
-      #if (${action.currentJQL})
-        data-ajax-options.data.current_jql=${action.currentJQL}
-      #end
-        >
-      </select> 
-      <script>
-        var ip = new AJS.IssuePicker({
-          element: AJS.$("#issueSelect_collector"),
-          userEnteredOptionsMsg: AJS.params.enterIssueKey,
-          uppercaseUserEnteredOnSelect: true,
-          singleSelectOnly: true,
-          currentProjectId: $projectsId,
-        });
-        //Set the issues key all of them  
-        AJS.$("#issueSelect_collector-textarea").append("$collectorIssueKey");
-        AJS.$('.issue-picker-popup').attr("style","margin-bottom: 15px;");
-        ip.handleFreeInput();
-      </script>
-      <div class="description">$i18n.getText("plugin.setting.nonestimated.issues.help")</div>
-    </div>
-    
-    <div class="field-group">
       <label>$i18n.getText("plugin.setting.working.day")</label>
       <div class="description">$i18n.getText("plugin.setting.working.day.help")</div>
     </div>
     
     <div class="field-group">
       <label for="excludedates">$i18n.getText("plugin.setting.exclude.dates")</label>
-      <div id="messageExclude" class="red-text">
-        $i18n.getText($messageExclude) $messageParameterExclude
-      </div>
-      <textarea id="excludedates" name="excludedates"></textarea>
-      <script>
-        AJS.$("#excludedates").append("$excludeDates");
-      </script>
+      <div id="messageExclude" class="red-text"></div>
+      <select id="excludedatesHiddenSelect" name="excludedates" style="display: none" multiple></select>
+      <div id="excludeDatesDiv" class="jttpDatePickerCollector"></div>
+      <div class="from-date inline-calendar">
+       <input id="excludeDate" name="excludeDate" class="text medium-field datepicker-input"  readonly/>
+        <a href="#" title="Select a date">
+         <span id="excludedate_trigger_from" class="aui-icon aui-icon-small aui-iconfont-calendar">Select a date</span>
+        </a>
+       </div>
+       <input id="addexcludeDate" name="addexcludeDate" value="$i18n.getText('plugin.add')" type="button"
+          class="aui-button aui-button-primary jttpDataPickerAddButton" onclick="everit.jttp.admin.addExcludeDate(this)" 
+           data-jttp-error-msg="$i18n.getText('plugin.setting.date.already.exists')"/>
       <div class="description">$i18n.getText("plugin.setting.exclude.dates.help")</div>
     </div>
     
     <div class="field-group">
       <label for="includedates">$i18n.getText("plugin.setting.include.dates")</label>
-      <div id="messageInclude" class="red-text">
-        $i18n.getText($messageInclude) $messageParameterInclude
-      </div>
-      <textarea id="includedates" name="includedates"></textarea>
-      <script>
-        AJS.$("#includedates").append("$includeDates");
-      </script>
+      <div id="messageInclude" class="red-text"></div>
+       <select id="includedatesHiddenSelect" name="includedates" style="display: none" multiple></select>
+        <div id="includeDatesDiv" class="jttpDatePickerCollector"></div>
+     <div class="from-date inline-calendar">
+       <input id="includeDate" name="includeDate" class="text medium-field datepicker-input"  readonly/>
+        <a href="#" title="Select a date">
+         <span id="includedate_trigger_from" class="aui-icon aui-icon-small aui-iconfont-calendar">Select a date</span>
+        </a>
+       </div>
+       <input id="addincludeDate" name="addincludeDate"  value="$i18n.getText('plugin.add')" type="button"
+        class="aui-button aui-button-primary jttpDataPickerAddButton" onclick="everit.jttp.admin.addIncludeDate(this)"
+        data-jttp-error-msg="$i18n.getText('plugin.setting.date.already.exists')"/>
       <div class="description">$i18n.getText("plugin.setting.include.dates.help")</div>
     </div>
     
@@ -237,7 +197,12 @@
         <input id="analyticsCheckDisable" type="radio" name="analyticsCheck" value="disable" #if(!$analyticsCheck) checked #end/>
         $i18n.getText("plugin.settings.analytics.radiobutton.disable")
       </div>
-      <div class="description">$i18n.getText("plugin.settings.analytics.help")</div>
+      <div id="reveal-text-content" class="description aui-expander-content">$i18n.getText("plugin.settings.analytics.help")
+        <a id="reveal-text-trigger" data-replace-text="Show less" data-replace-selector=".reveal-text-trigger-text"
+                   class="aui-expander-trigger aui-expander-reveal-text" aria-controls="reveal-text-content">
+                    <span class="reveal-text-trigger-text">Show more</span>
+        </a>
+      </div>
     </div>
     
     <div class="buttons-container">
@@ -252,5 +217,7 @@
   
   <!-- Issue Collector script -->
   <script type="text/javascript" src="$issueCollectorSrc"></script>
+
+ 
 </body>
 </html>
