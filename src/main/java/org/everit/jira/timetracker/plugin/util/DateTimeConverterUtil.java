@@ -198,7 +198,28 @@ public final class DateTimeConverterUtil {
    */
   public static Date fixFormatStringToDate(final String dateString) throws ParseException {
     DateFormat formatterDate = new SimpleDateFormat(FIX_DATE_TIME_FORMAT);
+    formatterDate.setTimeZone(TimeZone.getTimeZone("UTC"));
     Date date = formatterDate.parse(dateString);
+    return date;
+  }
+
+  /**
+   * Convert String to Date use the fix date format "YYYY-MM-DD".
+   *
+   * @param dateString
+   *          The String date to convert.
+   * @return The result Date.
+   * @throws ParseException
+   *           If can't parse the date and the date contains invalid value e.g. 15 as month.
+   */
+  public static Date fixFormatStringToDateWithValidation(final String dateString)
+      throws ParseException {
+    DateFormat formatterDate = new SimpleDateFormat(FIX_DATE_TIME_FORMAT);
+    formatterDate.setTimeZone(TimeZone.getTimeZone("UTC"));
+    Date date = formatterDate.parse(dateString);
+    if (!dateString.equals(formatterDate.format(date))) {
+      throw new ParseException("Invalid date value:" + dateString, 0);
+    }
     return date;
   }
 

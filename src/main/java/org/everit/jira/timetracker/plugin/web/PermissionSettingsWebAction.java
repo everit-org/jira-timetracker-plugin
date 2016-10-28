@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.jira.reporting.plugin.web;
+package org.everit.jira.timetracker.plugin.web;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.everit.jira.settings.TimetrackerSettingsHelper;
 import org.everit.jira.settings.dto.ReportingGlobalSettings;
+import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
@@ -36,7 +37,7 @@ import com.atlassian.jira.web.action.JiraWebActionSupport;
 /**
  * Admin settings page.
  */
-public class ReportingAdminSettingsWebAction extends JiraWebActionSupport {
+public class PermissionSettingsWebAction extends JiraWebActionSupport {
 
   private static final String FREQUENT_FEEDBACK = "jttp.plugin.frequent.feedback";
 
@@ -67,11 +68,15 @@ public class ReportingAdminSettingsWebAction extends JiraWebActionSupport {
    */
   private String message = "";
 
+  private List<String> pluginGroups;
+
   private List<String> reportingGroups;
 
   private TimetrackerSettingsHelper settingsHelper;
 
-  public ReportingAdminSettingsWebAction(
+  private List<String> timetrackerGroups;
+
+  public PermissionSettingsWebAction(
       final JiraTimetrackerPlugin jiraTimetrackerPlugin,
       final TimetrackerSettingsHelper settingsHelper) {
     this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
@@ -119,15 +124,12 @@ public class ReportingAdminSettingsWebAction extends JiraWebActionSupport {
     }
 
     if (getHttpRequest().getParameter("savesettings") != null) {
-      String parseResult = parseSaveSettings(getHttpRequest());
-      if (parseResult != null) {
-        return parseResult;
-      }
+      parseSaveSettings(getHttpRequest());
+
       savePluginSettings();
-      setReturnUrl("/secure/ReportingWebAction!default.jspa");
       return getRedirect(INPUT);
     }
-    setReturnUrl("/secure/admin/JiraTimetrackerReportingSettingsWebAction!default.jspa");
+    setReturnUrl("/secure/admin/JiraTimetrackerPermissionSettingsWebAction!default.jspa");
     return getRedirect(INPUT);
   }
 
@@ -151,8 +153,16 @@ public class ReportingAdminSettingsWebAction extends JiraWebActionSupport {
     return message;
   }
 
+  public List<String> getPluginGroups() {
+    return pluginGroups;
+  }
+
   public List<String> getReportingGroups() {
     return reportingGroups;
+  }
+
+  public List<String> getTimetrackerGroups() {
+    return timetrackerGroups;
   }
 
   private void loadIssueCollectorSrc() {
@@ -164,10 +174,13 @@ public class ReportingAdminSettingsWebAction extends JiraWebActionSupport {
    * Load the plugin settings and set the variables.
    */
   public void loadPluginSettingAndParseResult() {
-    ReportingGlobalSettings loadReportingGlobalSettings =
+    ReportingGlobalSettings reportingGlobalSettings =
         settingsHelper.loadReportingGlobalSettings();
-    reportingGroups = loadReportingGlobalSettings.getReportingGroups();
-    browseGroups = loadReportingGlobalSettings.getBrowseGroups();
+    TimeTrackerGlobalSettings globalSettings = settingsHelper.loadGlobalSettings();
+    reportingGroups = reportingGlobalSettings.getReportingGroups();
+    browseGroups = reportingGlobalSettings.getBrowseGroups();
+    pluginGroups = globalSettings.getPluginGroups();
+    timetrackerGroups = globalSettings.getTimetrackerGroups();
   }
 
   private void normalizeContextPath() {
@@ -214,6 +227,14 @@ public class ReportingAdminSettingsWebAction extends JiraWebActionSupport {
     return null;
   }
 
+  private void parsePluginGroups(final String[] pluginGroupsvalue) {
+    if (pluginGroupsvalue == null) {
+      pluginGroups = new ArrayList<>();
+    } else {
+      pluginGroups = Arrays.asList(pluginGroupsvalue);
+    }
+  }
+
   private void parseReportingGroups(final String[] reportingGroupsValue) {
     if (reportingGroupsValue == null) {
       reportingGroups = new ArrayList<>();
@@ -228,12 +249,23 @@ public class ReportingAdminSettingsWebAction extends JiraWebActionSupport {
    * @param request
    *          The HttpServletRequest.
    */
-  public String parseSaveSettings(final HttpServletRequest request) {
+  public void parseSaveSettings(final HttpServletRequest request) {
     String[] reportingGroupSelectValue = request.getParameterValues("reportingGroupSelect");
     String[] browseGroupSelectValue = request.getParameterValues("browseGroupSelect");
+    String[] pluginGroupsvalue = getHttpRequest().getParameterValues("pluginGroupSelect");
+    String[] timetrackerGroupsValue = request.getParameterValues("timetrackerGroupSelect");
+    parsePluginGroups(pluginGroupsvalue);
     parseReportingGroups(reportingGroupSelectValue);
     parseBrowseGroups(browseGroupSelectValue);
-    return null;
+    parseTimetrackerGroups(timetrackerGroupsValue);
+  }
+
+  private void parseTimetrackerGroups(final String[] timetrackerGroupsValue) {
+    if (timetrackerGroupsValue == null) {
+      timetrackerGroups = new ArrayList<>();
+    } else {
+      timetrackerGroups = Arrays.asList(timetrackerGroupsValue);
+    }
   }
 
   /**
@@ -243,6 +275,10 @@ public class ReportingAdminSettingsWebAction extends JiraWebActionSupport {
     ReportingGlobalSettings reportingGlobalSettings =
         new ReportingGlobalSettings().browseGroups(browseGroups).reportingGroups(reportingGroups);
     settingsHelper.saveReportingGlobalSettings(reportingGlobalSettings);
+    TimeTrackerGlobalSettings globalSettings = new TimeTrackerGlobalSettings()
+        .pluginGroups(pluginGroups)
+        .timetrackerGroups(timetrackerGroups);
+    settingsHelper.saveGlobalSettings(globalSettings);
   }
 
   public void setBrowseGroups(final List<String> browseGroups) {
