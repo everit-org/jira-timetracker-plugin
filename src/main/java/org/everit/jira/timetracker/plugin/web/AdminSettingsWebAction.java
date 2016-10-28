@@ -30,10 +30,9 @@ import org.apache.log4j.Logger;
 import org.everit.jira.analytics.AnalyticsSender;
 import org.everit.jira.analytics.event.NoEstimateUsageChangedEvent;
 import org.everit.jira.analytics.event.NonWorkingUsageEvent;
+import org.everit.jira.core.SupportManager;
 import org.everit.jira.settings.TimetrackerSettingsHelper;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
-import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
-import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
@@ -46,16 +45,12 @@ import com.atlassian.jira.web.action.JiraWebActionSupport;
  */
 public class AdminSettingsWebAction extends JiraWebActionSupport {
 
-  private static final String FREQUENT_FEEDBACK = "jttp.plugin.frequent.feedback";
-
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
 
   /**
    * Logger.
    */
   private static final Logger LOGGER = Logger.getLogger(AdminSettingsWebAction.class);
-
-  private static final String NOT_RATED = "Not rated";
 
   /**
    * Serial version UID.
@@ -108,11 +103,6 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    */
   private List<Pattern> issuesPatterns;
 
-  /**
-   * The {@link JiraTimetrackerPlugin}.
-   */
-  private JiraTimetrackerPlugin jiraTimetrackerPlugin;
-
   private TimeTrackerGlobalSettings loadGlobalSettings;
 
   /**
@@ -151,20 +141,17 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
 
   private TimetrackerSettingsHelper settingsHelper;
 
+  private SupportManager supportManager;
+
   private List<String> timetrackerGroups;
 
   /**
    * Simple constructor.
-   *
-   * @param jiraTimetrackerPlugin
-   *          The {@link JiraTimetrackerPlugin}.
-   * @param analyticsSender
-   *          The {@link AnalyticsSender}.
    */
   public AdminSettingsWebAction(
-      final JiraTimetrackerPlugin jiraTimetrackerPlugin, final AnalyticsSender analyticsSender,
+      final SupportManager supportManager, final AnalyticsSender analyticsSender,
       final TimetrackerSettingsHelper settingsHelper) {
-    this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
+    this.supportManager = supportManager;
     this.analyticsSender = analyticsSender;
     this.settingsHelper = settingsHelper;
   }
@@ -185,7 +172,7 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     loadPluginSettingAndParseResult();
     checkMailServer();
     try {
-      projectsId = jiraTimetrackerPlugin.getProjectsId();
+      projectsId = supportManager.getProjectsId();
     } catch (Exception e) {
       LOGGER.error("Error when try set the plugin variables.", e);
       return ERROR;
@@ -206,17 +193,10 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     loadPluginSettingAndParseResult();
     checkMailServer();
     try {
-      projectsId = jiraTimetrackerPlugin.getProjectsId();
+      projectsId = supportManager.getProjectsId();
     } catch (Exception e) {
       LOGGER.error("Error when try set the plugin variables.", e);
       return ERROR;
-    }
-
-    if (getHttpRequest().getParameter("sendfeedback") != null) {
-      String feedbacktResult = parseFeedback();
-      if (feedbacktResult != null) {
-        return feedbacktResult;
-      }
     }
 
     if (getHttpRequest().getParameter("savesettings") != null) {
@@ -360,33 +340,6 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
       excludeDates = validExvcludeDates;
     }
     return parseExcludeException;
-  }
-
-  private String parseFeedback() {
-    if (JiraTimetrackerUtil.loadAndCheckFeedBackTimeStampFromSession(getHttpSession())) {
-      String feedBackValue = getHttpRequest().getParameter("feedbackinput");
-      String ratingValue = getHttpRequest().getParameter("rating");
-      String customerMail =
-          JiraTimetrackerUtil.getCheckCustomerMail(getHttpRequest().getParameter("customerMail"));
-      String feedBack = "";
-      String rating = NOT_RATED;
-      if (feedBackValue != null) {
-        feedBack = feedBackValue.trim();
-      }
-      if (ratingValue != null) {
-        rating = ratingValue;
-      }
-      String mailSubject = JiraTimetrackerUtil
-          .createFeedbackMailSubject(JiraTimetrackerAnalytics.getPluginVersion());
-      String mailBody =
-          JiraTimetrackerUtil.createFeedbackMailBody(customerMail, rating, feedBack);
-      jiraTimetrackerPlugin.sendEmail(mailSubject, mailBody);
-      JiraTimetrackerUtil.saveFeedBackTimeStampToSession(getHttpSession());
-    } else {
-      message = FREQUENT_FEEDBACK;
-      return SUCCESS;
-    }
-    return null;
   }
 
   private boolean parseIncludeDatesValue(final String includeDatesValue) {

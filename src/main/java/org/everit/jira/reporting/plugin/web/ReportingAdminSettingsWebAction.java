@@ -25,8 +25,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.everit.jira.settings.TimetrackerSettingsHelper;
 import org.everit.jira.settings.dto.ReportingGlobalSettings;
-import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
-import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 
@@ -38,11 +36,7 @@ import com.atlassian.jira.web.action.JiraWebActionSupport;
  */
 public class ReportingAdminSettingsWebAction extends JiraWebActionSupport {
 
-  private static final String FREQUENT_FEEDBACK = "jttp.plugin.frequent.feedback";
-
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
-
-  private static final String NOT_RATED = "Not rated";
 
   /**
    * Serial version UID.
@@ -60,8 +54,6 @@ public class ReportingAdminSettingsWebAction extends JiraWebActionSupport {
 
   private String issueCollectorSrc;
 
-  private JiraTimetrackerPlugin jiraTimetrackerPlugin;
-
   /**
    * The message.
    */
@@ -72,9 +64,7 @@ public class ReportingAdminSettingsWebAction extends JiraWebActionSupport {
   private TimetrackerSettingsHelper settingsHelper;
 
   public ReportingAdminSettingsWebAction(
-      final JiraTimetrackerPlugin jiraTimetrackerPlugin,
       final TimetrackerSettingsHelper settingsHelper) {
-    this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
     this.settingsHelper = settingsHelper;
   }
 
@@ -110,13 +100,6 @@ public class ReportingAdminSettingsWebAction extends JiraWebActionSupport {
     checkMailServer();
 
     loadPluginSettingAndParseResult();
-
-    if (getHttpRequest().getParameter("sendfeedback") != null) {
-      String feedbacktResult = parseFeedback();
-      if (feedbacktResult != null) {
-        return feedbacktResult;
-      }
-    }
 
     if (getHttpRequest().getParameter("savesettings") != null) {
       String parseResult = parseSaveSettings(getHttpRequest());
@@ -185,33 +168,6 @@ public class ReportingAdminSettingsWebAction extends JiraWebActionSupport {
     } else {
       browseGroups = Arrays.asList(browseGroupsValue);
     }
-  }
-
-  private String parseFeedback() {
-    if (JiraTimetrackerUtil.loadAndCheckFeedBackTimeStampFromSession(getHttpSession())) {
-      String feedBackValue = getHttpRequest().getParameter("feedbackinput");
-      String ratingValue = getHttpRequest().getParameter("rating");
-      String customerMail =
-          JiraTimetrackerUtil.getCheckCustomerMail(getHttpRequest().getParameter("customerMail"));
-      String feedBack = "";
-      String rating = NOT_RATED;
-      if (feedBackValue != null) {
-        feedBack = feedBackValue.trim();
-      }
-      if (ratingValue != null) {
-        rating = ratingValue;
-      }
-      String mailSubject = JiraTimetrackerUtil
-          .createFeedbackMailSubject(JiraTimetrackerAnalytics.getPluginVersion());
-      String mailBody =
-          JiraTimetrackerUtil.createFeedbackMailBody(customerMail, rating, feedBack);
-      jiraTimetrackerPlugin.sendEmail(mailSubject, mailBody);
-      JiraTimetrackerUtil.saveFeedBackTimeStampToSession(getHttpSession());
-    } else {
-      message = FREQUENT_FEEDBACK;
-      return SUCCESS;
-    }
-    return null;
   }
 
   private void parseReportingGroups(final String[] reportingGroupsValue) {

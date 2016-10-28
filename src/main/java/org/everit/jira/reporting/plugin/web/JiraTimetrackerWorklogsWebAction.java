@@ -25,13 +25,13 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 import org.everit.jira.analytics.AnalyticsDTO;
+import org.everit.jira.core.SupportManager;
 import org.everit.jira.reporting.plugin.ReportingCondition;
 import org.everit.jira.reporting.plugin.dto.MissingsPageingDTO;
 import org.everit.jira.reporting.plugin.dto.MissingsWorklogsDTO;
 import org.everit.jira.settings.TimetrackerSettingsHelper;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
-import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
 import org.everit.jira.timetracker.plugin.PluginCondition;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
@@ -114,11 +114,6 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
   private String issueCollectorSrc;
 
   /**
-   * The {@link JiraTimetrackerPlugin}.
-   */
-  private JiraTimetrackerPlugin jiraTimetrackerPlugin;
-
-  /**
    * The message.
    */
   private String message = "";
@@ -143,16 +138,15 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
   private List<MissingsWorklogsDTO> showDatesWhereNoWorklog;
 
+  private SupportManager supportManager;
+
   /**
    * Simple constructor.
-   *
-   * @param jiraTimetrackerPlugin
-   *          The {@link JiraTimetrackerPlugin}.
    */
   public JiraTimetrackerWorklogsWebAction(
-      final JiraTimetrackerPlugin jiraTimetrackerPlugin,
+      final SupportManager supportManager,
       final TimetrackerSettingsHelper settingsHelper) {
-    this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
+    this.supportManager = supportManager;
     this.settingsHelper = settingsHelper;
     reportingCondition = new ReportingCondition(settingsHelper);
     pluginCondition = new PluginCondition(settingsHelper);
@@ -230,7 +224,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     try {
       // TODO not simple "" for selectedUser. Use user picker
       // Default check box parameter false, false
-      allDatesWhereNoWorklog = jiraTimetrackerPlugin
+      allDatesWhereNoWorklog = supportManager
           .getDates("", dateFrom, dateTo, checkHours,
               checkNonWorkingIssues, globalSettings);
     } catch (GenericEntityException e) {
@@ -264,7 +258,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     }
     try {
       // TODO not simple "" for selectedUser. Use user picker
-      allDatesWhereNoWorklog = jiraTimetrackerPlugin
+      allDatesWhereNoWorklog = supportManager
           .getDates("", dateFrom, dateTo, checkHours,
               checkNonWorkingIssues, globalSettings);
     } catch (GenericEntityException e) {

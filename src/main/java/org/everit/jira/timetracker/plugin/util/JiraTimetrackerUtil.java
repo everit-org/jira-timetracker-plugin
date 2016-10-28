@@ -24,7 +24,6 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpSession;
 
-import org.everit.jira.timetracker.plugin.JiraTimetrackerPluginImpl;
 import org.everit.jira.timetracker.plugin.dto.WorklogValues;
 
 import com.atlassian.jira.component.ComponentAccessor;
@@ -54,6 +53,10 @@ public final class JiraTimetrackerUtil {
 
   private static final String FEEDBACK_EMAIL_SUBJECT = "[JTTP] feedback";
 
+  public static final int FIFTEEN_MINUTES = 15;
+
+  public static final int FIVE_MINUTES = 5;
+
   /**
    * The plugin calendar inline code.
    */
@@ -80,6 +83,12 @@ public final class JiraTimetrackerUtil {
    * Sunday first day of the week.
    */
   public static final int SUNDAY_CALENDAR_FDOW = 0;
+
+  public static final int TEN_MINUTES = 10;
+
+  public static final int THIRTY_MINUTES = 30;
+
+  public static final int TWENTY_MINUTES = 20;
 
   public static final int WEEK_INTERVAL = 1;
 
@@ -402,15 +411,15 @@ public final class JiraTimetrackerUtil {
     int changeValueInt = Integer.parseInt(changeValue);
 
     switch (changeValueInt) {
-      case JiraTimetrackerPluginImpl.FIVE_MINUTES:
+      case FIVE_MINUTES:
         return true;
-      case JiraTimetrackerPluginImpl.TEN_MINUTES:
+      case TEN_MINUTES:
         return true;
-      case JiraTimetrackerPluginImpl.FIFTEEN_MINUTES:
+      case FIFTEEN_MINUTES:
         return true;
-      case JiraTimetrackerPluginImpl.TWENTY_MINUTES:
+      case TWENTY_MINUTES:
         return true;
-      case JiraTimetrackerPluginImpl.THIRTY_MINUTES:
+      case THIRTY_MINUTES:
         return true;
       default:
         return false;

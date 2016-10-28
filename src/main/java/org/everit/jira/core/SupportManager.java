@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.jira.timetracker.plugin;
+package org.everit.jira.core;
 
 import java.util.Date;
 import java.util.List;
@@ -23,10 +23,7 @@ import org.everit.jira.reporting.plugin.dto.MissingsWorklogsDTO;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
 import org.ofbiz.core.entity.GenericEntityException;
 
-/**
- * The JiraTimetrackerPlugin interface.
- */
-public interface JiraTimetrackerPlugin {
+public interface SupportManager {
 
   /**
    * Create a query and give back the list of dates where are no worklogs. The query examine the
@@ -60,19 +57,6 @@ public interface JiraTimetrackerPlugin {
   List<String> getProjectsId();
 
   /**
-   * Send a email through the Jira to the given FEEDBACK_EMAIL_TO address. The address come form the
-   * jttp_build.properties. If no mail address was set by build the method only log the mail. If the
-   * method not find setted mail server and default from mail address, the email not will be send
-   * just logged.
-   *
-   * @param mailSubject
-   *          The subject of the mail.
-   * @param mailBody
-   *          The body of the mail.
-   */
-  void sendEmail(String mailSubject, String mailBody);
-
-  /**
    * Give back the all worklogs spent time between the two date.
    *
    * @param startSummary
@@ -87,5 +71,4 @@ public interface JiraTimetrackerPlugin {
    */
   long summary(Date startSummary, Date finishSummary, List<Pattern> issueIds)
       throws GenericEntityException;
-
 }

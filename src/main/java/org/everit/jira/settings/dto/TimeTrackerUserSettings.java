@@ -20,7 +20,6 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.everit.jira.reporting.plugin.column.WorklogDetailsColumns;
-import org.everit.jira.timetracker.plugin.JiraTimetrackerPluginImpl;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.everit.jira.timetracker.plugin.util.VersionComperatorUtil;
 
@@ -98,7 +97,7 @@ public class TimeTrackerUserSettings {
    * Get the end time change settings value. The default is 5.
    */
   public int getEndTimeChange() {
-    int endTimeChange = JiraTimetrackerPluginImpl.FIVE_MINUTES;
+    int endTimeChange = JiraTimetrackerUtil.FIVE_MINUTES;
 
     Object endTimeChangeObj =
         pluginSettingsKeyValues.get(UserSettingKey.END_TIME_CHANGE);
@@ -106,7 +105,7 @@ public class TimeTrackerUserSettings {
       try {
         endTimeChange = Integer.parseInt(endTimeChangeObj.toString());
         if (!JiraTimetrackerUtil.validateTimeChange(Integer.toString(endTimeChange))) {
-          endTimeChange = JiraTimetrackerPluginImpl.FIVE_MINUTES;
+          endTimeChange = JiraTimetrackerUtil.FIVE_MINUTES;
         }
       } catch (NumberFormatException e) {
         LOGGER.error("Wrong formated endTime change value. Set the default value (1).", e);
@@ -207,7 +206,7 @@ public class TimeTrackerUserSettings {
    * Get the start time change settings value. The default is 5.
    */
   public int getStartTimeChange() {
-    int startTimeChange = JiraTimetrackerPluginImpl.FIVE_MINUTES;
+    int startTimeChange = JiraTimetrackerUtil.FIVE_MINUTES;
 
     Object startTimeChangeObj =
         pluginSettingsKeyValues.get(UserSettingKey.START_TIME_CHANGE);
@@ -215,7 +214,7 @@ public class TimeTrackerUserSettings {
       try {
         startTimeChange = Integer.parseInt(startTimeChangeObj.toString());
         if (!JiraTimetrackerUtil.validateTimeChange(Integer.toString(startTimeChange))) {
-          startTimeChange = JiraTimetrackerPluginImpl.FIVE_MINUTES;
+          startTimeChange = JiraTimetrackerUtil.FIVE_MINUTES;
         }
       } catch (NumberFormatException e) {
         LOGGER.error("Wrong formated startTime change value. Set the default value (1).", e);

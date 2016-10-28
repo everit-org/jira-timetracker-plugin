@@ -13,164 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.jira.timetracker.plugin;
+package org.everit.jira.core.impl;
 
-import java.io.IOException;
-import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
-import org.apache.log4j.Logger;
-import org.everit.jira.analytics.AnalyticsSender;
-import org.everit.jira.analytics.event.NoEstimateUsageChangedEvent;
-import org.everit.jira.analytics.event.NonWorkingUsageEvent;
+import org.everit.jira.core.SupportManager;
 import org.everit.jira.core.util.TimetrackerUtil;
 import org.everit.jira.core.util.WorklogUtil;
 import org.everit.jira.reporting.plugin.dto.MissingsWorklogsDTO;
-import org.everit.jira.settings.TimetrackerSettingsHelper;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
-import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
-import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 import org.ofbiz.core.entity.EntityCondition;
 import org.ofbiz.core.entity.GenericEntityException;
 import org.ofbiz.core.entity.GenericValue;
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
 
 import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.MutableIssue;
-import com.atlassian.jira.mail.Email;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.groups.GroupManager;
 import com.atlassian.jira.security.roles.ProjectRoleManager;
 import com.atlassian.jira.user.ApplicationUser;
-import com.atlassian.mail.queue.SingleMailQueueItem;
 
-/**
- * The implementation of the {@link JiraTimetrackerPlugin}.
- */
-public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, InitializingBean,
-    DisposableBean, Serializable {
+public class SupportComponent implements SupportManager {
 
-  private static final int DEFAULT_CHECK_TIME_IN_MINUTES = 1200;
-
-  private static final String FEEDBACK_EMAIL_DEFAULT_VALUE = "${jttp.feedback.email}";
-
-  private static final String FEEDBACK_EMAIL_TO = "FEEDBACK_EMAIL_TO";
-
-  public static final int FIFTEEN_MINUTES = 15;
-
-  public static final int FIVE_MINUTES = 5;
-
-  /**
-   * Logger.
-   */
-  private static final Logger LOGGER = Logger.getLogger(JiraTimetrackerPluginImpl.class);
-
-  private static final int MINUTES_IN_HOUR = 60;
-
-  /**
-   * A day in minutes.
-   */
-  private static final int ONE_DAY_IN_MINUTES = 1440;
-
-  /**
-   * Serial version UID.
-   */
-  private static final long serialVersionUID = 1L;
-
-  public static final int TEN_MINUTES = 10;
-
-  public static final int THIRTY_MINUTES = 30;
-
-  public static final int TWENTY_MINUTES = 20;
-
-  public static final String UNKNOW_USER_NAME = "UNKNOW_USER_NAME";
-
-  private AnalyticsSender analyticsSender;
-
-  private String feedBackEmailTo;
-
-  /**
-   * The issues Estimated Time Checker Future.
-   */
-  private ScheduledFuture<?> issueEstimatedTimeCheckerFuture;
-
-  private Map<String, String> piwikPorpeties;
-
-  /**
-   * The plugin Scheduled Executor Service.
-   */
-  private final ScheduledExecutorService scheduledExecutorService = Executors
-      .newScheduledThreadPool(1);
-
-  private TimetrackerSettingsHelper settingsHelper;
-
-  /**
-   * Time tracking configuration.
-   */
   private TimeTrackingConfiguration timeTrackingConfiguration;
 
-  /**
-   * Default constructor.
-   */
-  public JiraTimetrackerPluginImpl(
-      final TimeTrackingConfiguration timeTrackingConfiguration,
-      final AnalyticsSender analyticsSender,
-      final TimetrackerSettingsHelper settingsHelper) {
+  public SupportComponent(final TimeTrackingConfiguration timeTrackingConfiguration) {
     this.timeTrackingConfiguration = timeTrackingConfiguration;
-    this.analyticsSender = analyticsSender;
-    this.settingsHelper = settingsHelper;
-  }
-
-  @Override
-  public void afterPropertiesSet() throws Exception {
-
-    loadJttpBuildProperties();
-
-    final Runnable issueEstimatedTimeChecker = new IssueEstimatedTimeChecker(
-        settingsHelper);
-
-    issueEstimatedTimeCheckerFuture = scheduledExecutorService
-        .scheduleAtFixedRate(issueEstimatedTimeChecker,
-            calculateInitialDelay(),
-            ONE_DAY_IN_MINUTES, TimeUnit.MINUTES);
-
-    sendNonEstAndNonWorkAnaliticsEvent();
-  }
-
-  private long calculateInitialDelay() {
-    // DEFAULT 20:00
-    Calendar now = Calendar.getInstance();
-    long hours = now.get(Calendar.HOUR_OF_DAY);
-    long minutes = now.get(Calendar.MINUTE);
-    long initialDelay =
-        DEFAULT_CHECK_TIME_IN_MINUTES - ((hours * MINUTES_IN_HOUR) + minutes);
-    if (initialDelay < 0) {
-      initialDelay = initialDelay + ONE_DAY_IN_MINUTES;
-    }
-    return initialDelay;
-  }
-
-  @Override
-  public void destroy() throws Exception {
-    scheduledExecutorService.shutdown();
-    issueEstimatedTimeCheckerFuture.cancel(true);
   }
 
   @Override
@@ -228,13 +105,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     return datesWhereNoWorklog;
   }
 
-  private String getFromMail() {
-    if (ComponentAccessor.getMailServerManager().isDefaultSMTPMailServerDefined()) {
-      return ComponentAccessor.getMailServerManager().getDefaultSMTPMailServer().getDefaultFrom();
-    }
-    return null;
-  }
-
   @Override
   public List<String> getProjectsId() {
     List<String> projectsId = new ArrayList<>();
@@ -289,30 +159,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     return missingsTime;
   }
 
-  private void loadJttpBuildProperties() {
-    Properties properties = PropertiesUtil.getJttpBuildProperties();
-
-    feedBackEmailTo = properties.getProperty(FEEDBACK_EMAIL_TO);
-
-    piwikPorpeties = new HashMap<>();
-    piwikPorpeties.put(PiwikPropertiesUtil.PIWIK_HOST,
-        properties.getProperty(PiwikPropertiesUtil.PIWIK_HOST));
-    piwikPorpeties.put(PiwikPropertiesUtil.PIWIK_TIMETRACKER_SITEID,
-        properties.getProperty(PiwikPropertiesUtil.PIWIK_TIMETRACKER_SITEID));
-    piwikPorpeties.put(PiwikPropertiesUtil.PIWIK_WORKLOGS_SITEID,
-        properties.getProperty(PiwikPropertiesUtil.PIWIK_WORKLOGS_SITEID));
-    piwikPorpeties.put(PiwikPropertiesUtil.PIWIK_CHART_SITEID,
-        properties.getProperty(PiwikPropertiesUtil.PIWIK_CHART_SITEID));
-    piwikPorpeties.put(PiwikPropertiesUtil.PIWIK_TABLE_SITEID,
-        properties.getProperty(PiwikPropertiesUtil.PIWIK_TABLE_SITEID));
-  }
-
-  private void readObject(final java.io.ObjectInputStream stream) throws IOException,
-      ClassNotFoundException {
-    stream.close();
-    throw new java.io.NotSerializableException(getClass().getName());
-  }
-
   private void removeNonWorkingIssues(final List<GenericValue> worklogGVList,
       final List<Pattern> nonWorkingIssuePatterns) {
     List<GenericValue> worklogsCopy = new ArrayList<>(worklogGVList);
@@ -338,41 +184,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   }
 
   @Override
-  public void sendEmail(final String mailSubject, final String mailBody) {
-    String defaultFrom = getFromMail();
-    if (!FEEDBACK_EMAIL_DEFAULT_VALUE.equals(feedBackEmailTo) && (defaultFrom != null)) {
-      Email email = new Email(feedBackEmailTo);
-      email.setFrom(defaultFrom);
-      email.setSubject(mailSubject);
-      email.setBody(mailBody);
-      SingleMailQueueItem singleMailQueueItem = new SingleMailQueueItem(email);
-      singleMailQueueItem.setMailThreader(null);
-      ComponentAccessor.getMailQueue().addItem(singleMailQueueItem);
-    } else {
-      LOGGER.error(
-          "Feedback not sent, beacause To mail address is not defined. \n"
-              + "The message: \n" + mailBody);
-    }
-  }
-
-  private void sendNonEstAndNonWorkAnaliticsEvent() {
-    TimeTrackerGlobalSettings loadGlobalSettings = settingsHelper.loadGlobalSettings();
-    List<Pattern> tempIssuePatterns = loadGlobalSettings.getIssuePatterns();
-    List<Pattern> tempSummaryFilter = loadGlobalSettings.getNonWorkingIssuePatterns();
-    String pluginId = loadGlobalSettings.getPluginUUID();
-
-    NoEstimateUsageChangedEvent analyticsEvent =
-        new NoEstimateUsageChangedEvent(pluginId, tempIssuePatterns, UNKNOW_USER_NAME);
-    analyticsSender.send(analyticsEvent);
-    NonWorkingUsageEvent nonWorkingUsageEvent =
-        new NonWorkingUsageEvent(pluginId,
-            tempSummaryFilter.isEmpty(), UNKNOW_USER_NAME);
-    analyticsSender.send(nonWorkingUsageEvent);
-  }
-
-  @Override
-  public long summary(final Date startSummary,
-      final Date finishSummary,
+  public long summary(final Date startSummary, final Date finishSummary,
       final List<Pattern> issuePatterns) throws GenericEntityException {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
@@ -426,10 +238,5 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
       timeSpent += worklog.getLong("timeworked").longValue();
     }
     return timeSpent;
-  }
-
-  private void writeObject(final java.io.ObjectOutputStream stream) throws IOException {
-    stream.close();
-    throw new java.io.NotSerializableException(getClass().getName());
   }
 }

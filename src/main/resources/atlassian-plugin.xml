@@ -49,6 +49,10 @@
     class="org.everit.jira.core.impl.WorklogComponent">
     <interface>org.everit.jira.core.EVWorklogManager</interface>
   </component>
+  <component key="TimetrackerComponent" name="TimetrackerComponent"
+    class="org.everit.jira.core.impl.TimetrackerComponent">
+    <interface>org.everit.jira.core.TimetrackerManager</interface>
+  </component>
   
   <component key="JTTP" name="Timetracker"
     class="org.everit.jira.timetracker.plugin.JiraTimetrackerPluginImpl">
