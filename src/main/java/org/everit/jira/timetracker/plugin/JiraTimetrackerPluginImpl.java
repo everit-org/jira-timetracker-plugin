@@ -36,6 +36,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.everit.jira.analytics.AnalyticsSender;
 import org.everit.jira.analytics.event.NoEstimateUsageChangedEvent;
@@ -88,8 +89,6 @@ import com.atlassian.mail.queue.SingleMailQueueItem;
  */
 public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, InitializingBean,
     DisposableBean, Serializable {
-
-  private static final int DATE_LENGTH = 7;
 
   private static final String DATE_PARSE = "plugin.date_parse";
 
@@ -205,10 +204,28 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     return initialDelay;
   }
 
-  private int countDaysInDateSet(final List<String> weekDaysAsString, final Set<String> dateSet) {
+  private boolean containsSetTheSameDay(final Set<Date> dates,
+      final Calendar fromDate) {
+    for (Date date : dates) {
+      Calendar cal1 = Calendar.getInstance();
+      cal1.setTime(date);
+      if (DateUtils.isSameDay(cal1, fromDate)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private boolean containsSetTheSameDay(final Set<Date> dates, final Date fromDate) {
+    Calendar instance = Calendar.getInstance();
+    instance.setTime(fromDate);
+    return containsSetTheSameDay(dates, instance);
+  }
+
+  private int countDaysInDateSet(final List<Date> weekDays, final Set<Date> dateSet) {
     int counter = 0;
-    for (String weekDay : weekDaysAsString) {
-      if (dateSet.contains(weekDay)) {
+    for (Date weekDay : weekDays) {
+      if (containsSetTheSameDay(dateSet, weekDay)) {
         counter++;
       }
     }
@@ -216,8 +233,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   }
 
   @Override
-  public double countRealWorkDaysInWeek(final List<String> weekDaysAsString,
-      final Set<String> excludeDatesSet, final Set<String> includeDatesSet) {
+  public double countRealWorkDaysInWeek(final List<Date> weekDaysAsString,
+      final Set<Date> excludeDatesSet, final Set<Date> includeDatesSet) {
     int exludeDates = countDaysInDateSet(weekDaysAsString, excludeDatesSet);
     int includeDates = countDaysInDateSet(weekDaysAsString, includeDatesSet);
     return (timeTrackingConfiguration.getDaysPerWeek().doubleValue() - exludeDates) + includeDates;
@@ -454,8 +471,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   }
 
   @Override
-  public Date firstMissingWorklogsDate(final Set<String> excludeDatesSet,
-      final Set<String> includeDatesSet) throws GenericEntityException {
+  public Date firstMissingWorklogsDate(final Set<Date> excludeDatesSet,
+      final Set<Date> includeDatesSet) throws GenericEntityException {
     Calendar scannedDate = Calendar.getInstance();
     // one week
     scannedDate.set(Calendar.DAY_OF_YEAR,
@@ -463,15 +480,14 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     for (int i = 0; i < DateTimeConverterUtil.DAYS_PER_WEEK; i++) {
       // convert date to String
       Date scanedDateDate = scannedDate.getTime();
-      String scanedDateString = DateTimeConverterUtil.dateToFixFormatString(scanedDateDate);
       // check excludse - pass
-      if (excludeDatesSet.contains(scanedDateString)) {
+      if (excludeDatesSet.contains(scanedDateDate)) {
         scannedDate.set(Calendar.DAY_OF_YEAR, scannedDate.get(Calendar.DAY_OF_YEAR) + 1);
         continue;
       }
       // check includes - not check weekend
       // check weekend - pass
-      if (!includeDatesSet.contains(scanedDateString)
+      if (!includeDatesSet.contains(scanedDateDate)
           && ((scannedDate.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY)
               || (scannedDate.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY))) {
         scannedDate.set(Calendar.DAY_OF_YEAR,
@@ -502,15 +518,16 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     fromDate.setTime(from);
     Calendar toDate = Calendar.getInstance();
     toDate.setTime(to);
+    Set<Date> excludeDatesAsSet = settings.getExcludeDates();
+    Set<Date> includeDatesAsSet = settings.getIncludeDates();
     while (!fromDate.after(toDate)) {
-      String currentDateString = DateTimeConverterUtil.dateToFixFormatString(fromDate.getTime());
-      if (settings.getExcludeDatesAsSet().contains(currentDateString)) {
+      if (containsSetTheSameDay(excludeDatesAsSet, fromDate)) {
         fromDate.add(Calendar.DATE, 1);
         continue;
       }
       // check includes - not check weekend
       // check weekend - pass
-      if (!settings.getIncludeDatesAsSet().contains(currentDateString)
+      if (containsSetTheSameDay(includeDatesAsSet, fromDate)
           && ((fromDate.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY)
               || (fromDate.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY))) {
         fromDate.add(Calendar.DATE, 1);
@@ -547,18 +564,21 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   }
 
   @Override
-  public List<String> getExcludeDaysOfTheMonth(final Date date, final Set<String> excludeDatesSet) {
+  public List<Date> getExcludeDaysOfTheMonth(final Date date, final Set<Date> excludeDatesSet) {
     return getExtraDaysOfTheMonth(date, excludeDatesSet);
   }
 
-  private List<String> getExtraDaysOfTheMonth(final Date date, final Set<String> dates) {
-    String fixDate = DateTimeConverterUtil.dateToFixFormatString(date);
-    List<String> resultExtraDays = new ArrayList<>();
-    for (String extraDate : dates) {
-      // TODO this if not handle the 2013-4-04 date..... this is wrong or
-      // not? .... think about it.
-      if (extraDate.startsWith(fixDate.substring(0, DATE_LENGTH))) {
-        resultExtraDays.add(extraDate.substring(extraDate.length() - 2));
+  private List<Date> getExtraDaysOfTheMonth(final Date dateForMonth, final Set<Date> extraDates) {
+    List<Date> resultExtraDays = new ArrayList<>();
+    Calendar dayInMonth = Calendar.getInstance();
+    dayInMonth.setTime(dateForMonth);
+    for (Date extraDate : extraDates) {
+      Calendar currentExtraDate = Calendar.getInstance();
+      currentExtraDate.setTime(extraDate);
+      if ((currentExtraDate.get(Calendar.ERA) == dayInMonth.get(Calendar.ERA))
+          && (currentExtraDate.get(Calendar.YEAR) == dayInMonth.get(Calendar.YEAR))
+          && (currentExtraDate.get(Calendar.MONTH) == dayInMonth.get(Calendar.MONTH))) {
+        resultExtraDays.add(extraDate);
       }
     }
     return resultExtraDays;
@@ -572,7 +592,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   }
 
   @Override
-  public List<String> getIncludeDaysOfTheMonth(final Date date, final Set<String> includeDatesSet) {
+  public List<Date> getIncludeDaysOfTheMonth(final Date date, final Set<Date> includeDatesSet) {
     return getExtraDaysOfTheMonth(date, includeDatesSet);
   }
 

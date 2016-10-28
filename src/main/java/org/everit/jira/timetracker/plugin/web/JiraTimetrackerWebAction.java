@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.sql.SQLException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -183,12 +182,12 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    */
   private int endTimeChange;
 
-  private Set<String> excludeDatesAsSet;
+  private Set<Date> excludeDatesAsSet;
 
   /**
    * List of the exclude days of the date variable current months.
    */
-  private List<String> excludeDays = new ArrayList<>();
+  private List<Date> excludeDays = new ArrayList<>();
 
   private double expectedWorkSecondsInDay;
 
@@ -198,7 +197,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   private String hoursPerDayFormatted;
 
-  private Set<String> includeDatesAsSet;
+  private Set<Date> includeDatesAsSet;
 
   /**
    * The calendar show actual Date Or Last Worklog Date.
@@ -389,15 +388,14 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   }
 
   private void calculateExpectedWorkSecondsInWeek() {
-    List<String> weekdaysAsString = new ArrayList<>();
+    List<Date> weekdays = new ArrayList<>();
     Calendar dayIndex = createNewCalendarWithWeekStart();
     dayIndex.setTime(getWeekStart(date));
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
     for (int i = 0; i < DAYS_IN_WEEK; i++) {
-      weekdaysAsString.add(simpleDateFormat.format(dayIndex.getTime()));
+      weekdays.add(dayIndex.getTime());
       dayIndex.add(Calendar.DAY_OF_MONTH, 1);
     }
-    double realWorkDaysInWeek = jiraTimetrackerPlugin.countRealWorkDaysInWeek(weekdaysAsString,
+    double realWorkDaysInWeek = jiraTimetrackerPlugin.countRealWorkDaysInWeek(weekdays,
         excludeDatesAsSet, includeDatesAsSet);
     expectedWorkSecondsInWeek =
         realWorkDaysInWeek * expectedWorkSecondsInDay;
@@ -817,8 +815,15 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return endTimeChange;
   }
 
+  /**
+   * Get exclude dates as the original date format.
+   */
   public List<String> getExcludeDays() {
-    return excludeDays;
+    List<String> excludeDaysAsString = new ArrayList<>(excludeDays.size());
+    for (Date excludeDate : excludeDays) {
+      excludeDaysAsString.add(DateTimeConverterUtil.dateToFixFormatString(excludeDate));
+    }
+    return excludeDaysAsString;
   }
 
   public String getFormattedExpectedWorkTimeInDay() {
@@ -1170,8 +1175,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     isRounded = userSettings.getIsRounded();
     isShowFutureLogWarning = userSettings.getIsShowFutureLogWarning();
     isShowIssueSummary = userSettings.getIsShowIssueSummary();
-    excludeDatesAsSet = globalSettings.getExcludeDatesAsSet();
-    includeDatesAsSet = globalSettings.getIncludeDatesAsSet();
+    excludeDatesAsSet = globalSettings.getExcludeDates();
+    includeDatesAsSet = globalSettings.getIncludeDates();
   }
 
   /**
@@ -1490,10 +1495,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   public void setEndTimeChange(final int endTimeChange) {
     this.endTimeChange = endTimeChange;
-  }
-
-  public void setExcludeDays(final List<String> excludeDays) {
-    this.excludeDays = excludeDays;
   }
 
   /**

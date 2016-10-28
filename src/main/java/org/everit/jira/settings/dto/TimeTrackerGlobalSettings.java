@@ -16,11 +16,15 @@
 package org.everit.jira.settings.dto;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 /**
@@ -51,8 +55,12 @@ public class TimeTrackerGlobalSettings {
   /**
    * Put exclude dates.
    */
-  public TimeTrackerGlobalSettings excludeDates(final String excludeDates) {
-    pluginSettingsKeyValues.put(GlobalSettingsKey.EXCLUDE_DATES, excludeDates);
+  public TimeTrackerGlobalSettings excludeDates(final Collection<Long> excludeDates) {
+    StringBuilder sb = new StringBuilder();
+    for (Long date : excludeDates) {
+      sb.append(date).append(",");
+    }
+    pluginSettingsKeyValues.put(GlobalSettingsKey.EXCLUDE_DATES, sb.toString());
     return this;
   }
 
@@ -79,59 +87,67 @@ public class TimeTrackerGlobalSettings {
   }
 
   /**
-   * Get the exclude dates as Set.
+   * Get the exclude dates as Set. Faster solution for check element exists or not in the set.
    */
-  public Set<String> getExcludeDatesAsSet() {
-    String excludeDatesString = getExcludeDatesAsString();
-    Set<String> excludeDatesSet = new HashSet<>();
-    if (excludeDatesString.isEmpty()) {
+  public Set<Date> getExcludeDates() {
+    String excludeDatesString =
+        (String) pluginSettingsKeyValues.get(GlobalSettingsKey.EXCLUDE_DATES);
+    Set<Date> excludeDatesSet = new HashSet<>();
+    if ((excludeDatesString == null) || excludeDatesString.isEmpty()) {
       return excludeDatesSet;
     }
     for (String excludeDate : excludeDatesString.split(",")) {
-      excludeDatesSet.add(excludeDate);
+      excludeDatesSet.add(new Date(Long.parseLong(excludeDate)));
     }
     return excludeDatesSet;
   }
 
   /**
-   * Get the exclude dates as String.
+   * Get the saved exclude dates as UNIX long format. The dates returned in natural order.
    */
-  public String getExcludeDatesAsString() {
-    String tempSpecialDates =
+  public SortedSet<Long> getExcludeDatesAsLong() {
+    String excludeDatesString =
         (String) pluginSettingsKeyValues.get(GlobalSettingsKey.EXCLUDE_DATES);
-    String excludeDatesString = "";
-    if (tempSpecialDates != null) {
-      excludeDatesString = tempSpecialDates;
+    SortedSet<Long> excludeDatesSet = new TreeSet<>();
+    if ((excludeDatesString == null) || excludeDatesString.isEmpty()) {
+      return excludeDatesSet;
     }
-    return excludeDatesString;
+    for (String excludeDate : excludeDatesString.split(",")) {
+      excludeDatesSet.add(Long.valueOf(excludeDate));
+    }
+    return excludeDatesSet;
   }
 
   /**
-   * Get include dates as Set.
+   * Get include dates as Set. The dates not sorted.
    */
-  public Set<String> getIncludeDatesAsSet() {
-    String tempSpecialDates = getIncludeDatesAsString();
-    Set<String> includeDatesSet = new HashSet<>();
-    if (tempSpecialDates.isEmpty()) {
+  public Set<Date> getIncludeDates() {
+    String tempSpecialDates =
+        (String) pluginSettingsKeyValues.get(GlobalSettingsKey.INCLUDE_DATES);
+    Set<Date> includeDatesSet = new HashSet<>();
+    if ((tempSpecialDates == null) || tempSpecialDates.isEmpty()) {
       return includeDatesSet;
     }
     for (String includeDate : tempSpecialDates.split(",")) {
-      includeDatesSet.add(includeDate);
+      includeDatesSet.add(new Date(Long.parseLong(includeDate)));
     }
     return includeDatesSet;
   }
 
   /**
-   * Get include dates as String.
+   * Get the saved include dates as UNIX long format. The dates returned in natural order.
    */
-  public String getIncludeDatesAsString() {
+  public Set<Long> getIncludeDatesAsLong() {
     String tempSpecialDates =
         (String) pluginSettingsKeyValues.get(GlobalSettingsKey.INCLUDE_DATES);
-    String includeDatesString = "";
-    if (tempSpecialDates != null) {
-      includeDatesString = tempSpecialDates;
+    Set<Long> includeDates = new TreeSet<>();
+    if ((tempSpecialDates == null) || tempSpecialDates.isEmpty()) {
+      return includeDates;
     }
-    return includeDatesString;
+    for (String includeDate : tempSpecialDates.split(",")) {
+      includeDates.add(Long.parseLong(includeDate));
+    }
+    return includeDates;
   }
 
   /**
@@ -221,8 +237,12 @@ public class TimeTrackerGlobalSettings {
   /**
    * Put the include dates.
    */
-  public TimeTrackerGlobalSettings includeDates(final String includeDates) {
-    pluginSettingsKeyValues.put(GlobalSettingsKey.INCLUDE_DATES, includeDates);
+  public TimeTrackerGlobalSettings includeDates(final Collection<Long> includeDates) {
+    StringBuilder sb = new StringBuilder();
+    for (Long date : includeDates) {
+      sb.append(date).append(",");
+    }
+    pluginSettingsKeyValues.put(GlobalSettingsKey.INCLUDE_DATES, sb.toString());
     return this;
   }
 
