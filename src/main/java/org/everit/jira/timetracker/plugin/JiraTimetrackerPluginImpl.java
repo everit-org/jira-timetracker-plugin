@@ -18,7 +18,6 @@ package org.everit.jira.timetracker.plugin;
 import java.io.IOException;
 import java.io.Serializable;
 import java.text.DecimalFormat;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -27,7 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -38,11 +36,11 @@ import org.apache.log4j.Logger;
 import org.everit.jira.analytics.AnalyticsSender;
 import org.everit.jira.analytics.event.NoEstimateUsageChangedEvent;
 import org.everit.jira.analytics.event.NonWorkingUsageEvent;
+import org.everit.jira.core.util.TimetrackerUtil;
 import org.everit.jira.core.util.WorklogUtil;
 import org.everit.jira.reporting.plugin.dto.MissingsWorklogsDTO;
 import org.everit.jira.settings.TimetrackerSettingsHelper;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
-import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
@@ -54,7 +52,6 @@ import org.springframework.beans.factory.InitializingBean;
 
 import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
 import com.atlassian.jira.component.ComponentAccessor;
-import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.mail.Email;
@@ -69,8 +66,6 @@ import com.atlassian.mail.queue.SingleMailQueueItem;
  */
 public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, InitializingBean,
     DisposableBean, Serializable {
-
-  private static final int DATE_LENGTH = 7;
 
   private static final int DEFAULT_CHECK_TIME_IN_MINUTES = 1200;
 
@@ -106,8 +101,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   public static final int TWENTY_MINUTES = 20;
 
   public static final String UNKNOW_USER_NAME = "UNKNOW_USER_NAME";
-
-  // private static final String WORKLOG_CREATE_FAIL = "plugin.worklog.create.fail";
 
   private AnalyticsSender analyticsSender;
 
@@ -174,66 +167,10 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     return initialDelay;
   }
 
-  private int countDaysInDateSet(final List<String> weekDaysAsString, final Set<String> dateSet) {
-    int counter = 0;
-    for (String weekDay : weekDaysAsString) {
-      if (dateSet.contains(weekDay)) {
-        counter++;
-      }
-    }
-    return counter;
-  }
-
-  @Override
-  public double countRealWorkDaysInWeek(final List<String> weekDaysAsString,
-      final Set<String> excludeDatesSet, final Set<String> includeDatesSet) {
-    int exludeDates = countDaysInDateSet(weekDaysAsString, excludeDatesSet);
-    int includeDates = countDaysInDateSet(weekDaysAsString, includeDatesSet);
-    return (timeTrackingConfiguration.getDaysPerWeek().doubleValue() - exludeDates) + includeDates;
-  }
-
   @Override
   public void destroy() throws Exception {
     scheduledExecutorService.shutdown();
     issueEstimatedTimeCheckerFuture.cancel(true);
-  }
-
-  @Override
-  public Date firstMissingWorklogsDate(final Set<String> excludeDatesSet,
-      final Set<String> includeDatesSet) throws GenericEntityException {
-    Calendar scannedDate = Calendar.getInstance();
-    // one week
-    scannedDate.set(Calendar.DAY_OF_YEAR,
-        scannedDate.get(Calendar.DAY_OF_YEAR) - DateTimeConverterUtil.DAYS_PER_WEEK);
-    for (int i = 0; i < DateTimeConverterUtil.DAYS_PER_WEEK; i++) {
-      // convert date to String
-      Date scanedDateDate = scannedDate.getTime();
-      String scanedDateString = DateTimeConverterUtil.dateToFixFormatString(scanedDateDate);
-      // check excludse - pass
-      if (excludeDatesSet.contains(scanedDateString)) {
-        scannedDate.set(Calendar.DAY_OF_YEAR, scannedDate.get(Calendar.DAY_OF_YEAR) + 1);
-        continue;
-      }
-      // check includes - not check weekend
-      // check weekend - pass
-      if (!includeDatesSet.contains(scanedDateString)
-          && ((scannedDate.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY)
-              || (scannedDate.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY))) {
-        scannedDate.set(Calendar.DAY_OF_YEAR,
-            scannedDate.get(Calendar.DAY_OF_YEAR) + 1);
-        continue;
-      }
-      // check worklog. if no worklog set result else ++ scanedDate
-      boolean isDateContainsWorklog = isContainsWorklog(scanedDateDate);
-      if (!isDateContainsWorklog) {
-        return scanedDateDate;
-      } else {
-        scannedDate.set(Calendar.DAY_OF_YEAR,
-            scannedDate.get(Calendar.DAY_OF_YEAR) + 1);
-      }
-    }
-    // if we find everything all right then return with the current date
-    return scannedDate.getTime();
   }
 
   @Override
@@ -278,7 +215,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
                   decimalFormat.format(missingsTime)));
         }
       } else {
-        if (!isContainsWorklog(fromDate.getTime())) {
+        if (!TimetrackerUtil.isContainsWorklog(fromDate.getTime())) {
           datesWhereNoWorklog.add(new MissingsWorklogsDTO((Date) fromDate.getTime().clone(),
               decimalFormat.format(timeTrackingConfiguration.getHoursPerDay().doubleValue())));
         }
@@ -291,71 +228,11 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     return datesWhereNoWorklog;
   }
 
-  @Override
-  public List<String> getExcludeDaysOfTheMonth(final Date date, final Set<String> excludeDatesSet) {
-    return getExtraDaysOfTheMonth(date, excludeDatesSet);
-  }
-
-  private List<String> getExtraDaysOfTheMonth(final Date date, final Set<String> dates) {
-    String fixDate = DateTimeConverterUtil.dateToFixFormatString(date);
-    List<String> resultExtraDays = new ArrayList<>();
-    for (String extraDate : dates) {
-      // TODO this if not handle the 2013-4-04 date..... this is wrong or
-      // not? .... think about it.
-      if (extraDate.startsWith(fixDate.substring(0, DATE_LENGTH))) {
-        resultExtraDays.add(extraDate.substring(extraDate.length() - 2));
-      }
-    }
-    return resultExtraDays;
-  }
-
   private String getFromMail() {
     if (ComponentAccessor.getMailServerManager().isDefaultSMTPMailServerDefined()) {
       return ComponentAccessor.getMailServerManager().getDefaultSMTPMailServer().getDefaultFrom();
     }
     return null;
-  }
-
-  @Override
-  public List<String> getIncludeDaysOfTheMonth(final Date date, final Set<String> includeDatesSet) {
-    return getExtraDaysOfTheMonth(date, includeDatesSet);
-  }
-
-  @Override
-  public List<Issue> getIssues() throws GenericEntityException {
-    // List<GenericValue> issuesGV = null;
-    // issuesGV = ComponentAccessor.getOfBizDelegator().findAll("Issue");
-    List<Issue> issues = new ArrayList<>();
-    // for (GenericValue issueGV : issuesGV) {
-    // issues.add(IssueImpl.getIssueObject(issueGV));
-    // }
-    return issues;
-  }
-
-  @Override
-  public List<String> getLoggedDaysOfTheMonth(final Date date)
-      throws GenericEntityException {
-    List<String> resultDays = new ArrayList<>();
-    int dayOfMonth = 1;
-    Calendar startCalendar = Calendar.getInstance();
-    startCalendar.setTime(date);
-    startCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-    Date start = startCalendar.getTime();
-
-    while (dayOfMonth <= DateTimeConverterUtil.LAST_DAY_OF_MONTH) {
-      if (isContainsWorklog(start)) {
-        resultDays.add(Integer.toString(dayOfMonth));
-      }
-      startCalendar.set(Calendar.DAY_OF_MONTH, ++dayOfMonth);
-      start = startCalendar.getTime();
-    }
-
-    return resultDays;
-  }
-
-  @Override
-  public String getPiwikPorperty(final String key) {
-    return piwikPorpeties.get(key);
   }
 
   @Override
@@ -410,56 +287,6 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     }
     double missingsTime = expectedTimeSpent - timeSpent;
     return missingsTime;
-  }
-
-  /**
-   * Check the given date, the user have worklogs or not.
-   *
-   * @param date
-   *          The date what have to check.
-   * @return If The user have worklogs the given date then true, esle false.
-   * @throws GenericEntityException
-   *           GenericEntity Exception.
-   */
-  private boolean isContainsWorklog(final Date date)
-      throws GenericEntityException {
-    JiraAuthenticationContext authenticationContext = ComponentAccessor
-        .getJiraAuthenticationContext();
-    ApplicationUser user = authenticationContext.getUser();
-
-    Calendar startDate = DateTimeConverterUtil.setDateToDayStart(date);
-    Calendar endDate = (Calendar) startDate.clone();
-    endDate.add(Calendar.DAY_OF_MONTH, 1);
-
-    List<EntityCondition> exprList =
-        WorklogUtil.createWorklogQueryExprListWithPermissionCheck(user, startDate,
-            endDate);
-
-    List<GenericValue> worklogGVList =
-        ComponentAccessor.getOfBizDelegator().findByAnd("IssueWorklogView", exprList);
-
-    return !((worklogGVList == null) || worklogGVList.isEmpty());
-  }
-
-  @Override
-  public String lastEndTime(final List<EveritWorklog> worklogs)
-      throws ParseException {
-    if ((worklogs == null) || (worklogs.size() == 0)) {
-      return "08:00";
-    }
-    String endTime = worklogs.get(0).getEndTime();
-    for (int i = 1; i < worklogs.size(); i++) {
-      Date first = DateTimeConverterUtil.stringTimeToDateTime(worklogs
-          .get(i - 1).getEndTime());
-      Date second = DateTimeConverterUtil.stringTimeToDateTime(worklogs
-          .get(i).getEndTime());
-      if (first.compareTo(second) == 1) {
-        endTime = worklogs.get(i - 1).getEndTime();
-      } else {
-        endTime = worklogs.get(i).getEndTime();
-      }
-    }
-    return endTime;
   }
 
   private void loadJttpBuildProperties() {

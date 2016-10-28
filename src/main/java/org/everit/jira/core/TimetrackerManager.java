@@ -1,0 +1,82 @@
+package org.everit.jira.core;
+
+import java.text.ParseException;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+
+import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
+import org.ofbiz.core.entity.GenericEntityException;
+
+public interface TimetrackerManager {
+
+  /**
+   * Count the real work days in a week.
+   *
+   * @param weekDaysAsString
+   *          the days of the week in yyyy-hh-mm format.
+   *
+   * @return the counted real work days number.
+   */
+  double countRealWorkDaysInWeek(final List<String> weekDaysAsString,
+      final Set<String> exludeDates, final Set<String> includeDates);
+
+  /**
+   * Give back the date of the first day where missing worklogs. Use the properties files includes
+   * and excludes date settings.
+   *
+   * @param exludeDates
+   *          the excluded dates.
+   * @param includeDates
+   *          the included dates.
+   *
+   * @return The Date representation of the day.
+   * @throws GenericEntityException
+   *           GenericEntityException
+   */
+  Date firstMissingWorklogsDate(Set<String> exludeDates, Set<String> includeDates)
+      throws GenericEntityException;
+
+  /**
+   * The method find the exclude dates of the given date month.
+   *
+   * @param date
+   *          The date.
+   * @param exludeDates
+   *          the excluded dates.
+   * @return The list of the days in String format. (Eg. ["12","15"])
+   */
+  List<String> getExcludeDaysOfTheMonth(Date date, Set<String> exludeDates);
+
+  /**
+   * The method find the include dates of the given date month.
+   *
+   * @param date
+   *          The date.
+   * @param exludeDates
+   *          the excluded dates.
+   * @return The list of the days in String format. (Eg. ["12","15"])
+   */
+  List<String> getIncludeDaysOfTheMonth(Date date, Set<String> includeDates);
+
+  /**
+   * The method find the logged days of the given date month.
+   *
+   * @param date
+   *          The date.
+   * @return The list of the days in String format. (Eg. ["12","15"])
+   */
+  List<String> getLoggedDaysOfTheMonth(Date date)
+      throws GenericEntityException;
+
+  /**
+   * Give back the biggest end time of the date after worklogs method. Or give back 08:00.
+   *
+   * @param worklogs
+   *          The worklogs.
+   * @return The last end time.
+   * @throws ParseException
+   *           When can't parse the worklog date.
+   */
+  String lastEndTime(List<EveritWorklog> worklogs) throws ParseException;
+}

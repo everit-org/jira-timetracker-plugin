@@ -15,49 +15,18 @@
  */
 package org.everit.jira.timetracker.plugin;
 
-import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.everit.jira.reporting.plugin.dto.MissingsWorklogsDTO;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
-import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.ofbiz.core.entity.GenericEntityException;
-
-import com.atlassian.jira.issue.Issue;
 
 /**
  * The JiraTimetrackerPlugin interface.
  */
 public interface JiraTimetrackerPlugin {
-  /**
-   * Count the real work days in a week.
-   *
-   * @param weekDaysAsString
-   *          the days of the week in yyyy-hh-mm format.
-   *
-   * @return the counted real work days number.
-   */
-  double countRealWorkDaysInWeek(final List<String> weekDaysAsString,
-      final Set<String> exludeDates, final Set<String> includeDates);
-
-  /**
-   * Give back the date of the first day where missing worklogs. Use the properties files includes
-   * and excludes date settings.
-   *
-   * @param exludeDates
-   *          the excluded dates.
-   * @param includeDates
-   *          the included dates.
-   *
-   * @return The Date representation of the day.
-   * @throws GenericEntityException
-   *           GenericEntityException
-   */
-  Date firstMissingWorklogsDate(Set<String> exludeDates, Set<String> includeDates)
-      throws GenericEntityException;
 
   /**
    * Create a query and give back the list of dates where are no worklogs. The query examine the
@@ -84,72 +53,11 @@ public interface JiraTimetrackerPlugin {
       boolean nonWorking, TimeTrackerGlobalSettings settings) throws GenericEntityException;
 
   /**
-   * The method find the exclude dates of the given date month.
-   *
-   * @param date
-   *          The date.
-   * @param exludeDates
-   *          the excluded dates.
-   * @return The list of the days in String format. (Eg. ["12","15"])
-   */
-  List<String> getExcludeDaysOfTheMonth(Date date, Set<String> exludeDates);
-
-  /**
-   * The method find the include dates of the given date month.
-   *
-   * @param date
-   *          The date.
-   * @param exludeDates
-   *          the excluded dates.
-   * @return The list of the days in String format. (Eg. ["12","15"])
-   */
-  List<String> getIncludeDaysOfTheMonth(Date date, Set<String> includeDates);
-
-  /**
-   * Give back the Issues.
-   *
-   * @return Whit the Issues.
-   * @throws GenericEntityException
-   *           GenericEntityException.
-   */
-  List<Issue> getIssues() throws GenericEntityException;
-
-  /**
-   * The method find the logged days of the given date month.
-   *
-   * @param date
-   *          The date.
-   * @return The list of the days in String format. (Eg. ["12","15"])
-   */
-  List<String> getLoggedDaysOfTheMonth(Date date)
-      throws GenericEntityException;
-
-  /**
-   * Get Piwik build property value by key.
-   *
-   * @param key
-   *          The porperty key.
-   * @return The property value.
-   */
-  String getPiwikPorperty(String key);
-
-  /**
    * Give back the Projects.
    *
    * @return whit Projects.
    */
   List<String> getProjectsId();
-
-  /**
-   * Give back the biggest end time of the date after worklogs method. Or give back 08:00.
-   *
-   * @param worklogs
-   *          The worklogs.
-   * @return The last end time.
-   * @throws ParseException
-   *           When can't parse the worklog date.
-   */
-  String lastEndTime(List<EveritWorklog> worklogs) throws ParseException;
 
   /**
    * Send a email through the Jira to the given FEEDBACK_EMAIL_TO address. The address come form the
