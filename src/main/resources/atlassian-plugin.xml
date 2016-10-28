@@ -105,8 +105,9 @@
     <transformation extension="js">
       <transformer key="jsI18n" />
     </transformation>
-    <resource type="download" name="jttp_feedback.css" location="/css/jttp_feedback.css" />
-    <resource type="download" name="jttp.js" location="/js/jttp.js" />
+    <resource type="download" name="jttp_feedback.css" location="/css/jttp_feedback.css"/>
+    <resource type="download" name="jttp.js" location="/js/jttp.js"/>
+    <resource type="download" name="moment-with-locales.js" location="/js/moment-with-locales.js"/>
     <resource type="download" name="E_logo.png" location="/icons/E_logo.png">
       <param name="content-type" value="image/png" />
     </resource>
