@@ -17,7 +17,6 @@ package org.everit.jira.settings;
 
 import java.text.ParseException;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
@@ -94,10 +93,10 @@ public class SettingsLoadTest {
     timeTrackerSettingsHelperImpl.afterPropertiesSet();
     String includeDatesValues =
         (String) dummyPluginSettings.getGlobalSetting(GlobalSettingsKey.INCLUDE_DATES);
-    Assert.assertEquals("1391468400000,1388876400000,", includeDatesValues);
+    Assert.assertEquals("1391472000000,1388880000000,", includeDatesValues);
     String excludeDatesValues =
         (String) dummyPluginSettings.getGlobalSetting(GlobalSettingsKey.EXCLUDE_DATES);
-    Assert.assertEquals("1391209200000,1388617200000,", excludeDatesValues);
+    Assert.assertEquals("1391212800000,1388620800000,", excludeDatesValues);
     Mockito.verify(settingsFactoryMock, Mockito.times(3)).createGlobalSettings();
     Mockito.verifyNoMoreInteractions(settingsFactoryMock);
   }
@@ -250,22 +249,10 @@ public class SettingsLoadTest {
         new HashSet<>(Arrays.asList(DateTimeConverterUtil.fixFormatStringToDate("2014-01-02"),
             DateTimeConverterUtil.fixFormatStringToDate("2014-01-03"))),
         loadGlobalSettings.getExcludeDates());
-    Set<Date> datesAsSet = loadGlobalSettings.getExcludeDates();
-    Assert.assertEquals(2, datesAsSet.size());
-    Date date1 = DateTimeConverterUtil.fixFormatStringToDate("2014-01-02");
-    Date date2 = DateTimeConverterUtil.fixFormatStringToDate("2014-01-03");
-    Assert.assertTrue(datesAsSet.contains(date1));
-    Assert.assertTrue(datesAsSet.contains(date2));
     Assert.assertEquals(
         new HashSet<>(Arrays.asList(DateTimeConverterUtil.fixFormatStringToDate("2014-01-05"),
             DateTimeConverterUtil.fixFormatStringToDate("2014-01-06"))),
         loadGlobalSettings.getIncludeDates());
-    Set<Date> includeDatesAsSet = loadGlobalSettings.getIncludeDates();
-    Assert.assertEquals(2, includeDatesAsSet.size());
-    date1 = DateTimeConverterUtil.fixFormatStringToDate("2014-01-05");
-    date2 = DateTimeConverterUtil.fixFormatStringToDate("2014-01-06");
-    Assert.assertTrue(includeDatesAsSet.contains(date1));
-    Assert.assertTrue(includeDatesAsSet.contains(date2));
     assertPatterns(new Pattern[] { Pattern.compile("sam-3"), Pattern.compile("sam-4") },
         loadGlobalSettings.getIssuePatterns().toArray(new Pattern[] {}));
     Assert.assertArrayEquals(new String[] { "group-1", "group-2" },

@@ -214,6 +214,7 @@ public final class DateTimeConverterUtil {
   public static Date fixFormatStringToDateWithValidation(final String dateString)
       throws ParseException {
     DateFormat formatterDate = new SimpleDateFormat(FIX_DATE_TIME_FORMAT);
+    formatterDate.setTimeZone(TimeZone.getTimeZone("GMT"));
     Date date = formatterDate.parse(dateString);
     if (!dateString.equals(formatterDate.format(date))) {
       throw new ParseException("Invalid date value:" + dateString, 0);
