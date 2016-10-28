@@ -16,8 +16,8 @@
 window.everit = window.everit || {};
 everit.jttp = everit.jttp || {};
 everit.jttp.admin = everit.jttp.admin || {};
-(function(jttpadmin, jQuery) {
-  
+(function(jttpadmin, jQuery) { 
+	     
   jQuery(document).ready(function() {
     var calFrom = Calendar.setup({
       firstDay : 0,
@@ -63,14 +63,37 @@ everit.jttp.admin = everit.jttp.admin || {};
 	  }
   }
   jttpadmin.beforeSubmit= function (){
+	  jQuery("#error_messageJS").hide();
+	  jQuery("#error_messageJS").empty();
+	  jQuery("#excludedatesHiddenSelect").empty();
+	  jQuery("#includedatesHiddenSelect").empty();
+	  var dates=[];
+	  var errorDates=[];
+	  var error="";
 	  jQuery("#excludeDatesDiv .aui-label.aui-label-closeable").each(function() {
 		  var actId= jQuery( this ).attr('id').substr(1);
+		  dates.push(actId);
 	  jQuery("#excludedatesHiddenSelect").append( '<option value="'+ actId +'" selected></option>' );
 	  });
 	  jQuery("#includeDatesDiv .aui-label.aui-label-closeable").each(function() {
 		  var actId= jQuery( this ).attr('id').substr(1);
+		 if( jQuery.inArray(actId, dates) >-1){
+			 errorDates.push(actId);
+			 error="duplicateDate";
+		 }
 	  jQuery("#includedatesHiddenSelect").append( '<option value="'+ actId +'" selected></option>' );
 	  });
+	  if(error!=""){
+		  jQuery("#error_messageJS").append(jttpadmin.options.duplicateDateMessage);
+		  for(i in errorDates){
+		  jQuery("#error_messageJS").append(' '
+				  + new Date(new Number(errorDates[i])).print(jttpadmin.options.dateFormat));
+		  }
+		  jQuery("#error_messageJS").show();
+		  return false;
+	  }else {
+		  return true;
+	  }
   }
   
   jttpadmin.addExcludeDate= function (element){
@@ -94,6 +117,7 @@ everit.jttp.admin = everit.jttp.admin || {};
 		  jQuery('#'+errorDiv).append('<span>'+ errorMsg +' '+dateValue+' </span>');
 		  return;
 	  }
+	  if(jQuery( "input[id*='man']" ))
 	   var labelToAdd = aui.labels.label({
 	     text: dateValue,
 	     id: diffCar+dateInMilis.getTime(),

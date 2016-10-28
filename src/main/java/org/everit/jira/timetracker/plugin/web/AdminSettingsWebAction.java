@@ -18,6 +18,7 @@ package org.everit.jira.timetracker.plugin.web;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -88,14 +89,14 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
   private String contextPath;
 
   /**
-   * The exclude dates in UNIX long format. Ordered by natural order.
+   * The exclude dates in UNIX long format. Sorted by natural order.
    */
   private Set<Long> excludeDates = new TreeSet<>();
 
   private boolean feedBackSendAviable;
 
   /**
-   * The include dates in UNIX long format. Ordered by natural order.
+   * The include dates in UNIX long format. Sorted by natural order.
    */
   private Set<Long> includeDates = new TreeSet<>();
 
@@ -386,6 +387,12 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
 
     excludeDates = parseDates(excludeDatesValue);
     includeDates = parseDates(includeDatesValue);
+    HashSet<Long> interSect = new HashSet<>(excludeDates);
+    interSect.retainAll(includeDates);
+    if (!interSect.isEmpty()) {
+      message = "plugin.setting.date.exitst.include.exclude";
+      return SUCCESS;
+    }
     if (parseNonEstException) {
       return SUCCESS;
     }

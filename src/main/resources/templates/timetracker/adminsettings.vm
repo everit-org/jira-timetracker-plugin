@@ -34,7 +34,8 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 				dateFormat: "${dateFormat}",
 				excludeDates: ${excludeDates},
 				includeDates: ${includeDates},
-				collectorIssueKey: "$collectorIssueKey"
+				collectorIssueKey: "$collectorIssueKey",
+				duplicateDateMessage: "${i18n.getText("plugin.setting.date.exitst.include.exclude")}"
 			}
 		);
 	})(everit.jttp.admin, AJS.$);
@@ -56,14 +57,14 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
       </div>
     </div>
   </header>
-  <form name="adminSettingForm"  method="post" action="JiraTimetrackerAdminSettingsWebAction!default.jspa" class="aui rightMargin"  onsubmit="return everit.jttp.admin.beforeSubmit()">
+  <form name="adminSettingForm"  method="post" action="JiraTimetrackerAdminSettingsWebAction!default.jspa" class="aui rightMargin"  onsubmit=" return everit.jttp.admin.beforeSubmit();">
   <input hidden="hidden" name="action" value="doExecute"/>
     #if(!$message.isEmpty())
     <div id="error_message" class="aui-message aui-message-error">
-      $i18n.getText($message)
+      $i18n.getText($message) 
     </div>
     #end
-    
+    <div id="error_messageJS" class="aui-message aui-message-error" style="display:none" ></div>
     <div class="field-group">
       <label for="issueSelect_collector">$i18n.getText("plugin.setting.nonestimated.issues")</label>
       <div style="padding-top: 5px;">
