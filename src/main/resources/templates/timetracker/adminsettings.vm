@@ -20,7 +20,14 @@
 <body>
 $webResourceManager.requireResource("jira.webresources:calendar")
 $webResourceManager.requireResource("jira.webresources:calendar-en")
-  $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.plugin.admin-settings-resources")
+$webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.plugin.admin-settings-resources")
+
+#if($currentCalendar.useISO8601 == true)
+        #set ($firstDay = 1)
+    #else
+        #set ($firstDay = 0)
+    #end
+    
 <script type="text/javascript">
   window.everit = window.everit || {};
   everit.jttp = everit.jttp || {};
@@ -30,7 +37,8 @@ $webResourceManager.requireResource("jira.webresources:calendar-en")
 		jttp.options = jQuery.extend( 
 			{},
 			jttp.options,
-			{
+			{   
+				firstDay : ${firstDay},
 				dateFormat: "${dateFormat}",
 				excludeDates: ${excludeDates},
 				includeDates: ${includeDates},
