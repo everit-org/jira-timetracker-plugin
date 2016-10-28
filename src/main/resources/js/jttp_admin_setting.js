@@ -16,6 +16,7 @@
 window.everit = window.everit || {};
 everit.jttp = everit.jttp || {};
 everit.jttp.admin = everit.jttp.admin || {};
+
 (function(jttpadmin, jQuery) { 
 	     
   jQuery(document).ready(function() {
@@ -113,18 +114,17 @@ everit.jttp.admin = everit.jttp.admin || {};
 	  }
 	  jQuery('#'+errorDiv +' span').remove();
 	  var dateInMilis=Date.parseDate(dateValue, jttpadmin.options.dateFormat);
-	  if(jQuery('#' +targetDivId +' #'+diffCar+dateInMilis.getTime()).length >0){
+	  if(jQuery('#' +targetDivId +' #'+diffCar+jttpadmin.getTimeWithoutTimezone(dateInMilis).length >0)){
 		  jQuery('#'+errorDiv).append('<span>'+ errorMsg +' '+dateValue+' </span>');
 		  return;
 	  }
-	  if(jQuery( "input[id*='man']" ))
 	   var labelToAdd = aui.labels.label({
 	     text: dateValue,
-	     id: diffCar+dateInMilis.getTime(),
+	     id: diffCar+jttpadmin.getTimeWithoutTimezone(dateInMilis),
 	     isCloseable: true
 	   });
 	  jQuery('#' +targetDivId).append(labelToAdd);
-	  jQuery('#' +targetDivId +' #'+diffCar+dateInMilis.getTime() 
+	  jQuery('#' +targetDivId +' #'+diffCar+jttpadmin.getTimeWithoutTimezone(dateInMilis) 
 			  + ' .aui-icon.aui-icon-close').click(function() {
 	  		jQuery( this ).parent().remove();
 	  	});
@@ -137,4 +137,7 @@ everit.jttp.admin = everit.jttp.admin || {};
 	  jQuery( "#issueSelect_collector_container").hide();
    }
  }
+    jttpadmin.getTimeWithoutTimezone= function(date){
+	  return date.getTime()-(date.getTimezoneOffset()*60000);
+}
 })(everit.jttp.admin, jQuery);
