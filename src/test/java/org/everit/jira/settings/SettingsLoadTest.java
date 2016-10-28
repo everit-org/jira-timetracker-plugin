@@ -219,9 +219,9 @@ public class SettingsLoadTest {
     // initialize the settings
     dummyPluginSettings.putGlobalSetting(GlobalSettingsKey.ANALYTICS_CHECK_CHANGE, "true");
     dummyPluginSettings.putGlobalSetting(GlobalSettingsKey.EXCLUDE_DATES,
-        "1388617200000,1388703600000,");
+        "1388620800000,1388707200000,");
     dummyPluginSettings.putGlobalSetting(GlobalSettingsKey.INCLUDE_DATES,
-        "1388876400000,1388962800000,");
+        "1388880000000,1388966400000,");
     dummyPluginSettings.putGlobalSetting(GlobalSettingsKey.NON_ESTIMATED_ISSUES,
         Arrays.asList("sam-3", "sam-4"));
     dummyPluginSettings.putGlobalSetting(GlobalSettingsKey.PLUGIN_PERMISSION,
@@ -346,9 +346,9 @@ public class SettingsLoadTest {
     Assert.assertEquals(10, settingsMap.size());
     Assert.assertEquals("false",
         dummyPluginSettings.getGlobalSetting(GlobalSettingsKey.ANALYTICS_CHECK_CHANGE));
-    Assert.assertEquals("1420066800000,",
+    Assert.assertEquals("1420070400000,",
         dummyPluginSettings.getGlobalSetting(GlobalSettingsKey.EXCLUDE_DATES));
-    Assert.assertEquals("1420498800000,",
+    Assert.assertEquals("1420502400000,",
         dummyPluginSettings.getGlobalSetting(GlobalSettingsKey.INCLUDE_DATES));
     // TODO Continue here
   }

@@ -198,6 +198,7 @@ public final class DateTimeConverterUtil {
    */
   public static Date fixFormatStringToDate(final String dateString) throws ParseException {
     DateFormat formatterDate = new SimpleDateFormat(FIX_DATE_TIME_FORMAT);
+    formatterDate.setTimeZone(TimeZone.getTimeZone(TIME_ZONE_GMT));
     Date date = formatterDate.parse(dateString);
     return date;
   }
@@ -214,7 +215,7 @@ public final class DateTimeConverterUtil {
   public static Date fixFormatStringToDateWithValidation(final String dateString)
       throws ParseException {
     DateFormat formatterDate = new SimpleDateFormat(FIX_DATE_TIME_FORMAT);
-    formatterDate.setTimeZone(TimeZone.getTimeZone("GMT"));
+    formatterDate.setTimeZone(TimeZone.getTimeZone(TIME_ZONE_GMT));
     Date date = formatterDate.parse(dateString);
     if (!dateString.equals(formatterDate.format(date))) {
       throw new ParseException("Invalid date value:" + dateString, 0);
