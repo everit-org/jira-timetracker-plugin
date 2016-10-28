@@ -287,8 +287,8 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     for (Pattern issuePattern : collectorIssuePatterns) {
       collectorIssueKey += issuePattern.toString() + " ";
     }
-    excludeDates = loadGlobalSettings.getExcludeDatesAsLongSet();
-    includeDates = loadGlobalSettings.getIncludeDatesAsLongList();
+    excludeDates = loadGlobalSettings.getExcludeDatesAsLong();
+    includeDates = loadGlobalSettings.getIncludeDatesAsLong();
     analyticsCheck = loadGlobalSettings.getAnalyticsCheck();
   }
 

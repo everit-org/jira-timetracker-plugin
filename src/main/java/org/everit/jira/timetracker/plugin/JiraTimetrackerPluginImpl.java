@@ -518,8 +518,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     fromDate.setTime(from);
     Calendar toDate = Calendar.getInstance();
     toDate.setTime(to);
-    Set<Date> excludeDatesAsSet = settings.getExcludeDatesAsDateSet();
-    Set<Date> includeDatesAsSet = settings.getIncludeDatesAsSet();
+    Set<Date> excludeDatesAsSet = settings.getExcludeDates();
+    Set<Date> includeDatesAsSet = settings.getIncludeDates();
     while (!fromDate.after(toDate)) {
       if (containsSetTheSameDay(excludeDatesAsSet, fromDate)) {
         fromDate.add(Calendar.DATE, 1);

@@ -145,10 +145,10 @@ public class SettingsLoadTest {
     Mockito.verifyNoMoreInteractions(settingsFactoryMock);
     Assert.assertEquals(1, dummyPluginSettings.getMap().size());
     Assert.assertEquals(true, loadGlobalSettings.getAnalyticsCheck());
-    Assert.assertEquals(0, loadGlobalSettings.getExcludeDatesAsLongSet().size());
-    Assert.assertEquals(true, loadGlobalSettings.getExcludeDatesAsDateSet().isEmpty());
-    Assert.assertEquals(0, loadGlobalSettings.getIncludeDatesAsLongList().size());
-    Assert.assertEquals(true, loadGlobalSettings.getIncludeDatesAsSet().isEmpty());
+    Assert.assertEquals(0, loadGlobalSettings.getExcludeDatesAsLong().size());
+    Assert.assertEquals(true, loadGlobalSettings.getExcludeDates().isEmpty());
+    Assert.assertEquals(0, loadGlobalSettings.getIncludeDatesAsLong().size());
+    Assert.assertEquals(true, loadGlobalSettings.getIncludeDates().isEmpty());
     Assert.assertEquals(true, loadGlobalSettings.getIssuePatterns().isEmpty());
     Assert.assertEquals(null, loadGlobalSettings.getLastUpdate());
     Assert.assertEquals(true, loadGlobalSettings.getNonWorkingIssuePatterns().isEmpty());
@@ -249,8 +249,8 @@ public class SettingsLoadTest {
     Assert.assertEquals(
         new HashSet<>(Arrays.asList(DateTimeConverterUtil.fixFormatStringToDate("2014-01-02"),
             DateTimeConverterUtil.fixFormatStringToDate("2014-01-03"))),
-        loadGlobalSettings.getExcludeDatesAsDateSet());
-    Set<Date> datesAsSet = loadGlobalSettings.getExcludeDatesAsDateSet();
+        loadGlobalSettings.getExcludeDates());
+    Set<Date> datesAsSet = loadGlobalSettings.getExcludeDates();
     Assert.assertEquals(2, datesAsSet.size());
     Date date1 = DateTimeConverterUtil.fixFormatStringToDate("2014-01-02");
     Date date2 = DateTimeConverterUtil.fixFormatStringToDate("2014-01-03");
@@ -259,8 +259,8 @@ public class SettingsLoadTest {
     Assert.assertEquals(
         new HashSet<>(Arrays.asList(DateTimeConverterUtil.fixFormatStringToDate("2014-01-05"),
             DateTimeConverterUtil.fixFormatStringToDate("2014-01-06"))),
-        loadGlobalSettings.getIncludeDatesAsSet());
-    Set<Date> includeDatesAsSet = loadGlobalSettings.getIncludeDatesAsSet();
+        loadGlobalSettings.getIncludeDates());
+    Set<Date> includeDatesAsSet = loadGlobalSettings.getIncludeDates();
     Assert.assertEquals(2, includeDatesAsSet.size());
     date1 = DateTimeConverterUtil.fixFormatStringToDate("2014-01-05");
     date2 = DateTimeConverterUtil.fixFormatStringToDate("2014-01-06");

@@ -89,7 +89,7 @@ public class TimeTrackerGlobalSettings {
   /**
    * Get the exclude dates as Set. Faster solution for check element exists or not in the set.
    */
-  public Set<Date> getExcludeDatesAsDateSet() {
+  public Set<Date> getExcludeDates() {
     String excludeDatesString =
         (String) pluginSettingsKeyValues.get(GlobalSettingsKey.EXCLUDE_DATES);
     Set<Date> excludeDatesSet = new HashSet<>();
@@ -103,9 +103,9 @@ public class TimeTrackerGlobalSettings {
   }
 
   /**
-   * Get the saved exclude dates as UNIX long format. The dates returned in order.
+   * Get the saved exclude dates as UNIX long format. The dates returned in natural order.
    */
-  public SortedSet<Long> getExcludeDatesAsLongSet() {
+  public SortedSet<Long> getExcludeDatesAsLong() {
     String excludeDatesString =
         (String) pluginSettingsKeyValues.get(GlobalSettingsKey.EXCLUDE_DATES);
     SortedSet<Long> excludeDatesSet = new TreeSet<>();
@@ -119,25 +119,9 @@ public class TimeTrackerGlobalSettings {
   }
 
   /**
-   * Get the saved include dates as UNIX long format. The dates returned in order.
+   * Get include dates as Set. The dates not sorted.
    */
-  public Set<Long> getIncludeDatesAsLongList() {
-    String tempSpecialDates =
-        (String) pluginSettingsKeyValues.get(GlobalSettingsKey.INCLUDE_DATES);
-    Set<Long> includeDates = new TreeSet<>();
-    if ((tempSpecialDates == null) || tempSpecialDates.isEmpty()) {
-      return includeDates;
-    }
-    for (String includeDate : tempSpecialDates.split(",")) {
-      includeDates.add(Long.parseLong(includeDate));
-    }
-    return includeDates;
-  }
-
-  /**
-   * Get include dates as Set.
-   */
-  public Set<Date> getIncludeDatesAsSet() {
+  public Set<Date> getIncludeDates() {
     String tempSpecialDates =
         (String) pluginSettingsKeyValues.get(GlobalSettingsKey.INCLUDE_DATES);
     Set<Date> includeDatesSet = new HashSet<>();
@@ -148,6 +132,22 @@ public class TimeTrackerGlobalSettings {
       includeDatesSet.add(new Date(Long.parseLong(includeDate)));
     }
     return includeDatesSet;
+  }
+
+  /**
+   * Get the saved include dates as UNIX long format. The dates returned in natural order.
+   */
+  public Set<Long> getIncludeDatesAsLong() {
+    String tempSpecialDates =
+        (String) pluginSettingsKeyValues.get(GlobalSettingsKey.INCLUDE_DATES);
+    Set<Long> includeDates = new TreeSet<>();
+    if ((tempSpecialDates == null) || tempSpecialDates.isEmpty()) {
+      return includeDates;
+    }
+    for (String includeDate : tempSpecialDates.split(",")) {
+      includeDates.add(Long.parseLong(includeDate));
+    }
+    return includeDates;
   }
 
   /**

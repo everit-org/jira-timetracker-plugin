@@ -1175,8 +1175,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     isRounded = userSettings.getIsRounded();
     isShowFutureLogWarning = userSettings.getIsShowFutureLogWarning();
     isShowIssueSummary = userSettings.getIsShowIssueSummary();
-    excludeDatesAsSet = globalSettings.getExcludeDatesAsDateSet();
-    includeDatesAsSet = globalSettings.getIncludeDatesAsSet();
+    excludeDatesAsSet = globalSettings.getExcludeDates();
+    includeDatesAsSet = globalSettings.getIncludeDates();
   }
 
   /**
