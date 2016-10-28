@@ -187,8 +187,8 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.popu
                     <label for="startTime">$i18n.getText("plugin.start.time")<span class="aui-icon icon-required">(required)</span></label>
                     <input id="startTime" class="text short-field"
                       value="$startTime" onkeypress="everit.jttp.main.handleEnterKey(event, '#endTime');"
-                      name="startTime" maxlength="5" tabindex="2"
-                      pattern="^([01][0-9]|2[0-3]):[0-5][0-9]$" title="hh:mm"
+                      name="startTime" tabindex="2"
+                      data-jttp-timeformat="$timeFormatPattern"
                       onblur="everit.jttp.main.selectCalculationType();"
                       list="time-options" autocomplete="off">
                     <input id="startNow" name="startNow" class="button" type="button" value="$i18n.getText('plugin.now')"
@@ -199,10 +199,10 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.popu
                     <input id="radioEnd" type="radio" name="endOrDuration" value="end" checked="true" style="display: none;"> 
                     <span class="time-input-span">
                       <input id="endTime" class="text short-field"
-                        name="endTime" maxlength="5" tabindex="3"
+                        name="endTime" tabindex="3"
+                        data-jttp-timeformat="$timeFormatPattern"
                         value="$endTime" onkeypress="everit.jttp.main.handleEnterKey(event, '#issueSelect-textarea');"
                         onclick="everit.jttp.main.endTimeInputClick();"
-                        pattern="^([01][0-9]|2[0-3]):[0-5][0-9]$" title="empty or hh:mm" 
                         onblur="everit.jttp.main.calculateDuration();"
                         list="time-options" autocomplete="off">
                       <div id="endTimeInput" class="time-input-div" onclick="everit.jttp.main.endTimeInputClick();"></div>

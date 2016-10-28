@@ -17,12 +17,15 @@ package org.everit.jira.timetracker.plugin.dto;
 
 import java.math.BigDecimal;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.easymock.EasyMock;
 import org.everit.jira.timetracker.plugin.DurationBuilder;
@@ -36,8 +39,12 @@ import org.mockito.Mockito;
 import org.ofbiz.core.entity.GenericValue;
 import org.ofbiz.core.entity.model.ModelEntity;
 
+import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
 import com.atlassian.jira.config.properties.ApplicationProperties;
+import com.atlassian.jira.datetime.DateTimeFormatter;
+import com.atlassian.jira.datetime.DateTimeFormatterFactory;
+import com.atlassian.jira.datetime.DateTimeStyle;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.mock.component.MockComponentWorker;
@@ -49,6 +56,87 @@ import com.atlassian.jira.util.I18nHelper.BeanFactory;
 
 @RunWith(Parameterized.class)
 public class EveritWorklogTest {
+
+  static class DummyDateTimeFromatter implements DateTimeFormatter {
+
+    @Override
+    public DateTimeFormatter forLoggedInUser() {
+      return this;
+    }
+
+    @Override
+    public String format(final Date arg0) {
+      SimpleDateFormat sdf = new SimpleDateFormat(getFormatHint());
+      return sdf.format(arg0);
+    }
+
+    @Override
+    public DateTimeFormatter forUser(final User arg0) {
+      return this;
+    }
+
+    @Override
+    public String getFormatHint() {
+      return "HH:mm";
+    }
+
+    @Override
+    public Locale getLocale() {
+      return Locale.ENGLISH;
+    }
+
+    @Override
+    public DateTimeStyle getStyle() {
+      return DateTimeStyle.TIME;
+    }
+
+    @Override
+    public TimeZone getZone() {
+      return TimeZone.getDefault();
+    }
+
+    @Override
+    public Date parse(final String arg0)
+        throws IllegalArgumentException, UnsupportedOperationException {
+      SimpleDateFormat sdf = new SimpleDateFormat(getFormatHint());
+      try {
+        return sdf.parse(arg0);
+      } catch (ParseException e) {
+        throw new UnsupportedOperationException();
+      }
+    }
+
+    @Override
+    public DateTimeFormatter withDefaultLocale() {
+      return this;
+    }
+
+    @Override
+    public DateTimeFormatter withDefaultZone() {
+      return this;
+    }
+
+    @Override
+    public DateTimeFormatter withLocale(final Locale arg0) {
+      return this;
+    }
+
+    @Override
+    public DateTimeFormatter withStyle(final DateTimeStyle arg0) {
+      return this;
+    }
+
+    @Override
+    public DateTimeFormatter withSystemZone() {
+      return this;
+    }
+
+    @Override
+    public DateTimeFormatter withZone(final TimeZone arg0) {
+      return this;
+    }
+
+  }
 
   static class DummyGenericValue extends GenericValue {
     private static final long serialVersionUID = 3415063923321743460L;
@@ -147,6 +235,12 @@ public class EveritWorklogTest {
         .thenReturn(new Locale("en", "US"));
     Mockito.when(mockJiraAuthenticationContext.getUser()).thenReturn(null);
     mockComponentWorker.addMock(JiraAuthenticationContext.class, mockJiraAuthenticationContext);
+
+    DateTimeFormatterFactory mockDateTimeFormatterFactory =
+        Mockito.mock(DateTimeFormatterFactory.class, Mockito.RETURNS_DEEP_STUBS);
+    Mockito.when(mockDateTimeFormatterFactory.formatter())
+        .thenReturn(new DummyDateTimeFromatter());
+    mockComponentWorker.addMock(DateTimeFormatterFactory.class, mockDateTimeFormatterFactory);
 
     BeanFactory mockBeanFactory = Mockito.mock(BeanFactory.class, Mockito.RETURNS_DEEP_STUBS);
     mockComponentWorker.addMock(BeanFactory.class, mockBeanFactory);

@@ -16,12 +16,12 @@
 package org.everit.jira.timetracker.plugin.util;
 
 import java.text.DateFormat;
+import java.text.DateFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -31,6 +31,9 @@ import org.everit.jira.timetracker.plugin.DurationFormatter;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.config.properties.APKeys;
 import com.atlassian.jira.config.properties.ApplicationProperties;
+import com.atlassian.jira.datetime.DateTimeFormatter;
+import com.atlassian.jira.datetime.DateTimeFormatterFactory;
+import com.atlassian.jira.datetime.DateTimeStyle;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 
 /**
@@ -96,16 +99,6 @@ public final class DateTimeConverterUtil {
   public static final int SECONDS_PER_MINUTE = 60;
 
   /**
-   * The time format.
-   */
-  public static final String TIME_FORMAT = "HH:mm";
-
-  /**
-   * The GMT time zone.
-   */
-  public static final String TIME_ZONE_GMT = "GMT";
-
-  /**
    * The 24 hours pattern.
    */
   public static final String TIME24HOURS_PATTERN = "([01]?[0-9]|2[0-3]):[0-5][0-9]";
@@ -123,7 +116,7 @@ public final class DateTimeConverterUtil {
    */
   public static String countEndTime(final String start, final long spentMilliseconds)
       throws ParseException {
-    long startMillisecond = DateTimeConverterUtil.stringTimeToDateTimeGMT(start).getTime();
+    long startMillisecond = DateTimeConverterUtil.stringTimeToDateTime(start).getTime();
     long endMillisecond = startMillisecond + spentMilliseconds;
     return DateTimeConverterUtil.millisecondConvertToStringTime(endMillisecond);
   }
@@ -145,17 +138,15 @@ public final class DateTimeConverterUtil {
   }
 
   /**
-   * Convert the date time to string ({@value #TIME_FORMAT}).
+   * Convert the date time to string ({@link DateTimeStyle#TIME}).
    *
    * @param date
    *          The time to convert.
    * @return The result string.
    */
   public static String dateTimeToString(final Date date) {
-    DateFormat formatterTime =
-        new SimpleDateFormat(TIME_FORMAT, DateTimeConverterUtil.getLoggedUserLocal());
-    String timeString = formatterTime.format(date);
-    return timeString;
+    DateTimeFormatter dateTimeTimeFormatter = DateTimeConverterUtil.getDateTimeTimeFormatter();
+    return dateTimeTimeFormatter.format(date);
   }
 
   /**
@@ -216,6 +207,16 @@ public final class DateTimeConverterUtil {
     return TimeUnit.SECONDS.convert(diffInMillies, TimeUnit.MILLISECONDS);
   }
 
+  private static DateTimeFormatter getDateTimeTimeFormatter() {
+    DateTimeFormatterFactory dateTimeFormatterFactory =
+        ComponentAccessor.getComponent(DateTimeFormatterFactory.class);
+    return dateTimeFormatterFactory
+        .formatter()
+        .forLoggedInUser()
+        .withSystemZone()
+        .withStyle(DateTimeStyle.TIME);
+  }
+
   private static String getJiraDefaultDateAndTimeJavaFormat(final String formatKey) {
     ApplicationProperties applicationProperties =
         ComponentAccessor.getComponent(ApplicationProperties.class);
@@ -247,7 +248,25 @@ public final class DateTimeConverterUtil {
    * @return If valid then true else false.
    */
   public static boolean isValidTime(final String time) {
-    return Pattern.matches(TIME24HOURS_PATTERN, time);
+    boolean match24Format = Pattern.matches(TIME24HOURS_PATTERN, time);
+    StringBuilder sb = new StringBuilder();
+    sb.append("^([01]?[0-9]):[0-5][0-9]( (");
+    Locale locale = DateTimeConverterUtil.getLoggedUserLocal();
+    DateFormatSymbols dateFormatSymbols = new DateFormatSymbols(locale);
+    String[] amPmStrings = dateFormatSymbols.getAmPmStrings();
+    int index = 0;
+    for (String string : amPmStrings) {
+      sb.append(string + "|");
+      sb.append(string.toLowerCase(locale));
+      if (index < (amPmStrings.length - 1)) {
+        sb.append("|");
+      }
+      index++;
+    }
+    sb.append("))$");
+    boolean matchAmPmFormat = Pattern.matches(sb.toString(), time);
+    return match24Format || matchAmPmFormat;
+
   }
 
   /**
@@ -286,13 +305,9 @@ public final class DateTimeConverterUtil {
    * @return The result String.
    */
   public static String millisecondConvertToStringTime(final long milliseconds) {
-    DateFormat formatterTimeGMT =
-        new SimpleDateFormat(TIME_FORMAT, DateTimeConverterUtil.getLoggedUserLocal());
-    formatterTimeGMT.setTimeZone(TimeZone.getTimeZone(TIME_ZONE_GMT));
     Date date = new Date();
     date.setTime(milliseconds);
-    String timeString = formatterTimeGMT.format(date);
-    return timeString;
+    return DateTimeConverterUtil.dateTimeToString(date);
   }
 
   /**
@@ -313,7 +328,7 @@ public final class DateTimeConverterUtil {
   }
 
   /**
-   * Convert String ({@value #TIME_FORMAT}) to Time.
+   * Convert String ({@value DateTimeStyle#TIME}) to Time.
    *
    * @param time
    *          The String time.
@@ -322,27 +337,8 @@ public final class DateTimeConverterUtil {
    *           If can't parse the date.
    */
   public static Date stringTimeToDateTime(final String time) throws ParseException {
-    DateFormat formatterTime =
-        new SimpleDateFormat(TIME_FORMAT, DateTimeConverterUtil.getLoggedUserLocal());
-    Date dateTime = formatterTime.parse(time);
-    return dateTime;
-  }
-
-  /**
-   * Convert String ({@value #TIME_FORMAT}) to ({@value #TIME_ZONE_GMT}) Time.
-   *
-   * @param time
-   *          The Sting date and time.
-   * @return The result Date.
-   * @throws ParseException
-   *           If can't parse the date.
-   */
-  public static Date stringTimeToDateTimeGMT(final String time) throws ParseException {
-    DateFormat formatterTime =
-        new SimpleDateFormat(TIME_FORMAT, DateTimeConverterUtil.getLoggedUserLocal());
-    formatterTime.setTimeZone(TimeZone.getTimeZone(TIME_ZONE_GMT));
-    Date dateTime = formatterTime.parse(time);
-    return dateTime;
+    DateTimeFormatter dateTimeTimeFormatter = DateTimeConverterUtil.getDateTimeTimeFormatter();
+    return dateTimeTimeFormatter.parse(time);
   }
 
   /**
@@ -356,7 +352,7 @@ public final class DateTimeConverterUtil {
    *           If can't parse the date.
    */
   public static String stringTimeToString(final String time) throws ParseException {
-    long seconds = DateTimeConverterUtil.stringTimeToDateTimeGMT(
+    long seconds = DateTimeConverterUtil.stringTimeToDateTime(
         time).getTime() / MILLISEC_IN_SECOND;
     String result = new DurationFormatter().exactDuration(seconds);
     return result;
