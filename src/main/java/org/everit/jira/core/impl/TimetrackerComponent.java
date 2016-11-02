@@ -32,8 +32,6 @@ import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
 
 public class TimetrackerComponent implements TimetrackerManager {
 
-  private static final int DATE_LENGTH = 7;
-
   private TimeTrackingConfiguration timeTrackingConfiguration;
 
   /**
@@ -44,10 +42,10 @@ public class TimetrackerComponent implements TimetrackerManager {
     this.timeTrackingConfiguration = timeTrackingConfiguration;
   }
 
-  private int countDaysInDateSet(final List<String> weekDaysAsString, final Set<String> dateSet) {
+  private int countDaysInDateSet(final List<Date> weekDays, final Set<Date> dateSet) {
     int counter = 0;
-    for (String weekDay : weekDaysAsString) {
-      if (dateSet.contains(weekDay)) {
+    for (Date weekDay : weekDays) {
+      if (TimetrackerUtil.containsSetTheSameDay(dateSet, weekDay)) {
         counter++;
       }
     }
@@ -55,16 +53,16 @@ public class TimetrackerComponent implements TimetrackerManager {
   }
 
   @Override
-  public double countRealWorkDaysInWeek(final List<String> weekDaysAsString,
-      final Set<String> excludeDatesSet, final Set<String> includeDatesSet) {
+  public double countRealWorkDaysInWeek(final List<Date> weekDaysAsString,
+      final Set<Date> excludeDatesSet, final Set<Date> includeDatesSet) {
     int exludeDates = countDaysInDateSet(weekDaysAsString, excludeDatesSet);
     int includeDates = countDaysInDateSet(weekDaysAsString, includeDatesSet);
     return (timeTrackingConfiguration.getDaysPerWeek().doubleValue() - exludeDates) + includeDates;
   }
 
   @Override
-  public Date firstMissingWorklogsDate(final Set<String> excludeDatesSet,
-      final Set<String> includeDatesSet) throws GenericEntityException {
+  public Date firstMissingWorklogsDate(final Set<Date> excludeDatesSet,
+      final Set<Date> includeDatesSet) throws GenericEntityException {
     Calendar scannedDate = Calendar.getInstance();
     // one week
     scannedDate.set(Calendar.DAY_OF_YEAR,
@@ -72,15 +70,14 @@ public class TimetrackerComponent implements TimetrackerManager {
     for (int i = 0; i < DateTimeConverterUtil.DAYS_PER_WEEK; i++) {
       // convert date to String
       Date scanedDateDate = scannedDate.getTime();
-      String scanedDateString = DateTimeConverterUtil.dateToFixFormatString(scanedDateDate);
       // check excludse - pass
-      if (excludeDatesSet.contains(scanedDateString)) {
+      if (excludeDatesSet.contains(scanedDateDate)) {
         scannedDate.set(Calendar.DAY_OF_YEAR, scannedDate.get(Calendar.DAY_OF_YEAR) + 1);
         continue;
       }
       // check includes - not check weekend
       // check weekend - pass
-      if (!includeDatesSet.contains(scanedDateString)
+      if (!includeDatesSet.contains(scanedDateDate)
           && ((scannedDate.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY)
               || (scannedDate.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY))) {
         scannedDate.set(Calendar.DAY_OF_YEAR,
@@ -101,25 +98,28 @@ public class TimetrackerComponent implements TimetrackerManager {
   }
 
   @Override
-  public List<String> getExcludeDaysOfTheMonth(final Date date, final Set<String> excludeDatesSet) {
+  public List<Date> getExcludeDaysOfTheMonth(final Date date, final Set<Date> excludeDatesSet) {
     return getExtraDaysOfTheMonth(date, excludeDatesSet);
   }
 
-  private List<String> getExtraDaysOfTheMonth(final Date date, final Set<String> dates) {
-    String fixDate = DateTimeConverterUtil.dateToFixFormatString(date);
-    List<String> resultExtraDays = new ArrayList<>();
-    for (String extraDate : dates) {
-      // TODO this if not handle the 2013-4-04 date..... this is wrong or
-      // not? .... think about it.
-      if (extraDate.startsWith(fixDate.substring(0, DATE_LENGTH))) {
-        resultExtraDays.add(extraDate.substring(extraDate.length() - 2));
+  private List<Date> getExtraDaysOfTheMonth(final Date dateForMonth, final Set<Date> extraDates) {
+    List<Date> resultExtraDays = new ArrayList<>();
+    Calendar dayInMonth = Calendar.getInstance();
+    dayInMonth.setTime(dateForMonth);
+    for (Date extraDate : extraDates) {
+      Calendar currentExtraDate = Calendar.getInstance();
+      currentExtraDate.setTime(extraDate);
+      if ((currentExtraDate.get(Calendar.ERA) == dayInMonth.get(Calendar.ERA))
+          && (currentExtraDate.get(Calendar.YEAR) == dayInMonth.get(Calendar.YEAR))
+          && (currentExtraDate.get(Calendar.MONTH) == dayInMonth.get(Calendar.MONTH))) {
+        resultExtraDays.add(extraDate);
       }
     }
     return resultExtraDays;
   }
 
   @Override
-  public List<String> getIncludeDaysOfTheMonth(final Date date, final Set<String> includeDatesSet) {
+  public List<Date> getIncludeDaysOfTheMonth(final Date date, final Set<Date> includeDatesSet) {
     return getExtraDaysOfTheMonth(date, includeDatesSet);
   }
 

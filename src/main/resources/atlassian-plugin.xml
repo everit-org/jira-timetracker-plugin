@@ -54,11 +54,6 @@
     <interface>org.everit.jira.core.TimetrackerManager</interface>
   </component>
   
-  <component key="JTTP" name="Timetracker"
-    class="org.everit.jira.timetracker.plugin.JiraTimetrackerPluginImpl">
-    <interface>org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin</interface>
-  </component>
-
   <component key="JTRP" name="Reporting" class="org.everit.jira.reporting.plugin.ReportingPluginImpl">
     <interface>org.everit.jira.reporting.plugin.ReportingPlugin</interface>
   </component>
@@ -193,10 +188,12 @@
   <web-resource name="JTRP Resources" key="admin-settings-resources-${project.version}-${build.time}">
     <context>org.everit.jira.timetracker.plugin.admin-settings-resources</context>
     <dependency>com.atlassian.auiplugin:ajs</dependency>
+    <dependency>com.atlassian.auiplugin:aui-experimental-expander</dependency>
     <resource type="download" name="E_logo.png" location="/icons/E_logo.png">
       <param name="content-type" value="image/png" />
     </resource>
     <resource type="download" name="admin_setting.css" location="/css/admin_settings.css"/>
+    <resource type="download" name="jttp_admin_setting.js" location="/js/jttp_admin_setting.js"/>
   </web-resource>
   
   <web-resource name="JTRP Resources" key="reporting-user-settings-resources-${project.version}-${build.time}">
@@ -294,8 +291,8 @@
         <view name="input">/templates/reporting/table_report.vm</view>
         <view name="error">/templates/common/error.vm</view>
       </action>
-      <action name="org.everit.jira.reporting.plugin.web.ReportingAdminSettingsWebAction"
-        alias="JiraTimetrackerReportingSettingsWebAction">
+      <action name="org.everit.jira.timetracker.plugin.web.PermissionSettingsWebAction"
+        alias="JiraTimetrackerPermissionSettingsWebAction">
         <view name="success">/templates/reporting/reportingadminsettings.vm</view>
         <view name="input">/templates/reporting/reportingadminsettings.vm</view>
         <view name="error">/templates/common/error.vm</view>
@@ -322,8 +319,8 @@
   </web-item>
   <web-item key="jttp__reporting_settings_link" name="Jttp Reporting Settings Link"
     section="admin_plugins_menu/jttp_admin_section" weight="47">
-    <label>Reporting Settings</label>
-    <link linkId="my_jttp__reporting_settings_link"><![CDATA[/secure/admin/JiraTimetrackerReportingSettingsWebAction!default.jspa]]></link>
+    <label>Permission settings</label>
+    <link linkId="my_jttp__reporting_settings_link"><![CDATA[/secure/admin/JiraTimetrackerPermissionSettingsWebAction!default.jspa]]></link>
   </web-item>
 
   <rest key="JTTP-REST" path="/jttp-rest" version="1">

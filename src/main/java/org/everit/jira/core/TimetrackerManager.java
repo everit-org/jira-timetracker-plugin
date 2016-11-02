@@ -33,8 +33,8 @@ public interface TimetrackerManager {
    *
    * @return the counted real work days number.
    */
-  double countRealWorkDaysInWeek(final List<String> weekDaysAsString,
-      final Set<String> exludeDates, final Set<String> includeDates);
+  double countRealWorkDaysInWeek(final List<Date> weekDaysAsString,
+      final Set<Date> exludeDates, final Set<Date> includeDates);
 
   /**
    * Give back the date of the first day where missing worklogs. Use the properties files includes
@@ -49,7 +49,7 @@ public interface TimetrackerManager {
    * @throws GenericEntityException
    *           GenericEntityException
    */
-  Date firstMissingWorklogsDate(Set<String> exludeDates, Set<String> includeDates)
+  Date firstMissingWorklogsDate(Set<Date> exludeDates, Set<Date> includeDates)
       throws GenericEntityException;
 
   /**
@@ -61,7 +61,7 @@ public interface TimetrackerManager {
    *          the excluded dates.
    * @return The list of the days in String format. (Eg. ["12","15"])
    */
-  List<String> getExcludeDaysOfTheMonth(Date date, Set<String> exludeDates);
+  List<Date> getExcludeDaysOfTheMonth(Date date, Set<Date> exludeDates);
 
   /**
    * The method find the include dates of the given date month.
@@ -72,7 +72,7 @@ public interface TimetrackerManager {
    *          the excluded dates.
    * @return The list of the days in String format. (Eg. ["12","15"])
    */
-  List<String> getIncludeDaysOfTheMonth(Date date, Set<String> includeDates);
+  List<Date> getIncludeDaysOfTheMonth(Date date, Set<Date> includeDates);
 
   /**
    * The method find the logged days of the given date month.

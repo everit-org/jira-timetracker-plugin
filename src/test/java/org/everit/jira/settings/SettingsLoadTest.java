@@ -15,6 +15,7 @@
  */
 package org.everit.jira.settings;
 
+import java.text.ParseException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Locale;
@@ -31,6 +32,7 @@ import org.everit.jira.settings.dto.ReportingSettingKey;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
 import org.everit.jira.settings.dto.TimeTrackerUserSettings;
 import org.everit.jira.settings.dto.UserSettingKey;
+import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -78,6 +80,57 @@ public class SettingsLoadTest {
   }
 
   @Test
+  public void testAfterProperties() throws Exception {
+    PluginSettingsFactory settingsFactoryMock = Mockito.mock(PluginSettingsFactory.class);
+    DummyPluginSettings dummyPluginSettings = new DummyPluginSettings();
+    Mockito.when(settingsFactoryMock.createGlobalSettings()).thenReturn(dummyPluginSettings);
+    dummyPluginSettings.putGlobalSetting(GlobalSettingsKey.EXCLUDE_DATES,
+        "2014-02-01, 2014-01-02, 2014-15-02, 2014-asdf-02");
+    dummyPluginSettings.putGlobalSetting(GlobalSettingsKey.INCLUDE_DATES,
+        "2014-02-04, 2014-01-05, ");
+    TimeTrackerSettingsHelperImpl timeTrackerSettingsHelperImpl =
+        new TimeTrackerSettingsHelperImpl(settingsFactoryMock, null);
+    timeTrackerSettingsHelperImpl.afterPropertiesSet();
+    String includeDatesValues =
+        (String) dummyPluginSettings.getGlobalSetting(GlobalSettingsKey.INCLUDE_DATES);
+    Assert.assertEquals("1391472000000,1388880000000,", includeDatesValues);
+    String excludeDatesValues =
+        (String) dummyPluginSettings.getGlobalSetting(GlobalSettingsKey.EXCLUDE_DATES);
+    Assert.assertEquals("1391212800000,1388620800000,", excludeDatesValues);
+    Mockito.verify(settingsFactoryMock, Mockito.times(3)).createGlobalSettings();
+    Mockito.verifyNoMoreInteractions(settingsFactoryMock);
+  }
+
+  @Test
+  public void testAfterPropertiesWithNewValues() throws Exception {
+    PluginSettingsFactory settingsFactoryMock = Mockito.mock(PluginSettingsFactory.class);
+    DummyPluginSettings dummyPluginSettings = new DummyPluginSettings();
+    Mockito.when(settingsFactoryMock.createGlobalSettings()).thenReturn(dummyPluginSettings);
+    dummyPluginSettings.putGlobalSetting(GlobalSettingsKey.EXCLUDE_DATES,
+        "1391209200000,1388617200000,");
+    dummyPluginSettings.putGlobalSetting(GlobalSettingsKey.INCLUDE_DATES,
+        "1391468400000,1388876400000,");
+    TimeTrackerSettingsHelperImpl timeTrackerSettingsHelperImpl =
+        new TimeTrackerSettingsHelperImpl(settingsFactoryMock, null);
+    timeTrackerSettingsHelperImpl.afterPropertiesSet();
+    String includeDatesValues =
+        (String) dummyPluginSettings.getGlobalSetting(GlobalSettingsKey.INCLUDE_DATES);
+    Assert.assertEquals("1391468400000,1388876400000,", includeDatesValues);
+    String excludeDatesValues =
+        (String) dummyPluginSettings.getGlobalSetting(GlobalSettingsKey.EXCLUDE_DATES);
+    Assert.assertEquals("1391209200000,1388617200000,", excludeDatesValues);
+    Mockito.verify(settingsFactoryMock, Mockito.times(3)).createGlobalSettings();
+    Mockito.verifyNoMoreInteractions(settingsFactoryMock);
+  }
+
+  @Test
+  public void testDates() throws ParseException {
+    Assert.assertEquals(1355356800000L,
+        DateTimeConverterUtil.fixFormatStringToDate("2012-12-13").getTime());
+
+  }
+
+  @Test
   public void testDefaultGlobalSetting() {
     PluginSettingsFactory settingsFactoryMock = Mockito.mock(PluginSettingsFactory.class);
     DummyPluginSettings dummyPluginSettings = new DummyPluginSettings();
@@ -91,10 +144,10 @@ public class SettingsLoadTest {
     Mockito.verifyNoMoreInteractions(settingsFactoryMock);
     Assert.assertEquals(1, dummyPluginSettings.getMap().size());
     Assert.assertEquals(true, loadGlobalSettings.getAnalyticsCheck());
-    Assert.assertEquals("", loadGlobalSettings.getExcludeDatesAsString());
-    Assert.assertEquals(true, loadGlobalSettings.getExcludeDatesAsSet().isEmpty());
-    Assert.assertEquals("", loadGlobalSettings.getIncludeDatesAsString());
-    Assert.assertEquals(true, loadGlobalSettings.getIncludeDatesAsSet().isEmpty());
+    Assert.assertEquals(0, loadGlobalSettings.getExcludeDatesAsLong().size());
+    Assert.assertEquals(true, loadGlobalSettings.getExcludeDates().isEmpty());
+    Assert.assertEquals(0, loadGlobalSettings.getIncludeDatesAsLong().size());
+    Assert.assertEquals(true, loadGlobalSettings.getIncludeDates().isEmpty());
     Assert.assertEquals(true, loadGlobalSettings.getIssuePatterns().isEmpty());
     Assert.assertEquals(null, loadGlobalSettings.getLastUpdate());
     Assert.assertEquals(true, loadGlobalSettings.getNonWorkingIssuePatterns().isEmpty());
@@ -160,13 +213,15 @@ public class SettingsLoadTest {
   }
 
   @Test
-  public void testLoadPreConfiguredtGlobalSetting() {
+  public void testLoadPreConfiguredtGlobalSetting() throws ParseException {
     PluginSettingsFactory settingsFactoryMock = Mockito.mock(PluginSettingsFactory.class);
     DummyPluginSettings dummyPluginSettings = new DummyPluginSettings();
     // initialize the settings
     dummyPluginSettings.putGlobalSetting(GlobalSettingsKey.ANALYTICS_CHECK_CHANGE, "true");
-    dummyPluginSettings.putGlobalSetting(GlobalSettingsKey.EXCLUDE_DATES, "2014-01-02,2014-01-03");
-    dummyPluginSettings.putGlobalSetting(GlobalSettingsKey.INCLUDE_DATES, "2014-01-05,2014-01-06");
+    dummyPluginSettings.putGlobalSetting(GlobalSettingsKey.EXCLUDE_DATES,
+        "1388620800000,1388707200000,");
+    dummyPluginSettings.putGlobalSetting(GlobalSettingsKey.INCLUDE_DATES,
+        "1388880000000,1388966400000,");
     dummyPluginSettings.putGlobalSetting(GlobalSettingsKey.NON_ESTIMATED_ISSUES,
         Arrays.asList("sam-3", "sam-4"));
     dummyPluginSettings.putGlobalSetting(GlobalSettingsKey.PLUGIN_PERMISSION,
@@ -190,10 +245,14 @@ public class SettingsLoadTest {
     Mockito.verifyNoMoreInteractions(settingsFactoryMock);
     Assert.assertEquals(10, dummyPluginSettings.getMap().size());
     Assert.assertEquals(true, loadGlobalSettings.getAnalyticsCheck());
-    Assert.assertEquals("2014-01-02,2014-01-03", loadGlobalSettings.getExcludeDatesAsString());
-    Assert.assertEquals(2, loadGlobalSettings.getExcludeDatesAsSet().size());// TODO check parsing
-    Assert.assertEquals("2014-01-05,2014-01-06", loadGlobalSettings.getIncludeDatesAsString());
-    Assert.assertEquals(2, loadGlobalSettings.getIncludeDatesAsSet().size());
+    Assert.assertEquals(
+        new HashSet<>(Arrays.asList(DateTimeConverterUtil.fixFormatStringToDate("2014-01-02"),
+            DateTimeConverterUtil.fixFormatStringToDate("2014-01-03"))),
+        loadGlobalSettings.getExcludeDates());
+    Assert.assertEquals(
+        new HashSet<>(Arrays.asList(DateTimeConverterUtil.fixFormatStringToDate("2014-01-05"),
+            DateTimeConverterUtil.fixFormatStringToDate("2014-01-06"))),
+        loadGlobalSettings.getIncludeDates());
     assertPatterns(new Pattern[] { Pattern.compile("sam-3"), Pattern.compile("sam-4") },
         loadGlobalSettings.getIssuePatterns().toArray(new Pattern[] {}));
     Assert.assertArrayEquals(new String[] { "group-1", "group-2" },
@@ -205,6 +264,7 @@ public class SettingsLoadTest {
     Assert.assertEquals("123456", loadGlobalSettings.getPluginUUID());
   }
 
+  // TODO TEST AFTER PROPERTIES SET
   @Test
   public void testLoadPreConfiguredUserSetting() {
     PluginSettingsFactory settingsFactoryMock = Mockito.mock(PluginSettingsFactory.class);
@@ -256,7 +316,7 @@ public class SettingsLoadTest {
   }
 
   @Test
-  public void testSaveGlobalSetting() {
+  public void testSaveGlobalSetting() throws ParseException {
     PluginSettingsFactory settingsFactoryMock = Mockito.mock(PluginSettingsFactory.class);
     AnalyticsSender analyticsSenderMock = Mockito.mock(AnalyticsSender.class);
 
@@ -269,9 +329,11 @@ public class SettingsLoadTest {
     TimeTrackerGlobalSettings globalSettings = new TimeTrackerGlobalSettings()
         .analyticsCheck(false)
         .collectorIssues(Arrays.asList(Pattern.compile("sam-3"), Pattern.compile("sam-4")))
-        .excludeDates("2015-01-01")
+        .excludeDates(
+            Arrays.asList(DateTimeConverterUtil.fixFormatStringToDate("2015-01-01").getTime()))
         .filteredSummaryIssues(Arrays.asList(Pattern.compile("sam-6"), Pattern.compile("sam-7")))
-        .includeDates("2015-01-06")
+        .includeDates(
+            Arrays.asList(DateTimeConverterUtil.fixFormatStringToDate("2015-01-06").getTime()))
         .lastUpdateTime(1287479054000L)
         .latestVersion("2.6.7")
         .pluginGroups(Arrays.asList("group1", "group2"))
@@ -284,9 +346,9 @@ public class SettingsLoadTest {
     Assert.assertEquals(10, settingsMap.size());
     Assert.assertEquals("false",
         dummyPluginSettings.getGlobalSetting(GlobalSettingsKey.ANALYTICS_CHECK_CHANGE));
-    Assert.assertEquals("2015-01-01",
+    Assert.assertEquals("1420070400000,",
         dummyPluginSettings.getGlobalSetting(GlobalSettingsKey.EXCLUDE_DATES));
-    Assert.assertEquals("2015-01-06",
+    Assert.assertEquals("1420502400000,",
         dummyPluginSettings.getGlobalSetting(GlobalSettingsKey.INCLUDE_DATES));
     // TODO Continue here
   }

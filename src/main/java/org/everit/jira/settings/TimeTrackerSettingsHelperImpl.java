@@ -17,6 +17,8 @@ package org.everit.jira.settings;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.text.ParseException;
+import java.util.Date;
 import java.util.Map.Entry;
 import java.util.UUID;
 
@@ -30,6 +32,8 @@ import org.everit.jira.settings.dto.ReportingSettingKey;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
 import org.everit.jira.settings.dto.TimeTrackerUserSettings;
 import org.everit.jira.settings.dto.UserSettingKey;
+import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
+import org.springframework.beans.factory.InitializingBean;
 
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.security.JiraAuthenticationContext;
@@ -40,7 +44,8 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 /**
  * The implementation of {@link TimetrackerSettingsHelper} interface.
  */
-public class TimeTrackerSettingsHelperImpl implements TimetrackerSettingsHelper, Serializable {
+public class TimeTrackerSettingsHelperImpl
+    implements TimetrackerSettingsHelper, InitializingBean, Serializable {
 
   private static final long serialVersionUID = 8873665767837959963L;
 
@@ -56,6 +61,48 @@ public class TimeTrackerSettingsHelperImpl implements TimetrackerSettingsHelper,
     this.settingsFactory = settingsFactory;
     this.analyticsSender = analyticsSender;
     generateAndSavePluginUUID();
+  }
+
+  @Override
+  public void afterPropertiesSet() throws Exception {
+    PluginSettings globalSettings = settingsFactory.createGlobalSettings();
+    String tempExcludeDates =
+        (String) globalSettings.get(JTTPSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+            + GlobalSettingsKey.EXCLUDE_DATES.getSettingsKey());
+    if ((tempExcludeDates != null) && !tempExcludeDates.isEmpty()) {
+      if (tempExcludeDates.matches("^[0-9,]+$")) { // CONVERSATION ALREADY DONE NOThing to do
+        return;
+      }
+      StringBuilder sb = new StringBuilder();
+      for (String excludeDate : tempExcludeDates.split(",")) {
+        try {
+          Date excludeDateAsDate =
+              DateTimeConverterUtil.fixFormatStringToDateWithValidation(excludeDate.trim());
+          sb.append(excludeDateAsDate.getTime()).append(",");
+        } catch (ParseException e) {
+          continue;
+        }
+      }
+      globalSettings.put(JTTPSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+          + GlobalSettingsKey.EXCLUDE_DATES.getSettingsKey(), sb.toString());
+    }
+    String tempIncludeDates =
+        (String) globalSettings.get(JTTPSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+            + GlobalSettingsKey.INCLUDE_DATES.getSettingsKey());
+    if ((tempIncludeDates != null) && !tempIncludeDates.isEmpty()) {
+      StringBuilder sb = new StringBuilder();
+      for (String includeDate : tempIncludeDates.split(",")) {
+        try {
+          Date includeDateAsDate =
+              DateTimeConverterUtil.fixFormatStringToDateWithValidation(includeDate.trim());
+          sb.append(includeDateAsDate.getTime()).append(",");
+        } catch (ParseException e) {
+          continue;
+        }
+      }
+      globalSettings.put(JTTPSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
+          + GlobalSettingsKey.INCLUDE_DATES.getSettingsKey(), sb.toString());
+    }
   }
 
   private void checkAnalyticsForProgressIndicator(final PluginSettings pluginSettings,

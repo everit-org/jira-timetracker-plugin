@@ -18,7 +18,9 @@ package org.everit.jira.core.util;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.ofbiz.core.entity.EntityCondition;
 import org.ofbiz.core.entity.GenericEntityException;
@@ -29,6 +31,24 @@ import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.user.ApplicationUser;
 
 public final class TimetrackerUtil {
+
+  public static boolean containsSetTheSameDay(final Set<Date> dates,
+      final Calendar fromDate) {
+    for (Date date : dates) {
+      Calendar cal1 = Calendar.getInstance();
+      cal1.setTime(date);
+      if (DateUtils.isSameDay(cal1, fromDate)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public static boolean containsSetTheSameDay(final Set<Date> dates, final Date fromDate) {
+    Calendar instance = Calendar.getInstance();
+    instance.setTime(fromDate);
+    return TimetrackerUtil.containsSetTheSameDay(dates, instance);
+  }
 
   /**
    * Check the given date, the user have worklogs or not.

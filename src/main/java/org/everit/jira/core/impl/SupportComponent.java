@@ -21,6 +21,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.everit.jira.core.SupportManager;
@@ -61,15 +62,16 @@ public class SupportComponent implements SupportManager {
     fromDate.setTime(from);
     Calendar toDate = Calendar.getInstance();
     toDate.setTime(to);
+    Set<Date> excludeDatesAsSet = settings.getExcludeDates();
+    Set<Date> includeDatesAsSet = settings.getIncludeDates();
     while (!fromDate.after(toDate)) {
-      String currentDateString = DateTimeConverterUtil.dateToFixFormatString(fromDate.getTime());
-      if (settings.getExcludeDatesAsSet().contains(currentDateString)) {
+      if (TimetrackerUtil.containsSetTheSameDay(excludeDatesAsSet, fromDate)) {
         fromDate.add(Calendar.DATE, 1);
         continue;
       }
       // check includes - not check weekend
       // check weekend - pass
-      if (!settings.getIncludeDatesAsSet().contains(currentDateString)
+      if (TimetrackerUtil.containsSetTheSameDay(includeDatesAsSet, fromDate)
           && ((fromDate.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY)
               || (fromDate.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY))) {
         fromDate.add(Calendar.DATE, 1);
