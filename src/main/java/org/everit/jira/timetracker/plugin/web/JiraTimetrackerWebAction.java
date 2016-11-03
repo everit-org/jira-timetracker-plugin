@@ -1148,7 +1148,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     Date durationDateTime;
     try {
       durationDateTime = DateTimeConverterUtil
-          .stringTimeToDateTime(durationTime);
+          .stringTimeToDateTimeWithGMT(durationTime);
     } catch (ParseException e) {
       message = INVALID_DURATION_TIME;
       return INPUT;

@@ -22,6 +22,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -207,6 +208,18 @@ public final class DateTimeConverterUtil {
     return TimeUnit.SECONDS.convert(diffInMillies, TimeUnit.MILLISECONDS);
   }
 
+  // TODO add better name. in the next version we will need 3 different formatter.
+  // TODO server TZ, User TZ and a GMT
+  private static DateTimeFormatter getDateTimeFormatterWithGMT() {
+    DateTimeFormatterFactory dateTimeFormatterFactory =
+        ComponentAccessor.getComponent(DateTimeFormatterFactory.class);
+    return dateTimeFormatterFactory
+        .formatter()
+        .forLoggedInUser()
+        .withZone(TimeZone.getTimeZone("GMT"))
+        .withStyle(DateTimeStyle.TIME);
+  }
+
   private static DateTimeFormatter getDateTimeTimeFormatter() {
     DateTimeFormatterFactory dateTimeFormatterFactory =
         ComponentAccessor.getComponent(DateTimeFormatterFactory.class);
@@ -338,6 +351,21 @@ public final class DateTimeConverterUtil {
    */
   public static Date stringTimeToDateTime(final String time) throws ParseException {
     DateTimeFormatter dateTimeTimeFormatter = DateTimeConverterUtil.getDateTimeTimeFormatter();
+    return dateTimeTimeFormatter.parse(time);
+  }
+
+  /**
+   * Convert String ({@value DateTimeStyle#TIME}) to Time.
+   *
+   * @param time
+   *          The String time.
+   * @return The result date.
+   * @throws ParseException
+   *           If can't parse the date.
+   */
+  public static Date stringTimeToDateTimeWithGMT(final String time) throws ParseException {
+    DateTimeFormatter dateTimeTimeFormatter =
+        DateTimeConverterUtil.getDateTimeFormatterWithGMT();
     return dateTimeTimeFormatter.parse(time);
   }
 
