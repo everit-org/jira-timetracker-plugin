@@ -30,23 +30,44 @@ import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.user.ApplicationUser;
 
+/**
+ * Utility class for timetracker.
+ */
 public final class TimetrackerUtil {
 
+  /**
+   * Check the date is contains the dates or not.
+   *
+   * @param dates
+   *          the dates set.
+   * @param date
+   *          the date that check contains.
+   * @return true if contains, otherwise false.
+   */
   public static boolean containsSetTheSameDay(final Set<Date> dates,
-      final Calendar fromDate) {
-    for (Date date : dates) {
-      Calendar cal1 = Calendar.getInstance();
-      cal1.setTime(date);
-      if (DateUtils.isSameDay(cal1, fromDate)) {
+      final Calendar date) {
+    for (Date d : dates) {
+      Calendar c = Calendar.getInstance();
+      c.setTime(d);
+      if (DateUtils.isSameDay(c, date)) {
         return true;
       }
     }
     return false;
   }
 
-  public static boolean containsSetTheSameDay(final Set<Date> dates, final Date fromDate) {
+  /**
+   * Check the date is contains the dates or not.
+   *
+   * @param dates
+   *          the dates set.
+   * @param date
+   *          the date that check contains.
+   * @return true if contains, otherwise false.
+   */
+  public static boolean containsSetTheSameDay(final Set<Date> dates, final Date date) {
     Calendar instance = Calendar.getInstance();
-    instance.setTime(fromDate);
+    instance.setTime(date);
     return TimetrackerUtil.containsSetTheSameDay(dates, instance);
   }
 

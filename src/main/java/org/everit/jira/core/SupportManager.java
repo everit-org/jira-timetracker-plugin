@@ -23,6 +23,9 @@ import org.everit.jira.reporting.plugin.dto.MissingsWorklogsDTO;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
 import org.ofbiz.core.entity.GenericEntityException;
 
+/**
+ * Provides common used methods for support about the plugin.
+ */
 public interface SupportManager {
 
   /**

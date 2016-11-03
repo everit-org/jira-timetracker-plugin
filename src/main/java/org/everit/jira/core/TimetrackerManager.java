@@ -23,6 +23,9 @@ import java.util.Set;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.ofbiz.core.entity.GenericEntityException;
 
+/**
+ * Provides information for timetracker.
+ */
 public interface TimetrackerManager {
 
   /**

@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.jira.core.impl;
+package org.everit.jira.core.impl.worklogmanager;
 
 import java.text.ParseException;
 import java.util.Locale;
 
+import org.everit.jira.core.impl.WorklogComponent;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.junit.Assert;
 import org.junit.Before;

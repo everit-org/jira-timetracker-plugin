@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.jira.core.impl;
+package org.everit.jira.core.impl.worklogmanager;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -28,6 +28,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.easymock.EasyMock;
+import org.everit.jira.core.impl.WorklogComponent;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.junit.Assert;
 import org.junit.Before;

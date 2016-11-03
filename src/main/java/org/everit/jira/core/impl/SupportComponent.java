@@ -43,6 +43,9 @@ import com.atlassian.jira.security.groups.GroupManager;
 import com.atlassian.jira.security.roles.ProjectRoleManager;
 import com.atlassian.jira.user.ApplicationUser;
 
+/**
+ * Implementation of {@link SupportManager}.
+ */
 public class SupportComponent implements SupportManager {
 
   private TimeTrackingConfiguration timeTrackingConfiguration;

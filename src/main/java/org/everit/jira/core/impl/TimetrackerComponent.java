@@ -30,6 +30,9 @@ import org.ofbiz.core.entity.GenericEntityException;
 
 import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
 
+/**
+ * Implementation of {@link TimetrackerManager}.
+ */
 public class TimetrackerComponent implements TimetrackerManager {
 
   private TimeTrackingConfiguration timeTrackingConfiguration;
@@ -71,13 +74,13 @@ public class TimetrackerComponent implements TimetrackerManager {
       // convert date to String
       Date scanedDateDate = scannedDate.getTime();
       // check excludse - pass
-      if (excludeDatesSet.contains(scanedDateDate)) {
+      if (TimetrackerUtil.containsSetTheSameDay(excludeDatesSet, scanedDateDate)) {
         scannedDate.set(Calendar.DAY_OF_YEAR, scannedDate.get(Calendar.DAY_OF_YEAR) + 1);
         continue;
       }
       // check includes - not check weekend
       // check weekend - pass
-      if (!includeDatesSet.contains(scanedDateDate)
+      if (!TimetrackerUtil.containsSetTheSameDay(includeDatesSet, scanedDateDate)
           && ((scannedDate.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY)
               || (scannedDate.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY))) {
         scannedDate.set(Calendar.DAY_OF_YEAR,
@@ -133,7 +136,8 @@ public class TimetrackerComponent implements TimetrackerManager {
     startCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
     Date start = startCalendar.getTime();
 
-    while (dayOfMonth <= DateTimeConverterUtil.LAST_DAY_OF_MONTH) {
+    int maxDayOfMonth = startCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+    while (dayOfMonth <= maxDayOfMonth) {
       if (TimetrackerUtil.isContainsWorklog(start)) {
         resultDays.add(Integer.toString(dayOfMonth));
       }

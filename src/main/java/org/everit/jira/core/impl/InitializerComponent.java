@@ -32,8 +32,12 @@ import org.everit.jira.timetracker.plugin.IssueEstimatedTimeChecker;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
+/**
+ * Responsible to initialize plugin when activated bean. Furthermore responsible to destroy when
+ * deactivated bean.
+ */
 public class InitializerComponent implements InitializingBean, DisposableBean {
- 
+
   private static final int DEFAULT_CHECK_TIME_IN_MINUTES = 1200;
 
   private static final int MINUTES_IN_HOUR = 60;
