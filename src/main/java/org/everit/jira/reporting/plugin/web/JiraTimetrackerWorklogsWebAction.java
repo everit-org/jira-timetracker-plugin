@@ -225,7 +225,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
       // TODO not simple "" for selectedUser. Use user picker
       // Default check box parameter false, false
       allDatesWhereNoWorklog = supportManager
-          .getDates("", dateFrom, dateTo, checkHours,
+          .getDates(dateFrom, dateTo, checkHours,
               checkNonWorkingIssues, globalSettings);
     } catch (GenericEntityException e) {
       LOGGER.error("Error when try to run the query.", e);
@@ -259,7 +259,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     try {
       // TODO not simple "" for selectedUser. Use user picker
       allDatesWhereNoWorklog = supportManager
-          .getDates("", dateFrom, dateTo, checkHours,
+          .getDates(dateFrom, dateTo, checkHours,
               checkNonWorkingIssues, globalSettings);
     } catch (GenericEntityException e) {
       LOGGER.error("Error when try to run the query.", e);

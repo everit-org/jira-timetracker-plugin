@@ -33,8 +33,6 @@ public interface SupportManager {
    * days between the user creation date and the current date. The method not examine the weekends
    * and the properties file exclude dates but check the properties file include dates.
    *
-   * @param selectedUser
-   *          The selected User.
    * @param from
    *          The query from parameter.
    * @param to
@@ -49,7 +47,7 @@ public interface SupportManager {
    * @throws GenericEntityException
    *           If GenericEntity Exception.
    */
-  List<MissingsWorklogsDTO> getDates(String selectedUser, Date from, Date to, boolean workingHours,
+  List<MissingsWorklogsDTO> getDates(Date from, Date to, boolean workingHours,
       boolean nonWorking, TimeTrackerGlobalSettings settings) throws GenericEntityException;
 
   /**

@@ -55,9 +55,8 @@ public class SupportComponent implements SupportManager {
   }
 
   @Override
-  public List<MissingsWorklogsDTO> getDates(final String selectedUser, final Date from,
-      final Date to,
-      final boolean workingHour, final boolean checkNonWorking,
+  public List<MissingsWorklogsDTO> getDates(final Date from,
+      final Date to, final boolean workingHour, final boolean checkNonWorking,
       final TimeTrackerGlobalSettings settings)
           throws GenericEntityException {
     List<MissingsWorklogsDTO> datesWhereNoWorklog = new ArrayList<>();
@@ -74,7 +73,7 @@ public class SupportComponent implements SupportManager {
       }
       // check includes - not check weekend
       // check weekend - pass
-      if (TimetrackerUtil.containsSetTheSameDay(includeDatesAsSet, fromDate)
+      if (!TimetrackerUtil.containsSetTheSameDay(includeDatesAsSet, fromDate)
           && ((fromDate.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY)
               || (fromDate.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY))) {
         fromDate.add(Calendar.DATE, 1);

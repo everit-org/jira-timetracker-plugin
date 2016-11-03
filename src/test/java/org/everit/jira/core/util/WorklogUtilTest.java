@@ -160,7 +160,7 @@ public class WorklogUtilTest {
   }
 
   @Test
-  public void tesHasWorklogVisibility() {
+  public void testHasWorklogVisibility() {
     initMockComponentsForHasWorklogVisibility();
 
     IssueManager issueManager = ComponentAccessor.getIssueManager();
