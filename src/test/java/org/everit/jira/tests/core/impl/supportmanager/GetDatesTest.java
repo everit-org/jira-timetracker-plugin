@@ -16,6 +16,7 @@
 package org.everit.jira.tests.core.impl.supportmanager;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -337,11 +338,12 @@ public class GetDatesTest {
 
     dates =
         supportManager.getDates(today, todayPlus4, true, false, timeTrackerGlobalSettings);
+    DecimalFormat df = new DecimalFormat("#.#");
     Assert.assertEquals(2, dates.size());
     dto1 = dates.get(0);
     MissingsWorklogsDTO dto2 = dates.get(1);
     Assert.assertEquals("1", dto1.getHour());
-    Assert.assertEquals("0,3", dto2.getHour());
+    Assert.assertEquals(df.format(0.3), dto2.getHour());
     Assert.assertEquals(sdf.format(todayPlus4), sdf.format(dto1.getDate()));
     Assert.assertEquals(sdf.format(todayPlus3), sdf.format(dto2.getDate()));
 
@@ -352,8 +354,8 @@ public class GetDatesTest {
     dto2 = dates.get(1);
     MissingsWorklogsDTO dto3 = dates.get(2);
     Assert.assertEquals("1", dto1.getHour());
-    Assert.assertEquals("0,3", dto2.getHour());
-    Assert.assertEquals("0,7", dto3.getHour());
+    Assert.assertEquals(df.format(0.3), dto2.getHour());
+    Assert.assertEquals(df.format(0.7), dto3.getHour());
     Assert.assertEquals(sdf.format(todayPlus4), sdf.format(dto1.getDate()));
     Assert.assertEquals(sdf.format(todayPlus3), sdf.format(dto2.getDate()));
     Assert.assertEquals(sdf.format(todayPlus2), sdf.format(dto3.getDate()));
