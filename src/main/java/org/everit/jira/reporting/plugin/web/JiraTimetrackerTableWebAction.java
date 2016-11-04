@@ -36,6 +36,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 import org.everit.jira.analytics.AnalyticsDTO;
 import org.everit.jira.core.EVWorklogManager;
+import org.everit.jira.core.util.TimetrackerUtil;
 import org.everit.jira.reporting.plugin.ReportingCondition;
 import org.everit.jira.reporting.plugin.util.PermissionUtil;
 import org.everit.jira.settings.TimetrackerSettingsHelper;
@@ -44,7 +45,6 @@ import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.PluginCondition;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.dto.TimetrackerReportsSessionData;
-import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 import org.everit.jira.updatenotifier.UpdateNotifier;
@@ -273,7 +273,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   }
 
   private String checkConditions() {
-    boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
+    boolean isUserLogged = TimetrackerUtil.isUserLogged();
     if (!isUserLogged) {
       setReturnUrl(JIRA_HOME_URL);
       return getRedirect(NONE);

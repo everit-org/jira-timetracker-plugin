@@ -23,8 +23,10 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.everit.jira.core.util.TimetrackerUtil;
+import org.everit.jira.timetracker.plugin.dto.WorklogValues;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
@@ -36,7 +38,11 @@ import org.ofbiz.core.entity.GenericEntityException;
 import org.ofbiz.core.entity.GenericValue;
 
 import com.atlassian.crowd.embedded.api.User;
+import com.atlassian.jira.issue.MutableIssue;
+import com.atlassian.jira.issue.status.MockStatus;
+import com.atlassian.jira.issue.status.Status;
 import com.atlassian.jira.mock.component.MockComponentWorker;
+import com.atlassian.jira.mock.issue.MockIssue;
 import com.atlassian.jira.mock.ofbiz.MockGenericValue;
 import com.atlassian.jira.ofbiz.OfBizDelegator;
 import com.atlassian.jira.security.JiraAuthenticationContext;
@@ -45,6 +51,33 @@ import com.atlassian.jira.security.Permissions;
 import com.atlassian.jira.user.MockApplicationUser;
 
 public class TimetrackerUtilTest {
+
+  static class DummyIssue extends MockIssue {
+
+    private final Long estimate;
+
+    private final String statusId;
+
+    public DummyIssue(final int id, final String key, final String statusId, final Long estimate) {
+      super(id, key);
+      this.statusId = statusId;
+      this.estimate = estimate;
+    }
+
+    @Override
+    public Long getEstimate() {
+      return estimate;
+    }
+
+    @Override
+    public Status getStatusObject() {
+      return new MockStatus(statusId, "status_" + statusId);
+    }
+  }
+
+  private static final String CLOSED_STATUS_ID = "6";
+
+  private static final String OPEN_STATUS_ID = "1";
 
   public void initMockComponents(final Date containsWorklogDate,
       final Date notContainsWorklogDate) {
@@ -135,6 +168,33 @@ public class TimetrackerUtilTest {
   }
 
   @Test
+  public void testCheckIssueEstimatedTime() {
+    MutableIssue dummyIssue = new DummyIssue(1, "KEY-1", OPEN_STATUS_ID, null);
+    List<Pattern> collectorIssueIds =
+        new ArrayList<Pattern>(Arrays.asList(Pattern.compile("KEY-1")));
+    Assert.assertTrue(TimetrackerUtil.checkIssueEstimatedTime(dummyIssue, collectorIssueIds));
+
+    dummyIssue = new DummyIssue(1, "WORK-1", OPEN_STATUS_ID, 1L);
+    Assert.assertTrue(TimetrackerUtil.checkIssueEstimatedTime(dummyIssue, collectorIssueIds));
+
+    dummyIssue = new DummyIssue(1, "KEY-1", OPEN_STATUS_ID, 1L);
+    Assert.assertTrue(TimetrackerUtil.checkIssueEstimatedTime(dummyIssue, null));
+
+    collectorIssueIds.clear();
+    dummyIssue = new DummyIssue(1, "KEY-1", CLOSED_STATUS_ID, null);
+    Assert.assertTrue(TimetrackerUtil.checkIssueEstimatedTime(dummyIssue, collectorIssueIds));
+
+    dummyIssue = new DummyIssue(1, "KEY-1", CLOSED_STATUS_ID, 0L);
+    Assert.assertTrue(TimetrackerUtil.checkIssueEstimatedTime(dummyIssue, collectorIssueIds));
+
+    dummyIssue = new DummyIssue(1, "KEY-1", OPEN_STATUS_ID, null);
+    Assert.assertFalse(TimetrackerUtil.checkIssueEstimatedTime(dummyIssue, collectorIssueIds));
+
+    dummyIssue = new DummyIssue(1, "KEY-1", OPEN_STATUS_ID, 0L);
+    Assert.assertFalse(TimetrackerUtil.checkIssueEstimatedTime(dummyIssue, collectorIssueIds));
+  }
+
+  @Test
   public void testContainsSetTheSameDay() throws ParseException {
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
     Date date1 = sdf.parse("2015-10-21");
@@ -150,5 +210,116 @@ public class TimetrackerUtilTest {
 
     Date notSameDate = sdf.parse("2017-10-23");
     Assert.assertFalse(TimetrackerUtil.containsSetTheSameDay(dates, notSameDate));
+  }
+
+  @Test
+  public void testConvertJsonToWorklogValues() {
+    try {
+      TimetrackerUtil.convertJsonToWorklogValues(null);
+      Assert.fail("Expect NPE.");
+    } catch (NullPointerException e) {
+      Assert.assertNotNull(e);
+    }
+
+    WorklogValues worklogValues = TimetrackerUtil.convertJsonToWorklogValues("{}");
+    Assert.assertNull(worklogValues.getComment());
+    Assert.assertNull(worklogValues.getDurationTime());
+    Assert.assertNull(worklogValues.getEndTime());
+    Assert.assertNull(worklogValues.isDuration());
+    Assert.assertNull(worklogValues.getIssueKey());
+    Assert.assertNull(worklogValues.getStartTime());
+
+    worklogValues = TimetrackerUtil.convertJsonToWorklogValues("{\"comment\":\"dummy-comment\","
+        + "\"durationTime\":\"dummy-duration\",\"endTime\":\"dummy-endtime\",\"isDuration\":false,"
+        + "\"issueKey\":\"dummy-issuekey\",\"startTime\":\"dummy-starttime\"}");
+    Assert.assertEquals("dummy-comment", worklogValues.getComment());
+    Assert.assertEquals("dummy-duration", worklogValues.getDurationTime());
+    Assert.assertEquals("dummy-endtime", worklogValues.getEndTime());
+    Assert.assertFalse(worklogValues.isDuration());
+    Assert.assertEquals("dummy-issuekey", worklogValues.getIssueKey());
+    Assert.assertEquals("dummy-starttime", worklogValues.getStartTime());
+
+    worklogValues = TimetrackerUtil.convertJsonToWorklogValues("{\"comment\":\"dummy-comment\","
+        + "\"durationTime\":\"dummy-duration\",\"endTime\":\"dummy-endtime\",\"isDuration\":true,"
+        + "\"issueKey\":\"dummy-issuekey\",\"startTime\":\"dummy-starttime\"}");
+    Assert.assertEquals("dummy-comment", worklogValues.getComment());
+    Assert.assertEquals("dummy-duration", worklogValues.getDurationTime());
+    Assert.assertEquals("dummy-endtime", worklogValues.getEndTime());
+    Assert.assertTrue(worklogValues.isDuration());
+    Assert.assertEquals("dummy-issuekey", worklogValues.getIssueKey());
+    Assert.assertEquals("dummy-starttime", worklogValues.getStartTime());
+  }
+
+  @Test
+  public void testConvertWorklogValuesToJson() {
+    WorklogValues worklogValues = new WorklogValues();
+    String json = TimetrackerUtil.convertWorklogValuesToJson(worklogValues);
+    Assert.assertEquals("{}", json);
+
+    worklogValues.setComment("dummy-comment");
+    json = TimetrackerUtil.convertWorklogValuesToJson(worklogValues);
+    Assert.assertEquals("{\"comment\":\"dummy-comment\"}", json);
+  }
+
+  @Test
+  public void testGetLoggedUserName() {
+    MockComponentWorker mockComponentWorker = new MockComponentWorker();
+
+    JiraAuthenticationContext jiraAuthenticationContext =
+        Mockito.mock(JiraAuthenticationContext.class, Mockito.RETURNS_DEEP_STUBS);
+    Mockito.when(jiraAuthenticationContext.getUser())
+        .thenReturn(null);
+
+    mockComponentWorker.addMock(JiraAuthenticationContext.class, jiraAuthenticationContext)
+        .init();
+    Assert.assertEquals("", TimetrackerUtil.getLoggedUserName());
+
+    mockComponentWorker = new MockComponentWorker();
+
+    jiraAuthenticationContext =
+        Mockito.mock(JiraAuthenticationContext.class, Mockito.RETURNS_DEEP_STUBS);
+    Mockito.when(jiraAuthenticationContext.getUser())
+        .thenReturn(new MockApplicationUser("userKey", "lower-user-name-default"));
+
+    mockComponentWorker.addMock(JiraAuthenticationContext.class, jiraAuthenticationContext)
+        .init();
+    Assert.assertEquals("lower-user-name-default", TimetrackerUtil.getLoggedUserName());
+
+    mockComponentWorker = new MockComponentWorker();
+
+    jiraAuthenticationContext =
+        Mockito.mock(JiraAuthenticationContext.class, Mockito.RETURNS_DEEP_STUBS);
+    Mockito.when(jiraAuthenticationContext.getUser())
+        .thenReturn(new MockApplicationUser("userKey", "NOT-LOWER-USERNAME"));
+
+    mockComponentWorker.addMock(JiraAuthenticationContext.class, jiraAuthenticationContext)
+        .init();
+    Assert.assertEquals("not-lower-username", TimetrackerUtil.getLoggedUserName());
+
+  }
+
+  @Test
+  public void testIsUserLogged() {
+    MockComponentWorker mockComponentWorker = new MockComponentWorker();
+
+    JiraAuthenticationContext jiraAuthenticationContext =
+        Mockito.mock(JiraAuthenticationContext.class, Mockito.RETURNS_DEEP_STUBS);
+    Mockito.when(jiraAuthenticationContext.getUser())
+        .thenReturn(null);
+
+    mockComponentWorker.addMock(JiraAuthenticationContext.class, jiraAuthenticationContext)
+        .init();
+    Assert.assertFalse(TimetrackerUtil.isUserLogged());
+
+    mockComponentWorker = new MockComponentWorker();
+
+    jiraAuthenticationContext =
+        Mockito.mock(JiraAuthenticationContext.class, Mockito.RETURNS_DEEP_STUBS);
+    Mockito.when(jiraAuthenticationContext.getUser())
+        .thenReturn(new MockApplicationUser("userKey", "username"));
+
+    mockComponentWorker.addMock(JiraAuthenticationContext.class, jiraAuthenticationContext)
+        .init();
+    Assert.assertTrue(TimetrackerUtil.isUserLogged());
   }
 }

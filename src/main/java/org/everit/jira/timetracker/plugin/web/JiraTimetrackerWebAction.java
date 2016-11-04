@@ -35,6 +35,7 @@ import org.everit.jira.analytics.AnalyticsDTO;
 import org.everit.jira.core.EVWorklogManager;
 import org.everit.jira.core.SupportManager;
 import org.everit.jira.core.TimetrackerManager;
+import org.everit.jira.core.util.TimetrackerUtil;
 import org.everit.jira.settings.TimetrackerSettingsHelper;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
 import org.everit.jira.settings.dto.TimeTrackerUserSettings;
@@ -47,7 +48,6 @@ import org.everit.jira.timetracker.plugin.dto.ActionResultStatus;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.dto.WorklogValues;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
-import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 import org.everit.jira.updatenotifier.UpdateNotifier;
@@ -404,7 +404,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   }
 
   private String checkConditions() {
-    boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
+    boolean isUserLogged = TimetrackerUtil.isUserLogged();
     if (!isUserLogged) {
       setReturnUrl(JIRA_HOME_URL);
       return getRedirect(NONE);
@@ -1386,11 +1386,11 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private String redirectWithDateAndWorklogParams(final String action,
       final String warningUrlParameter) {
     worklogValue.setComment("");
-    String returnJson = JiraTimetrackerUtil.convertWorklogValuesToJson(worklogValue);
+    String returnJson = TimetrackerUtil.convertWorklogValuesToJson(worklogValue);
     setReturnUrl(
         String.format(SELF_WITH_DATE_WORKLOG_URL_FORMAT,
             dateFormatted,
-            JiraTimetrackerUtil.urlEndcodeHandleException(returnJson)) + warningUrlParameter);
+            TimetrackerUtil.urlEndcodeHandleException(returnJson)) + warningUrlParameter);
     return getRedirect(action);
   }
 
@@ -1501,7 +1501,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private String setFieldsValue() {
     worklogValuesJson = getHttpRequest().getParameter("worklogValuesJson");
     if ((worklogValuesJson != null) && !"".equals(worklogValuesJson)) {
-      worklogValue = JiraTimetrackerUtil.convertJsonToWorklogValues(worklogValuesJson);
+      worklogValue = TimetrackerUtil.convertJsonToWorklogValues(worklogValuesJson);
       isDurationSelected = worklogValue.isDuration();
       issueKey = worklogValue.getIssueKey();
       if (worklogValue.getEndTime() != null) {

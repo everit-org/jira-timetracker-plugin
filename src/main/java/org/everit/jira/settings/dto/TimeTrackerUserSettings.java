@@ -19,8 +19,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.everit.jira.core.util.TimetrackerUtil;
 import org.everit.jira.reporting.plugin.column.WorklogDetailsColumns;
-import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.everit.jira.timetracker.plugin.util.VersionComperatorUtil;
 
 import com.atlassian.jira.component.ComponentAccessor;
@@ -97,15 +97,15 @@ public class TimeTrackerUserSettings {
    * Get the end time change settings value. The default is 5.
    */
   public int getEndTimeChange() {
-    int endTimeChange = JiraTimetrackerUtil.FIVE_MINUTES;
+    int endTimeChange = TimetrackerUtil.FIVE_MINUTES;
 
     Object endTimeChangeObj =
         pluginSettingsKeyValues.get(UserSettingKey.END_TIME_CHANGE);
     if (endTimeChangeObj != null) {
       try {
         endTimeChange = Integer.parseInt(endTimeChangeObj.toString());
-        if (!JiraTimetrackerUtil.validateTimeChange(Integer.toString(endTimeChange))) {
-          endTimeChange = JiraTimetrackerUtil.FIVE_MINUTES;
+        if (!TimetrackerUtil.validateTimeChange(Integer.toString(endTimeChange))) {
+          endTimeChange = TimetrackerUtil.FIVE_MINUTES;
         }
       } catch (NumberFormatException e) {
         LOGGER.error("Wrong formated endTime change value. Set the default value (1).", e);
@@ -206,15 +206,15 @@ public class TimeTrackerUserSettings {
    * Get the start time change settings value. The default is 5.
    */
   public int getStartTimeChange() {
-    int startTimeChange = JiraTimetrackerUtil.FIVE_MINUTES;
+    int startTimeChange = TimetrackerUtil.FIVE_MINUTES;
 
     Object startTimeChangeObj =
         pluginSettingsKeyValues.get(UserSettingKey.START_TIME_CHANGE);
     if (startTimeChangeObj != null) {
       try {
         startTimeChange = Integer.parseInt(startTimeChangeObj.toString());
-        if (!JiraTimetrackerUtil.validateTimeChange(Integer.toString(startTimeChange))) {
-          startTimeChange = JiraTimetrackerUtil.FIVE_MINUTES;
+        if (!TimetrackerUtil.validateTimeChange(Integer.toString(startTimeChange))) {
+          startTimeChange = TimetrackerUtil.FIVE_MINUTES;
         }
       } catch (NumberFormatException e) {
         LOGGER.error("Wrong formated startTime change value. Set the default value (1).", e);
