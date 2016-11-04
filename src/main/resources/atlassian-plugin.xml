@@ -49,9 +49,19 @@
     class="org.everit.jira.core.impl.WorklogComponent">
     <interface>org.everit.jira.core.EVWorklogManager</interface>
   </component>
+  
   <component key="TimetrackerComponent" name="TimetrackerComponent"
     class="org.everit.jira.core.impl.TimetrackerComponent">
     <interface>org.everit.jira.core.TimetrackerManager</interface>
+  </component>
+  
+  <component key="SupportManager" name="SupportManager" 
+    class="org.everit.jira.core.impl.SupportComponent">
+    <interface>org.everit.jira.reporting.plugin.SupportManager</interface>
+  </component>
+  
+  <component key="InitializerComponent" name="InitializerComponent" 
+    class="org.everit.jira.core.impl.InitializerComponent">
   </component>
   
   <component key="JTRP" name="Reporting" class="org.everit.jira.reporting.plugin.ReportingPluginImpl">

@@ -113,6 +113,11 @@
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
         <version>0.7.1.201405082137</version>
+        <configuration>
+          <excludes>
+            <exclude>org.everit.jira.tests.*</exclude>
+          </excludes>
+        </configuration>
         <executions>
           <execution>
             <id>default-prepare-agent</id>
