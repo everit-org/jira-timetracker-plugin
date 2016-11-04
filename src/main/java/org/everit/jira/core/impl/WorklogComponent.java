@@ -105,7 +105,7 @@ public class WorklogComponent implements EVWorklogManager {
 
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
-    ApplicationUser loggedInUser = authenticationContext.getUser();
+    ApplicationUser loggedInUser = authenticationContext.getLoggedInUser();
 
     List<EntityCondition> exprList =
         WorklogUtil.createWorklogQueryExprList(startDateCalendar, endDateCalendar,
@@ -121,7 +121,7 @@ public class WorklogComponent implements EVWorklogManager {
       final String startTime, final String timeSpent) {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
-    ApplicationUser user = authenticationContext.getUser();
+    ApplicationUser user = authenticationContext.getLoggedInUser();
     JiraServiceContext serviceContext = new JiraServiceContextImpl(user);
     IssueManager issueManager = ComponentAccessor.getIssueManager();
     MutableIssue issue = issueManager.getIssueObject(issueId);
@@ -172,7 +172,7 @@ public class WorklogComponent implements EVWorklogManager {
   public ActionResult deleteWorklog(final Long worklogId) {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
-    ApplicationUser user = authenticationContext.getUser();
+    ApplicationUser user = authenticationContext.getLoggedInUser();
     JiraServiceContext serviceContext = new JiraServiceContextImpl(user);
     WorklogService worklogService = ComponentAccessor.getComponent(WorklogService.class);
     WorklogManager worklogManager = ComponentAccessor.getWorklogManager();
@@ -199,7 +199,7 @@ public class WorklogComponent implements EVWorklogManager {
       final String time, final String timeSpent) {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
-    ApplicationUser user = authenticationContext.getUser();
+    ApplicationUser user = authenticationContext.getLoggedInUser();
     JiraServiceContext serviceContext = new JiraServiceContextImpl(user);
 
     WorklogManager worklogManager = ComponentAccessor.getWorklogManager();
@@ -282,7 +282,7 @@ public class WorklogComponent implements EVWorklogManager {
 
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
-    ApplicationUser loggedInUser = authenticationContext.getUser();
+    ApplicationUser loggedInUser = authenticationContext.getLoggedInUser();
 
     String userKey;
     if ((selectedUser == null) || "".equals(selectedUser)) {

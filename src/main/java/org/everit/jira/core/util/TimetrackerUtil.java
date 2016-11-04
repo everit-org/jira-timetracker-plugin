@@ -179,7 +179,7 @@ public final class TimetrackerUtil {
   public static String getLoggedUserName() {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
-    ApplicationUser user = authenticationContext.getUser();
+    ApplicationUser user = authenticationContext.getLoggedInUser();
     if (user == null) {
       return "";
     }
@@ -199,7 +199,7 @@ public final class TimetrackerUtil {
       throws GenericEntityException {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
-    ApplicationUser user = authenticationContext.getUser();
+    ApplicationUser user = authenticationContext.getLoggedInUser();
 
     Calendar startDate = DateTimeConverterUtil.setDateToDayStart(date);
     Calendar endDate = (Calendar) startDate.clone();
@@ -223,7 +223,7 @@ public final class TimetrackerUtil {
   public static boolean isUserLogged() {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
-    ApplicationUser user = authenticationContext.getUser();
+    ApplicationUser user = authenticationContext.getLoggedInUser();
     if (user == null) {
       return false;
     }

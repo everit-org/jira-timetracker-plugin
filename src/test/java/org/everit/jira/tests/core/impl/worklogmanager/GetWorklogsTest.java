@@ -152,7 +152,7 @@ public class GetWorklogsTest {
     IssueManager issueManager = Mockito.mock(IssueManager.class, Mockito.RETURNS_DEEP_STUBS);
 
     loggedUser = new MockApplicationUser("test_userkey", "test_username");
-    Mockito.when(mockJiraAuthenticationContext.getUser())
+    Mockito.when(mockJiraAuthenticationContext.getLoggedInUser())
         .thenReturn(loggedUser);
     Mockito.when(mockJiraAuthenticationContext.getI18nHelper())
         .thenReturn(i18nHelper);

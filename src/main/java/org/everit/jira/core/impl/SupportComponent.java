@@ -136,7 +136,7 @@ public class SupportComponent implements SupportManager {
           throws GenericEntityException {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
-    ApplicationUser user = authenticationContext.getUser();
+    ApplicationUser user = authenticationContext.getLoggedInUser();
 
     Calendar startDate = DateTimeConverterUtil.setDateToDayStart(date);
     Calendar endDate = (Calendar) startDate.clone();
@@ -192,7 +192,7 @@ public class SupportComponent implements SupportManager {
       final List<Pattern> issuePatterns) throws GenericEntityException {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
-    ApplicationUser user = authenticationContext.getUser();
+    ApplicationUser user = authenticationContext.getLoggedInUser();
 
     Calendar start = Calendar.getInstance();
     start.setTime(startSummary);

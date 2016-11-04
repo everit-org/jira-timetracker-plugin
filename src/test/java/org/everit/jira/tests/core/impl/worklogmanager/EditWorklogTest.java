@@ -140,7 +140,7 @@ public class EditWorklogTest {
 
     // logged user
     MockApplicationUser loggedUser = new MockApplicationUser("test_userkey", "test_username");
-    Mockito.when(mockJiraAuthenticationContext.getUser())
+    Mockito.when(mockJiraAuthenticationContext.getLoggedInUser())
         .thenReturn(loggedUser);
     Mockito.when(mockJiraAuthenticationContext.getI18nHelper())
         .thenReturn(i18nHelper);

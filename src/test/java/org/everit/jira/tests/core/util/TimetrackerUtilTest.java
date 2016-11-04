@@ -95,7 +95,7 @@ public class TimetrackerUtilTest {
     JiraAuthenticationContext jiraAuthenticationContext =
         Mockito.mock(JiraAuthenticationContext.class, Mockito.RETURNS_DEEP_STUBS);
     final MockApplicationUser loggedUser = new MockApplicationUser("user-key", "username");
-    Mockito.when(jiraAuthenticationContext.getUser())
+    Mockito.when(jiraAuthenticationContext.getLoggedInUser())
         .thenReturn(loggedUser);
     mockComponentWorker.addMock(JiraAuthenticationContext.class, jiraAuthenticationContext);
 
@@ -269,7 +269,7 @@ public class TimetrackerUtilTest {
 
     JiraAuthenticationContext jiraAuthenticationContext =
         Mockito.mock(JiraAuthenticationContext.class, Mockito.RETURNS_DEEP_STUBS);
-    Mockito.when(jiraAuthenticationContext.getUser())
+    Mockito.when(jiraAuthenticationContext.getLoggedInUser())
         .thenReturn(null);
 
     mockComponentWorker.addMock(JiraAuthenticationContext.class, jiraAuthenticationContext)
@@ -280,7 +280,7 @@ public class TimetrackerUtilTest {
 
     jiraAuthenticationContext =
         Mockito.mock(JiraAuthenticationContext.class, Mockito.RETURNS_DEEP_STUBS);
-    Mockito.when(jiraAuthenticationContext.getUser())
+    Mockito.when(jiraAuthenticationContext.getLoggedInUser())
         .thenReturn(new MockApplicationUser("userKey", "lower-user-name-default"));
 
     mockComponentWorker.addMock(JiraAuthenticationContext.class, jiraAuthenticationContext)
@@ -291,7 +291,7 @@ public class TimetrackerUtilTest {
 
     jiraAuthenticationContext =
         Mockito.mock(JiraAuthenticationContext.class, Mockito.RETURNS_DEEP_STUBS);
-    Mockito.when(jiraAuthenticationContext.getUser())
+    Mockito.when(jiraAuthenticationContext.getLoggedInUser())
         .thenReturn(new MockApplicationUser("userKey", "NOT-LOWER-USERNAME"));
 
     mockComponentWorker.addMock(JiraAuthenticationContext.class, jiraAuthenticationContext)
@@ -306,7 +306,7 @@ public class TimetrackerUtilTest {
 
     JiraAuthenticationContext jiraAuthenticationContext =
         Mockito.mock(JiraAuthenticationContext.class, Mockito.RETURNS_DEEP_STUBS);
-    Mockito.when(jiraAuthenticationContext.getUser())
+    Mockito.when(jiraAuthenticationContext.getLoggedInUser())
         .thenReturn(null);
 
     mockComponentWorker.addMock(JiraAuthenticationContext.class, jiraAuthenticationContext)
@@ -317,7 +317,7 @@ public class TimetrackerUtilTest {
 
     jiraAuthenticationContext =
         Mockito.mock(JiraAuthenticationContext.class, Mockito.RETURNS_DEEP_STUBS);
-    Mockito.when(jiraAuthenticationContext.getUser())
+    Mockito.when(jiraAuthenticationContext.getLoggedInUser())
         .thenReturn(new MockApplicationUser("userKey", "username"));
 
     mockComponentWorker.addMock(JiraAuthenticationContext.class, jiraAuthenticationContext)

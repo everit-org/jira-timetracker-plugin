@@ -129,7 +129,7 @@ public class SummaryTest {
 
     JiraAuthenticationContext jiraAuthenticationContext =
         Mockito.mock(JiraAuthenticationContext.class, Mockito.RETURNS_DEEP_STUBS);
-    Mockito.when(jiraAuthenticationContext.getUser())
+    Mockito.when(jiraAuthenticationContext.getLoggedInUser())
         .thenReturn(new MockApplicationUser("userKey", "username"));
 
     PermissionManager permissionManager =

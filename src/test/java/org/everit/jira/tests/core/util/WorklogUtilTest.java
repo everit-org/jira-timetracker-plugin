@@ -130,7 +130,7 @@ public class WorklogUtilTest {
         Mockito.mock(JiraAuthenticationContext.class, Mockito.RETURNS_DEEP_STUBS);
     Mockito.when(mockJiraAuthenticationContext.getI18nHelper().getLocale())
         .thenReturn(new Locale("en", "US"));
-    Mockito.when(mockJiraAuthenticationContext.getUser())
+    Mockito.when(mockJiraAuthenticationContext.getLoggedInUser())
         .thenReturn(null);
     mockComponentWorker.addMock(JiraAuthenticationContext.class, mockJiraAuthenticationContext);
 

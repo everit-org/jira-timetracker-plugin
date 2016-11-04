@@ -62,7 +62,7 @@ public class GetLoggedDaysOfTheMonthTest {
     JiraAuthenticationContext jiraAuthenticationContext =
         Mockito.mock(JiraAuthenticationContext.class, Mockito.RETURNS_DEEP_STUBS);
     final MockApplicationUser loggedUser = new MockApplicationUser("user-key", "username");
-    Mockito.when(jiraAuthenticationContext.getUser())
+    Mockito.when(jiraAuthenticationContext.getLoggedInUser())
         .thenReturn(loggedUser);
     mockComponentWorker.addMock(JiraAuthenticationContext.class, jiraAuthenticationContext);
 
