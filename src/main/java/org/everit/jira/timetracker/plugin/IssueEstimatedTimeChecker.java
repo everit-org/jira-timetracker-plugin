@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.everit.jira.core.util.TimetrackerUtil;
 import org.everit.jira.settings.TimetrackerSettingsHelper;
-import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.ofbiz.core.entity.EntityCondition;
 import org.ofbiz.core.entity.EntityExpr;
 import org.ofbiz.core.entity.EntityOperator;
@@ -125,7 +125,7 @@ public class IssueEstimatedTimeChecker implements Runnable {
     IssueManager issueManager = ComponentAccessor.getIssueManager();
     for (Long issueId : issueIdSet) {
       MutableIssue issueObject = issueManager.getIssueObject(issueId);
-      if (!JiraTimetrackerUtil.checkIssueEstimatedTime(issueObject,
+      if (!TimetrackerUtil.checkIssueEstimatedTime(issueObject,
           issuePatterns)) {
         // send mail
         sendNotificationEmail(issueObject.getReporterUser().getEmailAddress(), issueObject

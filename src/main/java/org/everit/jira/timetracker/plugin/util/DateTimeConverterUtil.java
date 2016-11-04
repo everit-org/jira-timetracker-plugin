@@ -69,11 +69,6 @@ public final class DateTimeConverterUtil {
       + "1[0-3][0-9]{2}|14[0-3][0-9])[m])*)|"
       + "(([0-9]{1,3}|1[0-3][0-9]{2}|14[0-3][0-9])[m])+|(([01]?[0-9]|2[0-3])[h])+";
 
-  /**
-   * The last day of a month.
-   */
-  public static final int LAST_DAY_OF_MONTH = 31;
-
   private static final int MILLISEC_IN_SECOND = 1000;
 
   /**

@@ -69,7 +69,11 @@ public class TimeTrackerGlobalSettings {
    */
   public TimeTrackerGlobalSettings filteredSummaryIssues(
       final List<Pattern> filteredSummaryIssues) {
-    pluginSettingsKeyValues.put(GlobalSettingsKey.SUMMARY_FILTERS, filteredSummaryIssues);
+    List<String> list = new ArrayList<>();
+    for (Pattern pattern : filteredSummaryIssues) {
+      list.add(pattern.toString());
+    }
+    pluginSettingsKeyValues.put(GlobalSettingsKey.SUMMARY_FILTERS, list);
     return this;
   }
 

@@ -44,11 +44,6 @@ public class TimetrackerVersionUpdater {
 
   private UpdateNotifier updateNotifier;
 
-  TimetrackerVersionUpdater(final int buildNumber, final UpdateNotifier updateNotifier) {
-    this.buildNumber = buildNumber;
-    this.updateNotifier = updateNotifier;
-  }
-
   public TimetrackerVersionUpdater(final UpdateNotifier updateNotifier) {
     buildNumber = ComponentAccessor.getComponent(BuildUtilsInfo.class).getApplicationBuildNumber();
     this.updateNotifier = updateNotifier;
