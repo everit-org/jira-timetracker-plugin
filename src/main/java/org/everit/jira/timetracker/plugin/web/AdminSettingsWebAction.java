@@ -282,6 +282,9 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
 
   private Set<Long> parseDates(final String[] excludeDatesValue) {
     Set<Long> tempDates = new TreeSet<>();
+    if (excludeDatesValue == null) {
+      return tempDates;
+    }
     for (String string : excludeDatesValue) {
       try {
         tempDates.add(Long.valueOf(string));
