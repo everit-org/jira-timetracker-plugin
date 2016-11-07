@@ -185,12 +185,12 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     if (getHttpRequest().getParameter("savesettings") != null) {
       String parseResult = parseSaveSettings(getHttpRequest());
       if (parseResult != null) {
-        setReturnUrl("/secure/admin/JiraTimetrackerAdminSettingsWebAction!default.jspa");
+        setReturnUrl("/secure/admin/TimetrackerAdminSettingsWebAction!default.jspa");
         return parseResult;
       }
       savePluginSettings();
     }
-    setReturnUrl("/secure/admin/JiraTimetrackerAdminSettingsWebAction!default.jspa");
+    setReturnUrl("/secure/admin/TimetrackerAdminSettingsWebAction!default.jspa");
     return getRedirect(INPUT);
   }
 

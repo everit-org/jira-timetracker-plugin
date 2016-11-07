@@ -70,7 +70,7 @@ public class PiwikUrlBuilder {
    *
    * @param actionUrl
    *          the action URL. Example:
-   *          "http://customer.jira.com/secure/admin/JiraTimetrackerAdminSettingsWebAction!default.jspa".
+   *          "http://customer.jira.com/secure/admin/TimetrackerAdminSettingsWebAction!default.jspa".
    *          Cannot be <code>null</code>.
    * @param siteIdKey
    *          the properties key to site id. Found keys in {@link PiwikPropertiesUtil} class. Cannot

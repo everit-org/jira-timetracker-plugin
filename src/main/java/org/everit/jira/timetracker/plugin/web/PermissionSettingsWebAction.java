@@ -112,7 +112,7 @@ public class PermissionSettingsWebAction extends JiraWebActionSupport {
       savePluginSettings();
       return getRedirect(INPUT);
     }
-    setReturnUrl("/secure/admin/JiraTimetrackerPermissionSettingsWebAction!default.jspa");
+    setReturnUrl("/secure/admin/TimetrackerPermissionSettingsWebAction!default.jspa");
     return getRedirect(INPUT);
   }
 

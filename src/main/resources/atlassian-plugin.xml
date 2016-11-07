@@ -31,7 +31,7 @@
     <param name="vendor-icon">icons/e_logo16.png</param>
     <param name="vendor-logo">icons/e_logo72.png</param>
     <param name="atlassian-data-center-compatible">true</param>
-    <param name="configure.url">/secure/admin/JiraTimetrackerAdminSettingsWebAction!default.jspa</param>
+    <param name="configure.url">/secure/admin/TimetrackerAdminSettingsWebAction!default.jspa</param>
   </plugin-info>
 
   <component-import key="pluginSettingFactroy"
@@ -110,7 +110,7 @@
   <web-item key="jttp_admin_link" name="JTTP Administration Link" section="jttp_menu/jttp_doc_section"
     weight="47">
     <label>Administration</label>
-    <link linkId="jttp_admin_link"><![CDATA[/secure/admin/JiraTimetrackerAdminSettingsWebAction!default.jspa]]></link>
+    <link linkId="jttp_admin_link"><![CDATA[/secure/admin/TimetrackerAdminSettingsWebAction!default.jspa]]></link>
     <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition" />
   </web-item>
 
@@ -259,13 +259,13 @@
         <view name="error">/templates/common/error.vm</view>
       </action>
 
-      <action name="org.everit.jira.timetracker.plugin.web.JiraTimetrackerSettingsWebAction"
-        alias="JiraTimetrackerSettingsWebAction">
-        <view name="success">/templates/timetracker/settings.vm</view>
-        <view name="input">/templates/timetracker/settings.vm</view>
+      <action name="org.everit.jira.timetracker.plugin.web.JiraTimetrackerUserSettingsWebAction"
+        alias="TimetrackerUserSettingsWebAction">
+        <view name="success">/templates/timetracker/user_settings.vm</view>
+        <view name="input">/templates/timetracker/user_settings.vm</view>
         <view name="error">/templates/common/error.vm</view>
       </action>
-      <action name="org.everit.jira.timetracker.plugin.web.AdminSettingsWebAction" alias="JiraTimetrackerAdminSettingsWebAction">
+      <action name="org.everit.jira.timetracker.plugin.web.AdminSettingsWebAction" alias="TimetrackerAdminSettingsWebAction">
         <view name="success">/templates/timetracker/adminsettings.vm</view>
         <view name="input">/templates/timetracker/adminsettings.vm</view>
         <view name="error">/templates/common/error.vm</view>
@@ -302,13 +302,13 @@
         <view name="error">/templates/common/error.vm</view>
       </action>
       <action name="org.everit.jira.timetracker.plugin.web.PermissionSettingsWebAction"
-        alias="JiraTimetrackerPermissionSettingsWebAction">
-        <view name="success">/templates/reporting/reportingadminsettings.vm</view>
-        <view name="input">/templates/reporting/reportingadminsettings.vm</view>
+        alias="TimetrackerPermissionSettingsWebAction">
+        <view name="success">/templates/timetracker/permission_settings.vm</view>
+        <view name="input">/templates/timetracker/permission_settings.vm</view>
         <view name="error">/templates/common/error.vm</view>
       </action>
       <action name="org.everit.jira.reporting.plugin.web.ReportingUserSettingsWebAction"
-        alias="JiraTimetrackerReportingUserSettingsWebAction">
+        alias="ReportingUserSettingsWebAction">
         <view name="success">/templates/reporting/reportingusersettings.vm</view>
         <view name="input">/templates/reporting/reportingusersettings.vm</view>
         <view name="error">/templates/common/error.vm</view>
@@ -325,12 +325,12 @@
   <web-item key="jttp_settings_link" name="Jttp Settings Link" section="admin_plugins_menu/jttp_admin_section"
     weight="47">
     <label>Global Settings</label>
-    <link linkId="my_jttp_settings_link"><![CDATA[/secure/admin/JiraTimetrackerAdminSettingsWebAction!default.jspa]]></link>
+    <link linkId="my_jttp_settings_link"><![CDATA[/secure/admin/TimetrackerAdminSettingsWebAction!default.jspa]]></link>
   </web-item>
   <web-item key="jttp__reporting_settings_link" name="Jttp Reporting Settings Link"
     section="admin_plugins_menu/jttp_admin_section" weight="47">
     <label>Permission settings</label>
-    <link linkId="my_jttp__reporting_settings_link"><![CDATA[/secure/admin/JiraTimetrackerPermissionSettingsWebAction!default.jspa]]></link>
+    <link linkId="my_jttp__reporting_settings_link"><![CDATA[/secure/admin/TimetrackerPermissionSettingsWebAction!default.jspa]]></link>
   </web-item>
 
   <rest key="JTTP-REST" path="/jttp-rest" version="1">
