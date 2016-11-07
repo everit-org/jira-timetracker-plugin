@@ -122,7 +122,6 @@
     <transformation extension="js">
         <transformer key="jsI18n"/>
     </transformation>
-    <resource type="download" name="jttp_feedback.css" location="/css/jttp_feedback.css"/>
     <resource type="download" name="jttp.js" location="/js/jttp.js"/>
     <resource type="download" name="E_logo.png" location="/icons/E_logo.png">
       <param name="content-type" value="image/png" />
@@ -139,7 +138,6 @@
     <transformation extension="js">
       <transformer key="jsI18n" />
     </transformation>
-    <resource type="download" name="jttp_feedback.css" location="/css/jttp_feedback.css" />
     <resource type="download" name="E_logo.png" location="/icons/E_logo.png">
       <param name="content-type" value="image/png" />
     </resource>
@@ -153,7 +151,6 @@
     <dependency>com.atlassian.auiplugin:ajs</dependency>
     <dependency>com.atlassian.auiplugin:dialog2</dependency>
     <dependency>com.atlassian.auiplugin:aui-date-picker</dependency>
-    <resource type="download" name="jttp_feedback.css" location="/css/jttp_feedback.css" />
     <resource type="download" name="E_logo.png" location="/icons/E_logo.png">
       <param name="content-type" value="image/png" />
     </resource>
@@ -233,7 +230,6 @@
     <transformation extension="js">
       <transformer key="jsI18n" />
     </transformation>
-    <resource type="download" name="jttp_feedback.css" location="/css/jttp_feedback.css" />
     <resource type="download" name="E_logo.png" location="/icons/E_logo.png">
       <param name="content-type" value="image/png" />
     </resource>
@@ -251,7 +247,6 @@
 
   <webwork1 key="jttp-webaction" name="JTTP Webwork actions" class="java.lang.Object">
     <resource type="i18n" name="i18n-jttp-vm" location="i18n/jttp" />
-    <resource type="i18n" name="i18n-feedback-vm" location="i18n/feedback" />
     <actions>
       <action name="org.everit.jira.timetracker.plugin.web.JiraTimetrackerWebAction" alias="JiraTimetrackerWebAction">
         <view name="success">/templates/timetracker/jttp.vm</view>
@@ -276,7 +271,6 @@
   <webwork1 key="jtrp-webaction" name="JTRP Webwork actions" class="java.lang.Object">
     <resource type="i18n" name="i18n-jtrp-vm" location="i18n/jtrp" />
     <resource type="i18n" name="i18n-jttp-vm" location="i18n/jttp" />
-    <resource type="i18n" name="i18n-feedback-vm" location="i18n/feedback" />
     <actions>
       <action name="org.everit.jira.reporting.plugin.web.ReportingWebAction" alias="ReportingWebAction">
         <view name="success">/templates/reporting/reporting.vm</view>

@@ -29,7 +29,6 @@ import org.everit.jira.settings.dto.ReportingGlobalSettings;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 
-import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
 
 /**
@@ -51,8 +50,6 @@ public class PermissionSettingsWebAction extends JiraWebActionSupport {
    */
   private String contextPath;
 
-  private boolean feedBackSendAviable;
-
   private String issueCollectorSrc;
 
   /**
@@ -73,10 +70,6 @@ public class PermissionSettingsWebAction extends JiraWebActionSupport {
     this.settingsHelper = settingsHelper;
   }
 
-  private void checkMailServer() {
-    feedBackSendAviable = ComponentAccessor.getMailServerManager().isDefaultSMTPMailServerDefined();
-  }
-
   @Override
   public String doDefault() throws ParseException {
     boolean isUserLogged = TimetrackerUtil.isUserLogged();
@@ -86,7 +79,6 @@ public class PermissionSettingsWebAction extends JiraWebActionSupport {
     }
     loadIssueCollectorSrc();
     normalizeContextPath();
-    checkMailServer();
 
     loadPluginSettingAndParseResult();
 
@@ -102,7 +94,6 @@ public class PermissionSettingsWebAction extends JiraWebActionSupport {
     }
     loadIssueCollectorSrc();
     normalizeContextPath();
-    checkMailServer();
 
     loadPluginSettingAndParseResult();
 
@@ -110,7 +101,6 @@ public class PermissionSettingsWebAction extends JiraWebActionSupport {
       parseSaveSettings(getHttpRequest());
 
       savePluginSettings();
-      return getRedirect(INPUT);
     }
     setReturnUrl("/secure/admin/TimetrackerPermissionSettingsWebAction!default.jspa");
     return getRedirect(INPUT);
@@ -122,10 +112,6 @@ public class PermissionSettingsWebAction extends JiraWebActionSupport {
 
   public String getContextPath() {
     return contextPath;
-  }
-
-  public boolean getFeedBackSendAviable() {
-    return feedBackSendAviable;
   }
 
   public String getIssueCollectorSrc() {
@@ -243,10 +229,6 @@ public class PermissionSettingsWebAction extends JiraWebActionSupport {
 
   public void setContextPath(final String contextPath) {
     this.contextPath = contextPath;
-  }
-
-  public void setFeedBackSendAviable(final boolean feedBackSendAviable) {
-    this.feedBackSendAviable = feedBackSendAviable;
   }
 
   public void setMessage(final String message) {

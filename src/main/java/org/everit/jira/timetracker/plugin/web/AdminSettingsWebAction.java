@@ -37,13 +37,24 @@ import org.everit.jira.settings.TimetrackerSettingsHelper;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 
-import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
 
 /**
  * Admin settings page.
  */
 public class AdminSettingsWebAction extends JiraWebActionSupport {
+
+  /**
+   * Keys for properties.
+   */
+  public static final class PropertiesKey {
+
+    public static final String PLUGIN_NONESTIMATED_EMPTY_VALUE = "plugin.nonestimated.empty.value";
+
+    public static final String PLUGIN_SETTING_DATE_EXITST_INCLUDE_EXCLUDE =
+        "plugin.setting.date.exitst.include.exclude";
+
+  }
 
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
 
@@ -87,8 +98,6 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    * The exclude dates in UNIX long format. Sorted by natural order.
    */
   private Set<Long> excludeDates = new TreeSet<>();
-
-  private boolean feedBackSendAviable;
 
   /**
    * The include dates in UNIX long format. Sorted by natural order.
@@ -136,10 +145,6 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     this.settingsHelper = settingsHelper;
   }
 
-  private void checkMailServer() {
-    feedBackSendAviable = ComponentAccessor.getMailServerManager().isDefaultSMTPMailServerDefined();
-  }
-
   @Override
   public String doDefault() throws ParseException {
     boolean isUserLogged = TimetrackerUtil.isUserLogged();
@@ -153,7 +158,6 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     loadIssueCollectorSrc();
     normalizeContextPath();
     loadPluginSettingAndParseResult();
-    checkMailServer();
     try {
       projectsId = supportManager.getProjectsId();
     } catch (Exception e) {
@@ -174,7 +178,6 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     loadIssueCollectorSrc();
     normalizeContextPath();
     loadPluginSettingAndParseResult();
-    checkMailServer();
     try {
       projectsId = supportManager.getProjectsId();
     } catch (Exception e) {
@@ -208,10 +211,6 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
 
   public Set<Long> getExcludeDates() {
     return excludeDates;
-  }
-
-  public boolean getFeedBackSendAviable() {
-    return feedBackSendAviable;
   }
 
   public Set<Long> getIncludeDates() {
@@ -302,7 +301,7 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
           collectorIssuePatterns.add(Pattern.compile(filteredIssueKey));
         }
       } else {
-        message = "plugin.nonestimated.empty.value";
+        message = PropertiesKey.PLUGIN_NONESTIMATED_EMPTY_VALUE;
         return true;
       }
     } else if (nonEstSelectValue.equals(NON_EST_NONE)) {
@@ -343,7 +342,7 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     HashSet<Long> interSect = new HashSet<>(excludeDates);
     interSect.retainAll(includeDates);
     if (!interSect.isEmpty()) {
-      message = "plugin.setting.date.exitst.include.exclude";
+      message = PropertiesKey.PLUGIN_SETTING_DATE_EXITST_INCLUDE_EXCLUDE;
       return SUCCESS;
     }
     if (parseNonEstException) {
@@ -391,10 +390,6 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
 
   public void setContextPath(final String contextPath) {
     this.contextPath = contextPath;
-  }
-
-  public void setFeedBackSendAviable(final boolean feedBackSendAviable) {
-    this.feedBackSendAviable = feedBackSendAviable;
   }
 
   public void setIssueKey(final String issueKey) {
