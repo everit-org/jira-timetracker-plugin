@@ -184,6 +184,8 @@ everit.jttp.main = everit.jttp.main || {};
     var worklogValuesJson = jQuery('#worklogValuesJson');
     worklogValuesJson.val(json);
     
+    // Added Piwik Submit action to save action. (count create, edit, edit all saves)
+    _paq.push(['trackEvent', 'User', 'Submit']);
     return true;
   }
     
@@ -241,6 +243,9 @@ everit.jttp.main = everit.jttp.main || {};
     
     var editAll = jQuery('#jttp-logwork-form #editAll');
     jQuery("#jttp-datecahnge-form").append(editAll);
+    
+    var isShowMoveAllNoPermission = jQuery('#jttp-logwork-form #isShowMoveAllNoPermission');
+    jQuery("#jttp-datecahnge-form").append(isShowMoveAllNoPermission);
     
     var actionFlag = jQuery('#jttp-logwork-form #actionFlag');
     jQuery("#jttp-datecahnge-form").append(actionFlag);

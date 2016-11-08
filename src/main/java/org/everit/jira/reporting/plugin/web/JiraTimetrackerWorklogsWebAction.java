@@ -436,10 +436,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
         message = "plugin.wrong.dates";
         return INPUT;
       }
-    }
-    String pagingValue = getHttpRequest().getParameter("paging");
-    if (pagingValue != null) {
-      // TODO add paging check if not working add default init
+    } else {
       parsePagingParams();
       dateFrom = new Date(dateFromFormated);
       dateTo = new Date(dateToFormated);
@@ -515,19 +512,20 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    *          The sub list of allDatesWhereNoWorklog.
    */
   private void setShowDatesListByActualPage(final int actualPageParam) {
-    // TODO ROW_COUNT based on pageington settings of the user???
-    int from = (actualPageParam - 1) * ROW_COUNT;
-    int to = actualPageParam * ROW_COUNT;
-    if ((actualPageParam == 1) && (allDatesWhereNoWorklog.size() < ROW_COUNT)) {
-      to = allDatesWhereNoWorklog.size();
+    if (allDatesWhereNoWorklog.size() > 0) { // if the result is 0, use dafault paging
+      int from = (actualPageParam - 1) * ROW_COUNT;
+      int to = actualPageParam * ROW_COUNT;
+      if ((actualPageParam == 1) && (allDatesWhereNoWorklog.size() < ROW_COUNT)) {
+        to = allDatesWhereNoWorklog.size();
+      }
+      if ((actualPageParam == numberOfPages)
+          && ((allDatesWhereNoWorklog.size() % ROW_COUNT) != 0)) {
+        to = from + (allDatesWhereNoWorklog.size() % ROW_COUNT);
+      }
+      paging = paging.start(from + 1).end(to).resultSize(allDatesWhereNoWorklog.size())
+          .actPageNumber(actualPageParam).maxPageNumber(numberOfPages);
+      showDatesWhereNoWorklog = allDatesWhereNoWorklog.subList(from, to);
     }
-    if ((actualPageParam == numberOfPages)
-        && ((allDatesWhereNoWorklog.size() % ROW_COUNT) != 0)) {
-      to = from + (allDatesWhereNoWorklog.size() % ROW_COUNT);
-    }
-    paging = paging.start(from + 1).end(to).resultSize(allDatesWhereNoWorklog.size())
-        .actPageNumber(actualPageParam).maxPageNumber(numberOfPages);
-    showDatesWhereNoWorklog = allDatesWhereNoWorklog.subList(from, to);
   }
 
   public void setShowDatesWhereNoWorklog(

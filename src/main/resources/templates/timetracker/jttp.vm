@@ -123,7 +123,7 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.popu
                 #end
               </div>
             #end
-            #if(!$parsedEditAllIds.isEmpty() && $worklogsIds.containsAll($parsedEditAllIds))
+            #if($isShowMoveAllNoPermission)
               <div class="aui-message aui-message-error">
                 <p>$i18n.getText('jttp.error.moveall.no.permission')</p>
               </div>
@@ -245,6 +245,7 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.popu
                     <input type="hidden" id="actionFlag" name="actionFlag" value="$actionFlag" >
                     <input type="hidden" id="date" name="date" >
                     <input type="hidden" id="editAll" name="editAll" value="$editAllIds" >
+                    <input type="hidden" id="isShowMoveAllNoPermission" name="isShowMoveAllNoPermission" value="$isShowMoveAllNoPermission" >
                     <input type="hidden" id="worklogValuesJson" name="worklogValuesJson" >
                     <input class="aui-button" type="reset" value="Cancel"
                       id="jttp-logwork-cancel" name="lw_cancel" onclick="everit.jttp.main.cancelClick();">

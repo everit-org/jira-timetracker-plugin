@@ -50,7 +50,7 @@ public final class DateTimeConverterUtil {
   /**
    * The date time format.
    */
-  public static final String DATE_TIME_FORMAT = "yyyy-MM-dd kk:mm";
+  public static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm";
 
   /**
    * The number of days per week.
@@ -61,6 +61,11 @@ public final class DateTimeConverterUtil {
    * The fix date time format for exclude and include dates.
    */
   public static final String FIX_DATE_TIME_FORMAT = "yyyy-MM-dd";
+
+  /**
+   * The fix date time format for duration value.
+   */
+  private static final String FIX_TIME_FORMAT = "HH:mm";
 
   private static final int HOURS_GROUP = 8;
 
@@ -119,7 +124,7 @@ public final class DateTimeConverterUtil {
       throws ParseException {
     long startMillisecond = DateTimeConverterUtil.stringTimeToDateTime(start).getTime();
     long endMillisecond = startMillisecond + spentMilliseconds;
-    return DateTimeConverterUtil.millisecondConvertToStringTime(endMillisecond);
+    return DateTimeConverterUtil.dateTimeToString(new Date(endMillisecond));
   }
 
   /**
@@ -148,6 +153,19 @@ public final class DateTimeConverterUtil {
   public static String dateTimeToString(final Date date) {
     DateTimeFormatter dateTimeTimeFormatter = DateTimeConverterUtil.getDateTimeTimeFormatter();
     return dateTimeTimeFormatter.format(date);
+  }
+
+  /**
+   * Convert the date time to string with ({@link FIX_TIME_FORMAT}).
+   *
+   * @param date
+   *          The time to convert.
+   * @return The result string.
+   */
+  public static String dateTimeToStringWithFixFormat(final Date date) {
+    DateFormat formatterDate = new SimpleDateFormat(FIX_TIME_FORMAT);
+    formatterDate.setTimeZone(TimeZone.getTimeZone("UTC"));
+    return formatterDate.format(date);
   }
 
   /**
@@ -206,18 +224,6 @@ public final class DateTimeConverterUtil {
   public static long getDateDifference(final Date firstDate, final Date secondDate) {
     long diffInMillies = secondDate.getTime() - firstDate.getTime();
     return TimeUnit.SECONDS.convert(diffInMillies, TimeUnit.MILLISECONDS);
-  }
-
-  // TODO add better name. in the next version we will need 3 different formatter.
-  // TODO server TZ, User TZ and a GMT
-  private static DateTimeFormatter getDateTimeFormatterWithGMT() {
-    DateTimeFormatterFactory dateTimeFormatterFactory =
-        ComponentAccessor.getComponent(DateTimeFormatterFactory.class);
-    return dateTimeFormatterFactory
-        .formatter()
-        .forLoggedInUser()
-        .withZone(TimeZone.getTimeZone("GMT"))
-        .withStyle(DateTimeStyle.TIME);
   }
 
   private static DateTimeFormatter getDateTimeTimeFormatter() {
@@ -311,19 +317,6 @@ public final class DateTimeConverterUtil {
   }
 
   /**
-   * Convert the millisecond to String time.
-   *
-   * @param milliseconds
-   *          The time in milliseconds.
-   * @return The result String.
-   */
-  public static String millisecondConvertToStringTime(final long milliseconds) {
-    Date date = new Date();
-    date.setTime(milliseconds);
-    return DateTimeConverterUtil.dateTimeToString(date);
-  }
-
-  /**
    * Return a Calendar with time set by the start of the given day.
    *
    * @param date
@@ -355,7 +348,7 @@ public final class DateTimeConverterUtil {
   }
 
   /**
-   * Convert String ({@value DateTimeStyle#TIME}) to Time.
+   * Convert String with ({@value FIX_TIME_FORMAT}) to Time.
    *
    * @param time
    *          The String time.
@@ -363,10 +356,10 @@ public final class DateTimeConverterUtil {
    * @throws ParseException
    *           If can't parse the date.
    */
-  public static Date stringTimeToDateTimeWithGMT(final String time) throws ParseException {
-    DateTimeFormatter dateTimeTimeFormatter =
-        DateTimeConverterUtil.getDateTimeFormatterWithGMT();
-    return dateTimeTimeFormatter.parse(time);
+  public static Date stringTimeToDateTimeWithFixFormat(final String time) throws ParseException {
+    DateFormat formatterDate = new SimpleDateFormat(FIX_TIME_FORMAT);
+    formatterDate.setTimeZone(TimeZone.getTimeZone("UTC"));
+    return formatterDate.parse(time);
   }
 
   /**
@@ -380,7 +373,7 @@ public final class DateTimeConverterUtil {
    *           If can't parse the date.
    */
   public static String stringTimeToString(final String time) throws ParseException {
-    long seconds = DateTimeConverterUtil.stringTimeToDateTime(
+    long seconds = DateTimeConverterUtil.stringTimeToDateTimeWithFixFormat(
         time).getTime() / MILLISEC_IN_SECOND;
     String result = new DurationFormatter().exactDuration(seconds);
     return result;
@@ -410,6 +403,29 @@ public final class DateTimeConverterUtil {
    *
    * @param date
    *          The date.
+   * @param time
+   *          The time.
+   * @return The result Date.
+   * @throws ParseException
+   *           if can't parse the date.
+   */
+  public static Date stringToDateAndTime(final Date date, final Date time)
+      throws ParseException {
+    Calendar dateCalendaer = Calendar.getInstance();
+    dateCalendaer.setTime(date);
+    Calendar timeCalendar = Calendar.getInstance();
+    timeCalendar.setTime(time);
+    dateCalendaer.set(Calendar.HOUR_OF_DAY, timeCalendar.get(Calendar.HOUR_OF_DAY));
+    dateCalendaer.set(Calendar.MINUTE, timeCalendar.get(Calendar.MINUTE));
+    return dateCalendaer.getTime();
+  }
+
+  /**
+   * Convert String to date and time and merge them. Use the stringToDate and stringTimeToDateTime
+   * methods.
+   *
+   * @param date
+   *          The date.
    * @param timeString
    *          The time string to convert.
    * @return The result Date.
@@ -418,13 +434,7 @@ public final class DateTimeConverterUtil {
    */
   public static Date stringToDateAndTime(final Date date, final String timeString)
       throws ParseException {
-    Calendar dateCalendaer = Calendar.getInstance();
-    dateCalendaer.setTime(date);
-    Calendar time = Calendar.getInstance();
-    time.setTime(DateTimeConverterUtil.stringTimeToDateTime(timeString));
-    dateCalendaer.set(Calendar.HOUR_OF_DAY, time.get(Calendar.HOUR_OF_DAY));
-    dateCalendaer.set(Calendar.MINUTE, time.get(Calendar.MINUTE));
-    return dateCalendaer.getTime();
+    return stringToDateAndTime(date, DateTimeConverterUtil.stringTimeToDateTime(timeString));
   }
 
   /**
