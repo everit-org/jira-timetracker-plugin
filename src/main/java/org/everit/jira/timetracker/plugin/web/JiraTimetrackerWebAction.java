@@ -43,10 +43,9 @@ import org.everit.jira.timetracker.plugin.DurationFormatter;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.PluginCondition;
 import org.everit.jira.timetracker.plugin.TimetrackerCondition;
-import org.everit.jira.timetracker.plugin.dto.ActionResult;
-import org.everit.jira.timetracker.plugin.dto.ActionResultStatus;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.dto.WorklogValues;
+import org.everit.jira.timetracker.plugin.exception.WorklogException;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
@@ -481,13 +480,14 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   }
 
   private String createWorklog() {
-    ActionResult createResult = worklogManager.createWorklog(
-        issueKey, commentForActions, date, startTime, timeSpent);
-    if (createResult.getStatus() == ActionResultStatus.FAIL) {
-      message = createResult.getMessage();
-      messageParameter = createResult.getMessageParameter();
+    try {
+      worklogManager.createWorklog(issueKey, commentForActions, date, startTime, timeSpent);
+    } catch (WorklogException e) {
+      message = e.getMessage();
+      messageParameter = e.messageParameter;
       return INPUT;
     }
+
     try {
       loadWorklogsAndMakeSummary();
       startTime = timetrackerManager.lastEndTime(worklogs);
@@ -545,10 +545,11 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private String deleteWorklog() {
     if ("delete".equals(actionFlag) && (actionWorklogId != null)
         && !DEFAULT_WORKLOG_ID.equals(actionWorklogId)) {
-      ActionResult deleteResult = worklogManager.deleteWorklog(actionWorklogId);
-      if (deleteResult.getStatus() == ActionResultStatus.FAIL) {
-        message = deleteResult.getMessage();
-        messageParameter = deleteResult.getMessageParameter();
+      try {
+        worklogManager.deleteWorklog(actionWorklogId);
+      } catch (WorklogException e) {
+        message = e.getMessage();
+        messageParameter = e.messageParameter;
         return INPUT;
       }
       actionFlag = "";
@@ -660,14 +661,16 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     if (validateInputFieldsResult.equals(INPUT)) {
       return INPUT;
     }
-    ActionResult updateResult = worklogManager.editWorklog(
-        actionWorklogId, issueKey, commentForActions, date,
-        startTime, timeSpent);
-    if (updateResult.getStatus() == ActionResultStatus.FAIL) {
-      message = updateResult.getMessage();
-      messageParameter = updateResult.getMessageParameter();
+
+    try {
+      worklogManager.editWorklog(actionWorklogId, issueKey, commentForActions, date, startTime,
+          timeSpent);
+    } catch (WorklogException e) {
+      message = e.getMessage();
+      messageParameter = e.messageParameter;
       return INPUT;
     }
+
     try {
       loadWorklogsAndMakeSummary();
       startTime = timetrackerManager.lastEndTime(worklogs);
@@ -696,14 +699,13 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     List<Long> editWorklogIds = parseEditAllIds(getHttpRequest().getParameter("editAll"));
     // edit the worklogs!
     for (Long editWorklogId : editWorklogIds) {
-      EveritWorklog editWorklog = worklogManager
-          .getWorklog(editWorklogId);
-      worklogManager.editWorklog(editWorklog
-          .getWorklogId(), editWorklog.getIssue(), editWorklog
-              .getBody(),
-          date, editWorklog.getStartTime(),
-          DateTimeConverterUtil.stringTimeToString(editWorklog
-              .getDuration()));
+      EveritWorklog editWorklog = worklogManager.getWorklog(editWorklogId);
+      worklogManager.editWorklog(editWorklog.getWorklogId(),
+          editWorklog.getIssue(),
+          editWorklog.getBody(),
+          date,
+          editWorklog.getStartTime(),
+          DateTimeConverterUtil.stringTimeToString(editWorklog.getDuration()));
     }
     // set editAllIds to default and list worklogs
     try {

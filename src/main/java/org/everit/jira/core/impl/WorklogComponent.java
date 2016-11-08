@@ -25,10 +25,9 @@ import java.util.List;
 
 import org.everit.jira.core.EVWorklogManager;
 import org.everit.jira.core.util.WorklogUtil;
-import org.everit.jira.timetracker.plugin.dto.ActionResult;
-import org.everit.jira.timetracker.plugin.dto.ActionResultStatus;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklogComparator;
+import org.everit.jira.timetracker.plugin.exception.WorklogException;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.ofbiz.core.entity.EntityCondition;
 import org.ofbiz.core.entity.GenericEntityException;
@@ -78,15 +77,9 @@ public class WorklogComponent implements EVWorklogManager {
 
     public static final String WORKLOG_CREATE_FAIL = "plugin.worklog.create.fail";
 
-    public static final String WORKLOG_CREATE_SUCCESS = "plugin.worklog.create.success";
-
     public static final String WORKLOG_DELETE_FAIL = "plugin.worklog.delete.fail";
 
-    public static final String WORKLOG_DELETE_SUCCESS = "plugin.worklog.delete.success";
-
     public static final String WORKLOG_UPDATE_FAIL = "plugin.worklog.update.fail";
-
-    public static final String WORKLOG_UPDATE_SUCCESS = "plugin.worklog.update.success";
 
     private PropertiesKey() {
     }
@@ -117,7 +110,7 @@ public class WorklogComponent implements EVWorklogManager {
   }
 
   @Override
-  public ActionResult createWorklog(final String issueId, final String comment, final Date date,
+  public void createWorklog(final String issueId, final String comment, final Date date,
       final String startTime, final String timeSpent) {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
@@ -126,21 +119,18 @@ public class WorklogComponent implements EVWorklogManager {
     IssueManager issueManager = ComponentAccessor.getIssueManager();
     MutableIssue issue = issueManager.getIssueObject(issueId);
     if (issue == null) {
-      return new ActionResult(ActionResultStatus.FAIL,
-          PropertiesKey.INVALID_ISSUE, issueId);
+      throw new WorklogException(PropertiesKey.INVALID_ISSUE, issueId);
     }
     PermissionManager permissionManager = ComponentAccessor.getPermissionManager();
     if (!permissionManager.hasPermission(Permissions.WORK_ISSUE, issue,
         user)) {
-      return new ActionResult(ActionResultStatus.FAIL,
-          PropertiesKey.NOPERMISSION_ISSUE, issueId);
+      throw new WorklogException(PropertiesKey.NOPERMISSION_ISSUE, issueId);
     }
     Date startDate;
     try {
       startDate = DateTimeConverterUtil.stringToDateAndTime(date, startTime);
     } catch (ParseException e) {
-      return new ActionResult(ActionResultStatus.FAIL,
-          PropertiesKey.DATE_PARSE, date + " " + startTime);
+      throw new WorklogException(PropertiesKey.DATE_PARSE, date + " " + startTime);
     }
 
     WorklogNewEstimateInputParameters params = WorklogInputParametersImpl
@@ -148,28 +138,22 @@ public class WorklogComponent implements EVWorklogManager {
         .comment(comment).buildNewEstimate();
     WorklogService worklogService = ComponentAccessor.getComponent(WorklogService.class);
     if (!worklogService.hasPermissionToCreate(serviceContext, issue, true)) {
-      return new ActionResult(ActionResultStatus.FAIL,
-          PropertiesKey.NOPERMISSION_CREATE_WORKLOG, issueId);
+      throw new WorklogException(PropertiesKey.NOPERMISSION_CREATE_WORKLOG, issueId);
     }
     WorklogResult worklogResult = worklogService.validateCreate(
         serviceContext, params);
     if (worklogResult == null) {
-      return new ActionResult(ActionResultStatus.FAIL,
-          PropertiesKey.WORKLOG_CREATE_FAIL);
+      throw new WorklogException(PropertiesKey.WORKLOG_CREATE_FAIL);
     }
     Worklog createdWorklog = worklogService.createAndAutoAdjustRemainingEstimate(serviceContext,
         worklogResult, true);
     if (createdWorklog == null) {
-      return new ActionResult(ActionResultStatus.FAIL,
-          PropertiesKey.WORKLOG_CREATE_FAIL);
+      throw new WorklogException(PropertiesKey.WORKLOG_CREATE_FAIL);
     }
-
-    return new ActionResult(ActionResultStatus.SUCCESS,
-        PropertiesKey.WORKLOG_CREATE_SUCCESS);
   }
 
   @Override
-  public ActionResult deleteWorklog(final Long worklogId) {
+  public void deleteWorklog(final Long worklogId) {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
     ApplicationUser user = authenticationContext.getUser();
@@ -178,23 +162,20 @@ public class WorklogComponent implements EVWorklogManager {
     WorklogManager worklogManager = ComponentAccessor.getWorklogManager();
     Worklog worklog = worklogManager.getById(worklogId);
     if (!worklogService.hasPermissionToDelete(serviceContext, worklog)) {
-      return new ActionResult(ActionResultStatus.FAIL,
-          PropertiesKey.NOPERMISSION_DELETE_WORKLOG, worklog.getIssue().getKey());
+      throw new WorklogException(PropertiesKey.NOPERMISSION_DELETE_WORKLOG,
+          worklog.getIssue().getKey());
     }
     WorklogResult deleteWorklogResult = worklogService.validateDelete(
         serviceContext, worklogId);
     if (deleteWorklogResult == null) {
-      return new ActionResult(ActionResultStatus.FAIL,
-          PropertiesKey.WORKLOG_DELETE_FAIL, worklogId.toString());
+      throw new WorklogException(PropertiesKey.WORKLOG_DELETE_FAIL, worklogId.toString());
     }
     worklogService.deleteAndAutoAdjustRemainingEstimate(serviceContext,
         deleteWorklogResult, true);
-    return new ActionResult(ActionResultStatus.SUCCESS,
-        PropertiesKey.WORKLOG_DELETE_SUCCESS, worklogId.toString());
   }
 
   @Override
-  public ActionResult editWorklog(final Long worklogId, final String issueId, final String comment,
+  public void editWorklog(final Long worklogId, final String issueId, final String comment,
       final Date date,
       final String time, final String timeSpent) {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
@@ -207,55 +188,43 @@ public class WorklogComponent implements EVWorklogManager {
     IssueManager issueManager = ComponentAccessor.getIssueManager();
     MutableIssue issue = issueManager.getIssueObject(issueId);
     if (issue == null) {
-      return new ActionResult(ActionResultStatus.FAIL,
-          PropertiesKey.INVALID_ISSUE, issueId);
+      throw new WorklogException(PropertiesKey.INVALID_ISSUE, issueId);
     }
     if (!worklog.getIssue().getKey().equals(issueId)) {
       PermissionManager permissionManager = ComponentAccessor.getPermissionManager();
       if (!permissionManager.hasPermission(Permissions.WORK_ISSUE, issue,
           user)) {
-        return new ActionResult(ActionResultStatus.FAIL,
-            PropertiesKey.NOPERMISSION_ISSUE, issueId);
+        throw new WorklogException(PropertiesKey.NOPERMISSION_ISSUE, issueId);
       }
-      ActionResult deleteResult = deleteWorklog(worklogId);
-      if (deleteResult.getStatus() == ActionResultStatus.FAIL) {
-        return deleteResult;
-      }
-      ActionResult createResult = createWorklog(issueId, comment,
-          date, time, timeSpent);
-      if (createResult.getStatus() == ActionResultStatus.FAIL) {
-        return createResult;
-      }
+
+      deleteWorklog(worklogId);
+
+      createWorklog(issueId, comment, date, time, timeSpent);
     } else {
       Date dateCreate;
       try {
         dateCreate = DateTimeConverterUtil
             .stringToDateAndTime(date, time);
       } catch (ParseException e) {
-        return new ActionResult(ActionResultStatus.FAIL,
-            PropertiesKey.DATE_PARSE, date + " " + time);
+        throw new WorklogException(PropertiesKey.DATE_PARSE, date + " " + time);
       }
       WorklogInputParameters params = WorklogInputParametersImpl
           .issue(issue).startDate(dateCreate).timeSpent(timeSpent)
           .comment(comment).worklogId(worklogId).issue(issue).build();
       WorklogService worklogService = ComponentAccessor.getComponent(WorklogService.class);
       if (!worklogService.hasPermissionToUpdate(serviceContext, worklog)) {
-        return new ActionResult(ActionResultStatus.FAIL,
-            PropertiesKey.NOPERMISSION_UPDATE_WORKLOG, issueId);
+        throw new WorklogException(PropertiesKey.NOPERMISSION_UPDATE_WORKLOG, issueId);
       }
       WorklogResult worklogResult = worklogService.validateUpdate(
           serviceContext, params);
       if (worklogResult == null) {
-        return new ActionResult(ActionResultStatus.FAIL,
-            PropertiesKey.WORKLOG_UPDATE_FAIL);
+        throw new WorklogException(PropertiesKey.WORKLOG_UPDATE_FAIL);
       }
 
       worklogService.updateAndAutoAdjustRemainingEstimate(serviceContext,
           worklogResult, true);
 
     }
-    return new ActionResult(ActionResultStatus.SUCCESS,
-        PropertiesKey.WORKLOG_UPDATE_SUCCESS);
   }
 
   @Override

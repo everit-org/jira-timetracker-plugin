@@ -23,8 +23,7 @@ import java.util.Locale;
 import org.everit.jira.core.EVWorklogManager;
 import org.everit.jira.core.impl.WorklogComponent;
 import org.everit.jira.core.impl.WorklogComponent.PropertiesKey;
-import org.everit.jira.timetracker.plugin.dto.ActionResult;
-import org.everit.jira.timetracker.plugin.dto.ActionResultStatus;
+import org.everit.jira.timetracker.plugin.exception.WorklogException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -85,13 +84,11 @@ public class CreateWorklogTest {
 
   private EVWorklogManager worklogManager;
 
-  private void assertActionResult(final ActionResult result,
-      final ActionResultStatus expectedStatus, final String expectedIssueId,
+  private void assertWorklogException(final WorklogException e, final String expectedIssueId,
       final String expectedMessage) {
-    Assert.assertNotNull(result);
-    Assert.assertEquals(expectedStatus, result.getStatus());
-    Assert.assertEquals(expectedIssueId, result.getMessageParameter());
-    Assert.assertEquals(expectedMessage, result.getMessage());
+    Assert.assertNotNull(e);
+    Assert.assertEquals(expectedIssueId, e.messageParameter);
+    Assert.assertEquals(expectedMessage, e.getMessage());
   }
 
   @Before
@@ -266,59 +263,66 @@ public class CreateWorklogTest {
     String defaultStartTime = "08:00";
     String defaultTimeSpent = "1h";
 
-    ActionResult result = worklogManager.createWorklog(invalidIssueId,
-        defaultComment,
-        defaultDate,
-        defaultStartTime,
-        defaultTimeSpent);
-    assertActionResult(result, ActionResultStatus.FAIL,
-        invalidIssueId,
-        PropertiesKey.INVALID_ISSUE);
+    try {
+      worklogManager.createWorklog(invalidIssueId,
+          defaultComment,
+          defaultDate,
+          defaultStartTime,
+          defaultTimeSpent);
+      Assert.fail("Expect WorklogException");
+    } catch (WorklogException e) {
+      assertWorklogException(e, invalidIssueId, PropertiesKey.INVALID_ISSUE);
+    }
 
-    result = worklogManager.createWorklog(noPermissionIssue.getKey(),
-        defaultComment,
-        defaultDate,
-        defaultStartTime,
-        defaultTimeSpent);
-    assertActionResult(result, ActionResultStatus.FAIL,
-        noPermissionIssue.getKey(),
-        PropertiesKey.NOPERMISSION_ISSUE);
+    try {
+      worklogManager.createWorklog(noPermissionIssue.getKey(),
+          defaultComment,
+          defaultDate,
+          defaultStartTime,
+          defaultTimeSpent);
+      Assert.fail("Expect WorklogException");
+    } catch (WorklogException e) {
+      assertWorklogException(e, noPermissionIssue.getKey(), PropertiesKey.NOPERMISSION_ISSUE);
+    }
 
     String wrongTimeStamp = "wrong";
-    result = worklogManager.createWorklog(dateParseErrorIssue.getKey(),
-        defaultComment,
-        defaultDate,
-        wrongTimeStamp,
-        defaultTimeSpent);
-    assertActionResult(result, ActionResultStatus.FAIL,
-        defaultDate + " " + wrongTimeStamp,
-        PropertiesKey.DATE_PARSE);
+    try {
+      worklogManager.createWorklog(dateParseErrorIssue.getKey(),
+          defaultComment,
+          defaultDate,
+          wrongTimeStamp,
+          defaultTimeSpent);
+      Assert.fail("Expect WorklogException");
+    } catch (WorklogException e) {
+      assertWorklogException(e, defaultDate + " " + wrongTimeStamp, PropertiesKey.DATE_PARSE);
+    }
 
-    result = worklogManager.createWorklog(validateProblemIssue.getKey(),
+    try {
+      worklogManager.createWorklog(validateProblemIssue.getKey(),
+          defaultComment,
+          defaultDate,
+          defaultStartTime,
+          defaultTimeSpent);
+      Assert.fail("Expect WorklogException");
+    } catch (WorklogException e) {
+      assertWorklogException(e, "", PropertiesKey.WORKLOG_CREATE_FAIL);
+    }
+
+    try {
+      worklogManager.createWorklog(createErrorIssue.getKey(),
+          defaultComment,
+          defaultDate,
+          defaultStartTime,
+          defaultTimeSpent);
+      Assert.fail("Expect WorklogException");
+    } catch (WorklogException e) {
+      assertWorklogException(e, "", PropertiesKey.WORKLOG_CREATE_FAIL);
+    }
+
+    worklogManager.createWorklog(succesCreateIssue.getKey(),
         defaultComment,
         defaultDate,
         defaultStartTime,
         defaultTimeSpent);
-    assertActionResult(result, ActionResultStatus.FAIL,
-        "",
-        PropertiesKey.WORKLOG_CREATE_FAIL);
-
-    result = worklogManager.createWorklog(createErrorIssue.getKey(),
-        defaultComment,
-        defaultDate,
-        defaultStartTime,
-        defaultTimeSpent);
-    assertActionResult(result, ActionResultStatus.FAIL,
-        "",
-        PropertiesKey.WORKLOG_CREATE_FAIL);
-
-    result = worklogManager.createWorklog(succesCreateIssue.getKey(),
-        defaultComment,
-        defaultDate,
-        defaultStartTime,
-        defaultTimeSpent);
-    assertActionResult(result, ActionResultStatus.SUCCESS,
-        "",
-        PropertiesKey.WORKLOG_CREATE_SUCCESS);
   }
 }
