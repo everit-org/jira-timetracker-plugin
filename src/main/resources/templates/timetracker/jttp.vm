@@ -46,7 +46,7 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.plug
 				useISO8601 : ${currentCalendar.useISO8601},
 				dateFormatted : ${dateFormatted},
 				excludeDays : ${excludeDays},
-				isColoring : ${isColoring},
+				isColoring : ${userSettings.coloring},
 				loggedDays : ${loggedDays},
 				isDurationSelected : ${isDurationSelected},
 				projectsId : ${projectsId},
@@ -54,7 +54,7 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.plug
 				comment: '${comment}',
 				actionFlag: '${actionFlag}',
 				worklogSize: ${worklogs.size()},
-				isRounded : ${isRounded},
+				isRounded : ${userSettings.rounded},
 				dateFormat: '${dateFormat}',
 			}
 		);
@@ -118,7 +118,7 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.plug
               </div>
             #end
         #parse("templates/timetracker/jttp-head.vm")
-        #if(!$isProgressDaily)
+        #if(!$userSettings.progressIndicatordaily)
           #parse("templates/timetracker/summary.vm")
         #end
         <!-- Dont forget the "No data to display" message -->
@@ -176,7 +176,7 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.plug
                       onblur="everit.jttp.main.selectCalculationType();"
                       list="time-options" autocomplete="off">
                     <input id="startNow" name="startNow" class="button" type="button" value="$i18n.getText('plugin.now')"
-                      onclick="everit.jttp.main.startNowClick($startTimeChange);">
+                      onclick="everit.jttp.main.startNowClick($userSettings.startTimeChange);">
                   </div>
                   <div class="field-group">
                     <label for="endTime">$i18n.getText("plugin.end.time")</label>
@@ -191,7 +191,7 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.plug
                         list="time-options" autocomplete="off">
                       <div id="endTimeInput" class="time-input-div" onclick="everit.jttp.main.endTimeInputClick();"></div>
                     </span>
-                    <input id="endNow" class="button" type="button" name="endNow" value="$i18n.getText('plugin.now')" onclick="everit.jttp.main.endNowClick($endTimeChange);">
+                    <input id="endNow" class="button" type="button" name="endNow" value="$i18n.getText('plugin.now')" onclick="everit.jttp.main.endNowClick($userSettings.endTimeChange);">
                   </div>
                   #parse("templates/common/timeselect.vm")
                   <div class="field-group duration">

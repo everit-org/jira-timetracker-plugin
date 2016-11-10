@@ -21,7 +21,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
               <thead>
                 <tr>
                   <th id="jttp-worklog-issue-type" title='$i18n.getText("plugin.jttp-worklog-issue-type.tooltip")'>$i18n.getText("plugin.jttp-worklog-issue-type")</th>
-                  #if($isShowIssueSummary)
+                  #if($userSettings.showIssueSummary)
                    <th id="jttp-worklog-issue-summary">$i18n.getText("plugin.jttp-worklog-issue-summary")</th>
                    #else 
                   <th id="jttp-worklog-issue-key">$i18n.getText("plugin.jttp-worklog-issue-key")</th>
@@ -30,7 +30,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
                   <th id="jttp-worklog-start">$i18n.getText("plugin.jttp-worklog-start")</th>
                   <th id="jttp-worklog-end">$i18n.getText("plugin.jttp-worklog-end")</th>
                   <th id="jttp-worklog-duration">$i18n.getText("plugin.jttp-worklog-duration")</th>
-                  <th #if($isShowIssueSummary) id="jttp-worklog-description-small" #else id="jttp-worklog-description" #end">$i18n.getText("plugin.jttp-worklog-description")</th>
+                  <th #if($userSettings.showIssueSummary) id="jttp-worklog-description-small" #else id="jttp-worklog-description" #end">$i18n.getText("plugin.jttp-worklog-description")</th>
                   <th id="jttp-worklog-actions">$i18n.getText("plugin.jttp-worklog-actions")</th>
                 </tr>
               </thead>
@@ -44,7 +44,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
                   <td>
                     <img class="img-tooltip" src="#if(!$worklog.issueAvatarId) #if( $worklog.issueTypeIconUrl.startsWith("http") )$worklog.issueTypeIconUrl#else$contextPath$worklog.issueTypeIconUrl#end#else$contextPath/secure/viewavatar?size=xsmall&avatarId=$worklog.issueAvatarId&avatarType=issuetype#end" alt="$worklog.issueTypeName" title="$worklog.issueTypeName"></img>
                   </td>
-                   #if($isShowIssueSummary)
+                   #if($userSettings.showIssueSummary)
                   <td class="table-issue" style="word-break: break-word; #if($worklog.isClosed) text-decoration: line-through; #end">
                     <a href="$contextPath/browse/$worklog.issue" class="issue-link" title="#if($worklog.issueParent != '') $i18n.getText('plugin.parent.issue') $worklog.issueParent &#13 $worklog.issue #else $worklog.issue #end">$worklog.issueSummary</a>
                   </td>
@@ -54,7 +54,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
                   </td>
                   #end
                   <td>
-                  #if($isRounded)
+                  #if($userSettings.rounded)
                     #set($remainingValue=$worklog.roundedRemaining)
                   #else
                     #set($remainingValue=$worklog.exactRemaining)

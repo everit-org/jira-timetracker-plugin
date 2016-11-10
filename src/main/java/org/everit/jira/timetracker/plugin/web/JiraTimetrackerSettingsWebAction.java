@@ -217,12 +217,12 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
   public void loadUserSettings() {
     TimeTrackerUserSettings loaduserSettings = settingsHelper.loadUserSettings();
     endTime = loaduserSettings.getEndTimeChange();
-    isActualDate = loaduserSettings.getActualDate();
-    isColoring = loaduserSettings.getColoring();
-    isRounded = loaduserSettings.getIsRounded();
-    progressIndDaily = loaduserSettings.getisProgressIndicatordaily();
+    isActualDate = loaduserSettings.isActualDate();
+    isColoring = loaduserSettings.isColoring();
+    isRounded = loaduserSettings.isRounded();
+    progressIndDaily = loaduserSettings.isProgressIndicatordaily();
     isShowFutureLogWarning =
-        loaduserSettings.getIsShowFutureLogWarning();
+        loaduserSettings.isShowFutureLogWarning();
     isShowIssueSummary =
         loaduserSettings.getIsShowIssueSummary();
     startTime = loaduserSettings.getStartTimeChange();

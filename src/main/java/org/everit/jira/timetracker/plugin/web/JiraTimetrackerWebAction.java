@@ -159,38 +159,13 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private String endTime = "";
 
   /**
-   * The endTime input field changer buttons value.
-   */
-  private int endTimeChange;
-
-  private Set<Date> excludeDatesAsSet;
-
-  /**
    * List of the exclude days of the date variable current months.
    */
   private List<Date> excludeDays = new ArrayList<>();
 
-  private Set<Date> includeDatesAsSet;
-
-  /**
-   * The calendar show actual Date Or Last Worklog Date.
-   */
-  private boolean isActualDate;
-
-  /**
-   * The calendar highlights coloring function is active or not.
-   */
-  private boolean isColoring;
+  private TimeTrackerGlobalSettings globalSettings;
 
   private boolean isDurationSelected = false;
-
-  private boolean isProgressDaily = true;
-
-  private boolean isRounded;
-
-  private boolean isShowFutureLogWarning;
-
-  private boolean isShowIssueSummary;
 
   private String issueCollectorSrc;
 
@@ -205,11 +180,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * The issues.
    */
   private transient List<Issue> issues = new ArrayList<>();
-
-  /**
-   * The filtered Issues id.
-   */
-  private List<Pattern> issuesRegex;
 
   /**
    * List of the logged days of the date variable current months.
@@ -242,11 +212,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    */
   private String startTime = "";
 
-  /**
-   * The startTime input field changer buttons value.
-   */
-  private int startTimeChange;
-
   private SummaryDTO summaryDTO;
 
   private transient SupportManager supportManager;
@@ -261,6 +226,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private TimetrackerCondition timetrackingCondition;
 
   private TimeTrackingConfiguration timeTrackingConfiguration;
+
+  private TimeTrackerUserSettings userSettings;
 
   private EVWorklogManager worklogManager;
 
@@ -411,7 +378,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private boolean decideToShowWarning() {
     try {
       Date startDate = DateTimeConverterUtil.stringToDateAndTime(date, startTime);
-      if (isShowFutureLogWarning && new Date().before(startDate)) {
+      if (userSettings.isShowFutureLogWarning() && new Date().before(startDate)) {
         return true;
       }
     } catch (ParseException e) {
@@ -451,11 +418,13 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
     loadPluginSettingAndParseResult();
 
-    if (isActualDate) {
+    Set<Date> excludeDatesAsSet = globalSettings.getExcludeDates();
+    if (userSettings.isActualDate()) {
       date = Calendar.getInstance().getTime();
       dateFormatted = date.getTime();
     } else {
-      date = timetrackerManager.firstMissingWorklogsDate(excludeDatesAsSet, includeDatesAsSet);
+      date = timetrackerManager.firstMissingWorklogsDate(excludeDatesAsSet,
+          globalSettings.getIncludeDates());
       dateFormatted = date.getTime();
     }
 
@@ -494,7 +463,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     parsedEditAllIds = parseEditAllIds(getHttpRequest().getParameter("editAll"));
     parseEditAllAction();
 
-    excludeDays = timetrackerManager.getExcludeDaysOfTheMonth(date, excludeDatesAsSet);
+    excludeDays =
+        timetrackerManager.getExcludeDaysOfTheMonth(date, globalSettings.getExcludeDates());
     projectsId = supportManager.getProjectsId();
 
     String deleteResult = deleteWorklog();
@@ -657,10 +627,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return endTime;
   }
 
-  public int getEndTimeChange() {
-    return endTimeChange;
-  }
-
   /**
    * Get exclude dates as the original date format.
    */
@@ -672,24 +638,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return excludeDaysAsString;
   }
 
-  public boolean getIsColoring() {
-    return isColoring;
-  }
-
   public boolean getIsDurationSelected() {
     return isDurationSelected;
-  }
-
-  public boolean getIsProgressDaily() {
-    return isProgressDaily;
-  }
-
-  public boolean getIsRounded() {
-    return isRounded;
-  }
-
-  public boolean getIsShowIssueSummary() {
-    return isShowIssueSummary;
   }
 
   public String getIssueCollectorSrc() {
@@ -701,7 +651,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   }
 
   public boolean getIssueRegexIsNotEmpty() {
-    return (issuesRegex != null) && !issuesRegex.isEmpty();
+    List<Pattern> nonWorkingIssuePatterns = globalSettings.getNonWorkingIssuePatterns();
+    return !nonWorkingIssuePatterns.isEmpty();
   }
 
   public IssueRenderContext getIssueRenderContext() {
@@ -710,10 +661,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   public List<Issue> getIssues() {
     return issues;
-  }
-
-  public List<Pattern> getIssuesRegex() {
-    return issuesRegex;
   }
 
   public List<String> getLoggedDays() {
@@ -740,12 +687,12 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return startTime;
   }
 
-  public int getStartTimeChange() {
-    return startTimeChange;
-  }
-
   public SummaryDTO getSummaryDTO() {
     return summaryDTO;
+  }
+
+  public TimeTrackerUserSettings getUserSettings() {
+    return userSettings;
   }
 
   public List<EveritWorklog> getWorklogs() {
@@ -910,20 +857,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   }
 
   private void loadPluginSettingAndParseResult() {
-    TimeTrackerUserSettings userSettings = settingsHelper.loadUserSettings();
-    TimeTrackerGlobalSettings globalSettings = settingsHelper.loadGlobalSettings();
-
-    isProgressDaily = userSettings.getisProgressIndicatordaily();
-    isActualDate = userSettings.getActualDate();
-    issuesRegex = globalSettings.getNonWorkingIssuePatterns();
-    startTimeChange = userSettings.getStartTimeChange();
-    endTimeChange = userSettings.getEndTimeChange();
-    isColoring = userSettings.getColoring();
-    isRounded = userSettings.getIsRounded();
-    isShowFutureLogWarning = userSettings.getIsShowFutureLogWarning();
-    isShowIssueSummary = userSettings.getIsShowIssueSummary();
-    excludeDatesAsSet = globalSettings.getExcludeDates();
-    includeDatesAsSet = globalSettings.getIncludeDates();
+    userSettings = settingsHelper.loadUserSettings();
+    globalSettings = settingsHelper.loadGlobalSettings();
   }
 
   /**
@@ -943,8 +878,9 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
         worklogManager.countWorklogsWithoutPermissionChecks(date, null);
 
     summaryDTO = new SummaryDTO.SummaryDTOBuilder(
-        timeTrackingConfiguration, timetrackerManager, supportManager, date, excludeDatesAsSet,
-        includeDatesAsSet, issuesRegex)
+        timeTrackingConfiguration, timetrackerManager, supportManager, date,
+        globalSettings.getExcludeDates(),
+        globalSettings.getIncludeDates(), globalSettings.getNonWorkingIssuePatterns())
             .createSummaryDTO();
   }
 
@@ -974,11 +910,12 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       dateFormatted = Long.valueOf(dateFromParam);
       date = new Date(dateFormatted);
     } else {
-      if (isActualDate) {
+      if (userSettings.isActualDate()) {
         date = Calendar.getInstance().getTime();
         dateFormatted = date.getTime();
       } else {
-        date = timetrackerManager.firstMissingWorklogsDate(excludeDatesAsSet, includeDatesAsSet);
+        date = timetrackerManager.firstMissingWorklogsDate(globalSettings.getExcludeDates(),
+            globalSettings.getIncludeDates());
         dateFormatted = date.getTime();
       }
     }
@@ -1086,10 +1023,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     this.avatarURL = avatarURL;
   }
 
-  public void setColoring(final boolean isColoring) {
-    this.isColoring = isColoring;
-  }
-
   public void setComment(final String comment) {
     this.comment = comment;
   }
@@ -1120,10 +1053,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   public void setEndTime(final String endTime) {
     this.endTime = endTime;
-  }
-
-  public void setEndTimeChange(final int endTimeChange) {
-    this.endTimeChange = endTimeChange;
   }
 
   /**
@@ -1172,24 +1101,12 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     this.isDurationSelected = isDurationSelected;
   }
 
-  public void setIsProgressDaily(final boolean isProgressDaily) {
-    this.isProgressDaily = isProgressDaily;
-  }
-
-  public void setIsRounded(final boolean isRounded) {
-    this.isRounded = isRounded;
-  }
-
   public void setIssueKey(final String issueKey) {
     this.issueKey = issueKey;
   }
 
   public void setIssues(final List<Issue> issues) {
     this.issues = issues;
-  }
-
-  public void setIssuesRegex(final List<Pattern> issuesRegex) {
-    this.issuesRegex = issuesRegex;
   }
 
   public void setLoggedDays(final List<String> loggedDays) {
@@ -1210,10 +1127,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   public void setStartTime(final String startTime) {
     this.startTime = startTime;
-  }
-
-  public void setStartTimeChange(final int startTimeChange) {
-    this.startTimeChange = startTimeChange;
   }
 
   public void setWorklogs(final List<EveritWorklog> worklogs) {

@@ -16,7 +16,7 @@
             <div class="jttp-headline">
               <div class="aui-group aui-group-split">
                  <div class="aui-item">
-                 #if($isProgressDaily)
+                 #if($userSettings.progressIndicatordaily)
                    <div class="jttp-headline-progress" id="jttp-headline-progress">
                      <div class="jttp-headline-progress-date" id="jttp-headline-progress-date">$dateTimeFormatter.format($date)</div>
                      <div class="jttp-headline-progress-number" id="jttp-headline-progress-number">$summaryDTO.daySumIndustryFormatted / $summaryDTO.hoursPerDayFormatted</div>
