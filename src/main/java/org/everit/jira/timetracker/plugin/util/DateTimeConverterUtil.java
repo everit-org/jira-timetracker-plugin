@@ -72,6 +72,11 @@ public final class DateTimeConverterUtil {
   private static final int HOURS_GROUP_2 = 2;
 
   /**
+   * The number of hours in day.
+   */
+  public static final int HOURS_IN_DAY = 24;
+
+  /**
    * The JIRA duration pattern.
    */
   public static final String JIRA_DURATION_PATTERN = "(([01]?[0-9]|2[0-3])[h]*[\\s]+(([0-9]{1,3}|"
@@ -90,6 +95,11 @@ public final class DateTimeConverterUtil {
    */
   public static final int MILLISECONDS_PER_SECOND = 1000;
 
+  /**
+   * The number of mins in quater.
+   */
+  public static final int MINS_IN_QUATER = 15;
+
   private static final int MINUTES_GROUP = 6;
 
   private static final int MINUTES_GROUP_2 = 4;
@@ -98,6 +108,11 @@ public final class DateTimeConverterUtil {
    * The number of minutes per hour.
    */
   public static final int MINUTES_PER_HOUR = 60;
+
+  /**
+   * The number of quaters in hour.
+   */
+  public static final int QUATERS_IN_HOUR = 4;
 
   /**
    * The number of seconds per minute.

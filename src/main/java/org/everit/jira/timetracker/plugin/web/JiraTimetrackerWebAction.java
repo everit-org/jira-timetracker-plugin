@@ -46,6 +46,7 @@ import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
+import org.everit.jira.timetracker.plugin.util.TimeAutoCompleteUtil;
 import org.everit.jira.updatenotifier.UpdateNotifier;
 import org.ofbiz.core.entity.GenericEntityException;
 
@@ -862,6 +863,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   public String getFormattedNonWorkTimeInWeek() {
     return durationFormatter.exactDuration(weekSummaryInSecond - weekFilteredSummaryInSecond);
+  }
+
+  public List<String> getGenerateAutoCompleteList() {
+    return TimeAutoCompleteUtil.generateAutoCompleteList();
   }
 
   public String getHoursPerDayFormatted() {

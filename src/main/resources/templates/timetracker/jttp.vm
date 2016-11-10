@@ -209,6 +209,7 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.popu
                     </span>
                     <input id="endNow" class="button" type="button" name="endNow" value="$i18n.getText('plugin.now')" onclick="everit.jttp.main.endNowClick($endTimeChange);">
                   </div>
+                  
                   #parse("templates/common/timeselect.vm")
                   <div class="field-group duration">
                     <label for="durationTime">$i18n.getText("plugin.duration.time")</label> 
