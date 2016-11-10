@@ -26,7 +26,6 @@ import org.everit.jira.core.TimetrackerManager;
 import org.everit.jira.core.util.TimetrackerUtil;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
-import org.ofbiz.core.entity.GenericEntityException;
 
 import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
 
@@ -65,7 +64,7 @@ public class TimetrackerComponent implements TimetrackerManager {
 
   @Override
   public Date firstMissingWorklogsDate(final Set<Date> excludeDatesSet,
-      final Set<Date> includeDatesSet) throws GenericEntityException {
+      final Set<Date> includeDatesSet) {
     Calendar scannedDate = Calendar.getInstance();
     // one week
     scannedDate.set(Calendar.DAY_OF_YEAR,
@@ -127,8 +126,7 @@ public class TimetrackerComponent implements TimetrackerManager {
   }
 
   @Override
-  public List<String> getLoggedDaysOfTheMonth(final Date date)
-      throws GenericEntityException {
+  public List<String> getLoggedDaysOfTheMonth(final Date date) {
     List<String> resultDays = new ArrayList<>();
     int dayOfMonth = 1;
     Calendar startCalendar = Calendar.getInstance();

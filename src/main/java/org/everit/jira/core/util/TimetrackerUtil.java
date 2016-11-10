@@ -28,7 +28,6 @@ import org.apache.commons.lang.time.DateUtils;
 import org.everit.jira.timetracker.plugin.dto.WorklogValues;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.ofbiz.core.entity.EntityCondition;
-import org.ofbiz.core.entity.GenericEntityException;
 import org.ofbiz.core.entity.GenericValue;
 
 import com.atlassian.jira.component.ComponentAccessor;
@@ -192,11 +191,8 @@ public final class TimetrackerUtil {
    * @param date
    *          The date what have to check.
    * @return If The user have worklogs the given date then true, esle false.
-   * @throws GenericEntityException
-   *           GenericEntity Exception.
    */
-  public static boolean isContainsWorklog(final Date date)
-      throws GenericEntityException {
+  public static boolean isContainsWorklog(final Date date) {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
     ApplicationUser user = authenticationContext.getUser();

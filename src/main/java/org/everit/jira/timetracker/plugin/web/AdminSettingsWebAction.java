@@ -154,12 +154,8 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     normalizeContextPath();
     loadPluginSettingAndParseResult();
     checkMailServer();
-    try {
-      projectsId = supportManager.getProjectsId();
-    } catch (Exception e) {
-      LOGGER.error("Error when try set the plugin variables.", e);
-      return ERROR;
-    }
+
+    projectsId = supportManager.getProjectsId();
 
     return INPUT;
   }

@@ -15,7 +15,6 @@
  */
 package org.everit.jira.core.impl;
 
-import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -30,7 +29,6 @@ import org.everit.jira.timetracker.plugin.dto.EveritWorklogComparator;
 import org.everit.jira.timetracker.plugin.exception.WorklogException;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.ofbiz.core.entity.EntityCondition;
-import org.ofbiz.core.entity.GenericEntityException;
 import org.ofbiz.core.entity.GenericValue;
 
 import com.atlassian.jira.bc.JiraServiceContext;
@@ -236,8 +234,7 @@ public class WorklogComponent implements EVWorklogManager {
 
   @Override
   public List<EveritWorklog> getWorklogs(final String selectedUser, final Date startDate,
-      final Date endDate)
-          throws DataAccessException, SQLException, ParseException, GenericEntityException {
+      final Date endDate) throws DataAccessException, ParseException {
     Calendar startDateCalendar = DateTimeConverterUtil.setDateToDayStart(startDate);
     Calendar endDateCalendar = (Calendar) startDateCalendar.clone();
     if (endDate == null) {

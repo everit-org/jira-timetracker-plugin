@@ -15,13 +15,11 @@
  */
 package org.everit.jira.core;
 
-import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
-import org.ofbiz.core.entity.GenericEntityException;
 
 import com.atlassian.jira.exception.DataAccessException;
 
@@ -114,11 +112,9 @@ public interface EVWorklogManager {
    * @param selectedUser
    *          The selected User.
    * @return The list of the date all worklogs.
-   * @throws GenericEntityException
-   *           GenericEntityException .
    * @throws ParseException
    *           When can't parse the worklog date.
    */
   List<EveritWorklog> getWorklogs(String selectedUser, Date startDate, Date endDate)
-      throws DataAccessException, SQLException, ParseException, GenericEntityException;
+      throws DataAccessException, ParseException;
 }

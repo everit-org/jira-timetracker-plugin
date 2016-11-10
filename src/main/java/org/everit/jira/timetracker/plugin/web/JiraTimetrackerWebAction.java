@@ -17,7 +17,6 @@ package org.everit.jira.timetracker.plugin.web;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -26,7 +25,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.time.DateUtils;
@@ -44,18 +42,16 @@ import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.PluginCondition;
 import org.everit.jira.timetracker.plugin.TimetrackerCondition;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
+import org.everit.jira.timetracker.plugin.dto.SummaryDTO;
 import org.everit.jira.timetracker.plugin.dto.WorklogValues;
 import org.everit.jira.timetracker.plugin.exception.WorklogException;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 import org.everit.jira.updatenotifier.UpdateNotifier;
-import org.ofbiz.core.entity.GenericEntityException;
 
 import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
 import com.atlassian.jira.component.ComponentAccessor;
-import com.atlassian.jira.config.properties.APKeys;
-import com.atlassian.jira.config.properties.ApplicationProperties;
 import com.atlassian.jira.datetime.DateTimeFormatter;
 import com.atlassian.jira.datetime.DateTimeStyle;
 import com.atlassian.jira.exception.DataAccessException;
@@ -70,7 +66,17 @@ import com.atlassian.jira.web.action.JiraWebActionSupport;
  */
 public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
-  private static final int DAYS_IN_WEEK = 7;
+  /**
+   * Keys for properties.
+   */
+  public static final class PropertiesKey {
+
+    public static final String INVALID_DURATION_TIME = "plugin.invalid_durationTime";
+
+    public static final String INVALID_START_TIME = "plugin.invalid_startTime";
+
+    private static final String MISSING_ISSUE = "plugin.missing_issue";
+  }
 
   /**
    * The default worklog ID.
@@ -79,12 +85,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   private static final String FUTURE_WORKLOG_WARNING_URL_PARAMETER = "&showWarning=true";
 
-  private static final int HUNDRED = 100;
-
-  private static final String INVALID_DURATION_TIME = "plugin.invalid_durationTime";
-
-  private static final String INVALID_START_TIME = "plugin.invalid_startTime";
-
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
   /**
    * The JiraTimetrackerWebAction logger..
@@ -92,11 +92,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private static final Logger LOGGER = Logger
       .getLogger(JiraTimetrackerWebAction.class);
 
-  private static final String MISSING_ISSUE = "plugin.missing_issue";
-
   private static final String PARAM_DATE = "date";
-
-  private static final int SECOND_INHOUR = 3600;
 
   private static final String SELF_WITH_DATE_URL_FORMAT =
       "/secure/JiraTimetrackerWebAction.jspa?date=%s";
@@ -146,22 +142,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    */
   private Long dateFormatted;
 
-  /**
-   * The summary of day.
-   */
-  private String dayFilteredSummary = "";
-
-  private long dayFilteredSummaryInSecond;
-
-  private String daySumIndustryFormatted;
-
-  /**
-   * The summary of day.
-   */
-  private String daySummary = "";
-
-  private long daySummaryInSeconds;
-
   private String debugMessage = "";
 
   private DurationFormatter durationFormatter = new DurationFormatter();
@@ -189,14 +169,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * List of the exclude days of the date variable current months.
    */
   private List<Date> excludeDays = new ArrayList<>();
-
-  private double expectedWorkSecondsInDay;
-
-  private double expectedWorkSecondsInMonth;
-
-  private double expectedWorkSecondsInWeek;
-
-  private String hoursPerDayFormatted;
 
   private Set<Date> includeDatesAsSet;
 
@@ -254,20 +226,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    */
   private String messageParameter = "";
 
-  /**
-   * The summary of month.
-   */
-  private String monthFilteredSummary = "";
-
-  private long monthFilteredSummaryInSecond;
-
-  /**
-   * The summary of month.
-   */
-  private String monthSummary = "";
-
-  private long monthSummaryInSecounds;
-
   private List<Long> parsedEditAllIds = Collections.emptyList();
 
   private PluginCondition pluginCondition;
@@ -289,6 +247,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    */
   private int startTimeChange;
 
+  private SummaryDTO summaryDTO;
+
   private transient SupportManager supportManager;
 
   /**
@@ -301,20 +261,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private TimetrackerCondition timetrackingCondition;
 
   private TimeTrackingConfiguration timeTrackingConfiguration;
-
-  /**
-   * The summary of week.
-   */
-  private String weekFilteredSummary = "";
-
-  private long weekFilteredSummaryInSecond;
-
-  /**
-   * The summary of week.
-   */
-  private String weekSummary = "";
-
-  private long weekSummaryInSecond;
 
   private EVWorklogManager worklogManager;
 
@@ -355,53 +301,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     atlassianWikiRenderer = rendererManager.getRendererForType("atlassian-wiki-renderer");
   }
 
-  private void calculateExpectedWorkSecondsInDay() {
-    expectedWorkSecondsInDay =
-        timeTrackingConfiguration.getHoursPerDay().doubleValue() * SECOND_INHOUR;
-  }
-
-  private void calculateExpectedWorkSecondsInMonth() {
-    Calendar dayIndex = createNewCalendarWithWeekStart();
-    dayIndex.setTime(date);
-    dayIndex.set(Calendar.DAY_OF_MONTH, 1);
-    Calendar monthLastDay = createNewCalendarWithWeekStart();
-    monthLastDay.setTime(date);
-    monthLastDay.set(Calendar.DAY_OF_MONTH,
-        monthLastDay.getActualMaximum(Calendar.DAY_OF_MONTH));
-
-    long daysInMonth =
-        TimeUnit.DAYS.convert(monthLastDay.getTimeInMillis() - dayIndex.getTimeInMillis(),
-            TimeUnit.MILLISECONDS) + 1;
-    int excludeDtaes =
-        timetrackerManager.getExcludeDaysOfTheMonth(date, excludeDatesAsSet).size();
-    int includeDtaes =
-        timetrackerManager.getIncludeDaysOfTheMonth(date, includeDatesAsSet).size();
-    int nonWorkDaysCount = 0;
-    for (int i = 1; i < daysInMonth; i++) {
-      int dayOfweek = dayIndex.get(Calendar.DAY_OF_WEEK);
-      if ((dayOfweek == Calendar.SUNDAY) || (dayOfweek == Calendar.SATURDAY)) {
-        nonWorkDaysCount++;
-      }
-      dayIndex.add(Calendar.DAY_OF_MONTH, 1);
-    }
-    long realWorkDaysInMonth = (daysInMonth + includeDtaes) - excludeDtaes - nonWorkDaysCount;
-    expectedWorkSecondsInMonth = realWorkDaysInMonth * expectedWorkSecondsInDay;
-  }
-
-  private void calculateExpectedWorkSecondsInWeek() {
-    List<Date> weekdays = new ArrayList<>();
-    Calendar dayIndex = createNewCalendarWithWeekStart();
-    dayIndex.setTime(getWeekStart(date));
-    for (int i = 0; i < DAYS_IN_WEEK; i++) {
-      weekdays.add(dayIndex.getTime());
-      dayIndex.add(Calendar.DAY_OF_MONTH, 1);
-    }
-    double realWorkDaysInWeek = timetrackerManager.countRealWorkDaysInWeek(weekdays,
-        excludeDatesAsSet, includeDatesAsSet);
-    expectedWorkSecondsInWeek =
-        realWorkDaysInWeek * expectedWorkSecondsInDay;
-  }
-
   private String checkConditions() {
     boolean isUserLogged = TimetrackerUtil.isUserLogged();
     if (!isUserLogged) {
@@ -434,27 +333,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       }
     }
     return worklogIds;
-  }
-
-  private double correctNoneWorkIndicatorPercent(final double realWorkIndicatorPrecent,
-      final double noneWorkIndicatorPrecent) {
-    double correctedNoneWorkIndicatorPercent = noneWorkIndicatorPrecent;
-    double sumPercent = noneWorkIndicatorPrecent + realWorkIndicatorPrecent;
-    if (sumPercent > HUNDRED) {
-      correctedNoneWorkIndicatorPercent =
-          noneWorkIndicatorPrecent - (sumPercent - HUNDRED);
-    }
-    return correctedNoneWorkIndicatorPercent;
-  }
-
-  private Calendar createNewCalendarWithWeekStart() {
-    ApplicationProperties applicationProperties = ComponentAccessor.getApplicationProperties();
-    boolean useISO8601 = applicationProperties.getOption(APKeys.JIRA_DATE_TIME_PICKER_USE_ISO8601);
-    Calendar c = Calendar.getInstance();
-    if (useISO8601) {
-      c.setFirstDayOfWeek(Calendar.MONDAY);
-    }
-    return c;
   }
 
   private String createOrCopyAction() {
@@ -494,7 +372,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       endTime = DateTimeConverterUtil.dateTimeToString(new Date());
       comment = "";
       isDurationSelected = false;
-    } catch (GenericEntityException | ParseException | DataAccessException | SQLException e) {
+    } catch (ParseException | DataAccessException e) {
       LOGGER.error("Error when try set the plugin variables.", e);
       return ERROR;
     }
@@ -572,24 +450,23 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     loadIssueCollectorSrc();
 
     loadPluginSettingAndParseResult();
-    if (setDateAndDateFormatted().equals(ERROR)) {
-      return ERROR;
+
+    if (isActualDate) {
+      date = Calendar.getInstance().getTime();
+      dateFormatted = date.getTime();
+    } else {
+      date = timetrackerManager.firstMissingWorklogsDate(excludeDatesAsSet, includeDatesAsSet);
+      dateFormatted = date.getTime();
     }
 
     excludeDays = timetrackerManager.getExcludeDaysOfTheMonth(date, excludeDatesAsSet);
     projectsId = supportManager.getProjectsId();
-    try {
-      loggedDays = timetrackerManager.getLoggedDaysOfTheMonth(date);
-    } catch (GenericEntityException e1) {
-      // Not return with error. Log the error and set a message to inform the user.
-      // The calendar fill will missing.
-      LOGGER.error(
-          "Error while try to collect the logged days for the calendar color fulling", e1);
-      message = "plugin.calendar.logged.coloring.fail";
-    }
+
+    loggedDays = timetrackerManager.getLoggedDaysOfTheMonth(date);
+
     try {
       loadWorklogsAndMakeSummary();
-    } catch (Exception e) {
+    } catch (ParseException | DataAccessException e) {
       LOGGER.error("Error when try set the plugin variables.", e);
       return ERROR;
     }
@@ -624,7 +501,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     if (deleteResult != null) {
       try {
         loadWorklogsAndMakeSummary();
-      } catch (GenericEntityException | ParseException | DataAccessException | SQLException e) {
+      } catch (ParseException | DataAccessException e) {
         LOGGER.error("Error when try set the plugin variables.", e);
         return ERROR;
       }
@@ -637,7 +514,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
     try {
       loadWorklogsAndMakeSummary();
-    } catch (GenericEntityException | ParseException | DataAccessException | SQLException e) {
+    } catch (ParseException | DataAccessException e) {
       LOGGER.error("Error when try set the plugin variables.", e);
       return ERROR;
     }
@@ -676,7 +553,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       startTime = timetrackerManager.lastEndTime(worklogs);
       endTime = DateTimeConverterUtil.dateTimeToString(new Date());
       comment = "";
-    } catch (GenericEntityException | ParseException | DataAccessException | SQLException e) {
+    } catch (ParseException | DataAccessException e) {
       LOGGER.error("Error when try set the plugin variables.", e);
       return ERROR;
     }
@@ -712,7 +589,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       loadWorklogsAndMakeSummary();
       startTime = timetrackerManager.lastEndTime(worklogs);
       endTime = DateTimeConverterUtil.dateTimeToString(new Date());
-    } catch (GenericEntityException | ParseException | DataAccessException | SQLException e) {
+    } catch (ParseException | DataAccessException e) {
       LOGGER.error("Error when try set the plugin variables.", e);
       return ERROR;
     }
@@ -764,41 +641,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return super.getDateTimeFormatter().withStyle(DateTimeStyle.DATE).withSystemZone();
   }
 
-  /**
-   * Calculate and if necassary correct the day none working indicator percent.
-   *
-   * @return The day filtered none work indicator percent.
-   */
-  public double getDayFilteredNonWorkIndicatorPrecent() {
-    double dayFilteredRealWorkIndicatorPrecent = getDayFilteredRealWorkIndicatorPrecent();
-    double dayFilteredNoneWorkIndicatorPrecent =
-        ((daySummaryInSeconds - dayFilteredSummaryInSecond) / expectedWorkSecondsInDay)
-            * HUNDRED;
-    dayFilteredNoneWorkIndicatorPrecent = correctNoneWorkIndicatorPercent(
-        dayFilteredRealWorkIndicatorPrecent, dayFilteredNoneWorkIndicatorPrecent);
-    return dayFilteredNoneWorkIndicatorPrecent;
-  }
-
-  public double getDayFilteredRealWorkIndicatorPrecent() {
-    return (dayFilteredSummaryInSecond / expectedWorkSecondsInDay) * HUNDRED;
-  }
-
-  public String getDayFilteredSummary() {
-    return dayFilteredSummary;
-  }
-
-  public double getDayIndicatorPrecent() {
-    return (daySummaryInSeconds / expectedWorkSecondsInDay) * HUNDRED;
-  }
-
-  public String getDaySumIndustryFormatted() {
-    return daySumIndustryFormatted;
-  }
-
-  public String getDaySummary() {
-    return daySummary;
-  }
-
   public String getDebugMessage() {
     return debugMessage;
   }
@@ -828,34 +670,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       excludeDaysAsString.add(DateTimeConverterUtil.dateToFixFormatString(excludeDate));
     }
     return excludeDaysAsString;
-  }
-
-  public String getFormattedExpectedWorkTimeInDay() {
-    return durationFormatter.exactDuration((long) expectedWorkSecondsInDay);
-  }
-
-  public String getFormattedExpectedWorkTimeInMonth() {
-    return durationFormatter.exactDuration((long) expectedWorkSecondsInMonth);
-  }
-
-  public String getFormattedExpectedWorkTimeInWeek() {
-    return durationFormatter.exactDuration((long) expectedWorkSecondsInWeek);
-  }
-
-  public String getFormattedNonWorkTimeInDay() {
-    return durationFormatter.exactDuration(daySummaryInSeconds - dayFilteredSummaryInSecond);
-  }
-
-  public String getFormattedNonWorkTimeInMonth() {
-    return durationFormatter.exactDuration(monthSummaryInSecounds - monthFilteredSummaryInSecond);
-  }
-
-  public String getFormattedNonWorkTimeInWeek() {
-    return durationFormatter.exactDuration(weekSummaryInSecond - weekFilteredSummaryInSecond);
-  }
-
-  public String getHoursPerDayFormatted() {
-    return hoursPerDayFormatted;
   }
 
   public boolean getIsColoring() {
@@ -914,37 +728,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return messageParameter;
   }
 
-  /**
-   * Calculate and if necassary correct the week none working indicator percent.
-   *
-   * @return The week filtered none work indicator percent.
-   */
-  public double getMonthFilteredNonWorkIndicatorPrecent() {
-    double monthFilteredRealWorkIndicatorPrecent = getMonthFilteredRealWorkIndicatorPrecent();
-    double monthFilteredNonWorkIndicatorPrecent =
-        ((monthSummaryInSecounds - monthFilteredSummaryInSecond) / expectedWorkSecondsInMonth)
-            * HUNDRED;
-    monthFilteredNonWorkIndicatorPrecent = correctNoneWorkIndicatorPercent(
-        monthFilteredRealWorkIndicatorPrecent, monthFilteredNonWorkIndicatorPrecent);
-    return monthFilteredNonWorkIndicatorPrecent;
-  }
-
-  public double getMonthFilteredRealWorkIndicatorPrecent() {
-    return (monthFilteredSummaryInSecond / expectedWorkSecondsInMonth) * HUNDRED;
-  }
-
-  public String getMonthFilteredSummary() {
-    return monthFilteredSummary;
-  }
-
-  public double getMonthIndicatorPrecent() {
-    return (monthSummaryInSecounds / expectedWorkSecondsInMonth) * HUNDRED;
-  }
-
-  public String getMonthSummary() {
-    return monthSummary;
-  }
-
   public List<Long> getParsedEditAllIds() {
     return parsedEditAllIds;
   }
@@ -961,44 +744,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return startTimeChange;
   }
 
-  /**
-   * Calculate and if necassary correct the week none working indicator percent.
-   *
-   * @return The week filtered none work indicator percent.
-   */
-  public double getWeekFilteredNonWorkIndicatorPrecent() {
-    double weekFilteredRealWorkIndicatorPrecent = getWeekFilteredRealWorkIndicatorPrecent();
-    double weekFilteredNonWorkIndicatorPrecent =
-        ((weekSummaryInSecond - weekFilteredSummaryInSecond) / expectedWorkSecondsInWeek)
-            * HUNDRED;
-    weekFilteredNonWorkIndicatorPrecent = correctNoneWorkIndicatorPercent(
-        weekFilteredRealWorkIndicatorPrecent, weekFilteredNonWorkIndicatorPrecent);
-    return weekFilteredNonWorkIndicatorPrecent;
-  }
-
-  public double getWeekFilteredRealWorkIndicatorPrecent() {
-    return (weekFilteredSummaryInSecond / expectedWorkSecondsInWeek) * HUNDRED;
-  }
-
-  public String getWeekFilteredSummary() {
-    return weekFilteredSummary;
-  }
-
-  public double getWeekIndicatorPrecent() {
-    return (weekSummaryInSecond / expectedWorkSecondsInWeek) * HUNDRED;
-  }
-
-  private Date getWeekStart(final Date date) {
-    Calendar c = createNewCalendarWithWeekStart();
-    c.setTime(date);
-    int dayOfWeek = c.get(Calendar.DAY_OF_WEEK) - c.getFirstDayOfWeek();
-    c.add(Calendar.DAY_OF_MONTH, -dayOfWeek);
-    Date firstDate = c.getTime();
-    return firstDate;
-  }
-
-  public String getWeekSummary() {
-    return weekSummary;
+  public SummaryDTO getSummaryDTO() {
+    return summaryDTO;
   }
 
   public List<EveritWorklog> getWorklogs() {
@@ -1037,20 +784,20 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     try {
       startDateTime = DateTimeConverterUtil.stringTimeToDateTime(startTime);
     } catch (ParseException e) {
-      message = INVALID_START_TIME;
+      message = PropertiesKey.INVALID_START_TIME;
       return INPUT;
     }
 
     if (!DateTimeConverterUtil.isValidTime(durationTime)) {
       if (!DateTimeConverterUtil.isValidJiraTime(durationTime)) {
-        message = INVALID_DURATION_TIME;
+        message = PropertiesKey.INVALID_DURATION_TIME;
         return INPUT;
       } else {
         timeSpent = durationTime;
         int seconds = DateTimeConverterUtil.jiraDurationToSeconds(durationTime);
         Date endTime = DateUtils.addSeconds(startDateTime, seconds);
         if (!DateUtils.isSameDay(startDateTime, endTime)) {
-          message = INVALID_DURATION_TIME;
+          message = PropertiesKey.INVALID_DURATION_TIME;
           return INPUT;
         }
       }
@@ -1140,7 +887,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       durationDateTime = DateTimeConverterUtil
           .stringTimeToDateTimeGMT(durationTime);
     } catch (ParseException e) {
-      message = INVALID_DURATION_TIME;
+      message = PropertiesKey.INVALID_DURATION_TIME;
       return INPUT;
     }
 
@@ -1151,7 +898,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     // check the duration time to not exceed the present day
     Date endTime = DateUtils.addSeconds(startDateTime, (int) seconds);
     if (!DateUtils.isSameDay(startDateTime, endTime)) {
-      message = INVALID_DURATION_TIME;
+      message = PropertiesKey.INVALID_DURATION_TIME;
       return INPUT;
     }
     return SUCCESS;
@@ -1182,105 +929,23 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   /**
    * Set worklogs list, the worklogsIds list and make Summary.
    *
-   * @throws GenericEntityException
-   *           If GenericEntity Exception.
    * @throws ParseException
    *           If getWorklogs can't parse date.
-   * @throws SQLException
-   *           Cannot get the worklogs
    * @throws DataAccessException
    *           Cannot get the worklogs
    */
-  private void loadWorklogsAndMakeSummary() throws GenericEntityException,
-      ParseException, DataAccessException, SQLException {
-    try {
-      loggedDays = timetrackerManager.getLoggedDaysOfTheMonth(date);
-    } catch (GenericEntityException e1) {
-      // Not return whit error. Log the error and set a message to
-      // inform the user. The calendar fill will missing.
-      LOGGER.error(
-          "Error while try to collect the logged days for the calendar color fulling",
-          e1);
-      message = "plugin.calendar.logged.coloring.fail";
-    }
+  private void loadWorklogsAndMakeSummary() throws ParseException, DataAccessException {
+    loggedDays = timetrackerManager.getLoggedDaysOfTheMonth(date);
+
     worklogs = worklogManager.getWorklogs(null, date, null);
     worklogsIds = copyWorklogIdsToArray(worklogs);
     worklogsSizeWithoutPermissionChecks =
         worklogManager.countWorklogsWithoutPermissionChecks(date, null);
 
-    makeSummary();
-  }
-
-  /**
-   * Make summary today, this week and this month.
-   *
-   * @throws GenericEntityException
-   *           GenericEntityException.
-   */
-  public void makeSummary() throws GenericEntityException {
-    Calendar startCalendar = createNewCalendarWithWeekStart();
-    startCalendar.setTime(date);
-    startCalendar.set(Calendar.HOUR_OF_DAY, 0);
-    startCalendar.set(Calendar.MINUTE, 0);
-    startCalendar.set(Calendar.SECOND, 0);
-    startCalendar.set(Calendar.MILLISECOND, 0);
-    Calendar originalStartcalendar = (Calendar) startCalendar.clone();
-    Date start = startCalendar.getTime();
-
-    Calendar endCalendar = (Calendar) startCalendar.clone();
-    endCalendar.add(Calendar.DAY_OF_MONTH, 1);
-
-    Date end = endCalendar.getTime();
-    daySummaryInSeconds = supportManager.summary(start, end, null);
-    daySummary = durationFormatter.exactDuration(daySummaryInSeconds);
-    if (getIssueRegexIsNotEmpty()) {
-      dayFilteredSummaryInSecond = supportManager.summary(start, end,
-          issuesRegex);
-      dayFilteredSummary = durationFormatter.exactDuration(dayFilteredSummaryInSecond);
-    }
-
-    startCalendar = (Calendar) originalStartcalendar.clone();
-    while (startCalendar.get(Calendar.DAY_OF_WEEK) != startCalendar.getFirstDayOfWeek()) {
-      startCalendar.add(Calendar.DATE, -1); // Substract 1 day until first day of week.
-    }
-    start = startCalendar.getTime();
-    endCalendar = (Calendar) startCalendar.clone();
-    endCalendar.add(Calendar.DATE, DateTimeConverterUtil.DAYS_PER_WEEK);
-    end = endCalendar.getTime();
-    weekSummaryInSecond = supportManager.summary(start, end, null);
-    weekSummary = durationFormatter.exactDuration(weekSummaryInSecond);
-    if (getIssueRegexIsNotEmpty()) {
-      weekFilteredSummaryInSecond = supportManager.summary(start, end,
-          issuesRegex);
-      weekFilteredSummary = durationFormatter.exactDuration(weekFilteredSummaryInSecond);
-    }
-
-    startCalendar = (Calendar) originalStartcalendar.clone();
-    startCalendar.set(Calendar.DAY_OF_MONTH, 1);
-    start = startCalendar.getTime();
-
-    endCalendar = (Calendar) originalStartcalendar.clone();
-    endCalendar.set(Calendar.DAY_OF_MONTH,
-        endCalendar.getActualMaximum(Calendar.DAY_OF_MONTH));
-    endCalendar.add(Calendar.DAY_OF_MONTH, 1);
-    end = endCalendar.getTime();
-    monthSummaryInSecounds = supportManager.summary(start, end, null);
-    monthSummary = durationFormatter.exactDuration(monthSummaryInSecounds);
-    if (getIssueRegexIsNotEmpty()) {
-      monthFilteredSummaryInSecond = supportManager.summary(start, end,
-          issuesRegex);
-      monthFilteredSummary = durationFormatter.exactDuration(monthFilteredSummaryInSecond);
-    }
-
-    double hoursPerDay = timeTrackingConfiguration.getHoursPerDay().doubleValue();
-    hoursPerDayFormatted = durationFormatter.workHoursDayIndustryDuration();
-    daySumIndustryFormatted = durationFormatter.industryDuration(daySummaryInSeconds);
-    double daySumMin = daySummaryInSeconds / (double) DateTimeConverterUtil.SECONDS_PER_MINUTE;
-    double daySumHour = daySumMin / DateTimeConverterUtil.MINUTES_PER_HOUR;
-    dailyPercent = daySumHour / hoursPerDay;
-    calculateExpectedWorkSecondsInDay();
-    calculateExpectedWorkSecondsInWeek();
-    calculateExpectedWorkSecondsInMonth();
+    summaryDTO = new SummaryDTO.SummaryDTOBuilder(
+        timeTrackingConfiguration, timetrackerManager, supportManager, date, excludeDatesAsSet,
+        includeDatesAsSet, issuesRegex)
+            .createSummaryDTO();
   }
 
   private void normalizeContextPath() {
@@ -1313,13 +978,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
         date = Calendar.getInstance().getTime();
         dateFormatted = date.getTime();
       } else {
-        try {
-          date =
-              timetrackerManager.firstMissingWorklogsDate(excludeDatesAsSet, includeDatesAsSet);
-          dateFormatted = date.getTime();
-        } catch (GenericEntityException e) {
-          LOGGER.error("Error when try set the plugin date.", e);
-        }
+        date = timetrackerManager.firstMissingWorklogsDate(excludeDatesAsSet, includeDatesAsSet);
+        dateFormatted = date.getTime();
       }
     }
 
@@ -1442,39 +1102,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     this.date = (Date) date.clone();
   }
 
-  private String setDateAndDateFormatted() {
-    String dateFromParam = getHttpRequest().getParameter(PARAM_DATE);
-    if ((dateFromParam == null) || "".equals(dateFromParam)) {
-      if (isActualDate) {
-        date = Calendar.getInstance().getTime();
-        dateFormatted = date.getTime();
-      } else {
-        try {
-          date =
-              timetrackerManager.firstMissingWorklogsDate(excludeDatesAsSet, includeDatesAsSet);
-          dateFormatted = date.getTime();
-        } catch (GenericEntityException e) {
-          LOGGER.error("Error when try set the plugin date.", e);
-          return ERROR;
-        }
-      }
-    } else {
-      dateFormatted = Long.valueOf(dateFromParam);
-      date = new Date(dateFormatted);
-    }
-    return SUCCESS;
-  }
-
   public void setDateFormatted(final Long dateFormatted) {
     this.dateFormatted = dateFormatted;
-  }
-
-  public void setDayFilteredSummary(final String dayFilteredSummary) {
-    this.dayFilteredSummary = dayFilteredSummary;
-  }
-
-  public void setDaySummary(final String daySummary) {
-    this.daySummary = daySummary;
   }
 
   public void setDebugMessage(final String debugMessage) {
@@ -1575,14 +1204,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     this.messageParameter = messageParameter;
   }
 
-  public void setMonthFilteredSummary(final String monthFilteredSummary) {
-    this.monthFilteredSummary = monthFilteredSummary;
-  }
-
-  public void setMonthSummary(final String monthSummary) {
-    this.monthSummary = monthSummary;
-  }
-
   public void setProjectsId(final List<String> projectsId) {
     this.projectsId = projectsId;
   }
@@ -1593,14 +1214,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   public void setStartTimeChange(final int startTimeChange) {
     this.startTimeChange = startTimeChange;
-  }
-
-  public void setWeekFilteredSummary(final String weekFilteredSummary) {
-    this.weekFilteredSummary = weekFilteredSummary;
-  }
-
-  public void setWeekSummary(final String weekSummary) {
-    this.weekSummary = weekSummary;
   }
 
   public void setWorklogs(final List<EveritWorklog> worklogs) {
@@ -1618,12 +1231,12 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    */
   public String validateInputFields() {
     if (issueKey == null) {
-      message = MISSING_ISSUE;
+      message = PropertiesKey.MISSING_ISSUE;
       return INPUT;
     }
     String startTimeValue = worklogValue.getStartTime();
     if (!DateTimeConverterUtil.isValidTime(startTimeValue)) {
-      message = INVALID_START_TIME;
+      message = PropertiesKey.INVALID_START_TIME;
       return INPUT;
     }
     startTime = startTimeValue;

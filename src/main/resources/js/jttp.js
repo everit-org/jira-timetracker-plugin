@@ -86,36 +86,36 @@ everit.jttp.main = everit.jttp.main || {};
   }
   
   function addTooltips(){
-    var $issueTypeTooltip = AJS.$('#jttp-worklog-issue-type');
+    var $issueTypeTooltip = jQuery('#jttp-worklog-issue-type');
     if(!$issueTypeTooltip.hasClass('jtrp-tooltipped')) {
       $issueTypeTooltip.tooltip({gravity: 'w'});
       $issueTypeTooltip.addClass('jtrp-tooltipped');
     }
     
-    var $datePickerTooltip = AJS.$('#jttp-headline-day-calendar');
+    var $datePickerTooltip = jQuery('#jttp-headline-day-calendar');
     if(!$datePickerTooltip.hasClass('jtrp-tooltipped')) {
       $datePickerTooltip.tooltip();
       $datePickerTooltip.addClass('jtrp-tooltipped');
     }
     
-    AJS.$('.tooltip-left').each(function() {
-      var $element = AJS.$(this);
+    jQuery('.tooltip-left').each(function() {
+      var $element = jQuery(this);
       if(!$element.hasClass('jtrp-tooltipped')) {
         $element.tooltip({gravity: 'e'});
         $element.addClass('jtrp-tooltipped');
       }
     });
     
-    AJS.$('.tooltip-bottom').each(function() {
-      var $element = AJS.$(this);
+    jQuery('.tooltip-bottom').each(function() {
+      var $element = jQuery(this);
       if(!$element.hasClass('jtrp-tooltipped')) {
         $element.tooltip();
         $element.addClass('jtrp-tooltipped');
       }
     });
     
-    AJS.$('.img-tooltip').each(function() {
-      var $element = AJS.$(this);
+    jQuery('.img-tooltip').each(function() {
+      var $element = jQuery(this);
       if(!$element.hasClass('jtrp-tooltipped')) {
         $element.tooltip({gravity: 'w'});
         $element.addClass('jtrp-tooltipped');
@@ -220,7 +220,7 @@ everit.jttp.main = everit.jttp.main || {};
  jttp.cancelClick = function(){
    var dateHidden = jQuery('#dateHidden').val();
    var dateInMil = Date.parseDate(dateHidden, jttp.options.dateFormat);
-   window.location = "JiraTimetrackerWebAction!default.jspa?date="+dateInMil.getTime();
+   window.location = "JiraTimetrackerWebAction.jspa?date="+dateInMil.getTime();
  }
  
   jttp.beforeSubmitChangeDate = function() {
@@ -287,11 +287,11 @@ everit.jttp.main = everit.jttp.main || {};
     AJS.progressBars.update($indicator, dailyPercent);
     var $progressIndicator = jQuery('#jttp-headline-progress-indicator .aui-progress-indicator-value');
     if (dailyPercent <= 0.2) {
-      AJS.$($progressIndicator).css("background-color", jttp_progress_red);
+      jQuery($progressIndicator).css("background-color", jttp_progress_red);
     } else if (dailyPercent >= 1.0){
-      AJS.$($progressIndicator).css("background-color", jttp_progress_green); 
+      jQuery($progressIndicator).css("background-color", jttp_progress_green); 
     } else {
-      AJS.$($progressIndicator).css("background-color", jttp_progress_yellow);  
+      jQuery($progressIndicator).css("background-color", jttp_progress_yellow);  
     }
   }
   
@@ -319,9 +319,9 @@ everit.jttp.main = everit.jttp.main || {};
   }
   function initTooltipsForIndicators(){
 	  jQuery('.jttpTooltip').each(function(i, obj) {
-		  AJS.$(obj).tooltip({
+		  jQuery(obj).tooltip({
 		      title: function () {
-		          return $( obj ).children('.jttpTooltiptext').html();
+		          return jQuery( obj ).children('.jttpTooltiptext').html();
 		      },
 		    html: true 
 		  });  
