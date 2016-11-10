@@ -30,6 +30,7 @@
   <groupId>org.everit.jira.timetracker</groupId>
   <artifactId>org.everit.jira.timetracker.plugin</artifactId>
   <version>3.3.0-RC</version>
+  
   <packaging>bundle</packaging>
 
   <properties>
