@@ -184,6 +184,8 @@ everit.jttp.main = everit.jttp.main || {};
     var worklogValuesJson = jQuery('#worklogValuesJson');
     worklogValuesJson.val(json);
     
+    // Added Piwik Submit action to save action. (count create, edit, edit all saves)
+    _paq.push(['trackEvent', 'User', 'Submit']);
     return true;
   }
     
@@ -241,6 +243,9 @@ everit.jttp.main = everit.jttp.main || {};
     
     var editAll = jQuery('#jttp-logwork-form #editAll');
     jQuery("#jttp-datecahnge-form").append(editAll);
+    
+    var isShowMoveAllNoPermission = jQuery('#jttp-logwork-form #isShowMoveAllNoPermission');
+    jQuery("#jttp-datecahnge-form").append(isShowMoveAllNoPermission);
     
     var actionFlag = jQuery('#jttp-logwork-form #actionFlag');
     jQuery("#jttp-datecahnge-form").append(actionFlag);
@@ -349,7 +354,7 @@ everit.jttp.main = everit.jttp.main || {};
     jQuery('.table-issue').click(function() {
       jQuery('#issueSelect-textarea').parent().find('.item-delete').click();
 
-      var temp = new String(jQuery(this).find('a').html());
+      var temp = new String(jQuery(this).find('a').attr("jttp-data-issue-key"));
       jQuery('#issueSelect-textarea').val(temp.trim());
       jQuery('#issueSelect-textarea').focus();
       jQuery('#Edit').focus();
@@ -490,6 +495,8 @@ everit.jttp.main = everit.jttp.main || {};
       min = "0" + min
     }
     var dateTime = AJS.Meta.get('date-time');
+    dateTime = dateTime.replace("aa","a");
+    dateTime = dateTime.replace("AA","A");
     var locale = AJS.Meta.get('user-locale');
     evmoment.locale(locale);
     var timeVal = evmoment('2000-10-10 ' + hour + ':' + min, 
@@ -542,6 +549,8 @@ everit.jttp.main = everit.jttp.main || {};
   function setStartDecTemporary(startTimeChange) {
     setStartNow();
     var dateTime = AJS.Meta.get('date-time');
+    dateTime = dateTime.replace("aa","a");
+    dateTime = dateTime.replace("AA","A")
     var locale = AJS.Meta.get('user-locale');
     var statTimeDate = evmoment('2000-10-10 ' + jQuery("#startTime").val(), 'YYYY-MM-DD ' + dateTime, locale);
 
@@ -565,6 +574,8 @@ everit.jttp.main = everit.jttp.main || {};
   function setStartInc(startTimeChange) {
     setStartNow();
     var dateTime = AJS.Meta.get('date-time');
+    dateTime = dateTime.replace("aa","a");
+    dateTime = dateTime.replace("AA","A")
     var locale = AJS.Meta.get('user-locale');
     var statTimeDate = evmoment('2000-10-10 ' + jQuery("#startTime").val(), 'YYYY-MM-DD ' + dateTime, locale);
     
@@ -607,6 +618,8 @@ everit.jttp.main = everit.jttp.main || {};
   function setEndDecTemporary(endTimeChange) {
     setEndNow();
     var dateTime = AJS.Meta.get('date-time');
+    dateTime = dateTime.replace("aa","a");
+    dateTime = dateTime.replace("AA","A")
     var locale = AJS.Meta.get('user-locale');
     var endTimeDate = evmoment('2000-10-10 ' + jQuery("#endTime").val(), 'YYYY-MM-DD ' + dateTime, locale);
     
@@ -647,6 +660,8 @@ everit.jttp.main = everit.jttp.main || {};
   function setEndInc(endTimeChange) {
     setEndNow();
     var dateTime = AJS.Meta.get('date-time');
+    dateTime = dateTime.replace("aa","a");
+    dateTime = dateTime.replace("AA","A")
     var locale = AJS.Meta.get('user-locale');
     var endTimeDate = evmoment('2000-10-10 ' + jQuery("#endTime").val(), 'YYYY-MM-DD ' + dateTime, locale);
     
@@ -692,6 +707,8 @@ everit.jttp.main = everit.jttp.main || {};
     var $durationInput = jQuery('#durationTime');
     
     var dateTime = AJS.Meta.get('date-time');
+    dateTime = dateTime.replace("aa","a");
+    dateTime = dateTime.replace("AA","A")
     var locale = AJS.Meta.get('user-locale');
     var statTimeDate = evmoment('2000-10-10 ' + $startInput.val(), 'YYYY-MM-DD ' + dateTime, locale);
     var endTimeDate = evmoment('2000-10-10 ' + $endInput.val(), 'YYYY-MM-DD ' + dateTime, locale);
@@ -735,6 +752,8 @@ everit.jttp.main = everit.jttp.main || {};
     var $durationInput = jQuery('#durationTime');
     
     var dateTime = AJS.Meta.get('date-time');
+    dateTime = dateTime.replace("aa","a");
+    dateTime = dateTime.replace("AA","A")
     var locale = AJS.Meta.get('user-locale');
     var statTimeDate = evmoment('2000-10-10 ' + $startInput.val(), 'YYYY-MM-DD ' + dateTime, locale);
 
@@ -767,7 +786,7 @@ everit.jttp.main = everit.jttp.main || {};
 
     var endHourString = String(endHour);
     if(endHour < 10) {
-      endHourString = "0" + String(durationHour);
+      endHourString = "0" + String(endHour);
     }
     
     var endMinString = String(endMin);

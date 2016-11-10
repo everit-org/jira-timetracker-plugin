@@ -60,7 +60,7 @@ public class SurveyDialogWebAction extends JiraWebActionSupport {
     surveyFormUrl = getProperty(jttpBuildProperties, SURVEY_FORM_URL);
 
     PluginSettings globalSettings = pluginSettingsFactory.createGlobalSettings();
-    Object formattedDate = globalSettings.remove(KEY_POPUP_SAVED_DATE);
+    Object formattedDate = globalSettings.get(KEY_POPUP_SAVED_DATE);
     lastSavedSurveyDate = formattedDate != null
         ? formattedDate.toString()
         : "";
