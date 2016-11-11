@@ -495,14 +495,14 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
         return new ActionResult(ActionResultStatus.FAIL,
             NOPERMISSION_ISSUE, issueId);
       }
-      ActionResult deleteResult = deleteWorklog(id);
-      if (deleteResult.getStatus() == ActionResultStatus.FAIL) {
-        return deleteResult;
-      }
       ActionResult createResult = createWorklog(issueId, comment,
           date, time, timeSpent);
       if (createResult.getStatus() == ActionResultStatus.FAIL) {
         return createResult;
+      }
+      ActionResult deleteResult = deleteWorklog(id);
+      if (deleteResult.getStatus() == ActionResultStatus.FAIL) {
+        return deleteResult;
       }
     } else {
       Date dateCreate;
