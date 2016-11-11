@@ -159,16 +159,19 @@
     <resource type="download" name="E_logo.png" location="/icons/E_logo.png">
       <param name="content-type" value="image/png" />
     </resource>
-    <resource type="download" name="indicatorDone.png" location="/images/indicatorDone.png">
+    <resource type="download" name="csvexport.png" location="/images/csvexport.png">
       <param name="content-type" value="image/png" />
     </resource>
-    <resource type="download" name="newdesign.png" location="/images/newdesign.png">
+    <resource type="download" name="exportformat.png" location="/images/exportformat.png">
       <param name="content-type" value="image/png" />
     </resource>
-    <resource type="download" name="permission.png" location="/images/permission.png">
+    <resource type="download" name="future.png" location="/images/future.png">
       <param name="content-type" value="image/png" />
     </resource>
-    <resource type="download" name="reportingDone.png" location="/images/reportingDone.png">
+    <resource type="download" name="issuesum.png" location="/images/issuesum.png">
+      <param name="content-type" value="image/png" />
+    </resource>
+    <resource type="download" name="newtime.png" location="/images/newtime.png">
       <param name="content-type" value="image/png" />
     </resource>
     <resource type="download" name="reporting.css" location="/css/reporting.css" />
