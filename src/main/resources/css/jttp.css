@@ -281,7 +281,7 @@ div#jttp-logwork-time {
 
 div#jttp-logwork-time > div.field-group {
   width: auto;
-  margin-right: 2.9rem;
+  margin-right: 3.3rem;
 }
 
 div#jttp-logwork-time > div.field-group > input.text{
@@ -292,6 +292,9 @@ div#jttp-logwork-time > div.field-group > span.time-input-span > input.text{
   max-width: 90px;
 }
 
+div#jttp-logwork-time > div.field-group.duration > span.time-input-span > input.text{
+  max-width: 75px;
+}
 
 div#jttp-logwork-time > div.field-group.duration {
   margin-right: 0rem;
