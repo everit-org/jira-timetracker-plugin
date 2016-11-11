@@ -46,11 +46,11 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
                   </td>
                    #if($isShowIssueSummary)
                   <td class="table-issue" style="word-break: break-word; #if($worklog.isClosed) text-decoration: line-through; #end">
-                    <a href="$contextPath/browse/$worklog.issue" jttp-data-issue-key="$worklog.issue" class="issue-link" title="#if($worklog.issueParent != '') $i18n.getText('plugin.parent.issue') $worklog.issueParent &#13 $worklog.issue #else $worklog.issue #end">$worklog.issueSummary</a>
+                    <a href="$contextPath/browse/$worklog.issue" jttp-data-issue-key="$worklog.issue" class="issue-link tooltip-bottom" title="#if($worklog.issueParent != '') $i18n.getText('plugin.parent.issue') $worklog.issueParent &#13 $worklog.issue #else $worklog.issue #end">$worklog.issueSummary</a>
                   </td>
                   #else
                    <td class="table-issue" style="white-space: nowrap; #if($worklog.isClosed) text-decoration: line-through; #end">
-                    <a href="$contextPath/browse/$worklog.issue" jttp-data-issue-key="$worklog.issue" class="issue-link" title="#if($worklog.issueParent != '') $i18n.getText('plugin.parent.issue') $worklog.issueParent &#13 $worklog.issueSummary #else $worklog.issueSummary #end">$worklog.issue</a>
+                    <a href="$contextPath/browse/$worklog.issue" jttp-data-issue-key="$worklog.issue" class="issue-link tooltip-bottom" title="#if($worklog.issueParent != '') $i18n.getText('plugin.parent.issue') $worklog.issueParent &#13 $worklog.issueSummary #else $worklog.issueSummary #end">$worklog.issue</a>
                   </td>
                   #end
                   <td>
