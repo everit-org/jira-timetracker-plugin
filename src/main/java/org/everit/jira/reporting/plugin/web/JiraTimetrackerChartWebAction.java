@@ -33,16 +33,16 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.everit.jira.analytics.AnalyticsDTO;
+import org.everit.jira.core.EVWorklogManager;
+import org.everit.jira.core.util.TimetrackerUtil;
 import org.everit.jira.reporting.plugin.ReportingCondition;
 import org.everit.jira.reporting.plugin.util.PermissionUtil;
 import org.everit.jira.settings.TimetrackerSettingsHelper;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
-import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
 import org.everit.jira.timetracker.plugin.PluginCondition;
 import org.everit.jira.timetracker.plugin.dto.ChartData;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.dto.TimetrackerReportsSessionData;
-import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 import org.everit.jira.updatenotifier.UpdateNotifier;
@@ -125,11 +125,6 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
   private String issueCollectorSrc;
 
-  /**
-   * The {@link JiraTimetrackerPlugin}.
-   */
-  private JiraTimetrackerPlugin jiraTimetrackerPlugin;
-
   private Date lastDate;
 
   /**
@@ -147,23 +142,21 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
   private transient ApplicationUser userPickerObject;
 
+  private EVWorklogManager worklogManager;
+
   /**
    * Simple constructor.
-   *
-   * @param jiraTimetrackerPlugin
-   *          The {@link JiraTimetrackerPlugin}.
    */
-  public JiraTimetrackerChartWebAction(
-      final JiraTimetrackerPlugin jiraTimetrackerPlugin,
-      final TimetrackerSettingsHelper settingsHelper) {
-    this.jiraTimetrackerPlugin = jiraTimetrackerPlugin;
+  public JiraTimetrackerChartWebAction(final TimetrackerSettingsHelper settingsHelper,
+      final EVWorklogManager worklogManager) {
     this.settingsHelper = settingsHelper;
     reportingCondition = new ReportingCondition(settingsHelper);
     pluginCondition = new PluginCondition(settingsHelper);
+    this.worklogManager = worklogManager;
   }
 
   private String checkConditions() {
-    boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
+    boolean isUserLogged = TimetrackerUtil.isUserLogged();
     if (!isUserLogged) {
       setReturnUrl(JIRA_HOME_URL);
       return getRedirect(NONE);
@@ -235,7 +228,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
     List<EveritWorklog> worklogs = new ArrayList<>();
     try {
-      worklogs.addAll(jiraTimetrackerPlugin.getWorklogs(currentUser, startDate,
+      worklogs.addAll(worklogManager.getWorklogs(currentUser, startDate,
           lastDate));
       saveDataToSession();
     } catch (DataAccessException e) {

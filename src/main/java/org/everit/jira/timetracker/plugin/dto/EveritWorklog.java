@@ -16,8 +16,6 @@
 package org.everit.jira.timetracker.plugin.dto;
 
 import java.io.Serializable;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
@@ -203,59 +201,6 @@ public class EveritWorklog implements Serializable {
     editOwnWorklogs =
         permissionManager.hasPermission(ProjectPermissions.EDIT_OWN_WORKLOGS, issueObject,
             loggedUser);
-  }
-
-  /**
-   * Simple constructor with ResultSet.
-   *
-   * @param rs
-   *          ResultSet
-   * @throws ParseException
-   *           Cannot parse date time
-   * @throws SQLException
-   *           Cannot access resultSet fields
-   */
-  public EveritWorklog(final ResultSet rs)
-      throws ParseException, SQLException {
-    worklogId = rs.getLong("id");
-    startTime = rs.getString("startdate");
-    date = DateTimeConverterUtil.stringToDateAndTime(startTime);
-    startTime = DateTimeConverterUtil.dateTimeToString(date);
-    startDate = DateTimeConverterUtil.dateToString(date);
-    Calendar calendar = Calendar.getInstance();
-    calendar.setTime(date);
-    weekNo = calendar.get(Calendar.WEEK_OF_YEAR);
-    monthNo = calendar.get(Calendar.MONTH) + 1;
-    dayNo = calendar.get(Calendar.DAY_OF_YEAR);
-    issueId = rs.getLong("issueid");
-    IssueManager issueManager = ComponentAccessor.getIssueManager();
-    MutableIssue issueObject = issueManager.getIssueObject(issueId);
-    issue = issueObject.getKey();
-    issueSummary = issueObject.getSummary();
-    issueTypeName = issueObject.getIssueTypeObject().getName();
-    issueAvatarId = issueObject.getIssueTypeObject().getAvatar().getId();
-    issueTypeIconUrl = issueObject.getIssueTypeObject().getIconUrl();
-    if (StatusCategory.COMPLETE
-        .equals(issueObject.getStatusObject().getSimpleStatus().getStatusCategory().getKey())) {
-      isClosed = true;
-    }
-    if (issueObject.getParentObject() != null) {
-      issueParent = issueObject.getParentObject().getKey();
-    }
-    isMoreEstimatedTime = issueObject.getEstimate() == 0 ? false : true;
-    body = rs.getString("worklogbody");
-    if (body == null) {
-      body = "";
-    }
-    DurationFormatter durationFormatter = new DurationFormatter();
-    long timeSpentInSec = rs.getLong("timeworked");
-    milliseconds = timeSpentInSec
-        * DateTimeConverterUtil.MILLISECONDS_PER_SECOND;
-    duration = durationFormatter.exactDuration(timeSpentInSec);
-    endTime = DateTimeConverterUtil.countEndTime(startTime, milliseconds);
-
-    roundedRemaining = durationFormatter.roundedDuration(issueObject.getEstimate());
-    exactRemaining = durationFormatter.exactDuration(issueObject.getEstimate());
   }
 
   /**
