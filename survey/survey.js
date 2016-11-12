@@ -7,5 +7,5 @@ function getSurveyStartDate() {
 }
 
 function showSurvey(){
-	return true;
+	return false;
 }
