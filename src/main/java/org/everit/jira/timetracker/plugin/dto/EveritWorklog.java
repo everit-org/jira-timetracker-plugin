@@ -285,8 +285,7 @@ public class EveritWorklog implements Serializable {
     long timeSpentInSec = worklog.getTimeSpent().longValue();
     milliseconds = timeSpentInSec
         * DateTimeConverterUtil.MILLISECONDS_PER_SECOND;
-    duration = DateTimeConverterUtil
-        .millisecondConvertToStringTime(milliseconds);
+    duration = DateTimeConverterUtil.dateTimeToStringWithFixFormat(new Date(milliseconds));
     endTime = DateTimeConverterUtil.countEndTime(startTime, milliseconds);
   }
 

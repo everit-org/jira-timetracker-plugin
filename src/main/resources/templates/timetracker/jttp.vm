@@ -123,7 +123,7 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.popu
                 #end
               </div>
             #end
-            #if(!$parsedEditAllIds.isEmpty() && $worklogsIds.containsAll($parsedEditAllIds))
+            #if($isShowMoveAllNoPermission)
               <div class="aui-message aui-message-error">
                 <p>$i18n.getText('jttp.error.moveall.no.permission')</p>
               </div>
@@ -144,8 +144,8 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.popu
           <div class="buttons-container">
             <div class="buttons">
               <input type="hidden" id="worklogsIds" name="worklogsIds" value="$worklogsIds" >
-              <input class="aui-button change-button" type="submit" value="Move all" #if($worklogsIds.size() == 0) disabled #end
-                      id="jttp-logwork-change-date-all" name="lw_chgdate" title="Move all the worklogs to a particular day">
+              <input class="aui-button change-button tooltip-bottom" type="submit" value="$i18n.getText('plugin.edit.all')" #if($worklogsIds.size() == 0) disabled #end
+                      id="jttp-logwork-change-date-all" name="lw_chgdate" title="$i18n.getText('plugin.jttp-worklog-change-date-for-all')">
             </div>
           </div>
         </form>
@@ -209,16 +209,17 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.popu
                     </span>
                     <input id="endNow" class="button" type="button" name="endNow" value="$i18n.getText('plugin.now')" onclick="everit.jttp.main.endNowClick($endTimeChange);">
                   </div>
+                  
                   #parse("templates/common/timeselect.vm")
                   <div class="field-group duration">
                     <label for="durationTime">$i18n.getText("plugin.duration.time")</label> 
                     <input id="radioDuration" type="radio" name="endOrDuration" value="duration" style="display: none;">
                     <span class="time-input-span">
-                      <input id="durationTime" class="text short-field"
+                      <input id="durationTime" class="text short-field tooltip-bottom"
                         name="durationTime" tabindex="2"
                         value="$durationTime" onkeypress="everit.jttp.main.handleEnterKey(event, '#issueSelect-textarea');"
                         onclick="everit.jttp.main.durationTimeInput();"
-                        title="empty or hh:mm" disabled 
+                        title="hh:mm / xh xm" disabled 
                         onblur="everit.jttp.main.calculateEndTime();">
                       <div id="durationTimeInput" class="time-input-div" onclick="everit.jttp.main.durationTimeInput();"></div>
                     </span>
@@ -245,6 +246,7 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.popu
                     <input type="hidden" id="actionFlag" name="actionFlag" value="$actionFlag" >
                     <input type="hidden" id="date" name="date" >
                     <input type="hidden" id="editAll" name="editAll" value="$editAllIds" >
+                    <input type="hidden" id="isShowMoveAllNoPermission" name="isShowMoveAllNoPermission" value="$isShowMoveAllNoPermission" >
                     <input type="hidden" id="worklogValuesJson" name="worklogValuesJson" >
                     <input class="aui-button" type="reset" value="Cancel"
                       id="jttp-logwork-cancel" name="lw_cancel" onclick="everit.jttp.main.cancelClick();">

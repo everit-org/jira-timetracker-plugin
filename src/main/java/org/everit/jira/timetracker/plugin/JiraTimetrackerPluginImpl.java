@@ -495,14 +495,14 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
         return new ActionResult(ActionResultStatus.FAIL,
             NOPERMISSION_ISSUE, issueId);
       }
-      ActionResult deleteResult = deleteWorklog(id);
-      if (deleteResult.getStatus() == ActionResultStatus.FAIL) {
-        return deleteResult;
-      }
       ActionResult createResult = createWorklog(issueId, comment,
           date, time, timeSpent);
       if (createResult.getStatus() == ActionResultStatus.FAIL) {
         return createResult;
+      }
+      ActionResult deleteResult = deleteWorklog(id);
+      if (deleteResult.getStatus() == ActionResultStatus.FAIL) {
+        return deleteResult;
       }
     } else {
       Date dateCreate;
@@ -597,7 +597,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   public List<MissingsWorklogsDTO> getDates(final String selectedUser, final Date from,
       final Date to,
       final boolean workingHour, final boolean checkNonWorking)
-          throws GenericEntityException {
+      throws GenericEntityException {
     List<MissingsWorklogsDTO> datesWhereNoWorklog = new ArrayList<>();
     Calendar fromDate = Calendar.getInstance();
     fromDate.setTime(from);
@@ -784,7 +784,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   @Override
   public List<EveritWorklog> getWorklogs(final String selectedUser, final Date date,
       final Date finalDate)
-          throws ParseException {
+      throws ParseException {
     Calendar startDate = DateTimeConverterUtil.setDateToDayStart(date);
     Calendar endDate = (Calendar) startDate.clone();
     if (finalDate == null) {
@@ -936,7 +936,7 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     if ((worklogs == null) || (worklogs.size() == 0)) {
       Calendar c = Calendar.getInstance();
       c.setTime(new Date());
-      c.set(Calendar.HOUR, HOUR_EIGHT);
+      c.set(Calendar.HOUR_OF_DAY, HOUR_EIGHT);
       c.set(Calendar.MINUTE, 0);
       c.set(Calendar.SECOND, 0);
       return DateTimeConverterUtil.dateTimeToString(c.getTime());
