@@ -18,7 +18,7 @@ package org.everit.jira.reporting.plugin.dto;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
+import org.everit.jira.core.util.TimetrackerUtil;
 
 /**
  * Representation of component to picker.
@@ -44,7 +44,7 @@ public class PickerComponentDTO {
    */
   public static PickerComponentDTO createNoComponent() {
     PickerComponentDTO nocomponent = new PickerComponentDTO();
-    nocomponent.setName(JiraTimetrackerUtil.getI18nText(NO_COMPONENT));
+    nocomponent.setName(TimetrackerUtil.getI18nText(NO_COMPONENT));
     return nocomponent;
   }
 

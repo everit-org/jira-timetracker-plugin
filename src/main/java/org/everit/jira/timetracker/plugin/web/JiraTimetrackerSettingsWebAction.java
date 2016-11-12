@@ -22,12 +22,12 @@ import java.util.Properties;
 import javax.servlet.http.HttpServletRequest;
 
 import org.everit.jira.analytics.AnalyticsDTO;
+import org.everit.jira.core.util.TimetrackerUtil;
 import org.everit.jira.settings.TimetrackerSettingsHelper;
 import org.everit.jira.settings.dto.TimeTrackerUserSettings;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.PluginCondition;
 import org.everit.jira.timetracker.plugin.TimetrackerCondition;
-import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 
@@ -105,7 +105,7 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
   }
 
   private String checkConditions() {
-    boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
+    boolean isUserLogged = TimetrackerUtil.isUserLogged();
     if (!isUserLogged) {
       setReturnUrl(JIRA_HOME_URL);
       return getRedirect(NONE);
@@ -265,7 +265,7 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     }
 
     try {
-      if (JiraTimetrackerUtil.validateTimeChange(startTimeValue)) {
+      if (TimetrackerUtil.validateTimeChange(startTimeValue)) {
         startTime = Integer.parseInt(startTimeValue);
       } else {
         message = "plugin.setting.start.time.change.wrong";
@@ -275,7 +275,7 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
       messageParameter = startTimeValue;
     }
     try {
-      if (JiraTimetrackerUtil.validateTimeChange(endTimeValue)) {
+      if (TimetrackerUtil.validateTimeChange(endTimeValue)) {
         endTime = Integer.parseInt(endTimeValue);
       } else {
         message = "plugin.setting.end.time.change.wrong";

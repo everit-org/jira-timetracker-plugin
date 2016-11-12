@@ -25,6 +25,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.everit.jira.core.util.TimetrackerUtil;
 import org.everit.jira.reporting.plugin.SearcherValue;
 import org.everit.jira.reporting.plugin.dto.ConvertedSearchParam;
 import org.everit.jira.reporting.plugin.dto.FilterCondition;
@@ -35,7 +36,6 @@ import org.everit.jira.reporting.plugin.dto.PickerVersionDTO;
 import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
 import org.everit.jira.settings.TimetrackerSettingsHelper;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
-import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 
 import com.atlassian.jira.bc.JiraServiceContext;
 import com.atlassian.jira.bc.JiraServiceContextImpl;
@@ -76,7 +76,7 @@ public final class ConverterUtil {
       final List<String> issueAffectedVersions) {
     ArrayList<String> affectedVersions = new ArrayList<>();
     for (String affectedVersion : issueAffectedVersions) {
-      if (JiraTimetrackerUtil.getI18nText(PickerVersionDTO.NO_VERSION).equals(affectedVersion)) {
+      if (TimetrackerUtil.getI18nText(PickerVersionDTO.NO_VERSION).equals(affectedVersion)) {
         reportSearchParam.selectNoAffectedVersionIssue(true);
       } else {
         affectedVersions.add(affectedVersion);
@@ -89,11 +89,11 @@ public final class ConverterUtil {
       final List<String> issueAssignees) {
     ArrayList<String> assignees = new ArrayList<>();
     for (String assignee : issueAssignees) {
-      if (JiraTimetrackerUtil.getI18nText(PickerUserDTO.UNASSIGNED_USER_NAME).equals(assignee)) {
+      if (TimetrackerUtil.getI18nText(PickerUserDTO.UNASSIGNED_USER_NAME).equals(assignee)) {
         reportSearchParam.selectUnassgined(true);
-      } else if (JiraTimetrackerUtil.getI18nText(PickerUserDTO.CURRENT_USER_NAME)
+      } else if (TimetrackerUtil.getI18nText(PickerUserDTO.CURRENT_USER_NAME)
           .equals(assignee)) {
-        assignees.add(JiraTimetrackerUtil.getLoggedUserName());
+        assignees.add(TimetrackerUtil.getLoggedUserName());
       } else {
         assignees.add(assignee);
       }
@@ -105,7 +105,7 @@ public final class ConverterUtil {
       final List<String> issueComponents) {
     ArrayList<String> components = new ArrayList<>();
     for (String component : issueComponents) {
-      if (JiraTimetrackerUtil.getI18nText(PickerComponentDTO.NO_COMPONENT).equals(component)) {
+      if (TimetrackerUtil.getI18nText(PickerComponentDTO.NO_COMPONENT).equals(component)) {
         reportSearchParam.selectNoComponentIssue(true);
       } else {
         components.add(component);
@@ -118,12 +118,12 @@ public final class ConverterUtil {
       final List<String> issueFixedVersions) {
     ArrayList<String> fixedVersions = new ArrayList<>();
     for (String fixedVersion : issueFixedVersions) {
-      if (JiraTimetrackerUtil.getI18nText(PickerVersionDTO.NO_VERSION).equals(fixedVersion)) {
+      if (TimetrackerUtil.getI18nText(PickerVersionDTO.NO_VERSION).equals(fixedVersion)) {
         reportSearchParam.selectNoFixedVersionIssue(true);
-      } else if (JiraTimetrackerUtil.getI18nText(PickerVersionDTO.RELEASED_VERSION)
+      } else if (TimetrackerUtil.getI18nText(PickerVersionDTO.RELEASED_VERSION)
           .equals(fixedVersion)) {
         reportSearchParam.selectReleasedFixVersion(true);
-      } else if (JiraTimetrackerUtil.getI18nText(PickerVersionDTO.UNRELEASED_VERSION)
+      } else if (TimetrackerUtil.getI18nText(PickerVersionDTO.UNRELEASED_VERSION)
           .equals(fixedVersion)) {
         reportSearchParam.selectUnreleasedFixVersion(true);
       } else {
@@ -138,7 +138,7 @@ public final class ConverterUtil {
     ArrayList<String> reporters = new ArrayList<>();
     for (String reporter : issueReporters) {
       if (PickerUserDTO.CURRENT_USER_NAME.equals(reporter)) {
-        reporters.add(JiraTimetrackerUtil.getLoggedUserName());
+        reporters.add(TimetrackerUtil.getLoggedUserName());
       } else {
         reporters.add(reporter);
       }
@@ -209,9 +209,9 @@ public final class ConverterUtil {
     ApplicationUser user = jiraAuthenticationContext.getUser();
     if (!PermissionUtil.hasBrowseUserPermission(user, settingsHelper)) {
       if ((users.size() == 1) && (users.contains(PickerUserDTO.CURRENT_USER_NAME)
-          || users.contains(JiraTimetrackerUtil.getLoggedUserName()))) {
+          || users.contains(TimetrackerUtil.getLoggedUserName()))) {
         if (users.remove(PickerUserDTO.CURRENT_USER_NAME)) {
-          users.add(JiraTimetrackerUtil.getLoggedUserName());
+          users.add(TimetrackerUtil.getLoggedUserName());
         }
       } else {
         throw new IllegalArgumentException(NO_BROWSE_PERMISSION);
@@ -220,7 +220,7 @@ public final class ConverterUtil {
       if (!users.isEmpty() && users.contains(PickerUserDTO.NONE_USER_NAME)) {
         users = ConverterUtil.getUserNamesFromGroup(filterCondition.getGroups());
       } else if (users.remove(PickerUserDTO.CURRENT_USER_NAME)) {
-        users.add(JiraTimetrackerUtil.getLoggedUserName());
+        users.add(TimetrackerUtil.getLoggedUserName());
       }
     }
     reportSearchParam.users(users);
