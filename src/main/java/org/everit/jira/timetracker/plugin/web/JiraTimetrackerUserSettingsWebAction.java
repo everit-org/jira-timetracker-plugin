@@ -36,7 +36,21 @@ import com.atlassian.jira.web.action.JiraWebActionSupport;
 /**
  * The settings page.
  */
-public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
+public class JiraTimetrackerUserSettingsWebAction extends JiraWebActionSupport {
+
+  /**
+   * Keys for properties.
+   */
+  public static final class PropertiesKey {
+
+    public static final String PLUGIN_SETTING_END_TIME_CHANGE_WRONG =
+        "plugin.setting.end.time.change.wrong";
+
+    public static final String PLUGIN_SETTING_START_TIME_CHANGE_WRONG =
+        "plugin.setting.start.time.change.wrong";
+
+    public static final String PLUGIN_SETTINGS_TIME_FORMAT = "plugin.settings.time.format";
+  }
 
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
 
@@ -97,7 +111,7 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
    * Simpe consturctor.
    *
    */
-  public JiraTimetrackerSettingsWebAction(
+  public JiraTimetrackerUserSettingsWebAction(
       final TimetrackerSettingsHelper settingsHelper) {
     timetrackingCondition = new TimetrackerCondition(settingsHelper);
     pluginCondition = new PluginCondition(settingsHelper);
@@ -268,20 +282,20 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
       if (TimetrackerUtil.validateTimeChange(startTimeValue)) {
         startTime = Integer.parseInt(startTimeValue);
       } else {
-        message = "plugin.setting.start.time.change.wrong";
+        message = PropertiesKey.PLUGIN_SETTING_START_TIME_CHANGE_WRONG;
       }
     } catch (NumberFormatException e) {
-      message = "plugin.settings.time.format";
+      message = PropertiesKey.PLUGIN_SETTINGS_TIME_FORMAT;
       messageParameter = startTimeValue;
     }
     try {
       if (TimetrackerUtil.validateTimeChange(endTimeValue)) {
         endTime = Integer.parseInt(endTimeValue);
       } else {
-        message = "plugin.setting.end.time.change.wrong";
+        message = PropertiesKey.PLUGIN_SETTING_END_TIME_CHANGE_WRONG;
       }
     } catch (NumberFormatException e) {
-      message = "plugin.settings.time.format";
+      message = PropertiesKey.PLUGIN_SETTINGS_TIME_FORMAT;
       messageParameter = endTimeValue;
     }
     if (!"".equals(message)) {
