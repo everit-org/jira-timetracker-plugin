@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.time.DateUtils;
@@ -78,11 +77,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     private static final String MISSING_ISSUE = "plugin.missing_issue";
   }
 
-  /**
-   * The default worklog ID.
-   */
-  private static final Long DEFAULT_WORKLOG_ID = Long.valueOf(0);
-
   private static final String FUTURE_WORKLOG_WARNING_URL_PARAMETER = "&showWarning=true";
 
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
@@ -110,7 +104,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   /**
    * The edited worklog id.
    */
-  private Long actionWorklogId = DEFAULT_WORKLOG_ID;
+  private Long actionWorklogId = null;
 
   private AnalyticsDTO analyticsDTO;
 
@@ -285,6 +279,16 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return null;
   }
 
+  private String clickedMoveAllAction() {
+    String worklogsIdsValues = getHttpRequest().getParameter("worklogsIds");
+    if ((worklogsIdsValues != null) && !"".equals(worklogsIdsValues)) {
+      editAllIds = worklogsIdsValues;
+      actionFlag = "editAll";
+      parsedEditAllIds = parseEditAllIds(editAllIds);
+    }
+    return SUCCESS;
+  }
+
   /**
    * Put the worklogs id into a array.
    *
@@ -309,8 +313,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     }
     String result = createWorklog();
     if (SUCCESS.equals(result)) {
-      if ((actionWorklogId != null) && !DEFAULT_WORKLOG_ID.equals(actionWorklogId)
-          && "copy".equals(actionFlag)) {
+      if ((actionWorklogId != null) && "copy".equals(actionFlag)) {
         actionFlag = "";
         return redirectWidthDateFormattedParameterOnlyAndShowWarning(result);
       }
@@ -346,35 +349,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return SUCCESS;
   }
 
-  /**
-   * Handle the date change.
-   *
-   * @throws ParseException
-   *           When can't parse date.
-   */
-  public void dateSwitcherAction() throws ParseException {
-    String dayBackValue = getHttpRequest().getParameter("dayBack");
-    String dayNextValue = getHttpRequest().getParameter("dayNext");
-    String todayValue = getHttpRequest().getParameter("today");
-
-    parseDateParam();
-
-    Calendar tempCal = Calendar.getInstance();
-    tempCal.setTime(date);
-    if (dayNextValue != null) {
-      tempCal.add(Calendar.DAY_OF_YEAR, 1);
-      date = tempCal.getTime();
-      dateFormatted = date.getTime();
-    } else if (dayBackValue != null) {
-      tempCal.add(Calendar.DAY_OF_YEAR, -1);
-      date = tempCal.getTime();
-      dateFormatted = date.getTime();
-    } else if (todayValue != null) {
-      date = new Date();
-      dateFormatted = date.getTime();
-    }
-  }
-
   private boolean decideToShowWarning() {
     try {
       Date startDate = DateTimeConverterUtil.stringToDateAndTime(date, startTime);
@@ -388,19 +362,15 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   }
 
   private String deleteWorklog() {
-    if ("delete".equals(actionFlag) && (actionWorklogId != null)
-        && !DEFAULT_WORKLOG_ID.equals(actionWorklogId)) {
-      try {
-        worklogManager.deleteWorklog(actionWorklogId);
-      } catch (WorklogException e) {
-        message = e.getMessage();
-        messageParameter = e.messageParameter;
-        return INPUT;
-      }
-      actionFlag = "";
-      return SUCCESS;
+    try {
+      worklogManager.deleteWorklog(actionWorklogId);
+    } catch (WorklogException e) {
+      message = e.getMessage();
+      messageParameter = e.messageParameter;
+      return INPUT;
     }
-    return null;
+    actionFlag = "";
+    return redirectWithDateFormattedParameterOnly(SUCCESS, "");
   }
 
   @Override
@@ -410,28 +380,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       return checkConditionsResult;
     }
 
-    analyticsDTO = JiraTimetrackerAnalytics
-        .getAnalyticsDTO(PiwikPropertiesUtil.PIWIK_TIMETRACKER_SITEID, settingsHelper);
-
-    normalizeContextPath();
-    loadIssueCollectorSrc();
-
-    loadPluginSettingAndParseResult();
-
-    Set<Date> excludeDatesAsSet = globalSettings.getExcludeDates();
-    if (userSettings.isActualDate()) {
-      date = Calendar.getInstance().getTime();
-      dateFormatted = date.getTime();
-    } else {
-      date = timetrackerManager.firstMissingWorklogsDate(excludeDatesAsSet,
-          globalSettings.getIncludeDates());
-      dateFormatted = date.getTime();
-    }
-
-    excludeDays = timetrackerManager.getExcludeDaysOfTheMonth(date, excludeDatesAsSet);
-    projectsId = supportManager.getProjectsId();
-
-    loggedDays = timetrackerManager.getLoggedDaysOfTheMonth(date);
+    handleBasicOperation();
 
     try {
       loadWorklogsAndMakeSummary();
@@ -444,42 +393,47 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   }
 
   @Override
-  public String doExecute() throws ParseException {
+  public String doExecute() {
     String checkConditionsResult = checkConditions();
     if (checkConditionsResult != null) {
       return checkConditionsResult;
     }
 
-    analyticsDTO = JiraTimetrackerAnalytics
-        .getAnalyticsDTO(PiwikPropertiesUtil.PIWIK_TIMETRACKER_SITEID, settingsHelper);
+    handleBasicOperation();
 
-    normalizeContextPath();
-    loadIssueCollectorSrc();
+    String actionWorklogIdValue = getHttpRequest().getParameter("actionWorklogId");
+    if ((actionWorklogIdValue != null) && !"".equals(actionWorklogIdValue)) {
+      actionWorklogId = Long.valueOf(actionWorklogIdValue);
+    }
+    String actionFlagValue = getHttpRequest().getParameter("actionFlag");
+    if (actionFlagValue != null) {
+      actionFlag = actionFlagValue;
+    }
 
-    loadPluginSettingAndParseResult();
+    setFieldsValue();
 
-    dateSwitcherAction();
-    parseActionParams();
     parsedEditAllIds = parseEditAllIds(getHttpRequest().getParameter("editAll"));
-    parseEditAllAction();
 
-    excludeDays =
-        timetrackerManager.getExcludeDaysOfTheMonth(date, globalSettings.getExcludeDates());
-    projectsId = supportManager.getProjectsId();
+    try {
+      loadWorklogsAndMakeSummary();
+    } catch (ParseException | DataAccessException e) {
+      LOGGER.error("Error when try set the plugin variables.", e);
+      return ERROR;
+    }
 
-    String deleteResult = deleteWorklog();
-    if (deleteResult != null) {
-      try {
-        loadWorklogsAndMakeSummary();
-      } catch (ParseException | DataAccessException e) {
-        LOGGER.error("Error when try set the plugin variables.", e);
-        return ERROR;
-      }
-      if (SUCCESS.equals(deleteResult)) {
-        return redirectWithDateFormattedParameterOnly(deleteResult, "");
-      } else {
-        return deleteResult;
-      }
+    String newResult = NONE;
+    if (getHttpRequest().getParameter("lw_chgdate") != null) {
+      newResult = clickedMoveAllAction();
+    } else if ("delete".equals(actionFlag) && (actionWorklogId != null)) {
+      newResult = deleteWorklog();
+    } else if (getHttpRequest().getParameter("lw_save") == null) {
+      newResult = handleNotSaveAction();
+    } else if ("editAll".equals(actionFlag)) {
+      newResult = editAllAction();
+    } else if ("edit".equals(actionFlag)) {
+      newResult = editAction();
+    } else {
+      newResult = createOrCopyAction();
     }
 
     try {
@@ -488,14 +442,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       LOGGER.error("Error when try set the plugin variables.", e);
       return ERROR;
     }
-    setFieldsValue();
-    String result = handleDateChangeAction();
-    if (result != null) {
-      return result;
-    }
 
-    return handleSaveActions();
-
+    return newResult;
   }
 
   /**
@@ -527,10 +475,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       LOGGER.error("Error when try set the plugin variables.", e);
       return ERROR;
     }
-    actionWorklogId = DEFAULT_WORKLOG_ID;
+    actionWorklogId = null;
     actionFlag = "";
     isDurationSelected = false;
-    return SUCCESS;
+    return redirectWidthDateFormattedParameterOnlyAndShowWarning(SUCCESS);
   }
 
   /**
@@ -538,24 +486,22 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    * the editAllIds, the date from the {@code dateFormatted}.
    *
    * @return SUCCESS if the save was success else FAIL.
-   * @throws ParseException
-   *           If cannot parse date or time.
    */
-  public String editAllAction() throws ParseException {
+  public String editAllAction() {
     // parse the editAllIds
     List<Long> editWorklogIds = parseEditAllIds(getHttpRequest().getParameter("editAll"));
-    // edit the worklogs!
-    for (Long editWorklogId : editWorklogIds) {
-      EveritWorklog editWorklog = worklogManager.getWorklog(editWorklogId);
-      worklogManager.editWorklog(editWorklog.getWorklogId(),
-          editWorklog.getIssue(),
-          editWorklog.getBody(),
-          date,
-          editWorklog.getStartTime(),
-          DateTimeConverterUtil.stringTimeToString(editWorklog.getDuration()));
-    }
-    // set editAllIds to default and list worklogs
     try {
+      // edit the worklogs!
+      for (Long editWorklogId : editWorklogIds) {
+        EveritWorklog editWorklog = worklogManager.getWorklog(editWorklogId);
+        worklogManager.editWorklog(editWorklog.getWorklogId(),
+            editWorklog.getIssue(),
+            editWorklog.getBody(),
+            date,
+            editWorklog.getStartTime(),
+            DateTimeConverterUtil.stringTimeToString(editWorklog.getDuration()));
+      }
+      // set editAllIds to default and list worklogs
       loadWorklogsAndMakeSummary();
       startTime = timetrackerManager.lastEndTime(worklogs);
       endTime = DateTimeConverterUtil.dateTimeToString(new Date());
@@ -563,7 +509,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       LOGGER.error("Error when try set the plugin variables.", e);
       return ERROR;
     }
-    return SUCCESS;
+    return redirectWidthDateFormattedParameterOnlyAndShowWarning(SUCCESS);
   }
 
   public String getActionFlag() {
@@ -707,23 +653,46 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return worklogsSizeWithoutPermissionChecks;
   }
 
-  /**
-   * Date change action handler.
-   *
-   * @return null if the current action is not a Date change action
-   */
-  private String handleDateChangeAction() {
-    if (getHttpRequest().getParameter("lw_save") == null) {
-      try {
-        handleInputWorklogId();
-        handleEditAllIds();
-      } catch (ParseException e) {
-        LOGGER.error("Error when try parse the worklog.", e);
-        return ERROR;
-      }
-      return SUCCESS;
+  private void handleBasicOperation() {
+    analyticsDTO = JiraTimetrackerAnalytics
+        .getAnalyticsDTO(PiwikPropertiesUtil.PIWIK_TIMETRACKER_SITEID, settingsHelper);
+
+    normalizeContextPath();
+    loadIssueCollectorSrc();
+
+    userSettings = settingsHelper.loadUserSettings();
+    globalSettings = settingsHelper.loadGlobalSettings();
+
+    parseDateParam();
+
+    boolean dayBack = getHttpRequest().getParameter("dayBack") != null;
+    boolean dayNext = getHttpRequest().getParameter("dayNext") != null;
+    boolean today = getHttpRequest().getParameter("today") != null;
+    if (dayBack || dayNext || today) {
+      handleDateSwitcherAction(dayBack, dayNext, today);
     }
-    return null;
+
+    excludeDays =
+        timetrackerManager.getExcludeDaysOfTheMonth(date, globalSettings.getExcludeDates());
+    projectsId = supportManager.getProjectsId();
+  }
+
+  private void handleDateSwitcherAction(final boolean dayBack, final boolean dayNext,
+      final boolean today) {
+    Calendar tempCal = Calendar.getInstance();
+    tempCal.setTime(date);
+    if (dayNext) {
+      tempCal.add(Calendar.DAY_OF_YEAR, 1);
+      date = tempCal.getTime();
+      dateFormatted = date.getTime();
+    } else if (dayBack) {
+      tempCal.add(Calendar.DAY_OF_YEAR, -1);
+      date = tempCal.getTime();
+      dateFormatted = date.getTime();
+    } else if (today) {
+      date = new Date();
+      dateFormatted = date.getTime();
+    }
   }
 
   private String handleDuration() {
@@ -798,7 +767,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    *           If can't parse the editWorklog date.
    */
   private void handleInputWorklogId() throws ParseException {
-    if ((actionWorklogId != null) && !DEFAULT_WORKLOG_ID.equals(actionWorklogId)) {
+    if ((actionWorklogId != null)) {
       EveritWorklog editWorklog = worklogManager.getWorklog(actionWorklogId);
       if ("edit".equals(actionFlag)) {
         startTime = editWorklog.getStartTime();
@@ -813,19 +782,20 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     }
   }
 
-  private String handleSaveActions() throws ParseException {
-    String result;
-    if ((getHttpRequest().getParameter("lw_save") != null) && "editAll".equals(actionFlag)) {
-      result = editAllAction();
-    } else if ((getHttpRequest().getParameter("lw_save") != null) && "edit".equals(actionFlag)) {
-      result = editAction();
-    } else {
-      result = createOrCopyAction();
+  /**
+   * Date change action handler.
+   *
+   * @return null if the current action is not a Date change action
+   */
+  private String handleNotSaveAction() {
+    try {
+      handleInputWorklogId();
+      handleEditAllIds();
+    } catch (ParseException e) {
+      LOGGER.error("Error when try parse the worklog.", e);
+      return ERROR;
     }
-    if (SUCCESS.equals(result)) {
-      result = redirectWidthDateFormattedParameterOnlyAndShowWarning(result);
-    }
-    return result;
+    return SUCCESS;
   }
 
   private String handleValidDuration(final Date startDateTime) {
@@ -854,11 +824,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private void loadIssueCollectorSrc() {
     Properties properties = PropertiesUtil.getJttpBuildProperties();
     issueCollectorSrc = properties.getProperty(PropertiesUtil.ISSUE_COLLECTOR_SRC);
-  }
-
-  private void loadPluginSettingAndParseResult() {
-    userSettings = settingsHelper.loadUserSettings();
-    globalSettings = settingsHelper.loadGlobalSettings();
   }
 
   /**
@@ -893,18 +858,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     }
   }
 
-  private void parseActionParams() {
-    String actionWorklogIdValue = getHttpRequest().getParameter("actionWorklogId");
-    String actionFlagValue = getHttpRequest().getParameter("actionFlag");
-    if ((actionWorklogIdValue != null) && !"".equals(actionWorklogIdValue)) {
-      actionWorklogId = Long.valueOf(actionWorklogIdValue);
-    }
-    if (actionFlagValue != null) {
-      actionFlag = actionFlagValue;
-    }
-  }
-
-  private void parseDateParam() throws ParseException {
+  private void parseDateParam() {
     String dateFromParam = getHttpRequest().getParameter(PARAM_DATE);
     if ((dateFromParam != null) && !"".equals(dateFromParam)) {
       dateFormatted = Long.valueOf(dateFromParam);
@@ -920,17 +874,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       }
     }
 
-  }
-
-  private void parseEditAllAction() {
-    if (getHttpRequest().getParameter("lw_chgdate") != null) {
-      String worklogsIdsValues = getHttpRequest().getParameter("worklogsIds");
-      if ((worklogsIdsValues != null) && !"".equals(worklogsIdsValues)) {
-        editAllIds = worklogsIdsValues;
-        actionFlag = "editAll";
-        parsedEditAllIds = parseEditAllIds(editAllIds);
-      }
-    }
   }
 
   /**
