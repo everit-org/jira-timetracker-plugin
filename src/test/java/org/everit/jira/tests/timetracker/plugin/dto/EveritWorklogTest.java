@@ -39,6 +39,7 @@ import org.ofbiz.core.entity.GenericValue;
 import org.ofbiz.core.entity.model.ModelEntity;
 
 import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
+import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration.TimeFormat;
 import com.atlassian.jira.config.properties.ApplicationProperties;
 import com.atlassian.jira.datetime.DateTimeFormatterFactory;
 import com.atlassian.jira.issue.Issue;
@@ -147,7 +148,7 @@ public class EveritWorklogTest {
         Mockito.mock(JiraAuthenticationContext.class, Mockito.RETURNS_DEEP_STUBS);
     Mockito.when(mockJiraAuthenticationContext.getI18nHelper().getLocale())
         .thenReturn(new Locale("en", "US"));
-    Mockito.when(mockJiraAuthenticationContext.getUser()).thenReturn(null);
+    Mockito.when(mockJiraAuthenticationContext.getLoggedInUser()).thenReturn(null);
     mockComponentWorker.addMock(JiraAuthenticationContext.class, mockJiraAuthenticationContext);
 
     DateTimeFormatterFactory mockDateTimeFormatterFactory =
@@ -161,6 +162,7 @@ public class EveritWorklogTest {
     TimeTrackingConfiguration ttConfig = EasyMock.createNiceMock(TimeTrackingConfiguration.class);
     EasyMock.expect(ttConfig.getDaysPerWeek()).andReturn(daysPerWeek).anyTimes();
     EasyMock.expect(ttConfig.getHoursPerDay()).andReturn(hoursPerDay).anyTimes();
+    EasyMock.expect(ttConfig.getTimeFormat()).andReturn(TimeFormat.pretty).anyTimes();
     EasyMock.replay(ttConfig);
     mockComponentWorker.addMock(TimeTrackingConfiguration.class, ttConfig).init();
   }

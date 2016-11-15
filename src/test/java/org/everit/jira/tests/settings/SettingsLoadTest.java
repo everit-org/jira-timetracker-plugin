@@ -66,7 +66,7 @@ public class SettingsLoadTest {
     final ApplicationUser fred = new MockApplicationUser("Fred");
     final JiraAuthenticationContext jiraAuthenticationContext =
         Mockito.mock(JiraAuthenticationContext.class);
-    Mockito.when(jiraAuthenticationContext.getUser()).thenReturn(fred);
+    Mockito.when(jiraAuthenticationContext.getLoggedInUser()).thenReturn(fred);
     Mockito.when(pluginAccessorMock.getPlugin("org.everit.jira.timetracker.plugin")
         .getPluginInformation().getVersion()).thenReturn("2.6.7");
 
