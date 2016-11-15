@@ -18,7 +18,6 @@ package org.everit.jira.reporting.plugin.web;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -228,13 +227,9 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
     List<EveritWorklog> worklogs = new ArrayList<>();
     try {
-      worklogs.addAll(worklogManager.getWorklogs(currentUser, startDate,
-          lastDate));
+      worklogs.addAll(worklogManager.getWorklogs(currentUser, startDate, lastDate));
       saveDataToSession();
-    } catch (DataAccessException e) {
-      LOGGER.error(GET_WORKLOGS_ERROR_MESSAGE, e);
-      return ERROR;
-    } catch (SQLException e) {
+    } catch (DataAccessException | ParseException e) {
       LOGGER.error(GET_WORKLOGS_ERROR_MESSAGE, e);
       return ERROR;
     }
@@ -326,7 +321,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     if ("".equals(currentUser) || !hasBrowseUsersPermission) {
       JiraAuthenticationContext authenticationContext = ComponentAccessor
           .getJiraAuthenticationContext();
-      currentUser = authenticationContext.getUser().getUsername();
+      currentUser = authenticationContext.getLoggedInUser().getUsername();
       setUserPickerObjectBasedOnCurrentUser();
     }
   }
@@ -463,7 +458,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     if ("".equals(currentUser) || !hasBrowseUsersPermission) {
       JiraAuthenticationContext authenticationContext = ComponentAccessor
           .getJiraAuthenticationContext();
-      currentUser = authenticationContext.getUser().getKey();
+      currentUser = authenticationContext.getLoggedInUser().getKey();
     }
   }
 
@@ -495,7 +490,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
       }
       AvatarService avatarService = ComponentAccessor.getComponent(AvatarService.class);
       setAvatarURL(avatarService.getAvatarURL(
-          ComponentAccessor.getJiraAuthenticationContext().getUser(),
+          ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser(),
           userPickerObject, Avatar.Size.SMALL).toString());
     } else {
       userPickerObject = null;

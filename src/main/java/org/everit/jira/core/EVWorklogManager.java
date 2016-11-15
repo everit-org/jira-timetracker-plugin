@@ -15,14 +15,11 @@
  */
 package org.everit.jira.core;
 
-import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 
-import org.everit.jira.timetracker.plugin.dto.ActionResult;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
-import org.ofbiz.core.entity.GenericEntityException;
 
 import com.atlassian.jira.exception.DataAccessException;
 
@@ -55,9 +52,11 @@ public interface EVWorklogManager {
    *          The start time of the worklog. (hh:mm)
    * @param timeSpent
    *          The spent time in the worklog (JIRA format : 1h 30m)
-   * @return {@link ActionResult} Success if the worklog created and Fail if not.
+   *
+   * @throws org.everit.jira.timetracker.plugin.exception.WorklogException
+   *           if has fail to create worklog.
    */
-  ActionResult createWorklog(String issueId, String comment, Date date,
+  void createWorklog(String issueId, String comment, Date date,
       String startTime, String timeSpent);
 
   /**
@@ -65,9 +64,11 @@ public interface EVWorklogManager {
    *
    * @param worklogId
    *          The id of the worklog.
-   * @return {@link ActionResult} Success if the worklog deleted and Fail if not.
+   *
+   * @throws org.everit.jira.timetracker.plugin.exception.WorklogException
+   *           if has fail to delete worklog.
    */
-  ActionResult deleteWorklog(Long worklogId);
+  void deleteWorklog(Long worklogId);
 
   /**
    * Edit an existing worklog whit the given parameters.
@@ -84,9 +85,11 @@ public interface EVWorklogManager {
    *          When start the worklog. (hh:mm)
    * @param timeSpent
    *          The spent time in the worklog (JIRA format : 1h 30m)
-   * @return {@link ActionResult} Success if the worklog edited and Fail if not.
+   *
+   * @throws org.everit.jira.timetracker.plugin.exception.WorklogException
+   *           if has fail to edit worklog.
    */
-  ActionResult editWorklog(Long worklogId, String issueId, String comment,
+  void editWorklog(Long worklogId, String issueId, String comment,
       Date date, String time, String timeSpent);
 
   /**
@@ -109,11 +112,9 @@ public interface EVWorklogManager {
    * @param selectedUser
    *          The selected User.
    * @return The list of the date all worklogs.
-   * @throws GenericEntityException
-   *           GenericEntityException .
    * @throws ParseException
    *           When can't parse the worklog date.
    */
   List<EveritWorklog> getWorklogs(String selectedUser, Date startDate, Date endDate)
-      throws DataAccessException, SQLException, ParseException, GenericEntityException;
+      throws DataAccessException, ParseException;
 }

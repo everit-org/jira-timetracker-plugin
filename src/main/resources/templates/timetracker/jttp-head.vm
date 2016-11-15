@@ -16,12 +16,12 @@
             <div class="jttp-headline">
               <div class="aui-group aui-group-split">
                  <div class="aui-item">
-                 #if($isProgressDaily)
+                 #if($userSettings.progressIndicatordaily)
                    <div class="jttp-headline-progress" id="jttp-headline-progress">
                      <div class="jttp-headline-progress-date" id="jttp-headline-progress-date">$dateTimeFormatter.format($date)</div>
-                     <div class="jttp-headline-progress-number" id="jttp-headline-progress-number">$daySumIndustryFormatted / $hoursPerDayFormatted</div>
+                     <div class="jttp-headline-progress-number" id="jttp-headline-progress-number">$summaryDTO.daySumIndustryFormatted / $summaryDTO.hoursPerDayFormatted</div>
                      <div id="jttp-headline-progress-bar">
-                       <div id="jttp-headline-progress-indicator" class="aui-progress-indicator" data-jttp-percent="$dailyPercent">
+                       <div id="jttp-headline-progress-indicator" class="aui-progress-indicator" data-jttp-percent="$summaryDTO.dailyPercent">
                          <span class="aui-progress-indicator-value" />
                        </div>
                      </div>
@@ -39,13 +39,13 @@
                          <span class="aui-icon aui-icon-small aui-iconfont-calendar">Open calendar</span>
                        </button>
                        <div class="aui-buttons stepper-group-container">
-                         <button id="jttp-headline-day-prev" class="aui-button" title="Previous day" type="submit" id="dayBack"  name="dayBack" >
+                         <button id="jttp-headline-day-prev" class="aui-button tooltip-bottom" title="Previous day" type="submit" id="dayBack"  name="dayBack" >
                            <span class="aui-icon aui-icon-small aui-iconfont-arrows-left">Previous day</span>
                          </button>
-                         <button class="aui-button button-today" id="today" name="today" title="$i18n.getText('plugin.today.button')"> 
+                         <button class="aui-button button-today tooltip-bottom" id="today" name="today" title="$i18n.getText('plugin.today.button')"> 
                             $i18n.getText('plugin.today.button')
                          </button>
-                         <button id="jttp-headline-day-next" class="aui-button" title="Next day" type="submit" id="dayNext" name="dayNext">
+                         <button id="jttp-headline-day-next" class="aui-button tooltip-bottom" title="Next day" type="submit" id="dayNext" name="dayNext">
                            <span class="aui-icon aui-icon-small aui-iconfont-arrows-right">Next day</span>
                          </button>
                        </div>

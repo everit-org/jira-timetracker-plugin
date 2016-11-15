@@ -616,7 +616,7 @@ public abstract class AbstractReportQuery<T> {
     BooleanExpression nullExpressions =
         qWorklog.rolelevel.isNull().and(qWorklog.grouplevel.isNull());
 
-    ApplicationUser loggedUser = ComponentAccessor.getJiraAuthenticationContext().getUser();
+    ApplicationUser loggedUser = ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser();
     Collection<String> loggedUserGroupNames =
         ComponentAccessor.getGroupManager().getGroupNamesForUser(loggedUser);
 

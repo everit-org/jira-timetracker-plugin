@@ -25,6 +25,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.easymock.EasyMock;
+import org.everit.jira.tests.core.DummyDateTimeFromatter;
 import org.everit.jira.tests.timetracker.plugin.DurationBuilder;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.junit.Assert;
@@ -39,6 +40,7 @@ import org.ofbiz.core.entity.model.ModelEntity;
 
 import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
 import com.atlassian.jira.config.properties.ApplicationProperties;
+import com.atlassian.jira.datetime.DateTimeFormatterFactory;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.mock.component.MockComponentWorker;
@@ -136,6 +138,9 @@ public class EveritWorklogTest {
     Mockito.when(
         mockApplicationProperties.getDefaultBackedString(Matchers.matches("jira.lf.date.dmy")))
         .thenReturn("yy-MM-dd");
+    Mockito.when(mockApplicationProperties
+        .getDefaultBackedString(Matchers.matches("jira.timetracking.format")))
+        .thenReturn("pretty");
     mockComponentWorker.addMock(ApplicationProperties.class, mockApplicationProperties);
 
     JiraAuthenticationContext mockJiraAuthenticationContext =
@@ -144,6 +149,12 @@ public class EveritWorklogTest {
         .thenReturn(new Locale("en", "US"));
     Mockito.when(mockJiraAuthenticationContext.getUser()).thenReturn(null);
     mockComponentWorker.addMock(JiraAuthenticationContext.class, mockJiraAuthenticationContext);
+
+    DateTimeFormatterFactory mockDateTimeFormatterFactory =
+        Mockito.mock(DateTimeFormatterFactory.class, Mockito.RETURNS_DEEP_STUBS);
+    Mockito.when(mockDateTimeFormatterFactory.formatter())
+        .thenReturn(new DummyDateTimeFromatter());
+    mockComponentWorker.addMock(DateTimeFormatterFactory.class, mockDateTimeFormatterFactory);
 
     BigDecimal daysPerWeek = new BigDecimal(5);
     BigDecimal hoursPerDay = new BigDecimal(8);

@@ -22,8 +22,8 @@ import java.util.Locale;
 import org.everit.jira.core.EVWorklogManager;
 import org.everit.jira.core.impl.WorklogComponent;
 import org.everit.jira.core.impl.WorklogComponent.PropertiesKey;
-import org.everit.jira.timetracker.plugin.dto.ActionResult;
-import org.everit.jira.timetracker.plugin.dto.ActionResultStatus;
+import org.everit.jira.tests.core.DummyDateTimeFromatter;
+import org.everit.jira.timetracker.plugin.exception.WorklogException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,6 +35,7 @@ import com.atlassian.jira.bc.JiraServiceContext;
 import com.atlassian.jira.bc.issue.worklog.WorklogNewEstimateInputParameters;
 import com.atlassian.jira.bc.issue.worklog.WorklogResult;
 import com.atlassian.jira.bc.issue.worklog.WorklogService;
+import com.atlassian.jira.datetime.DateTimeFormatterFactory;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.worklog.Worklog;
@@ -114,13 +115,11 @@ public class EditWorklogTest {
 
   private EVWorklogManager worklogManager;
 
-  private void assertActionResult(final ActionResult result,
-      final ActionResultStatus expectedStatus, final String expectedIssueId,
+  private void assertWorklogException(final WorklogException e, final String expectedIssueId,
       final String expectedMessage) {
-    Assert.assertNotNull(result);
-    Assert.assertEquals(expectedStatus, result.getStatus());
-    Assert.assertEquals(expectedIssueId, result.getMessageParameter());
-    Assert.assertEquals(expectedMessage, result.getMessage());
+    Assert.assertNotNull(e);
+    Assert.assertEquals(expectedIssueId, e.messageParameter);
+    Assert.assertEquals(expectedMessage, e.getMessage());
   }
 
   @Before
@@ -180,6 +179,19 @@ public class EditWorklogTest {
             notSameIssueToDeleteFail,
             loggedUser))
         .thenReturn(true);
+    Mockito.when(
+        worklogService.hasPermissionToCreate(Matchers.any(JiraServiceContext.class),
+            Matchers.eq(notSameIssueToDeleteFail), Matchers.eq(true)))
+        .thenReturn(true);
+    WorklogResult worklogResult = Mockito.mock(WorklogResult.class);
+    Mockito.when(
+        worklogService.validateCreate(Matchers.any(JiraServiceContext.class),
+            Matchers.any(WorklogNewEstimateInputParameters.class)))
+        .thenReturn(worklogResult);
+    Mockito.when(
+        worklogService.createAndAutoAdjustRemainingEstimate(Matchers.any(JiraServiceContext.class),
+            Matchers.eq(worklogResult), Matchers.eq(true)))
+        .thenReturn(Mockito.mock(Worklog.class));
     Mockito.when(worklogService.hasPermissionToDelete(Matchers.any(JiraServiceContext.class),
         Matchers.eq(notSameIssueDeleteFailIssueWorklog)))
         .thenReturn(false);
@@ -269,12 +281,18 @@ public class EditWorklogTest {
         })))
         .thenReturn(new DummySuccessWorklogResult(sameIssueSuccessWorklog));
 
+    DateTimeFormatterFactory mockDateTimeFormatterFactory =
+        Mockito.mock(DateTimeFormatterFactory.class, Mockito.RETURNS_DEEP_STUBS);
+    Mockito.when(mockDateTimeFormatterFactory.formatter())
+        .thenReturn(new DummyDateTimeFromatter());
+
     // init components
     mockComponentWorker.addMock(JiraAuthenticationContext.class, mockJiraAuthenticationContext)
         .addMock(WorklogManager.class, mockWorklogManager)
         .addMock(IssueManager.class, issueManager)
         .addMock(WorklogService.class, worklogService)
         .addMock(PermissionManager.class, permissionManager)
+        .addMock(DateTimeFormatterFactory.class, mockDateTimeFormatterFactory)
         .init();
 
     worklogManager = new WorklogComponent();
@@ -286,104 +304,116 @@ public class EditWorklogTest {
     Date defaultDate = new Date();
     String defaultTime = "08:00";
     String defaultTimeSpent = "10";
-    ActionResult result = worklogManager.editWorklog(invalidIssueWorklog.getId(),
-        invalidIssueWorklog.getIssue().getKey(),
-        defaultComment,
-        defaultDate,
-        defaultTime,
-        defaultTimeSpent);
-    assertActionResult(result,
-        ActionResultStatus.FAIL,
-        invalidIssueWorklog.getIssue().getKey(),
-        PropertiesKey.INVALID_ISSUE);
+    try {
+      worklogManager.editWorklog(invalidIssueWorklog.getId(),
+          invalidIssueWorklog.getIssue().getKey(),
+          defaultComment,
+          defaultDate,
+          defaultTime,
+          defaultTimeSpent);
+      Assert.fail("Expect WorklogException");
+    } catch (WorklogException e) {
+      assertWorklogException(e, invalidIssueWorklog.getIssue().getKey(),
+          PropertiesKey.INVALID_ISSUE);
+    }
 
-    result = worklogManager.editWorklog(notSameIssueNoPermissionWorklog.getId(),
-        notSameIssueToNoPermission.getKey(),
-        defaultComment,
-        defaultDate,
-        defaultTime,
-        defaultTimeSpent);
-    assertActionResult(result,
-        ActionResultStatus.FAIL,
-        notSameIssueToNoPermission.getKey(),
-        PropertiesKey.NOPERMISSION_ISSUE);
+    try {
+      worklogManager.editWorklog(notSameIssueNoPermissionWorklog.getId(),
+          notSameIssueToNoPermission.getKey(),
+          defaultComment,
+          defaultDate,
+          defaultTime,
+          defaultTimeSpent);
+      Assert.fail("Expect WorklogException");
+    } catch (WorklogException e) {
+      assertWorklogException(e, notSameIssueToNoPermission.getKey(),
+          PropertiesKey.NOPERMISSION_ISSUE);
+    }
 
-    result = worklogManager.editWorklog(notSameIssueNoPermissionWorklog.getId(),
-        notSameIssueToNoPermission.getKey(),
-        defaultComment,
-        defaultDate,
-        defaultTime,
-        defaultTimeSpent);
-    assertActionResult(result,
-        ActionResultStatus.FAIL,
-        notSameIssueToNoPermission.getKey(),
-        PropertiesKey.NOPERMISSION_ISSUE);
+    try {
+      worklogManager.editWorklog(notSameIssueNoPermissionWorklog.getId(),
+          notSameIssueToNoPermission.getKey(),
+          defaultComment,
+          defaultDate,
+          defaultTime,
+          defaultTimeSpent);
+      Assert.fail("Expect WorklogException");
+    } catch (WorklogException e) {
+      assertWorklogException(e, notSameIssueToNoPermission.getKey(),
+          PropertiesKey.NOPERMISSION_ISSUE);
+    }
 
-    result = worklogManager.editWorklog(notSameIssueDeleteFailIssueWorklog.getId(),
-        notSameIssueToDeleteFail.getKey(),
-        defaultComment,
-        defaultDate,
-        defaultTime,
-        defaultTimeSpent);
-    assertActionResult(result,
-        ActionResultStatus.FAIL,
-        notSameIssueDeleteFailIssueWorklog.getIssue().getKey(),
-        PropertiesKey.NOPERMISSION_DELETE_WORKLOG);
+    try {
+      worklogManager.editWorklog(notSameIssueDeleteFailIssueWorklog.getId(),
+          notSameIssueToDeleteFail.getKey(),
+          defaultComment,
+          defaultDate,
+          defaultTime,
+          defaultTimeSpent);
+      Assert.fail("Expect WorklogException");
+    } catch (WorklogException e) {
+      assertWorklogException(e, notSameIssueDeleteFailIssueWorklog.getIssue().getKey(),
+          PropertiesKey.NOPERMISSION_DELETE_WORKLOG);
+    }
 
-    result = worklogManager.editWorklog(notSameIssueCreateFailIssueWorklog.getId(),
-        notSameIssueToCreateFail.getKey(),
-        defaultComment,
-        defaultDate,
-        defaultTime,
-        defaultTimeSpent);
-    assertActionResult(result,
-        ActionResultStatus.FAIL,
-        notSameIssueToCreateFail.getKey(),
-        PropertiesKey.NOPERMISSION_CREATE_WORKLOG);
+    try {
+      worklogManager.editWorklog(notSameIssueCreateFailIssueWorklog.getId(),
+          notSameIssueToCreateFail.getKey(),
+          defaultComment,
+          defaultDate,
+          defaultTime,
+          defaultTimeSpent);
+      Assert.fail("Expect WorklogException");
+    } catch (WorklogException e) {
+      assertWorklogException(e, notSameIssueToCreateFail.getKey(),
+          PropertiesKey.NOPERMISSION_CREATE_WORKLOG);
+    }
 
     String wrongTime = "wrong";
-    result = worklogManager.editWorklog(sameIssueDateParseWorklog.getId(),
-        sameIssueDateParseWorklog.getIssue().getKey(),
-        defaultComment,
-        defaultDate,
-        wrongTime,
-        defaultTimeSpent);
-    assertActionResult(result,
-        ActionResultStatus.FAIL,
-        defaultDate + " " + wrongTime,
-        PropertiesKey.DATE_PARSE);
+    try {
+      worklogManager.editWorklog(sameIssueDateParseWorklog.getId(),
+          sameIssueDateParseWorklog.getIssue().getKey(),
+          defaultComment,
+          defaultDate,
+          wrongTime,
+          defaultTimeSpent);
+      Assert.fail("Expect WorklogException");
+    } catch (WorklogException e) {
+      assertWorklogException(e, defaultDate + " " + wrongTime,
+          PropertiesKey.DATE_PARSE);
+    }
 
-    result = worklogManager.editWorklog(sameIssueNoPermissionToUpdateWorklog.getId(),
-        sameIssueNoPermissionToUpdateWorklog.getIssue().getKey(),
-        defaultComment,
-        defaultDate,
-        defaultTime,
-        defaultTimeSpent);
-    assertActionResult(result,
-        ActionResultStatus.FAIL,
-        sameIssueNoPermissionToUpdateWorklog.getIssue().getKey(),
-        PropertiesKey.NOPERMISSION_UPDATE_WORKLOG);
+    try {
+      worklogManager.editWorklog(sameIssueNoPermissionToUpdateWorklog.getId(),
+          sameIssueNoPermissionToUpdateWorklog.getIssue().getKey(),
+          defaultComment,
+          defaultDate,
+          defaultTime,
+          defaultTimeSpent);
+      Assert.fail("Expect WorklogException");
+    } catch (WorklogException e) {
+      assertWorklogException(e, sameIssueNoPermissionToUpdateWorklog.getIssue().getKey(),
+          PropertiesKey.NOPERMISSION_UPDATE_WORKLOG);
+    }
 
-    result = worklogManager.editWorklog(sameIssueValidateFailWorklog.getId(),
-        sameIssueValidateFailWorklog.getIssue().getKey(),
-        defaultComment,
-        defaultDate,
-        defaultTime,
-        defaultTimeSpent);
-    assertActionResult(result,
-        ActionResultStatus.FAIL,
-        "",
-        PropertiesKey.WORKLOG_UPDATE_FAIL);
+    try {
+      worklogManager.editWorklog(sameIssueValidateFailWorklog.getId(),
+          sameIssueValidateFailWorklog.getIssue().getKey(),
+          defaultComment,
+          defaultDate,
+          defaultTime,
+          defaultTimeSpent);
+      Assert.fail("Expect WorklogException");
+    } catch (WorklogException e) {
+      assertWorklogException(e, "",
+          PropertiesKey.WORKLOG_UPDATE_FAIL);
+    }
 
-    result = worklogManager.editWorklog(sameIssueSuccessWorklog.getId(),
+    worklogManager.editWorklog(sameIssueSuccessWorklog.getId(),
         sameIssueSuccessWorklog.getIssue().getKey(),
         defaultComment,
         defaultDate,
         defaultTime,
         defaultTimeSpent);
-    assertActionResult(result,
-        ActionResultStatus.SUCCESS,
-        "",
-        PropertiesKey.WORKLOG_UPDATE_SUCCESS);
   }
 }

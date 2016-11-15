@@ -15,7 +15,6 @@
  */
 package org.everit.jira.core.impl;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -26,7 +25,6 @@ import org.everit.jira.core.TimetrackerManager;
 import org.everit.jira.core.util.TimetrackerUtil;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
-import org.ofbiz.core.entity.GenericEntityException;
 
 import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
 
@@ -65,7 +63,7 @@ public class TimetrackerComponent implements TimetrackerManager {
 
   @Override
   public Date firstMissingWorklogsDate(final Set<Date> excludeDatesSet,
-      final Set<Date> includeDatesSet) throws GenericEntityException {
+      final Set<Date> includeDatesSet) {
     Calendar scannedDate = Calendar.getInstance();
     // one week
     scannedDate.set(Calendar.DAY_OF_YEAR,
@@ -127,8 +125,7 @@ public class TimetrackerComponent implements TimetrackerManager {
   }
 
   @Override
-  public List<String> getLoggedDaysOfTheMonth(final Date date)
-      throws GenericEntityException {
+  public List<String> getLoggedDaysOfTheMonth(final Date date) {
     List<String> resultDays = new ArrayList<>();
     int dayOfMonth = 1;
     Calendar startCalendar = Calendar.getInstance();
@@ -150,19 +147,21 @@ public class TimetrackerComponent implements TimetrackerManager {
 
   @Override
   public String lastEndTime(final List<EveritWorklog> worklogs)
-      throws ParseException {
+      throws IllegalArgumentException {
     if ((worklogs == null) || (worklogs.size() == 0)) {
-      return "08:00";
+      Calendar c = Calendar.getInstance();
+      c.setTime(new Date());
+      c.set(Calendar.HOUR_OF_DAY, DateTimeConverterUtil.HOUR_EIGHT);
+      c.set(Calendar.MINUTE, 0);
+      c.set(Calendar.SECOND, 0);
+      return DateTimeConverterUtil.dateTimeToString(c.getTime());
     }
     String endTime = worklogs.get(0).getEndTime();
     for (int i = 1; i < worklogs.size(); i++) {
-      Date first = DateTimeConverterUtil.stringTimeToDateTime(worklogs
-          .get(i - 1).getEndTime());
-      Date second = DateTimeConverterUtil.stringTimeToDateTime(worklogs
+      Date endTimeDate = DateTimeConverterUtil.stringTimeToDateTime(endTime);
+      Date actualDate = DateTimeConverterUtil.stringTimeToDateTime(worklogs
           .get(i).getEndTime());
-      if (first.compareTo(second) == 1) {
-        endTime = worklogs.get(i - 1).getEndTime();
-      } else {
+      if (endTimeDate.compareTo(actualDate) == -1) {
         endTime = worklogs.get(i).getEndTime();
       }
     }

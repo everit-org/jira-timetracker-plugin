@@ -201,12 +201,12 @@ public class SettingsLoadTest {
 
     Assert.assertEquals(1, dummyPluginSettings.getMap().size());
     Assert.assertEquals(0, dummyUserSettings.getMap().size());
-    Assert.assertEquals(true, loadUserSettings.getActualDate());
-    Assert.assertEquals(true, loadUserSettings.getColoring());
+    Assert.assertEquals(true, loadUserSettings.isActualDate());
+    Assert.assertEquals(true, loadUserSettings.isColoring());
     Assert.assertEquals(5, loadUserSettings.getEndTimeChange());
-    Assert.assertEquals(true, loadUserSettings.getisProgressIndicatordaily());
-    Assert.assertEquals(true, loadUserSettings.getIsRounded());
-    Assert.assertEquals(true, loadUserSettings.getIsShowFutureLogWarning());
+    Assert.assertEquals(true, loadUserSettings.isProgressIndicatordaily());
+    Assert.assertEquals(true, loadUserSettings.isRounded());
+    Assert.assertEquals(true, loadUserSettings.isShowFutureLogWarning());
     Assert.assertEquals(true, loadUserSettings.getIsShowTutorialDialog());
     Assert.assertEquals(20, loadUserSettings.getPageSize());
     Assert.assertEquals(5, loadUserSettings.getStartTimeChange());
@@ -302,11 +302,11 @@ public class SettingsLoadTest {
     Mockito.verifyNoMoreInteractions(settingsFactoryMock);
 
     Assert.assertEquals(1, dummyGlobalSettings.getMap().size());
-    Assert.assertEquals(true, loadUserSettings.getActualDate());
-    Assert.assertEquals(true, loadUserSettings.getColoring());
+    Assert.assertEquals(true, loadUserSettings.isActualDate());
+    Assert.assertEquals(true, loadUserSettings.isColoring());
     Assert.assertEquals(10, loadUserSettings.getEndTimeChange());
-    Assert.assertEquals(false, loadUserSettings.getisProgressIndicatordaily());
-    Assert.assertEquals(true, loadUserSettings.getIsShowFutureLogWarning());
+    Assert.assertEquals(false, loadUserSettings.isProgressIndicatordaily());
+    Assert.assertEquals(true, loadUserSettings.isShowFutureLogWarning());
     Assert.assertEquals(true, loadUserSettings.getIsShowTutorialDialog());
     Assert.assertEquals(30, loadUserSettings.getPageSize());
     Assert.assertEquals(10, loadUserSettings.getStartTimeChange());
