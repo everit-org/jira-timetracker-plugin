@@ -129,8 +129,26 @@ public final class TimetrackerUtil {
     if (json == null) {
       throw new NullPointerException("EMPTY_JSON");
     }
-    return new Gson()
+    WorklogValues worklogValues = new Gson()
         .fromJson(json, WorklogValues.class);
+
+    if (worklogValues.getEndTime() == null) {
+      worklogValues.setEndTime(DateTimeConverterUtil.dateTimeToString(new Date()));
+    }
+    if (worklogValues.getComment() != null) {
+      worklogValues.setCommentForActions(worklogValues.getComment());
+      String comment = worklogValues.getComment();
+      comment = comment.replace("\"", "\\\"");
+      comment = comment.replace("\r", "\\r");
+      comment = comment.replace("\n", "\\n");
+
+      worklogValues.setComment(comment);
+    } else {
+      worklogValues.setCommentForActions("");
+      worklogValues.setComment("");
+    }
+
+    return worklogValues;
   }
 
   /**

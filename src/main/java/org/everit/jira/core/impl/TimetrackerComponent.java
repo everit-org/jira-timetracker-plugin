@@ -154,13 +154,10 @@ public class TimetrackerComponent implements TimetrackerManager {
     }
     String endTime = worklogs.get(0).getEndTime();
     for (int i = 1; i < worklogs.size(); i++) {
-      Date first = DateTimeConverterUtil.stringTimeToDateTime(worklogs
-          .get(i - 1).getEndTime());
-      Date second = DateTimeConverterUtil.stringTimeToDateTime(worklogs
+      Date endTimeDateForCheck = DateTimeConverterUtil.stringTimeToDateTime(endTime);
+      Date actual = DateTimeConverterUtil.stringTimeToDateTime(worklogs
           .get(i).getEndTime());
-      if (first.compareTo(second) == 1) {
-        endTime = worklogs.get(i - 1).getEndTime();
-      } else {
+      if (endTimeDateForCheck.compareTo(actual) == -1) {
         endTime = worklogs.get(i).getEndTime();
       }
     }
