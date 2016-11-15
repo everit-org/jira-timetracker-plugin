@@ -62,6 +62,16 @@
                  </div>
                </div>
             </div>
+            <div class="tabs-pane" id="tutorialPage-5">
+              <h2>$i18n.getText('jtrp.tutorial.tab.header.5')</h2>
+              <div class="aui-group">
+                <div class="aui-item">
+                  $i18n.getText('jtrp.tutorial.tab.text.5')
+                 </div>
+                 <div class="aui-item tabImage tab5-img">
+                 </div>
+               </div>
+            </div>
         </div>
       </div>
       <!-- Dialog footer -->

@@ -32,6 +32,9 @@ import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.status.category.StatusCategory;
 import com.atlassian.jira.issue.worklog.Worklog;
+import com.atlassian.jira.permission.ProjectPermissions;
+import com.atlassian.jira.security.PermissionManager;
+import com.atlassian.jira.user.ApplicationUser;
 
 /**
  * The Everit Worklog.
@@ -52,10 +55,14 @@ public class EveritWorklog implements Serializable {
 
   private int dayNo;
 
+  private boolean deleteOwnWorklogs;
+
   /**
    * The spent time.
    */
   private String duration;
+
+  private boolean editOwnWorklogs;
 
   /**
    * The calculated end time.
@@ -187,6 +194,15 @@ public class EveritWorklog implements Serializable {
 
     roundedRemaining = durationFormatter.roundedDuration(issueEstimate);
     exactRemaining = durationFormatter.exactDuration(issueEstimate);
+
+    PermissionManager permissionManager = ComponentAccessor.getPermissionManager();
+    ApplicationUser loggedUser = ComponentAccessor.getJiraAuthenticationContext().getUser();
+    deleteOwnWorklogs =
+        permissionManager.hasPermission(ProjectPermissions.DELETE_OWN_WORKLOGS, issueObject,
+            loggedUser);
+    editOwnWorklogs =
+        permissionManager.hasPermission(ProjectPermissions.EDIT_OWN_WORKLOGS, issueObject,
+            loggedUser);
   }
 
   /**
@@ -269,8 +285,7 @@ public class EveritWorklog implements Serializable {
     long timeSpentInSec = worklog.getTimeSpent().longValue();
     milliseconds = timeSpentInSec
         * DateTimeConverterUtil.MILLISECONDS_PER_SECOND;
-    duration = DateTimeConverterUtil
-        .millisecondConvertToStringTime(milliseconds);
+    duration = DateTimeConverterUtil.dateTimeToStringWithFixFormat(new Date(milliseconds));
     endTime = DateTimeConverterUtil.countEndTime(startTime, milliseconds);
   }
 
@@ -356,6 +371,14 @@ public class EveritWorklog implements Serializable {
 
   public Long getWorklogId() {
     return worklogId;
+  }
+
+  public boolean isDeleteOwnWorklogs() {
+    return deleteOwnWorklogs;
+  }
+
+  public boolean isEditOwnWorklogs() {
+    return editOwnWorklogs;
   }
 
   public void setBody(final String body) {

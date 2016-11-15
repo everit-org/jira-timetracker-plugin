@@ -111,6 +111,8 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   private Class<DateTimeConverterUtil> dateConverterUtil = DateTimeConverterUtil.class;
 
+  private boolean defaultCommand = false;
+
   private DurationFormatter durationFormatter = new DurationFormatter();
 
   public List<SearchRequest> favouriteFilters;
@@ -140,7 +142,7 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   private String order = "ASC";
 
-  private String orderColumn = "jtrp_col_issueKey";
+  private String orderColumn = WorklogDetailsColumns.ISSUE_KEY;
 
   private int pageSizeLimit;
 
@@ -264,6 +266,7 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   @Override
   public String doDefault() throws ParseException {
+    defaultCommand = true;
     String checkConditionsResult = checkConditions();
     if (checkConditionsResult != null) {
       return checkConditionsResult;
@@ -493,6 +496,10 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   public boolean isCollapsedSummaryModule() {
     return collapsedSummaryModule;
+  }
+
+  public boolean isDefaultCommand() {
+    return defaultCommand;
   }
 
   private ReportingSessionData loadDataFromSession() {

@@ -97,6 +97,10 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 
   private boolean isRounded;
 
+  private boolean isShowFutureLogWarning;
+
+  private boolean isShowIssueSummary;
+
   private String issueCollectorSrc;
 
   /**
@@ -254,6 +258,14 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     return isRounded;
   }
 
+  public boolean getIsShowFutureLogWarning() {
+    return isShowFutureLogWarning;
+  }
+
+  public boolean getIsShowIssueSummary() {
+    return isShowIssueSummary;
+  }
+
   public String getIssueCollectorSrc() {
     return issueCollectorSrc;
   }
@@ -299,6 +311,8 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
     endTime = Integer.toString(pluginSettingsValues.endTimeChange);
     isColoring = pluginSettingsValues.isColoring;
     isRounded = pluginSettingsValues.isRounded;
+    isShowFutureLogWarning = pluginSettingsValues.isShowFutureLogWarning;
+    isShowIssueSummary = pluginSettingsValues.isShowIssueSummary;
     analyticsCheck = pluginSettingsValues.analyticsCheck;
   }
 
@@ -336,6 +350,16 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 
     String isRoundedValue = request.getParameter("isRounded");
     isRounded = (isRoundedValue != null);
+
+    String isShowFutureLogWarningValue = request.getParameter("isShowFutureLogWarning");
+    isShowFutureLogWarning = (isShowFutureLogWarningValue != null);
+
+    String isShowIssueSummaryValue = request.getParameter("isShowIssueSummary");
+    if ("showIssueSummary".equals(isShowIssueSummaryValue)) {
+      isShowIssueSummary = true;
+    } else {
+      isShowIssueSummary = false;
+    }
 
     try {
       if (jiraTimetrackerPlugin.validateTimeChange(startTimeValue)) {
@@ -383,7 +407,9 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
         .startTimeChange(Integer.parseInt(startTime))
         .endTimeChange(Integer.parseInt(endTime))
         .analyticsCheck(analyticsCheck)
-        .isRounded(isRounded);
+        .isRounded(isRounded)
+        .isShowIssueSummary(isShowIssueSummary)
+        .isShowFutureLogWarning(isShowFutureLogWarning);
     jiraTimetrackerPlugin.savePluginSettings(pluginSettingValues);
   }
 
@@ -413,6 +439,14 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
 
   public void setIsRounded(final boolean isRounded) {
     this.isRounded = isRounded;
+  }
+
+  public void setIsShowFutureLogWarning(final boolean isShowFutureLogWarning) {
+    this.isShowFutureLogWarning = isShowFutureLogWarning;
+  }
+
+  public void setIsShowIssueSummary(final boolean isShowIssueSummary) {
+    this.isShowIssueSummary = isShowIssueSummary;
   }
 
   public void setMessage(final String message) {

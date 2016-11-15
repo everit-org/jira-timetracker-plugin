@@ -78,6 +78,10 @@ public class PluginSettingsValues implements Serializable {
    */
   public Boolean isRounded;
 
+  public boolean isShowFutureLogWarning;
+
+  public boolean isShowIssueSummary;
+
   /**
    * The plugin groups.
    */
@@ -149,6 +153,16 @@ public class PluginSettingsValues implements Serializable {
 
   public PluginSettingsValues isRounded(final boolean isRounded) {
     this.isRounded = isRounded;
+    return this;
+  }
+
+  public PluginSettingsValues isShowFutureLogWarning(final boolean isShowFutureLogWarning) {
+    this.isShowFutureLogWarning = isShowFutureLogWarning;
+    return this;
+  }
+
+  public PluginSettingsValues isShowIssueSummary(final boolean isShowIssueSummary) {
+    this.isShowIssueSummary = isShowIssueSummary;
     return this;
   }
 
