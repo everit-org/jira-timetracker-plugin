@@ -20,8 +20,12 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
 
+import org.everit.jira.settings.dto.JTTPSettingsKey;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 
+import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.security.JiraAuthenticationContext;
+import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
@@ -59,8 +63,8 @@ public class SurveyDialogWebAction extends JiraWebActionSupport {
     surveyScriptUrl = getProperty(jttpBuildProperties, SURVEY_SCRIPT_URL);
     surveyFormUrl = getProperty(jttpBuildProperties, SURVEY_FORM_URL);
 
-    PluginSettings globalSettings = pluginSettingsFactory.createGlobalSettings();
-    Object formattedDate = globalSettings.get(KEY_POPUP_SAVED_DATE);
+    PluginSettings userPluginSettings = getUserPluginSettigns();
+    Object formattedDate = userPluginSettings.get(KEY_POPUP_SAVED_DATE);
     lastSavedSurveyDate = formattedDate != null
         ? formattedDate.toString()
         : "";
@@ -72,8 +76,8 @@ public class SurveyDialogWebAction extends JiraWebActionSupport {
     String action = getHttpRequest().getParameter("action");
     if ("save".equals(action)) {
       SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-      PluginSettings globalSettings = pluginSettingsFactory.createGlobalSettings();
-      globalSettings.put(KEY_POPUP_SAVED_DATE, sdf.format(new Date()));
+      PluginSettings userPluginSettings = getUserPluginSettigns();
+      userPluginSettings.put(KEY_POPUP_SAVED_DATE, sdf.format(new Date()));
     }
     return NONE;
   }
@@ -93,6 +97,14 @@ public class SurveyDialogWebAction extends JiraWebActionSupport {
 
   public String getSurveyScriptUrl() {
     return surveyScriptUrl;
+  }
+
+  private PluginSettings getUserPluginSettigns() {
+    JiraAuthenticationContext authenticationContext = ComponentAccessor
+        .getJiraAuthenticationContext();
+    ApplicationUser user = authenticationContext.getUser();
+    return pluginSettingsFactory.createSettingsForKey(
+        JTTPSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX + user.getName());
   }
 
   private void readObject(final java.io.ObjectInputStream stream) throws IOException,
