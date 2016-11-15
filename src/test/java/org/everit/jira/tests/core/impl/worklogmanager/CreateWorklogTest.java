@@ -23,6 +23,7 @@ import java.util.Locale;
 import org.everit.jira.core.EVWorklogManager;
 import org.everit.jira.core.impl.WorklogComponent;
 import org.everit.jira.core.impl.WorklogComponent.PropertiesKey;
+import org.everit.jira.tests.core.DummyDateTimeFromatter;
 import org.everit.jira.timetracker.plugin.exception.WorklogException;
 import org.junit.Assert;
 import org.junit.Before;
@@ -36,6 +37,7 @@ import com.atlassian.jira.bc.issue.worklog.WorklogInputParametersImpl;
 import com.atlassian.jira.bc.issue.worklog.WorklogNewEstimateInputParameters;
 import com.atlassian.jira.bc.issue.worklog.WorklogResult;
 import com.atlassian.jira.bc.issue.worklog.WorklogService;
+import com.atlassian.jira.datetime.DateTimeFormatterFactory;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.worklog.Worklog;
@@ -246,11 +248,17 @@ public class CreateWorklogTest {
             Matchers.eq(true)))
         .thenReturn(Mockito.mock(Worklog.class));
 
+    DateTimeFormatterFactory mockDateTimeFormatterFactory =
+        Mockito.mock(DateTimeFormatterFactory.class, Mockito.RETURNS_DEEP_STUBS);
+    Mockito.when(mockDateTimeFormatterFactory.formatter())
+        .thenReturn(new DummyDateTimeFromatter());
+
     // init components
     mockComponentWorker.addMock(JiraAuthenticationContext.class, mockJiraAuthenticationContext)
         .addMock(IssueManager.class, issueManager)
         .addMock(PermissionManager.class, permissionManager)
         .addMock(WorklogService.class, worklogService)
+        .addMock(DateTimeFormatterFactory.class, mockDateTimeFormatterFactory)
         .init();
 
     worklogManager = new WorklogComponent();

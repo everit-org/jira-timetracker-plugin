@@ -127,7 +127,7 @@ public class WorklogComponent implements EVWorklogManager {
     Date startDate;
     try {
       startDate = DateTimeConverterUtil.stringToDateAndTime(date, startTime);
-    } catch (ParseException e) {
+    } catch (IllegalArgumentException e) {
       throw new WorklogException(PropertiesKey.DATE_PARSE, date + " " + startTime);
     }
 
@@ -195,15 +195,15 @@ public class WorklogComponent implements EVWorklogManager {
         throw new WorklogException(PropertiesKey.NOPERMISSION_ISSUE, issueId);
       }
 
-      deleteWorklog(worklogId);
-
       createWorklog(issueId, comment, date, time, timeSpent);
+
+      deleteWorklog(worklogId);
     } else {
       Date dateCreate;
       try {
         dateCreate = DateTimeConverterUtil
             .stringToDateAndTime(date, time);
-      } catch (ParseException e) {
+      } catch (IllegalArgumentException e) {
         throw new WorklogException(PropertiesKey.DATE_PARSE, date + " " + time);
       }
       WorklogInputParameters params = WorklogInputParametersImpl

@@ -15,7 +15,6 @@
  */
 package org.everit.jira.core.impl;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -148,16 +147,21 @@ public class TimetrackerComponent implements TimetrackerManager {
 
   @Override
   public String lastEndTime(final List<EveritWorklog> worklogs)
-      throws ParseException {
+      throws IllegalArgumentException {
     if ((worklogs == null) || (worklogs.size() == 0)) {
-      return "08:00";
+      Calendar c = Calendar.getInstance();
+      c.setTime(new Date());
+      c.set(Calendar.HOUR_OF_DAY, DateTimeConverterUtil.HOUR_EIGHT);
+      c.set(Calendar.MINUTE, 0);
+      c.set(Calendar.SECOND, 0);
+      return DateTimeConverterUtil.dateTimeToString(c.getTime());
     }
     String endTime = worklogs.get(0).getEndTime();
     for (int i = 1; i < worklogs.size(); i++) {
-      Date endTimeDateForCheck = DateTimeConverterUtil.stringTimeToDateTime(endTime);
-      Date actual = DateTimeConverterUtil.stringTimeToDateTime(worklogs
+      Date endTimeDate = DateTimeConverterUtil.stringTimeToDateTime(endTime);
+      Date actualDate = DateTimeConverterUtil.stringTimeToDateTime(worklogs
           .get(i).getEndTime());
-      if (endTimeDateForCheck.compareTo(actual) == -1) {
+      if (endTimeDate.compareTo(actualDate) == -1) {
         endTime = worklogs.get(i).getEndTime();
       }
     }

@@ -18,7 +18,7 @@
                #if($issueRegexIsNotEmpty)
 				<div class="aui-item jttpTooltip">
 					<label class="progress-label" for="day-progress">Day: $summaryDTO.day.filteredSummary / $summaryDTO.day.summary</label>
-					<div id="day-progress" class="progress" style="height:8px; margin-bottom:0px;">
+					<div id="day-progress" class="progress" style="height:8px; margin-bottom:0px;" data-jttp-percent="$summaryDTO.day.filteredPercent">
 						<div class="progress-bar" style="width: ${summaryDTO.day.filteredRealWorkIndicatorPrecent}%">                                        
 						</div>
 						<div class="progress-bar progress-bar-nowork" style="width: ${summaryDTO.day.filteredNonWorkIndicatorPrecent}%">                                        
@@ -28,7 +28,7 @@
 				</div>
 				<div class="aui-item jttpTooltip">
 					<label class="progress-label" for="week-progress">Week: $summaryDTO.week.filteredSummary / $summaryDTO.week.summary</label>
-					<div id="week-progress" class="progress" style="height:8px; margin-bottom:0px;">
+					<div id="week-progress" class="progress" style="height:8px; margin-bottom:0px;" data-jttp-percent="$summaryDTO.week.filteredPercent">
 						<div class="progress-bar" style="width: ${summaryDTO.week.filteredRealWorkIndicatorPrecent}%">                                        
 						</div>
 						<div class="progress-bar progress-bar-nowork" style="width: ${summaryDTO.week.filteredNonWorkIndicatorPrecent}%">                                        
@@ -38,7 +38,7 @@
 				</div>
 				<div class="aui-item jttpTooltip">
 					<label class="progress-label" for="month-progress">Month: $summaryDTO.month.filteredSummary / $summaryDTO.month.summary</label>
-					<div id="month-progress" class="progress" style="height:8px; margin-bottom:0px;">
+					<div id="month-progress" class="progress" style="height:8px; margin-bottom:0px;" data-jttp-percent="$summaryDTO.month.filteredPercent">
 						<div class="progress-bar" style="width: ${summaryDTO.month.filteredRealWorkIndicatorPrecent}%">                                        
 						</div>
 						<div class="progress-bar progress-bar-nowork" style="width: ${summaryDTO.month.filteredNonWorkIndicatorPrecent}%">                                        
@@ -49,7 +49,7 @@
 				#else
 				<div class="aui-item jttpTooltip">
 					<label class="progress-label" for="day-progress">Day: $summaryDTO.day.summary</label>
-					<div id="day-progress" class="progress" style="height:8px; margin-bottom:0px;">
+					<div id="day-progress" class="progress" style="height:8px; margin-bottom:0px;" data-jttp-percent="$summaryDTO.day.filteredPercent">
 						<div class="progress-bar" style="width: ${summaryDTO.day.indicatorPrecent}%">                                        
 						</div>
 					</div>
@@ -57,7 +57,7 @@
 				</div>
 				<div class="aui-item jttpTooltip">
 					<label class="progress-label" for="week-progress">Week: $summaryDTO.week.summary</label>
-					<div id="week-progress" class="progress" style="height:8px; margin-bottom:0px;">
+					<div id="week-progress" class="progress" style="height:8px; margin-bottom:0px;" data-jttp-percent="$summaryDTO.week.filteredPercent">
 						<div class="progress-bar" style="width: ${summaryDTO.week.indicatorPrecent}%">                                        
 						</div>
 					</div>
@@ -65,7 +65,7 @@
 				</div>
 				<div class="aui-item jttpTooltip">
 					<label class="progress-label" for="month-progress">Month: $summaryDTO.month.summary</label>
-					<div id="month-progress" class="progress" style="height:8px; margin-bottom:0px;">
+					<div id="month-progress" class="progress" style="height:8px; margin-bottom:0px;" data-jttp-percent="$summaryDTO.month.filteredPercent">
 						<div class="progress-bar" style="width: ${summaryDTO.month.indicatorPrecent}%">                                        
 						</div>
 					</div>

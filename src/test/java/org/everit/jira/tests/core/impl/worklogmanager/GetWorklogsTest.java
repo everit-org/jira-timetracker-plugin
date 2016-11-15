@@ -29,6 +29,7 @@ import java.util.Map;
 
 import org.easymock.EasyMock;
 import org.everit.jira.core.impl.WorklogComponent;
+import org.everit.jira.tests.core.DummyDateTimeFromatter;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.junit.Assert;
 import org.junit.Before;
@@ -44,6 +45,7 @@ import org.ofbiz.core.entity.model.ModelEntity;
 
 import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
 import com.atlassian.jira.config.properties.ApplicationProperties;
+import com.atlassian.jira.datetime.DateTimeFormatterFactory;
 import com.atlassian.jira.exception.DataAccessException;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.IssueManager;
@@ -262,6 +264,11 @@ public class GetWorklogsTest {
     EasyMock.expect(ttConfig.getHoursPerDay()).andReturn(hoursPerDay).anyTimes();
     EasyMock.replay(ttConfig);
 
+    DateTimeFormatterFactory mockDateTimeFormatterFactory =
+        Mockito.mock(DateTimeFormatterFactory.class, Mockito.RETURNS_DEEP_STUBS);
+    Mockito.when(mockDateTimeFormatterFactory.formatter())
+        .thenReturn(new DummyDateTimeFromatter());
+
     // init components
     mockComponentWorker.addMock(JiraAuthenticationContext.class, mockJiraAuthenticationContext)
         .addMock(WorklogManager.class, mockWorklogManager)
@@ -271,6 +278,7 @@ public class GetWorklogsTest {
         .addMock(OfBizDelegator.class, ofBizDelegator)
         .addMock(GroupManager.class, groupManager)
         .addMock(TimeTrackingConfiguration.class, ttConfig)
+        .addMock(DateTimeFormatterFactory.class, mockDateTimeFormatterFactory)
         .init();
 
     worklogManager = new WorklogComponent();

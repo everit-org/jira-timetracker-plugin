@@ -706,10 +706,10 @@ const MAX_ELEMENTS_DISPLAYED = 100; // EQUAL TO JIRA.Issues.SearcherGroupListDia
    };
 
    reporting.nextTutorialPage = function(){
-     if(actualTutorialPage < 4){
+     if(actualTutorialPage < 5){
        actualTutorialPage++;
      }else{
-       actualTutorialPage = 4;
+       actualTutorialPage = 5;
       }
       changeNavigationButtonVisibility();
       showActiveTutotialPage();
@@ -721,7 +721,7 @@ const MAX_ELEMENTS_DISPLAYED = 100; // EQUAL TO JIRA.Issues.SearcherGroupListDia
      }else{
        jQuery("#reporting-tutorial-prev").show();
      }
-     if(actualTutorialPage == 4){
+     if(actualTutorialPage == 5){
        jQuery("#reporting-tutorial-next").hide();
      }else{
        jQuery("#reporting-tutorial-next").show();

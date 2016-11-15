@@ -141,8 +141,11 @@ public class EveritWorklog implements Serializable {
    *          GenericValue worklog.
    * @throws ParseException
    *           If can't parse the date.
+   * @throws IllegalArgumentException
+   *           If can't parse the date.
    */
-  public EveritWorklog(final GenericValue worklogGv) throws ParseException {
+  public EveritWorklog(final GenericValue worklogGv)
+      throws ParseException, IllegalArgumentException {
     worklogId = worklogGv.getLong("id");
     startTime = worklogGv.getString("startdate");
     date = DateTimeConverterUtil.stringToDateAndTime(startTime);
@@ -208,10 +211,10 @@ public class EveritWorklog implements Serializable {
    *
    * @param worklog
    *          The worklog.
-   * @throws ParseException
+   * @throws IllegalArgumentException
    *           If can't parse the date.
    */
-  public EveritWorklog(final Worklog worklog) throws ParseException {
+  public EveritWorklog(final Worklog worklog) throws IllegalArgumentException {
     worklogId = worklog.getId();
     date = worklog.getStartDate();
     startTime = DateTimeConverterUtil.dateTimeToString(date);
@@ -230,8 +233,7 @@ public class EveritWorklog implements Serializable {
     long timeSpentInSec = worklog.getTimeSpent().longValue();
     milliseconds = timeSpentInSec
         * DateTimeConverterUtil.MILLISECONDS_PER_SECOND;
-    duration = DateTimeConverterUtil
-        .millisecondConvertToStringTime(milliseconds);
+    duration = DateTimeConverterUtil.dateTimeToStringWithFixFormat(new Date(milliseconds));
     endTime = DateTimeConverterUtil.countEndTime(startTime, milliseconds);
   }
 

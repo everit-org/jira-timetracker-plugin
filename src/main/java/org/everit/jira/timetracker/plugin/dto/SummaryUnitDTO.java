@@ -20,54 +20,66 @@ package org.everit.jira.timetracker.plugin.dto;
  */
 public class SummaryUnitDTO {
 
-  private final double filteredNonWorkIndicatorPrecent;
+  private double filteredNonWorkIndicatorPrecent;
 
-  private final double filteredRealWorkIndicatorPrecent;
+  private double filteredPercent;
 
-  private final String filteredSummary;
+  private double filteredRealWorkIndicatorPrecent;
 
-  private final String formattedExpectedWorkTime;
+  private String filteredSummary;
 
-  private final String formattedNonWorkTime;
+  private String formattedExpectedWorkTime;
 
-  private final double indicatorPrecent;
+  private String formattedNonWorkTime;
 
-  private final String summary;
+  private double indicatorPrecent;
+
+  private String summary;
 
   /**
    * Simple constructor.
-   *
-   * @param filteredRealWorkIndicatorPrecent
-   *          the percent of the filtered real work indicator.
-   * @param filteredNonWorkIndicatorPrecent
-   *          the percent of the filtered non work indicator.
-   * @param indicatorPrecent
-   *          the percent of indicator percent.
-   * @param filteredSummary
-   *          the formatted filtered summary.
-   * @param summary
-   *          the formatted summary.
-   * @param formattedExpectedWorkTime
-   *          the formatted expected work time.
-   * @param formattedNonWorkTime
-   *          the formatted non work time.
    */
-  public SummaryUnitDTO(final double filteredRealWorkIndicatorPrecent,
-      final double filteredNonWorkIndicatorPrecent, final double indicatorPrecent,
-      final String filteredSummary, final String summary,
-      final String formattedExpectedWorkTime,
-      final String formattedNonWorkTime) {
+  public SummaryUnitDTO() {
+  }
+
+  public SummaryUnitDTO filteredNonWorkIndicatorPrecent(
+      final double filteredNonWorkIndicatorPrecent) {
     this.filteredNonWorkIndicatorPrecent = filteredNonWorkIndicatorPrecent;
+    return this;
+  }
+
+  public SummaryUnitDTO filteredPercent(final double filteredPercent) {
+    this.filteredPercent = filteredPercent;
+    return this;
+  }
+
+  public SummaryUnitDTO filteredRealWorkIndicatorPrecent(
+      final double filteredRealWorkIndicatorPrecent) {
     this.filteredRealWorkIndicatorPrecent = filteredRealWorkIndicatorPrecent;
+    return this;
+  }
+
+  public SummaryUnitDTO filteredSummary(final String filteredSummary) {
     this.filteredSummary = filteredSummary;
+    return this;
+  }
+
+  public SummaryUnitDTO formattedExpectedWorkTime(final String formattedExpectedWorkTime) {
     this.formattedExpectedWorkTime = formattedExpectedWorkTime;
+    return this;
+  }
+
+  public SummaryUnitDTO formattedNonWorkTime(final String formattedNonWorkTime) {
     this.formattedNonWorkTime = formattedNonWorkTime;
-    this.indicatorPrecent = indicatorPrecent;
-    this.summary = summary;
+    return this;
   }
 
   public double getFilteredNonWorkIndicatorPrecent() {
     return filteredNonWorkIndicatorPrecent;
+  }
+
+  public double getFilteredPercent() {
+    return filteredPercent;
   }
 
   public double getFilteredRealWorkIndicatorPrecent() {
@@ -92,6 +104,16 @@ public class SummaryUnitDTO {
 
   public String getSummary() {
     return summary;
+  }
+
+  public SummaryUnitDTO indicatorPrecent(final double indicatorPrecent) {
+    this.indicatorPrecent = indicatorPrecent;
+    return this;
+  }
+
+  public SummaryUnitDTO summary(final String summary) {
+    this.summary = summary;
+    return this;
   }
 
 }

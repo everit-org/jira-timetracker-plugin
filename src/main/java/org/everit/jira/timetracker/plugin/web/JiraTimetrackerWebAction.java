@@ -47,6 +47,7 @@ import org.everit.jira.timetracker.plugin.exception.WorklogException;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
+import org.everit.jira.timetracker.plugin.util.TimeAutoCompleteUtil;
 import org.everit.jira.updatenotifier.UpdateNotifier;
 
 import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
@@ -124,6 +125,9 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private static final Logger LOGGER = Logger
       .getLogger(JiraTimetrackerWebAction.class);
 
+  private static final String SELF_WITH_DATE_MESSAGES_URL_FORMAT =
+      "/secure/JiraTimetrackerWebAction.jspa?date=%s&message=%s&messageParameter=%s";
+
   private static final String SELF_WITH_DATE_URL_FORMAT =
       "/secure/JiraTimetrackerWebAction.jspa?date=%s";
 
@@ -158,9 +162,13 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    */
   private Long dateFormatted;
 
+  private boolean defaultCommand = false;
+
   private DurationFormatter durationFormatter = new DurationFormatter();
 
   private String editAllIds;
+
+  private Date endDateTime;
 
   /**
    * List of the exclude days of the date variable current months.
@@ -198,6 +206,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private List<String> projectsId;
 
   private final TimetrackerSettingsHelper settingsHelper;
+
+  private boolean showMoveAllNoPermission = false;
 
   private SummaryDTO summaryDTO;
 
@@ -299,13 +309,18 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     if (actionFlagValue != null) {
       actionFlag = actionFlagValue;
     }
+
+    parseMessageParam();
+
+    showMoveAllNoPermission =
+        Boolean.valueOf(getHttpRequest().getParameter("showMoveAllNoPermission"));
   }
 
   private String calculateTimeSpentForDuration(final String startTime, final String durationTime) {
     Date startDateTime;
     try {
       startDateTime = DateTimeConverterUtil.stringTimeToDateTime(startTime);
-    } catch (ParseException e) {
+    } catch (IllegalArgumentException e) {
       message = PropertiesKey.INVALID_START_TIME;
       return INPUT;
     }
@@ -317,8 +332,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       } else {
         timeSpent = durationTime;
         int seconds = DateTimeConverterUtil.jiraDurationToSeconds(durationTime);
-        Date endTime = DateUtils.addSeconds(startDateTime, seconds);
-        if (!DateUtils.isSameDay(startDateTime, endTime)) {
+        endDateTime = DateUtils.addSeconds(startDateTime, seconds);
+        if (!DateUtils.isSameDay(startDateTime, endDateTime)) {
           message = PropertiesKey.INVALID_DURATION_TIME;
           return INPUT;
         }
@@ -327,7 +342,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       Date durationDateTime;
       try {
         durationDateTime = DateTimeConverterUtil
-            .stringTimeToDateTimeGMT(worklogValues.getDurationTime());
+            .stringTimeToDateTimeWithFixFormat(worklogValues.getDurationTime());
       } catch (ParseException e) {
         message = PropertiesKey.INVALID_DURATION_TIME;
         return INPUT;
@@ -338,8 +353,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       timeSpent = durationFormatter.exactDuration(seconds);
 
       // check the duration time to not exceed the present day
-      Date endTime = DateUtils.addSeconds(startDateTime, (int) seconds);
-      if (!DateUtils.isSameDay(startDateTime, endTime)) {
+      endDateTime = DateUtils.addSeconds(startDateTime, (int) seconds);
+      if (!DateUtils.isSameDay(startDateTime, endDateTime)) {
         message = PropertiesKey.INVALID_DURATION_TIME;
         return INPUT;
       }
@@ -354,11 +369,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       return INPUT;
     }
     Date startDateTime;
-    Date endDateTime;
     try {
-      startDateTime = DateTimeConverterUtil.stringTimeToDateTimeGMT(startTime);
-      endDateTime = DateTimeConverterUtil.stringTimeToDateTimeGMT(endTime);
-    } catch (ParseException e) {
+      startDateTime = DateTimeConverterUtil.stringTimeToDateTime(startTime);
+      endDateTime = DateTimeConverterUtil.stringTimeToDateTime(endTime);
+    } catch (IllegalArgumentException e) {
       message = PropertiesKey.PLUGIN_INVALID_END_TIME;
       return INPUT;
     }
@@ -418,7 +432,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     if (SUCCESS.equals(result)) {
       if ((actionWorklogId != null) && "copy".equals(actionFlag)) {
         actionFlag = "";
-        return redirectWidthDateFormattedParameterOnlyAndShowWarning(result);
+        return redirectWithDateFormattedParameterOnly(result,
+            decideToShowWarningUrl());
       }
       try {
         loadWorklogs();
@@ -431,11 +446,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       worklogValues.setComment("");
       worklogValues.setIsDuration(Boolean.FALSE);
 
-      if (decideToShowWarning()) {
-        return redirectWithDateAndWorklogParams(result, FUTURE_WORKLOG_WARNING_URL_PARAMETER);
-      } else {
-        return redirectWithDateAndWorklogParams(result, "");
-      }
+      return redirectWithDateAndWorklogParams(result, decideToShowWarningUrl());
     }
     return result;
   }
@@ -452,17 +463,18 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return SUCCESS;
   }
 
-  private boolean decideToShowWarning() {
-    try {
-      Date startDate =
-          DateTimeConverterUtil.stringToDateAndTime(date, worklogValues.getStartTime());
-      if (userSettings.isShowFutureLogWarning() && new Date().before(startDate)) {
-        return true;
+  private String decideToShowWarningUrl() {
+    if (endDateTime != null) {
+      try {
+        Date worklogEndDate = DateTimeConverterUtil.stringToDateAndTime(date, endDateTime);
+        if (userSettings.isShowFutureLogWarning() && new Date().before(worklogEndDate)) {
+          return FUTURE_WORKLOG_WARNING_URL_PARAMETER;
+        }
+      } catch (IllegalArgumentException e) {
+        LOGGER.error("parse failed", e);
       }
-    } catch (ParseException e) {
-      LOGGER.error("parse failed", e);
     }
-    return false;
+    return "";
   }
 
   private String deleteWorklog() {
@@ -478,6 +490,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   @Override
   public String doDefault() {
+    defaultCommand = true;
     String checkConditionsResult = checkConditions();
     if (checkConditionsResult != null) {
       return checkConditionsResult;
@@ -551,7 +564,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       messageParameter = e.messageParameter;
       return INPUT;
     }
-    return redirectWidthDateFormattedParameterOnlyAndShowWarning(SUCCESS);
+    return redirectWithDateFormattedParameterOnly(SUCCESS, decideToShowWarningUrl());
   }
 
   private String editAllAction() {
@@ -560,19 +573,26 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     try {
       // edit the worklogs!
       for (Long editWorklogId : editWorklogIds) {
-        EveritWorklog editWorklog = worklogManager.getWorklog(editWorklogId);
-        worklogManager.editWorklog(editWorklog.getWorklogId(),
-            editWorklog.getIssue(),
-            editWorklog.getBody(),
-            date,
-            editWorklog.getStartTime(),
-            DateTimeConverterUtil.stringTimeToString(editWorklog.getDuration()));
+        try {
+          EveritWorklog editWorklog = worklogManager.getWorklog(editWorklogId);
+          worklogManager.editWorklog(editWorklog.getWorklogId(),
+              editWorklog.getIssue(),
+              editWorklog.getBody(),
+              date,
+              editWorklog.getStartTime(),
+              DateTimeConverterUtil.stringTimeToString(editWorklog.getDuration()));
+          endDateTime = DateTimeConverterUtil.stringTimeToDateTime(editWorklog.getEndTime());
+        } catch (WorklogException e) {
+          message = e.getMessage();
+          messageParameter = e.messageParameter;
+          return redirectWithDateFormattedAndMessagesParameter(INPUT, decideToShowWarningUrl());
+        }
       }
-    } catch (ParseException | DataAccessException e) {
+    } catch (ParseException | DataAccessException | IllegalArgumentException e) {
       LOGGER.error("Error when try set the plugin variables.", e);
       return ERROR;
     }
-    return redirectWidthDateFormattedParameterOnlyAndShowWarning(SUCCESS);
+    return redirectWithDateFormattedParameterOnly(SUCCESS, decideToShowWarningUrl());
   }
 
   public String getActionFlag() {
@@ -621,6 +641,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       excludeDaysAsString.add(DateTimeConverterUtil.dateToFixFormatString(excludeDate));
     }
     return excludeDaysAsString;
+  }
+
+  public List<String> getGenerateAutoCompleteList() {
+    return TimeAutoCompleteUtil.generateAutoCompleteList();
   }
 
   public String getIssueCollectorSrc() {
@@ -698,6 +722,14 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return result;
   }
 
+  public boolean isDefaultCommand() {
+    return defaultCommand;
+  }
+
+  public boolean isShowMoveAllNoPermission() {
+    return showMoveAllNoPermission;
+  }
+
   private void loadWorklogs()
       throws ParseException, DataAccessException {
     worklogs = worklogManager.getWorklogs(null, date, null);
@@ -710,6 +742,9 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       editAllIds = worklogsIdsValues;
       actionFlag = ACTION_EDIT_ALL;
       parsedEditAllIds = parseEditAllIds(editAllIds);
+      if (parsedEditAllIds.size() != worklogs.size()) {
+        showMoveAllNoPermission = true;
+      }
     }
     return SUCCESS;
   }
@@ -811,6 +846,17 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return Collections.emptyList();
   }
 
+  private void parseMessageParam() {
+    String messageParam = getHttpRequest().getParameter("message");
+    if ((messageParam != null) && !"".equals(messageParam)) {
+      message = messageParam;
+      String messageParameterParam = getHttpRequest().getParameter("messageParameter");
+      if ((messageParameterParam != null) && !"".equals(messageParameterParam)) {
+        messageParameter = messageParameterParam;
+      }
+    }
+  }
+
   private void parseWorklogValues() throws ParseException {
     String worklogValuesJson = getHttpRequest().getParameter(Parameter.WORKLOG_VALUES_JSON);
     if ((worklogValuesJson != null) && !"".equals(worklogValuesJson)) {
@@ -837,17 +883,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     in.defaultReadObject();
   }
 
-  private String redirectWidthDateFormattedParameterOnlyAndShowWarning(final String result) {
-    String res;
-    if (decideToShowWarning()) {
-      res =
-          redirectWithDateFormattedParameterOnly(result, FUTURE_WORKLOG_WARNING_URL_PARAMETER);
-    } else {
-      res = redirectWithDateFormattedParameterOnly(result, "");
-    }
-    return res;
-  }
-
   private String redirectWithDateAndWorklogParams(final String action,
       final String warningUrlParameter) {
     String returnJson = TimetrackerUtil.convertWorklogValuesToJson(worklogValues);
@@ -855,6 +890,14 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
         String.format(SELF_WITH_DATE_WORKLOG_URL_FORMAT,
             dateFormatted,
             TimetrackerUtil.urlEndcodeHandleException(returnJson)) + warningUrlParameter);
+    return getRedirect(action);
+  }
+
+  private String redirectWithDateFormattedAndMessagesParameter(final String action,
+      final String warningUrlParameter) {
+    setReturnUrl(
+        String.format(SELF_WITH_DATE_MESSAGES_URL_FORMAT,
+            dateFormatted, message, messageParameter) + warningUrlParameter);
     return getRedirect(action);
   }
 

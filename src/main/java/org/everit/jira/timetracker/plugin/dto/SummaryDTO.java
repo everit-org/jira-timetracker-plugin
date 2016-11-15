@@ -332,6 +332,8 @@ public final class SummaryDTO {
           calculateDayFilteredNonWorkIndicatorPrecent(dayFilteredRealWorkIndicatorPrecent,
               dayFilteredSummaryInSecond, daySummaryInSeconds, dayExpectedWorkSeconds);
 
+      double dayFilteredPercent = daySummaryInSeconds / dayExpectedWorkSeconds;
+
       String dayFilteredSummary = format(dayFilteredSummaryInSecond);
 
       double dayIndicatorPrecent = (daySummaryInSeconds / dayExpectedWorkSeconds) * HUNDRED;
@@ -360,6 +362,8 @@ public final class SummaryDTO {
           calculateMonthFilteredNonWorkIndicatorPrecent(monthFilteredRealWorkIndicatorPrecent,
               monthFilteredSummaryInSecond, monthSummaryInSecounds, monthExpectedWorkSeconds);
 
+      double monthFilteredPercent = monthSummaryInSecounds / monthExpectedWorkSeconds;
+
       String monthFilteredSummary = format(monthFilteredSummaryInSecond);
 
       double monthIndicatorPrecent =
@@ -374,6 +378,8 @@ public final class SummaryDTO {
           calculateWeekFilteredNonWorkIndicatorPrecent(weekFilteredRealWorkIndicatorPrecent,
               weekFilteredSummaryInSecond, weekSummaryInSecond, weekExpectedWorkSeconds);
 
+      double weekFilteredPercent = weekSummaryInSecond / weekExpectedWorkSeconds;
+
       String weekFilteredSummary = format(weekFilteredSummaryInSecond);
 
       double weekIndicatorPrecent = (weekSummaryInSecond / weekExpectedWorkSeconds) * HUNDRED;
@@ -384,32 +390,36 @@ public final class SummaryDTO {
 
       String daySumIndustryFormatted = durationFormatter.industryDuration(daySummaryInSeconds);
 
-      SummaryUnitDTO day = new SummaryUnitDTO(
-          dayFilteredRealWorkIndicatorPrecent,
-          dayFilteredNonWorkIndicatorPrecent,
-          dayIndicatorPrecent,
-          dayFilteredSummary,
-          daySummary,
-          formattedExpectedWorkTimeInDay,
-          formattedNonWorkTimeInDay);
+      SummaryUnitDTO day = new SummaryUnitDTO()
+          .filteredRealWorkIndicatorPrecent(dayFilteredRealWorkIndicatorPrecent)
+          .filteredNonWorkIndicatorPrecent(dayFilteredNonWorkIndicatorPrecent)
+          .indicatorPrecent(dayIndicatorPrecent)
+          .filteredSummary(dayFilteredSummary)
+          .summary(daySummary)
+          .formattedExpectedWorkTime(formattedExpectedWorkTimeInDay)
+          .formattedNonWorkTime(formattedNonWorkTimeInDay)
+          .filteredPercent(dayFilteredPercent);
 
-      SummaryUnitDTO week = new SummaryUnitDTO(
-          weekFilteredRealWorkIndicatorPrecent,
-          weekFilteredNonWorkIndicatorPrecent,
-          weekIndicatorPrecent,
-          weekFilteredSummary,
-          weekSummary,
-          formattedExpectedWorkTimeInWeek,
-          formattedNonWorkTimeInWeek);
+      SummaryUnitDTO week = new SummaryUnitDTO()
+          .filteredRealWorkIndicatorPrecent(weekFilteredRealWorkIndicatorPrecent)
+          .filteredNonWorkIndicatorPrecent(weekFilteredNonWorkIndicatorPrecent)
+          .indicatorPrecent(weekIndicatorPrecent)
+          .filteredSummary(weekFilteredSummary)
+          .summary(weekSummary)
+          .formattedExpectedWorkTime(formattedExpectedWorkTimeInWeek)
+          .formattedNonWorkTime(formattedNonWorkTimeInWeek)
+          .filteredPercent(weekFilteredPercent);
 
-      SummaryUnitDTO month = new SummaryUnitDTO(
-          monthFilteredRealWorkIndicatorPrecent,
-          monthFilteredNonWorkIndicatorPrecent,
-          monthIndicatorPrecent,
-          monthFilteredSummary,
-          monthSummary,
-          formattedExpectedWorkTimeInMonth,
-          formattedNonWorkTimeInMonth);
+      SummaryUnitDTO month = new SummaryUnitDTO()
+          .filteredRealWorkIndicatorPrecent(monthFilteredRealWorkIndicatorPrecent)
+          .filteredNonWorkIndicatorPrecent(monthFilteredNonWorkIndicatorPrecent)
+          .indicatorPrecent(monthIndicatorPrecent)
+          .filteredSummary(monthFilteredSummary)
+          .summary(monthSummary)
+          .formattedExpectedWorkTime(formattedExpectedWorkTimeInMonth)
+          .formattedNonWorkTime(formattedNonWorkTimeInMonth)
+          .filteredPercent(monthFilteredPercent);
+
       return new SummaryDTO()
           .day(day)
           .hoursPerDayFormatted(hoursPerDayFormatted)

@@ -22,6 +22,7 @@ import java.util.Locale;
 import org.everit.jira.core.EVWorklogManager;
 import org.everit.jira.core.impl.WorklogComponent;
 import org.everit.jira.core.impl.WorklogComponent.PropertiesKey;
+import org.everit.jira.tests.core.DummyDateTimeFromatter;
 import org.everit.jira.timetracker.plugin.exception.WorklogException;
 import org.junit.Assert;
 import org.junit.Before;
@@ -34,6 +35,7 @@ import com.atlassian.jira.bc.JiraServiceContext;
 import com.atlassian.jira.bc.issue.worklog.WorklogNewEstimateInputParameters;
 import com.atlassian.jira.bc.issue.worklog.WorklogResult;
 import com.atlassian.jira.bc.issue.worklog.WorklogService;
+import com.atlassian.jira.datetime.DateTimeFormatterFactory;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.worklog.Worklog;
@@ -177,6 +179,19 @@ public class EditWorklogTest {
             notSameIssueToDeleteFail,
             loggedUser))
         .thenReturn(true);
+    Mockito.when(
+        worklogService.hasPermissionToCreate(Matchers.any(JiraServiceContext.class),
+            Matchers.eq(notSameIssueToDeleteFail), Matchers.eq(true)))
+        .thenReturn(true);
+    WorklogResult worklogResult = Mockito.mock(WorklogResult.class);
+    Mockito.when(
+        worklogService.validateCreate(Matchers.any(JiraServiceContext.class),
+            Matchers.any(WorklogNewEstimateInputParameters.class)))
+        .thenReturn(worklogResult);
+    Mockito.when(
+        worklogService.createAndAutoAdjustRemainingEstimate(Matchers.any(JiraServiceContext.class),
+            Matchers.eq(worklogResult), Matchers.eq(true)))
+        .thenReturn(Mockito.mock(Worklog.class));
     Mockito.when(worklogService.hasPermissionToDelete(Matchers.any(JiraServiceContext.class),
         Matchers.eq(notSameIssueDeleteFailIssueWorklog)))
         .thenReturn(false);
@@ -266,12 +281,18 @@ public class EditWorklogTest {
         })))
         .thenReturn(new DummySuccessWorklogResult(sameIssueSuccessWorklog));
 
+    DateTimeFormatterFactory mockDateTimeFormatterFactory =
+        Mockito.mock(DateTimeFormatterFactory.class, Mockito.RETURNS_DEEP_STUBS);
+    Mockito.when(mockDateTimeFormatterFactory.formatter())
+        .thenReturn(new DummyDateTimeFromatter());
+
     // init components
     mockComponentWorker.addMock(JiraAuthenticationContext.class, mockJiraAuthenticationContext)
         .addMock(WorklogManager.class, mockWorklogManager)
         .addMock(IssueManager.class, issueManager)
         .addMock(WorklogService.class, worklogService)
         .addMock(PermissionManager.class, permissionManager)
+        .addMock(DateTimeFormatterFactory.class, mockDateTimeFormatterFactory)
         .init();
 
     worklogManager = new WorklogComponent();
