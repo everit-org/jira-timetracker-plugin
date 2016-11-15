@@ -21,13 +21,17 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
               <thead>
                 <tr>
                   <th id="jttp-worklog-issue-type" title='$i18n.getText("plugin.jttp-worklog-issue-type.tooltip")'>$i18n.getText("plugin.jttp-worklog-issue-type")</th>
+                  #if($isShowIssueSummary)
+                   <th id="jttp-worklog-issue-summary">$i18n.getText("plugin.jttp-worklog-issue-summary")</th>
+                   #else 
                   <th id="jttp-worklog-issue-key">$i18n.getText("plugin.jttp-worklog-issue-key")</th>
+                  #end
                   <th id="jttp-worklog-issue-remaining">$i18n.getText("plugin.jttp-worklog-issue-remaining")</th>
                   <th id="jttp-worklog-start">$i18n.getText("plugin.jttp-worklog-start")</th>
                   <th id="jttp-worklog-end">$i18n.getText("plugin.jttp-worklog-end")</th>
                   <th id="jttp-worklog-duration">$i18n.getText("plugin.jttp-worklog-duration")</th>
-                  <th id="jttp-worklog-description">$i18n.getText("plugin.jttp-worklog-description")</th>
-                  <th id="jttp-worklog-actions">$i18n.getText("plugin.jttp-worklog-actions")</th>
+                  <th #if($isShowIssueSummary) id="jttp-worklog-description-small" #else id="jttp-worklog-description" #end">$i18n.getText("plugin.jttp-worklog-description")</th>
+                  <th id="jttp-worklog-actions" style="text-align: center;">$i18n.getText("plugin.jttp-worklog-actions")</th>
                 </tr>
               </thead>
             #if($worklogs.size() == 0)
@@ -36,13 +40,19 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
             #else
               <tbody>
               #foreach ($worklog in $worklogs)
-                <tr #if($worklog.worklogId == $actionWorklogId) class="rowEdit"#end>
+                <tr #if(($worklog.worklogId == $actionWorklogId) || ($actionFlag == "editAll" && $parsedEditAllIds.contains($worklog.worklogId))) class="rowEdit"#end>
                   <td>
                     <img class="img-tooltip" src="#if(!$worklog.issueAvatarId) #if( $worklog.issueTypeIconUrl.startsWith("http") )$worklog.issueTypeIconUrl#else$contextPath$worklog.issueTypeIconUrl#end#else$contextPath/secure/viewavatar?size=xsmall&avatarId=$worklog.issueAvatarId&avatarType=issuetype#end" alt="$worklog.issueTypeName" title="$worklog.issueTypeName"></img>
                   </td>
-                  <td class="table-issue" style="white-space: nowrap; #if($worklog.isClosed) text-decoration: line-through; #end">
-                    <a href="$contextPath/browse/$worklog.issue" class="issue-link" title="#if($worklog.issueParent != '') $i18n.getText('plugin.parent.issue') $worklog.issueParent &#13 $worklog.issueSummary #else $worklog.issueSummary #end">$worklog.issue</a>
+                   #if($isShowIssueSummary)
+                  <td class="table-issue" style="word-break: break-word; #if($worklog.isClosed) text-decoration: line-through; #end">
+                    <a href="$contextPath/browse/$worklog.issue" jttp-data-issue-key="$worklog.issue" class="issue-link tooltip-bottom" title="#if($worklog.issueParent != '') $i18n.getText('plugin.parent.issue') $worklog.issueParent &#13 $worklog.issue #else $worklog.issue #end">$worklog.issueSummary</a>
                   </td>
+                  #else
+                   <td class="table-issue" style="white-space: nowrap; #if($worklog.isClosed) text-decoration: line-through; #end">
+                    <a href="$contextPath/browse/$worklog.issue" jttp-data-issue-key="$worklog.issue" class="issue-link tooltip-bottom" title="#if($worklog.issueParent != '') $i18n.getText('plugin.parent.issue') $worklog.issueParent &#13 $worklog.issueSummary #else $worklog.issueSummary #end">$worklog.issue</a>
+                  </td>
+                  #end
                   <td>
                   #if($isRounded)
                     #set($remainingValue=$worklog.roundedRemaining)
@@ -74,19 +84,33 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
                     <form class="aui top-label actionForm_$worklog.worklogId" id="jttp-action-form" method="get" action="JiraTimetrackerWebAction.jspa"  onsubmit="return everit.jttp.main.beforeSubmitAction($worklog.worklogId);" >
                       <input id="actionWorklogId" name="actionWorklogId" type="hidden" value="$worklog.worklogId" >
                       <input id="actionFlag" name="actionFlag" type="hidden" value="" class="actionFlag_$worklog.worklogId" onchange="everit.jttp.main.actionSubmitClick($worklog.worklogId);">
-                      <span class="aui-icon aui-icon-small aui-iconfont-edit tooltip-left jttp-aui-icon"
-                        id="edit" name="edit" title="$i18n.getText('plugin.edit')"
-                        onclick="everit.jttp.main.setActionFlag('edit', $worklog.worklogId);">
-                      </span>
-                      <span class="aui-icon aui-icon-small aui-iconfont-delete tooltip-left jttp-aui-icon"
-                        id="delete" name="delete" title="$i18n.getText('plugin.delete')"
-                        onclick="everit.jttp.main.setActionFlag('delete', $worklog.worklogId);">
-                      </span>
-                      <span class="aui-icon aui-icon-small aui-iconfont-copy-clipboard copy tooltip-left jttp-aui-icon"
-                        id="copy" name="copy" title="$i18n.getText('plugin.copy')" 
-                        onclick="everit.jttp.main.setActionFlag('copy', $worklog.worklogId);">
-                      </span>
-                	  <input type="submit" id="actionSubmit_$worklog.worklogId" name="actionSubmit_$worklog.worklogId" style="display: none"/>
+                      <table class="operation-table">
+                        <tr>
+                          <td>
+                            #if($worklog.editOwnWorklogs)
+                            <span class="aui-icon aui-icon-small aui-iconfont-edit tooltip-left jttp-aui-icon"
+                              id="edit" name="edit" title="$i18n.getText('plugin.edit')"
+                              onclick="everit.jttp.main.setActionFlag('edit', $worklog.worklogId);">
+                            </span>
+                            #end
+                          </td>
+                          <td>
+                            #if($worklog.deleteOwnWorklogs)
+                            <span class="aui-icon aui-icon-small aui-iconfont-delete tooltip-left jttp-aui-icon"
+                              id="delete" name="delete" title="$i18n.getText('plugin.delete')"
+                              onclick="everit.jttp.main.setActionFlag('delete', $worklog.worklogId);">
+                            </span>
+                            #end
+                          </td>
+                          <td>
+                            <span class="aui-icon aui-icon-small aui-iconfont-copy-clipboard copy tooltip-left jttp-aui-icon"
+                              id="copy" name="copy" title="$i18n.getText('plugin.copy')" 
+                              onclick="everit.jttp.main.setActionFlag('copy', $worklog.worklogId);">
+                            </span>
+                          </td>
+                        </tr>
+                      </table>
+                      <input type="submit" id="actionSubmit_$worklog.worklogId" name="actionSubmit_$worklog.worklogId" style="display: none"/>
                     </form>
                   </td>
                 </tr>

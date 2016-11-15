@@ -80,6 +80,9 @@ import com.atlassian.jira.project.Project;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.PermissionManager;
 import com.atlassian.jira.security.Permissions;
+import com.atlassian.jira.security.groups.GroupManager;
+import com.atlassian.jira.security.roles.ProjectRole;
+import com.atlassian.jira.security.roles.ProjectRoleManager;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.mail.queue.SingleMailQueueItem;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
@@ -104,6 +107,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   private static final int FIFTEEN_MINUTES = 15;
 
   private static final int FIVE_MINUTES = 5;
+
+  private static final int HOUR_EIGHT = 8;
 
   private static final String INVALID_ISSUE = "plugin.invalid_issue";
 
@@ -302,6 +307,29 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     return (timeTrackingConfiguration.getDaysPerWeek().doubleValue() - exludeDates) + includeDates;
   }
 
+  @Override
+  public long countWorklogsWithoutPermissionChecks(final Date date, final Date finalDate) {
+    Calendar startDate = DateTimeConverterUtil.setDateToDayStart(date);
+    Calendar endDate = (Calendar) startDate.clone();
+    if (finalDate == null) {
+      endDate.add(Calendar.DAY_OF_MONTH, 1);
+    } else {
+      endDate = DateTimeConverterUtil.setDateToDayStart(finalDate);
+      endDate.add(Calendar.DAY_OF_MONTH, 1);
+    }
+
+    JiraAuthenticationContext authenticationContext = ComponentAccessor
+        .getJiraAuthenticationContext();
+    ApplicationUser loggedInUser = authenticationContext.getUser();
+
+    List<EntityCondition> exprList = createWorklogQueryExprList(startDate, endDate,
+        loggedInUser.getKey());
+
+    List<GenericValue> worklogGVList = ComponentAccessor.getOfBizDelegator()
+        .findByAnd("IssueWorklogView", exprList);
+    return worklogGVList.size();
+  }
+
   private List<Long> createProjects(final ApplicationUser loggedInUser) {
     Collection<Project> projects = ComponentAccessor.getPermissionManager()
         .getProjects(Permissions.BROWSE, loggedInUser);
@@ -366,11 +394,9 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
         "plugin.worklog.create.success");
   }
 
-  private List<EntityCondition> createWorklogQueryExprList(final ApplicationUser user,
-      final Calendar startDate, final Calendar endDate) {
-
-    String userKey = user.getKey();
-
+  private List<EntityCondition> createWorklogQueryExprList(final Calendar startDate,
+      final Calendar endDate,
+      final String userKey) {
     EntityExpr startExpr = new EntityExpr("startdate",
         EntityOperator.GREATER_THAN_EQUAL_TO, new Timestamp(
             startDate.getTimeInMillis()));
@@ -378,12 +404,20 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
         EntityOperator.LESS_THAN, new Timestamp(endDate.getTimeInMillis()));
     EntityExpr userExpr = new EntityExpr("author", EntityOperator.EQUALS,
         userKey);
-
     List<EntityCondition> exprList = new ArrayList<>();
     exprList.add(userExpr);
     exprList.add(startExpr);
     exprList.add(endExpr);
     return exprList;
+  }
+
+  private List<EntityCondition> createWorklogQueryExprListWithPermissionCheck(
+      final ApplicationUser user,
+      final Calendar startDate, final Calendar endDate) {
+
+    String userKey = user.getKey();
+
+    return createWorklogQueryExprListWithPermissionCheck(userKey, user, startDate, endDate);
   }
 
   private List<EntityCondition> createWorklogQueryExprListWithPermissionCheck(
@@ -396,22 +430,13 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
 
     List<Long> projects = createProjects(loggedInUser);
 
-    EntityExpr startExpr = new EntityExpr("startdate",
-        EntityOperator.GREATER_THAN_EQUAL_TO, new Timestamp(
-            startDate.getTimeInMillis()));
-    EntityExpr endExpr = new EntityExpr("startdate",
-        EntityOperator.LESS_THAN, new Timestamp(endDate.getTimeInMillis()));
-    EntityExpr userExpr = new EntityExpr("author", EntityOperator.EQUALS,
-        userKey);
-    List<EntityCondition> exprList = new ArrayList<>();
-    exprList.add(userExpr);
-    exprList.add(startExpr);
-    exprList.add(endExpr);
+    List<EntityCondition> exprList = createWorklogQueryExprList(startDate, endDate, userKey);
 
+    EntityExpr projectExpr = new EntityExpr("project", EntityOperator.EQUALS, null);
     if (!projects.isEmpty()) {
-      EntityExpr projectExpr = new EntityExpr("project", EntityOperator.IN, projects);
-      exprList.add(projectExpr);
+      projectExpr = new EntityExpr("project", EntityOperator.IN, projects);
     }
+    exprList.add(projectExpr);
     return exprList;
   }
 
@@ -470,14 +495,14 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
         return new ActionResult(ActionResultStatus.FAIL,
             NOPERMISSION_ISSUE, issueId);
       }
-      ActionResult deleteResult = deleteWorklog(id);
-      if (deleteResult.getStatus() == ActionResultStatus.FAIL) {
-        return deleteResult;
-      }
       ActionResult createResult = createWorklog(issueId, comment,
           date, time, timeSpent);
       if (createResult.getStatus() == ActionResultStatus.FAIL) {
         return createResult;
+      }
+      ActionResult deleteResult = deleteWorklog(id);
+      if (deleteResult.getStatus() == ActionResultStatus.FAIL) {
+        return deleteResult;
       }
     } else {
       Date dateCreate;
@@ -788,13 +813,50 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     List<GenericValue> worklogGVList = ComponentAccessor.getOfBizDelegator()
         .findByAnd("IssueWorklogView", exprList);
 
+    IssueManager issueManager = ComponentAccessor.getIssueManager();
+    GroupManager groupManager = ComponentAccessor.getGroupManager();
+    ProjectRoleManager projectRoleManager =
+        ComponentAccessor.getComponent(ProjectRoleManager.class);
+
     for (GenericValue worklogGv : worklogGVList) {
-      EveritWorklog worklog = new EveritWorklog(worklogGv);
-      worklogs.add(worklog);
+      boolean hasWorklogVisibility = hasWorklogVisibility(loggedInUser,
+          issueManager,
+          groupManager,
+          projectRoleManager,
+          worklogGv);
+      if (hasWorklogVisibility) {
+        EveritWorklog worklog = new EveritWorklog(worklogGv);
+        worklogs.add(worklog);
+      }
     }
 
     Collections.sort(worklogs, EveritWorklogComparator.INSTANCE);
     return worklogs;
+  }
+
+  private boolean hasWorklogVisibility(final ApplicationUser loggedInUser,
+      final IssueManager issueManager,
+      final GroupManager groupManager, final ProjectRoleManager projectRoleManager,
+      final GenericValue worklogGv) {
+    Collection<String> loggedUserGroupNames = groupManager.getGroupNamesForUser(loggedInUser);
+    Long roleLevelId = worklogGv.getLong("rolelevel");
+    String groupLevel = worklogGv.getString("grouplevel");
+    Long issueId = worklogGv.getLong("issue");
+    MutableIssue issue = issueManager.getIssueObject(issueId);
+    boolean hasWorklogVisibility = true;
+    if ((roleLevelId != null)) {
+      hasWorklogVisibility = false;
+      Collection<ProjectRole> projectRoles =
+          projectRoleManager.getProjectRoles(loggedInUser, issue.getProjectObject());
+      for (ProjectRole projectRole : projectRoles) {
+        if (projectRole.getId().equals(roleLevelId)) {
+          hasWorklogVisibility = true;
+        }
+      }
+    } else if ((groupLevel != null) && !loggedUserGroupNames.contains(groupLevel)) {
+      hasWorklogVisibility = false;
+    }
+    return hasWorklogVisibility;
   }
 
   /**
@@ -822,9 +884,10 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     double expectedTimeSpent = workHoursPerDay * DateTimeConverterUtil.SECONDS_PER_MINUTE
         * DateTimeConverterUtil.MINUTES_PER_HOUR;
 
-    List<EntityCondition> exprList = createWorklogQueryExprList(user, startDate, endDate);
-    List<GenericValue> worklogGVList = ComponentAccessor.getOfBizDelegator().findByAnd("Worklog",
-        exprList);
+    List<EntityCondition> exprList =
+        createWorklogQueryExprListWithPermissionCheck(user, startDate, endDate);
+    List<GenericValue> worklogGVList =
+        ComponentAccessor.getOfBizDelegator().findByAnd("IssueWorklogView", exprList);
     if ((worklogGVList == null) || worklogGVList.isEmpty()) {
       return expectedTimeSpent;
     }
@@ -858,11 +921,11 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     Calendar endDate = (Calendar) startDate.clone();
     endDate.add(Calendar.DAY_OF_MONTH, 1);
 
-    List<EntityCondition> exprList = createWorklogQueryExprList(user, startDate,
+    List<EntityCondition> exprList = createWorklogQueryExprListWithPermissionCheck(user, startDate,
         endDate);
 
-    List<GenericValue> worklogGVList = ComponentAccessor.getOfBizDelegator().findByAnd("Worklog",
-        exprList);
+    List<GenericValue> worklogGVList =
+        ComponentAccessor.getOfBizDelegator().findByAnd("IssueWorklogView", exprList);
 
     return !((worklogGVList == null) || worklogGVList.isEmpty());
   }
@@ -871,7 +934,12 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
   public String lastEndTime(final List<EveritWorklog> worklogs)
       throws ParseException {
     if ((worklogs == null) || (worklogs.size() == 0)) {
-      return "08:00";
+      Calendar c = Calendar.getInstance();
+      c.setTime(new Date());
+      c.set(Calendar.HOUR_OF_DAY, HOUR_EIGHT);
+      c.set(Calendar.MINUTE, 0);
+      c.set(Calendar.SECOND, 0);
+      return DateTimeConverterUtil.dateTimeToString(c.getTime());
     }
     String endTime = worklogs.get(0).getEndTime();
     for (int i = 1; i < worklogs.size(); i++) {
@@ -950,6 +1018,21 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
       isRounded = false;
     }
 
+    // the default show warning is TRUE
+    boolean isShowFutureLogWarning = true;
+    if ("false".equals(
+        pluginSettings.get(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_SHOW_FUTURE_LOG_WARNING))) {
+      isShowFutureLogWarning = false;
+    }
+
+    // the default show issue summary is FALSE
+    boolean isShowIssueSummary = false;
+    if ("true".equals(
+        pluginSettings
+            .get(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_SHOW_ISSUE_SUMMARY_IN_WORKLOG_TABLE))) {
+      isShowIssueSummary = true;
+    }
+
     // SET startTime Change the default value is 5
     int startTimeChange = getStartTimeChange();
     // SET endtTime Change the default value is 5
@@ -969,6 +1052,8 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
         .pluginUUID(pluginUUID)
         .pluginGroups(pluginGroups)
         .timetrackingGroups(timetrackerGroups)
+        .isShowFutureLogWarning(isShowFutureLogWarning)
+        .isShowIssueSummary(isShowIssueSummary)
         .isRounded(isRounded);
     return pluginSettingsValues;
   }
@@ -1021,6 +1106,10 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
         Integer.toString(pluginSettingsParameters.endTimeChange));
     pluginSettings.put(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_IS_ROUNDED,
         pluginSettingsParameters.isRounded.toString());
+    pluginSettings.put(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_SHOW_FUTURE_LOG_WARNING,
+        String.valueOf(pluginSettingsParameters.isShowFutureLogWarning));
+    pluginSettings.put(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_SHOW_ISSUE_SUMMARY_IN_WORKLOG_TABLE,
+        String.valueOf(pluginSettingsParameters.isShowIssueSummary));
 
     globalSettings = settingsFactory.createGlobalSettings();
     globalSettings.put(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
@@ -1217,21 +1306,24 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
     Calendar finish = Calendar.getInstance();
     finish.setTime(finishSummary);
 
-    List<EntityCondition> exprList = createWorklogQueryExprList(user,
+    List<EntityCondition> exprList = createWorklogQueryExprListWithPermissionCheck(user,
         start, finish);
 
     List<GenericValue> worklogs;
     // worklog query
-    worklogs = ComponentAccessor.getOfBizDelegator().findByAnd("Worklog",
-        exprList);
+    worklogs = ComponentAccessor.getOfBizDelegator().findByAnd("IssueWorklogView", exprList);
     List<GenericValue> worklogsCopy = new ArrayList<>();
     worklogsCopy.addAll(worklogs);
+
+    IssueManager issueManager = ComponentAccessor.getIssueManager();
+    GroupManager groupManager = ComponentAccessor.getGroupManager();
+    ProjectRoleManager projectRoleManager =
+        ComponentAccessor.getComponent(ProjectRoleManager.class);
     // if we have non-estimated issues
-    if ((issuePatterns != null) && !issuePatterns.isEmpty()) {
-      for (GenericValue worklog : worklogsCopy) {
-        IssueManager issueManager = ComponentAccessor.getIssueManager();
-        Long issueId = worklog.getLong("issue");
-        MutableIssue issue = issueManager.getIssueObject(issueId);
+    for (GenericValue worklog : worklogsCopy) {
+      Long issueId = worklog.getLong("issue");
+      MutableIssue issue = issueManager.getIssueObject(issueId);
+      if ((issuePatterns != null) && !issuePatterns.isEmpty()) {
         for (Pattern issuePattern : issuePatterns) {
           boolean issueMatches = issuePattern.matcher(issue.getKey())
               .matches();
@@ -1241,6 +1333,14 @@ public class JiraTimetrackerPluginImpl implements JiraTimetrackerPlugin, Initial
             break;
           }
         }
+      }
+      boolean hasWorklogVisibility = hasWorklogVisibility(user,
+          issueManager,
+          groupManager,
+          projectRoleManager,
+          worklog);
+      if (!hasWorklogVisibility) {
+        worklogs.remove(worklog);
       }
     }
     long timeSpent = 0;

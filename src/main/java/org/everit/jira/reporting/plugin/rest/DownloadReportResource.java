@@ -33,6 +33,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.everit.jira.analytics.AnalyticsSender;
 import org.everit.jira.analytics.event.ExportSummaryReportEvent;
 import org.everit.jira.analytics.event.ExportWorklogDetailsReportEvent;
+import org.everit.jira.analytics.event.ExportWorklogDetailsReportEvent.WorkLogDetailsExportFormat;
 import org.everit.jira.querydsl.support.QuerydslSupport;
 import org.everit.jira.querydsl.support.ri.QuerydslSupportImpl;
 import org.everit.jira.reporting.plugin.ReportingPlugin;
@@ -41,10 +42,13 @@ import org.everit.jira.reporting.plugin.dto.ConvertedSearchParam;
 import org.everit.jira.reporting.plugin.dto.DownloadWorklogDetailsParam;
 import org.everit.jira.reporting.plugin.dto.FilterCondition;
 import org.everit.jira.reporting.plugin.dto.OrderBy;
+import org.everit.jira.reporting.plugin.export.ExcelToCsvConverter;
 import org.everit.jira.reporting.plugin.export.ExportSummariesListReport;
 import org.everit.jira.reporting.plugin.export.ExportWorklogDetailsListReport;
 import org.everit.jira.reporting.plugin.util.ConverterUtil;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
+import org.everit.jira.timetracker.plugin.UserReportingSettingsHelper;
+import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.google.gson.Gson;
@@ -55,6 +59,10 @@ import com.google.gson.Gson;
 @Path("/download-report")
 public class DownloadReportResource {
 
+  private static final String CSV_FILE_EXTENSION = "csv";
+
+  private static final String XLS_FILE_EXTENSION = "xls";
+
   private final AnalyticsSender analyticsSender;
 
   private String pluginId;
@@ -62,6 +70,8 @@ public class DownloadReportResource {
   private final QuerydslSupport querydslSupport;
 
   private ReportingPlugin reportingPlugin;
+
+  private UserReportingSettingsHelper userReportingSettingsHelper;
 
   /**
    * Simple constructor.
@@ -71,6 +81,8 @@ public class DownloadReportResource {
     pluginId = JiraTimetrackerAnalytics.getPluginUUID(pluginSettingsFactory.createGlobalSettings());
     this.analyticsSender = analyticsSender;
     this.reportingPlugin = reportingPlugin;
+    userReportingSettingsHelper = new UserReportingSettingsHelper(pluginSettingsFactory,
+        JiraTimetrackerUtil.getLoggedUserName());
     try {
       querydslSupport = new QuerydslSupportImpl();
     } catch (Exception e) {
@@ -78,34 +90,36 @@ public class DownloadReportResource {
     }
   }
 
-  private Response buildResponse(final HSSFWorkbook workbook, final String fileName,
+  private Response buildCsvResponse(final HSSFWorkbook workbook, final String fileName,
       final String fileExtension) {
-    try (ByteArrayOutputStream bos = new ByteArrayOutputStream();) {
-      workbook.write(bos);
-      String timeStamp = new SimpleDateFormat("yyyyMMddhhmm").format(new Date());
-      return Response.ok(bos.toByteArray(), MediaType.APPLICATION_OCTET_STREAM)
-          .header("Content-Disposition",
-              "attachment; filename=\"" + fileName + timeStamp + "." + fileExtension + "\"")
-          .build();
+    try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+      new ExcelToCsvConverter(workbook).printCSV(bos);
+      return buildResponse(bos, fileName, fileExtension);
     } catch (IOException e) {
       return Response.serverError().build();
     }
   }
 
-  /**
-   * Download summaries reports (project-, issue-, user summary).
-   *
-   * @param json
-   *          the json string from which the object is to be deserialized to {@link FilterCondition}
-   *          object.
-   * @return the generated XLS document.
-   */
-  @GET
-  @Consumes(MediaType.APPLICATION_JSON)
-  @Produces(MediaType.APPLICATION_OCTET_STREAM)
-  @Path("/downloadSummariesReport")
-  public Response downloadSummariesReport(
-      @QueryParam("json") @DefaultValue("{}") final String json) {
+  private Response buildExcelResponse(final HSSFWorkbook workbbok, final String fileName,
+      final String fileExtension) {
+    try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+      workbbok.write(bos);
+      return buildResponse(bos, fileName, fileExtension);
+    } catch (IOException e) {
+      return Response.serverError().build();
+    }
+  }
+
+  private Response buildResponse(final ByteArrayOutputStream bos, final String fileName,
+      final String fileExtension) {
+    String timeStamp = new SimpleDateFormat("yyyyMMddhhmm").format(new Date());
+    return Response.ok(bos.toByteArray(), MediaType.APPLICATION_OCTET_STREAM)
+        .header("Content-Disposition",
+            "attachment; filename=\"" + fileName + timeStamp + "." + fileExtension + "\"")
+        .build();
+  }
+
+  private HSSFWorkbook createSummaryExcel(final String json) {
     FilterCondition filterCondition = new Gson()
         .fromJson(json, FilterCondition.class);
 
@@ -114,14 +128,76 @@ public class DownloadReportResource {
 
     ExportSummariesListReport exportSummariesListReport =
         new ExportSummariesListReport(querydslSupport, converSearchParam.reportSearchParam,
-            converSearchParam.notBrowsableProjectKeys);
+            converSearchParam.notBrowsableProjectKeys, userReportingSettingsHelper);
 
     HSSFWorkbook workbook = exportSummariesListReport.exportToXLS();
+    return workbook;
+  }
 
-    ExportSummaryReportEvent exportSummaryReportEvent = new ExportSummaryReportEvent(pluginId);
+  private HSSFWorkbook createWorkBook(final String orderByString,
+      final DownloadWorklogDetailsParam downloadWorklogDetailsParam) {
+    ConvertedSearchParam converSearchParam = ConverterUtil
+        .convertFilterConditionToConvertedSearchParam(downloadWorklogDetailsParam.filterCondition,
+            reportingPlugin);
+    OrderBy orderBy = ConverterUtil.convertToOrderBy(orderByString);
+    HSSFWorkbook workbook =
+        createWorklogDetailsExcel(downloadWorklogDetailsParam, converSearchParam, orderBy);
+    return workbook;
+  }
+
+  private HSSFWorkbook createWorklogDetailsExcel(
+      final DownloadWorklogDetailsParam downloadWorklogDetailsParam,
+      final ConvertedSearchParam converSearchParam, final OrderBy orderBy) {
+    ExportWorklogDetailsListReport exportWorklogDetailsListReport =
+        new ExportWorklogDetailsListReport(querydslSupport,
+            downloadWorklogDetailsParam.selectedWorklogDetailsColumns,
+            converSearchParam.reportSearchParam,
+            converSearchParam.notBrowsableProjectKeys,
+            orderBy, userReportingSettingsHelper);
+    HSSFWorkbook workbook = exportWorklogDetailsListReport.exportToXLS();
+    return workbook;
+  }
+
+  /**
+   * Download summaries reports (project-, issue-, user summary).
+   *
+   * @param json
+   *          the json string from which the object is to be deserialized to {@link FilterCondition}
+   *          object.
+   * @return the generated XLS_FILE_EXTENSION document.
+   */
+  @GET
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_OCTET_STREAM)
+  @Path("/downloadSummariesReport")
+  public Response downloadSummariesReport(
+      @QueryParam("json") @DefaultValue("{}") final String json) {
+    HSSFWorkbook workbook = createSummaryExcel(json);
+    ExportSummaryReportEvent exportSummaryReportEvent =
+        new ExportSummaryReportEvent(pluginId, ExportSummaryReportEvent.EVENT_ACTION_EXCEL);
     analyticsSender.send(exportSummaryReportEvent);
+    return buildExcelResponse(workbook, "summaries-report", XLS_FILE_EXTENSION);
+  }
 
-    return buildResponse(workbook, "summaries-report", "xls");
+  /**
+   * Download summaries reports (project-, issue-, user summary).
+   *
+   * @param json
+   *          the json string from which the object is to be deserialized to {@link FilterCondition}
+   *          object.
+   * @return the generated XLS_FILE_EXTENSION document.
+   */
+  @GET
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_OCTET_STREAM)
+  @Path("/downloadSummariesReportAsCSV")
+  public Response downloadSummariesReportAsCSV(
+      @QueryParam("json") @DefaultValue("{}") final String json) {
+    HSSFWorkbook workbook = createSummaryExcel(json);
+    ExportSummaryReportEvent exportSummaryReportEvent =
+        new ExportSummaryReportEvent(pluginId, ExportSummaryReportEvent.EVENT_ACTION_CSV);
+    analyticsSender.send(exportSummaryReportEvent);
+    return buildCsvResponse(workbook, "summaries-report", CSV_FILE_EXTENSION);
   }
 
   /**
@@ -130,7 +206,7 @@ public class DownloadReportResource {
    * @param json
    *          the json string from which the object is to be deserialized to
    *          {@link DownloadWorklogDetailsParam} object.
-   * @return the generated XLS document.
+   * @return the generated XLS_FILE_EXTENSION document.
    */
   @GET
   @Consumes(MediaType.APPLICATION_JSON)
@@ -141,27 +217,40 @@ public class DownloadReportResource {
       @QueryParam("orderBy") final String orderByString) {
     DownloadWorklogDetailsParam downloadWorklogDetailsParam = new Gson()
         .fromJson(json, DownloadWorklogDetailsParam.class);
-    ConvertedSearchParam converSearchParam = ConverterUtil
-        .convertFilterConditionToConvertedSearchParam(downloadWorklogDetailsParam.filterCondition,
-            reportingPlugin);
-    OrderBy orderBy = ConverterUtil.convertToOrderBy(orderByString);
+    HSSFWorkbook workbook = createWorkBook(orderByString, downloadWorklogDetailsParam);
+    sendWorklogDetailsAnalytics(WorkLogDetailsExportFormat.EXCEL, downloadWorklogDetailsParam);
+    return buildExcelResponse(workbook, "worklog-details-report", XLS_FILE_EXTENSION);
+  }
 
-    ExportWorklogDetailsListReport exportWorklogDetailsListReport =
-        new ExportWorklogDetailsListReport(querydslSupport,
-            downloadWorklogDetailsParam.selectedWorklogDetailsColumns,
-            converSearchParam.reportSearchParam,
-            converSearchParam.notBrowsableProjectKeys,
-            orderBy);
+  /**
+   * Download worklog details report.
+   *
+   * @param json
+   *          the json string from which the object is to be deserialized to
+   *          {@link DownloadWorklogDetailsParam} object.
+   * @return the generated CSV_FILE_EXTENSION file.
+   */
+  @GET
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_OCTET_STREAM)
+  @Path("/downloadWorklogDetailsReportAsCSV")
+  public Response downloadWorklogDetailsReportAsCSV(
+      @QueryParam("json") @DefaultValue("{}") final String json,
+      @QueryParam("orderBy") final String orderByString) {
+    DownloadWorklogDetailsParam downloadWorklogDetailsParam = new Gson()
+        .fromJson(json, DownloadWorklogDetailsParam.class);
+    HSSFWorkbook workbook = createWorkBook(orderByString, downloadWorklogDetailsParam);
+    sendWorklogDetailsAnalytics(WorkLogDetailsExportFormat.CSV, downloadWorklogDetailsParam);
+    return buildCsvResponse(workbook, "worklog-details-report", CSV_FILE_EXTENSION);
+  }
 
-    HSSFWorkbook workbook = exportWorklogDetailsListReport.exportToXLS();
-
+  private void sendWorklogDetailsAnalytics(final WorkLogDetailsExportFormat exportFormat,
+      final DownloadWorklogDetailsParam downloadWorklogDetailsParam) {
     boolean allFields = downloadWorklogDetailsParam.selectedWorklogDetailsColumns
         .containsAll(WorklogDetailsColumns.ALL_COLUMNS);
     ExportWorklogDetailsReportEvent exportWorklogDetailsReportEvent =
-        new ExportWorklogDetailsReportEvent(pluginId, allFields);
+        new ExportWorklogDetailsReportEvent(pluginId, allFields, exportFormat);
     analyticsSender.send(exportWorklogDetailsReportEvent);
-
-    return buildResponse(workbook, "worklog-details-report", "xls");
   }
 
 }

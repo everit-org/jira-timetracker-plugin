@@ -96,7 +96,7 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.plug
                  <label id="error_message_label_df" style="display:none;">$i18n.getText('plugin.invalid_startTime')</label>
                  <label id="error_message_label_dt" style="display:none;">$i18n.getText('plugin.invalid_endTime')</label>
                </div>
-                <form name="dummyForm" class="aui top-label reporting-form" id="dummyForm" method="get" onsubmit="return false;" >
+                <form name="dummyFormForView" class="aui top-label reporting-form" id="dummyFormForView" method="get" onsubmit="return false;" >
                  <div class="form-body">
                      <div class="aui-group">
                         <div class="aui-item search-wrap">

@@ -17,12 +17,15 @@ package org.everit.jira.timetracker.plugin.dto;
 
 import java.math.BigDecimal;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.easymock.EasyMock;
 import org.everit.jira.timetracker.plugin.DurationBuilder;
@@ -37,13 +40,103 @@ import org.ofbiz.core.entity.GenericValue;
 import org.ofbiz.core.entity.model.ModelEntity;
 
 import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
+import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration.TimeFormat;
 import com.atlassian.jira.config.properties.ApplicationProperties;
+import com.atlassian.jira.datetime.DateTimeFormatter;
+import com.atlassian.jira.datetime.DateTimeFormatterFactory;
+import com.atlassian.jira.datetime.DateTimeStyle;
+import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.mock.component.MockComponentWorker;
 import com.atlassian.jira.security.JiraAuthenticationContext;
+import com.atlassian.jira.security.PermissionManager;
+import com.atlassian.jira.security.plugin.ProjectPermissionKey;
+import com.atlassian.jira.user.ApplicationUser;
+import com.atlassian.jira.util.I18nHelper.BeanFactory;
 
 @RunWith(Parameterized.class)
 public class EveritWorklogTest {
+
+  static class DummyDateTimeFromatter implements DateTimeFormatter {
+
+    @Override
+    public DateTimeFormatter forLoggedInUser() {
+      return this;
+    }
+
+    @Override
+    public String format(final Date arg0) {
+      SimpleDateFormat sdf = new SimpleDateFormat(getFormatHint());
+      return sdf.format(arg0);
+    }
+
+    @Override
+    public DateTimeFormatter forUser(final ApplicationUser arg0) {
+      return this;
+    }
+
+    @Override
+    public String getFormatHint() {
+      return "HH:mm";
+    }
+
+    @Override
+    public Locale getLocale() {
+      return Locale.ENGLISH;
+    }
+
+    @Override
+    public DateTimeStyle getStyle() {
+      return DateTimeStyle.TIME;
+    }
+
+    @Override
+    public TimeZone getZone() {
+      return TimeZone.getDefault();
+    }
+
+    @Override
+    public Date parse(final String arg0)
+        throws IllegalArgumentException, UnsupportedOperationException {
+      SimpleDateFormat sdf = new SimpleDateFormat(getFormatHint());
+      try {
+        return sdf.parse(arg0);
+      } catch (ParseException e) {
+        throw new UnsupportedOperationException();
+      }
+    }
+
+    @Override
+    public DateTimeFormatter withDefaultLocale() {
+      return this;
+    }
+
+    @Override
+    public DateTimeFormatter withDefaultZone() {
+      return this;
+    }
+
+    @Override
+    public DateTimeFormatter withLocale(final Locale arg0) {
+      return this;
+    }
+
+    @Override
+    public DateTimeFormatter withStyle(final DateTimeStyle arg0) {
+      return this;
+    }
+
+    @Override
+    public DateTimeFormatter withSystemZone() {
+      return this;
+    }
+
+    @Override
+    public DateTimeFormatter withZone(final TimeZone arg0) {
+      return this;
+    }
+
+  }
 
   static class DummyGenericValue extends GenericValue {
     private static final long serialVersionUID = 3415063923321743460L;
@@ -80,16 +173,16 @@ public class EveritWorklogTest {
   @Parameters(name = "{0} from {1}")
   public static final List<Object[]> params() {
     return Arrays.asList(
-        param("0m", duration()),
-        param("3m", duration().min(3)),
-        param("1h 3m", duration().hour(1).min(3)),
-        param("2h 3m", duration().hour(2).min(3)),
-        param("2w 2d", duration().week(2).day(2)),
-        param("2d", duration().day(2)),
-        param("~2d 1h", duration().day(2).hour(1).min(3)),
-        param("~2w", duration().week(2).hour(3).min(3)),
-        param("~5w 4d", duration().week(5).day(4).min(3)),
-        param("~5w", duration().week(5).hour(4).min(3)));
+        EveritWorklogTest.param("0m", EveritWorklogTest.duration()),
+        EveritWorklogTest.param("3m", EveritWorklogTest.duration().min(3)),
+        EveritWorklogTest.param("1h 3m", EveritWorklogTest.duration().hour(1).min(3)),
+        EveritWorklogTest.param("2h 3m", EveritWorklogTest.duration().hour(2).min(3)),
+        EveritWorklogTest.param("2w 2d", EveritWorklogTest.duration().week(2).day(2)),
+        EveritWorklogTest.param("2d", EveritWorklogTest.duration().day(2)),
+        EveritWorklogTest.param("~2d 1h", EveritWorklogTest.duration().day(2).hour(1).min(3)),
+        EveritWorklogTest.param("~2w", EveritWorklogTest.duration().week(2).hour(3).min(3)),
+        EveritWorklogTest.param("~5w 4d", EveritWorklogTest.duration().week(5).day(4).min(3)),
+        EveritWorklogTest.param("~5w", EveritWorklogTest.duration().week(5).hour(4).min(3)));
   }
 
   private final String expectedRemaining;
@@ -116,6 +209,13 @@ public class EveritWorklogTest {
         .getSimpleStatus().getStatusCategory().getKey()).thenReturn("done");
     mockComponentWorker.addMock(IssueManager.class, mockIssueManager);
 
+    PermissionManager mockPermissionManager =
+        Mockito.mock(PermissionManager.class, Mockito.RETURNS_DEEP_STUBS);
+    Mockito.when(mockPermissionManager.hasPermission((ProjectPermissionKey) Matchers.anyObject(),
+        (Issue) Matchers.anyObject(),
+        (ApplicationUser) Matchers.anyObject())).thenReturn(true);
+    mockComponentWorker.addMock(PermissionManager.class, mockPermissionManager);
+
     ApplicationProperties mockApplicationProperties =
         Mockito.mock(ApplicationProperties.class, Mockito.RETURNS_DEEP_STUBS);
     Mockito.when(
@@ -130,13 +230,24 @@ public class EveritWorklogTest {
         Mockito.mock(JiraAuthenticationContext.class, Mockito.RETURNS_DEEP_STUBS);
     Mockito.when(mockJiraAuthenticationContext.getI18nHelper().getLocale())
         .thenReturn(new Locale("en", "US"));
+    Mockito.when(mockJiraAuthenticationContext.getUser()).thenReturn(null);
     mockComponentWorker.addMock(JiraAuthenticationContext.class, mockJiraAuthenticationContext);
+
+    DateTimeFormatterFactory mockDateTimeFormatterFactory =
+        Mockito.mock(DateTimeFormatterFactory.class, Mockito.RETURNS_DEEP_STUBS);
+    Mockito.when(mockDateTimeFormatterFactory.formatter())
+        .thenReturn(new DummyDateTimeFromatter());
+    mockComponentWorker.addMock(DateTimeFormatterFactory.class, mockDateTimeFormatterFactory);
+
+    BeanFactory mockBeanFactory = Mockito.mock(BeanFactory.class, Mockito.RETURNS_DEEP_STUBS);
+    mockComponentWorker.addMock(BeanFactory.class, mockBeanFactory);
 
     BigDecimal daysPerWeek = new BigDecimal(5);
     BigDecimal hoursPerDay = new BigDecimal(8);
     TimeTrackingConfiguration ttConfig = EasyMock.createNiceMock(TimeTrackingConfiguration.class);
     EasyMock.expect(ttConfig.getDaysPerWeek()).andReturn(daysPerWeek).anyTimes();
     EasyMock.expect(ttConfig.getHoursPerDay()).andReturn(hoursPerDay).anyTimes();
+    EasyMock.expect(ttConfig.getTimeFormat()).andReturn(TimeFormat.pretty).anyTimes();
     EasyMock.replay(ttConfig);
     mockComponentWorker.addMock(TimeTrackingConfiguration.class, ttConfig).init();
   }

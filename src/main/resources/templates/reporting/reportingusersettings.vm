@@ -96,6 +96,17 @@
           <div class="description">$i18n.getText("jtrp.plugin.reporting.popup.check.desc")</div>
         </div>
         
+        <div class="field-group">
+          <label>$i18n.getText("jtrp.plugin.reporting.time.format"):</label>
+          <div>
+            <input id="radioSeconds" type="radio" name="worklogTimeInSeconds" value="second" #if($worklogTimeInSeconds) checked #end/>
+            <label for="radioSeconds">$i18n.getText("jtrp.plugin.reporting.time.format.sec")</label>
+            <input id="radioDefault" type="radio" name="worklogTimeInSeconds" value="default" #if(!$worklogTimeInSeconds) checked #end/>
+            <label for="radioDefault">$i18n.getText("jtrp.plugin.reporting.time.format.def")</label>
+          </div>
+          <div class="description">$i18n.getText("jtrp.plugin.reporting.time.format.desc")</div>
+        </div>
+        
         <div class="buttons-container">
           <div class="buttons">
             <input id="savesettings"  type="submit" name="savesettings" value="$i18n.getText('plugin.save')" class="aui-button aui-button-primary"/>
