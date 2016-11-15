@@ -65,7 +65,7 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.plug
       </div>
     </div>
   </header>
-  <form name="adminSettingForm"  method="post" action="JiraTimetrackerAdminSettingsWebAction!default.jspa" class="aui rightMargin"  onsubmit=" return everit.jttp.admin.beforeSubmit();">
+  <form name="adminSettingForm"  method="post" action="TimetrackerAdminSettingsWebAction!default.jspa" class="aui rightMargin"  onsubmit=" return everit.jttp.admin.beforeSubmit();">
   <input hidden="hidden" name="action" value="doExecute"/>
     #if(!$message.isEmpty())
     <div id="error_message" class="aui-message aui-message-error">
@@ -216,7 +216,7 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.plug
     <div class="buttons-container">
       <div class="buttons">
         <input id="savesettings"  type="submit" name="savesettings" value="$i18n.getText('plugin.save')" class="aui-button aui-button-primary"/>
-        <input id="resetButton"  type="button" name="reset" value="$i18n.getText('plugin.reset')" onclick="location.href='JiraTimetrackerAdminSettingsWebAction!default.jspa'" class="aui-button"/>
+        <input id="resetButton"  type="button" name="reset" value="$i18n.getText('plugin.reset')" onclick="location.href='TimetrackerAdminSettingsWebAction!default.jspa'" class="aui-button"/>
         <input id="cancelButton"  type="button" name="cancel" value="$i18n.getText('plugin.cancel')" onclick="location.href='/secure/JiraTimetrackerWebAction!default.jspa'" class="aui-button"/>
       </div>
     </div>

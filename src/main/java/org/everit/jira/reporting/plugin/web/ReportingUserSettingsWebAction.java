@@ -130,7 +130,7 @@ public class ReportingUserSettingsWebAction extends JiraWebActionSupport {
       setReturnUrl("/secure/ReportingWebAction!default.jspa");
       return getRedirect(INPUT);
     }
-    setReturnUrl("/secure/admin/JiraTimetrackerReportingUserSettingsWebAction!default.jspa");
+    setReturnUrl("/secure/admin/ReportingUserSettingsWebAction!default.jspa");
     return getRedirect(INPUT);
   }
 
