@@ -25,8 +25,8 @@ import java.util.LinkedHashMap;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 
 import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
+import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration.TimeFormat;
 import com.atlassian.jira.component.ComponentAccessor;
-import com.atlassian.jira.config.properties.ApplicationProperties;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.util.I18nHelper;
 import com.atlassian.jira.util.JiraDurationUtils.DaysDurationFormatter;
@@ -39,18 +39,6 @@ import com.atlassian.jira.util.JiraDurationUtils.PrettyDurationFormatter;
  * {@link org.everit.jira.timetracker.plugin.dto.EveritWorklog#getRoundedRemaining()} properties.
  */
 public class DurationFormatter implements Serializable {
-
-  /**
-   * Time format names in JIRA system.
-   */
-  private static final class TimeFormat {
-
-    public static final String DAYS = "days";
-
-    public static final String HOURS = "hours";
-
-    public static final String PRETTY = "pretty";
-  }
 
   private static final String DAY = "d ";
 
@@ -80,7 +68,7 @@ public class DurationFormatter implements Serializable {
 
   private PrettyDurationFormatter prettyDurationFormatter;
 
-  private String timeFormat;
+  private TimeFormat timeFormat;
 
   private double workDaysPerWeek;
 
@@ -94,12 +82,10 @@ public class DurationFormatter implements Serializable {
     TimeTrackingConfiguration timeTrackingConfiguration =
         ComponentAccessor.getComponent(TimeTrackingConfiguration.class);
 
-    ApplicationProperties applicationProperties = ComponentAccessor.getApplicationProperties();
-    timeFormat = applicationProperties.getDefaultBackedString("jira.timetracking.format");
-
     workDaysPerWeek = timeTrackingConfiguration.getDaysPerWeek().doubleValue();
     workHoursPerDay = timeTrackingConfiguration.getHoursPerDay().doubleValue();
 
+    timeFormat = timeTrackingConfiguration.getTimeFormat();
     JiraAuthenticationContext jiraAuthenticationContext =
         ComponentAccessor.getJiraAuthenticationContext();
     I18nHelper i18nHelper = jiraAuthenticationContext.getI18nHelper();
@@ -219,9 +205,9 @@ public class DurationFormatter implements Serializable {
     this.durationInSeconds = durationInSeconds;
 
     com.atlassian.jira.util.JiraDurationUtils.DurationFormatter formatter = null;
-    if (TimeFormat.DAYS.equals(timeFormat)) {
+    if (TimeFormat.days.equals(timeFormat)) {
       formatter = daysDurationFormatter;
-    } else if (TimeFormat.HOURS.equals(timeFormat)) {
+    } else if (TimeFormat.hours.equals(timeFormat)) {
       formatter = hoursDurationFormatter;
     } else {
       formatter = prettyDurationFormatter;
@@ -304,7 +290,7 @@ public class DurationFormatter implements Serializable {
    */
   public String roundedDuration(final long durationInSeconds) {
     this.durationInSeconds = durationInSeconds;
-    if (TimeFormat.PRETTY.equals(timeFormat)) {
+    if (TimeFormat.pretty.equals(timeFormat)) {
       constructFragmentsOfRemainingEstimate();
       return calculateFormattedRemaining();
     } else {
