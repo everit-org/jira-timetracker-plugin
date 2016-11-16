@@ -102,7 +102,7 @@ public class SurveyDialogWebAction extends JiraWebActionSupport {
   private PluginSettings getUserPluginSettigns() {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
-    ApplicationUser user = authenticationContext.getUser();
+    ApplicationUser user = authenticationContext.getLoggedInUser();
     return pluginSettingsFactory.createSettingsForKey(
         JTTPSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX + user.getName());
   }
