@@ -23,6 +23,7 @@ import java.util.Locale;
 
 import org.everit.jira.core.TimetrackerManager;
 import org.everit.jira.core.impl.TimetrackerComponent;
+import org.everit.jira.tests.core.DummyDateTimeFromatter;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.junit.Assert;
 import org.junit.Before;
@@ -32,6 +33,7 @@ import org.mockito.Mockito;
 
 import com.atlassian.jira.config.properties.APKeys;
 import com.atlassian.jira.config.properties.ApplicationProperties;
+import com.atlassian.jira.datetime.DateTimeFormatterFactory;
 import com.atlassian.jira.issue.worklog.Worklog;
 import com.atlassian.jira.mock.component.MockComponentWorker;
 import com.atlassian.jira.mock.issue.MockIssue;
@@ -74,6 +76,11 @@ public class LastEndTimeTest {
     Mockito.when(i18nHelper.getLocale())
         .thenReturn(Locale.ENGLISH);
 
+    DateTimeFormatterFactory mockDateTimeFormatterFactory =
+        Mockito.mock(DateTimeFormatterFactory.class, Mockito.RETURNS_DEEP_STUBS);
+    Mockito.when(mockDateTimeFormatterFactory.formatter())
+        .thenReturn(new DummyDateTimeFromatter());
+
     ApplicationProperties applicationProperties =
         Mockito.mock(ApplicationProperties.class, Mockito.RETURNS_DEEP_STUBS);
     Mockito.when(
@@ -81,6 +88,7 @@ public class LastEndTimeTest {
         .thenReturn("yyyy-MM-dd hh:mm");
     mockComponentWorker.addMock(JiraAuthenticationContext.class, jiraAuthenticationContext)
         .addMock(ApplicationProperties.class, applicationProperties)
+        .addMock(DateTimeFormatterFactory.class, mockDateTimeFormatterFactory)
         .init();
   }
 

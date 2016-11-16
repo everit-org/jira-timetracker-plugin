@@ -169,7 +169,7 @@ public final class ConverterUtil {
     PermissionManager permissionManager = ComponentAccessor.getPermissionManager();
     JiraAuthenticationContext jiraAuthenticationContext =
         ComponentAccessor.getJiraAuthenticationContext();
-    ApplicationUser user = jiraAuthenticationContext.getUser();
+    ApplicationUser user = jiraAuthenticationContext.getLoggedInUser();
     Collection<Project> projects =
         permissionManager.getProjects(ProjectPermissions.BROWSE_PROJECTS, user);
     List<Long> allBrowsableProjectIds = new ArrayList<>();
@@ -206,7 +206,7 @@ public final class ConverterUtil {
     ArrayList<String> users = new ArrayList<>(filterCondition.getUsers());
     JiraAuthenticationContext jiraAuthenticationContext =
         ComponentAccessor.getJiraAuthenticationContext();
-    ApplicationUser user = jiraAuthenticationContext.getUser();
+    ApplicationUser user = jiraAuthenticationContext.getLoggedInUser();
     if (!PermissionUtil.hasBrowseUserPermission(user, settingsHelper)) {
       if ((users.size() == 1) && (users.contains(PickerUserDTO.CURRENT_USER_NAME)
           || users.contains(TimetrackerUtil.getLoggedUserName()))) {

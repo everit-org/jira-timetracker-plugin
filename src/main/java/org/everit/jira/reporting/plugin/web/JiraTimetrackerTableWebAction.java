@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -356,7 +355,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     try {
       worklogs.addAll(worklogManager.getWorklogs(currentUser, startDate, lastDate));
       saveDataToSession();
-    } catch (DataAccessException | SQLException e) {
+    } catch (DataAccessException | ParseException e) {
       LOGGER.error(GET_WORKLOGS_ERROR_MESSAGE, e);
       return ERROR;
     }
@@ -480,7 +479,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     if ("".equals(currentUser) || !hasBrowseUsersPermission) {
       JiraAuthenticationContext authenticationContext = ComponentAccessor
           .getJiraAuthenticationContext();
-      currentUser = authenticationContext.getUser().getUsername();
+      currentUser = authenticationContext.getLoggedInUser().getUsername();
       setUserPickerObjectBasedOnCurrentUser();
     }
   }
@@ -632,7 +631,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     if ("".equals(currentUser) || !hasBrowseUsersPermission) {
       JiraAuthenticationContext authenticationContext = ComponentAccessor
           .getJiraAuthenticationContext();
-      currentUser = authenticationContext.getUser().getKey();
+      currentUser = authenticationContext.getLoggedInUser().getKey();
     }
   }
 
@@ -676,7 +675,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
       }
       AvatarService avatarService = ComponentAccessor.getComponent(AvatarService.class);
       setAvatarURL(avatarService.getAvatarURL(
-          ComponentAccessor.getJiraAuthenticationContext().getUser(),
+          ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser(),
           userPickerObject, Avatar.Size.SMALL).toString());
     } else {
       userPickerObject = null;

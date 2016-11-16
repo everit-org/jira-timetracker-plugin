@@ -189,7 +189,7 @@ public class SupportComponent implements SupportManager {
 
   @Override
   public long summary(final Date startSummary, final Date finishSummary,
-      final List<Pattern> issuePatterns) throws GenericEntityException {
+      final List<Pattern> issuePatterns) {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
     ApplicationUser user = authenticationContext.getLoggedInUser();

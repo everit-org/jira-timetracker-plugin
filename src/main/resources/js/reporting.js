@@ -486,7 +486,7 @@ const MAX_ELEMENTS_DISPLAYED = 100; // EQUAL TO JIRA.Issues.SearcherGroupListDia
     var newButtonText = "";
    if(jQuery(picker+" [value="+ noneValue +"]").attr("selected") != "selected"){
      jQuery(picker).find("option:selected").each(function() {
-       var optionText = AJS.$(this).text();
+       var optionText = jQuery(this).text();
        if (newButtonText === '') {
          newButtonText = optionText;
        } else {
@@ -706,10 +706,10 @@ const MAX_ELEMENTS_DISPLAYED = 100; // EQUAL TO JIRA.Issues.SearcherGroupListDia
    };
 
    reporting.nextTutorialPage = function(){
-     if(actualTutorialPage < 4){
+     if(actualTutorialPage < 5){
        actualTutorialPage++;
      }else{
-       actualTutorialPage = 4;
+       actualTutorialPage = 5;
       }
       changeNavigationButtonVisibility();
       showActiveTutotialPage();
@@ -721,7 +721,7 @@ const MAX_ELEMENTS_DISPLAYED = 100; // EQUAL TO JIRA.Issues.SearcherGroupListDia
      }else{
        jQuery("#reporting-tutorial-prev").show();
      }
-     if(actualTutorialPage == 4){
+     if(actualTutorialPage == 5){
        jQuery("#reporting-tutorial-next").hide();
      }else{
        jQuery("#reporting-tutorial-next").show();
@@ -793,7 +793,7 @@ const MAX_ELEMENTS_DISPLAYED = 100; // EQUAL TO JIRA.Issues.SearcherGroupListDia
     var selectedFilterOption = jQuery('#filterPicker [value="'+ reporting.values.selectedFilter +'"]');
     selectedFilterOption.attr("selected","selected");
     var pp = new AJS.SingleSelect({
-      element:  AJS.$("#filterPicker"),
+      element:  jQuery("#filterPicker"),
       submitInputVal: false,
     });
     jQuery("#filterPicker-field").attr("class", "text medium-field criteria-dropdown-text");
@@ -817,7 +817,7 @@ const MAX_ELEMENTS_DISPLAYED = 100; // EQUAL TO JIRA.Issues.SearcherGroupListDia
           jQuery("#epicLinkPicker").append('<option value="'+obj.epicLinkId+ '" '+ selected + '>' +obj.epicName + ' - ('+ obj.issueKey +') </option>');
         }
         var options={
-        		 element:  AJS.$("#epicLinkPicker"),
+        		 element:  jQuery("#epicLinkPicker"),
                  submitInputVal: true,
         };
         addMaxInlineRsultIfNecessary(result.length,options);
@@ -878,7 +878,7 @@ const MAX_ELEMENTS_DISPLAYED = 100; // EQUAL TO JIRA.Issues.SearcherGroupListDia
   function updatePickerButtonText(picker, button, defaultText){ //Example vallues: "#projectPicker" , "#projectPickerButton", "Project: All"
     var newButtonText = "";
     jQuery(picker).find("option:selected").each(function() {
-      var optionText = AJS.$(this).text();
+      var optionText = jQuery(this).text();
       if (newButtonText === '') {
         newButtonText = optionText;
       } else {
@@ -1051,10 +1051,10 @@ const MAX_ELEMENTS_DISPLAYED = 100; // EQUAL TO JIRA.Issues.SearcherGroupListDia
   }
   
   function showErrorMessage(message_key){
-    AJS.$('#error_message label').hide();
-    var errorMessageLabel = AJS.$('#'+message_key);
+    jQuery('#error_message label').hide();
+    var errorMessageLabel = jQuery('#'+message_key);
     errorMessageLabel.show();
-    var errorMessage = AJS.$('#error_message');
+    var errorMessage = jQuery('#error_message');
     errorMessage.show();
   }
   
@@ -1265,64 +1265,64 @@ const MAX_ELEMENTS_DISPLAYED = 100; // EQUAL TO JIRA.Issues.SearcherGroupListDia
   }
   
   function addTooltips(){
-    var $userPickerTooltip = AJS.$('#userPickerButton');
+    var $userPickerTooltip = jQuery('#userPickerButton');
     if(!$userPickerTooltip.hasClass('jtrp-tooltipped')) {
       $userPickerTooltip.tooltip({gravity: 'w'});
       $userPickerTooltip.addClass('jtrp-tooltipped');
     }
     
-    var $groupPickerTooltip = AJS.$('#groupPickerButton');
+    var $groupPickerTooltip = jQuery('#groupPickerButton');
     if(!$groupPickerTooltip.hasClass('jtrp-tooltipped')) {
       $groupPickerTooltip.tooltip({gravity: 'w'});
       $groupPickerTooltip.addClass('jtrp-tooltipped');
     }
     
-    var $projectExpectedTooltip = AJS.$('#project-expected-tooltip');
+    var $projectExpectedTooltip = jQuery('#project-expected-tooltip');
     if(!$projectExpectedTooltip.hasClass('jtrp-tooltipped')) {
       $projectExpectedTooltip.tooltip();
       $projectExpectedTooltip.addClass('jtrp-tooltipped');
     }
     
-    var $issueExpectedTooltip = AJS.$('#issue-expected-tooltip');
+    var $issueExpectedTooltip = jQuery('#issue-expected-tooltip');
     if(!$issueExpectedTooltip.hasClass('jtrp-tooltipped')) {
       $issueExpectedTooltip.tooltip();
       $issueExpectedTooltip.addClass('jtrp-tooltipped');
     }
     
-    var $jtrp_col_priorityTooltip = AJS.$('#jtrp_col_priority');
+    var $jtrp_col_priorityTooltip = jQuery('#jtrp_col_priority');
     if(!$jtrp_col_priorityTooltip.hasClass('jtrp-tooltipped')) {
       $jtrp_col_priorityTooltip.tooltip();
       $jtrp_col_priorityTooltip.addClass('jtrp-tooltipped');
     }
     
-    var $jtrp_col_typeTooltip = AJS.$('#jtrp_col_type');
+    var $jtrp_col_typeTooltip = jQuery('#jtrp_col_type');
     if(!$jtrp_col_typeTooltip.hasClass('jtrp-tooltipped')) {
       $jtrp_col_typeTooltip.tooltip();
       $jtrp_col_typeTooltip.addClass('jtrp-tooltipped');
     }
     
-    var $jtrp_col_priorityTooltip = AJS.$('#is_jtrp_col_priority');
+    var $jtrp_col_priorityTooltip = jQuery('#is_jtrp_col_priority');
     if(!$jtrp_col_priorityTooltip.hasClass('jtrp-tooltipped')) {
       $jtrp_col_priorityTooltip.tooltip();
       $jtrp_col_priorityTooltip.addClass('jtrp-tooltipped');
     }
     
-    var $jtrp_col_typeTooltip = AJS.$('#is_jtrp_col_type');
+    var $jtrp_col_typeTooltip = jQuery('#is_jtrp_col_type');
     if(!$jtrp_col_typeTooltip.hasClass('jtrp-tooltipped')) {
       $jtrp_col_typeTooltip.tooltip();
       $jtrp_col_typeTooltip.addClass('jtrp-tooltipped');
     }
     
-    AJS.$('.img-tooltip').each(function() {
-      var $element = AJS.$(this);
+    jQuery('.img-tooltip').each(function() {
+      var $element = jQuery(this);
       if(!$element.hasClass('jtrp-tooltipped')) {
         $element.tooltip();
         $element.addClass('jtrp-tooltipped');
       }
     });
     
-    AJS.$('.user-tooltip').each(function() {
-      var $element = AJS.$(this);
+    jQuery('.user-tooltip').each(function() {
+      var $element = jQuery(this);
       if(!$element.hasClass('jtrp-tooltipped')) {
         $element.tooltip();
         $element.addClass('jtrp-tooltipped');

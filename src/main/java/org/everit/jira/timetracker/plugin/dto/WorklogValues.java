@@ -25,19 +25,21 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class WorklogValues {
 
   @XmlElement
-  private String comment;
+  private String comment = "";
+
+  public String commentForActions = "";
 
   @XmlElement
-  private String durationTime;
+  private String durationTime = "";
 
   @XmlElement
   private String endTime;
 
   @XmlElement
-  private Boolean isDuration;
+  private Boolean isDuration = Boolean.FALSE;
 
   @XmlElement
-  private String issueKey;
+  private String issueKey = "";
 
   @XmlElement
   private String startTime;
@@ -45,6 +47,10 @@ public class WorklogValues {
   @XmlElement
   public String getComment() {
     return comment;
+  }
+
+  public String getCommentForActions() {
+    return commentForActions;
   }
 
   public String getDurationTime() {
@@ -69,6 +75,10 @@ public class WorklogValues {
 
   public void setComment(final String comment) {
     this.comment = comment;
+  }
+
+  public void setCommentForActions(final String commentForActions) {
+    this.commentForActions = commentForActions;
   }
 
   public void setDurationTime(final String durationTime) {

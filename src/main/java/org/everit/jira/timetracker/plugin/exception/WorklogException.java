@@ -1,4 +1,4 @@
- #*
+/*
  * Copyright (C) 2011 Everit Kft. (http://www.everit.org)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,9 +12,25 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *#
-<datalist id="time-options">
-  #foreach ($time in $generateAutoCompleteList)
-    <option value="$time">
-  #end
-</datalist>
+ */
+package org.everit.jira.timetracker.plugin.exception;
+
+/**
+ * Exception class for worklog problems.
+ */
+public class WorklogException extends RuntimeException {
+
+  private static final long serialVersionUID = 4562531805678393874L;
+
+  public String messageParameter = "";
+
+  public WorklogException(final String errorMsgKey) {
+    super(errorMsgKey);
+  }
+
+  public WorklogException(final String errorMsgKey, final String messageParameter) {
+    this(errorMsgKey);
+    this.messageParameter = messageParameter;
+  }
+
+}

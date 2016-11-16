@@ -15,7 +15,9 @@
  */
 package org.everit.jira.timetracker.plugin;
 
+import java.io.IOException;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.LinkedHashMap;
@@ -23,7 +25,13 @@ import java.util.LinkedHashMap;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 
 import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
+import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration.TimeFormat;
 import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.security.JiraAuthenticationContext;
+import com.atlassian.jira.util.I18nHelper;
+import com.atlassian.jira.util.JiraDurationUtils.DaysDurationFormatter;
+import com.atlassian.jira.util.JiraDurationUtils.HoursDurationFormatter;
+import com.atlassian.jira.util.JiraDurationUtils.PrettyDurationFormatter;
 
 /**
  * Used for creating the string representation of
@@ -50,9 +58,17 @@ public class DurationFormatter implements Serializable {
 
   private static final int WEEKIDX = 0;
 
+  private DaysDurationFormatter daysDurationFormatter;
+
   private long durationInSeconds;
 
   private LinkedHashMap<String, Long> fragments = new LinkedHashMap<>();
+
+  private HoursDurationFormatter hoursDurationFormatter;
+
+  private PrettyDurationFormatter prettyDurationFormatter;
+
+  private TimeFormat timeFormat;
 
   private double workDaysPerWeek;
 
@@ -62,10 +78,23 @@ public class DurationFormatter implements Serializable {
    * Simple constructor.
    */
   public DurationFormatter() {
+
     TimeTrackingConfiguration timeTrackingConfiguration =
         ComponentAccessor.getComponent(TimeTrackingConfiguration.class);
+
     workDaysPerWeek = timeTrackingConfiguration.getDaysPerWeek().doubleValue();
     workHoursPerDay = timeTrackingConfiguration.getHoursPerDay().doubleValue();
+
+    timeFormat = timeTrackingConfiguration.getTimeFormat();
+    JiraAuthenticationContext jiraAuthenticationContext =
+        ComponentAccessor.getJiraAuthenticationContext();
+    I18nHelper i18nHelper = jiraAuthenticationContext.getI18nHelper();
+
+    daysDurationFormatter = new DaysDurationFormatter(new BigDecimal(workHoursPerDay), i18nHelper);
+    hoursDurationFormatter = new HoursDurationFormatter(i18nHelper);
+    prettyDurationFormatter = new PrettyDurationFormatter(new BigDecimal(workHoursPerDay),
+        new BigDecimal(workDaysPerWeek), i18nHelper);
+
   }
 
   private boolean appendValue(final StringBuilder rval, final Long value, final String key,
@@ -73,7 +102,7 @@ public class DurationFormatter implements Serializable {
     if (value == null) {
       return nonzeroFragmentVisited;
     }
-    if (nonzeroFragmentVisited || value.longValue() > 0) {
+    if (nonzeroFragmentVisited || (value.longValue() > 0)) {
       rval.append(value.longValue()).append(key);
       return true;
     }
@@ -174,14 +203,22 @@ public class DurationFormatter implements Serializable {
    */
   public String exactDuration(final long durationInSeconds) {
     this.durationInSeconds = durationInSeconds;
-    constructFragmentsOfRemainingEstimate();
-    return buildFromFragments(false);
+
+    com.atlassian.jira.util.JiraDurationUtils.DurationFormatter formatter = null;
+    if (TimeFormat.days.equals(timeFormat)) {
+      formatter = daysDurationFormatter;
+    } else if (TimeFormat.hours.equals(timeFormat)) {
+      formatter = hoursDurationFormatter;
+    } else {
+      formatter = prettyDurationFormatter;
+    }
+    return formatter.shortFormat(durationInSeconds);
   }
 
   private int fragmentCount(final int firstNonzeroIdx, final int lastNonzeroIdx,
       final int handledFragmentCount, final int idx) {
     int count = handledFragmentCount;
-    if (firstNonzeroIdx <= idx && idx <= lastNonzeroIdx) {
+    if ((firstNonzeroIdx <= idx) && (idx <= lastNonzeroIdx)) {
       ++count;
     }
     return count;
@@ -212,6 +249,10 @@ public class DurationFormatter implements Serializable {
   public String industryDuration(final long durationInSeconds) {
     double durationInMins = durationInSeconds / (double) DateTimeConverterUtil.SECONDS_PER_MINUTE;
     double hours = durationInMins / DateTimeConverterUtil.MINUTES_PER_HOUR;
+    return industryFormat(hours);
+  }
+
+  private String industryFormat(final double hours) {
     DecimalFormat df = new DecimalFormat("#.#");
     df.setRoundingMode(RoundingMode.FLOOR);
     return df.format(hours) + "h";
@@ -224,7 +265,7 @@ public class DurationFormatter implements Serializable {
     boolean tilde = needsTilde;
     long longValue = value.longValue();
     int idx = getIdx(key);
-    if (firstNonzeroIdx <= idx && idx <= lastNonzeroIdx && longValue > 0) {
+    if ((firstNonzeroIdx <= idx) && (idx <= lastNonzeroIdx) && (longValue > 0)) {
       if (handledFragmentCount < 2) {
         truncatedFragments.put(key, value);
       } else {
@@ -232,6 +273,12 @@ public class DurationFormatter implements Serializable {
       }
     }
     return tilde;
+  }
+
+  private void readObject(final java.io.ObjectInputStream stream) throws IOException,
+      ClassNotFoundException {
+    stream.close();
+    throw new java.io.NotSerializableException(getClass().getName());
   }
 
   /**
@@ -243,8 +290,12 @@ public class DurationFormatter implements Serializable {
    */
   public String roundedDuration(final long durationInSeconds) {
     this.durationInSeconds = durationInSeconds;
-    constructFragmentsOfRemainingEstimate();
-    return calculateFormattedRemaining();
+    if (TimeFormat.pretty.equals(timeFormat)) {
+      constructFragmentsOfRemainingEstimate();
+      return calculateFormattedRemaining();
+    } else {
+      return exactDuration(durationInSeconds);
+    }
   }
 
   /**
@@ -253,8 +304,11 @@ public class DurationFormatter implements Serializable {
    * @return the formatted work hours per day string.
    */
   public String workHoursDayIndustryDuration() {
-    DecimalFormat df = new DecimalFormat("#.#");
-    df.setRoundingMode(RoundingMode.FLOOR);
-    return df.format(workHoursPerDay) + "h";
+    return industryFormat(workHoursPerDay);
+  }
+
+  private void writeObject(final java.io.ObjectOutputStream stream) throws IOException {
+    stream.close();
+    throw new java.io.NotSerializableException(getClass().getName());
   }
 }

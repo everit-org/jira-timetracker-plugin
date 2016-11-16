@@ -132,7 +132,7 @@ public final class JiraTimetrackerAnalytics {
     String userId;
     try {
       userId = HashUtil.encryptString(ComponentAccessor
-          .getJiraAuthenticationContext().getUser().getKey());
+          .getJiraAuthenticationContext().getLoggedInUser().getKey());
     } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
       log.error("Error when try to hash the user ID.", e);
       return ERROR_USER_ID_HASH;
