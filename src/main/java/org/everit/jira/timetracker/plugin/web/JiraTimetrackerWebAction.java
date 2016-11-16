@@ -82,9 +82,15 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
     public static final String EDIT_ALL = "editAll";
 
+    public static final String IS_SHOW_MOVE_ALL_NO_PERMISSION = "isShowMoveAllNoPermission";
+
     public static final String LW_CHGDATE = "lw_chgdate";
 
     public static final String LW_SAVE = "lw_save";
+
+    public static final String MESSAGE = "message";
+
+    public static final String MESSAGE_PARAMETER = "messageParameter";
 
     public static final String TODAY = "today";
 
@@ -313,7 +319,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     parseMessageParam();
 
     showMoveAllNoPermission =
-        Boolean.valueOf(getHttpRequest().getParameter("showMoveAllNoPermission"));
+        Boolean.valueOf(getHttpRequest().getParameter(Parameter.IS_SHOW_MOVE_ALL_NO_PERMISSION));
   }
 
   private String calculateTimeSpentForDuration(final String startTime, final String durationTime) {
@@ -847,10 +853,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   }
 
   private void parseMessageParam() {
-    String messageParam = getHttpRequest().getParameter("message");
+    String messageParam = getHttpRequest().getParameter(Parameter.MESSAGE);
     if ((messageParam != null) && !"".equals(messageParam)) {
       message = messageParam;
-      String messageParameterParam = getHttpRequest().getParameter("messageParameter");
+      String messageParameterParam = getHttpRequest().getParameter(Parameter.MESSAGE_PARAMETER);
       if ((messageParameterParam != null) && !"".equals(messageParameterParam)) {
         messageParameter = messageParameterParam;
       }
