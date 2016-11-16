@@ -69,7 +69,7 @@ everit.jttp.report_common_scripts = everit.jttp.report_common_scripts || {};
       jQuery("#userPicker-single-select").attr("title", AJS.I18n.getText("jtrp.plugin.no.browse.permission"));
       jQuery("#userPicker-single-select").attr("original-title", AJS.I18n.getText("jtrp.plugin.no.browse.permission"));
       
-      var $groupPickerTooltip = AJS.$('#userPicker-single-select');
+      var $groupPickerTooltip = jQuery('#userPicker-single-select');
       if(!$groupPickerTooltip.hasClass('jtrp-tooltipped')) {
         $groupPickerTooltip.tooltip({gravity: 'w'});
         $groupPickerTooltip.addClass('jtrp-tooltipped');
@@ -135,10 +135,10 @@ everit.jttp.report_common_scripts = everit.jttp.report_common_scripts || {};
 
  
  function showErrorMessage(message_key){
-   AJS.$('#error_message label').hide();
-   var errorMessageLabel = AJS.$('#'+message_key);
+   jQuery('#error_message label').hide();
+   var errorMessageLabel = jQuery('#'+message_key);
    errorMessageLabel.show();
-   var errorMessage = AJS.$('#error_message');
+   var errorMessage = jQuery('#error_message');
    errorMessage.show();
  }
  

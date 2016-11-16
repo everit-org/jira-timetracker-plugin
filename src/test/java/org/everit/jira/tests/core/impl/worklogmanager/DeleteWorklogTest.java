@@ -19,8 +19,7 @@ import java.text.ParseException;
 
 import org.everit.jira.core.impl.WorklogComponent;
 import org.everit.jira.core.impl.WorklogComponent.PropertiesKey;
-import org.everit.jira.timetracker.plugin.dto.ActionResult;
-import org.everit.jira.timetracker.plugin.dto.ActionResultStatus;
+import org.everit.jira.timetracker.plugin.exception.WorklogException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -89,13 +88,11 @@ public class DeleteWorklogTest {
 
   private WorklogComponent worklogManager;
 
-  private void assertActionResult(final ActionResult result,
-      final ActionResultStatus expectedStatus, final String expectedIssueId,
+  private void assertWorklogException(final WorklogException e, final String expectedIssueId,
       final String expectedMessage) {
-    Assert.assertNotNull(result);
-    Assert.assertEquals(expectedStatus, result.getStatus());
-    Assert.assertEquals(expectedIssueId, result.getMessageParameter());
-    Assert.assertEquals(expectedMessage, result.getMessage());
+    Assert.assertNotNull(e);
+    Assert.assertEquals(expectedIssueId, e.messageParameter);
+    Assert.assertEquals(expectedMessage, e.getMessage());
   }
 
   @Before
@@ -160,22 +157,22 @@ public class DeleteWorklogTest {
 
   @Test
   public void testDeleteWorklog() {
-    ActionResult result = worklogManager.deleteWorklog(noPermissionWorklog.getId());
-    assertActionResult(result,
-        ActionResultStatus.FAIL,
-        "KEY-" + noPermissionWorklog.getId(),
-        PropertiesKey.NOPERMISSION_DELETE_WORKLOG);
+    try {
+      worklogManager.deleteWorklog(noPermissionWorklog.getId());
+      Assert.fail("Expect WorklogException");
+    } catch (WorklogException e) {
+      assertWorklogException(e, "KEY-" + noPermissionWorklog.getId(),
+          PropertiesKey.NOPERMISSION_DELETE_WORKLOG);
+    }
 
-    result = worklogManager.deleteWorklog(validateErrorWorklog.getId());
-    assertActionResult(result,
-        ActionResultStatus.FAIL,
-        validateErrorWorklog.getId().toString(),
-        PropertiesKey.WORKLOG_DELETE_FAIL);
+    try {
+      worklogManager.deleteWorklog(validateErrorWorklog.getId());
+      Assert.fail("Expect WorklogException");
+    } catch (WorklogException e) {
+      assertWorklogException(e, validateErrorWorklog.getId().toString(),
+          PropertiesKey.WORKLOG_DELETE_FAIL);
+    }
 
-    result = worklogManager.deleteWorklog(deleteSuccessWorklog.getId());
-    assertActionResult(result,
-        ActionResultStatus.SUCCESS,
-        deleteSuccessWorklog.getId().toString(),
-        PropertiesKey.WORKLOG_DELETE_SUCCESS);
+    worklogManager.deleteWorklog(deleteSuccessWorklog.getId());
   }
 }

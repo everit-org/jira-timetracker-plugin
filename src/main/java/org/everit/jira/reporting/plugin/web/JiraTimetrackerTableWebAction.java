@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -356,7 +355,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     try {
       worklogs.addAll(worklogManager.getWorklogs(currentUser, startDate, lastDate));
       saveDataToSession();
-    } catch (DataAccessException | SQLException e) {
+    } catch (DataAccessException | ParseException e) {
       LOGGER.error(GET_WORKLOGS_ERROR_MESSAGE, e);
       return ERROR;
     }

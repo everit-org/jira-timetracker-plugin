@@ -17,59 +17,59 @@
             <div id="progressBars" class="aui-group aui-group-trio">
                #if($issueRegexIsNotEmpty)
 				<div class="aui-item jttpTooltip">
-					<label class="progress-label" for="day-progress">Day: $dayFilteredSummary / $daySummary</label>
-					<div id="day-progress" class="progress" style="height:8px; margin-bottom:0px;">
-						<div class="progress-bar" style="width: ${dayFilteredRealWorkIndicatorPrecent}%">                                        
+					<label class="progress-label" for="day-progress">Day: $summaryDTO.day.filteredSummary / $summaryDTO.day.summary</label>
+					<div id="day-progress" class="progress" style="height:8px; margin-bottom:0px;" data-jttp-percent="$summaryDTO.day.filteredPercent">
+						<div class="progress-bar" style="width: ${summaryDTO.day.filteredRealWorkIndicatorPrecent}%">                                        
 						</div>
-						<div class="progress-bar progress-bar-nowork" style="width: ${dayFilteredNonWorkIndicatorPrecent}%">                                        
+						<div class="progress-bar progress-bar-nowork" style="width: ${summaryDTO.day.filteredNonWorkIndicatorPrecent}%">                                        
 						</div>
 					</div>
-						<div class="jttpTooltiptext">$i18n.getText('plugin.progress.expected'): $formattedExpectedWorkTimeInDay <br/> $i18n.getText('plugin.progress.total'): $daySummary <br/>$i18n.getText('plugin.progress.realWork'): $dayFilteredSummary <br/>$i18n.getText('plugin.progress.nonWork'): $formattedNonWorkTimeInDay</div>
+						<div class="jttpTooltiptext">$i18n.getText('plugin.progress.expected'): $summaryDTO.day.formattedExpectedWorkTime <br/> $i18n.getText('plugin.progress.total'): $summaryDTO.day.summary <br/>$i18n.getText('plugin.progress.realWork'): $summaryDTO.day.filteredSummary <br/>$i18n.getText('plugin.progress.nonWork'): $summaryDTO.day.formattedNonWorkTime</div>
 				</div>
 				<div class="aui-item jttpTooltip">
-					<label class="progress-label" for="week-progress">Week: $weekFilteredSummary / $weekSummary</label>
-					<div id="week-progress" class="progress" style="height:8px; margin-bottom:0px;">
-						<div class="progress-bar" style="width: ${weekFilteredRealWorkIndicatorPrecent}%">                                        
+					<label class="progress-label" for="week-progress">Week: $summaryDTO.week.filteredSummary / $summaryDTO.week.summary</label>
+					<div id="week-progress" class="progress" style="height:8px; margin-bottom:0px;" data-jttp-percent="$summaryDTO.week.filteredPercent">
+						<div class="progress-bar" style="width: ${summaryDTO.week.filteredRealWorkIndicatorPrecent}%">                                        
 						</div>
-						<div class="progress-bar progress-bar-nowork" style="width: ${weekFilteredNonWorkIndicatorPrecent}%">                                        
+						<div class="progress-bar progress-bar-nowork" style="width: ${summaryDTO.week.filteredNonWorkIndicatorPrecent}%">                                        
 						</div>
 					</div>
-						<div class="jttpTooltiptext">$i18n.getText('plugin.progress.expected'): $formattedExpectedWorkTimeInWeek <br/> $i18n.getText('plugin.progress.total'): $weekSummary <br/>$i18n.getText('plugin.progress.realWork'):$weekFilteredSummary <br/>$i18n.getText('plugin.progress.nonWork'): $formattedNonWorkTimeInWeek</div>
+						<div class="jttpTooltiptext">$i18n.getText('plugin.progress.expected'): $summaryDTO.week.formattedExpectedWorkTime <br/> $i18n.getText('plugin.progress.total'): $summaryDTO.week.summary <br/>$i18n.getText('plugin.progress.realWork'):$summaryDTO.week.filteredSummary <br/>$i18n.getText('plugin.progress.nonWork'): $summaryDTO.week.formattedNonWorkTime</div>
 				</div>
 				<div class="aui-item jttpTooltip">
-					<label class="progress-label" for="month-progress">Month: $monthFilteredSummary / $monthSummary</label>
-					<div id="month-progress" class="progress" style="height:8px; margin-bottom:0px;">
-						<div class="progress-bar" style="width: ${monthFilteredRealWorkIndicatorPrecent}%">                                        
+					<label class="progress-label" for="month-progress">Month: $summaryDTO.month.filteredSummary / $summaryDTO.month.summary</label>
+					<div id="month-progress" class="progress" style="height:8px; margin-bottom:0px;" data-jttp-percent="$summaryDTO.month.filteredPercent">
+						<div class="progress-bar" style="width: ${summaryDTO.month.filteredRealWorkIndicatorPrecent}%">                                        
 						</div>
-						<div class="progress-bar progress-bar-nowork" style="width: ${monthFilteredNonWorkIndicatorPrecent}%">                                        
+						<div class="progress-bar progress-bar-nowork" style="width: ${summaryDTO.month.filteredNonWorkIndicatorPrecent}%">                                        
 						</div>
 					</div>
-						<div class="jttpTooltiptext">$i18n.getText('plugin.progress.expected'): $formattedExpectedWorkTimeInMonth<br/> $i18n.getText('plugin.progress.total'): $monthSummary <br/>$i18n.getText('plugin.progress.realWork'): $monthFilteredSummary <br/>$i18n.getText('plugin.progress.nonWork'): $formattedNonWorkTimeInMonth</div>
+						<div class="jttpTooltiptext">$i18n.getText('plugin.progress.expected'): $summaryDTO.month.formattedExpectedWorkTime<br/> $i18n.getText('plugin.progress.total'): $summaryDTO.month.summary <br/>$i18n.getText('plugin.progress.realWork'): $summaryDTO.month.filteredSummary <br/>$i18n.getText('plugin.progress.nonWork'): $summaryDTO.month.formattedNonWorkTime</div>
 				</div>
 				#else
 				<div class="aui-item jttpTooltip">
-					<label class="progress-label" for="day-progress">Day: $daySummary</label>
-					<div id="day-progress" class="progress" style="height:8px; margin-bottom:0px;">
-						<div class="progress-bar" style="width: ${dayIndicatorPrecent}%">                                        
+					<label class="progress-label" for="day-progress">Day: $summaryDTO.day.summary</label>
+					<div id="day-progress" class="progress" style="height:8px; margin-bottom:0px;" data-jttp-percent="$summaryDTO.day.filteredPercent">
+						<div class="progress-bar" style="width: ${summaryDTO.day.indicatorPrecent}%">                                        
 						</div>
 					</div>
-					<div class="jttpTooltiptext">$i18n.getText('plugin.progress.expected'): $formattedExpectedWorkTimeInDay<br/> $i18n.getText('plugin.progress.total'): $daySummary</div>
+					<div class="jttpTooltiptext">$i18n.getText('plugin.progress.expected'): $summaryDTO.day.formattedExpectedWorkTime<br/> $i18n.getText('plugin.progress.total'): $summaryDTO.day.summary</div>
 				</div>
 				<div class="aui-item jttpTooltip">
-					<label class="progress-label" for="week-progress">Week: $weekSummary</label>
-					<div id="week-progress" class="progress" style="height:8px; margin-bottom:0px;">
-						<div class="progress-bar" style="width: ${weekIndicatorPrecent}%">                                        
+					<label class="progress-label" for="week-progress">Week: $summaryDTO.week.summary</label>
+					<div id="week-progress" class="progress" style="height:8px; margin-bottom:0px;" data-jttp-percent="$summaryDTO.week.filteredPercent">
+						<div class="progress-bar" style="width: ${summaryDTO.week.indicatorPrecent}%">                                        
 						</div>
 					</div>
-					<div class="jttpTooltiptext">$i18n.getText('plugin.progress.expected'): $formattedExpectedWorkTimeInWeek<br/> $i18n.getText('plugin.progress.total'): $weekSummary</div>
+					<div class="jttpTooltiptext">$i18n.getText('plugin.progress.expected'): $summaryDTO.week.formattedExpectedWorkTime<br/> $i18n.getText('plugin.progress.total'): $summaryDTO.week.summary</div>
 				</div>
 				<div class="aui-item jttpTooltip">
-					<label class="progress-label" for="month-progress">Month: $monthSummary</label>
-					<div id="month-progress" class="progress" style="height:8px; margin-bottom:0px;">
-						<div class="progress-bar" style="width: ${monthIndicatorPrecent}%">                                        
+					<label class="progress-label" for="month-progress">Month: $summaryDTO.month.summary</label>
+					<div id="month-progress" class="progress" style="height:8px; margin-bottom:0px;" data-jttp-percent="$summaryDTO.month.filteredPercent">
+						<div class="progress-bar" style="width: ${summaryDTO.month.indicatorPrecent}%">                                        
 						</div>
 					</div>
-					<div class="jttpTooltiptext">$i18n.getText('plugin.progress.expected'): $formattedExpectedWorkTimeInMonth<br/> $i18n.getText('plugin.progress.total'): $monthSummary</div>
+					<div class="jttpTooltiptext">$i18n.getText('plugin.progress.expected'): $summaryDTO.month.formattedExpectedWorkTime<br/> $i18n.getText('plugin.progress.total'): $summaryDTO.month.summary</div>
 				</div>
 				#end
                </div>

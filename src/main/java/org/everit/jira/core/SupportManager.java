@@ -67,9 +67,6 @@ public interface SupportManager {
    * @param issueIds
    *          The filtered issues ids. If null or empty then don't make filtered summary.
    * @return The summary spent time in seconds.
-   * @throws GenericEntityException
-   *           GenericEntityException.
    */
-  long summary(Date startSummary, Date finishSummary, List<Pattern> issueIds)
-      throws GenericEntityException;
+  long summary(Date startSummary, Date finishSummary, List<Pattern> issueIds);
 }

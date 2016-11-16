@@ -22,10 +22,12 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.everit.jira.core.util.TimetrackerUtil;
+import org.everit.jira.tests.core.DummyDateTimeFromatter;
 import org.everit.jira.timetracker.plugin.dto.WorklogValues;
 import org.junit.Assert;
 import org.junit.Test;
@@ -38,6 +40,7 @@ import org.ofbiz.core.entity.GenericEntityException;
 import org.ofbiz.core.entity.GenericValue;
 
 import com.atlassian.crowd.embedded.api.User;
+import com.atlassian.jira.datetime.DateTimeFormatterFactory;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.status.MockStatus;
 import com.atlassian.jira.issue.status.Status;
@@ -49,6 +52,7 @@ import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.PermissionManager;
 import com.atlassian.jira.security.Permissions;
 import com.atlassian.jira.user.MockApplicationUser;
+import com.atlassian.jira.util.I18nHelper;
 
 public class TimetrackerUtilTest {
 
@@ -151,6 +155,12 @@ public class TimetrackerUtilTest {
         .thenReturn(null);
     mockComponentWorker.addMock(OfBizDelegator.class, ofBizDelegator);
 
+    DateTimeFormatterFactory mockDateTimeFormatterFactory =
+        Mockito.mock(DateTimeFormatterFactory.class, Mockito.RETURNS_DEEP_STUBS);
+    Mockito.when(mockDateTimeFormatterFactory.formatter())
+        .thenReturn(new DummyDateTimeFromatter());
+    mockComponentWorker.addMock(DateTimeFormatterFactory.class, mockDateTimeFormatterFactory);
+
     mockComponentWorker.init();
   }
 
@@ -221,13 +231,33 @@ public class TimetrackerUtilTest {
       Assert.assertNotNull(e);
     }
 
+    MockComponentWorker mockComponentWorker = new MockComponentWorker();
+
+    JiraAuthenticationContext jiraAuthenticationContext =
+        Mockito.mock(JiraAuthenticationContext.class, Mockito.RETURNS_DEEP_STUBS);
+    Mockito.when(jiraAuthenticationContext.getUser())
+        .thenReturn(null);
+    I18nHelper i18helper = Mockito.mock(I18nHelper.class, Mockito.RETURNS_DEEP_STUBS);
+    Mockito.when(jiraAuthenticationContext.getI18nHelper())
+        .thenReturn(i18helper);
+    Mockito.when(i18helper.getLocale())
+        .thenReturn(Locale.ENGLISH);
+
+    DateTimeFormatterFactory mockDateTimeFormatterFactory =
+        Mockito.mock(DateTimeFormatterFactory.class, Mockito.RETURNS_DEEP_STUBS);
+    Mockito.when(mockDateTimeFormatterFactory.formatter())
+        .thenReturn(new DummyDateTimeFromatter());
+
+    mockComponentWorker.addMock(JiraAuthenticationContext.class, jiraAuthenticationContext)
+        .addMock(DateTimeFormatterFactory.class, mockDateTimeFormatterFactory)
+        .init();
+
     WorklogValues worklogValues = TimetrackerUtil.convertJsonToWorklogValues("{}");
-    Assert.assertNull(worklogValues.getComment());
-    Assert.assertNull(worklogValues.getDurationTime());
-    Assert.assertNull(worklogValues.getEndTime());
-    Assert.assertNull(worklogValues.isDuration());
-    Assert.assertNull(worklogValues.getIssueKey());
-    Assert.assertNull(worklogValues.getStartTime());
+    Assert.assertEquals("", worklogValues.getComment());
+    Assert.assertEquals("", worklogValues.getDurationTime());
+    Assert.assertFalse(worklogValues.isDuration());
+    Assert.assertEquals("", worklogValues.getIssueKey());
+    Assert.assertNull("", worklogValues.getStartTime());
 
     worklogValues = TimetrackerUtil.convertJsonToWorklogValues("{\"comment\":\"dummy-comment\","
         + "\"durationTime\":\"dummy-duration\",\"endTime\":\"dummy-endtime\",\"isDuration\":false,"
@@ -254,11 +284,13 @@ public class TimetrackerUtilTest {
   public void testConvertWorklogValuesToJson() {
     WorklogValues worklogValues = new WorklogValues();
     String json = TimetrackerUtil.convertWorklogValuesToJson(worklogValues);
-    Assert.assertEquals("{}", json);
+    Assert.assertEquals("{\"comment\":\"\",\"commentForActions\":\"\","
+        + "\"durationTime\":\"\",\"isDuration\":false,\"issueKey\":\"\"}", json);
 
     worklogValues.setComment("dummy-comment");
     json = TimetrackerUtil.convertWorklogValuesToJson(worklogValues);
-    Assert.assertEquals("{\"comment\":\"dummy-comment\"}", json);
+    Assert.assertEquals("{\"comment\":\"dummy-comment\",\"commentForActions\":\"\","
+        + "\"durationTime\":\"\",\"isDuration\":false,\"issueKey\":\"\"}", json);
   }
 
   @Test

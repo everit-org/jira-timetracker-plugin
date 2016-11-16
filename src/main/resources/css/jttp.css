@@ -162,14 +162,6 @@ div.progress .progress-bar-success.progress-bar-nowork {
 /**********NEW DESING*************/
 /*********************************/
 
-.aui-page-hybrid .aui-page-header, .aui-page-hybrid .aui-navgroup-horizontal .aui-navgroup-inner, .aui-page-hybrid .aui-page-panel-inner{
-    width: 980px;
-}
-
-.aui-page-hybrid #footer .footer-body{
-    width: 100%;
-}
-
 .jttp-headline {
     padding-bottom: 25px;
 }
@@ -249,22 +241,28 @@ table#jttp-worklog-table th#jttp-worklog-issue-remaining {
 }
 
 table#jttp-worklog-table th#jttp-worklog-start {
-  width: 65px;
+  width: 68px;
 }
 
 table#jttp-worklog-table th#jttp-worklog-end {
-  width: 65px;
+  width: 68px;
 }
 
 table#jttp-worklog-table th#jttp-worklog-duration {
   width: 80px;
 }
 table#jttp-worklog-table th#jttp-worklog-description {
-  width: 430px;
+  width: 424px;
 }
 table#jttp-worklog-table th#jttp-worklog-description-small {
-  width: 330px;
+  width: 324px;
 }
+table#jttp-worklog-table tbody > tr > td, table#jttp-worklog-table thead > tr > th {
+  padding-right: 5px;
+  padding-left: 5px;
+  vertical-align: middle;
+}
+
 .aui-group>.aui-item.summary-module {
     width: 40%;
 }
@@ -283,7 +281,19 @@ div#jttp-logwork-time {
 
 div#jttp-logwork-time > div.field-group {
   width: auto;
-  margin-right: 4rem;
+  margin-right: 3.3rem;
+}
+
+div#jttp-logwork-time > div.field-group > input.text{
+  max-width: 90px;
+}
+
+div#jttp-logwork-time > div.field-group > span.time-input-span > input.text{
+  max-width: 90px;
+}
+
+div#jttp-logwork-time > div.field-group.duration > span.time-input-span > input.text{
+  max-width: 75px;
 }
 
 div#jttp-logwork-time > div.field-group.duration {

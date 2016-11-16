@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
-import org.ofbiz.core.entity.GenericEntityException;
 
 /**
  * Provides information for timetracker.
@@ -49,11 +48,8 @@ public interface TimetrackerManager {
    *          the included dates.
    *
    * @return The Date representation of the day.
-   * @throws GenericEntityException
-   *           GenericEntityException
    */
-  Date firstMissingWorklogsDate(Set<Date> exludeDates, Set<Date> includeDates)
-      throws GenericEntityException;
+  Date firstMissingWorklogsDate(Set<Date> exludeDates, Set<Date> includeDates);
 
   /**
    * The method find the exclude dates of the given date month.
@@ -84,8 +80,7 @@ public interface TimetrackerManager {
    *          The date.
    * @return The list of the days in String format. (Eg. ["12","15"])
    */
-  List<String> getLoggedDaysOfTheMonth(Date date)
-      throws GenericEntityException;
+  List<String> getLoggedDaysOfTheMonth(Date date);
 
   /**
    * Give back the biggest end time of the date after worklogs method. Or give back 08:00.
