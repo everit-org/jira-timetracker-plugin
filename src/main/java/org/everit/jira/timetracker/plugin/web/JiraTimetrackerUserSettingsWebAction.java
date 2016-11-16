@@ -36,7 +36,7 @@ import com.atlassian.jira.web.action.JiraWebActionSupport;
 /**
  * The settings page.
  */
-public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
+public class JiraTimetrackerUserSettingsWebAction extends JiraWebActionSupport {
 
   /**
    * Keys for properties.
@@ -111,7 +111,7 @@ public class JiraTimetrackerSettingsWebAction extends JiraWebActionSupport {
    * Simpe consturctor.
    *
    */
-  public JiraTimetrackerSettingsWebAction(
+  public JiraTimetrackerUserSettingsWebAction(
       final TimetrackerSettingsHelper settingsHelper) {
     timetrackingCondition = new TimetrackerCondition(settingsHelper);
     pluginCondition = new PluginCondition(settingsHelper);
