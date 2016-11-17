@@ -100,6 +100,8 @@ public class JiraTimetrackerUserSettingsWebAction extends JiraWebActionSupport {
 
   private TimetrackerSettingsHelper settingsHelper;
 
+  private boolean showRemaningEstimate = false;
+
   /**
    * The startTime.
    */
@@ -220,6 +222,10 @@ public class JiraTimetrackerUserSettingsWebAction extends JiraWebActionSupport {
     return startTime;
   }
 
+  public boolean isShowRemaningEstimate() {
+    return showRemaningEstimate;
+  }
+
   private void loadIssueCollectorSrc() {
     Properties properties = PropertiesUtil.getJttpBuildProperties();
     issueCollectorSrc = properties.getProperty(PropertiesUtil.ISSUE_COLLECTOR_SRC);
@@ -228,7 +234,7 @@ public class JiraTimetrackerUserSettingsWebAction extends JiraWebActionSupport {
   /**
    * Load the plugin settings and set the variables.
    */
-  public void loadUserSettings() {
+  private void loadUserSettings() {
     TimeTrackerUserSettings loaduserSettings = settingsHelper.loadUserSettings();
     endTime = loaduserSettings.getEndTimeChange();
     isActualDate = loaduserSettings.isActualDate();
@@ -240,6 +246,7 @@ public class JiraTimetrackerUserSettingsWebAction extends JiraWebActionSupport {
     isShowIssueSummary =
         loaduserSettings.getIsShowIssueSummary();
     startTime = loaduserSettings.getStartTimeChange();
+    showRemaningEstimate = loaduserSettings.isShowRemaningEstimate();
   }
 
   /**
@@ -248,7 +255,7 @@ public class JiraTimetrackerUserSettingsWebAction extends JiraWebActionSupport {
    * @param request
    *          The HttpServletRequest.
    */
-  public String parseSaveSettings(final HttpServletRequest request) {
+  private String parseSaveSettings(final HttpServletRequest request) {
     String popupOrInlineValue = request.getParameter("progressInd");
     String startTimeValue = request.getParameter("startTime");
     String endTimeValue = request.getParameter("endTime");
@@ -270,6 +277,9 @@ public class JiraTimetrackerUserSettingsWebAction extends JiraWebActionSupport {
 
     String isShowFutureLogWarningValue = request.getParameter("isShowFutureLogWarning");
     isShowFutureLogWarning = (isShowFutureLogWarningValue != null);
+
+    String showRemaningEstimateValue = request.getParameter("showRemaningEstimate");
+    showRemaningEstimate = (showRemaningEstimateValue != null);
 
     String isShowIssueSummaryValue = request.getParameter("isShowIssueSummary");
     if ("showIssueSummary".equals(isShowIssueSummaryValue)) {
@@ -313,7 +323,7 @@ public class JiraTimetrackerUserSettingsWebAction extends JiraWebActionSupport {
   /**
    * Save the plugin settings.
    */
-  public void saveUserSettings() {
+  private void saveUserSettings() {
     TimeTrackerUserSettings timeTrackerUserSettings = new TimeTrackerUserSettings()
         .coloring(isColoring)
         .isProgressIndicatordaily(progressIndDaily)
@@ -322,7 +332,8 @@ public class JiraTimetrackerUserSettingsWebAction extends JiraWebActionSupport {
         .endTimeChange(endTime)
         .isRounded(isRounded)
         .isShowIssueSummary(isShowIssueSummary)
-        .isShowFutureLogWarning(isShowFutureLogWarning);
+        .isShowFutureLogWarning(isShowFutureLogWarning)
+        .showRemaningEstimate(showRemaningEstimate);
     settingsHelper.saveUserSettings(timeTrackerUserSettings);
   }
 

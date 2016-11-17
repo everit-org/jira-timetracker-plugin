@@ -228,6 +228,35 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.popu
               </section>
             </div>
           </div>
+          #if($userSettings.showRemaningEstimate)
+          <div class="aui-group">
+            <div class="aui-item">
+              <input id="remaining_estimate_auto" type="radio" name="remainingEstimateType" value="AUTO" class="settings-input" #if($worklogValues.remainingEstimateType == 'AUTO') checked="true" #end onclick="return everit.jttp.main.reamingEstimateChange('AUTO')">  
+              <label for="remaining_estimate_auto">$i18n.getText("plugin.setting.remainingestimatetype.auto")</label>
+            </div>
+            <div class="aui-item" style="text-align: center;">
+              <input id="remaining_estimate_leave" type="radio" name="remainingEstimateType" value="LEAVE" class="settings-input" #if($worklogValues.remainingEstimateType == 'LEAVE') checked="true" #end onclick="return everit.jttp.main.reamingEstimateChange('LEAVE')">  
+              <label for="remaining_estimate_leave">$i18n.getText("plugin.setting.remainingestimatetype.leave")</label>
+            </div>
+            <div class="aui-item" style="text-align: center;">
+              <input id="remaining_estimate_new" type="radio" name="remainingEstimateType" value="NEW" class="settings-input" #if($worklogValues.remainingEstimateType == 'NEW') checked="true" #end onclick="return everit.jttp.main.reamingEstimateChange('NEW')">
+              <label for="remaining_estimate_new">$i18n.getText("plugin.setting.remainingestimatetype.new")</label>
+              <input class="text short-field tooltip-bottom" id="newEstimate" name="newEstimate" 
+                type="text" title="$i18n.getText("plugin.setting.remainingestimatetype.new.tooltip")" 
+                #if($worklogValues.remainingEstimateType != 'NEW') disabled="disabled" #end
+                value="$worklogValues.newEstimate">
+            </div>
+            <div class="aui-item" style="text-align: right;">
+            #if($actionFlag != 'edit')
+              <label for="remaining_estimate_manual">$i18n.getText("plugin.setting.remainingestimatetype.manual")</label>
+              <input class="text short-field tooltip-bottom" id="adjustmentAmount" name="adjustmentAmount" 
+                type="text" title="$i18n.getText("plugin.setting.remainingestimatetype.manual.tooltip")" 
+                #if($worklogValues.remainingEstimateType != 'MANUAL') disabled="disabled" #end
+                value="$worklogValues.adjustmentAmount">
+            #end
+            </div>
+          </div>
+          #end
           <div class="field-group">
             <label for="comments">$i18n.getText("plugin.jttp-worklog-description")</label>
             #set($fieldId = "comments")
