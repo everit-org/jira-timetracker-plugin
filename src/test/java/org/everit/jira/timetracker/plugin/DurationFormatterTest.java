@@ -58,7 +58,10 @@ public class DurationFormatterTest {
         new Object[] { "1d 30m", DurationFormatterTest.duration(7.5, 5).hour(8), 7.5, 5 },
         new Object[] { "1w 4h", DurationFormatterTest.duration(8, 4.5).hour(40), 8, 4.5 },
         new Object[] { "1w 6h 15m", DurationFormatterTest.duration(7.5, 4.5).hour(40), 7.5,
-            4.5 });
+            4.5 },
+        new Object[] { "4h", DurationFormatterTest.duration(8.8, 5).hour(4), 8.8, 5 },
+        new Object[] { "4h", DurationFormatterTest.duration(7.25, 4.99).hour(4), 7.25, 4.99 });
+
   }
 
   private final double dayPerWeek;
