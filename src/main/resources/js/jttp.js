@@ -468,7 +468,7 @@ everit.jttp.main = everit.jttp.main || {};
     if(endOrDuration == "end"){
       isDurationSelect = false;
     }
-    var remainingEstimateType = jQuery('input[name="remainingEstimateType"]:checked').val();
+    var remainingEstimateType = jQuery('#remainingEstimateType').val();
     var newEstimate = jQuery('#newEstimate').val();
     var adjustmentAmount = jQuery('#adjustmentAmount').val();
     
@@ -808,7 +808,15 @@ everit.jttp.main = everit.jttp.main || {};
     $endInput.val(endTimeVal.toUpperCase());
   }
 
-  jttp.reamingEstimateChange = function(type){
+  jttp.reamingEstimateChange = function(obj){
+    var $obj = jQuery(obj);
+    var type = $obj.attr('data-jttp-remaining-estimate-type');
+
+    jQuery('#remainingEstimateType').val(type);
+
+    jQuery('button[data-jttp-remaining-estimate-type]').children('span').hide();
+    $obj.children('span').show();
+    
     var $newEstimate = jQuery('#newEstimate');
     var $adjustmentAmount = jQuery('#adjustmentAmount');
     $newEstimate.attr('disabled', 'disabled');
