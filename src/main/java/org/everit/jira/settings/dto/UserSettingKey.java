@@ -28,6 +28,7 @@ public enum UserSettingKey implements SettingsMapper {
     }
 
   },
+
   IS_ACTUAL_DATE {
 
     @Override
@@ -76,7 +77,6 @@ public enum UserSettingKey implements SettingsMapper {
     }
 
   },
-
   REPORTING_SETTINGS_WORKLOG_IN_SEC {
 
     @Override
@@ -85,6 +85,7 @@ public enum UserSettingKey implements SettingsMapper {
     }
 
   },
+
   SHOW_FUTURE_LOG_WARNING {
 
     @Override
@@ -99,6 +100,14 @@ public enum UserSettingKey implements SettingsMapper {
     public String getSettingsKey() {
       return JTTPSettingsKey.JTTP_PLUGIN_SETTINGS_SHOW_ISSUE_SUMMARY_IN_WORKLOG_TABLE;
     }
+  },
+  SHOW_REMANING_ESTIMATE {
+
+    @Override
+    public String getSettingsKey() {
+      return JTTPSettingsKey.JTTP_PLUGIN_SETTINGS_SHOW_REMANING_ESTIMATE;
+    }
+
   },
   SHOW_TUTORIAL_VERSION {
 

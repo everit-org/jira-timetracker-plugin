@@ -184,7 +184,8 @@ everit.jttp.main = everit.jttp.main || {};
     var worklogValuesJson = jQuery('#worklogValuesJson');
     worklogValuesJson.val(json);
     
-    // Added Piwik Submit action to save action. (count create, edit, edit all saves)
+    // Added Piwik Submit action to save action. (count create, edit, edit all
+	// saves)
     _paq.push(['trackEvent', 'User', 'Submit']);
     return true;
   }
@@ -467,6 +468,9 @@ everit.jttp.main = everit.jttp.main || {};
     if(endOrDuration == "end"){
       isDurationSelect = false;
     }
+    var remainingEstimateType = jQuery('input[name="remainingEstimateType"]:checked').val();
+    var newEstimate = jQuery('#newEstimate').val();
+    var adjustmentAmount = jQuery('#adjustmentAmount').val();
     
     var worklogValues = {
       "startTime": startTime,
@@ -475,6 +479,9 @@ everit.jttp.main = everit.jttp.main || {};
       "isDuration": isDurationSelect,
       "comment": comment,
       "issueKey": issueKey,
+      "remainingEstimateType": remainingEstimateType,
+      "newEstimate": newEstimate,
+      "adjustmentAmount": adjustmentAmount,
     }
     return worklogValues;
   }
@@ -801,4 +808,16 @@ everit.jttp.main = everit.jttp.main || {};
     $endInput.val(endTimeVal.toUpperCase());
   }
 
+  jttp.reamingEstimateChange = function(type){
+    var $newEstimate = jQuery('#newEstimate');
+    var $adjustmentAmount = jQuery('#adjustmentAmount');
+    $newEstimate.attr('disabled', 'disabled');
+    $adjustmentAmount.attr('disabled', 'disabled');
+    if(type == 'NEW'){
+      $newEstimate.removeAttr('disabled');
+    }
+    if(type == 'MANUAL'){
+      $adjustmentAmount.removeAttr('disabled');
+    }
+  }
 })(everit.jttp.main, jQuery);
