@@ -224,6 +224,10 @@
           <artifactId>jta</artifactId>
           <groupId>jta</groupId>
         </exclusion>
+        <exclusion>
+          <artifactId>joda-time</artifactId>
+          <groupId>joda-time</groupId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
@@ -257,6 +261,10 @@
         <exclusion>
           <artifactId>jta</artifactId>
           <groupId>jta</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>joda-time</artifactId>
+          <groupId>joda-time</groupId>
         </exclusion>
       </exclusions>
     </dependency>

@@ -49,6 +49,8 @@ import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.TimeAutoCompleteUtil;
 import org.everit.jira.updatenotifier.UpdateNotifier;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
 import com.atlassian.jira.component.ComponentAccessor;
@@ -631,6 +633,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   @Override
   public DateTimeFormatter getDateTimeFormatter() {
+    // TODO with user? maybe? check 2 times
     return super.getDateTimeFormatter().withStyle(DateTimeStyle.DATE).withSystemZone();
   }
 
@@ -801,12 +804,15 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     String dateFromParam = getHttpRequest().getParameter(Parameter.DATE);
     if ((dateFromParam != null) && !"".equals(dateFromParam)) {
       dateFormatted = Long.valueOf(dateFromParam);
-      date = new Date(dateFormatted);
+      DateTime a = new DateTime(dateFormatted);
+      a.withZone(DateTimeZone.forTimeZone(TimetrackerUtil.getLoggedUserTimeZone()));
+      a.toDate();
+      date = new Date(dateFormatted); // TODO set time zone.... this long is in UTZ
     } else {
-      if (userSettings.isActualDate()) {
+      if (userSettings.isActualDate()) { // TODO set time zone.... this long is in UTZ
         date = Calendar.getInstance().getTime();
         dateFormatted = date.getTime();
-      } else {
+      } else { // TODO set time zone.... this long is in UTZ
         date = timetrackerManager.firstMissingWorklogsDate(globalSettings.getExcludeDates(),
             globalSettings.getIncludeDates());
         dateFormatted = date.getTime();

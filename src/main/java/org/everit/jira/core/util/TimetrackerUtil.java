@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.time.DateUtils;
@@ -34,6 +35,7 @@ import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.status.Status;
 import com.atlassian.jira.security.JiraAuthenticationContext;
+import com.atlassian.jira.timezone.TimeZoneManagerImpl;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.util.I18nHelper;
 import com.google.gson.Gson;
@@ -201,6 +203,23 @@ public final class TimetrackerUtil {
       return "";
     }
     return user.getUsername().toLowerCase(Locale.getDefault());
+  }
+
+  /**
+   * Get the logged user {@link TimeZone}.
+   *
+   * @return The logged user {@link TimeZone}.
+   */
+  public static TimeZone getLoggedUserTimeZone() {
+
+    // TimeZoneServiceImpl timeZoneServiceImpl = new TimeZoneServiceImpl(null, null, null);
+    // timeZoneServiceImpl.
+    TimeZoneManagerImpl timeZoneManagerImpl =
+        new TimeZoneManagerImpl(ComponentAccessor.getJiraAuthenticationContext(),
+            ComponentAccessor.getUserPreferencesManager(),
+            ComponentAccessor.getApplicationProperties());
+
+    return timeZoneManagerImpl.getLoggedInUserTimeZone();
   }
 
   /**

@@ -126,6 +126,8 @@ public class WorklogComponent implements EVWorklogManager {
     }
     Date startDate;
     try {
+      // TODO the plan is ... date in UTZ and the time string not changed, as we got from input
+      // (09:30)
       startDate = DateTimeConverterUtil.stringToDateAndTime(date, startTime);
     } catch (IllegalArgumentException e) {
       throw new WorklogException(PropertiesKey.DATE_PARSE, date + " " + startTime);
