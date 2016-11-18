@@ -161,7 +161,8 @@ public class WorklogComponent implements EVWorklogManager {
   }
 
   @Override
-  public void deleteWorklog(final Long worklogId) {
+  public void deleteWorklog(final Long worklogId, final String optionalValue,
+      final RemainingEstimateType remainingEstimateType) {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
     ApplicationUser user = authenticationContext.getLoggedInUser();
@@ -173,13 +174,13 @@ public class WorklogComponent implements EVWorklogManager {
       throw new WorklogException(PropertiesKey.NOPERMISSION_DELETE_WORKLOG,
           worklog.getIssue().getKey());
     }
-    WorklogResult deleteWorklogResult = worklogService.validateDelete(
-        serviceContext, worklogId);
+    WorklogResult deleteWorklogResult = remainingEstimateType.validateDelete(worklogService,
+        serviceContext, worklogId, optionalValue);
     if (deleteWorklogResult == null) {
       throw new WorklogException(PropertiesKey.WORKLOG_DELETE_FAIL, worklogId.toString());
     }
-    worklogService.deleteAndAutoAdjustRemainingEstimate(serviceContext,
-        deleteWorklogResult, true);
+
+    remainingEstimateType.delete(worklogService, serviceContext, deleteWorklogResult);
   }
 
   @Override
@@ -206,7 +207,7 @@ public class WorklogComponent implements EVWorklogManager {
 
       createWorklog(worklogParameter);
 
-      deleteWorklog(worklogId);
+      deleteWorklog(worklogId, null, RemainingEstimateType.AUTO);
     } else {
       Date dateCreate;
       try {

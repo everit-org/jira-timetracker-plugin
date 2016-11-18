@@ -502,7 +502,15 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   private String deleteWorklog() {
     try {
-      worklogManager.deleteWorklog(actionWorklogId);
+      String type = getHttpRequest().getParameter("remainingEstimateTypeForDelete");
+      String optionalValue = null;
+      RemainingEstimateType remainingEstimateType = RemainingEstimateType.valueOf(type);
+      if (RemainingEstimateType.NEW.equals(remainingEstimateType)) {
+        optionalValue = getHttpRequest().getParameter("newEstimateForDelete");
+      } else if (RemainingEstimateType.MANUAL.equals(remainingEstimateType)) {
+        optionalValue = getHttpRequest().getParameter("adjustmentAmountForDelete");
+      }
+      worklogManager.deleteWorklog(actionWorklogId, optionalValue, remainingEstimateType);
     } catch (WorklogException e) {
       message = e.getMessage();
       messageParameter = e.messageParameter;

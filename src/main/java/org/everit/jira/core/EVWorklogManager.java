@@ -56,11 +56,17 @@ public interface EVWorklogManager {
    *
    * @param worklogId
    *          The id of the worklog.
+   * @param optionalValue
+   *          the optional value of the remaining estimate type. Example: newEstimate or
+   *          adjustEstimate value.
+   * @param remainingEstimateType
+   *          the type of the remaining estimate.
    *
    * @throws org.everit.jira.timetracker.plugin.exception.WorklogException
    *           if has fail to delete worklog.
    */
-  void deleteWorklog(Long worklogId);
+  void deleteWorklog(Long worklogId, final String optionalValue,
+      final RemainingEstimateType remainingEstimateType);
 
   /**
    * Edit an existing worklog whit the given parameters.
