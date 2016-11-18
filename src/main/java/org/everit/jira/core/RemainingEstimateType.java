@@ -41,25 +41,35 @@ public enum RemainingEstimateType {
 
     @Override
     public Worklog create(final WorklogService worklogService,
-        final JiraServiceContext serviceContext,
-        final WorklogResult worklogResult) {
-      return worklogService.createAndAutoAdjustRemainingEstimate(serviceContext,
-          worklogResult,
+        final JiraServiceContext serviceContext, final WorklogResult worklogResult) {
+      return worklogService.createAndAutoAdjustRemainingEstimate(serviceContext, worklogResult,
+          true);
+    }
+
+    @Override
+    public boolean delete(final WorklogService worklogService,
+        final JiraServiceContext serviceContext, final WorklogResult worklogResult) {
+      return worklogService.deleteAndAutoAdjustRemainingEstimate(serviceContext, worklogResult,
           true);
     }
 
     @Override
     public Worklog update(final WorklogService worklogService,
-        final JiraServiceContext serviceContext,
-        final WorklogResult worklogResult) {
-      return worklogService.updateAndAutoAdjustRemainingEstimate(serviceContext,
-          worklogResult, true);
+        final JiraServiceContext serviceContext, final WorklogResult worklogResult) {
+      return worklogService.updateAndAutoAdjustRemainingEstimate(serviceContext, worklogResult,
+          true);
     }
 
     @Override
     public WorklogResult validateCreate(final WorklogService worklogService,
         final JiraServiceContext serviceContext, final WorklogInputParameters params) {
       return worklogService.validateCreate(serviceContext, params);
+    }
+
+    @Override
+    public WorklogResult validateDelete(final WorklogService worklogService,
+        final JiraServiceContext serviceContext, final Long worklogId, final String optionalValue) {
+      return worklogService.validateDelete(serviceContext, worklogId);
     }
 
     @Override
@@ -78,25 +88,32 @@ public enum RemainingEstimateType {
 
     @Override
     public Worklog create(final WorklogService worklogService,
-        final JiraServiceContext serviceContext,
-        final WorklogResult worklogResult) {
-      return worklogService.createAndRetainRemainingEstimate(serviceContext,
-          worklogResult,
-          true);
+        final JiraServiceContext serviceContext, final WorklogResult worklogResult) {
+      return worklogService.createAndRetainRemainingEstimate(serviceContext, worklogResult, true);
+    }
+
+    @Override
+    public boolean delete(final WorklogService worklogService,
+        final JiraServiceContext serviceContext, final WorklogResult worklogResult) {
+      return worklogService.deleteAndRetainRemainingEstimate(serviceContext, worklogResult, true);
     }
 
     @Override
     public Worklog update(final WorklogService worklogService,
-        final JiraServiceContext serviceContext,
-        final WorklogResult worklogResult) {
-      return worklogService.updateAndRetainRemainingEstimate(serviceContext,
-          worklogResult, true);
+        final JiraServiceContext serviceContext, final WorklogResult worklogResult) {
+      return worklogService.updateAndRetainRemainingEstimate(serviceContext, worklogResult, true);
     }
 
     @Override
     public WorklogResult validateCreate(final WorklogService worklogService,
         final JiraServiceContext serviceContext, final WorklogInputParameters params) {
       return worklogService.validateCreate(serviceContext, params);
+    }
+
+    @Override
+    public WorklogResult validateDelete(final WorklogService worklogService,
+        final JiraServiceContext serviceContext, final Long worklogId, final String optionalValue) {
+      return worklogService.validateDelete(serviceContext, worklogId);
     }
 
     @Override
@@ -110,23 +127,26 @@ public enum RemainingEstimateType {
     @Override
     public WorklogInputParameters build(final Builder builder,
         final String adjustmentAmount) {
-      return builder.adjustmentAmount(adjustmentAmount)
-          .buildAdjustmentAmount();
+      return builder.adjustmentAmount(adjustmentAmount).buildAdjustmentAmount();
     }
 
     @Override
     public Worklog create(final WorklogService worklogService,
-        final JiraServiceContext serviceContext,
-        final WorklogResult worklogResult) {
+        final JiraServiceContext serviceContext, final WorklogResult worklogResult) {
       return worklogService.createWithManuallyAdjustedEstimate(serviceContext,
-          (WorklogAdjustmentAmountResult) worklogResult,
-          true);
+          (WorklogAdjustmentAmountResult) worklogResult, true);
+    }
+
+    @Override
+    public boolean delete(final WorklogService worklogService,
+        final JiraServiceContext serviceContext, final WorklogResult worklogResult) {
+      return worklogService.deleteWithManuallyAdjustedEstimate(serviceContext,
+          (WorklogAdjustmentAmountResult) worklogResult, true);
     }
 
     @Override
     public Worklog update(final WorklogService worklogService,
-        final JiraServiceContext serviceContext,
-        final WorklogResult worklogResult) {
+        final JiraServiceContext serviceContext, final WorklogResult worklogResult) {
       throw new UnsupportedOperationException("Not supported operation.");
     }
 
@@ -135,6 +155,13 @@ public enum RemainingEstimateType {
         final JiraServiceContext serviceContext, final WorklogInputParameters params) {
       return worklogService.validateCreateWithManuallyAdjustedEstimate(serviceContext,
           (WorklogAdjustmentAmountInputParameters) params);
+    }
+
+    @Override
+    public WorklogResult validateDelete(final WorklogService worklogService,
+        final JiraServiceContext serviceContext, final Long worklogId, final String adjustAmount) {
+      return worklogService.validateDeleteWithManuallyAdjustedEstimate(serviceContext, worklogId,
+          adjustAmount);
     }
 
     @Override
@@ -148,23 +175,26 @@ public enum RemainingEstimateType {
     @Override
     public WorklogInputParameters build(final Builder builder,
         final String newEstimate) {
-      return builder.newEstimate(newEstimate)
-          .buildNewEstimate();
+      return builder.newEstimate(newEstimate).buildNewEstimate();
     }
 
     @Override
     public Worklog create(final WorklogService worklogService,
-        final JiraServiceContext serviceContext,
-        final WorklogResult worklogResult) {
+        final JiraServiceContext serviceContext, final WorklogResult worklogResult) {
       return worklogService.createWithNewRemainingEstimate(serviceContext,
-          (WorklogNewEstimateResult) worklogResult,
-          true);
+          (WorklogNewEstimateResult) worklogResult, true);
+    }
+
+    @Override
+    public boolean delete(final WorklogService worklogService,
+        final JiraServiceContext serviceContext, final WorklogResult worklogResult) {
+      return worklogService.deleteWithNewRemainingEstimate(serviceContext,
+          (WorklogNewEstimateResult) worklogResult, true);
     }
 
     @Override
     public Worklog update(final WorklogService worklogService,
-        final JiraServiceContext serviceContext,
-        final WorklogResult worklogResult) {
+        final JiraServiceContext serviceContext, final WorklogResult worklogResult) {
       return worklogService.updateWithNewRemainingEstimate(serviceContext,
           (WorklogNewEstimateResult) worklogResult, true);
     }
@@ -174,6 +204,12 @@ public enum RemainingEstimateType {
         final JiraServiceContext serviceContext, final WorklogInputParameters params) {
       return worklogService.validateCreateWithNewEstimate(serviceContext,
           (WorklogNewEstimateInputParameters) params);
+    }
+
+    @Override
+    public WorklogResult validateDelete(final WorklogService worklogService,
+        final JiraServiceContext serviceContext, final Long worklogId, final String newEstimate) {
+      return worklogService.validateDeleteWithNewEstimate(serviceContext, worklogId, newEstimate);
     }
 
     @Override
@@ -190,11 +226,17 @@ public enum RemainingEstimateType {
   public abstract Worklog create(final WorklogService worklogService,
       final JiraServiceContext serviceContext, final WorklogResult worklogResult);
 
+  public abstract boolean delete(final WorklogService worklogService,
+      final JiraServiceContext serviceContext, final WorklogResult worklogResult);
+
   public abstract Worklog update(final WorklogService worklogService,
       final JiraServiceContext serviceContext, final WorklogResult worklogResult);
 
   public abstract WorklogResult validateCreate(final WorklogService worklogService,
       final JiraServiceContext serviceContext, final WorklogInputParameters params);
+
+  public abstract WorklogResult validateDelete(final WorklogService worklogService,
+      final JiraServiceContext serviceContext, final Long worklogId, String optionalValue);
 
   public abstract WorklogResult validateUpdate(final WorklogService worklogService,
       final JiraServiceContext serviceContext, final WorklogInputParameters params);

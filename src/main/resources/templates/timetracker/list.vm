@@ -98,7 +98,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
                             #if($worklog.deleteOwnWorklogs)
                             <span class="aui-icon aui-icon-small aui-iconfont-delete tooltip-left jttp-aui-icon"
                               id="delete" name="delete" title="$i18n.getText('plugin.delete')"
-                              onclick="everit.jttp.main.setActionFlag('delete', $worklog.worklogId);">
+                              onclick="return everit.jttp.main.showDeleteConfirmation($worklog.worklogId);">
                             </span>
                             #end
                           </td>
@@ -118,5 +118,64 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
               </tbody>
             </table>
             #end
-      <!--    </section> -->
+            <!--    </section> -->
+            <section role="dialog" id="delete_confirmation_dialog" class="aui-layer aui-dialog2 aui-dialog2-medium" aria-hidden="true">
+              <header class="aui-dialog2-header">
+               <!-- The dialog's title -->
+               <h2 class="aui-dialog2-header-main">$i18n.getText("plugin.jttp.delete.worklog")</h2>
+               <a class="aui-dialog2-header-close">
+                 <span class="aui-icon aui-icon-small aui-iconfont-close-dialog">Close</span>
+               </a>
+             </header>
+             <div class="aui-dialog2-content">
+               <div #if(!$userSettings.showRemaningEstimate)style="margin: 2rem 0 0 0;"#end>
+                 <div class="aui-message info">
+                   <span class="aui-icon icon-info"></span>
+                   $i18n.getText("plugin.jttp.delete.confirmation.question")
+                 </div>
+                 #if($userSettings.showRemaningEstimate)
+                 <form class="aui" onsubmit="return false;">
+                   <fieldset>
+                     <fieldset class="group">
+                       <legend>
+                         <span>$i18n.getText("plugin.jttp.remainingestimate")</span>
+                       </legend>
+                       <div class="radio">
+                         <input type="radio" class="radio" checked="checked" id="delete_remaining_estimate_auto" name="deleteRemainingEstimateType" value="AUTO" >
+                         <label for="delete_remaining_estimate_auto">$i18n.getText("plugin.jttp.remainingestimatetype.auto")</label>
+                       </div>
+                       <div class="radio">
+                         <input type="radio" class="radio" id="delete_remaining_estimate_leave" name="deleteRemainingEstimateType" value="LEAVE">
+                         <label for="delete_remaining_estimate_leave">$i18n.getText("plugin.jttp.remainingestimatetype.leave")</label>
+                       </div>
+                       <div class="radio">
+                         <input type="radio" class="radio" id="delete_remaining_estimate_new" name="deleteRemainingEstimateType" value="NEW"> 
+                         <label for="delete_remaining_estimate_new">$i18n.getText("plugin.jttp.remainingestimatetype.new")</label> 
+                         <input type="text" class="text short-field tooltip-bottom" name="delete_new_estimate" title="$i18n.getText("plugin.jttp.remainingestimatetype.new.tooltip")">
+                       </div>
+                       <div class="radio">
+                         <input type="radio" class="radio" id="delete_remaining_estimate_manual" name="deleteRemainingEstimateType" value="MANUAL">
+                         <label for="delete_remaining_estimate_manual">$i18n.getText("plugin.jttp.remainingestimatetype.manual.increase")</label>
+                         <input type="text" class="text short-field tooltip-bottom" name="delete_adjustment_amount" title="$i18n.getText("plugin.jttp.remainingestimatetype.manual.increase.tooltip")">
+                       </div>
+                     </fieldset>
+                   </fieldset>
+                 </form>
+                 #end
+               </div>
+             </div>
+             <footer class="aui-dialog2-footer">
+               <div class="aui-dialog2-footer-actions">
+                 <form  method="get" action="JiraTimetrackerWebAction.jspa"  onsubmit="return everit.jttp.main.beforeSubmitDeleteAction();">
+                   <input id="actionWorklogIdForDelete" name="actionWorklogId" type="hidden">
+                   <input name="actionFlag" type="hidden" value="delete">
+                   <input id="deleteRemainingEstimateType" name="remainingEstimateTypeForDelete" type="hidden" value="AUTO">
+                   <input id="delete_new_estimate" name="newEstimateForDelete" type="hidden">
+                   <input id="delete_adjustment_amount" name="adjustmentAmountForDelete" type="hidden">
+                   <button id="dialog-submit-button" class="aui-button aui-button-primary">$i18n.getText("jttp.delete")</button>
+                   <a id="dialog-close-button" class="aui-button aui-button-link" href="#" onclick="AJS.dialog2('#delete_confirmation_dialog').hide();">$i18n.getText("jttp.close")</a>
+                 </form>
+               </div>
+             </footer>
+           </section>
      <!--   </div> -->

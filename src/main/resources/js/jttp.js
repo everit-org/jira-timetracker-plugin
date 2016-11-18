@@ -828,4 +828,23 @@ everit.jttp.main = everit.jttp.main || {};
       $adjustmentAmount.removeAttr('disabled');
     }
   }
+
+  jttp.showDeleteConfirmation = function(worklogId){
+    jQuery('#actionWorklogIdForDelete').val(worklogId);
+    AJS.dialog2('#delete_confirmation_dialog').show();
+  }
+
+  jttp.beforeSubmitDeleteAction = function() {
+    var type = jQuery('input[name="deleteRemainingEstimateType"]:checked').val();
+    jQuery('#deleteRemainingEstimateType').val(type);
+
+    var newEstimate = jQuery('input[name="delete_new_estimate"]').val();
+    jQuery('#delete_new_estimate').val(newEstimate);
+
+    var adjustmentAmount = jQuery('input[name="delete_adjustment_amount"]').val();
+    jQuery('#delete_adjustment_amount').val(adjustmentAmount);
+
+    return true;
+  }
+  
 })(everit.jttp.main, jQuery);
