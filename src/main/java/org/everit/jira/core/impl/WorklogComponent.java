@@ -77,6 +77,8 @@ public class WorklogComponent implements EVWorklogManager {
 
     public static final String WORKLOG_DELETE_FAIL = "plugin.worklog.delete.fail";
 
+    public static final String WORKLOG_NOT_EXISTS = "plugin.worklog.not.exists";
+
     public static final String WORKLOG_UPDATE_FAIL = "plugin.worklog.update.fail";
 
     private PropertiesKey() {
@@ -109,7 +111,7 @@ public class WorklogComponent implements EVWorklogManager {
 
   @Override
   public void createWorklog(final String issueId, final String comment, final Date date,
-      final String startTime, final String timeSpent) {
+      final String startTime, final String timeSpent) throws WorklogException {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
     ApplicationUser user = authenticationContext.getUser();
@@ -151,14 +153,13 @@ public class WorklogComponent implements EVWorklogManager {
   }
 
   @Override
-  public void deleteWorklog(final Long worklogId) {
+  public void deleteWorklog(final Long worklogId) throws WorklogException {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
     ApplicationUser user = authenticationContext.getUser();
     JiraServiceContext serviceContext = new JiraServiceContextImpl(user);
     WorklogService worklogService = ComponentAccessor.getComponent(WorklogService.class);
-    WorklogManager worklogManager = ComponentAccessor.getWorklogManager();
-    Worklog worklog = worklogManager.getById(worklogId);
+    Worklog worklog = getWorklogById(worklogId);
     if (!worklogService.hasPermissionToDelete(serviceContext, worklog)) {
       throw new WorklogException(PropertiesKey.NOPERMISSION_DELETE_WORKLOG,
           worklog.getIssue().getKey());
@@ -174,15 +175,13 @@ public class WorklogComponent implements EVWorklogManager {
 
   @Override
   public void editWorklog(final Long worklogId, final String issueId, final String comment,
-      final Date date,
-      final String time, final String timeSpent) {
+      final Date date, final String time, final String timeSpent) throws WorklogException {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
     ApplicationUser user = authenticationContext.getUser();
     JiraServiceContext serviceContext = new JiraServiceContextImpl(user);
 
-    WorklogManager worklogManager = ComponentAccessor.getWorklogManager();
-    Worklog worklog = worklogManager.getById(worklogId);
+    Worklog worklog = getWorklogById(worklogId);
     IssueManager issueManager = ComponentAccessor.getIssueManager();
     MutableIssue issue = issueManager.getIssueObject(issueId);
     if (issue == null) {
@@ -226,10 +225,17 @@ public class WorklogComponent implements EVWorklogManager {
   }
 
   @Override
-  public EveritWorklog getWorklog(final Long worklogId) throws ParseException {
+  public EveritWorklog getWorklog(final Long worklogId) throws ParseException, WorklogException {
+    return new EveritWorklog(getWorklogById(worklogId));
+  }
+
+  private Worklog getWorklogById(final Long worklogId) throws WorklogException {
     WorklogManager worklogManager = ComponentAccessor.getWorklogManager();
     Worklog worklog = worklogManager.getById(worklogId);
-    return new EveritWorklog(worklog);
+    if (worklog == null) {
+      throw new WorklogException(PropertiesKey.WORKLOG_NOT_EXISTS);
+    }
+    return worklog;
   }
 
   @Override

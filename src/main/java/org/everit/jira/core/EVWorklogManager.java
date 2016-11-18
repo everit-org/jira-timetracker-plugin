@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
+import org.everit.jira.timetracker.plugin.exception.WorklogException;
 
 import com.atlassian.jira.exception.DataAccessException;
 
@@ -53,11 +54,11 @@ public interface EVWorklogManager {
    * @param timeSpent
    *          The spent time in the worklog (JIRA format : 1h 30m)
    *
-   * @throws org.everit.jira.timetracker.plugin.exception.WorklogException
+   * @throws WorklogException
    *           if has fail to create worklog.
    */
   void createWorklog(String issueId, String comment, Date date,
-      String startTime, String timeSpent);
+      String startTime, String timeSpent) throws WorklogException;
 
   /**
    * Deletes the worklog based on worklog id.
@@ -65,10 +66,10 @@ public interface EVWorklogManager {
    * @param worklogId
    *          The id of the worklog.
    *
-   * @throws org.everit.jira.timetracker.plugin.exception.WorklogException
+   * @throws WorklogException
    *           if has fail to delete worklog.
    */
-  void deleteWorklog(Long worklogId);
+  void deleteWorklog(Long worklogId) throws WorklogException;
 
   /**
    * Edit an existing worklog whit the given parameters.
@@ -86,11 +87,11 @@ public interface EVWorklogManager {
    * @param timeSpent
    *          The spent time in the worklog (JIRA format : 1h 30m)
    *
-   * @throws org.everit.jira.timetracker.plugin.exception.WorklogException
+   * @throws WorklogException
    *           if has fail to edit worklog.
    */
   void editWorklog(Long worklogId, String issueId, String comment,
-      Date date, String time, String timeSpent);
+      Date date, String time, String timeSpent) throws WorklogException;
 
   /**
    * Give back the Worklog based on worklog id.
@@ -98,10 +99,13 @@ public interface EVWorklogManager {
    * @param worklogId
    *          The id of the worklog.
    * @return The result {@link EveritWorklog}.
+   *
    * @throws ParseException
    *           If cannot parse the worklog date.
+   * @throws WorklogException
+   *           if not found worklog.
    */
-  EveritWorklog getWorklog(Long worklogId) throws ParseException;
+  EveritWorklog getWorklog(Long worklogId) throws ParseException, WorklogException;
 
   /**
    * Give back the days all worklog of the selectedUser. If selectedUser null or empty the actual
