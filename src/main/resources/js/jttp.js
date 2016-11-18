@@ -836,6 +836,9 @@ everit.jttp.main = everit.jttp.main || {};
 
   jttp.beforeSubmitDeleteAction = function() {
     var type = jQuery('input[name="deleteRemainingEstimateType"]:checked').val();
+    if(typeof type == 'undefined' || type == '' || type == null){
+      type = 'AUTO';
+    }
     jQuery('#deleteRemainingEstimateType').val(type);
 
     var newEstimate = jQuery('input[name="delete_new_estimate"]').val();
