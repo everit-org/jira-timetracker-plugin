@@ -277,10 +277,10 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.popu
                 #if($worklogValues.remainingEstimateType != 'MANUAL') disabled="disabled" #end
                 value="$worklogValues.adjustmentAmount">
             #end
-            <input type="hidden" hidden="hidden" id="remainingEstimateType" name="remainingEstimateType" value="$worklogValues.remainingEstimateType">
             </div>
           </div>
           #end
+          <input type="hidden" hidden="hidden" id="remainingEstimateType" name="remainingEstimateType" value="$worklogValues.remainingEstimateType">
           <div class="field-group">
             <label for="comments">$i18n.getText("plugin.jttp-worklog-description")</label>
             #set($fieldId = "comments")
