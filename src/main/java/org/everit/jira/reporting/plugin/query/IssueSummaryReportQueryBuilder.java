@@ -74,7 +74,7 @@ public class IssueSummaryReportQueryBuilder extends AbstractReportQuery<IssueSum
         qIssuestatus.pname.as(IssueSummaryDTO.AliasNames.STATUS_NAME),
         new CaseBuilder()
             .when(QueryUtil.selectDisplayNameForUserExist(qIssue.assignee))
-            .then(QueryUtil.selectDisplayNameForUser(qIssue.assignee))
+            .then(QueryUtil.selectDisplayNameForUserByUserKey(qIssue.assignee))
             .otherwise(qIssue.assignee)
             .as(userPath),
         qIssue.timeoriginalestimate.min()
