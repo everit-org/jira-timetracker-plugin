@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.everit.jira.core.dto.WorklogParameter;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
+import org.everit.jira.timetracker.plugin.exception.WorklogException;
 
 import com.atlassian.jira.exception.DataAccessException;
 
@@ -46,7 +47,7 @@ public interface EVWorklogManager {
    * @param worklogParameter
    *          the worklog information to create.
    *
-   * @throws org.everit.jira.timetracker.plugin.exception.WorklogException
+   * @throws WorklogException
    *           if has fail to create worklog.
    */
   void createWorklog(WorklogParameter worklogParameter);
@@ -62,7 +63,7 @@ public interface EVWorklogManager {
    * @param remainingEstimateType
    *          the type of the remaining estimate.
    *
-   * @throws org.everit.jira.timetracker.plugin.exception.WorklogException
+   * @throws WorklogException
    *           if has fail to delete worklog.
    */
   void deleteWorklog(Long worklogId, final String optionalValue,
@@ -76,7 +77,7 @@ public interface EVWorklogManager {
    * @param worklogParameter
    *          the worklog information to edit.
    *
-   * @throws org.everit.jira.timetracker.plugin.exception.WorklogException
+   * @throws WorklogException
    *           if has fail to edit worklog.
    */
   void editWorklog(final Long worklogId, final WorklogParameter worklogParameter);
@@ -87,10 +88,13 @@ public interface EVWorklogManager {
    * @param worklogId
    *          The id of the worklog.
    * @return The result {@link EveritWorklog}.
+   *
    * @throws ParseException
    *           If cannot parse the worklog date.
+   * @throws WorklogException
+   *           if not found worklog.
    */
-  EveritWorklog getWorklog(Long worklogId) throws ParseException;
+  EveritWorklog getWorklog(Long worklogId) throws ParseException, WorklogException;
 
   /**
    * Give back the days all worklog of the selectedUser. If selectedUser null or empty the actual

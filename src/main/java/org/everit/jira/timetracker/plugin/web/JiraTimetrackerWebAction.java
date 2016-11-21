@@ -812,8 +812,15 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    */
   private String notSaveAction() {
     try {
-      if (actionWorklogId != null) {
-        EveritWorklog editWorklog = worklogManager.getWorklog(actionWorklogId);
+      if ((actionWorklogId != null)) {
+        EveritWorklog editWorklog;
+        try {
+          editWorklog = worklogManager.getWorklog(actionWorklogId);
+        } catch (WorklogException e) {
+          message = e.getMessage();
+          messageParameter = e.messageParameter;
+          return redirectWithDateFormattedAndMessagesParameter(INPUT, decideToShowWarningUrl());
+        }
         if (ACTION_EDIT.equals(actionFlag)) {
           worklogValues.setStartTime(editWorklog.getStartTime());
           worklogValues.setEndTime(editWorklog.getEndTime());
