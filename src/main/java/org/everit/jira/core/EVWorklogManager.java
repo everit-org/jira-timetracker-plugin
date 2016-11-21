@@ -44,7 +44,7 @@ public interface EVWorklogManager {
    * Creates a worklog based on given parameters.
    *
    * @param worklogParameter
-   *          TODO
+   *          the worklog information to create.
    *
    * @throws org.everit.jira.timetracker.plugin.exception.WorklogException
    *           if has fail to create worklog.
@@ -72,9 +72,9 @@ public interface EVWorklogManager {
    * Edit an existing worklog whit the given parameters.
    *
    * @param worklogId
-   *          TODO
+   *          the id of the worklog.
    * @param worklogParameter
-   *          TODO
+   *          the worklog information to edit.
    *
    * @throws org.everit.jira.timetracker.plugin.exception.WorklogException
    *           if has fail to edit worklog.

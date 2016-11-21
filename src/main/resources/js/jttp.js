@@ -847,6 +847,12 @@ everit.jttp.main = everit.jttp.main || {};
     var adjustmentAmount = jQuery('input[name="delete_adjustment_amount"]').val();
     jQuery('#delete_adjustment_amount').val(adjustmentAmount);
 
+    var dateHidden = jQuery('#dateHidden').val();
+    var dateInMil = Date.parseDate(dateHidden, jttp.options.dateFormat);
+    var date = jQuery('#date');
+    date.val(dateInMil.getTime());
+    jQuery("#actionFormForDelete").append(date);
+    
     return true;
   }
   
