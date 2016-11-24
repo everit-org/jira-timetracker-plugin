@@ -286,13 +286,16 @@ public class TimetrackerUtilTest {
   public void testConvertWorklogValuesToJson() {
     WorklogValues worklogValues = new WorklogValues();
     String json = TimetrackerUtil.convertWorklogValuesToJson(worklogValues);
-    Assert.assertEquals("{\"comment\":\"\",\"commentForActions\":\"\","
-        + "\"durationTime\":\"\",\"isDuration\":false,\"issueKey\":\"\"}", json);
+    Assert.assertEquals("{\"adjustmentAmount\":\"\",\"comment\":\"\",\"commentForActions\":\"\","
+        + "\"durationTime\":\"\",\"isDuration\":false,\"issueKey\":\"\",\"newEstimate\":\"\"}",
+        json);
 
     worklogValues.setComment("dummy-comment");
     json = TimetrackerUtil.convertWorklogValuesToJson(worklogValues);
-    Assert.assertEquals("{\"comment\":\"dummy-comment\",\"commentForActions\":\"\","
-        + "\"durationTime\":\"\",\"isDuration\":false,\"issueKey\":\"\"}", json);
+    Assert.assertEquals("{\"adjustmentAmount\":\"\",\"comment\":\"dummy-comment\","
+        + "\"commentForActions\":\"\",\"durationTime\":\"\","
+        + "\"isDuration\":false,\"issueKey\":\"\",\"newEstimate\":\"\"}",
+        json);
   }
 
   @Test

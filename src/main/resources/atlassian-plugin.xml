@@ -119,6 +119,7 @@
     <dependency>com.atlassian.auiplugin:ajs</dependency>
     <dependency>com.atlassian.auiplugin:aui-experimental-progress-indicator</dependency>
     <dependency>com.atlassian.auiplugin:aui-date-picker</dependency>
+    <dependency>com.atlassian.auiplugin:dialog2</dependency>
     <transformation extension="js">
       <transformer key="jsI18n" />
     </transformation>
