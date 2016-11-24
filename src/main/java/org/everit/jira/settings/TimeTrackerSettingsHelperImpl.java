@@ -25,6 +25,7 @@ import java.util.UUID;
 import org.everit.jira.analytics.AnalyticsSender;
 import org.everit.jira.analytics.event.AnalyticsStatusChangedEvent;
 import org.everit.jira.analytics.event.ProgressIndicatorChangedEvent;
+import org.everit.jira.analytics.event.ShowRemaningEstimateChangedEvent;
 import org.everit.jira.settings.dto.GlobalSettingsKey;
 import org.everit.jira.settings.dto.JTTPSettingsKey;
 import org.everit.jira.settings.dto.ReportingGlobalSettings;
@@ -119,7 +120,22 @@ public class TimeTrackerSettingsHelperImpl
           loadGlobalSettings().getPluginUUID(),
           Boolean.parseBoolean(isProgressIndicatorDaily)));
     }
+  }
 
+  private void checkAnalyticsForShowRemaningEstimate(final PluginSettings pluginSettings,
+      final boolean showRemaningEstimate) {
+    Object showRemaningEstimateObj =
+        pluginSettings.get(UserSettingKey.SHOW_REMANING_ESTIMATE.getSettingsKey());
+    boolean oldShowRemaningEstimate = showRemaningEstimateObj == null
+        ? true
+        : Boolean.parseBoolean(showRemaningEstimateObj.toString());
+
+    if ((oldShowRemaningEstimate != showRemaningEstimate)
+        || (showRemaningEstimateObj == null)) {
+      analyticsSender.send(new ShowRemaningEstimateChangedEvent(
+          loadGlobalSettings().getPluginUUID(),
+          showRemaningEstimate));
+    }
   }
 
   private void checkSendAnalyticsForAnalytics(final PluginSettings globalSettings,
@@ -234,6 +250,7 @@ public class TimeTrackerSettingsHelperImpl
     PluginSettings pluginSettings = getUserPluginSettings();
     checkAnalyticsForProgressIndicator(pluginSettings,
         userSettings.getUserSettingValue(UserSettingKey.PROGRESS_INDICATOR));
+    checkAnalyticsForShowRemaningEstimate(pluginSettings, userSettings.isShowRemaningEstimate());
     for (Entry<UserSettingKey, String> settingEntry : userSettings.getPluginSettingsKeyValues()
         .entrySet()) {
       pluginSettings.put(settingEntry.getKey().getSettingsKey(),
