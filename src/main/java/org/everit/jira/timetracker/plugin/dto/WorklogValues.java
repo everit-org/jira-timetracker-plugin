@@ -25,6 +25,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class WorklogValues {
 
   @XmlElement
+  private String adjustmentAmount = "";
+
+  @XmlElement
   private String comment = "";
 
   public String commentForActions = "";
@@ -42,7 +45,17 @@ public class WorklogValues {
   private String issueKey = "";
 
   @XmlElement
+  private String newEstimate = "";
+
+  @XmlElement
+  private String remainingEstimateType;
+
+  @XmlElement
   private String startTime;
+
+  public String getAdjustmentAmount() {
+    return adjustmentAmount;
+  }
 
   @XmlElement
   public String getComment() {
@@ -65,12 +78,24 @@ public class WorklogValues {
     return issueKey;
   }
 
+  public String getNewEstimate() {
+    return newEstimate;
+  }
+
+  public String getRemainingEstimateType() {
+    return remainingEstimateType;
+  }
+
   public String getStartTime() {
     return startTime;
   }
 
   public Boolean isDuration() {
     return isDuration;
+  }
+
+  public void setAdjustmentAmount(final String adjustmentAmount) {
+    this.adjustmentAmount = adjustmentAmount;
   }
 
   public void setComment(final String comment) {
@@ -95,6 +120,14 @@ public class WorklogValues {
 
   public void setIssueKey(final String issueKey) {
     this.issueKey = issueKey;
+  }
+
+  public void setNewEstimate(final String newEstimate) {
+    this.newEstimate = newEstimate;
+  }
+
+  public void setRemainingEstimateType(final String remainingEstimateType) {
+    this.remainingEstimateType = remainingEstimateType;
   }
 
   public void setStartTime(final String startTime) {

@@ -23,6 +23,8 @@ import java.util.Date;
 import java.util.List;
 
 import org.everit.jira.core.EVWorklogManager;
+import org.everit.jira.core.RemainingEstimateType;
+import org.everit.jira.core.dto.WorklogParameter;
 import org.everit.jira.core.util.WorklogUtil;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklogComparator;
@@ -35,7 +37,7 @@ import com.atlassian.jira.bc.JiraServiceContext;
 import com.atlassian.jira.bc.JiraServiceContextImpl;
 import com.atlassian.jira.bc.issue.worklog.WorklogInputParameters;
 import com.atlassian.jira.bc.issue.worklog.WorklogInputParametersImpl;
-import com.atlassian.jira.bc.issue.worklog.WorklogNewEstimateInputParameters;
+import com.atlassian.jira.bc.issue.worklog.WorklogInputParametersImpl.Builder;
 import com.atlassian.jira.bc.issue.worklog.WorklogResult;
 import com.atlassian.jira.bc.issue.worklog.WorklogService;
 import com.atlassian.jira.component.ComponentAccessor;
@@ -110,50 +112,59 @@ public class WorklogComponent implements EVWorklogManager {
   }
 
   @Override
-  public void createWorklog(final String issueId, final String comment, final Date date,
-      final String startTime, final String timeSpent) throws WorklogException {
+  public void createWorklog(final WorklogParameter worklogParameter) {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
     ApplicationUser user = authenticationContext.getUser();
     JiraServiceContext serviceContext = new JiraServiceContextImpl(user);
     IssueManager issueManager = ComponentAccessor.getIssueManager();
-    MutableIssue issue = issueManager.getIssueObject(issueId);
+    MutableIssue issue = issueManager.getIssueObject(worklogParameter.getIssueKey());
     if (issue == null) {
-      throw new WorklogException(PropertiesKey.INVALID_ISSUE, issueId);
+      throw new WorklogException(PropertiesKey.INVALID_ISSUE, worklogParameter.getIssueKey());
     }
     PermissionManager permissionManager = ComponentAccessor.getPermissionManager();
     if (!permissionManager.hasPermission(Permissions.WORK_ISSUE, issue,
         user)) {
-      throw new WorklogException(PropertiesKey.NOPERMISSION_ISSUE, issueId);
+      throw new WorklogException(PropertiesKey.NOPERMISSION_ISSUE, worklogParameter.getIssueKey());
     }
     Date startDate;
     try {
-      startDate = DateTimeConverterUtil.stringToDateAndTime(date, startTime);
+      startDate = DateTimeConverterUtil.stringToDateAndTime(worklogParameter.getDate(),
+          worklogParameter.getStartTime());
     } catch (IllegalArgumentException e) {
-      throw new WorklogException(PropertiesKey.DATE_PARSE, date + " " + startTime);
+      throw new WorklogException(PropertiesKey.DATE_PARSE,
+          worklogParameter.getDate() + " " + worklogParameter.getStartTime());
     }
 
-    WorklogNewEstimateInputParameters params = WorklogInputParametersImpl
-        .issue(issue).startDate(startDate).timeSpent(timeSpent)
-        .comment(comment).buildNewEstimate();
     WorklogService worklogService = ComponentAccessor.getComponent(WorklogService.class);
     if (!worklogService.hasPermissionToCreate(serviceContext, issue, true)) {
-      throw new WorklogException(PropertiesKey.NOPERMISSION_CREATE_WORKLOG, issueId);
+      throw new WorklogException(PropertiesKey.NOPERMISSION_CREATE_WORKLOG,
+          worklogParameter.getIssueKey());
     }
-    WorklogResult worklogResult = worklogService.validateCreate(
+    Builder builder = getBuilder(issue,
+        startDate,
+        worklogParameter.getTimeSpent(),
+        worklogParameter.getComment(),
+        null);
+    RemainingEstimateType remainingEstimateType = worklogParameter.getRemainingEstimateType();
+    WorklogInputParameters params = remainingEstimateType.build(builder,
+        worklogParameter.getOptinalValue());
+
+    WorklogResult worklogResult = remainingEstimateType.validateCreate(worklogService,
         serviceContext, params);
     if (worklogResult == null) {
       throw new WorklogException(PropertiesKey.WORKLOG_CREATE_FAIL);
     }
-    Worklog createdWorklog = worklogService.createAndAutoAdjustRemainingEstimate(serviceContext,
-        worklogResult, true);
+    Worklog createdWorklog = remainingEstimateType.create(worklogService, serviceContext,
+        worklogResult);
     if (createdWorklog == null) {
       throw new WorklogException(PropertiesKey.WORKLOG_CREATE_FAIL);
     }
   }
 
   @Override
-  public void deleteWorklog(final Long worklogId) throws WorklogException {
+  public void deleteWorklog(final Long worklogId, final String optionalValue,
+      final RemainingEstimateType remainingEstimateType) {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
     ApplicationUser user = authenticationContext.getUser();
@@ -164,18 +175,17 @@ public class WorklogComponent implements EVWorklogManager {
       throw new WorklogException(PropertiesKey.NOPERMISSION_DELETE_WORKLOG,
           worklog.getIssue().getKey());
     }
-    WorklogResult deleteWorklogResult = worklogService.validateDelete(
-        serviceContext, worklogId);
+    WorklogResult deleteWorklogResult = remainingEstimateType.validateDelete(worklogService,
+        serviceContext, worklogId, optionalValue);
     if (deleteWorklogResult == null) {
       throw new WorklogException(PropertiesKey.WORKLOG_DELETE_FAIL, worklogId.toString());
     }
-    worklogService.deleteAndAutoAdjustRemainingEstimate(serviceContext,
-        deleteWorklogResult, true);
+
+    remainingEstimateType.delete(worklogService, serviceContext, deleteWorklogResult);
   }
 
   @Override
-  public void editWorklog(final Long worklogId, final String issueId, final String comment,
-      final Date date, final String time, final String timeSpent) throws WorklogException {
+  public void editWorklog(final Long worklogId, final WorklogParameter worklogParameter) {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
     ApplicationUser user = authenticationContext.getUser();
@@ -183,45 +193,64 @@ public class WorklogComponent implements EVWorklogManager {
 
     Worklog worklog = getWorklogById(worklogId);
     IssueManager issueManager = ComponentAccessor.getIssueManager();
-    MutableIssue issue = issueManager.getIssueObject(issueId);
+    MutableIssue issue = issueManager.getIssueObject(worklogParameter.getIssueKey());
     if (issue == null) {
-      throw new WorklogException(PropertiesKey.INVALID_ISSUE, issueId);
+      throw new WorklogException(PropertiesKey.INVALID_ISSUE, worklogParameter.getIssueKey());
     }
-    if (!worklog.getIssue().getKey().equals(issueId)) {
+    if (!worklog.getIssue().getKey().equals(worklogParameter.getIssueKey())) {
       PermissionManager permissionManager = ComponentAccessor.getPermissionManager();
       if (!permissionManager.hasPermission(Permissions.WORK_ISSUE, issue,
           user)) {
-        throw new WorklogException(PropertiesKey.NOPERMISSION_ISSUE, issueId);
+        throw new WorklogException(PropertiesKey.NOPERMISSION_ISSUE,
+            worklogParameter.getIssueKey());
       }
 
-      createWorklog(issueId, comment, date, time, timeSpent);
+      createWorklog(worklogParameter);
 
-      deleteWorklog(worklogId);
+      deleteWorklog(worklogId, null, RemainingEstimateType.AUTO);
     } else {
       Date dateCreate;
       try {
-        dateCreate = DateTimeConverterUtil
-            .stringToDateAndTime(date, time);
+        dateCreate = DateTimeConverterUtil.stringToDateAndTime(worklogParameter.getDate(),
+            worklogParameter.getStartTime());
       } catch (IllegalArgumentException e) {
-        throw new WorklogException(PropertiesKey.DATE_PARSE, date + " " + time);
+        throw new WorklogException(PropertiesKey.DATE_PARSE,
+            worklogParameter.getDate() + " " + worklogParameter.getStartTime());
       }
-      WorklogInputParameters params = WorklogInputParametersImpl
-          .issue(issue).startDate(dateCreate).timeSpent(timeSpent)
-          .comment(comment).worklogId(worklogId).issue(issue).build();
       WorklogService worklogService = ComponentAccessor.getComponent(WorklogService.class);
       if (!worklogService.hasPermissionToUpdate(serviceContext, worklog)) {
-        throw new WorklogException(PropertiesKey.NOPERMISSION_UPDATE_WORKLOG, issueId);
+        throw new WorklogException(PropertiesKey.NOPERMISSION_UPDATE_WORKLOG,
+            worklogParameter.getIssueKey());
       }
-      WorklogResult worklogResult = worklogService.validateUpdate(
+
+      Builder builder = getBuilder(issue, dateCreate, worklogParameter.getTimeSpent(),
+          worklogParameter.getComment(), worklogId);
+      RemainingEstimateType remainingEstimateType = worklogParameter.getRemainingEstimateType();
+      WorklogInputParameters params = remainingEstimateType.build(builder,
+          worklogParameter.getOptinalValue());
+
+      WorklogResult worklogResult = remainingEstimateType.validateUpdate(worklogService,
           serviceContext, params);
       if (worklogResult == null) {
         throw new WorklogException(PropertiesKey.WORKLOG_UPDATE_FAIL);
       }
 
-      worklogService.updateAndAutoAdjustRemainingEstimate(serviceContext,
-          worklogResult, true);
+      remainingEstimateType.update(worklogService, serviceContext, worklogResult);
 
     }
+  }
+
+  private WorklogInputParametersImpl.Builder getBuilder(final MutableIssue issue,
+      final Date startDate, final String timeSpent, final String comment, final Long worklogId) {
+    Builder builder = WorklogInputParametersImpl.issue(issue)
+        .startDate(startDate)
+        .timeSpent(timeSpent)
+        .comment(comment);
+
+    if (worklogId != null) {
+      builder.worklogId(worklogId);
+    }
+    return builder;
   }
 
   @Override

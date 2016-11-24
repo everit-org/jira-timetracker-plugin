@@ -98,7 +98,7 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
                             #if($worklog.deleteOwnWorklogs)
                             <span class="aui-icon aui-icon-small aui-iconfont-delete tooltip-left jttp-aui-icon"
                               id="delete" name="delete" title="$i18n.getText('plugin.delete')"
-                              onclick="everit.jttp.main.setActionFlag('delete', $worklog.worklogId);">
+                              onclick="return everit.jttp.main.showDeleteConfirmation($worklog.worklogId);">
                             </span>
                             #end
                           </td>
@@ -118,5 +118,6 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
               </tbody>
             </table>
             #end
-      <!--    </section> -->
+            <!--    </section> -->
+            #parse("templates/timetracker/delete_confirmation_dialog.vm")
      <!--   </div> -->
