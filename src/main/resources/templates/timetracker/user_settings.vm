@@ -85,6 +85,21 @@
         
         <h3>$i18n.getText("plugin.setting.input.fields.settings")</h3>
         <div class="field-group">
+          <label>$i18n.getText("plugin.setting.active.field"):</label>
+          <div>
+            <input id="radioEndTime" type="radio" name="activeField" value="endtime" class="settings-input" #if(!$activeFieldDuration) checked="true" #end>
+            <label for="radioEndTime">$i18n.getText("plugin.setting.active.field.endtime")</label>
+            <input id="radioDuration" type="radio" name="activeField" value="duration" class="settings-input" #if($activeFieldDuration) checked="true" #end>
+            <label for="radioDuration">$i18n.getText("plugin.setting.active.field.duration")</label>
+          </div>
+          <div class="description">$i18n.getText("plugin.setting.active.field.help")</div>
+        </div>
+        <div class="field-group">
+          <label>$i18n.getText("plugin.setting.default.starttime"):</label>
+          <input id="defaultStartTime"  type="text" name="defaultStartTime" value="$defaultStartTime" class="time-input settings-input text short-field"/>
+          <div class="description">$i18n.getText("plugin.setting.default.starttime.help")</div>
+        </div>
+        <div class="field-group">
           <label>$i18n.getText("plugin.setting.starttime.value"):</label>
           <input id="startTime"  type="text" name="startTime" value="$startTime"  class="time-input settings-input text short-field"/> $i18n.getText("plugin.setting.min")
           <div class="description">$i18n.getText("plugin.setting.starttime.help")</div>
