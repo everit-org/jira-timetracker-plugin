@@ -52,6 +52,8 @@ public final class JTTPSettingsKey {
    */
   static final String JTTP_PLUGIN_SETTINGS_ANALYTICS_CHECK_CHANGE = "analyticsCheckChange";
 
+  public static final String JTTP_PLUGIN_SETTINGS_DEFAULT_START_TIME = "defaultStartTime";
+
   /**
    * The plugin setting is calendar popup key.
    */

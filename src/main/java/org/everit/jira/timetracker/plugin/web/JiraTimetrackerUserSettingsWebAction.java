@@ -28,9 +28,13 @@ import org.everit.jira.settings.dto.TimeTrackerUserSettings;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.PluginCondition;
 import org.everit.jira.timetracker.plugin.TimetrackerCondition;
+import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 
+import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.config.properties.APKeys;
+import com.atlassian.jira.config.properties.ApplicationProperties;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
 
 /**
@@ -42,6 +46,9 @@ public class JiraTimetrackerUserSettingsWebAction extends JiraWebActionSupport {
    * Keys for properties.
    */
   public static final class PropertiesKey {
+
+    public static final String PLUGIN_SETTING_DEFAULT_STARTTIME_CHANGE_WRONG =
+        "plugin.setting.default.starttime.change.wrong";
 
     public static final String PLUGIN_SETTING_END_TIME_CHANGE_WRONG =
         "plugin.setting.end.time.change.wrong";
@@ -62,6 +69,8 @@ public class JiraTimetrackerUserSettingsWebAction extends JiraWebActionSupport {
   private boolean activeFieldDuration;
 
   private AnalyticsDTO analyticsDTO;
+
+  private String defaultStartTime;
 
   /**
    * The endTime.
@@ -178,6 +187,10 @@ public class JiraTimetrackerUserSettingsWebAction extends JiraWebActionSupport {
     return analyticsDTO;
   }
 
+  public String getDefaultStartTime() {
+    return defaultStartTime;
+  }
+
   public int getEndTime() {
     return endTime;
   }
@@ -247,51 +260,34 @@ public class JiraTimetrackerUserSettingsWebAction extends JiraWebActionSupport {
         loaduserSettings.getIsShowIssueSummary();
     startTime = loaduserSettings.getStartTimeChange();
     activeFieldDuration = loaduserSettings.isActiveFieldDuration();
+    defaultStartTime = loaduserSettings.getDefaultStartTime();
   }
 
-  /**
-   * Parse the reqest after the save button was clicked. Set the variables.
-   *
-   * @param request
-   *          The HttpServletRequest.
-   */
-  public String parseSaveSettings(final HttpServletRequest request) {
-    String popupOrInlineValue = request.getParameter("progressInd");
-    String startTimeValue = request.getParameter("startTime");
-    String endTimeValue = request.getParameter("endTime");
-    String activeFieldParam = request.getParameter("activeField");
+  private void pareseCalendarAppearanceSettings(final HttpServletRequest request) {
+    isActualDate = "current".equals(request.getParameter("currentOrLast"));
 
-    if ("daily".equals(popupOrInlineValue)) {
-      progressIndDaily = true;
-    } else {
-      progressIndDaily = false;
-    }
+    isColoring = request.getParameter("isColoring") != null;
+  }
 
-    String currentOrLastValue = request.getParameter("currentOrLast");
-    isActualDate = "current".equals(currentOrLastValue);
-
-    String isColoringValue = request.getParameter("isColoring");
-    isColoring = (isColoringValue != null);
-
-    String isRoundedValue = request.getParameter("isRounded");
-    isRounded = (isRoundedValue != null);
-
-    String isShowFutureLogWarningValue = request.getParameter("isShowFutureLogWarning");
-    isShowFutureLogWarning = (isShowFutureLogWarningValue != null);
-
-    String isShowIssueSummaryValue = request.getParameter("isShowIssueSummary");
-    if ("showIssueSummary".equals(isShowIssueSummaryValue)) {
-      isShowIssueSummary = true;
-    } else {
-      isShowIssueSummary = false;
-    }
-
+  private void parseInputFieldsSettings(final HttpServletRequest request,
+      final String activeFieldParam) {
     if ("duration".equals(activeFieldParam)) {
       activeFieldDuration = true;
     } else {
       activeFieldDuration = false;
     }
 
+    defaultStartTime = request.getParameter("defaultStartTime");
+    try {
+      DateTimeConverterUtil.stringTimeToDateTime(defaultStartTime);
+    } catch (IllegalArgumentException e) {
+      message = PropertiesKey.PLUGIN_SETTING_DEFAULT_STARTTIME_CHANGE_WRONG;
+      ApplicationProperties applicationProperties =
+          ComponentAccessor.getComponent(ApplicationProperties.class);
+      messageParameter = applicationProperties.getDefaultBackedString(APKeys.JIRA_LF_DATE_TIME);
+    }
+
+    String startTimeValue = request.getParameter("startTime");
     try {
       if (TimetrackerUtil.validateTimeChange(startTimeValue)) {
         startTime = Integer.parseInt(startTimeValue);
@@ -302,6 +298,8 @@ public class JiraTimetrackerUserSettingsWebAction extends JiraWebActionSupport {
       message = PropertiesKey.PLUGIN_SETTINGS_TIME_FORMAT;
       messageParameter = startTimeValue;
     }
+
+    String endTimeValue = request.getParameter("endTime");
     try {
       if (TimetrackerUtil.validateTimeChange(endTimeValue)) {
         endTime = Integer.parseInt(endTimeValue);
@@ -312,10 +310,53 @@ public class JiraTimetrackerUserSettingsWebAction extends JiraWebActionSupport {
       message = PropertiesKey.PLUGIN_SETTINGS_TIME_FORMAT;
       messageParameter = endTimeValue;
     }
+  }
+
+  /**
+   * Parse the reqest after the save button was clicked. Set the variables.
+   *
+   * @param request
+   *          The HttpServletRequest.
+   */
+  public String parseSaveSettings(final HttpServletRequest request) {
+    String activeFieldParam = request.getParameter("activeField");
+
+    // calendar appearance
+    pareseCalendarAppearanceSettings(request);
+
+    // notifications
+    isShowFutureLogWarning = request.getParameter("isShowFutureLogWarning") != null;
+
+    // progress indicator appearance
+    String popupOrInlineValue = request.getParameter("progressInd");
+    if ("daily".equals(popupOrInlineValue)) {
+      progressIndDaily = true;
+    } else {
+      progressIndDaily = false;
+    }
+
+    // input fields settings
+    parseInputFieldsSettings(request, activeFieldParam);
+
+    // worklog data appearance
+    parseWorklogDataApperanceSettings(request);
+
     if (!"".equals(message)) {
       return SUCCESS;
     }
     return null;
+  }
+
+  private void parseWorklogDataApperanceSettings(final HttpServletRequest request) {
+    String isRoundedValue = request.getParameter("isRounded");
+    isRounded = (isRoundedValue != null);
+
+    String isShowIssueSummaryValue = request.getParameter("isShowIssueSummary");
+    if ("showIssueSummary".equals(isShowIssueSummaryValue)) {
+      isShowIssueSummary = true;
+    } else {
+      isShowIssueSummary = false;
+    }
   }
 
   private void readObject(final java.io.ObjectInputStream stream) throws IOException,
@@ -337,7 +378,8 @@ public class JiraTimetrackerUserSettingsWebAction extends JiraWebActionSupport {
         .isRounded(isRounded)
         .isShowIssueSummary(isShowIssueSummary)
         .isShowFutureLogWarning(isShowFutureLogWarning)
-        .activeFieldDuration(activeFieldDuration);
+        .activeFieldDuration(activeFieldDuration)
+        .defaultStartTime(defaultStartTime);
     settingsHelper.saveUserSettings(timeTrackerUserSettings);
   }
 

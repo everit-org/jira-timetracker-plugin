@@ -34,7 +34,7 @@ public class GetExtraDaysOfTheMonthTest {
 
   @Before
   public void before() {
-    timetrackerManager = new TimetrackerComponent(null);
+    timetrackerManager = new TimetrackerComponent(null, null);
   }
 
   @Test

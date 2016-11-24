@@ -23,6 +23,8 @@ import java.util.Set;
 
 import org.everit.jira.core.TimetrackerManager;
 import org.everit.jira.core.util.TimetrackerUtil;
+import org.everit.jira.settings.TimetrackerSettingsHelper;
+import org.everit.jira.settings.dto.TimeTrackerUserSettings;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 
@@ -33,14 +35,18 @@ import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
  */
 public class TimetrackerComponent implements TimetrackerManager {
 
+  private final TimetrackerSettingsHelper settingsHelper;
+
   private TimeTrackingConfiguration timeTrackingConfiguration;
 
   /**
    * Default constructor.
    */
   public TimetrackerComponent(
-      final TimeTrackingConfiguration timeTrackingConfiguration) {
+      final TimeTrackingConfiguration timeTrackingConfiguration,
+      final TimetrackerSettingsHelper settingsHelper) {
     this.timeTrackingConfiguration = timeTrackingConfiguration;
+    this.settingsHelper = settingsHelper;
   }
 
   private int countDaysInDateSet(final List<Date> weekDays, final Set<Date> dateSet) {
@@ -149,12 +155,8 @@ public class TimetrackerComponent implements TimetrackerManager {
   public String lastEndTime(final List<EveritWorklog> worklogs)
       throws IllegalArgumentException {
     if ((worklogs == null) || (worklogs.size() == 0)) {
-      Calendar c = Calendar.getInstance();
-      c.setTime(new Date());
-      c.set(Calendar.HOUR_OF_DAY, DateTimeConverterUtil.HOUR_EIGHT);
-      c.set(Calendar.MINUTE, 0);
-      c.set(Calendar.SECOND, 0);
-      return DateTimeConverterUtil.dateTimeToString(c.getTime());
+      TimeTrackerUserSettings userSettings = settingsHelper.loadUserSettings();
+      return userSettings.getDefaultStartTime();
     }
     String endTime = worklogs.get(0).getEndTime();
     for (int i = 1; i < worklogs.size(); i++) {

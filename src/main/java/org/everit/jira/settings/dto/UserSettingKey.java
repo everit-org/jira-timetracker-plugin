@@ -29,6 +29,15 @@ public enum UserSettingKey implements SettingsMapper {
 
   },
 
+  DEFAULT_START_TIME {
+
+    @Override
+    public String getSettingsKey() {
+      return JTTPSettingsKey.JTTP_PLUGIN_SETTINGS_DEFAULT_START_TIME;
+    }
+
+  },
+
   END_TIME_CHANGE {
 
     @Override
