@@ -450,7 +450,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       }
       worklogValues.setEndTime(DateTimeConverterUtil.dateTimeToString(new Date()));
       worklogValues.setComment("");
-      worklogValues.setIsDuration(Boolean.FALSE);
 
       return redirectWithDateAndWorklogParams(result, decideToShowWarningUrl());
     }
@@ -871,6 +870,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       worklogValues = new WorklogValues();
       worklogValues.setEndTime(DateTimeConverterUtil.dateTimeToString(new Date()));
       worklogValues.setStartTime(timetrackerManager.lastEndTime(worklogs));
+      worklogValues.setIsDuration(userSettings.isActiveFieldDuration());
     }
   }
 

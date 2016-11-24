@@ -59,6 +59,8 @@ public class JiraTimetrackerUserSettingsWebAction extends JiraWebActionSupport {
    */
   private static final long serialVersionUID = 1L;
 
+  private boolean activeFieldDuration;
+
   private AnalyticsDTO analyticsDTO;
 
   /**
@@ -220,6 +222,10 @@ public class JiraTimetrackerUserSettingsWebAction extends JiraWebActionSupport {
     return startTime;
   }
 
+  public boolean isActiveFieldDuration() {
+    return activeFieldDuration;
+  }
+
   private void loadIssueCollectorSrc() {
     Properties properties = PropertiesUtil.getJttpBuildProperties();
     issueCollectorSrc = properties.getProperty(PropertiesUtil.ISSUE_COLLECTOR_SRC);
@@ -240,6 +246,7 @@ public class JiraTimetrackerUserSettingsWebAction extends JiraWebActionSupport {
     isShowIssueSummary =
         loaduserSettings.getIsShowIssueSummary();
     startTime = loaduserSettings.getStartTimeChange();
+    activeFieldDuration = loaduserSettings.isActiveFieldDuration();
   }
 
   /**
@@ -252,6 +259,7 @@ public class JiraTimetrackerUserSettingsWebAction extends JiraWebActionSupport {
     String popupOrInlineValue = request.getParameter("progressInd");
     String startTimeValue = request.getParameter("startTime");
     String endTimeValue = request.getParameter("endTime");
+    String activeFieldParam = request.getParameter("activeField");
 
     if ("daily".equals(popupOrInlineValue)) {
       progressIndDaily = true;
@@ -276,6 +284,12 @@ public class JiraTimetrackerUserSettingsWebAction extends JiraWebActionSupport {
       isShowIssueSummary = true;
     } else {
       isShowIssueSummary = false;
+    }
+
+    if ("duration".equals(activeFieldParam)) {
+      activeFieldDuration = true;
+    } else {
+      activeFieldDuration = false;
     }
 
     try {
@@ -322,7 +336,8 @@ public class JiraTimetrackerUserSettingsWebAction extends JiraWebActionSupport {
         .endTimeChange(endTime)
         .isRounded(isRounded)
         .isShowIssueSummary(isShowIssueSummary)
-        .isShowFutureLogWarning(isShowFutureLogWarning);
+        .isShowFutureLogWarning(isShowFutureLogWarning)
+        .activeFieldDuration(activeFieldDuration);
     settingsHelper.saveUserSettings(timeTrackerUserSettings);
   }
 

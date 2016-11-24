@@ -20,6 +20,15 @@ package org.everit.jira.settings.dto;
  */
 public enum UserSettingKey implements SettingsMapper {
 
+  ACTIVE_FIELD_DURATION {
+
+    @Override
+    public String getSettingsKey() {
+      return JTTPSettingsKey.JTTP_PLUGIN_SETTINGS_ACTIVE_FIELD_DURATION;
+    }
+
+  },
+
   END_TIME_CHANGE {
 
     @Override

@@ -41,6 +41,15 @@ public class TimeTrackerUserSettings {
   private Map<UserSettingKey, String> pluginSettingsKeyValues = new HashMap<>();
 
   /**
+   * Put the active field value that is duration or not.
+   */
+  public TimeTrackerUserSettings activeFieldDuration(final boolean activeFieldDuration) {
+    pluginSettingsKeyValues.put(UserSettingKey.ACTIVE_FIELD_DURATION,
+        String.valueOf(activeFieldDuration));
+    return this;
+  }
+
+  /**
    * Put the actual date or last non work logged day configuration.
    *
    * @param actualDateOrLastWorklogDate
@@ -71,29 +80,6 @@ public class TimeTrackerUserSettings {
   }
 
   /**
-   * Get the actual date setting value. The default is true.
-   */
-  public boolean isActualDate() {
-    boolean isActualDate = true;
-    if ("false"
-        .equals(pluginSettingsKeyValues.get(UserSettingKey.IS_ACTUAL_DATE))) {
-      isActualDate = false;
-    }
-    return isActualDate;
-  }
-
-  /**
-   * Get the coloring setting value. The default is true.
-   */
-  public boolean isColoring() {
-    boolean isColoring = true;
-    if ("false".equals(pluginSettingsKeyValues.get(UserSettingKey.IS_COLORING))) {
-      isColoring = false;
-    }
-    return isColoring;
-  }
-
-  /**
    * Get the end time change settings value. The default is 5.
    */
   public int getEndTimeChange() {
@@ -112,41 +98,6 @@ public class TimeTrackerUserSettings {
       }
     }
     return endTimeChange;
-  }
-
-  /**
-   * Get the progress indicator daily or not. The default is true.
-   */
-  public boolean isProgressIndicatordaily() {
-    boolean isProgressIndicatorDaily = true;
-    if ("false"
-        .equals(pluginSettingsKeyValues.get(UserSettingKey.PROGRESS_INDICATOR))) {
-      isProgressIndicatorDaily = false;
-    }
-    return isProgressIndicatorDaily;
-  }
-
-  /**
-   * Get the rounding settings value. The default is true.
-   */
-  public boolean isRounded() {
-    boolean isRounded = true;
-    if ("false".equals(pluginSettingsKeyValues.get(UserSettingKey.IS_ROUNDED))) {
-      isRounded = false;
-    }
-    return isRounded;
-  }
-
-  /**
-   * Get the show future worklog warning settings value. Default is true.
-   */
-  public boolean isShowFutureLogWarning() {
-    boolean isShowFutureLogWarning = true;
-    if ("false".equals(
-        pluginSettingsKeyValues.get(UserSettingKey.SHOW_FUTURE_LOG_WARNING))) {
-      isShowFutureLogWarning = false;
-    }
-    return isShowFutureLogWarning;
   }
 
   /**
@@ -263,6 +214,45 @@ public class TimeTrackerUserSettings {
     return worklogValue;
   }
 
+  public boolean isActiveFieldDuration() {
+    return Boolean.valueOf(pluginSettingsKeyValues.get(UserSettingKey.ACTIVE_FIELD_DURATION));
+  }
+
+  /**
+   * Get the actual date setting value. The default is true.
+   */
+  public boolean isActualDate() {
+    boolean isActualDate = true;
+    if ("false"
+        .equals(pluginSettingsKeyValues.get(UserSettingKey.IS_ACTUAL_DATE))) {
+      isActualDate = false;
+    }
+    return isActualDate;
+  }
+
+  /**
+   * Get the coloring setting value. The default is true.
+   */
+  public boolean isColoring() {
+    boolean isColoring = true;
+    if ("false".equals(pluginSettingsKeyValues.get(UserSettingKey.IS_COLORING))) {
+      isColoring = false;
+    }
+    return isColoring;
+  }
+
+  /**
+   * Get the progress indicator daily or not. The default is true.
+   */
+  public boolean isProgressIndicatordaily() {
+    boolean isProgressIndicatorDaily = true;
+    if ("false"
+        .equals(pluginSettingsKeyValues.get(UserSettingKey.PROGRESS_INDICATOR))) {
+      isProgressIndicatorDaily = false;
+    }
+    return isProgressIndicatorDaily;
+  }
+
   /**
    * Put progress indicator setting.
    */
@@ -273,12 +263,35 @@ public class TimeTrackerUserSettings {
   }
 
   /**
+   * Get the rounding settings value. The default is true.
+   */
+  public boolean isRounded() {
+    boolean isRounded = true;
+    if ("false".equals(pluginSettingsKeyValues.get(UserSettingKey.IS_ROUNDED))) {
+      isRounded = false;
+    }
+    return isRounded;
+  }
+
+  /**
    * Put rounded setting.
    */
   public TimeTrackerUserSettings isRounded(final boolean isRounded) {
     pluginSettingsKeyValues.put(UserSettingKey.IS_ROUNDED,
         String.valueOf(isRounded));
     return this;
+  }
+
+  /**
+   * Get the show future worklog warning settings value. Default is true.
+   */
+  public boolean isShowFutureLogWarning() {
+    boolean isShowFutureLogWarning = true;
+    if ("false".equals(
+        pluginSettingsKeyValues.get(UserSettingKey.SHOW_FUTURE_LOG_WARNING))) {
+      isShowFutureLogWarning = false;
+    }
+    return isShowFutureLogWarning;
   }
 
   /**
