@@ -28,7 +28,6 @@ import org.easymock.EasyMock;
 import org.everit.jira.tests.core.DummyDateTimeFromatter;
 import org.everit.jira.tests.timetracker.plugin.DurationBuilder;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
-import org.joda.time.DateTimeZone;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,7 +38,6 @@ import org.mockito.Mockito;
 import org.ofbiz.core.entity.GenericValue;
 import org.ofbiz.core.entity.model.ModelEntity;
 
-import com.atlassian.jira.bc.JiraServiceContext;
 import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
 import com.atlassian.jira.config.properties.ApplicationProperties;
 import com.atlassian.jira.datetime.DateTimeFormatterFactory;
@@ -49,9 +47,8 @@ import com.atlassian.jira.mock.component.MockComponentWorker;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.PermissionManager;
 import com.atlassian.jira.security.plugin.ProjectPermissionKey;
-import com.atlassian.jira.timezone.TimeZoneServiceImpl;
 import com.atlassian.jira.user.ApplicationUser;
-import com.atlassian.jira.user.MockApplicationUser;
+import com.atlassian.jira.user.preferences.JiraUserPreferences;
 import com.atlassian.jira.user.preferences.UserPreferencesManager;
 import com.atlassian.jira.util.I18nHelper;
 import com.atlassian.jira.util.I18nHelper.BeanFactory;
@@ -125,11 +122,11 @@ public class EveritWorklogTest {
     I18nHelper i18nHelper = Mockito.mock(I18nHelper.class, Mockito.RETURNS_DEEP_STUBS);
     BeanFactory mockBeanFactory = Mockito.mock(BeanFactory.class, Mockito.RETURNS_DEEP_STUBS);
 
-    JiraServiceContext mockJiraServiceContext =
-        Mockito.mock(JiraServiceContext.class, Mockito.RETURNS_DEEP_STUBS);
-    Mockito.when(mockJiraServiceContext.getI18nBean())
+    Mockito.when(mockBeanFactory.getInstance(Matchers.any(ApplicationUser.class)))
         .thenReturn(i18nHelper);
-    mockComponentWorker.addMock(JiraServiceContext.class, mockJiraServiceContext);
+
+    Mockito.when(i18nHelper.getLocale())
+        .thenReturn(Locale.ENGLISH);
     mockComponentWorker.addMock(I18nHelper.class, i18nHelper);
     mockComponentWorker.addMock(BeanFactory.class, mockBeanFactory);
 
@@ -161,46 +158,22 @@ public class EveritWorklogTest {
         .thenReturn("pretty");
     mockComponentWorker.addMock(ApplicationProperties.class, mockApplicationProperties);
 
-    MockApplicationUser mockApplicationUser =
-        new MockApplicationUser("mockAppUser", "mockAppUser_username");
     JiraAuthenticationContext mockJiraAuthenticationContext =
         Mockito.mock(JiraAuthenticationContext.class, Mockito.RETURNS_DEEP_STUBS);
     Mockito.when(mockJiraAuthenticationContext.getI18nHelper().getLocale())
         .thenReturn(new Locale("en", "US"));
-    Mockito.when(mockJiraAuthenticationContext.getUser())
-        .thenReturn(mockApplicationUser);
     mockComponentWorker.addMock(JiraAuthenticationContext.class, mockJiraAuthenticationContext);
 
-    // UserPreferencesManager mockUserPreferencesManager = new MockUserPreferencesManager();
-    //
-    // JiraUserPreferences mockJiraUserPreferences =
-    // Mockito.mock(JiraUserPreferences.class, Mockito.RETURNS_DEEP_STUBS);
-    // Mockito.when(mockJiraUserPreferences.getString("jira.user.timezone"))
-    // .thenReturn(TimeZone.getDefault().getID());
-    //
+    JiraUserPreferences mockJiraUserPreferences =
+        Mockito.mock(JiraUserPreferences.class, Mockito.RETURNS_DEEP_STUBS);
+    Mockito.when(mockJiraUserPreferences.getString("jira.user.timezone"))
+        .thenReturn("UTC");
+
     UserPreferencesManager mockUserPreferencesManager =
         Mockito.mock(UserPreferencesManager.class, Mockito.RETURNS_DEEP_STUBS);
     Mockito.when(mockUserPreferencesManager.getPreferences(Matchers.any(ApplicationUser.class)))
-        .thenReturn(null);
+        .thenReturn(mockJiraUserPreferences);
     mockComponentWorker.addMock(UserPreferencesManager.class, mockUserPreferencesManager);
-    //
-    //
-    // TimeZoneInfo mockTimeZoneInfo = Mockito.mock(TimeZoneInfo.class, Mockito.RETURNS_DEEP_STUBS);
-    // Mockito.when(mockTimeZoneInfo.toTimeZone())
-    // .thenReturn(TimeZone.getTimeZone("GMT+1"));
-    // mockComponentWorker.addMock(TimeZoneInfo.class, mockTimeZoneInfo);
-
-    TimeZoneServiceImpl mockTimeZoneServiceImpl =
-        Mockito.mock(TimeZoneServiceImpl.class, Mockito.RETURNS_MOCKS);
-    Mockito
-        .when(
-            mockTimeZoneServiceImpl.getUserTimeZone((JiraServiceContext) Matchers.anyObject()))
-        .thenReturn(DateTimeZone.getDefault().toTimeZone());
-    Mockito.when(
-        mockTimeZoneServiceImpl.getJVMTimeZoneInfo((JiraServiceContext) Matchers.anyObject())
-            .toTimeZone())
-        .thenReturn(DateTimeZone.getDefault().toTimeZone());
-    mockComponentWorker.addMock(TimeZoneServiceImpl.class, mockTimeZoneServiceImpl);
 
     DateTimeFormatterFactory mockDateTimeFormatterFactory =
         Mockito.mock(DateTimeFormatterFactory.class, Mockito.RETURNS_DEEP_STUBS);
