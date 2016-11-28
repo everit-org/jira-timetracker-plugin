@@ -191,7 +191,7 @@ public abstract class AbstractExportListReport {
     HSSFCell cell = bodyRow.createCell(newColumnIndex++);
     cell.setCellStyle(bodyCellStyle);
     if (value != null) {
-      cell.setCellValue(DateTimeConverterUtil.dateToString(value));
+      cell.setCellValue(DateTimeConverterUtil.dateAndTimeToString(value));
     }
     return newColumnIndex;
   }

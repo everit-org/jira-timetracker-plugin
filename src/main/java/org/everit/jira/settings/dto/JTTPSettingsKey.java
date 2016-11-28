@@ -44,10 +44,14 @@ public final class JTTPSettingsKey {
    */
   public static final String JTTP_PLUGIN_REPORTING_SETTINGS_WORKLOG_IN_SEC = "worklogTimeInSeconds";
 
+  public static final String JTTP_PLUGIN_SETTINGS_ACTIVE_FIELD_DURATION = "activeFieldDuration";
+
   /**
    * The plugin settings analytics check.
    */
   public static final String JTTP_PLUGIN_SETTINGS_ANALYTICS_CHECK_CHANGE = "analyticsCheckChange";
+
+  public static final String JTTP_PLUGIN_SETTINGS_DEFAULT_START_TIME = "defaultStartTime";
 
   /**
    * The plugin setting is calendar popup key.

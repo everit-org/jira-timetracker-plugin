@@ -23,6 +23,8 @@ import java.util.Locale;
 
 import org.everit.jira.core.TimetrackerManager;
 import org.everit.jira.core.impl.TimetrackerComponent;
+import org.everit.jira.settings.TimetrackerSettingsHelper;
+import org.everit.jira.settings.dto.TimeTrackerUserSettings;
 import org.everit.jira.tests.core.DummyDateTimeFromatter;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.junit.Assert;
@@ -60,7 +62,7 @@ public class LastEndTimeTest {
 
   }
 
-  private TimetrackerManager timetrackerManager = new TimetrackerComponent(null);
+  private TimetrackerManager timetrackerManager;
 
   @Before
   public void before() {
@@ -90,6 +92,15 @@ public class LastEndTimeTest {
         .addMock(ApplicationProperties.class, applicationProperties)
         .addMock(DateTimeFormatterFactory.class, mockDateTimeFormatterFactory)
         .init();
+
+    TimetrackerSettingsHelper timetrackerSettingsHelper =
+        Mockito.mock(TimetrackerSettingsHelper.class);
+    TimeTrackerUserSettings timeTrackerUserSettings = Mockito.mock(TimeTrackerUserSettings.class);
+    Mockito.when(timetrackerSettingsHelper.loadUserSettings())
+        .thenReturn(timeTrackerUserSettings);
+    Mockito.when(timeTrackerUserSettings.getDefaultStartTime())
+        .thenReturn("08:00");
+    timetrackerManager = new TimetrackerComponent(null, timetrackerSettingsHelper);
   }
 
   @Test

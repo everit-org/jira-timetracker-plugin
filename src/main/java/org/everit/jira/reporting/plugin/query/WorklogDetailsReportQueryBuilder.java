@@ -118,19 +118,19 @@ public class WorklogDetailsReportQueryBuilder extends AbstractReportQuery<Worklo
 
     issueAssigneeExpression = new CaseBuilder()
         .when(QueryUtil.selectDisplayNameForUserExist(qIssue.assignee))
-        .then(QueryUtil.selectDisplayNameForUser(qIssue.assignee))
+        .then(QueryUtil.selectDisplayNameForUserByUserKey(qIssue.assignee))
         .otherwise(qIssue.assignee)
         .as(WorklogDetailsDTO.AliasNames.ISSUE_ASSIGNEE);
 
     issueReporterExpression = new CaseBuilder()
         .when(QueryUtil.selectDisplayNameForUserExist(qIssue.reporter))
-        .then(QueryUtil.selectDisplayNameForUser(qIssue.reporter))
+        .then(QueryUtil.selectDisplayNameForUserByUserKey(qIssue.reporter))
         .otherwise(qIssue.reporter)
         .as(WorklogDetailsDTO.AliasNames.ISSUE_REPORTER);
 
     worklogAuthorExpression = new CaseBuilder()
         .when(QueryUtil.selectDisplayNameForUserExist(qWorklog.author))
-        .then(QueryUtil.selectDisplayNameForUser(qWorklog.author))
+        .then(QueryUtil.selectDisplayNameForUserByUserKey(qWorklog.author))
         .otherwise(qWorklog.author)
         .as(WorklogDetailsDTO.AliasNames.WORKLOG_USER);
   }

@@ -25,6 +25,7 @@ everit.jttp.main = everit.jttp.main || {};
     jQuery('.aui-ss-editing').attr("style", "width: 250px;");
     jQuery('.aui-ss.aui-ss-editing .aui-ss-field').attr("style", "width: 250px;");
 
+    jttp.calculateDuration();
     durationSelectionSetup();
     issuePickerSetup();
     eventBinding();
@@ -143,12 +144,21 @@ everit.jttp.main = everit.jttp.main || {};
     }
   }
 
-  jttp.endTimeInputClick = function() {
+  jttp.endTimeInputClick = function(addFocus) {
     if (jttp.options.actionFlag != "editAll") {
-      jQuery("#endTimeInput").css("cursor", "text").hide().prev().prop("disabled", false).css(
-          "cursor", "text").focus();
-      jQuery("#durationTimeInput").css("cursor", "pointer").show().prev("input").prop("disabled",
-          true).css("cursor", "pointer");
+      var $input = jQuery("#endTimeInput").css("cursor", "text")
+                     .hide()
+                     .prev()
+                     .prop("disabled", false)
+                     .css("cursor", "text");
+      if(addFocus) {
+        $input.focus();
+      }
+      jQuery("#durationTimeInput").css("cursor", "pointer")
+        .show()
+        .prev("input")
+        .prop("disabled", true)
+        .css("cursor", "pointer");
       jQuery("#radioEnd").prop("checked", true);
     }
   }
@@ -163,12 +173,21 @@ everit.jttp.main = everit.jttp.main || {};
     }
   }
 
-  jttp.durationTimeInput = function() {
+  jttp.durationTimeInput = function(addFocus) {
     if (jttp.options.actionFlag != "editAll") {
-      jQuery("#durationTimeInput").css("cursor", "text").hide().prev("input[disabled]").prop(
-          "disabled", false).css("cursor", "text").focus();
-      jQuery("#endTimeInput").css("cursor", "pointer").show().prev("input").prop("disabled", true)
-          .css("cursor", "pointer");
+      var $input = jQuery("#durationTimeInput").css("cursor", "text")
+                     .hide()
+                     .prev("input[disabled]")
+                     .prop("disabled", false)
+                     .css("cursor", "text");
+      if(addFocus){
+        $input.focus();
+      }
+      jQuery("#endTimeInput").css("cursor", "pointer")
+        .show()
+        .prev("input")
+        .prop("disabled", true)
+        .css("cursor", "pointer");
       jQuery("#radioDuration").prop("checked", true);
     }
   }
@@ -400,15 +419,18 @@ everit.jttp.main = everit.jttp.main || {};
   }
 
   function durationSelectionSetup() {
-    if (jttp.options.isDurationSelected) {
-      jQuery("#durationTimeInput").css("cursor", "text").hide().prev("input[disabled]").prop(
-          "disabled", false).css("cursor", "text").focus();
-      jQuery("#endTimeInput").css("cursor", "pointer").show().prev("input").prop("disabled", true)
-          .css("cursor", "pointer");
-      jQuery("#radioDuration").prop("checked", true);
+    if(jttp.options.defaultCommand){
+      if(jttp.options.activeFieldDuration){
+        jttp.durationTimeInput(false);
+      } else {
+        jttp.endTimeInputClick(false);
+      }
     } else {
-      jQuery("#endTimeInput").css("cursor", "text");
-      jQuery("#durationTimeInput").css("cursor", "pointer");
+      if (jttp.options.isDurationSelected) {
+        jttp.durationTimeInput(false);
+      } else {
+        jttp.endTimeInputClick(false);
+      }
     }
   }
 

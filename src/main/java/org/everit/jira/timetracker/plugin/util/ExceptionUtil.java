@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2011 Everit Kft. (http://www.everit.org)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,34 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-form.aui div.description {
-  clear: none;
-}
+package org.everit.jira.timetracker.plugin.util;
 
-form.aui div.field-group textarea {
-  max-width: 500px;
-  width: 100%;
-}
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
-.red-text {
-  color: red;
-}
+/**
+ * Utility class for Exception handle.
+ */
+public final class ExceptionUtil {
 
-#error_message{
-  color: white;
-  text-align: center;
-  border: 1px solid;
-  border-color: #d04437;
-  border-radius: 3px;
-  background-color: #d04437;
-}
+  /**
+   * Gets readable stacktrace.
+   */
+  public static String getStacktrace(final Throwable e) {
+    if (e == null) {
+      return "";
+    }
 
-.everit_logo{
-  background-image:url(E_logo.png);
-  background-size: 48px 48px;
-  height: 48px;
-}
+    StringWriter sw = new StringWriter();
+    PrintWriter pw = new PrintWriter(sw);
+    e.printStackTrace(pw);
 
-.installed-version {
-  color: #707070;
+    return sw.toString();
+  }
+
+  private ExceptionUtil() {
+  }
 }

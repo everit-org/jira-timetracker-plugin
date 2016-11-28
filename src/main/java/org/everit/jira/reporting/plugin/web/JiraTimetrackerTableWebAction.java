@@ -44,6 +44,7 @@ import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.PluginCondition;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.dto.TimetrackerReportsSessionData;
+import org.everit.jira.timetracker.plugin.util.ExceptionUtil;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 import org.everit.jira.updatenotifier.UpdateNotifier;
@@ -170,6 +171,8 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
   private ReportingCondition reportingCondition;
 
   private TimetrackerSettingsHelper settingsHelper;
+
+  private String stacktrace = "";
 
   private Date startDate;
 
@@ -357,6 +360,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
       saveDataToSession();
     } catch (DataAccessException | ParseException e) {
       LOGGER.error(GET_WORKLOGS_ERROR_MESSAGE, e);
+      stacktrace = ExceptionUtil.getStacktrace(e);
       return ERROR;
     }
 
@@ -461,6 +465,10 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   public HashMap<Integer, List<Object>> getRealWeekSum() {
     return realWeekSum;
+  }
+
+  public String getStacktrace() {
+    return stacktrace;
   }
 
   public ApplicationUser getUserPickerObject() {

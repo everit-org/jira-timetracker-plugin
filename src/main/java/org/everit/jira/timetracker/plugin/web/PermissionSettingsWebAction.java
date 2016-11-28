@@ -63,6 +63,8 @@ public class PermissionSettingsWebAction extends JiraWebActionSupport {
 
   private TimetrackerSettingsHelper settingsHelper;
 
+  private String stacktrace = "";
+
   private List<String> timetrackerGroups;
 
   public PermissionSettingsWebAction(
@@ -128,6 +130,10 @@ public class PermissionSettingsWebAction extends JiraWebActionSupport {
 
   public List<String> getReportingGroups() {
     return reportingGroups;
+  }
+
+  public String getStacktrace() {
+    return stacktrace;
   }
 
   public List<String> getTimetrackerGroups() {

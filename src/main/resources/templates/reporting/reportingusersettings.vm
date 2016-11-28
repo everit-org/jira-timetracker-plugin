@@ -49,7 +49,10 @@
       </div>
       <div class="aui-page-header-main">
         <h1>Reporting Settings</h1>
-      </div>                
+      </div>
+      <div class="aui-page-header-actions">
+        <p class="installed-version">$i18n.getText("plugin.settings.installed.plugin.version") $analyticsDTO.pluginVersion<p>
+      </div>
     </div>
   </header>
   
