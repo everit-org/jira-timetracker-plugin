@@ -111,6 +111,8 @@ public class JiraTimetrackerUserSettingsWebAction extends JiraWebActionSupport {
 
   private TimetrackerSettingsHelper settingsHelper;
 
+  private boolean showRemaningEstimate = false;
+
   /**
    * The startTime.
    */
@@ -239,6 +241,10 @@ public class JiraTimetrackerUserSettingsWebAction extends JiraWebActionSupport {
     return activeFieldDuration;
   }
 
+  public boolean isShowRemaningEstimate() {
+    return showRemaningEstimate;
+  }
+
   private void loadIssueCollectorSrc() {
     Properties properties = PropertiesUtil.getJttpBuildProperties();
     issueCollectorSrc = properties.getProperty(PropertiesUtil.ISSUE_COLLECTOR_SRC);
@@ -247,7 +253,7 @@ public class JiraTimetrackerUserSettingsWebAction extends JiraWebActionSupport {
   /**
    * Load the plugin settings and set the variables.
    */
-  public void loadUserSettings() {
+  private void loadUserSettings() {
     TimeTrackerUserSettings loaduserSettings = settingsHelper.loadUserSettings();
     endTime = loaduserSettings.getEndTimeChange();
     isActualDate = loaduserSettings.isActualDate();
@@ -261,6 +267,7 @@ public class JiraTimetrackerUserSettingsWebAction extends JiraWebActionSupport {
     startTime = loaduserSettings.getStartTimeChange();
     activeFieldDuration = loaduserSettings.isActiveFieldDuration();
     defaultStartTime = loaduserSettings.getDefaultStartTime();
+    showRemaningEstimate = loaduserSettings.isShowRemaningEstimate();
   }
 
   private void pareseCalendarAppearanceSettings(final HttpServletRequest request) {
@@ -271,6 +278,8 @@ public class JiraTimetrackerUserSettingsWebAction extends JiraWebActionSupport {
 
   private void parseInputFieldsSettings(final HttpServletRequest request,
       final String activeFieldParam) {
+    showRemaningEstimate = request.getParameter("showRemaningEstimate") != null;
+
     if ("duration".equals(activeFieldParam)) {
       activeFieldDuration = true;
     } else {
@@ -368,7 +377,7 @@ public class JiraTimetrackerUserSettingsWebAction extends JiraWebActionSupport {
   /**
    * Save the plugin settings.
    */
-  public void saveUserSettings() {
+  private void saveUserSettings() {
     TimeTrackerUserSettings timeTrackerUserSettings = new TimeTrackerUserSettings()
         .coloring(isColoring)
         .isProgressIndicatordaily(progressIndDaily)
@@ -379,7 +388,8 @@ public class JiraTimetrackerUserSettingsWebAction extends JiraWebActionSupport {
         .isShowIssueSummary(isShowIssueSummary)
         .isShowFutureLogWarning(isShowFutureLogWarning)
         .activeFieldDuration(activeFieldDuration)
-        .defaultStartTime(defaultStartTime);
+        .defaultStartTime(defaultStartTime)
+        .showRemaningEstimate(showRemaningEstimate);
     settingsHelper.saveUserSettings(timeTrackerUserSettings);
   }
 

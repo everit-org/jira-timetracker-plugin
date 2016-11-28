@@ -19,7 +19,9 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 
+import org.everit.jira.core.dto.WorklogParameter;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
+import org.everit.jira.timetracker.plugin.exception.WorklogException;
 
 import com.atlassian.jira.exception.DataAccessException;
 
@@ -42,55 +44,43 @@ public interface EVWorklogManager {
   /**
    * Creates a worklog based on given parameters.
    *
-   * @param issueId
-   *          The id of the issue.
-   * @param comment
-   *          The note of the worklog.
-   * @param date
-   *          The date of the worklog.
-   * @param startTime
-   *          The start time of the worklog. (hh:mm)
-   * @param timeSpent
-   *          The spent time in the worklog (JIRA format : 1h 30m)
+   * @param worklogParameter
+   *          the worklog information to create.
    *
-   * @throws org.everit.jira.timetracker.plugin.exception.WorklogException
+   * @throws WorklogException
    *           if has fail to create worklog.
    */
-  void createWorklog(String issueId, String comment, Date date,
-      String startTime, String timeSpent);
+  void createWorklog(WorklogParameter worklogParameter);
 
   /**
    * Deletes the worklog based on worklog id.
    *
    * @param worklogId
    *          The id of the worklog.
+   * @param optionalValue
+   *          the optional value of the remaining estimate type. Example: newEstimate or
+   *          adjustEstimate value.
+   * @param remainingEstimateType
+   *          the type of the remaining estimate.
    *
-   * @throws org.everit.jira.timetracker.plugin.exception.WorklogException
+   * @throws WorklogException
    *           if has fail to delete worklog.
    */
-  void deleteWorklog(Long worklogId);
+  void deleteWorklog(Long worklogId, final String optionalValue,
+      final RemainingEstimateType remainingEstimateType);
 
   /**
    * Edit an existing worklog whit the given parameters.
    *
    * @param worklogId
-   *          The id of the worklog.
-   * @param issueId
-   *          The worklog issue.
-   * @param comment
-   *          The worklog note.
-   * @param date
-   *          The date of the worklog.
-   * @param time
-   *          When start the worklog. (hh:mm)
-   * @param timeSpent
-   *          The spent time in the worklog (JIRA format : 1h 30m)
+   *          the id of the worklog.
+   * @param worklogParameter
+   *          the worklog information to edit.
    *
-   * @throws org.everit.jira.timetracker.plugin.exception.WorklogException
+   * @throws WorklogException
    *           if has fail to edit worklog.
    */
-  void editWorklog(Long worklogId, String issueId, String comment,
-      Date date, String time, String timeSpent);
+  void editWorklog(final Long worklogId, final WorklogParameter worklogParameter);
 
   /**
    * Give back the Worklog based on worklog id.
@@ -98,10 +88,13 @@ public interface EVWorklogManager {
    * @param worklogId
    *          The id of the worklog.
    * @return The result {@link EveritWorklog}.
+   *
    * @throws ParseException
    *           If cannot parse the worklog date.
+   * @throws WorklogException
+   *           if not found worklog.
    */
-  EveritWorklog getWorklog(Long worklogId) throws ParseException;
+  EveritWorklog getWorklog(Long worklogId) throws ParseException, WorklogException;
 
   /**
    * Give back the days all worklog of the selectedUser. If selectedUser null or empty the actual

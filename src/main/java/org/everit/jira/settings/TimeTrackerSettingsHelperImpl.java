@@ -28,6 +28,7 @@ import org.everit.jira.analytics.event.AnalyticsStatusChangedEvent;
 import org.everit.jira.analytics.event.ProgressIndicatorChangedEvent;
 import org.everit.jira.analytics.event.ShowFutureLogWarningChangedEvent;
 import org.everit.jira.analytics.event.ShowIssueSummaryChangedEvent;
+import org.everit.jira.analytics.event.ShowRemaningEstimateChangedEvent;
 import org.everit.jira.settings.dto.GlobalSettingsKey;
 import org.everit.jira.settings.dto.JTTPSettingsKey;
 import org.everit.jira.settings.dto.ReportingGlobalSettings;
@@ -172,6 +173,22 @@ public class TimeTrackerSettingsHelperImpl
     }
   }
 
+  private void checkAnalyticsForShowRemaningEstimate(final PluginSettings pluginSettings,
+      final boolean showRemaningEstimate) {
+    Object showRemaningEstimateObj =
+        pluginSettings.get(UserSettingKey.SHOW_REMANING_ESTIMATE.getSettingsKey());
+    boolean oldShowRemaningEstimate = showRemaningEstimateObj == null
+        ? true
+        : Boolean.parseBoolean(showRemaningEstimateObj.toString());
+
+    if ((oldShowRemaningEstimate != showRemaningEstimate)
+        || (showRemaningEstimateObj == null)) {
+      analyticsSender.send(new ShowRemaningEstimateChangedEvent(
+          loadGlobalSettings().getPluginUUID(),
+          showRemaningEstimate));
+    }
+  }
+
   private void checkSendAnalyticsForAnalytics(final PluginSettings globalSettings,
       final boolean newValue) {
     Object analyticsCheckObj = globalSettings.get(JTTPSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
@@ -287,6 +304,7 @@ public class TimeTrackerSettingsHelperImpl
     checkAnalyticsForShowFutureLogWarning(pluginSettings, userSettings.isShowFutureLogWarning());
     checkAnalyticsForShowIssueSummary(pluginSettings, userSettings.getIsShowIssueSummary());
     checkAnalyticsForActiveFieldDuration(pluginSettings, userSettings.isActiveFieldDuration());
+    checkAnalyticsForShowRemaningEstimate(pluginSettings, userSettings.isShowRemaningEstimate());
     for (Entry<UserSettingKey, String> settingEntry : userSettings.getPluginSettingsKeyValues()
         .entrySet()) {
       pluginSettings.put(settingEntry.getKey().getSettingsKey(),

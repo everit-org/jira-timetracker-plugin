@@ -17,6 +17,7 @@ package org.everit.jira.tests.core.impl.worklogmanager;
 
 import java.text.ParseException;
 
+import org.everit.jira.core.RemainingEstimateType;
 import org.everit.jira.core.impl.WorklogComponent;
 import org.everit.jira.core.impl.WorklogComponent.PropertiesKey;
 import org.everit.jira.timetracker.plugin.exception.WorklogException;
@@ -158,7 +159,7 @@ public class DeleteWorklogTest {
   @Test
   public void testDeleteWorklog() {
     try {
-      worklogManager.deleteWorklog(noPermissionWorklog.getId());
+      worklogManager.deleteWorklog(noPermissionWorklog.getId(), null, RemainingEstimateType.AUTO);
       Assert.fail("Expect WorklogException");
     } catch (WorklogException e) {
       assertWorklogException(e, "KEY-" + noPermissionWorklog.getId(),
@@ -166,13 +167,13 @@ public class DeleteWorklogTest {
     }
 
     try {
-      worklogManager.deleteWorklog(validateErrorWorklog.getId());
+      worklogManager.deleteWorklog(validateErrorWorklog.getId(), null, RemainingEstimateType.AUTO);
       Assert.fail("Expect WorklogException");
     } catch (WorklogException e) {
       assertWorklogException(e, validateErrorWorklog.getId().toString(),
           PropertiesKey.WORKLOG_DELETE_FAIL);
     }
 
-    worklogManager.deleteWorklog(deleteSuccessWorklog.getId());
+    worklogManager.deleteWorklog(deleteSuccessWorklog.getId(), null, RemainingEstimateType.AUTO);
   }
 }

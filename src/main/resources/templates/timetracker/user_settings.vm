@@ -109,6 +109,11 @@
           <input id="endTime"  type="text" name="endTime" value="$endTime" class="time-input settings-input text short-field"/> $i18n.getText("plugin.setting.min")
           <div class="description">$i18n.getText("plugin.setting.starttime.help")</div>
         </div>
+        <div class="field-group">
+          <label>$i18n.getText("plugin.setting.remainingestimate.options"):</label>
+          <input id="showRemaningEstimate" type="checkbox" value="showRemaningEstimate" class="settings-input" name="showRemaningEstimate" #if($showRemaningEstimate) checked #end/>
+          <div class="description">$i18n.getText("plugin.setting.remainingestimate.options.help")</div>
+        </div>
         
         <h3>$i18n.getText("plugin.setting.worklog.data.appearance")</h3>
         <div class="field-group">

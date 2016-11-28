@@ -203,7 +203,8 @@ everit.jttp.main = everit.jttp.main || {};
     var worklogValuesJson = jQuery('#worklogValuesJson');
     worklogValuesJson.val(json);
     
-    // Added Piwik Submit action to save action. (count create, edit, edit all saves)
+    // Added Piwik Submit action to save action. (count create, edit, edit all
+	// saves)
     _paq.push(['trackEvent', 'User', 'Submit']);
     return true;
   }
@@ -489,6 +490,9 @@ everit.jttp.main = everit.jttp.main || {};
     if(endOrDuration == "end"){
       isDurationSelect = false;
     }
+    var remainingEstimateType = jQuery('#remainingEstimateType').val();
+    var newEstimate = jQuery('#newEstimate').val();
+    var adjustmentAmount = jQuery('#adjustmentAmount').val();
     
     var worklogValues = {
       "startTime": startTime,
@@ -497,6 +501,9 @@ everit.jttp.main = everit.jttp.main || {};
       "isDuration": isDurationSelect,
       "comment": comment,
       "issueKey": issueKey,
+      "remainingEstimateType": remainingEstimateType,
+      "newEstimate": newEstimate,
+      "adjustmentAmount": adjustmentAmount,
     }
     return worklogValues;
   }
@@ -823,4 +830,52 @@ everit.jttp.main = everit.jttp.main || {};
     $endInput.val(endTimeVal.toUpperCase());
   }
 
+  jttp.reamingEstimateChange = function(obj){
+    var $obj = jQuery(obj);
+    var type = $obj.attr('data-jttp-remaining-estimate-type');
+
+    jQuery('#remainingEstimateType').val(type);
+
+    jQuery('button[data-jttp-remaining-estimate-type]').children('span').hide();
+    $obj.children('span').show();
+    
+    var $newEstimate = jQuery('#newEstimate');
+    var $adjustmentAmount = jQuery('#adjustmentAmount');
+    $newEstimate.attr('disabled', 'disabled');
+    $adjustmentAmount.attr('disabled', 'disabled');
+    if(type == 'NEW'){
+      $newEstimate.removeAttr('disabled');
+    }
+    if(type == 'MANUAL'){
+      $adjustmentAmount.removeAttr('disabled');
+    }
+  }
+
+  jttp.showDeleteConfirmation = function(worklogId){
+    jQuery('#actionWorklogIdForDelete').val(worklogId);
+    AJS.dialog2('#delete_confirmation_dialog').show();
+  }
+
+  jttp.beforeSubmitDeleteAction = function() {
+    var type = jQuery('input[name="deleteRemainingEstimateType"]:checked').val();
+    if(typeof type == 'undefined' || type == '' || type == null){
+      type = 'AUTO';
+    }
+    jQuery('#deleteRemainingEstimateType').val(type);
+
+    var newEstimate = jQuery('input[name="delete_new_estimate"]').val();
+    jQuery('#delete_new_estimate').val(newEstimate);
+
+    var adjustmentAmount = jQuery('input[name="delete_adjustment_amount"]').val();
+    jQuery('#delete_adjustment_amount').val(adjustmentAmount);
+
+    var dateHidden = jQuery('#dateHidden').val();
+    var dateInMil = Date.parseDate(dateHidden, jttp.options.dateFormat);
+    var date = jQuery('#date');
+    date.val(dateInMil.getTime());
+    jQuery("#actionFormForDelete").append(date);
+    
+    return true;
+  }
+  
 })(everit.jttp.main, jQuery);

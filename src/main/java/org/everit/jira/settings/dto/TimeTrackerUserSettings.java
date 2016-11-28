@@ -94,7 +94,7 @@ public class TimeTrackerUserSettings {
   }
 
   /**
-   * Gets the default start time.
+   * <<<<<<< HEAD Gets the default start time.
    */
   public String getDefaultStartTime() {
     String savedDefaultStartTime = pluginSettingsKeyValues.get(UserSettingKey.DEFAULT_START_TIME);
@@ -352,6 +352,10 @@ public class TimeTrackerUserSettings {
     return this;
   }
 
+  public boolean isShowRemaningEstimate() {
+    return Boolean.parseBoolean(pluginSettingsKeyValues.get(UserSettingKey.SHOW_REMANING_ESTIMATE));
+  }
+
   /**
    * Put the is show tutorial setting value and store the tutorial version.
    */
@@ -383,6 +387,15 @@ public class TimeTrackerUserSettings {
    */
   public TimeTrackerUserSettings selectedColumnsJSon(final String selectedColumnsJson) {
     pluginSettingsKeyValues.put(UserSettingKey.USER_WD_SELECTED_COLUMNS, selectedColumnsJson);
+    return this;
+  }
+
+  /**
+   * Put the show remaning estimate value.
+   */
+  public TimeTrackerUserSettings showRemaningEstimate(final boolean showRemaningEstimate) {
+    pluginSettingsKeyValues.put(UserSettingKey.SHOW_REMANING_ESTIMATE,
+        String.valueOf(showRemaningEstimate));
     return this;
   }
 
