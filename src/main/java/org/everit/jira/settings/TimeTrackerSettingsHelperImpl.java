@@ -23,8 +23,12 @@ import java.util.Map.Entry;
 import java.util.UUID;
 
 import org.everit.jira.analytics.AnalyticsSender;
+import org.everit.jira.analytics.event.ActiveFieldDurationChangedEvent;
 import org.everit.jira.analytics.event.AnalyticsStatusChangedEvent;
 import org.everit.jira.analytics.event.ProgressIndicatorChangedEvent;
+import org.everit.jira.analytics.event.ShowFutureLogWarningChangedEvent;
+import org.everit.jira.analytics.event.ShowIssueSummaryChangedEvent;
+import org.everit.jira.analytics.event.ShowRemaningEstimateChangedEvent;
 import org.everit.jira.settings.dto.GlobalSettingsKey;
 import org.everit.jira.settings.dto.JTTPSettingsKey;
 import org.everit.jira.settings.dto.ReportingGlobalSettings;
@@ -105,6 +109,22 @@ public class TimeTrackerSettingsHelperImpl
     }
   }
 
+  private void checkAnalyticsForActiveFieldDuration(final PluginSettings pluginSettings,
+      final boolean activeFieldDuration) {
+    Object activeFieldDurationObj =
+        pluginSettings.get(UserSettingKey.ACTIVE_FIELD_DURATION.getSettingsKey());
+    boolean oldActiveFieldDuration = activeFieldDurationObj == null
+        ? true
+        : Boolean.parseBoolean(activeFieldDurationObj.toString());
+
+    if ((oldActiveFieldDuration != activeFieldDuration)
+        || (activeFieldDurationObj == null)) {
+      analyticsSender.send(new ActiveFieldDurationChangedEvent(
+          loadGlobalSettings().getPluginUUID(),
+          activeFieldDuration));
+    }
+  }
+
   private void checkAnalyticsForProgressIndicator(final PluginSettings pluginSettings,
       final String isProgressIndicatorDaily) {
     Object indicatorCheckObj =
@@ -119,7 +139,54 @@ public class TimeTrackerSettingsHelperImpl
           loadGlobalSettings().getPluginUUID(),
           Boolean.parseBoolean(isProgressIndicatorDaily)));
     }
+  }
 
+  private void checkAnalyticsForShowFutureLogWarning(final PluginSettings pluginSettings,
+      final boolean showFutureLogWarning) {
+    Object showFutureLogWarningObj =
+        pluginSettings.get(UserSettingKey.SHOW_FUTURE_LOG_WARNING.getSettingsKey());
+    boolean oldShowFutureLogWarning = showFutureLogWarningObj == null
+        ? true
+        : Boolean.parseBoolean(showFutureLogWarningObj.toString());
+
+    if ((oldShowFutureLogWarning != showFutureLogWarning)
+        || (showFutureLogWarningObj == null)) {
+      analyticsSender.send(new ShowFutureLogWarningChangedEvent(
+          loadGlobalSettings().getPluginUUID(),
+          showFutureLogWarning));
+    }
+  }
+
+  private void checkAnalyticsForShowIssueSummary(final PluginSettings pluginSettings,
+      final boolean showIssueSummary) {
+    Object showIssueSummaryObj =
+        pluginSettings.get(UserSettingKey.SHOW_ISSUE_SUMMARY_IN_WORKLOG_TABLE.getSettingsKey());
+    boolean oldShowIssueSummary = showIssueSummaryObj == null
+        ? true
+        : Boolean.parseBoolean(showIssueSummaryObj.toString());
+
+    if ((oldShowIssueSummary != showIssueSummary)
+        || (showIssueSummaryObj == null)) {
+      analyticsSender.send(new ShowIssueSummaryChangedEvent(
+          loadGlobalSettings().getPluginUUID(),
+          showIssueSummary));
+    }
+  }
+
+  private void checkAnalyticsForShowRemaningEstimate(final PluginSettings pluginSettings,
+      final boolean showRemaningEstimate) {
+    Object showRemaningEstimateObj =
+        pluginSettings.get(UserSettingKey.SHOW_REMANING_ESTIMATE.getSettingsKey());
+    boolean oldShowRemaningEstimate = showRemaningEstimateObj == null
+        ? true
+        : Boolean.parseBoolean(showRemaningEstimateObj.toString());
+
+    if ((oldShowRemaningEstimate != showRemaningEstimate)
+        || (showRemaningEstimateObj == null)) {
+      analyticsSender.send(new ShowRemaningEstimateChangedEvent(
+          loadGlobalSettings().getPluginUUID(),
+          showRemaningEstimate));
+    }
   }
 
   private void checkSendAnalyticsForAnalytics(final PluginSettings globalSettings,
@@ -234,6 +301,10 @@ public class TimeTrackerSettingsHelperImpl
     PluginSettings pluginSettings = getUserPluginSettings();
     checkAnalyticsForProgressIndicator(pluginSettings,
         userSettings.getUserSettingValue(UserSettingKey.PROGRESS_INDICATOR));
+    checkAnalyticsForShowFutureLogWarning(pluginSettings, userSettings.isShowFutureLogWarning());
+    checkAnalyticsForShowIssueSummary(pluginSettings, userSettings.getIsShowIssueSummary());
+    checkAnalyticsForActiveFieldDuration(pluginSettings, userSettings.isActiveFieldDuration());
+    checkAnalyticsForShowRemaningEstimate(pluginSettings, userSettings.isShowRemaningEstimate());
     for (Entry<UserSettingKey, String> settingEntry : userSettings.getPluginSettingsKeyValues()
         .entrySet()) {
       pluginSettings.put(settingEntry.getKey().getSettingsKey(),

@@ -41,6 +41,7 @@ import org.everit.jira.timetracker.plugin.dto.ChartData;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.dto.TimetrackerReportsSessionData;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
+import org.everit.jira.timetracker.plugin.util.ExceptionUtil;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 import org.everit.jira.updatenotifier.UpdateNotifier;
@@ -136,6 +137,8 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
   private ReportingCondition reportingCondition;
 
   private TimetrackerSettingsHelper settingsHelper;
+
+  private String stacktrace = "";
 
   private DateTime startDate;
 
@@ -239,6 +242,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
       saveDataToSession();
     } catch (DataAccessException | ParseException e) {
       LOGGER.error(GET_WORKLOGS_ERROR_MESSAGE, e);
+      stacktrace = ExceptionUtil.getStacktrace(e);
       return ERROR;
     }
 
@@ -319,6 +323,10 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
   public String getMessage() {
     return message;
+  }
+
+  public String getStacktrace() {
+    return stacktrace;
   }
 
   public ApplicationUser getUserPickerObject() {

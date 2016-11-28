@@ -20,6 +20,24 @@ package org.everit.jira.settings.dto;
  */
 public enum UserSettingKey implements SettingsMapper {
 
+  ACTIVE_FIELD_DURATION {
+
+    @Override
+    public String getSettingsKey() {
+      return JTTPSettingsKey.JTTP_PLUGIN_SETTINGS_ACTIVE_FIELD_DURATION;
+    }
+
+  },
+
+  DEFAULT_START_TIME {
+
+    @Override
+    public String getSettingsKey() {
+      return JTTPSettingsKey.JTTP_PLUGIN_SETTINGS_DEFAULT_START_TIME;
+    }
+
+  },
+
   END_TIME_CHANGE {
 
     @Override
@@ -28,6 +46,7 @@ public enum UserSettingKey implements SettingsMapper {
     }
 
   },
+
   IS_ACTUAL_DATE {
 
     @Override
@@ -76,7 +95,6 @@ public enum UserSettingKey implements SettingsMapper {
     }
 
   },
-
   REPORTING_SETTINGS_WORKLOG_IN_SEC {
 
     @Override
@@ -85,6 +103,7 @@ public enum UserSettingKey implements SettingsMapper {
     }
 
   },
+
   SHOW_FUTURE_LOG_WARNING {
 
     @Override
@@ -99,6 +118,14 @@ public enum UserSettingKey implements SettingsMapper {
     public String getSettingsKey() {
       return JTTPSettingsKey.JTTP_PLUGIN_SETTINGS_SHOW_ISSUE_SUMMARY_IN_WORKLOG_TABLE;
     }
+  },
+  SHOW_REMANING_ESTIMATE {
+
+    @Override
+    public String getSettingsKey() {
+      return JTTPSettingsKey.JTTP_PLUGIN_SETTINGS_SHOW_REMANING_ESTIMATE;
+    }
+
   },
   SHOW_TUTORIAL_VERSION {
 

@@ -59,6 +59,8 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.popu
 				worklogSize: ${worklogs.size()},
 				isRounded : ${userSettings.rounded},
 				dateFormat: '${dateFormat}',
+				activeFieldDuration: $userSettings.activeFieldDuration,
+				defaultCommand: $defaultCommand,
 			}
 		);
 	})(everit.jttp.main, AJS.$);
@@ -202,10 +204,10 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.popu
                         name="endTime" tabindex="3"
                         data-jttp-timeformat="$timeFormatPattern"
                         value="$worklogValues.endTime" onkeypress="everit.jttp.main.handleEnterKey(event, '#issueSelect-textarea');"
-                        onclick="everit.jttp.main.endTimeInputClick();"
+                        onclick="everit.jttp.main.endTimeInputClick(true);"
                         onblur="everit.jttp.main.calculateDuration();"
                         list="time-options" autocomplete="off">
-                      <div id="endTimeInput" class="time-input-div" onclick="everit.jttp.main.endTimeInputClick();"></div>
+                      <div id="endTimeInput" class="time-input-div" onclick="everit.jttp.main.endTimeInputClick(true);"></div>
                     </span>
                     <input id="endNow" class="button" type="button" name="endNow" value="$i18n.getText('plugin.now')" onclick="everit.jttp.main.endNowClick($userSettings.endTimeChange);">
                   </div>
@@ -218,16 +220,69 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.popu
                       <input id="durationTime" class="text short-field tooltip-bottom"
                         name="durationTime" tabindex="2"
                         value="$worklogValues.durationTime" onkeypress="everit.jttp.main.handleEnterKey(event, '#issueSelect-textarea');"
-                        onclick="everit.jttp.main.durationTimeInput();"
+                        onclick="everit.jttp.main.durationTimeInput(true);"
                         title="hh:mm / xh xm" disabled 
                         onblur="everit.jttp.main.calculateEndTime();">
-                      <div id="durationTimeInput" class="time-input-div" onclick="everit.jttp.main.durationTimeInput();"></div>
+                      <div id="durationTimeInput" class="time-input-div" onclick="everit.jttp.main.durationTimeInput(true);"></div>
                     </span>
                   </div>
                 </div>
               </section>
             </div>
           </div>
+          #if($userSettings.showRemaningEstimate)
+          <div style="margin: 10px 0 0 0;">
+            <label>$i18n.getText("plugin.jttp.remainingestimate")</label>
+          </div>
+          <div class="aui-group" style="margin: 5px 0 10px 0;">
+            <div class="aui-item">
+              <button id="remaining_estimate_auto" type="button" name="remainingEstimateType" 
+                class="aui-button" data-jttp-remaining-estimate-type="AUTO"
+                #if($worklogValues.remainingEstimateType == 'AUTO') checked="true" #end 
+                onclick="return everit.jttp.main.reamingEstimateChange(this)">
+                <span class="aui-icon aui-icon-small aui-iconfont-success" #if($worklogValues.remainingEstimateType != 'AUTO') style="display:none;" #end>Checked </span>
+                $i18n.getText("plugin.jttp.remainingestimatetype.auto")
+              </button>  
+            </div>
+            <div class="aui-item" style="text-align: center;">
+              <button id="remaining_estimate_leave" type="button" name="remainingEstimateType" 
+                class="aui-button" data-jttp-remaining-estimate-type="LEAVE"
+                #if($worklogValues.remainingEstimateType == 'LEAVE') checked="true" #end 
+                onclick="return everit.jttp.main.reamingEstimateChange(this)">
+                <span class="aui-icon aui-icon-small aui-iconfont-success" #if($worklogValues.remainingEstimateType != 'LEAVE') style="display:none;" #end>Checked </span>
+                $i18n.getText("plugin.jttp.remainingestimatetype.leave")
+              </button>
+            </div>
+            <div class="aui-item" style="text-align: center;">
+              <button id="remaining_estimate_new" type="button" name="remainingEstimateType" 
+                class="aui-button" data-jttp-remaining-estimate-type="NEW" 
+                #if($worklogValues.remainingEstimateType == 'NEW') checked="true" #end 
+                onclick="return everit.jttp.main.reamingEstimateChange(this)">
+               <span class="aui-icon aui-icon-small aui-iconfont-success" #if($worklogValues.remainingEstimateType != 'NEW') style="display:none;" #end>Checked </span>
+                $i18n.getText("plugin.jttp.remainingestimatetype.new")
+              </button>
+              <input class="text short-field tooltip-bottom" id="newEstimate" name="newEstimate" 
+                type="text" title="$i18n.getText("plugin.jttp.remainingestimatetype.new.tooltip")" 
+                #if($worklogValues.remainingEstimateType != 'NEW') disabled="disabled" #end
+                value="$worklogValues.newEstimate">
+            </div>
+            <div class="aui-item" style="text-align: right;">
+            #if($actionFlag != 'edit')
+              <button id="remaining_estimate_manual" type="button" name="remainingEstimateType" 
+                class="aui-button" data-jttp-remaining-estimate-type="MANUAL" 
+                onclick="return everit.jttp.main.reamingEstimateChange(this)">
+                <span class="aui-icon aui-icon-small aui-iconfont-success" #if($worklogValues.remainingEstimateType != 'MANUAL') style="display:none;" #end>Checked </span>
+                $i18n.getText("plugin.jttp.remainingestimatetype.manual")
+              </button>
+              <input class="text short-field tooltip-bottom" id="adjustmentAmount" name="adjustmentAmount" 
+                type="text" title="$i18n.getText("plugin.jttp.remainingestimatetype.manual.tooltip")" 
+                #if($worklogValues.remainingEstimateType != 'MANUAL') disabled="disabled" #end
+                value="$worklogValues.adjustmentAmount">
+            #end
+            </div>
+          </div>
+          #end
+          <input type="hidden" hidden="hidden" id="remainingEstimateType" name="remainingEstimateType" value="$worklogValues.remainingEstimateType">
           <div class="field-group">
             <label for="comments">$i18n.getText("plugin.jttp-worklog-description")</label>
             #set($fieldId = "comments")

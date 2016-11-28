@@ -53,7 +53,7 @@ import com.atlassian.jira.util.I18nHelper.BeanFactory;
 
 public class GetLoggedDaysOfTheMonthTest {
 
-  private TimetrackerComponent timetrackerComponent = new TimetrackerComponent(null);
+  private TimetrackerComponent timetrackerComponent = new TimetrackerComponent(null, null);
 
   public void initMockComponents(final Date dateOfMonth) {
     MockComponentWorker mockComponentWorker = new MockComponentWorker();

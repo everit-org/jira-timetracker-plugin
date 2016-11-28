@@ -21,6 +21,8 @@ import java.util.Date;
 import java.util.Locale;
 
 import org.everit.jira.core.EVWorklogManager;
+import org.everit.jira.core.RemainingEstimateType;
+import org.everit.jira.core.dto.WorklogParameter;
 import org.everit.jira.core.impl.WorklogComponent;
 import org.everit.jira.core.impl.WorklogComponent.PropertiesKey;
 import org.everit.jira.tests.core.DummyDateTimeFromatter;
@@ -275,20 +277,24 @@ public class CreateWorklogTest {
     String defaultTimeSpent = "1h";
 
     try {
-      worklogManager.createWorklog(invalidIssueId,
+      worklogManager.createWorklog(new WorklogParameter(invalidIssueId,
           defaultComment,
           DateTimeConverterUtil.convertDateTimeToDate(defaultDate),
-          defaultTimeSpent);
+          defaultTimeSpent,
+          "",
+          RemainingEstimateType.AUTO));
       Assert.fail("Expect WorklogException");
     } catch (WorklogException e) {
       assertWorklogException(e, invalidIssueId, PropertiesKey.INVALID_ISSUE);
     }
 
     try {
-      worklogManager.createWorklog(noPermissionIssue.getKey(),
+      worklogManager.createWorklog(new WorklogParameter(noPermissionIssue.getKey(),
           defaultComment,
           DateTimeConverterUtil.convertDateTimeToDate(defaultDate),
-          defaultTimeSpent);
+          defaultTimeSpent,
+          "",
+          RemainingEstimateType.AUTO));
       Assert.fail("Expect WorklogException");
     } catch (WorklogException e) {
       assertWorklogException(e, noPermissionIssue.getKey(), PropertiesKey.NOPERMISSION_ISSUE);
@@ -297,39 +303,47 @@ public class CreateWorklogTest {
     // The parse date error not come's from the createWorklog method any more
     // String wrongTimeStamp = "wrong";
     // try {
-    // worklogManager.createWorklog(dateParseErrorIssue.getKey(),
+    // worklogManager.createWorklog(new WorklogParameter(dateParseErrorIssue.getKey(),
     // defaultComment,
     // defaultDate,
     // wrongTimeStamp,
-    // defaultTimeSpent);
+    // defaultTimeSpent,
+    // "",
+    // RemainingEstimateType.AUTO));
     // Assert.fail("Expect WorklogException");
     // } catch (WorklogException e) {
     // assertWorklogException(e, defaultDate + " " + wrongTimeStamp, PropertiesKey.DATE_PARSE);
     // }
 
     try {
-      worklogManager.createWorklog(validateProblemIssue.getKey(),
+      worklogManager.createWorklog(new WorklogParameter(validateProblemIssue.getKey(),
           defaultComment,
           DateTimeConverterUtil.convertDateTimeToDate(defaultDate),
-          defaultTimeSpent);
+          defaultTimeSpent,
+          "",
+          RemainingEstimateType.AUTO));
       Assert.fail("Expect WorklogException");
     } catch (WorklogException e) {
       assertWorklogException(e, "", PropertiesKey.WORKLOG_CREATE_FAIL);
     }
 
     try {
-      worklogManager.createWorklog(createErrorIssue.getKey(),
+      worklogManager.createWorklog(new WorklogParameter(createErrorIssue.getKey(),
           defaultComment,
           DateTimeConverterUtil.convertDateTimeToDate(defaultDate),
-          defaultTimeSpent);
+          defaultTimeSpent,
+          "",
+          RemainingEstimateType.AUTO));
       Assert.fail("Expect WorklogException");
     } catch (WorklogException e) {
       assertWorklogException(e, "", PropertiesKey.WORKLOG_CREATE_FAIL);
     }
 
-    worklogManager.createWorklog(succesCreateIssue.getKey(),
+    worklogManager.createWorklog(new WorklogParameter(succesCreateIssue.getKey(),
         defaultComment,
         DateTimeConverterUtil.convertDateTimeToDate(defaultDate),
-        defaultTimeSpent);
+        defaultTimeSpent,
+        "",
+        RemainingEstimateType.AUTO));
   }
 }

@@ -182,7 +182,7 @@ public abstract class AbstractReportQuery<T> {
    * Build count query.
    */
   public QuerydslCallable<Long> buildCountQuery() {
-    if (reportSearchParam.issueKeys == null) {
+    if ((reportSearchParam.issueKeys == null) || reportSearchParam.users.isEmpty()) {
       return new QuerydslCallable<Long>() {
         @Override
         public Long call(final Connection connection, final Configuration configuration)
@@ -202,7 +202,7 @@ public abstract class AbstractReportQuery<T> {
       @Override
       public Long call(final Connection connection, final Configuration configuration)
           throws SQLException {
-        if (reportSearchParam.issueKeys == null) {
+        if ((reportSearchParam.issueKeys == null) || reportSearchParam.users.isEmpty()) {
           return 0L;
         }
         NumberPath<Long> worklogTimeSumPath = Expressions.numberPath(Long.class,
@@ -229,7 +229,7 @@ public abstract class AbstractReportQuery<T> {
    * Build query.
    */
   public QuerydslCallable<List<T>> buildQuery() {
-    if (reportSearchParam.issueKeys == null) {
+    if ((reportSearchParam.issueKeys == null) || reportSearchParam.users.isEmpty()) {
       return new QuerydslCallable<List<T>>() {
         @Override
         public List<T> call(final Connection connection, final Configuration configuration)

@@ -29,8 +29,10 @@ import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.everit.jira.analytics.AnalyticsDTO;
 import org.everit.jira.core.EVWorklogManager;
+import org.everit.jira.core.RemainingEstimateType;
 import org.everit.jira.core.SupportManager;
 import org.everit.jira.core.TimetrackerManager;
+import org.everit.jira.core.dto.WorklogParameter;
 import org.everit.jira.core.util.TimetrackerUtil;
 import org.everit.jira.settings.TimetrackerSettingsHelper;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
@@ -44,6 +46,7 @@ import org.everit.jira.timetracker.plugin.dto.SummaryDTO;
 import org.everit.jira.timetracker.plugin.dto.WorklogValues;
 import org.everit.jira.timetracker.plugin.exception.WorklogException;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
+import org.everit.jira.timetracker.plugin.util.ExceptionUtil;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.TimeAutoCompleteUtil;
@@ -214,6 +217,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private final TimetrackerSettingsHelper settingsHelper;
 
   private boolean showMoveAllNoPermission = false;
+
+  private String stacktrace = "";
 
   private SummaryDTO summaryDTO;
 
@@ -451,11 +456,11 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
         worklogValues.setStartTime(timetrackerManager.lastEndTime(worklogs));
       } catch (ParseException | DataAccessException e) {
         LOGGER.error("Error when try set the plugin variables.", e);
+        stacktrace = ExceptionUtil.getStacktrace(e);
         return ERROR;
       }
       worklogValues.setEndTime(DateTimeConverterUtil.dateTimeToString(new Date()));
       worklogValues.setComment("");
-      worklogValues.setIsDuration(Boolean.FALSE);
 
       return redirectWithDateAndWorklogParams(result, decideToShowWarningUrl());
     }
@@ -465,12 +470,23 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private String createWorklog(final String issueKey, final String commentForActions,
       final DateTime date, final String startTime, final String timeSpent) {
     try {
+      RemainingEstimateType remainingEstimateType =
+          RemainingEstimateType.valueOf(worklogValues.getRemainingEstimateType());
+      String optinalValue = "";
+      if (RemainingEstimateType.NEW.equals(remainingEstimateType)) {
+        optinalValue = worklogValues.getNewEstimate();
+      } else if (RemainingEstimateType.MANUAL.equals(remainingEstimateType)) {
+        optinalValue = worklogValues.getAdjustmentAmount();
+      }
       DateTime dateTime = DateTimeConverterUtil.stringToDateAndTime(date, startTime);
-
-      worklogManager.createWorklog(issueKey, commentForActions,
+      WorklogParameter worklogParameter = new WorklogParameter(issueKey,
+          commentForActions,
           DateTimeConverterUtil.convertDateTimeToDate(
               DateTimeConverterUtil.convertDateZoneToSystemTimeZone(dateTime)),
-          timeSpent);
+          timeSpent,
+          optinalValue,
+          remainingEstimateType);
+      worklogManager.createWorklog(worklogParameter);
     } catch (WorklogException e) {
       message = e.getMessage();
       messageParameter = e.messageParameter;
@@ -495,7 +511,15 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   private String deleteWorklog() {
     try {
-      worklogManager.deleteWorklog(actionWorklogId);
+      String type = getHttpRequest().getParameter("remainingEstimateTypeForDelete");
+      String optionalValue = null;
+      RemainingEstimateType remainingEstimateType = RemainingEstimateType.valueOf(type);
+      if (RemainingEstimateType.NEW.equals(remainingEstimateType)) {
+        optionalValue = getHttpRequest().getParameter("newEstimateForDelete");
+      } else if (RemainingEstimateType.MANUAL.equals(remainingEstimateType)) {
+        optionalValue = getHttpRequest().getParameter("adjustmentAmountForDelete");
+      }
+      worklogManager.deleteWorklog(actionWorklogId, optionalValue, remainingEstimateType);
     } catch (WorklogException e) {
       message = e.getMessage();
       messageParameter = e.messageParameter;
@@ -522,6 +546,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       parseWorklogValues();
     } catch (ParseException | DataAccessException e) {
       LOGGER.error("Error when try set the plugin variables.", e);
+      stacktrace = ExceptionUtil.getStacktrace(e);
       return ERROR;
     }
 
@@ -545,6 +570,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       parseWorklogValues();
     } catch (ParseException | DataAccessException e) {
       LOGGER.error("Error when try set the plugin variables.", e);
+      stacktrace = ExceptionUtil.getStacktrace(e);
       return ERROR;
     }
 
@@ -562,6 +588,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       loadWorklogs();
     } catch (ParseException | DataAccessException e) {
       LOGGER.error("Error when try set the plugin variables.", e);
+      stacktrace = ExceptionUtil.getStacktrace(e);
       return ERROR;
     }
 
@@ -575,13 +602,24 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       return INPUT;
     }
     try {
+      RemainingEstimateType remainingEstimateType =
+          RemainingEstimateType.valueOf(worklogValues.getRemainingEstimateType());
+      String optinalValue = "";
+      if (RemainingEstimateType.NEW.equals(remainingEstimateType)) {
+        optinalValue = worklogValues.getNewEstimate();
+      } else if (RemainingEstimateType.MANUAL.equals(remainingEstimateType)) {
+        optinalValue = worklogValues.getAdjustmentAmount();
+      }
       DateTime dateTime =
           DateTimeConverterUtil.stringToDateAndTime(date, worklogValues.getStartTime());
-      worklogManager.editWorklog(actionWorklogId, worklogValues.getIssueKey(),
+      WorklogParameter worklogParameter = new WorklogParameter(worklogValues.getIssueKey(),
           worklogValues.getCommentForActions(),
           DateTimeConverterUtil.convertDateTimeToDate(
               DateTimeConverterUtil.convertDateZoneToSystemTimeZone(dateTime)),
-          timeSpent);
+          timeSpent,
+          optinalValue,
+          remainingEstimateType);
+      worklogManager.editWorklog(actionWorklogId, worklogParameter);
     } catch (WorklogException e) {
       message = e.getMessage();
       messageParameter = e.messageParameter;
@@ -598,16 +636,16 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       for (Long editWorklogId : editWorklogIds) {
         try {
           EveritWorklog editWorklog = worklogManager.getWorklog(editWorklogId);
-
           DateTime dateTime =
               DateTimeConverterUtil.stringToDateAndTime(date, editWorklog.getStartTime());
-
-          worklogManager.editWorklog(editWorklog.getWorklogId(),
-              editWorklog.getIssue(),
+          WorklogParameter worklogParameter = new WorklogParameter(editWorklog.getIssue(),
               editWorklog.getBody(),
               DateTimeConverterUtil.convertDateTimeToDate(
                   DateTimeConverterUtil.convertDateZoneToSystemTimeZone(dateTime)),
-              DateTimeConverterUtil.stringTimeToString(editWorklog.getDuration()));
+              DateTimeConverterUtil.stringTimeToString(editWorklog.getDuration()),
+              "",
+              RemainingEstimateType.AUTO);
+          worklogManager.editWorklog(editWorklog.getWorklogId(), worklogParameter);
           endDateTime = DateTimeConverterUtil.stringTimeToDateTime(editWorklog.getEndTime());
         } catch (WorklogException e) {
           message = e.getMessage();
@@ -617,6 +655,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       }
     } catch (ParseException | DataAccessException | IllegalArgumentException e) {
       LOGGER.error("Error when try set the plugin variables.", e);
+      stacktrace = ExceptionUtil.getStacktrace(e);
       return ERROR;
     }
     return redirectWithDateFormattedParameterOnly(SUCCESS, decideToShowWarningUrl());
@@ -705,6 +744,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   public List<String> getProjectsId() {
     return projectsId;
+  }
+
+  public String getStacktrace() {
+    return stacktrace;
   }
 
   public SummaryDTO getSummaryDTO() {
@@ -796,7 +839,14 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private String notSaveAction() {
     try {
       if ((actionWorklogId != null)) {
-        EveritWorklog editWorklog = worklogManager.getWorklog(actionWorklogId);
+        EveritWorklog editWorklog;
+        try {
+          editWorklog = worklogManager.getWorklog(actionWorklogId);
+        } catch (WorklogException e) {
+          message = e.getMessage();
+          messageParameter = e.messageParameter;
+          return redirectWithDateFormattedAndMessagesParameter(INPUT, decideToShowWarningUrl());
+        }
         if (ACTION_EDIT.equals(actionFlag)) {
           worklogValues.setStartTime(editWorklog.getStartTime());
           worklogValues.setEndTime(editWorklog.getEndTime());
@@ -816,6 +866,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       }
     } catch (ParseException e) {
       LOGGER.error("Error when try parse the worklog.", e);
+      stacktrace = ExceptionUtil.getStacktrace(e);
       return ERROR;
     }
     return SUCCESS;
@@ -892,8 +943,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       worklogValues = TimetrackerUtil.convertJsonToWorklogValues(worklogValuesJson);
     } else {
       worklogValues = new WorklogValues();
+      worklogValues.setRemainingEstimateType(RemainingEstimateType.AUTO.name());
       worklogValues.setEndTime(DateTimeConverterUtil.dateTimeToString(new Date()));
       worklogValues.setStartTime(timetrackerManager.lastEndTime(worklogs));
+      worklogValues.setIsDuration(userSettings.isActiveFieldDuration());
     }
   }
 

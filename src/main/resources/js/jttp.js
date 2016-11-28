@@ -25,6 +25,7 @@ everit.jttp.main = everit.jttp.main || {};
     jQuery('.aui-ss-editing').attr("style", "width: 250px;");
     jQuery('.aui-ss.aui-ss-editing .aui-ss-field').attr("style", "width: 250px;");
 
+    jttp.calculateDuration();
     durationSelectionSetup();
     issuePickerSetup();
     eventBinding();
@@ -143,12 +144,21 @@ everit.jttp.main = everit.jttp.main || {};
     }
   }
 
-  jttp.endTimeInputClick = function() {
+  jttp.endTimeInputClick = function(addFocus) {
     if (jttp.options.actionFlag != "editAll") {
-      jQuery("#endTimeInput").css("cursor", "text").hide().prev().prop("disabled", false).css(
-          "cursor", "text").focus();
-      jQuery("#durationTimeInput").css("cursor", "pointer").show().prev("input").prop("disabled",
-          true).css("cursor", "pointer");
+      var $input = jQuery("#endTimeInput").css("cursor", "text")
+                     .hide()
+                     .prev()
+                     .prop("disabled", false)
+                     .css("cursor", "text");
+      if(addFocus) {
+        $input.focus();
+      }
+      jQuery("#durationTimeInput").css("cursor", "pointer")
+        .show()
+        .prev("input")
+        .prop("disabled", true)
+        .css("cursor", "pointer");
       jQuery("#radioEnd").prop("checked", true);
     }
   }
@@ -163,12 +173,21 @@ everit.jttp.main = everit.jttp.main || {};
     }
   }
 
-  jttp.durationTimeInput = function() {
+  jttp.durationTimeInput = function(addFocus) {
     if (jttp.options.actionFlag != "editAll") {
-      jQuery("#durationTimeInput").css("cursor", "text").hide().prev("input[disabled]").prop(
-          "disabled", false).css("cursor", "text").focus();
-      jQuery("#endTimeInput").css("cursor", "pointer").show().prev("input").prop("disabled", true)
-          .css("cursor", "pointer");
+      var $input = jQuery("#durationTimeInput").css("cursor", "text")
+                     .hide()
+                     .prev("input[disabled]")
+                     .prop("disabled", false)
+                     .css("cursor", "text");
+      if(addFocus){
+        $input.focus();
+      }
+      jQuery("#endTimeInput").css("cursor", "pointer")
+        .show()
+        .prev("input")
+        .prop("disabled", true)
+        .css("cursor", "pointer");
       jQuery("#radioDuration").prop("checked", true);
     }
   }
@@ -184,7 +203,8 @@ everit.jttp.main = everit.jttp.main || {};
     var worklogValuesJson = jQuery('#worklogValuesJson');
     worklogValuesJson.val(json);
     
-    // Added Piwik Submit action to save action. (count create, edit, edit all saves)
+    // Added Piwik Submit action to save action. (count create, edit, edit all
+	// saves)
     _paq.push(['trackEvent', 'User', 'Submit']);
     return true;
   }
@@ -399,15 +419,18 @@ everit.jttp.main = everit.jttp.main || {};
   }
 
   function durationSelectionSetup() {
-    if (jttp.options.isDurationSelected) {
-      jQuery("#durationTimeInput").css("cursor", "text").hide().prev("input[disabled]").prop(
-          "disabled", false).css("cursor", "text").focus();
-      jQuery("#endTimeInput").css("cursor", "pointer").show().prev("input").prop("disabled", true)
-          .css("cursor", "pointer");
-      jQuery("#radioDuration").prop("checked", true);
+    if(jttp.options.defaultCommand){
+      if(jttp.options.activeFieldDuration){
+        jttp.durationTimeInput(false);
+      } else {
+        jttp.endTimeInputClick(false);
+      }
     } else {
-      jQuery("#endTimeInput").css("cursor", "text");
-      jQuery("#durationTimeInput").css("cursor", "pointer");
+      if (jttp.options.isDurationSelected) {
+        jttp.durationTimeInput(false);
+      } else {
+        jttp.endTimeInputClick(false);
+      }
     }
   }
 
@@ -467,6 +490,9 @@ everit.jttp.main = everit.jttp.main || {};
     if(endOrDuration == "end"){
       isDurationSelect = false;
     }
+    var remainingEstimateType = jQuery('#remainingEstimateType').val();
+    var newEstimate = jQuery('#newEstimate').val();
+    var adjustmentAmount = jQuery('#adjustmentAmount').val();
     
     var worklogValues = {
       "startTime": startTime,
@@ -475,6 +501,9 @@ everit.jttp.main = everit.jttp.main || {};
       "isDuration": isDurationSelect,
       "comment": comment,
       "issueKey": issueKey,
+      "remainingEstimateType": remainingEstimateType,
+      "newEstimate": newEstimate,
+      "adjustmentAmount": adjustmentAmount,
     }
     return worklogValues;
   }
@@ -801,4 +830,52 @@ everit.jttp.main = everit.jttp.main || {};
     $endInput.val(endTimeVal.toUpperCase());
   }
 
+  jttp.reamingEstimateChange = function(obj){
+    var $obj = jQuery(obj);
+    var type = $obj.attr('data-jttp-remaining-estimate-type');
+
+    jQuery('#remainingEstimateType').val(type);
+
+    jQuery('button[data-jttp-remaining-estimate-type]').children('span').hide();
+    $obj.children('span').show();
+    
+    var $newEstimate = jQuery('#newEstimate');
+    var $adjustmentAmount = jQuery('#adjustmentAmount');
+    $newEstimate.attr('disabled', 'disabled');
+    $adjustmentAmount.attr('disabled', 'disabled');
+    if(type == 'NEW'){
+      $newEstimate.removeAttr('disabled');
+    }
+    if(type == 'MANUAL'){
+      $adjustmentAmount.removeAttr('disabled');
+    }
+  }
+
+  jttp.showDeleteConfirmation = function(worklogId){
+    jQuery('#actionWorklogIdForDelete').val(worklogId);
+    AJS.dialog2('#delete_confirmation_dialog').show();
+  }
+
+  jttp.beforeSubmitDeleteAction = function() {
+    var type = jQuery('input[name="deleteRemainingEstimateType"]:checked').val();
+    if(typeof type == 'undefined' || type == '' || type == null){
+      type = 'AUTO';
+    }
+    jQuery('#deleteRemainingEstimateType').val(type);
+
+    var newEstimate = jQuery('input[name="delete_new_estimate"]').val();
+    jQuery('#delete_new_estimate').val(newEstimate);
+
+    var adjustmentAmount = jQuery('input[name="delete_adjustment_amount"]').val();
+    jQuery('#delete_adjustment_amount').val(adjustmentAmount);
+
+    var dateHidden = jQuery('#dateHidden').val();
+    var dateInMil = Date.parseDate(dateHidden, jttp.options.dateFormat);
+    var date = jQuery('#date');
+    date.val(dateInMil.getTime());
+    jQuery("#actionFormForDelete").append(date);
+    
+    return true;
+  }
+  
 })(everit.jttp.main, jQuery);

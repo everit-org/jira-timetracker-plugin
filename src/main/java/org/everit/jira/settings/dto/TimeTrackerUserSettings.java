@@ -15,13 +15,17 @@
  */
 package org.everit.jira.settings.dto;
 
+import java.text.ParseException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.everit.jira.core.util.TimetrackerUtil;
 import org.everit.jira.reporting.plugin.column.WorklogDetailsColumns;
+import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.VersionComperatorUtil;
+import org.joda.time.DateTime;
 
 import com.atlassian.jira.component.ComponentAccessor;
 import com.google.gson.Gson;
@@ -39,6 +43,15 @@ public class TimeTrackerUserSettings {
   private static final Logger LOGGER = Logger.getLogger(TimeTrackerUserSettings.class);
 
   private Map<UserSettingKey, String> pluginSettingsKeyValues = new HashMap<>();
+
+  /**
+   * Put the active field value that is duration or not.
+   */
+  public TimeTrackerUserSettings activeFieldDuration(final boolean activeFieldDuration) {
+    pluginSettingsKeyValues.put(UserSettingKey.ACTIVE_FIELD_DURATION,
+        String.valueOf(activeFieldDuration));
+    return this;
+  }
 
   /**
    * Put the actual date or last non work logged day configuration.
@@ -62,6 +75,16 @@ public class TimeTrackerUserSettings {
   }
 
   /**
+   * Put the default start time.
+   */
+  public TimeTrackerUserSettings defaultStartTime(final String defaultStartTime) {
+    Date dateTime = DateTimeConverterUtil.stringTimeToDateTime(defaultStartTime);
+    String defaultStarTimeForSave = DateTimeConverterUtil.dateTimeToStringWithFixFormat(dateTime);
+    pluginSettingsKeyValues.put(UserSettingKey.DEFAULT_START_TIME, defaultStarTimeForSave);
+    return this;
+  }
+
+  /**
    * Put the end time change.
    */
   public TimeTrackerUserSettings endTimeChange(final int endTimeChange) {
@@ -71,26 +94,28 @@ public class TimeTrackerUserSettings {
   }
 
   /**
-   * Get the actual date setting value. The default is true.
+   * Gets the default start time.
    */
-  public boolean isActualDate() {
-    boolean isActualDate = true;
-    if ("false"
-        .equals(pluginSettingsKeyValues.get(UserSettingKey.IS_ACTUAL_DATE))) {
-      isActualDate = false;
+  public String getDefaultStartTime() {
+    String savedDefaultStartTime = pluginSettingsKeyValues.get(UserSettingKey.DEFAULT_START_TIME);
+    if (savedDefaultStartTime == null) {
+      DateTime dateTime = new DateTime(TimetrackerUtil.getLoggedUserTimeZone());
+      dateTime = dateTime.withHourOfDay(DateTimeConverterUtil.HOUR_EIGHT);
+      dateTime = dateTime.withMinuteOfHour(0);
+      dateTime = dateTime.withSecondOfMinute(0);
+      return DateTimeConverterUtil
+          .dateTimeToString(DateTimeConverterUtil.convertDateTimeToDate(dateTime));
     }
-    return isActualDate;
-  }
+    Date date;
+    try {
+      date = DateTimeConverterUtil.stringTimeToDateTimeWithFixFormat(savedDefaultStartTime);
+    } catch (ParseException e) {
+      // we save defautl start time with HH:mm format. We parse with this format at now. Not
+      // possible to throw exception.
+      throw new RuntimeException("Cannot be parse default start time.");
+    }
 
-  /**
-   * Get the coloring setting value. The default is true.
-   */
-  public boolean isColoring() {
-    boolean isColoring = true;
-    if ("false".equals(pluginSettingsKeyValues.get(UserSettingKey.IS_COLORING))) {
-      isColoring = false;
-    }
-    return isColoring;
+    return DateTimeConverterUtil.dateTimeToString(date);
   }
 
   /**
@@ -112,41 +137,6 @@ public class TimeTrackerUserSettings {
       }
     }
     return endTimeChange;
-  }
-
-  /**
-   * Get the progress indicator daily or not. The default is true.
-   */
-  public boolean isProgressIndicatordaily() {
-    boolean isProgressIndicatorDaily = true;
-    if ("false"
-        .equals(pluginSettingsKeyValues.get(UserSettingKey.PROGRESS_INDICATOR))) {
-      isProgressIndicatorDaily = false;
-    }
-    return isProgressIndicatorDaily;
-  }
-
-  /**
-   * Get the rounding settings value. The default is true.
-   */
-  public boolean isRounded() {
-    boolean isRounded = true;
-    if ("false".equals(pluginSettingsKeyValues.get(UserSettingKey.IS_ROUNDED))) {
-      isRounded = false;
-    }
-    return isRounded;
-  }
-
-  /**
-   * Get the show future worklog warning settings value. Default is true.
-   */
-  public boolean isShowFutureLogWarning() {
-    boolean isShowFutureLogWarning = true;
-    if ("false".equals(
-        pluginSettingsKeyValues.get(UserSettingKey.SHOW_FUTURE_LOG_WARNING))) {
-      isShowFutureLogWarning = false;
-    }
-    return isShowFutureLogWarning;
   }
 
   /**
@@ -263,6 +253,45 @@ public class TimeTrackerUserSettings {
     return worklogValue;
   }
 
+  public boolean isActiveFieldDuration() {
+    return Boolean.valueOf(pluginSettingsKeyValues.get(UserSettingKey.ACTIVE_FIELD_DURATION));
+  }
+
+  /**
+   * Get the actual date setting value. The default is true.
+   */
+  public boolean isActualDate() {
+    boolean isActualDate = true;
+    if ("false"
+        .equals(pluginSettingsKeyValues.get(UserSettingKey.IS_ACTUAL_DATE))) {
+      isActualDate = false;
+    }
+    return isActualDate;
+  }
+
+  /**
+   * Get the coloring setting value. The default is true.
+   */
+  public boolean isColoring() {
+    boolean isColoring = true;
+    if ("false".equals(pluginSettingsKeyValues.get(UserSettingKey.IS_COLORING))) {
+      isColoring = false;
+    }
+    return isColoring;
+  }
+
+  /**
+   * Get the progress indicator daily or not. The default is true.
+   */
+  public boolean isProgressIndicatordaily() {
+    boolean isProgressIndicatorDaily = true;
+    if ("false"
+        .equals(pluginSettingsKeyValues.get(UserSettingKey.PROGRESS_INDICATOR))) {
+      isProgressIndicatorDaily = false;
+    }
+    return isProgressIndicatorDaily;
+  }
+
   /**
    * Put progress indicator setting.
    */
@@ -273,12 +302,35 @@ public class TimeTrackerUserSettings {
   }
 
   /**
+   * Get the rounding settings value. The default is true.
+   */
+  public boolean isRounded() {
+    boolean isRounded = true;
+    if ("false".equals(pluginSettingsKeyValues.get(UserSettingKey.IS_ROUNDED))) {
+      isRounded = false;
+    }
+    return isRounded;
+  }
+
+  /**
    * Put rounded setting.
    */
   public TimeTrackerUserSettings isRounded(final boolean isRounded) {
     pluginSettingsKeyValues.put(UserSettingKey.IS_ROUNDED,
         String.valueOf(isRounded));
     return this;
+  }
+
+  /**
+   * Get the show future worklog warning settings value. Default is true.
+   */
+  public boolean isShowFutureLogWarning() {
+    boolean isShowFutureLogWarning = true;
+    if ("false".equals(
+        pluginSettingsKeyValues.get(UserSettingKey.SHOW_FUTURE_LOG_WARNING))) {
+      isShowFutureLogWarning = false;
+    }
+    return isShowFutureLogWarning;
   }
 
   /**
@@ -298,6 +350,10 @@ public class TimeTrackerUserSettings {
         UserSettingKey.SHOW_ISSUE_SUMMARY_IN_WORKLOG_TABLE,
         String.valueOf(isShowIssueSummary));
     return this;
+  }
+
+  public boolean isShowRemaningEstimate() {
+    return Boolean.parseBoolean(pluginSettingsKeyValues.get(UserSettingKey.SHOW_REMANING_ESTIMATE));
   }
 
   /**
@@ -331,6 +387,15 @@ public class TimeTrackerUserSettings {
    */
   public TimeTrackerUserSettings selectedColumnsJSon(final String selectedColumnsJson) {
     pluginSettingsKeyValues.put(UserSettingKey.USER_WD_SELECTED_COLUMNS, selectedColumnsJson);
+    return this;
+  }
+
+  /**
+   * Put the show remaning estimate value.
+   */
+  public TimeTrackerUserSettings showRemaningEstimate(final boolean showRemaningEstimate) {
+    pluginSettingsKeyValues.put(UserSettingKey.SHOW_REMANING_ESTIMATE,
+        String.valueOf(showRemaningEstimate));
     return this;
   }
 

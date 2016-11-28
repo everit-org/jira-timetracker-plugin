@@ -23,6 +23,8 @@ import java.util.Set;
 
 import org.everit.jira.core.TimetrackerManager;
 import org.everit.jira.core.util.TimetrackerUtil;
+import org.everit.jira.settings.TimetrackerSettingsHelper;
+import org.everit.jira.settings.dto.TimeTrackerUserSettings;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.joda.time.DateTime;
@@ -35,14 +37,18 @@ import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
  */
 public class TimetrackerComponent implements TimetrackerManager {
 
+  private final TimetrackerSettingsHelper settingsHelper;
+
   private TimeTrackingConfiguration timeTrackingConfiguration;
 
   /**
    * Default constructor.
    */
   public TimetrackerComponent(
-      final TimeTrackingConfiguration timeTrackingConfiguration) {
+      final TimeTrackingConfiguration timeTrackingConfiguration,
+      final TimetrackerSettingsHelper settingsHelper) {
     this.timeTrackingConfiguration = timeTrackingConfiguration;
+    this.settingsHelper = settingsHelper;
   }
 
   private int countDaysInDateSet(final List<Date> weekDays, final Set<Date> dateSet) {
@@ -157,14 +163,9 @@ public class TimetrackerComponent implements TimetrackerManager {
   public String lastEndTime(final List<EveritWorklog> worklogs)
       throws IllegalArgumentException {
     if ((worklogs == null) || (worklogs.size() == 0)) {
-      DateTime dateTime = new DateTime(TimetrackerUtil.getLoggedUserTimeZone());
-      dateTime = dateTime.withHourOfDay(DateTimeConverterUtil.HOUR_EIGHT);
-      dateTime = dateTime.withMinuteOfHour(0);
-      dateTime = dateTime.withSecondOfMinute(0);
-      return DateTimeConverterUtil
-          .dateTimeToString(DateTimeConverterUtil.convertDateTimeToDate(dateTime));
+      TimeTrackerUserSettings userSettings = settingsHelper.loadUserSettings();
+      return userSettings.getDefaultStartTime();
     }
-    // TODO Worklogs converted to UTZ ... so this is good if EverITWorklogs fixed
     String endTime = worklogs.get(0).getEndTime();
     for (int i = 1; i < worklogs.size(); i++) {
       Date endTimeDate = DateTimeConverterUtil.stringTimeToDateTime(endTime);

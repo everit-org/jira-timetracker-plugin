@@ -18,11 +18,36 @@
     <title>$i18n.getText("jttp.error.title")</title>
   </head>
   <body>
+    $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.plugin.jttp-resources")
     <div class="aui-message aui-message-error" style="margin: 5px;">
       <p class="title">
         <strong>$i18n.getText("jttp.error.message.title")</strong>
       </p>
-      <p>$i18n.getText("jttp.error.message.detials").</p>
+      <div>
+        <p>$i18n.getText("jttp.error.message.detials")</p>
+        #if(!$stacktrace.equals(''))
+        <p style="margin-top: 1.5rem;margin-bottom: 1.5rem;">
+          <b>$i18n.getText("jttp.error.message.technical.detials")</b>
+        </p>
+        <div id="reveal-text-content" class="aui-expander-content">
+          <blockquote>
+            <pre>$stacktrace</pre>
+          </blockquote>
+        </div>
+        <a id="reveal-text-trigger" data-replace-text="$i18n.getText("jttp.error.show.less")" 
+           data-replace-selector=".reveal-text-trigger-text" 
+           class="aui-expander-trigger aui-expander-reveal-text" 
+           aria-controls="reveal-text-content"
+           style="left: 5rem;">
+          <span class="reveal-text-trigger-text">$i18n.getText("jttp.error.show.more")</span>
+        </a>
+        <style>
+          #reveal-text-content {
+            min-height: 2em;
+          }
+        </style>
+        #end
+      </div>
     </div>
   </body>
 </html>

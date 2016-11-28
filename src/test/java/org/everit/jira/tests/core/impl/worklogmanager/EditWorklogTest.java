@@ -19,6 +19,8 @@ import java.text.ParseException;
 import java.util.Locale;
 
 import org.everit.jira.core.EVWorklogManager;
+import org.everit.jira.core.RemainingEstimateType;
+import org.everit.jira.core.dto.WorklogParameter;
 import org.everit.jira.core.impl.WorklogComponent;
 import org.everit.jira.core.impl.WorklogComponent.PropertiesKey;
 import org.everit.jira.tests.core.DummyDateTimeFromatter;
@@ -308,10 +310,12 @@ public class EditWorklogTest {
     String defaultTimeSpent = "10";
     try {
       worklogManager.editWorklog(invalidIssueWorklog.getId(),
-          invalidIssueWorklog.getIssue().getKey(),
-          defaultComment,
-          DateTimeConverterUtil.convertDateTimeToDate(defaultDate),
-          defaultTimeSpent);
+          new WorklogParameter(invalidIssueWorklog.getIssue().getKey(),
+              defaultComment,
+              DateTimeConverterUtil.convertDateTimeToDate(defaultDate),
+              defaultTimeSpent,
+              "",
+              RemainingEstimateType.AUTO));
       Assert.fail("Expect WorklogException");
     } catch (WorklogException e) {
       assertWorklogException(e, invalidIssueWorklog.getIssue().getKey(),
@@ -320,10 +324,12 @@ public class EditWorklogTest {
 
     try {
       worklogManager.editWorklog(notSameIssueNoPermissionWorklog.getId(),
-          notSameIssueToNoPermission.getKey(),
-          defaultComment,
-          DateTimeConverterUtil.convertDateTimeToDate(defaultDate),
-          defaultTimeSpent);
+          new WorklogParameter(notSameIssueToNoPermission.getKey(),
+              defaultComment,
+              DateTimeConverterUtil.convertDateTimeToDate(defaultDate),
+              defaultTimeSpent,
+              "",
+              RemainingEstimateType.AUTO));
       Assert.fail("Expect WorklogException");
     } catch (WorklogException e) {
       assertWorklogException(e, notSameIssueToNoPermission.getKey(),
@@ -332,10 +338,12 @@ public class EditWorklogTest {
 
     try {
       worklogManager.editWorklog(notSameIssueNoPermissionWorklog.getId(),
-          notSameIssueToNoPermission.getKey(),
-          defaultComment,
-          DateTimeConverterUtil.convertDateTimeToDate(defaultDate),
-          defaultTimeSpent);
+          new WorklogParameter(notSameIssueToNoPermission.getKey(),
+              defaultComment,
+              DateTimeConverterUtil.convertDateTimeToDate(defaultDate),
+              defaultTimeSpent,
+              "",
+              RemainingEstimateType.AUTO));
       Assert.fail("Expect WorklogException");
     } catch (WorklogException e) {
       assertWorklogException(e, notSameIssueToNoPermission.getKey(),
@@ -344,10 +352,12 @@ public class EditWorklogTest {
 
     try {
       worklogManager.editWorklog(notSameIssueDeleteFailIssueWorklog.getId(),
-          notSameIssueToDeleteFail.getKey(),
-          defaultComment,
-          DateTimeConverterUtil.convertDateTimeToDate(defaultDate),
-          defaultTimeSpent);
+          new WorklogParameter(notSameIssueToDeleteFail.getKey(),
+              defaultComment,
+              DateTimeConverterUtil.convertDateTimeToDate(defaultDate),
+              defaultTimeSpent,
+              "",
+              RemainingEstimateType.AUTO));
       Assert.fail("Expect WorklogException");
     } catch (WorklogException e) {
       assertWorklogException(e, notSameIssueDeleteFailIssueWorklog.getIssue().getKey(),
@@ -356,10 +366,12 @@ public class EditWorklogTest {
 
     try {
       worklogManager.editWorklog(notSameIssueCreateFailIssueWorklog.getId(),
-          notSameIssueToCreateFail.getKey(),
-          defaultComment,
-          DateTimeConverterUtil.convertDateTimeToDate(defaultDate),
-          defaultTimeSpent);
+          new WorklogParameter(notSameIssueToCreateFail.getKey(),
+              defaultComment,
+              DateTimeConverterUtil.convertDateTimeToDate(defaultDate),
+              defaultTimeSpent,
+              "",
+              RemainingEstimateType.AUTO));
       Assert.fail("Expect WorklogException");
     } catch (WorklogException e) {
       assertWorklogException(e, notSameIssueToCreateFail.getKey(),
@@ -370,11 +382,13 @@ public class EditWorklogTest {
     // String wrongTime = "wrong";
     // try {
     // worklogManager.editWorklog(sameIssueDateParseWorklog.getId(),
-    // sameIssueDateParseWorklog.getIssue().getKey(),
+    // new WorklogParameter(sameIssueDateParseWorklog.getIssue().getKey(),
     // defaultComment,
     // defaultDate,
     // wrongTime,
-    // defaultTimeSpent);
+    // defaultTimeSpent,
+    // "",
+    // RemainingEstimateType.AUTO));
     // Assert.fail("Expect WorklogException");
     // } catch (WorklogException e) {
     // assertWorklogException(e, defaultDate + " " + wrongTime,
@@ -383,10 +397,12 @@ public class EditWorklogTest {
 
     try {
       worklogManager.editWorklog(sameIssueNoPermissionToUpdateWorklog.getId(),
-          sameIssueNoPermissionToUpdateWorklog.getIssue().getKey(),
-          defaultComment,
-          DateTimeConverterUtil.convertDateTimeToDate(defaultDate),
-          defaultTimeSpent);
+          new WorklogParameter(sameIssueNoPermissionToUpdateWorklog.getIssue().getKey(),
+              defaultComment,
+              DateTimeConverterUtil.convertDateTimeToDate(defaultDate),
+              defaultTimeSpent,
+              "",
+              RemainingEstimateType.AUTO));
       Assert.fail("Expect WorklogException");
     } catch (WorklogException e) {
       assertWorklogException(e, sameIssueNoPermissionToUpdateWorklog.getIssue().getKey(),
@@ -395,10 +411,12 @@ public class EditWorklogTest {
 
     try {
       worklogManager.editWorklog(sameIssueValidateFailWorklog.getId(),
-          sameIssueValidateFailWorklog.getIssue().getKey(),
-          defaultComment,
-          DateTimeConverterUtil.convertDateTimeToDate(defaultDate),
-          defaultTimeSpent);
+          new WorklogParameter(sameIssueValidateFailWorklog.getIssue().getKey(),
+              defaultComment,
+              DateTimeConverterUtil.convertDateTimeToDate(defaultDate),
+              defaultTimeSpent,
+              "",
+              RemainingEstimateType.AUTO));
       Assert.fail("Expect WorklogException");
     } catch (WorklogException e) {
       assertWorklogException(e, "",
@@ -406,9 +424,11 @@ public class EditWorklogTest {
     }
 
     worklogManager.editWorklog(sameIssueSuccessWorklog.getId(),
-        sameIssueSuccessWorklog.getIssue().getKey(),
-        defaultComment,
-        DateTimeConverterUtil.convertDateTimeToDate(defaultDate),
-        defaultTimeSpent);
+        new WorklogParameter(sameIssueSuccessWorklog.getIssue().getKey(),
+            defaultComment,
+            DateTimeConverterUtil.convertDateTimeToDate(defaultDate),
+            defaultTimeSpent,
+            "",
+            RemainingEstimateType.AUTO));
   }
 }
