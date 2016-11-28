@@ -27,6 +27,8 @@ import org.everit.jira.settings.TimetrackerSettingsHelper;
 import org.everit.jira.settings.dto.TimeTrackerUserSettings;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeConstants;
 
 import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
 
@@ -70,38 +72,42 @@ public class TimetrackerComponent implements TimetrackerManager {
   @Override
   public Date firstMissingWorklogsDate(final Set<Date> excludeDatesSet,
       final Set<Date> includeDatesSet) {
-    Calendar scannedDate = Calendar.getInstance();
+    // TODO change the return type to DateTime in User TimeZone
+    DateTime scannedDate = new DateTime(TimetrackerUtil.getLoggedUserTimeZone());
     // one week
-    scannedDate.set(Calendar.DAY_OF_YEAR,
-        scannedDate.get(Calendar.DAY_OF_YEAR) - DateTimeConverterUtil.DAYS_PER_WEEK);
+    scannedDate = scannedDate.withDayOfYear(
+        scannedDate.getDayOfYear() - DateTimeConverterUtil.DAYS_PER_WEEK);
+    // TODO i'm not sure this for cycle FIXME if necessary
     for (int i = 0; i < DateTimeConverterUtil.DAYS_PER_WEEK; i++) {
       // convert date to String
-      Date scanedDateDate = scannedDate.getTime();
+      Date scanedDateDate = DateTimeConverterUtil.convertDateTimeToDate(scannedDate);
       // check excludse - pass
       if (TimetrackerUtil.containsSetTheSameDay(excludeDatesSet, scanedDateDate)) {
-        scannedDate.set(Calendar.DAY_OF_YEAR, scannedDate.get(Calendar.DAY_OF_YEAR) + 1);
+        scannedDate = scannedDate.withDayOfYear(scannedDate.getDayOfYear() + 1);
         continue;
       }
       // check includes - not check weekend
       // check weekend - pass
       if (!TimetrackerUtil.containsSetTheSameDay(includeDatesSet, scanedDateDate)
-          && ((scannedDate.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY)
-              || (scannedDate.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY))) {
-        scannedDate.set(Calendar.DAY_OF_YEAR,
-            scannedDate.get(Calendar.DAY_OF_YEAR) + 1);
+          && ((scannedDate.getDayOfWeek() == DateTimeConstants.SUNDAY)
+              || (scannedDate.getDayOfWeek() == DateTimeConstants.SATURDAY))) {
+        scannedDate = scannedDate.withDayOfYear(scannedDate.getDayOfYear() + 1);
         continue;
       }
       // check worklog. if no worklog set result else ++ scanedDate
-      boolean isDateContainsWorklog = TimetrackerUtil.isContainsWorklog(scanedDateDate);
+      scannedDate = DateTimeConverterUtil.setDateToDayStart(scannedDate);
+      boolean isDateContainsWorklog = TimetrackerUtil
+          .isContainsWorklog(
+              DateTimeConverterUtil.convertDateTimeToDate(
+                  DateTimeConverterUtil.convertDateZoneToSystemTimeZone(scannedDate)));
       if (!isDateContainsWorklog) {
         return scanedDateDate;
       } else {
-        scannedDate.set(Calendar.DAY_OF_YEAR,
-            scannedDate.get(Calendar.DAY_OF_YEAR) + 1);
+        scannedDate = scannedDate.withDayOfYear(scannedDate.getDayOfYear() + 1);
       }
     }
     // if we find everything all right then return with the current date
-    return scannedDate.getTime();
+    return DateTimeConverterUtil.convertDateTimeToDate(scannedDate);
   }
 
   @Override
@@ -131,21 +137,23 @@ public class TimetrackerComponent implements TimetrackerManager {
   }
 
   @Override
-  public List<String> getLoggedDaysOfTheMonth(final Date date) {
+  public List<String> getLoggedDaysOfTheMonth(final DateTime date) {
     List<String> resultDays = new ArrayList<>();
     int dayOfMonth = 1;
-    Calendar startCalendar = Calendar.getInstance();
-    startCalendar.setTime(date);
-    startCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-    Date start = startCalendar.getTime();
+    DateTime startCalendar = date.withDayOfMonth(dayOfMonth);
 
-    int maxDayOfMonth = startCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+    int maxDayOfMonth = startCalendar.dayOfMonth().getMaximumValue();
+    // TODO FIXME
     while (dayOfMonth <= maxDayOfMonth) {
-      if (TimetrackerUtil.isContainsWorklog(start)) {
+      DateTime dayStart = DateTimeConverterUtil.setDateToDayStart(startCalendar);
+      if (TimetrackerUtil.isContainsWorklog(
+          DateTimeConverterUtil.convertDateTimeToDate(
+              DateTimeConverterUtil.convertDateZoneToSystemTimeZone(dayStart)))) {
         resultDays.add(Integer.toString(dayOfMonth));
       }
-      startCalendar.set(Calendar.DAY_OF_MONTH, ++dayOfMonth);
-      start = startCalendar.getTime();
+      // startCalendar = startCalendar.withDayOfMonth(++dayOfMonth);
+      startCalendar = startCalendar.plusDays(1);
+      dayOfMonth++;
     }
 
     return resultDays;

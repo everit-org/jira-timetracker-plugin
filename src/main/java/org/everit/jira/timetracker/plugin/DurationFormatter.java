@@ -90,10 +90,12 @@ public class DurationFormatter implements Serializable {
         ComponentAccessor.getJiraAuthenticationContext();
     I18nHelper i18nHelper = jiraAuthenticationContext.getI18nHelper();
 
-    daysDurationFormatter = new DaysDurationFormatter(new BigDecimal(workHoursPerDay), i18nHelper);
+    daysDurationFormatter = new DaysDurationFormatter(
+        new BigDecimal(workHoursPerDay).setScale(2, RoundingMode.HALF_UP), i18nHelper);
     hoursDurationFormatter = new HoursDurationFormatter(i18nHelper);
-    prettyDurationFormatter = new PrettyDurationFormatter(new BigDecimal(workHoursPerDay),
-        new BigDecimal(workDaysPerWeek), i18nHelper);
+    prettyDurationFormatter = new PrettyDurationFormatter(
+        new BigDecimal(workHoursPerDay).setScale(2, RoundingMode.HALF_UP),
+        new BigDecimal(workDaysPerWeek).setScale(2, RoundingMode.HALF_UP), i18nHelper);
 
   }
 

@@ -21,6 +21,7 @@ import java.util.regex.Pattern;
 
 import org.everit.jira.reporting.plugin.dto.MissingsWorklogsDTO;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
+import org.joda.time.DateTime;
 import org.ofbiz.core.entity.GenericEntityException;
 
 /**
@@ -34,9 +35,9 @@ public interface SupportManager {
    * and the properties file exclude dates but check the properties file include dates.
    *
    * @param from
-   *          The query from parameter.
+   *          The query from parameter, the date in user's TimeZone.
    * @param to
-   *          The query to parameter.
+   *          The query to parameter, the date in user's TimeZone.
    * @param workingHours
    *          The report have to check the spent time or not.
    * @param nonWorking
@@ -47,7 +48,7 @@ public interface SupportManager {
    * @throws GenericEntityException
    *           If GenericEntity Exception.
    */
-  List<MissingsWorklogsDTO> getDates(Date from, Date to, boolean workingHours,
+  List<MissingsWorklogsDTO> getDates(DateTime from, DateTime to, boolean workingHours,
       boolean nonWorking, TimeTrackerGlobalSettings settings) throws GenericEntityException;
 
   /**

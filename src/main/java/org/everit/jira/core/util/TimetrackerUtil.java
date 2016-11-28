@@ -22,18 +22,23 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.everit.jira.timetracker.plugin.dto.WorklogValues;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
+import org.joda.time.DateTimeZone;
 import org.ofbiz.core.entity.EntityCondition;
 import org.ofbiz.core.entity.GenericValue;
 
+import com.atlassian.jira.bc.JiraServiceContext;
+import com.atlassian.jira.bc.JiraServiceContextImpl;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.status.Status;
 import com.atlassian.jira.security.JiraAuthenticationContext;
+import com.atlassian.jira.timezone.TimeZoneServiceImpl;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.util.I18nHelper;
 import com.google.gson.Gson;
@@ -204,10 +209,49 @@ public final class TimetrackerUtil {
   }
 
   /**
+   * Get the logged user {@link DateTimeZone}.
+   *
+   * @return The logged user {@link DateTimeZone}.
+   */
+  public static DateTimeZone getLoggedUserTimeZone() {
+    JiraAuthenticationContext authenticationContext = ComponentAccessor
+        .getJiraAuthenticationContext();
+    ApplicationUser user = authenticationContext.getUser();
+    JiraServiceContext serviceContext = new JiraServiceContextImpl(user);
+
+    TimeZoneServiceImpl timeZoneServiceImpl =
+        new TimeZoneServiceImpl(ComponentAccessor.getApplicationProperties(),
+            ComponentAccessor.getPermissionManager(),
+            ComponentAccessor.getUserPreferencesManager());
+    TimeZone timeZone = timeZoneServiceImpl.getUserTimeZone(serviceContext);
+    return DateTimeZone.forTimeZone(timeZone);
+  }
+
+  /**
+   * Get the system {@link DateTimeZone}.
+   *
+   * @return The system {@link DateTimeZone}.
+   */
+  public static DateTimeZone getSystemTimeZone() {
+    JiraAuthenticationContext authenticationContext = ComponentAccessor
+        .getJiraAuthenticationContext();
+    ApplicationUser user = authenticationContext.getUser();
+    JiraServiceContext serviceContext = new JiraServiceContextImpl(user);
+
+    TimeZoneServiceImpl timeZoneServiceImpl =
+        new TimeZoneServiceImpl(ComponentAccessor.getApplicationProperties(),
+            ComponentAccessor.getPermissionManager(),
+            ComponentAccessor.getUserPreferencesManager());
+    TimeZone timeZone = timeZoneServiceImpl.getJVMTimeZoneInfo(serviceContext).toTimeZone();
+    return DateTimeZone.forTimeZone(timeZone);
+  }
+
+  /**
    * Check the given date, the user have worklogs or not.
    *
    * @param date
-   *          The date what have to check.
+   *          The date what have to check. The date have to be set to day start and after that
+   *          convert to system Time Zone.
    * @return If The user have worklogs the given date then true, esle false.
    */
   public static boolean isContainsWorklog(final Date date) {
@@ -215,7 +259,8 @@ public final class TimetrackerUtil {
         .getJiraAuthenticationContext();
     ApplicationUser user = authenticationContext.getLoggedInUser();
 
-    Calendar startDate = DateTimeConverterUtil.setDateToDayStart(date);
+    Calendar startDate = Calendar.getInstance();
+    startDate.setTime(date);
     Calendar endDate = (Calendar) startDate.clone();
     endDate.add(Calendar.DAY_OF_MONTH, 1);
 
