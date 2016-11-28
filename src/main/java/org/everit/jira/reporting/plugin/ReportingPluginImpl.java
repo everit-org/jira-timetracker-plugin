@@ -37,6 +37,7 @@ import org.everit.jira.reporting.plugin.query.IssueSummaryReportQueryBuilder;
 import org.everit.jira.reporting.plugin.query.ProjectSummaryReportQueryBuilder;
 import org.everit.jira.reporting.plugin.query.UserSummaryReportQueryBuilder;
 import org.everit.jira.reporting.plugin.query.WorklogDetailsReportQueryBuilder;
+import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
@@ -191,6 +192,17 @@ public class ReportingPluginImpl implements ReportingPlugin, InitializingBean,
         worklogDetailsReportQueryBuilder.buildGrandTotalQuery();
 
     List<WorklogDetailsDTO> worklogDetails = querydslSupport.execute(worklogDetailsQuery);
+    for (WorklogDetailsDTO worklogDetail : worklogDetails) {
+      worklogDetail.setIssueUpdated(
+          DateTimeConverterUtil.convertTimestampToUserTimeZone(worklogDetail.getIssueUpdated()));
+      worklogDetail.setWorklogCreated(
+          DateTimeConverterUtil.convertTimestampToUserTimeZone(worklogDetail.getWorklogCreated()));
+      worklogDetail.setWorklogStartDate(
+          DateTimeConverterUtil
+              .convertTimestampToUserTimeZone(worklogDetail.getWorklogStartDate()));
+      worklogDetail.setWorklogUpdated(
+          DateTimeConverterUtil.convertTimestampToUserTimeZone(worklogDetail.getWorklogUpdated()));
+    }
 
     Long worklogDetailsCount = querydslSupport.execute(worklogDetailsCountQuery);
 

@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
+import org.joda.time.DateTime;
 
 /**
  * Provides information for timetracker.
@@ -55,7 +56,7 @@ public interface TimetrackerManager {
    * The method find the exclude dates of the given date month.
    *
    * @param date
-   *          The date.
+   *          The date in User TimeZone.
    * @param exludeDates
    *          the excluded dates.
    * @return The list of the days in String format. (Eg. ["12","15"])
@@ -66,7 +67,7 @@ public interface TimetrackerManager {
    * The method find the include dates of the given date month.
    *
    * @param date
-   *          The date.
+   *          The date in User TimeZone.
    * @param exludeDates
    *          the excluded dates.
    * @return The list of the days in String format. (Eg. ["12","15"])
@@ -77,10 +78,10 @@ public interface TimetrackerManager {
    * The method find the logged days of the given date month.
    *
    * @param date
-   *          The date.
+   *          The date in DateTime with User Time Zone.
    * @return The list of the days in String format. (Eg. ["12","15"])
    */
-  List<String> getLoggedDaysOfTheMonth(Date date);
+  List<String> getLoggedDaysOfTheMonth(DateTime date);
 
   /**
    * Give back the biggest end time of the date after worklogs method. Or give back 08:00.

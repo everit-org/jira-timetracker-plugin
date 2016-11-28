@@ -27,6 +27,7 @@ import org.everit.jira.core.SupportManager;
 import org.everit.jira.core.TimetrackerManager;
 import org.everit.jira.timetracker.plugin.DurationFormatter;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
+import org.joda.time.DateTime;
 
 import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
 import com.atlassian.jira.component.ComponentAccessor;
@@ -47,7 +48,7 @@ public final class SummaryDTO {
 
     private static final int SECOND_IN_HOUR = 3600;
 
-    private final Date date;
+    private final DateTime date;
 
     private double dayExpectedWorkSeconds;
 
@@ -103,7 +104,7 @@ public final class SummaryDTO {
     public SummaryDTOBuilder(final TimeTrackingConfiguration timeTrackingConfiguration,
         final TimetrackerManager timetrackerManager,
         final SupportManager supportManager,
-        final Date date,
+        final DateTime date,
         final Set<Date> excludeDatesAsSet,
         final Set<Date> includeDatesAsSet,
         final List<Pattern> issuePatterns) {
@@ -144,10 +145,10 @@ public final class SummaryDTO {
 
     private double calculateExpectedWorkSecondsInMonth(final double expectedWorkSecondsInDay) {
       Calendar dayIndex = createNewCalendarWithWeekStart();
-      dayIndex.setTime(date);
+      dayIndex.setTime(DateTimeConverterUtil.convertDateTimeToDate(date));
       dayIndex.set(Calendar.DAY_OF_MONTH, 1);
       Calendar monthLastDay = createNewCalendarWithWeekStart();
-      monthLastDay.setTime(date);
+      monthLastDay.setTime(DateTimeConverterUtil.convertDateTimeToDate(date));
       monthLastDay.set(Calendar.DAY_OF_MONTH,
           monthLastDay.getActualMaximum(Calendar.DAY_OF_MONTH));
 
@@ -155,9 +156,11 @@ public final class SummaryDTO {
           TimeUnit.DAYS.convert(monthLastDay.getTimeInMillis() - dayIndex.getTimeInMillis(),
               TimeUnit.MILLISECONDS) + 1;
       int excludeDtaes =
-          timetrackerManager.getExcludeDaysOfTheMonth(date, excludeDatesAsSet).size();
+          timetrackerManager.getExcludeDaysOfTheMonth(
+              DateTimeConverterUtil.convertDateTimeToDate(date), excludeDatesAsSet).size();
       int includeDtaes =
-          timetrackerManager.getIncludeDaysOfTheMonth(date, includeDatesAsSet).size();
+          timetrackerManager.getIncludeDaysOfTheMonth(
+              DateTimeConverterUtil.convertDateTimeToDate(date), includeDatesAsSet).size();
       int nonWorkDaysCount = 0;
       for (int i = 1; i < daysInMonth; i++) {
         int dayOfweek = dayIndex.get(Calendar.DAY_OF_WEEK);
@@ -173,7 +176,7 @@ public final class SummaryDTO {
     private double calculateExpectedWorkSecondsInWeek(final double expectedWorkSecondsInDay) {
       List<Date> weekdays = new ArrayList<>();
       Calendar dayIndex = createNewCalendarWithWeekStart();
-      dayIndex.setTime(getWeekStart(date));
+      dayIndex.setTime(getWeekStart(DateTimeConverterUtil.convertDateTimeToDate(date)));
       for (int i = 0; i < DateTimeConverterUtil.DAYS_PER_WEEK; i++) {
         weekdays.add(dayIndex.getTime());
         dayIndex.add(Calendar.DAY_OF_MONTH, 1);
@@ -183,52 +186,85 @@ public final class SummaryDTO {
       return realWorkDaysInWeek * expectedWorkSecondsInDay;
     }
 
-    private void calculateFilteredAndNotFilteredSummarySeconds(final Date date,
+    private void calculateFilteredAndNotFilteredSummarySeconds(final DateTime date,
         final List<Pattern> issuesRegex) {
+
       Calendar startCalendar = createNewCalendarWithWeekStart();
-      startCalendar.setTime(date);
+      startCalendar.setTime(DateTimeConverterUtil.convertDateTimeToDate(date));
       startCalendar.set(Calendar.HOUR_OF_DAY, 0);
       startCalendar.set(Calendar.MINUTE, 0);
       startCalendar.set(Calendar.SECOND, 0);
       startCalendar.set(Calendar.MILLISECOND, 0);
+
       Calendar originalStartcalendar = (Calendar) startCalendar.clone();
-      Date start = startCalendar.getTime();
+      DateTime start = new DateTime(startCalendar.getTimeInMillis());
 
       Calendar endCalendar = (Calendar) startCalendar.clone();
       endCalendar.add(Calendar.DAY_OF_MONTH, 1);
+      DateTime end = new DateTime(endCalendar.getTimeInMillis());
 
-      Date end = endCalendar.getTime();
-      daySummaryInSeconds = supportManager.summary(start, end, null);
+      daySummaryInSeconds = supportManager.summary(
+          DateTimeConverterUtil
+              .convertDateTimeToDate(DateTimeConverterUtil.convertDateZoneToSystemTimeZone(start)),
+          DateTimeConverterUtil
+              .convertDateTimeToDate(DateTimeConverterUtil.convertDateZoneToSystemTimeZone(end)),
+          null);
       if (isIssuePatternsNotEmpty()) {
-        dayFilteredSummaryInSecond = supportManager.summary(start, end, issuesRegex);
+        dayFilteredSummaryInSecond = supportManager.summary(
+            DateTimeConverterUtil.convertDateTimeToDate(
+                DateTimeConverterUtil.convertDateZoneToSystemTimeZone(start)),
+            DateTimeConverterUtil
+                .convertDateTimeToDate(DateTimeConverterUtil.convertDateZoneToSystemTimeZone(end)),
+            issuesRegex);
       }
 
       startCalendar = (Calendar) originalStartcalendar.clone();
       while (startCalendar.get(Calendar.DAY_OF_WEEK) != startCalendar.getFirstDayOfWeek()) {
         startCalendar.add(Calendar.DATE, -1); // Substract 1 day until first day of week.
       }
-      start = startCalendar.getTime();
+      start = new DateTime(startCalendar.getTimeInMillis());
+
       endCalendar = (Calendar) startCalendar.clone();
       endCalendar.add(Calendar.DATE, DateTimeConverterUtil.DAYS_PER_WEEK);
-      end = endCalendar.getTime();
+      end = new DateTime(endCalendar.getTimeInMillis());
 
-      weekSummaryInSecond = supportManager.summary(start, end, null);
+      weekSummaryInSecond = supportManager.summary(
+          DateTimeConverterUtil
+              .convertDateTimeToDate(DateTimeConverterUtil.convertDateZoneToSystemTimeZone(start)),
+          DateTimeConverterUtil
+              .convertDateTimeToDate(DateTimeConverterUtil.convertDateZoneToSystemTimeZone(end)),
+          null);
       if (isIssuePatternsNotEmpty()) {
-        weekFilteredSummaryInSecond = supportManager.summary(start, end, issuesRegex);
+        weekFilteredSummaryInSecond = supportManager.summary(
+            DateTimeConverterUtil.convertDateTimeToDate(
+                DateTimeConverterUtil.convertDateZoneToSystemTimeZone(start)),
+            DateTimeConverterUtil
+                .convertDateTimeToDate(DateTimeConverterUtil.convertDateZoneToSystemTimeZone(end)),
+            issuesRegex);
       }
 
       startCalendar = (Calendar) originalStartcalendar.clone();
       startCalendar.set(Calendar.DAY_OF_MONTH, 1);
-      start = startCalendar.getTime();
+      start = new DateTime(startCalendar.getTimeInMillis());
 
       endCalendar = (Calendar) originalStartcalendar.clone();
       endCalendar.set(Calendar.DAY_OF_MONTH,
           endCalendar.getActualMaximum(Calendar.DAY_OF_MONTH));
       endCalendar.add(Calendar.DAY_OF_MONTH, 1);
-      end = endCalendar.getTime();
-      monthSummaryInSecounds = supportManager.summary(start, end, null);
+      end = new DateTime(endCalendar.getTimeInMillis());
+      monthSummaryInSecounds = supportManager.summary(
+          DateTimeConverterUtil
+              .convertDateTimeToDate(DateTimeConverterUtil.convertDateZoneToSystemTimeZone(start)),
+          DateTimeConverterUtil
+              .convertDateTimeToDate(DateTimeConverterUtil.convertDateZoneToSystemTimeZone(end)),
+          null);
       if (isIssuePatternsNotEmpty()) {
-        monthFilteredSummaryInSecond = supportManager.summary(start, end, issuesRegex);
+        monthFilteredSummaryInSecond = supportManager.summary(
+            DateTimeConverterUtil.convertDateTimeToDate(
+                DateTimeConverterUtil.convertDateZoneToSystemTimeZone(start)),
+            DateTimeConverterUtil
+                .convertDateTimeToDate(DateTimeConverterUtil.convertDateZoneToSystemTimeZone(end)),
+            issuesRegex);
       }
     }
 

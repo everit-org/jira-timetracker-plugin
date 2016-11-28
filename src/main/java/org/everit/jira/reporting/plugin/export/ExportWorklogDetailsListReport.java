@@ -28,6 +28,7 @@ import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
 import org.everit.jira.reporting.plugin.dto.WorklogDetailsDTO;
 import org.everit.jira.reporting.plugin.query.WorklogDetailsReportQueryBuilder;
 import org.everit.jira.settings.dto.TimeTrackerUserSettings;
+import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 
 /**
  * Class that export worklog details list report.
@@ -77,7 +78,17 @@ public class ExportWorklogDetailsListReport extends AbstractExportListReport {
         querydslSupport.execute(new WorklogDetailsReportQueryBuilder(reportSearchParam,
             orderBy)
                 .buildQuery());
-
+    for (WorklogDetailsDTO worklogDetail : worklogDetails) {
+      worklogDetail.setIssueUpdated(
+          DateTimeConverterUtil.convertTimestampToUserTimeZone(worklogDetail.getIssueUpdated()));
+      worklogDetail.setWorklogCreated(
+          DateTimeConverterUtil.convertTimestampToUserTimeZone(worklogDetail.getWorklogCreated()));
+      worklogDetail.setWorklogStartDate(
+          DateTimeConverterUtil
+              .convertTimestampToUserTimeZone(worklogDetail.getWorklogStartDate()));
+      worklogDetail.setWorklogUpdated(
+          DateTimeConverterUtil.convertTimestampToUserTimeZone(worklogDetail.getWorklogUpdated()));
+    }
     for (WorklogDetailsDTO worklogDetailsDTO : worklogDetails) {
       insertBodyRow(worklogDetailsSheet, worklogDetailsDTO);
     }

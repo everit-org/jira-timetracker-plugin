@@ -16,7 +16,6 @@
 package org.everit.jira.tests.core.impl.worklogmanager;
 
 import java.text.ParseException;
-import java.util.Date;
 import java.util.Locale;
 
 import org.everit.jira.core.EVWorklogManager;
@@ -26,6 +25,8 @@ import org.everit.jira.core.impl.WorklogComponent;
 import org.everit.jira.core.impl.WorklogComponent.PropertiesKey;
 import org.everit.jira.tests.core.DummyDateTimeFromatter;
 import org.everit.jira.timetracker.plugin.exception.WorklogException;
+import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
+import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -303,15 +304,15 @@ public class EditWorklogTest {
   @Test
   public void testEditWorklog() {
     String defaultComment = "comment";
-    Date defaultDate = new Date();
-    String defaultTime = "08:00";
+    String defaultStartTime = "08:00";
+    DateTime defaultDate =
+        DateTimeConverterUtil.stringToDateAndTime(new DateTime(), defaultStartTime);
     String defaultTimeSpent = "10";
     try {
       worklogManager.editWorklog(invalidIssueWorklog.getId(),
           new WorklogParameter(invalidIssueWorklog.getIssue().getKey(),
               defaultComment,
-              defaultDate,
-              defaultTime,
+              DateTimeConverterUtil.convertDateTimeToDate(defaultDate),
               defaultTimeSpent,
               "",
               RemainingEstimateType.AUTO));
@@ -325,8 +326,7 @@ public class EditWorklogTest {
       worklogManager.editWorklog(notSameIssueNoPermissionWorklog.getId(),
           new WorklogParameter(notSameIssueToNoPermission.getKey(),
               defaultComment,
-              defaultDate,
-              defaultTime,
+              DateTimeConverterUtil.convertDateTimeToDate(defaultDate),
               defaultTimeSpent,
               "",
               RemainingEstimateType.AUTO));
@@ -340,8 +340,7 @@ public class EditWorklogTest {
       worklogManager.editWorklog(notSameIssueNoPermissionWorklog.getId(),
           new WorklogParameter(notSameIssueToNoPermission.getKey(),
               defaultComment,
-              defaultDate,
-              defaultTime,
+              DateTimeConverterUtil.convertDateTimeToDate(defaultDate),
               defaultTimeSpent,
               "",
               RemainingEstimateType.AUTO));
@@ -355,8 +354,7 @@ public class EditWorklogTest {
       worklogManager.editWorklog(notSameIssueDeleteFailIssueWorklog.getId(),
           new WorklogParameter(notSameIssueToDeleteFail.getKey(),
               defaultComment,
-              defaultDate,
-              defaultTime,
+              DateTimeConverterUtil.convertDateTimeToDate(defaultDate),
               defaultTimeSpent,
               "",
               RemainingEstimateType.AUTO));
@@ -370,8 +368,7 @@ public class EditWorklogTest {
       worklogManager.editWorklog(notSameIssueCreateFailIssueWorklog.getId(),
           new WorklogParameter(notSameIssueToCreateFail.getKey(),
               defaultComment,
-              defaultDate,
-              defaultTime,
+              DateTimeConverterUtil.convertDateTimeToDate(defaultDate),
               defaultTimeSpent,
               "",
               RemainingEstimateType.AUTO));
@@ -381,28 +378,28 @@ public class EditWorklogTest {
           PropertiesKey.NOPERMISSION_CREATE_WORKLOG);
     }
 
-    String wrongTime = "wrong";
-    try {
-      worklogManager.editWorklog(sameIssueDateParseWorklog.getId(),
-          new WorklogParameter(sameIssueDateParseWorklog.getIssue().getKey(),
-              defaultComment,
-              defaultDate,
-              wrongTime,
-              defaultTimeSpent,
-              "",
-              RemainingEstimateType.AUTO));
-      Assert.fail("Expect WorklogException");
-    } catch (WorklogException e) {
-      assertWorklogException(e, defaultDate + " " + wrongTime,
-          PropertiesKey.DATE_PARSE);
-    }
+    // The parse date error not come's from the createWorklog method any more
+    // String wrongTime = "wrong";
+    // try {
+    // worklogManager.editWorklog(sameIssueDateParseWorklog.getId(),
+    // new WorklogParameter(sameIssueDateParseWorklog.getIssue().getKey(),
+    // defaultComment,
+    // defaultDate,
+    // wrongTime,
+    // defaultTimeSpent,
+    // "",
+    // RemainingEstimateType.AUTO));
+    // Assert.fail("Expect WorklogException");
+    // } catch (WorklogException e) {
+    // assertWorklogException(e, defaultDate + " " + wrongTime,
+    // PropertiesKey.DATE_PARSE);
+    // }
 
     try {
       worklogManager.editWorklog(sameIssueNoPermissionToUpdateWorklog.getId(),
           new WorklogParameter(sameIssueNoPermissionToUpdateWorklog.getIssue().getKey(),
               defaultComment,
-              defaultDate,
-              defaultTime,
+              DateTimeConverterUtil.convertDateTimeToDate(defaultDate),
               defaultTimeSpent,
               "",
               RemainingEstimateType.AUTO));
@@ -416,8 +413,7 @@ public class EditWorklogTest {
       worklogManager.editWorklog(sameIssueValidateFailWorklog.getId(),
           new WorklogParameter(sameIssueValidateFailWorklog.getIssue().getKey(),
               defaultComment,
-              defaultDate,
-              defaultTime,
+              DateTimeConverterUtil.convertDateTimeToDate(defaultDate),
               defaultTimeSpent,
               "",
               RemainingEstimateType.AUTO));
@@ -430,8 +426,7 @@ public class EditWorklogTest {
     worklogManager.editWorklog(sameIssueSuccessWorklog.getId(),
         new WorklogParameter(sameIssueSuccessWorklog.getIssue().getKey(),
             defaultComment,
-            defaultDate,
-            defaultTime,
+            DateTimeConverterUtil.convertDateTimeToDate(defaultDate),
             defaultTimeSpent,
             "",
             RemainingEstimateType.AUTO));

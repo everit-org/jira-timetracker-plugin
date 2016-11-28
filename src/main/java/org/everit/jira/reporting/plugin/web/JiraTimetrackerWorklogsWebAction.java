@@ -18,8 +18,6 @@ package org.everit.jira.reporting.plugin.web;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
@@ -38,6 +36,7 @@ import org.everit.jira.timetracker.plugin.util.ExceptionUtil;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 import org.everit.jira.updatenotifier.UpdateNotifier;
+import org.joda.time.DateTime;
 import org.ofbiz.core.entity.GenericEntityException;
 
 import com.atlassian.jira.datetime.DateTimeFormatter;
@@ -98,14 +97,14 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
   private String contextPath;
 
-  private Date dateFrom;
+  private DateTime dateFrom;
 
   /**
    * The formated date.
    */
   private Long dateFromFormated;
 
-  private Date dateTo;
+  private DateTime dateTo;
 
   /**
    * The formated date.
@@ -190,17 +189,17 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    * Set dateFrom and dateFromFormated default value.
    */
   private void dateFromDefaultInit() {
-    Calendar calendarFrom = Calendar.getInstance();
-    calendarFrom.set(Calendar.MONTH, calendarFrom.get(Calendar.MONTH) - 1);
-    dateFromFormated = calendarFrom.getTimeInMillis();
+    DateTime date = new DateTime(TimetrackerUtil.getLoggedUserTimeZone());
+    date = date.minusMonths(1);
+    dateFromFormated = date.getMillis();
   }
 
   /**
    * Set dateTo and dateToFormated default values.
    */
   private void dateToDefaultInit() {
-    Calendar calendarTo = Calendar.getInstance();
-    dateToFormated = calendarTo.getTimeInMillis();
+    DateTime date = new DateTime(TimetrackerUtil.getLoggedUserTimeZone());
+    dateToFormated = date.getMillis();
   }
 
   @Override
@@ -219,11 +218,15 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     if (dateToFormated == null) {
       dateToDefaultInit();
     }
-    dateTo = new Date(dateToFormated);
+    dateTo = new DateTime(dateToFormated);
+    dateTo = dateTo.withZoneRetainFields(TimetrackerUtil.getLoggedUserTimeZone());
+
     if (dateFromFormated == null) {
       dateFromDefaultInit();
     }
-    dateFrom = new Date(dateFromFormated);
+    dateFrom = new DateTime(dateFromFormated);
+    dateFrom = dateFrom.withZoneRetainFields(TimetrackerUtil.getLoggedUserTimeZone());
+
     try {
       // TODO not simple "" for selectedUser. Use user picker
       // Default check box parameter false, false
@@ -400,7 +403,8 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     } else if (dateFromFormated == null) {
       dateFromDefaultInit();
     }
-    dateFrom = new Date(dateFromFormated);
+    dateFrom = new DateTime(dateFromFormated);
+    dateFrom = dateFrom.withZoneRetainFields(TimetrackerUtil.getLoggedUserTimeZone());
 
     String requestDateTo = getHttpRequest().getParameter(PARAM_DATETO);
     if (requestDateTo != null) {
@@ -408,7 +412,8 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     } else if (dateToFormated == null) {
       dateToDefaultInit();
     }
-    dateTo = new Date(dateToFormated);
+    dateTo = new DateTime(dateToFormated);
+    dateTo = dateTo.withZoneRetainFields(TimetrackerUtil.getLoggedUserTimeZone());
 
   }
 
@@ -436,8 +441,8 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
       }
     } else {
       parsePagingParams();
-      dateFrom = new Date(dateFromFormated);
-      dateTo = new Date(dateToFormated);
+      dateFrom = new DateTime(dateFromFormated);
+      dateTo = new DateTime(dateToFormated);
     }
     parseCheckboxParam();
     return null;

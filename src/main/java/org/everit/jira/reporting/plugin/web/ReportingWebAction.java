@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -55,6 +54,7 @@ import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 import org.everit.jira.updatenotifier.UpdateNotifier;
+import org.joda.time.DateTime;
 
 import com.atlassian.jira.bc.filter.DefaultSearchRequestService;
 import com.atlassian.jira.component.ComponentAccessor;
@@ -383,7 +383,7 @@ public class ReportingWebAction extends JiraWebActionSupport {
   }
 
   public boolean getIsShowTutorialDialog() {
-    return isShowTutorialDialog;
+    return isShowTutorialDialog && defaultCommand;
   }
 
   public String getIssueCollectorSrc() {
@@ -456,14 +456,13 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   private void initDatesIfNecessary() {
     if (filterCondition.getWorklogStartDate() == null) {
-      Calendar calendarFrom = Calendar.getInstance();
-      calendarFrom.add(Calendar.WEEK_OF_MONTH, -1);
-      filterCondition.setWorklogStartDate(calendarFrom.getTimeInMillis());
+      DateTime dateFrom = new DateTime(TimetrackerUtil.getLoggedUserTimeZone());
+      dateFrom = dateFrom.minusWeeks(1);
+      filterCondition.setWorklogStartDate(dateFrom.getMillis());
     }
     if (filterCondition.getWorklogEndDate() == null) {
-      Calendar calendarTo = Calendar.getInstance();
-      // Date dateTo = calendarTo.getTime();
-      filterCondition.setWorklogEndDate(calendarTo.getTimeInMillis());
+      DateTime dateTo = new DateTime(TimetrackerUtil.getLoggedUserTimeZone());
+      filterCondition.setWorklogEndDate(dateTo.getMillis());
     }
   }
 

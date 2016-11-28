@@ -21,12 +21,11 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -34,6 +33,8 @@ import org.everit.jira.core.SupportManager;
 import org.everit.jira.core.impl.SupportComponent;
 import org.everit.jira.reporting.plugin.dto.MissingsWorklogsDTO;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
+import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
+import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
@@ -55,7 +56,12 @@ import com.atlassian.jira.ofbiz.OfBizDelegator;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.PermissionManager;
 import com.atlassian.jira.security.Permissions;
+import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.user.MockApplicationUser;
+import com.atlassian.jira.user.preferences.JiraUserPreferences;
+import com.atlassian.jira.user.preferences.UserPreferencesManager;
+import com.atlassian.jira.util.I18nHelper;
+import com.atlassian.jira.util.I18nHelper.BeanFactory;
 
 public class GetDatesTest {
 
@@ -97,15 +103,15 @@ public class GetDatesTest {
 
   private TimeTrackerGlobalSettings timeTrackerGlobalSettings;
 
-  private Date today;
+  private DateTime today;
 
-  private Date todayPlus1;
+  private DateTime todayPlus1;
 
-  private Date todayPlus2;
+  private DateTime todayPlus2;
 
-  private Date todayPlus3;
+  private DateTime todayPlus3;
 
-  private Date todayPlus4;
+  private DateTime todayPlus4;
 
   private GenericValue createDummyGenericValue(final long issueId, final long timeworked) {
     HashMap<String, Object> values = new HashMap<>();
@@ -117,25 +123,22 @@ public class GetDatesTest {
 
   private void initMockComponentWorker() {
     timeTrackerGlobalSettings = new TimeTrackerGlobalSettings();
-    final Calendar date = Calendar.getInstance();
-    today = date.getTime();
-    date.add(Calendar.DAY_OF_YEAR, 1);
-    todayPlus1 = date.getTime();
-    date.setTime(todayPlus1);
-    date.add(Calendar.DAY_OF_YEAR, 1);
-    todayPlus2 = date.getTime();
-    date.setTime(todayPlus2);
-    date.add(Calendar.DAY_OF_YEAR, 1);
-    todayPlus3 = date.getTime();
-    date.setTime(todayPlus3);
-    date.add(Calendar.DAY_OF_YEAR, 1);
-    todayPlus4 = date.getTime();
+    DateTime date = new DateTime();
+    today = date.toDateTime();
+    date = date.plusDays(1);
+    todayPlus1 = date.toDateTime();
+    date = date.plusDays(1);
+    todayPlus2 = date.toDateTime();
+    date = date.plusDays(1);
+    todayPlus3 = date.toDateTime();
+    date = date.plusDays(1);
+    todayPlus4 = date.toDateTime();
 
-    timeTrackerGlobalSettings.excludeDates(new HashSet<>(Arrays.asList(todayPlus1.getTime())));
-    timeTrackerGlobalSettings.includeDates(new HashSet<>(Arrays.asList(today.getTime(),
-        todayPlus2.getTime(),
-        todayPlus3.getTime(),
-        todayPlus4.getTime())));
+    timeTrackerGlobalSettings.excludeDates(new HashSet<>(Arrays.asList(todayPlus1.getMillis())));
+    timeTrackerGlobalSettings.includeDates(new HashSet<>(Arrays.asList(today.getMillis(),
+        todayPlus2.getMillis(),
+        todayPlus3.getMillis(),
+        todayPlus4.getMillis())));
     timeTrackerGlobalSettings
         .filteredSummaryIssues(new ArrayList<>(Arrays.asList(Pattern.compile(NOWORK_ISSUE_KEY))));
 
@@ -169,6 +172,28 @@ public class GetDatesTest {
 
     supportManager = new SupportComponent(timeTrackingConfiguration);
 
+    JiraUserPreferences mockJiraUserPreferences =
+        Mockito.mock(JiraUserPreferences.class, Mockito.RETURNS_DEEP_STUBS);
+    Mockito.when(mockJiraUserPreferences.getString("jira.user.timezone"))
+        .thenReturn("UTC");
+
+    UserPreferencesManager mockUserPreferencesManager =
+        Mockito.mock(UserPreferencesManager.class, Mockito.RETURNS_DEEP_STUBS);
+    Mockito.when(mockUserPreferencesManager.getPreferences(Matchers.any(ApplicationUser.class)))
+        .thenReturn(mockJiraUserPreferences);
+    mockComponentWorker.addMock(UserPreferencesManager.class, mockUserPreferencesManager);
+
+    I18nHelper i18nHelper = Mockito.mock(I18nHelper.class, Mockito.RETURNS_DEEP_STUBS);
+    BeanFactory mockBeanFactory = Mockito.mock(BeanFactory.class, Mockito.RETURNS_DEEP_STUBS);
+
+    Mockito.when(mockBeanFactory.getInstance(Matchers.any(ApplicationUser.class)))
+        .thenReturn(i18nHelper);
+
+    Mockito.when(i18nHelper.getLocale())
+        .thenReturn(Locale.ENGLISH);
+    mockComponentWorker.addMock(I18nHelper.class, i18nHelper);
+    mockComponentWorker.addMock(BeanFactory.class, mockBeanFactory);
+
     mockComponentWorker.addMock(JiraAuthenticationContext.class, jiraAuthenticationContext)
         .addMock(TimeTrackingConfiguration.class, timeTrackingConfiguration)
         .addMock(PermissionManager.class, permissionManager)
@@ -195,7 +220,7 @@ public class GetDatesTest {
               try {
                 if ("startdate".equals(expr.getLhs())
                     && EntityOperator.GREATER_THAN_EQUAL_TO.equals(expr.getOperator())
-                    && sdf.format(today)
+                    && sdf.format(DateTimeConverterUtil.convertDateTimeToDate(today))
                         .equals(sdf.format(sdf.parse(expr.getRhs().toString())))) {
                   return true;
                 }
@@ -221,7 +246,7 @@ public class GetDatesTest {
               try {
                 if ("startdate".equals(expr.getLhs())
                     && EntityOperator.GREATER_THAN_EQUAL_TO.equals(expr.getOperator())
-                    && sdf.format(todayPlus1)
+                    && sdf.format(DateTimeConverterUtil.convertDateTimeToDate(todayPlus1))
                         .equals(sdf.format(sdf.parse(expr.getRhs().toString())))) {
                   return true;
                 }
@@ -248,7 +273,7 @@ public class GetDatesTest {
               try {
                 if ("startdate".equals(expr.getLhs())
                     && EntityOperator.GREATER_THAN_EQUAL_TO.equals(expr.getOperator())
-                    && sdf.format(todayPlus2)
+                    && sdf.format(DateTimeConverterUtil.convertDateTimeToDate(todayPlus2))
                         .equals(sdf.format(sdf.parse(expr.getRhs().toString())))) {
                   return true;
                 }
@@ -275,7 +300,7 @@ public class GetDatesTest {
               try {
                 if ("startdate".equals(expr.getLhs())
                     && EntityOperator.GREATER_THAN_EQUAL_TO.equals(expr.getOperator())
-                    && sdf.format(todayPlus3)
+                    && sdf.format(DateTimeConverterUtil.convertDateTimeToDate(todayPlus3))
                         .equals(sdf.format(sdf.parse(expr.getRhs().toString())))) {
                   return true;
                 }
@@ -303,7 +328,7 @@ public class GetDatesTest {
               try {
                 if ("startdate".equals(expr.getLhs())
                     && EntityOperator.GREATER_THAN_EQUAL_TO.equals(expr.getOperator())
-                    && sdf.format(todayPlus4)
+                    && sdf.format(DateTimeConverterUtil.convertDateTimeToDate(todayPlus4))
                         .equals(sdf.format(sdf.parse(expr.getRhs().toString())))) {
                   return true;
                 }
@@ -327,14 +352,16 @@ public class GetDatesTest {
     Assert.assertEquals(1, dates.size());
     MissingsWorklogsDTO dto1 = dates.get(0);
     Assert.assertEquals("1", dto1.getHour());
-    Assert.assertEquals(sdf.format(todayPlus4), sdf.format(dto1.getDate()));
+    Assert.assertEquals(sdf.format(DateTimeConverterUtil.convertDateTimeToDate(todayPlus4)),
+        sdf.format(dto1.getDate()));
 
     dates =
         supportManager.getDates(today, todayPlus4, false, true, timeTrackerGlobalSettings);
     Assert.assertEquals(1, dates.size());
     dto1 = dates.get(0);
     Assert.assertEquals("1", dto1.getHour());
-    Assert.assertEquals(sdf.format(todayPlus4), sdf.format(dto1.getDate()));
+    Assert.assertEquals(sdf.format(DateTimeConverterUtil.convertDateTimeToDate(todayPlus4)),
+        sdf.format(dto1.getDate()));
 
     dates =
         supportManager.getDates(today, todayPlus4, true, false, timeTrackerGlobalSettings);
@@ -344,8 +371,10 @@ public class GetDatesTest {
     MissingsWorklogsDTO dto2 = dates.get(1);
     Assert.assertEquals("1", dto1.getHour());
     Assert.assertEquals(df.format(0.3), dto2.getHour());
-    Assert.assertEquals(sdf.format(todayPlus4), sdf.format(dto1.getDate()));
-    Assert.assertEquals(sdf.format(todayPlus3), sdf.format(dto2.getDate()));
+    Assert.assertEquals(sdf.format(DateTimeConverterUtil.convertDateTimeToDate(todayPlus4)),
+        sdf.format(dto1.getDate()));
+    Assert.assertEquals(sdf.format(DateTimeConverterUtil.convertDateTimeToDate(todayPlus3)),
+        sdf.format(dto2.getDate()));
 
     dates =
         supportManager.getDates(today, todayPlus4, true, true, timeTrackerGlobalSettings);
@@ -356,8 +385,11 @@ public class GetDatesTest {
     Assert.assertEquals("1", dto1.getHour());
     Assert.assertEquals(df.format(0.3), dto2.getHour());
     Assert.assertEquals(df.format(0.7), dto3.getHour());
-    Assert.assertEquals(sdf.format(todayPlus4), sdf.format(dto1.getDate()));
-    Assert.assertEquals(sdf.format(todayPlus3), sdf.format(dto2.getDate()));
-    Assert.assertEquals(sdf.format(todayPlus2), sdf.format(dto3.getDate()));
+    Assert.assertEquals(sdf.format(DateTimeConverterUtil.convertDateTimeToDate(todayPlus4)),
+        sdf.format(dto1.getDate()));
+    Assert.assertEquals(sdf.format(DateTimeConverterUtil.convertDateTimeToDate(todayPlus3)),
+        sdf.format(dto2.getDate()));
+    Assert.assertEquals(sdf.format(DateTimeConverterUtil.convertDateTimeToDate(todayPlus2)),
+        sdf.format(dto3.getDate()));
   }
 }

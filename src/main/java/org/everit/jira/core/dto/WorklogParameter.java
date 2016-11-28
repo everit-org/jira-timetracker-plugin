@@ -34,8 +34,6 @@ public class WorklogParameter {
 
   private final RemainingEstimateType remainingEstimateType;
 
-  private final String startTime;
-
   private final String timeSpent;
 
   /**
@@ -47,8 +45,6 @@ public class WorklogParameter {
    *          the note of the worklog.
    * @param date
    *          the date of the worklog.
-   * @param startTime
-   *          the start time of the worklog.
    * @param timeSpent
    *          the spent time in the worklog (JIRA format: 1h 30m).
    * @param optinalValue
@@ -58,12 +54,11 @@ public class WorklogParameter {
    *          the type of the remaining estimate.
    */
   public WorklogParameter(final String issueKey, final String comment, final Date date,
-      final String startTime, final String timeSpent, final String optinalValue,
+      final String timeSpent, final String optinalValue,
       final RemainingEstimateType remainingEstimateType) {
     this.issueKey = issueKey;
     this.comment = comment;
     this.date = date;
-    this.startTime = startTime;
     this.timeSpent = timeSpent;
     this.optinalValue = optinalValue;
     this.remainingEstimateType = remainingEstimateType;
@@ -87,10 +82,6 @@ public class WorklogParameter {
 
   public RemainingEstimateType getRemainingEstimateType() {
     return remainingEstimateType;
-  }
-
-  public String getStartTime() {
-    return startTime;
   }
 
   public String getTimeSpent() {

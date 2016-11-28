@@ -29,7 +29,6 @@ import org.everit.jira.core.util.WorklogUtil;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklogComparator;
 import org.everit.jira.timetracker.plugin.exception.WorklogException;
-import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.ofbiz.core.entity.EntityCondition;
 import org.ofbiz.core.entity.GenericValue;
 
@@ -89,12 +88,14 @@ public class WorklogComponent implements EVWorklogManager {
 
   @Override
   public long countWorklogsWithoutPermissionChecks(final Date startDate, final Date endDate) {
-    Calendar startDateCalendar = DateTimeConverterUtil.setDateToDayStart(startDate);
+    Calendar startDateCalendar = Calendar.getInstance();
+    startDateCalendar.setTime(startDate);
     Calendar endDateCalendar = (Calendar) startDateCalendar.clone();
     if (endDate == null) {
       endDateCalendar.add(Calendar.DAY_OF_MONTH, 1);
     } else {
-      endDateCalendar = DateTimeConverterUtil.setDateToDayStart(endDate);
+      endDateCalendar = Calendar.getInstance();
+      endDateCalendar.setTime(endDate);
       endDateCalendar.add(Calendar.DAY_OF_MONTH, 1);
     }
 
@@ -127,14 +128,6 @@ public class WorklogComponent implements EVWorklogManager {
         user)) {
       throw new WorklogException(PropertiesKey.NOPERMISSION_ISSUE, worklogParameter.getIssueKey());
     }
-    Date startDate;
-    try {
-      startDate = DateTimeConverterUtil.stringToDateAndTime(worklogParameter.getDate(),
-          worklogParameter.getStartTime());
-    } catch (IllegalArgumentException e) {
-      throw new WorklogException(PropertiesKey.DATE_PARSE,
-          worklogParameter.getDate() + " " + worklogParameter.getStartTime());
-    }
 
     WorklogService worklogService = ComponentAccessor.getComponent(WorklogService.class);
     if (!worklogService.hasPermissionToCreate(serviceContext, issue, true)) {
@@ -142,7 +135,7 @@ public class WorklogComponent implements EVWorklogManager {
           worklogParameter.getIssueKey());
     }
     Builder builder = getBuilder(issue,
-        startDate,
+        worklogParameter.getDate(),
         worklogParameter.getTimeSpent(),
         worklogParameter.getComment(),
         null);
@@ -209,22 +202,15 @@ public class WorklogComponent implements EVWorklogManager {
 
       deleteWorklog(worklogId, null, RemainingEstimateType.AUTO);
     } else {
-      Date dateCreate;
-      try {
-        dateCreate = DateTimeConverterUtil.stringToDateAndTime(worklogParameter.getDate(),
-            worklogParameter.getStartTime());
-      } catch (IllegalArgumentException e) {
-        throw new WorklogException(PropertiesKey.DATE_PARSE,
-            worklogParameter.getDate() + " " + worklogParameter.getStartTime());
-      }
       WorklogService worklogService = ComponentAccessor.getComponent(WorklogService.class);
       if (!worklogService.hasPermissionToUpdate(serviceContext, worklog)) {
         throw new WorklogException(PropertiesKey.NOPERMISSION_UPDATE_WORKLOG,
             worklogParameter.getIssueKey());
       }
 
-      Builder builder = getBuilder(issue, dateCreate, worklogParameter.getTimeSpent(),
-          worklogParameter.getComment(), worklogId);
+      Builder builder =
+          getBuilder(issue, worklogParameter.getDate(), worklogParameter.getTimeSpent(),
+              worklogParameter.getComment(), worklogId);
       RemainingEstimateType remainingEstimateType = worklogParameter.getRemainingEstimateType();
       WorklogInputParameters params = remainingEstimateType.build(builder,
           worklogParameter.getOptinalValue());
@@ -270,12 +256,14 @@ public class WorklogComponent implements EVWorklogManager {
   @Override
   public List<EveritWorklog> getWorklogs(final String selectedUser, final Date startDate,
       final Date endDate) throws DataAccessException, ParseException {
-    Calendar startDateCalendar = DateTimeConverterUtil.setDateToDayStart(startDate);
+    Calendar startDateCalendar = Calendar.getInstance();
+    startDateCalendar.setTime(startDate);
     Calendar endDateCalendar = (Calendar) startDateCalendar.clone();
     if (endDate == null) {
       endDateCalendar.add(Calendar.DAY_OF_MONTH, 1);
     } else {
-      endDateCalendar = DateTimeConverterUtil.setDateToDayStart(endDate);
+      endDateCalendar = Calendar.getInstance();
+      endDateCalendar.setTime(endDate);
       endDateCalendar.add(Calendar.DAY_OF_MONTH, 1);
     }
 

@@ -35,8 +35,12 @@ import com.atlassian.jira.issue.worklog.WorklogManager;
 import com.atlassian.jira.mock.component.MockComponentWorker;
 import com.atlassian.jira.mock.issue.MockIssue;
 import com.atlassian.jira.security.JiraAuthenticationContext;
+import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.user.MockApplicationUser;
+import com.atlassian.jira.user.preferences.JiraUserPreferences;
+import com.atlassian.jira.user.preferences.UserPreferencesManager;
 import com.atlassian.jira.util.I18nHelper;
+import com.atlassian.jira.util.I18nHelper.BeanFactory;
 
 public class GetWorklogTest {
 
@@ -106,6 +110,25 @@ public class GetWorklogTest {
         Mockito.mock(DateTimeFormatterFactory.class, Mockito.RETURNS_DEEP_STUBS);
     Mockito.when(mockDateTimeFormatterFactory.formatter())
         .thenReturn(new DummyDateTimeFromatter());
+
+    JiraUserPreferences mockJiraUserPreferences =
+        Mockito.mock(JiraUserPreferences.class, Mockito.RETURNS_DEEP_STUBS);
+    Mockito.when(mockJiraUserPreferences.getString("jira.user.timezone"))
+        .thenReturn("UTC");
+
+    UserPreferencesManager mockUserPreferencesManager =
+        Mockito.mock(UserPreferencesManager.class, Mockito.RETURNS_DEEP_STUBS);
+    Mockito.when(mockUserPreferencesManager.getPreferences(Matchers.any(ApplicationUser.class)))
+        .thenReturn(mockJiraUserPreferences);
+    mockComponentWorker.addMock(UserPreferencesManager.class, mockUserPreferencesManager);
+
+    BeanFactory mockBeanFactory = Mockito.mock(BeanFactory.class, Mockito.RETURNS_DEEP_STUBS);
+
+    Mockito.when(mockBeanFactory.getInstance(Matchers.any(ApplicationUser.class)))
+        .thenReturn(i18nHelper);
+
+    mockComponentWorker.addMock(I18nHelper.class, i18nHelper);
+    mockComponentWorker.addMock(BeanFactory.class, mockBeanFactory);
 
     // init components
     mockComponentWorker.addMock(JiraAuthenticationContext.class, mockJiraAuthenticationContext)

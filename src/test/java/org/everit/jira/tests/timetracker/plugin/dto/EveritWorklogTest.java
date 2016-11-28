@@ -48,6 +48,10 @@ import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.PermissionManager;
 import com.atlassian.jira.security.plugin.ProjectPermissionKey;
 import com.atlassian.jira.user.ApplicationUser;
+import com.atlassian.jira.user.preferences.JiraUserPreferences;
+import com.atlassian.jira.user.preferences.UserPreferencesManager;
+import com.atlassian.jira.util.I18nHelper;
+import com.atlassian.jira.util.I18nHelper.BeanFactory;
 
 @RunWith(Parameterized.class)
 public class EveritWorklogTest {
@@ -115,6 +119,17 @@ public class EveritWorklogTest {
   public void setupMockIssueManager(final int remainingTimeInSec) {
     MockComponentWorker mockComponentWorker = new MockComponentWorker();
 
+    I18nHelper i18nHelper = Mockito.mock(I18nHelper.class, Mockito.RETURNS_DEEP_STUBS);
+    BeanFactory mockBeanFactory = Mockito.mock(BeanFactory.class, Mockito.RETURNS_DEEP_STUBS);
+
+    Mockito.when(mockBeanFactory.getInstance(Matchers.any(ApplicationUser.class)))
+        .thenReturn(i18nHelper);
+
+    Mockito.when(i18nHelper.getLocale())
+        .thenReturn(Locale.ENGLISH);
+    mockComponentWorker.addMock(I18nHelper.class, i18nHelper);
+    mockComponentWorker.addMock(BeanFactory.class, mockBeanFactory);
+
     IssueManager mockIssueManager = Mockito.mock(IssueManager.class, Mockito.RETURNS_DEEP_STUBS);
     Mockito.when(mockIssueManager.getIssueObject(Matchers.anyLong()).getKey()).thenReturn("KEY-12");
     Mockito.when(mockIssueManager.getIssueObject(Matchers.anyLong()).getEstimate())
@@ -147,8 +162,18 @@ public class EveritWorklogTest {
         Mockito.mock(JiraAuthenticationContext.class, Mockito.RETURNS_DEEP_STUBS);
     Mockito.when(mockJiraAuthenticationContext.getI18nHelper().getLocale())
         .thenReturn(new Locale("en", "US"));
-    Mockito.when(mockJiraAuthenticationContext.getUser()).thenReturn(null);
     mockComponentWorker.addMock(JiraAuthenticationContext.class, mockJiraAuthenticationContext);
+
+    JiraUserPreferences mockJiraUserPreferences =
+        Mockito.mock(JiraUserPreferences.class, Mockito.RETURNS_DEEP_STUBS);
+    Mockito.when(mockJiraUserPreferences.getString("jira.user.timezone"))
+        .thenReturn("UTC");
+
+    UserPreferencesManager mockUserPreferencesManager =
+        Mockito.mock(UserPreferencesManager.class, Mockito.RETURNS_DEEP_STUBS);
+    Mockito.when(mockUserPreferencesManager.getPreferences(Matchers.any(ApplicationUser.class)))
+        .thenReturn(mockJiraUserPreferences);
+    mockComponentWorker.addMock(UserPreferencesManager.class, mockUserPreferencesManager);
 
     DateTimeFormatterFactory mockDateTimeFormatterFactory =
         Mockito.mock(DateTimeFormatterFactory.class, Mockito.RETURNS_DEEP_STUBS);

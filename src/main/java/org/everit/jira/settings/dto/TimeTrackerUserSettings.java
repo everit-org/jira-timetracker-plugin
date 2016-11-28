@@ -16,7 +16,6 @@
 package org.everit.jira.settings.dto;
 
 import java.text.ParseException;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,6 +25,7 @@ import org.everit.jira.core.util.TimetrackerUtil;
 import org.everit.jira.reporting.plugin.column.WorklogDetailsColumns;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.VersionComperatorUtil;
+import org.joda.time.DateTime;
 
 import com.atlassian.jira.component.ComponentAccessor;
 import com.google.gson.Gson;
@@ -94,17 +94,17 @@ public class TimeTrackerUserSettings {
   }
 
   /**
-   * <<<<<<< HEAD Gets the default start time.
+   * Gets the default start time.
    */
   public String getDefaultStartTime() {
     String savedDefaultStartTime = pluginSettingsKeyValues.get(UserSettingKey.DEFAULT_START_TIME);
     if (savedDefaultStartTime == null) {
-      Calendar c = Calendar.getInstance();
-      c.setTime(new Date());
-      c.set(Calendar.HOUR_OF_DAY, DateTimeConverterUtil.HOUR_EIGHT);
-      c.set(Calendar.MINUTE, 0);
-      c.set(Calendar.SECOND, 0);
-      return DateTimeConverterUtil.dateTimeToString(c.getTime());
+      DateTime dateTime = new DateTime(TimetrackerUtil.getLoggedUserTimeZone());
+      dateTime = dateTime.withHourOfDay(DateTimeConverterUtil.HOUR_EIGHT);
+      dateTime = dateTime.withMinuteOfHour(0);
+      dateTime = dateTime.withSecondOfMinute(0);
+      return DateTimeConverterUtil
+          .dateTimeToString(DateTimeConverterUtil.convertDateTimeToDate(dateTime));
     }
     Date date;
     try {
