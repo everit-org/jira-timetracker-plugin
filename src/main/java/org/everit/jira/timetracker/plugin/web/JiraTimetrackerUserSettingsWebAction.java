@@ -113,6 +113,8 @@ public class JiraTimetrackerUserSettingsWebAction extends JiraWebActionSupport {
 
   private boolean showRemaningEstimate = false;
 
+  private String stacktrace = "";
+
   /**
    * The startTime.
    */
@@ -231,6 +233,10 @@ public class JiraTimetrackerUserSettingsWebAction extends JiraWebActionSupport {
 
   public boolean getProgressIndDaily() {
     return progressIndDaily;
+  }
+
+  public String getStacktrace() {
+    return stacktrace;
   }
 
   public int getStartTime() {

@@ -64,6 +64,8 @@ public class ReportingUserSettingsWebAction extends JiraWebActionSupport {
 
   private TimetrackerSettingsHelper settingsHelper;
 
+  private String stacktrace = "";
+
   private boolean userPopupVisible;
 
   private boolean worklogTimeInSeconds;
@@ -148,6 +150,10 @@ public class ReportingUserSettingsWebAction extends JiraWebActionSupport {
 
   public int getPageSize() {
     return pageSize;
+  }
+
+  public String getStacktrace() {
+    return stacktrace;
   }
 
   public boolean getUserPopupVisible() {
