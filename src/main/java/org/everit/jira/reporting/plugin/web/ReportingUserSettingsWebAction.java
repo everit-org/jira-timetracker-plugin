@@ -21,11 +21,14 @@ import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.everit.jira.analytics.AnalyticsDTO;
 import org.everit.jira.core.util.TimetrackerUtil;
 import org.everit.jira.reporting.plugin.ReportingCondition;
 import org.everit.jira.settings.TimetrackerSettingsHelper;
 import org.everit.jira.settings.dto.TimeTrackerUserSettings;
+import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.PluginCondition;
+import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 
 import com.atlassian.jira.web.action.JiraWebActionSupport;
@@ -43,6 +46,8 @@ public class ReportingUserSettingsWebAction extends JiraWebActionSupport {
    * Serial version UID.
    */
   private static final long serialVersionUID = 1L;
+
+  private AnalyticsDTO analyticsDTO;
 
   /**
    * The first day of the week.
@@ -136,6 +141,10 @@ public class ReportingUserSettingsWebAction extends JiraWebActionSupport {
     return getRedirect(INPUT);
   }
 
+  public AnalyticsDTO getAnalyticsDTO() {
+    return analyticsDTO;
+  }
+
   public String getContextPath() {
     return contextPath;
   }
@@ -177,7 +186,8 @@ public class ReportingUserSettingsWebAction extends JiraWebActionSupport {
     pageSize = userSettings.getPageSize();
     userPopupVisible = userSettings.getIsShowTutorialDialog();
     worklogTimeInSeconds = userSettings.getWorklogTimeInSeconds();
-
+    analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(
+        PiwikPropertiesUtil.PIWIK_USERSETTINGS_SITEID, settingsHelper);
   }
 
   private void normalizeContextPath() {
