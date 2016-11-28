@@ -161,6 +161,8 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   private TimetrackerSettingsHelper settingsHelper;
 
+  private String stacktrace = "";
+
   private TimeTrackerUserSettings userSettings;
 
   private UserSummaryReportDTO userSummaryReport = new UserSummaryReportDTO();
@@ -430,6 +432,10 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   public List<String> getSelectedWorklogDetailsColumns() {
     return selectedWorklogDetailsColumns;
+  }
+
+  public String getStacktrace() {
+    return stacktrace;
   }
 
   public UserSummaryReportDTO getUserSummaryReport() {

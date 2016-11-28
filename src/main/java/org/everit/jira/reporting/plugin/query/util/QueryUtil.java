@@ -48,7 +48,36 @@ public final class QueryUtil {
    * @param stringPath
    *          The StringPath of the checked user parameter.
    */
-  public static SQLQuery<String> selectDisplayNameForUser(final StringPath stringPath) {
+  public static SQLQuery<String> selectDisplayNameForUserByLowerUserName(
+      final StringPath stringPath) {
+    QCwdUser qCwdUser = new QCwdUser("issueUser");
+    QAppUser qAppUser = new QAppUser("appUserForIssue");
+    QCwdDirectory qCwdDirectory = new QCwdDirectory("cwdDirectoryForIssue");
+    QCwdDirectory qCwdDirectoryMin = new QCwdDirectory("cwdDirMin");
+    QCwdUser qCwdUserMin = new QCwdUser("cwdUMin");
+    return SQLExpressions
+        .select(new CaseBuilder()
+            .when(qCwdUser.displayName.isNotNull())
+            .then(qCwdUser.displayName)
+            .otherwise(stringPath))
+        .from(qCwdUser)
+        .leftJoin(qAppUser).on(qAppUser.lowerUserName.eq(qCwdUser.lowerUserName))
+        .leftJoin(qCwdDirectory).on(qCwdUser.directoryId.eq(qCwdDirectory.id))
+        .where(qAppUser.lowerUserName.eq(stringPath)
+            .and(qCwdDirectory.directoryPosition.eq(
+                SQLExpressions.select(qCwdDirectoryMin.directoryPosition.min())
+                    .from(qCwdDirectoryMin)
+                    .leftJoin(qCwdUserMin).on(qCwdUserMin.directoryId.eq(qCwdDirectoryMin.id))
+                    .where(qCwdUserMin.lowerUserName.eq(qAppUser.lowerUserName)))));
+  }
+
+  /**
+   * Select user displayName for user.
+   *
+   * @param stringPath
+   *          The StringPath of the checked user parameter.
+   */
+  public static SQLQuery<String> selectDisplayNameForUserByUserKey(final StringPath stringPath) {
     QCwdUser qCwdUser = new QCwdUser("issueUser");
     QAppUser qAppUser = new QAppUser("appUserForIssue");
     QCwdDirectory qCwdDirectory = new QCwdDirectory("cwdDirectoryForIssue");

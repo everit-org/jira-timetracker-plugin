@@ -49,7 +49,7 @@ import com.atlassian.jira.user.MockApplicationUser;
 
 public class FirstMissingWorklogsDateTest {
 
-  private TimetrackerComponent timetrackerComponent = new TimetrackerComponent(null);
+  private TimetrackerComponent timetrackerComponent = new TimetrackerComponent(null, null);
 
   public void initMockComponents(final Calendar hasNoWorklogDate) {
     MockComponentWorker mockComponentWorker = new MockComponentWorker();

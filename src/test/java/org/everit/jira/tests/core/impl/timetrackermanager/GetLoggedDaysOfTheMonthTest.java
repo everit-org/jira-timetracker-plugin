@@ -46,7 +46,7 @@ import com.atlassian.jira.user.MockApplicationUser;
 
 public class GetLoggedDaysOfTheMonthTest {
 
-  private TimetrackerComponent timetrackerComponent = new TimetrackerComponent(null);
+  private TimetrackerComponent timetrackerComponent = new TimetrackerComponent(null, null);
 
   public void initMockComponents(final Calendar dateOfMonth) {
     MockComponentWorker mockComponentWorker = new MockComponentWorker();

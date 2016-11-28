@@ -34,6 +34,7 @@ import org.everit.jira.settings.TimetrackerSettingsHelper;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.PluginCondition;
+import org.everit.jira.timetracker.plugin.util.ExceptionUtil;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 import org.everit.jira.updatenotifier.UpdateNotifier;
@@ -138,6 +139,8 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
   private List<MissingsWorklogsDTO> showDatesWhereNoWorklog;
 
+  private String stacktrace = "";
+
   private SupportManager supportManager;
 
   /**
@@ -229,6 +232,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
               checkNonWorkingIssues, globalSettings);
     } catch (GenericEntityException e) {
       LOGGER.error("Error when try to run the query.", e);
+      stacktrace = ExceptionUtil.getStacktrace(e);
       return ERROR;
     }
     numberOfPages = countNumberOfPages();
@@ -263,6 +267,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
               checkNonWorkingIssues, globalSettings);
     } catch (GenericEntityException e) {
       LOGGER.error("Error when try to run the query.", e);
+      stacktrace = ExceptionUtil.getStacktrace(e);
       return ERROR;
     }
     // check the page changer buttons
@@ -332,6 +337,10 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
   public List<MissingsWorklogsDTO> getShowDatesWhereNoWorklog() {
     return showDatesWhereNoWorklog;
+  }
+
+  public String getStacktrace() {
+    return stacktrace;
   }
 
   private void initVariables() {

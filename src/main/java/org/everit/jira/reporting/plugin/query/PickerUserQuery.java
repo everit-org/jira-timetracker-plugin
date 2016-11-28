@@ -22,8 +22,12 @@ import java.util.List;
 import org.everit.jira.querydsl.schema.QCwdUser;
 import org.everit.jira.querydsl.support.QuerydslCallable;
 import org.everit.jira.reporting.plugin.dto.PickerUserDTO;
+import org.everit.jira.reporting.plugin.query.util.QueryUtil;
 
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.SimpleExpression;
 import com.querydsl.sql.Configuration;
 import com.querydsl.sql.SQLQuery;
 
@@ -76,14 +80,19 @@ public class PickerUserQuery implements QuerydslCallable<List<PickerUserDTO>> {
   public List<PickerUserDTO> call(final Connection connection, final Configuration configuration)
       throws SQLException {
 
+    SQLQuery<String> selectDisplayNameForUserByLowerUserName =
+        QueryUtil.selectDisplayNameForUserByLowerUserName(qCwdUser.lowerUserName);
+    SimpleExpression<String> displayNameExpression =
+        selectDisplayNameForUserByLowerUserName
+            .as(PickerUserDTO.AliasNames.DISPLAY_NAME);
     List<PickerUserDTO> result = new SQLQuery<PickerUserDTO>(connection, configuration)
         .select(Projections.bean(PickerUserDTO.class,
             qCwdUser.lowerUserName.as(PickerUserDTO.AliasNames.USER_NAME),
             qCwdUser.userName.as(PickerUserDTO.AliasNames.AVATAR_OWNER),
-            qCwdUser.displayName.as(PickerUserDTO.AliasNames.DISPLAY_NAME),
+            displayNameExpression,
             qCwdUser.active.as(PickerUserDTO.AliasNames.ACTIVE)))
         .from(qCwdUser)
-        .orderBy(qCwdUser.displayName.asc())
+        .orderBy(new OrderSpecifier<String>(Order.ASC, selectDisplayNameForUserByLowerUserName))
         .fetch();
 
     if (PickerUserQueryType.ASSIGNEE.equals(pickerUserQueryType)) {

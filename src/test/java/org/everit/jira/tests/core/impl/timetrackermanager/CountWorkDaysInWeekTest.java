@@ -38,7 +38,7 @@ public class CountWorkDaysInWeekTest {
   public void testWithExcludeAndIncludeDay() throws ParseException {
     TimeTrackingConfiguration mockConfiguration =
         Mockito.mock(TimeTrackingConfiguration.class, Mockito.RETURNS_DEEP_STUBS);
-    TimetrackerManager timetrackerManager = new TimetrackerComponent(mockConfiguration);
+    TimetrackerManager timetrackerManager = new TimetrackerComponent(mockConfiguration, null);
     Mockito.when(mockConfiguration.getDaysPerWeek().doubleValue()).thenReturn(5.0);
 
     List<Date> weekdays = new ArrayList<>();
@@ -60,7 +60,7 @@ public class CountWorkDaysInWeekTest {
   public void testWithExcludeDay() throws ParseException {
     TimeTrackingConfiguration mockConfiguration =
         Mockito.mock(TimeTrackingConfiguration.class, Mockito.RETURNS_DEEP_STUBS);
-    TimetrackerManager timetrackerManager = new TimetrackerComponent(mockConfiguration);
+    TimetrackerManager timetrackerManager = new TimetrackerComponent(mockConfiguration, null);
     Mockito.when(mockConfiguration.getDaysPerWeek().doubleValue()).thenReturn(5.0);
 
     List<Date> weekdays = new ArrayList<>();
@@ -80,7 +80,7 @@ public class CountWorkDaysInWeekTest {
   public void testWithIncludeDay() throws ParseException {
     TimeTrackingConfiguration mockConfiguration =
         Mockito.mock(TimeTrackingConfiguration.class, Mockito.RETURNS_DEEP_STUBS);
-    TimetrackerManager timetrackerManager = new TimetrackerComponent(mockConfiguration);
+    TimetrackerManager timetrackerManager = new TimetrackerComponent(mockConfiguration, null);
     Mockito.when(mockConfiguration.getDaysPerWeek().doubleValue()).thenReturn(5.0);
 
     List<Date> weekdays = new ArrayList<>();
@@ -100,7 +100,7 @@ public class CountWorkDaysInWeekTest {
   public void testWithoutExcludeAndInclude() throws ParseException {
     TimeTrackingConfiguration mockConfiguration =
         Mockito.mock(TimeTrackingConfiguration.class, Mockito.RETURNS_DEEP_STUBS);
-    TimetrackerManager timetrackerManager = new TimetrackerComponent(mockConfiguration);
+    TimetrackerManager timetrackerManager = new TimetrackerComponent(mockConfiguration, null);
     Mockito.when(mockConfiguration.getDaysPerWeek().doubleValue()).thenReturn(5.0);
 
     List<Date> weekdays = new ArrayList<>();

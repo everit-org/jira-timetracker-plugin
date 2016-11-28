@@ -59,6 +59,8 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.popu
 				worklogSize: ${worklogs.size()},
 				isRounded : ${userSettings.rounded},
 				dateFormat: '${dateFormat}',
+				activeFieldDuration: $userSettings.activeFieldDuration,
+				defaultCommand: $defaultCommand,
 			}
 		);
 	})(everit.jttp.main, AJS.$);
@@ -202,10 +204,10 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.popu
                         name="endTime" tabindex="3"
                         data-jttp-timeformat="$timeFormatPattern"
                         value="$worklogValues.endTime" onkeypress="everit.jttp.main.handleEnterKey(event, '#issueSelect-textarea');"
-                        onclick="everit.jttp.main.endTimeInputClick();"
+                        onclick="everit.jttp.main.endTimeInputClick(true);"
                         onblur="everit.jttp.main.calculateDuration();"
                         list="time-options" autocomplete="off">
-                      <div id="endTimeInput" class="time-input-div" onclick="everit.jttp.main.endTimeInputClick();"></div>
+                      <div id="endTimeInput" class="time-input-div" onclick="everit.jttp.main.endTimeInputClick(true);"></div>
                     </span>
                     <input id="endNow" class="button" type="button" name="endNow" value="$i18n.getText('plugin.now')" onclick="everit.jttp.main.endNowClick($userSettings.endTimeChange);">
                   </div>
@@ -218,10 +220,10 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.popu
                       <input id="durationTime" class="text short-field tooltip-bottom"
                         name="durationTime" tabindex="2"
                         value="$worklogValues.durationTime" onkeypress="everit.jttp.main.handleEnterKey(event, '#issueSelect-textarea');"
-                        onclick="everit.jttp.main.durationTimeInput();"
+                        onclick="everit.jttp.main.durationTimeInput(true);"
                         title="hh:mm / xh xm" disabled 
                         onblur="everit.jttp.main.calculateEndTime();">
-                      <div id="durationTimeInput" class="time-input-div" onclick="everit.jttp.main.durationTimeInput();"></div>
+                      <div id="durationTimeInput" class="time-input-div" onclick="everit.jttp.main.durationTimeInput(true);"></div>
                     </span>
                   </div>
                 </div>

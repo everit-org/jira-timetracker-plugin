@@ -23,7 +23,8 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
       <thead>
         <tr>
           <th>$i18n.getText("plugin.date")</th>
-          <th>Issue</th>
+          <th>$i18n.getText("plugin.issue")</th>
+          <th>$i18n.getText("plugin.summary")</th>
           <th title="$i18n.getText('jttp.list.title.remaining')">$i18n.getText("plugin.remaining")</th>
           <th>$i18n.getText("plugin.start")</th>
           <th>$i18n.getText("plugin.end")</th>
@@ -47,6 +48,9 @@ $webResourceManager.requireResource("jira.webresources:ajax-preview", null)
           </td>
           <td class="table-issue vertically-middle" style="white-space: nowrap; #if($worklog.isClosed) text-decoration: line-through; #end">
             <a href="$contextPath/browse/$worklog.issue" class="issue-link" title="#if($worklog.issueParent != '') $i18n.getText('plugin.parent.issue') $worklog.issueParent &#13 $worklog.issueSummary #else $worklog.issueSummary #end">$worklog.issue</a>
+          </td>
+           <td class="table-issue vertically-middle" style="max-width: 400px;">
+            $worklog.issueSummary
           </td>
           <td style="vertical-align: middle; white-space: nowrap;">
           #if($worklog.isClosed)

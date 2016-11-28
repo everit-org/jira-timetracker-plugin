@@ -35,6 +35,7 @@ import org.everit.jira.core.SupportManager;
 import org.everit.jira.core.util.TimetrackerUtil;
 import org.everit.jira.settings.TimetrackerSettingsHelper;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
+import org.everit.jira.timetracker.plugin.util.ExceptionUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 
 import com.atlassian.jira.web.action.JiraWebActionSupport;
@@ -132,6 +133,8 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
 
   private TimetrackerSettingsHelper settingsHelper;
 
+  private String stacktrace = "";
+
   private SupportManager supportManager;
 
   /**
@@ -178,6 +181,7 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
       projectsId = supportManager.getProjectsId();
     } catch (Exception e) {
       LOGGER.error("Error when try set the plugin variables.", e);
+      stacktrace = ExceptionUtil.getStacktrace(e);
       return ERROR;
     }
 
@@ -241,6 +245,10 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
 
   public List<String> getProjectsId() {
     return projectsId;
+  }
+
+  public String getStacktrace() {
+    return stacktrace;
   }
 
   private void loadIssueCollectorSrc() {
