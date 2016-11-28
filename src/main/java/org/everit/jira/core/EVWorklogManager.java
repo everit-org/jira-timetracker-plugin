@@ -48,16 +48,13 @@ public interface EVWorklogManager {
    *          The note of the worklog.
    * @param date
    *          The date of the worklog.
-   * @param startTime
-   *          The start time of the worklog. (hh:mm)
    * @param timeSpent
    *          The spent time in the worklog (JIRA format : 1h 30m)
    *
    * @throws org.everit.jira.timetracker.plugin.exception.WorklogException
    *           if has fail to create worklog.
    */
-  void createWorklog(String issueId, String comment, Date date,
-      String startTime, String timeSpent);
+  void createWorklog(String issueId, String comment, Date date, String timeSpent);
 
   /**
    * Deletes the worklog based on worklog id.
@@ -81,8 +78,6 @@ public interface EVWorklogManager {
    *          The worklog note.
    * @param date
    *          The date of the worklog.
-   * @param time
-   *          When start the worklog. (hh:mm)
    * @param timeSpent
    *          The spent time in the worklog (JIRA format : 1h 30m)
    *
@@ -90,7 +85,7 @@ public interface EVWorklogManager {
    *           if has fail to edit worklog.
    */
   void editWorklog(Long worklogId, String issueId, String comment,
-      Date date, String time, String timeSpent);
+      Date date, String timeSpent);
 
   /**
    * Give back the Worklog based on worklog id.

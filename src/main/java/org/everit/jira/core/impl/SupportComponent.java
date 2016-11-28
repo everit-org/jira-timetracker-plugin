@@ -30,6 +30,8 @@ import org.everit.jira.core.util.WorklogUtil;
 import org.everit.jira.reporting.plugin.dto.MissingsWorklogsDTO;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeConstants;
 import org.ofbiz.core.entity.EntityCondition;
 import org.ofbiz.core.entity.GenericEntityException;
 import org.ofbiz.core.entity.GenericValue;
@@ -55,35 +57,38 @@ public class SupportComponent implements SupportManager {
   }
 
   @Override
-  public List<MissingsWorklogsDTO> getDates(final Date from,
-      final Date to, final boolean workingHour, final boolean checkNonWorking,
+  public List<MissingsWorklogsDTO> getDates(final DateTime from,
+      final DateTime to, final boolean workingHour, final boolean checkNonWorking,
       final TimeTrackerGlobalSettings settings)
-          throws GenericEntityException {
+      throws GenericEntityException {
     List<MissingsWorklogsDTO> datesWhereNoWorklog = new ArrayList<>();
-    Calendar fromDate = Calendar.getInstance();
-    fromDate.setTime(from);
-    Calendar toDate = Calendar.getInstance();
-    toDate.setTime(to);
+    DateTime fromDate = from;
+    DateTime toDate = to;
     Set<Date> excludeDatesAsSet = settings.getExcludeDates();
     Set<Date> includeDatesAsSet = settings.getIncludeDates();
-    while (!fromDate.after(toDate)) {
-      if (TimetrackerUtil.containsSetTheSameDay(excludeDatesAsSet, fromDate)) {
-        fromDate.add(Calendar.DATE, 1);
+    while (!fromDate.isAfter(toDate)) {
+      if (TimetrackerUtil.containsSetTheSameDay(excludeDatesAsSet,
+          DateTimeConverterUtil.convertDateTimeToDate(fromDate))) {
+        fromDate = fromDate.withDayOfYear(fromDate.getDayOfYear() + 1);
         continue;
       }
       // check includes - not check weekend
       // check weekend - pass
-      if (!TimetrackerUtil.containsSetTheSameDay(includeDatesAsSet, fromDate)
-          && ((fromDate.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY)
-              || (fromDate.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY))) {
-        fromDate.add(Calendar.DATE, 1);
+      if (!TimetrackerUtil.containsSetTheSameDay(includeDatesAsSet,
+          DateTimeConverterUtil.convertDateTimeToDate(fromDate))
+          && ((fromDate.getDayOfWeek() == DateTimeConstants.SUNDAY)
+              || (fromDate.getDayOfWeek() == DateTimeConstants.SATURDAY))) {
+        fromDate = fromDate.withDayOfYear(fromDate.getDayOfYear() + 1);
         continue;
       }
       // check worklog. if no worklog set result else ++ scanedDate
       DecimalFormat decimalFormat = new DecimalFormat("#.#");
 
       if (workingHour) {
-        double missingsTime = isContainsEnoughWorklog(fromDate.getTime(),
+        fromDate = DateTimeConverterUtil.setDateToDayStart(fromDate);
+        double missingsTime = isContainsEnoughWorklog(
+            DateTimeConverterUtil.convertDateTimeToDate(
+                DateTimeConverterUtil.convertDateZoneToSystemTimeZone(fromDate)),
             checkNonWorking, settings.getNonWorkingIssuePatterns());
         if (missingsTime > 0) {
           missingsTime = missingsTime / DateTimeConverterUtil.SECONDS_PER_MINUTE
@@ -92,17 +97,20 @@ public class SupportComponent implements SupportManager {
           // new BigDecimal(Double.toString(missingsTime)).setScale(2, RoundingMode.HALF_EVEN);
           // missingsTime = bd.doubleValue();
           datesWhereNoWorklog
-              .add(new MissingsWorklogsDTO((Date) fromDate.getTime().clone(),
+              .add(new MissingsWorklogsDTO(DateTimeConverterUtil.convertDateTimeToDate(fromDate),
                   decimalFormat.format(missingsTime)));
         }
       } else {
-        if (!TimetrackerUtil.isContainsWorklog(fromDate.getTime())) {
-          datesWhereNoWorklog.add(new MissingsWorklogsDTO((Date) fromDate.getTime().clone(),
-              decimalFormat.format(timeTrackingConfiguration.getHoursPerDay().doubleValue())));
+        fromDate = DateTimeConverterUtil.setDateToDayStart(fromDate);
+        if (!TimetrackerUtil.isContainsWorklog(
+            DateTimeConverterUtil.convertDateTimeToDate(
+                DateTimeConverterUtil.convertDateZoneToSystemTimeZone(fromDate)))) {
+          datesWhereNoWorklog
+              .add(new MissingsWorklogsDTO(DateTimeConverterUtil.convertDateTimeToDate(fromDate),
+                  decimalFormat.format(timeTrackingConfiguration.getHoursPerDay().doubleValue())));
         }
       }
-
-      fromDate.add(Calendar.DATE, 1);
+      fromDate = fromDate.withDayOfYear(fromDate.getDayOfYear() + 1);
 
     }
     Collections.reverse(datesWhereNoWorklog);
@@ -124,7 +132,7 @@ public class SupportComponent implements SupportManager {
    * greater then 8 hours.
    *
    * @param date
-   *          The date what have to check.
+   *          The date what have to check. Set to the start of the day and in system Time Zone.
    * @param checkNonWorking
    *          Exclude or not the non-working issues.
    * @return The number of missings hours.
@@ -133,12 +141,12 @@ public class SupportComponent implements SupportManager {
    */
   private double isContainsEnoughWorklog(final Date date,
       final boolean checkNonWorking, final List<Pattern> nonWorkingIssuePatterns)
-          throws GenericEntityException {
+      throws GenericEntityException {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
     ApplicationUser user = authenticationContext.getUser();
-
-    Calendar startDate = DateTimeConverterUtil.setDateToDayStart(date);
+    Calendar startDate = Calendar.getInstance();
+    startDate.setTime(date);
     Calendar endDate = (Calendar) startDate.clone();
     endDate.add(Calendar.DAY_OF_MONTH, 1);
     double workHoursPerDay = timeTrackingConfiguration.getHoursPerDay().doubleValue();

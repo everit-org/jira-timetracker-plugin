@@ -21,9 +21,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -34,6 +32,7 @@ import org.everit.jira.core.SupportManager;
 import org.everit.jira.core.impl.SupportComponent;
 import org.everit.jira.reporting.plugin.dto.MissingsWorklogsDTO;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
+import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
@@ -97,15 +96,15 @@ public class GetDatesTest {
 
   private TimeTrackerGlobalSettings timeTrackerGlobalSettings;
 
-  private Date today;
+  private DateTime today;
 
-  private Date todayPlus1;
+  private DateTime todayPlus1;
 
-  private Date todayPlus2;
+  private DateTime todayPlus2;
 
-  private Date todayPlus3;
+  private DateTime todayPlus3;
 
-  private Date todayPlus4;
+  private DateTime todayPlus4;
 
   private GenericValue createDummyGenericValue(final long issueId, final long timeworked) {
     HashMap<String, Object> values = new HashMap<>();
@@ -117,25 +116,22 @@ public class GetDatesTest {
 
   private void initMockComponentWorker() {
     timeTrackerGlobalSettings = new TimeTrackerGlobalSettings();
-    final Calendar date = Calendar.getInstance();
-    today = date.getTime();
-    date.add(Calendar.DAY_OF_YEAR, 1);
-    todayPlus1 = date.getTime();
-    date.setTime(todayPlus1);
-    date.add(Calendar.DAY_OF_YEAR, 1);
-    todayPlus2 = date.getTime();
-    date.setTime(todayPlus2);
-    date.add(Calendar.DAY_OF_YEAR, 1);
-    todayPlus3 = date.getTime();
-    date.setTime(todayPlus3);
-    date.add(Calendar.DAY_OF_YEAR, 1);
-    todayPlus4 = date.getTime();
+    DateTime date = new DateTime();
+    today = date.toDateTime();
+    date = date.plusDays(1);
+    todayPlus1 = date.toDateTime();
+    date = date.plusDays(1);
+    todayPlus2 = date.toDateTime();
+    date = date.plusDays(1);
+    todayPlus3 = date.toDateTime();
+    date = date.plusDays(1);
+    todayPlus4 = date.toDateTime();
 
-    timeTrackerGlobalSettings.excludeDates(new HashSet<>(Arrays.asList(todayPlus1.getTime())));
-    timeTrackerGlobalSettings.includeDates(new HashSet<>(Arrays.asList(today.getTime(),
-        todayPlus2.getTime(),
-        todayPlus3.getTime(),
-        todayPlus4.getTime())));
+    timeTrackerGlobalSettings.excludeDates(new HashSet<>(Arrays.asList(todayPlus1.getMillis())));
+    timeTrackerGlobalSettings.includeDates(new HashSet<>(Arrays.asList(today.getMillis(),
+        todayPlus2.getMillis(),
+        todayPlus3.getMillis(),
+        todayPlus4.getMillis())));
     timeTrackerGlobalSettings
         .filteredSummaryIssues(new ArrayList<>(Arrays.asList(Pattern.compile(NOWORK_ISSUE_KEY))));
 

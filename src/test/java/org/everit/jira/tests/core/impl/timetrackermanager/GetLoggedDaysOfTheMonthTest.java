@@ -19,10 +19,12 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import org.everit.jira.core.impl.TimetrackerComponent;
+import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
+import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
@@ -47,7 +49,7 @@ public class GetLoggedDaysOfTheMonthTest {
 
   private TimetrackerComponent timetrackerComponent = new TimetrackerComponent(null);
 
-  public void initMockComponents(final Calendar dateOfMonth) {
+  public void initMockComponents(final Date dateOfMonth) {
     MockComponentWorker mockComponentWorker = new MockComponentWorker();
 
     PermissionManager permissionManager =
@@ -82,7 +84,7 @@ public class GetLoggedDaysOfTheMonthTest {
               try {
                 if ("startdate".equals(expr.getLhs())
                     && EntityOperator.GREATER_THAN_EQUAL_TO.equals(expr.getOperator())
-                    && !sdf.format(dateOfMonth.getTime())
+                    && !sdf.format(dateOfMonth)
                         .equals(sdf.format(sdf.parse(expr.getRhs().toString())))) {
                   return true;
                 }
@@ -100,38 +102,38 @@ public class GetLoggedDaysOfTheMonthTest {
 
   @Test
   public void testGetLoggedDaysOfMonth() throws GenericEntityException {
-    Calendar dateOfMonth = Calendar.getInstance();
-    dateOfMonth.set(Calendar.MONTH, 0);
-    initMockComponents(dateOfMonth);
+    DateTime dateOfMonth = new DateTime();
+    dateOfMonth = dateOfMonth.withMonthOfYear(1);
+    initMockComponents(DateTimeConverterUtil.convertDateTimeToDate(dateOfMonth));
 
     List<String> loggedDaysOfTheMonth =
-        timetrackerComponent.getLoggedDaysOfTheMonth(dateOfMonth.getTime());
+        timetrackerComponent.getLoggedDaysOfTheMonth(dateOfMonth);
 
     Assert.assertEquals(31, loggedDaysOfTheMonth.size());
 
-    dateOfMonth.set(Calendar.MONTH, 3);
-    initMockComponents(dateOfMonth);
+    dateOfMonth = dateOfMonth.withMonthOfYear(4);
+    initMockComponents(DateTimeConverterUtil.convertDateTimeToDate(dateOfMonth));
 
     loggedDaysOfTheMonth =
-        timetrackerComponent.getLoggedDaysOfTheMonth(dateOfMonth.getTime());
+        timetrackerComponent.getLoggedDaysOfTheMonth(dateOfMonth);
 
     Assert.assertEquals(30, loggedDaysOfTheMonth.size());
 
-    dateOfMonth.set(Calendar.MONTH, 1);
-    dateOfMonth.set(Calendar.YEAR, 2016);
-    initMockComponents(dateOfMonth);
+    dateOfMonth = dateOfMonth.withMonthOfYear(2);
+    dateOfMonth = dateOfMonth.withYear(2016);
+    initMockComponents(DateTimeConverterUtil.convertDateTimeToDate(dateOfMonth));
 
     loggedDaysOfTheMonth =
-        timetrackerComponent.getLoggedDaysOfTheMonth(dateOfMonth.getTime());
+        timetrackerComponent.getLoggedDaysOfTheMonth(dateOfMonth);
 
     Assert.assertEquals(29, loggedDaysOfTheMonth.size());
 
-    dateOfMonth.set(Calendar.MONTH, 1);
-    dateOfMonth.set(Calendar.YEAR, 2015);
-    initMockComponents(dateOfMonth);
+    dateOfMonth = dateOfMonth.withMonthOfYear(2);
+    dateOfMonth = dateOfMonth.withYear(2015);
+    initMockComponents(DateTimeConverterUtil.convertDateTimeToDate(dateOfMonth));
 
     loggedDaysOfTheMonth =
-        timetrackerComponent.getLoggedDaysOfTheMonth(dateOfMonth.getTime());
+        timetrackerComponent.getLoggedDaysOfTheMonth(dateOfMonth);
 
     Assert.assertEquals(28, loggedDaysOfTheMonth.size());
   }

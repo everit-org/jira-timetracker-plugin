@@ -27,7 +27,6 @@ import org.everit.jira.core.util.WorklogUtil;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklogComparator;
 import org.everit.jira.timetracker.plugin.exception.WorklogException;
-import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.ofbiz.core.entity.EntityCondition;
 import org.ofbiz.core.entity.GenericValue;
 
@@ -85,12 +84,14 @@ public class WorklogComponent implements EVWorklogManager {
 
   @Override
   public long countWorklogsWithoutPermissionChecks(final Date startDate, final Date endDate) {
-    Calendar startDateCalendar = DateTimeConverterUtil.setDateToDayStart(startDate);
+    Calendar startDateCalendar = Calendar.getInstance();
+    startDateCalendar.setTime(startDate);
     Calendar endDateCalendar = (Calendar) startDateCalendar.clone();
     if (endDate == null) {
       endDateCalendar.add(Calendar.DAY_OF_MONTH, 1);
     } else {
-      endDateCalendar = DateTimeConverterUtil.setDateToDayStart(endDate);
+      endDateCalendar = Calendar.getInstance();
+      endDateCalendar.setTime(endDate);
       endDateCalendar.add(Calendar.DAY_OF_MONTH, 1);
     }
 
@@ -108,8 +109,8 @@ public class WorklogComponent implements EVWorklogManager {
   }
 
   @Override
-  public void createWorklog(final String issueId, final String comment, final Date date,
-      final String startTime, final String timeSpent) {
+  public void createWorklog(final String issueId, final String comment, final Date startDate,
+      final String timeSpent) {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
     ApplicationUser user = authenticationContext.getUser();
@@ -123,14 +124,6 @@ public class WorklogComponent implements EVWorklogManager {
     if (!permissionManager.hasPermission(Permissions.WORK_ISSUE, issue,
         user)) {
       throw new WorklogException(PropertiesKey.NOPERMISSION_ISSUE, issueId);
-    }
-    Date startDate;
-    try {
-      // TODO the plan is ... date in UTZ and the time string not changed, as we got from input
-      // (09:30)
-      startDate = DateTimeConverterUtil.stringToDateAndTime(date, startTime);
-    } catch (IllegalArgumentException e) {
-      throw new WorklogException(PropertiesKey.DATE_PARSE, date + " " + startTime);
     }
 
     WorklogNewEstimateInputParameters params = WorklogInputParametersImpl
@@ -176,8 +169,7 @@ public class WorklogComponent implements EVWorklogManager {
 
   @Override
   public void editWorklog(final Long worklogId, final String issueId, final String comment,
-      final Date date,
-      final String time, final String timeSpent) {
+      final Date dateCreate, final String timeSpent) {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
     ApplicationUser user = authenticationContext.getUser();
@@ -197,17 +189,10 @@ public class WorklogComponent implements EVWorklogManager {
         throw new WorklogException(PropertiesKey.NOPERMISSION_ISSUE, issueId);
       }
 
-      createWorklog(issueId, comment, date, time, timeSpent);
+      createWorklog(issueId, comment, dateCreate, timeSpent);
 
       deleteWorklog(worklogId);
     } else {
-      Date dateCreate;
-      try {
-        dateCreate = DateTimeConverterUtil
-            .stringToDateAndTime(date, time);
-      } catch (IllegalArgumentException e) {
-        throw new WorklogException(PropertiesKey.DATE_PARSE, date + " " + time);
-      }
       WorklogInputParameters params = WorklogInputParametersImpl
           .issue(issue).startDate(dateCreate).timeSpent(timeSpent)
           .comment(comment).worklogId(worklogId).issue(issue).build();
@@ -237,12 +222,14 @@ public class WorklogComponent implements EVWorklogManager {
   @Override
   public List<EveritWorklog> getWorklogs(final String selectedUser, final Date startDate,
       final Date endDate) throws DataAccessException, ParseException {
-    Calendar startDateCalendar = DateTimeConverterUtil.setDateToDayStart(startDate);
+    Calendar startDateCalendar = Calendar.getInstance();
+    startDateCalendar.setTime(startDate);
     Calendar endDateCalendar = (Calendar) startDateCalendar.clone();
     if (endDate == null) {
       endDateCalendar.add(Calendar.DAY_OF_MONTH, 1);
     } else {
-      endDateCalendar = DateTimeConverterUtil.setDateToDayStart(endDate);
+      endDateCalendar = Calendar.getInstance();
+      endDateCalendar.setTime(endDate);
       endDateCalendar.add(Calendar.DAY_OF_MONTH, 1);
     }
 

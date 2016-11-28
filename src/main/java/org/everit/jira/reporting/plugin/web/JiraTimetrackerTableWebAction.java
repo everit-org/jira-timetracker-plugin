@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
@@ -44,9 +43,11 @@ import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.PluginCondition;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.dto.TimetrackerReportsSessionData;
+import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 import org.everit.jira.updatenotifier.UpdateNotifier;
+import org.joda.time.DateTime;
 import org.ofbiz.core.entity.GenericEntityException;
 
 import com.atlassian.jira.avatar.Avatar;
@@ -150,7 +151,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   private List<Pattern> issuesRegex;
 
-  private Date lastDate;
+  private DateTime lastDate;
 
   /**
    * The message.
@@ -171,7 +172,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   private TimetrackerSettingsHelper settingsHelper;
 
-  private Date startDate;
+  private DateTime startDate;
 
   private transient ApplicationUser userPickerObject;
 
@@ -353,7 +354,15 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
     worklogs = new ArrayList<>();
     try {
-      worklogs.addAll(worklogManager.getWorklogs(currentUser, startDate, lastDate));
+      DateTime systemStartDateTime = DateTimeConverterUtil.setDateToDayStart(startDate);
+      systemStartDateTime =
+          DateTimeConverterUtil.convertDateZoneToSystemTimeZone(systemStartDateTime);
+      DateTime systemlastDateTime = DateTimeConverterUtil.setDateToDayStart(lastDate);
+      systemlastDateTime =
+          DateTimeConverterUtil.convertDateZoneToSystemTimeZone(systemlastDateTime);
+      worklogs.addAll(worklogManager.getWorklogs(currentUser,
+          DateTimeConverterUtil.convertDateTimeToDate(systemStartDateTime),
+          DateTimeConverterUtil.convertDateTimeToDate(systemlastDateTime)));
       saveDataToSession();
     } catch (DataAccessException | ParseException e) {
       LOGGER.error(GET_WORKLOGS_ERROR_MESSAGE, e);
@@ -486,13 +495,13 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
   private void initDatesIfNecessary() {
     if (dateFromFormated == null) {
-      Calendar calendarFrom = Calendar.getInstance();
-      calendarFrom.add(Calendar.WEEK_OF_MONTH, -1);
-      dateFromFormated = calendarFrom.getTimeInMillis();
+      DateTime dateTimeFrom = new DateTime(TimetrackerUtil.getLoggedUserTimeZone());
+      dateTimeFrom = dateTimeFrom.minusWeeks(1);
+      dateFromFormated = dateTimeFrom.getMillis();
     }
     if (dateToFormated == null) {
-      Calendar calendarTo = Calendar.getInstance();
-      dateToFormated = calendarTo.getTimeInMillis();
+      DateTime dateTimeTo = new DateTime(TimetrackerUtil.getLoggedUserTimeZone());
+      dateToFormated = dateTimeTo.getMillis();
     }
   }
 
@@ -544,21 +553,21 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     }
   }
 
-  private Date parseDateFrom() throws IllegalArgumentException {
+  private DateTime parseDateFrom() throws IllegalArgumentException {
     String dateFromParam = getHttpRequest().getParameter(PARAM_DATEFROM);
     if ((dateFromParam != null) && !"".equals(dateFromParam)) {
       dateFromFormated = Long.valueOf(dateFromParam);
-      return new Date(dateFromFormated);
+      return new DateTime(dateFromFormated);
     } else {
       throw new IllegalArgumentException(INVALID_START_TIME);
     }
   }
 
-  private Date parseDateTo() throws IllegalArgumentException {
+  private DateTime parseDateTo() throws IllegalArgumentException {
     String dateToParam = getHttpRequest().getParameter(PARAM_DATETO);
     if ((dateToParam != null) && !"".equals(dateToParam)) {
       dateToFormated = Long.valueOf(dateToParam);
-      return new Date(dateToFormated);
+      return new DateTime(dateToFormated);
     } else {
       throw new IllegalArgumentException(INVALID_END_TIME);
     }
@@ -690,15 +699,13 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     this.worklogs = worklogs;
   }
 
-  private void validateDates(final Date startDate, final Date lastDate) {
-    if (startDate.after(lastDate)) {
+  private void validateDates(final DateTime startDate, final DateTime lastDate) {
+    if (startDate.isAfter(lastDate)) {
       throw new IllegalArgumentException(WRONG_DATES);
     }
 
-    Calendar yearCheckCal = Calendar.getInstance();
-    yearCheckCal.setTime(lastDate);
-    yearCheckCal.add(Calendar.YEAR, -1);
-    if (startDate.before(yearCheckCal.getTime())) {
+    DateTime yearCheck = lastDate.minusYears(1);
+    if (startDate.isBefore(yearCheck)) {
       throw new IllegalArgumentException(EXCEEDED_A_YEAR);
     }
   }

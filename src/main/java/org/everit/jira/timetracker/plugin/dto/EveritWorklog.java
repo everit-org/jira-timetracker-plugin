@@ -17,11 +17,11 @@ package org.everit.jira.timetracker.plugin.dto;
 
 import java.io.Serializable;
 import java.text.ParseException;
-import java.util.Calendar;
 import java.util.Date;
 
 import org.everit.jira.timetracker.plugin.DurationFormatter;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
+import org.joda.time.DateTime;
 import org.ofbiz.core.entity.GenericValue;
 
 import com.atlassian.jira.avatar.Avatar;
@@ -49,7 +49,7 @@ public class EveritWorklog implements Serializable {
    */
   private String body;
 
-  private Date date;
+  private DateTime date;
 
   private int dayNo;
 
@@ -148,14 +148,16 @@ public class EveritWorklog implements Serializable {
       throws ParseException, IllegalArgumentException {
     worklogId = worklogGv.getLong("id");
     startTime = worklogGv.getString("startdate");
-    date = DateTimeConverterUtil.stringToDateAndTime(startTime);
-    startTime = DateTimeConverterUtil.dateTimeToString(date);
-    startDate = DateTimeConverterUtil.dateToString(date);
-    Calendar calendar = Calendar.getInstance();
-    calendar.setTime(date);
-    weekNo = calendar.get(Calendar.WEEK_OF_YEAR);
-    monthNo = calendar.get(Calendar.MONTH) + 1;
-    dayNo = calendar.get(Calendar.DAY_OF_YEAR);
+    DateTime systemDate =
+        new DateTime(DateTimeConverterUtil.stringToDateAndTime(startTime).getTime());
+    date = DateTimeConverterUtil.convertDateZoneToUserTimeZone(systemDate);
+    startTime =
+        DateTimeConverterUtil.dateTimeToString(DateTimeConverterUtil.convertDateTimeToDate(date));
+    startDate =
+        DateTimeConverterUtil.dateToString(DateTimeConverterUtil.convertDateTimeToDate(date));
+    weekNo = date.getWeekOfWeekyear(); // TODO check
+    monthNo = date.getMonthOfYear() + 1; // TODO check
+    dayNo = date.getDayOfYear(); // TODO check
     issueId = Long.valueOf(worklogGv.getString("issue"));
     IssueManager issueManager = ComponentAccessor.getIssueManager();
     MutableIssue issueObject = issueManager.getIssueObject(issueId);
@@ -216,14 +218,15 @@ public class EveritWorklog implements Serializable {
    */
   public EveritWorklog(final Worklog worklog) throws IllegalArgumentException {
     worklogId = worklog.getId();
-    date = worklog.getStartDate();
-    startTime = DateTimeConverterUtil.dateTimeToString(date);
-    startDate = DateTimeConverterUtil.dateToString(date);
-    Calendar calendar = Calendar.getInstance();
-    calendar.setTime(date);
-    weekNo = calendar.get(Calendar.WEEK_OF_YEAR);
-    monthNo = calendar.get(Calendar.MONTH) + 1;
-    dayNo = calendar.get(Calendar.DAY_OF_YEAR);
+    DateTime systemDate = new DateTime(worklog.getStartDate().getTime());
+    date = DateTimeConverterUtil.convertDateZoneToUserTimeZone(systemDate);
+    startTime =
+        DateTimeConverterUtil.dateTimeToString(DateTimeConverterUtil.convertDateTimeToDate(date));
+    startDate =
+        DateTimeConverterUtil.dateToString(DateTimeConverterUtil.convertDateTimeToDate(date));
+    weekNo = date.getWeekOfWeekyear(); // TODO check
+    monthNo = date.getMonthOfYear() + 1; // TODO check
+    dayNo = date.getDayOfYear(); /// TODO check
     issue = worklog.getIssue().getKey();
     issueSummary = worklog.getIssue().getSummary();
     body = worklog.getComment();
@@ -242,7 +245,7 @@ public class EveritWorklog implements Serializable {
   }
 
   public Date getDate() {
-    return (Date) date.clone();
+    return DateTimeConverterUtil.convertDateTimeToDate(date);
   }
 
   public int getDayNo() {
@@ -334,7 +337,7 @@ public class EveritWorklog implements Serializable {
   }
 
   public void setDate(final Date date) {
-    this.date = (Date) date.clone();
+    this.date = new DateTime(date.getTime());
   }
 
   public void setDayNo(final int dayNo) {

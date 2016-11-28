@@ -66,6 +66,7 @@ public final class WorklogUtil {
   public static List<EntityCondition> createWorklogQueryExprList(final Calendar startDate,
       final Calendar endDate,
       final String userKey) {
+    // TODO remove calendar? set to long?
     EntityExpr startExpr = new EntityExpr("startdate",
         EntityOperator.GREATER_THAN_EQUAL_TO, new Timestamp(
             startDate.getTimeInMillis()));
@@ -119,7 +120,7 @@ public final class WorklogUtil {
       final String selectedUser,
       final ApplicationUser loggedInUser,
       final Calendar startDate, final Calendar endDate) {
-
+    // TODO remove calendar? set to long?
     String userKey = ((selectedUser == null) || "".equals(selectedUser))
         ? loggedInUser.getKey() : selectedUser;
 
