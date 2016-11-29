@@ -16,7 +16,6 @@
 package org.everit.jira.reporting.plugin.util;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -36,6 +35,7 @@ import org.everit.jira.reporting.plugin.dto.PickerVersionDTO;
 import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
 import org.everit.jira.settings.TimetrackerSettingsHelper;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
+import org.joda.time.DateTime;
 
 import com.atlassian.jira.bc.JiraServiceContext;
 import com.atlassian.jira.bc.JiraServiceContextImpl;
@@ -244,12 +244,16 @@ public final class ConverterUtil {
       throw new NullPointerException("filterCondition parameter is null");
     }
 
-    Date worklogEndDate = new Date(filterCondition.getWorklogEndDate());
-    Calendar worklogEndDateCalendar = DateTimeConverterUtil.setDateToDayStart(worklogEndDate);
-    worklogEndDateCalendar.add(Calendar.DAY_OF_MONTH, 1);
-    worklogEndDate = worklogEndDateCalendar.getTime();
+    DateTime worklogEndDate = new DateTime(filterCondition.getWorklogEndDate());
+    worklogEndDate = DateTimeConverterUtil.setDateToDayStart(worklogEndDate);
+    worklogEndDate = worklogEndDate.plusDays(1);
+    // TODO check
+    worklogEndDate = DateTimeConverterUtil.convertDateZoneToUserTimeZone(worklogEndDate);
 
-    Date worklogStartDate = new Date(filterCondition.getWorklogStartDate());
+    DateTime worklogStartDate = new DateTime(filterCondition.getWorklogStartDate());
+    worklogStartDate = DateTimeConverterUtil.setDateToDayStart(worklogStartDate);
+    // TODO check
+    worklogStartDate = DateTimeConverterUtil.convertDateZoneToUserTimeZone(worklogStartDate);
 
     ReportSearchParam reportSearchParam = new ReportSearchParam();
     List<String> searchParamIssueKeys;
@@ -273,8 +277,8 @@ public final class ConverterUtil {
           ConverterUtil.appendProjectIds(reportSearchParam, filterCondition.getProjectIds());
     }
 
-    reportSearchParam.worklogEndDate(worklogEndDate)
-        .worklogStartDate(worklogStartDate)
+    reportSearchParam.worklogEndDate(DateTimeConverterUtil.convertDateTimeToDate(worklogEndDate))
+        .worklogStartDate(DateTimeConverterUtil.convertDateTimeToDate(worklogStartDate))
         .issueKeys(searchParamIssueKeys);
 
     if (!reportSearchParam.worklogStartDate.before(reportSearchParam.worklogEndDate)) {

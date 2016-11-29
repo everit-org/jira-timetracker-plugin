@@ -15,6 +15,7 @@
  */
 package org.everit.jira.timetracker.plugin.util;
 
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.DateFormatSymbols;
 import java.text.ParseException;
@@ -27,7 +28,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.everit.jira.core.impl.WorklogComponent;
+import org.everit.jira.core.util.TimetrackerUtil;
 import org.everit.jira.timetracker.plugin.DurationFormatter;
+import org.everit.jira.timetracker.plugin.exception.WorklogException;
+import org.joda.time.DateTime;
 
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.config.properties.APKeys;
@@ -123,6 +128,69 @@ public final class DateTimeConverterUtil {
    * The 24 hours pattern.
    */
   public static final String TIME24HOURS_PATTERN = "([01]?[0-9]|2[0-3]):[0-5][0-9]";
+
+  private static final int YEAR_1900 = 1900;
+
+  /**
+   * Convert joda DateTime to java Date. Convert the date and time without Time Zone correction.
+   * (the joda DateTime toDate metod add the time zone).
+   *
+   * @param dateTime
+   *          The dateTime.
+   * @return The new date.
+   */
+  @SuppressWarnings("deprecation")
+  public static Date convertDateTimeToDate(final DateTime dateTime) {
+    return new Date(
+        dateTime.getYear() - YEAR_1900,
+        dateTime.getMonthOfYear() - 1,
+        dateTime.getDayOfMonth(),
+        dateTime.getHourOfDay(),
+        dateTime.getMinuteOfHour(),
+        dateTime.getSecondOfMinute());
+  }
+
+  /**
+   * Convert the give date to the system TimeZone.
+   *
+   * @param date
+   *          The origonal date
+   * @return The date in the System TimeZone.
+   */
+  public static DateTime convertDateZoneToSystemTimeZone(final DateTime date) {
+    DateTime inSystemTimeZone = date.withZone(TimetrackerUtil.getSystemTimeZone());
+    return inSystemTimeZone;
+  }
+
+  /**
+   * Convert the give date to the user TimeZone.
+   *
+   * @param date
+   *          The origonal date
+   * @return The date in the User TimeZone.
+   */
+  public static DateTime convertDateZoneToUserTimeZone(final DateTime date) {
+    DateTime inUserTimeZone = date.withZone(TimetrackerUtil.getLoggedUserTimeZone());
+    return inUserTimeZone;
+  }
+
+  /**
+   * Convert the Timestamp to system timezone, cahnge the Timezone o user timezone and convert back
+   * to a new Timestamp.
+   *
+   * @param systemTimestamp
+   *          The original Timesatamp in system TimeZone.
+   * @return The new Timestamp in user TimeZone.
+   */
+  public static Timestamp convertTimestampToUserTimeZone(final Timestamp systemTimestamp) {
+    if (systemTimestamp == null) {
+      return null;
+    }
+    DateTime dateTime = new DateTime(TimetrackerUtil.getSystemTimeZone());
+    dateTime = dateTime.withMillis(systemTimestamp.getTime());
+    dateTime = DateTimeConverterUtil.convertDateZoneToUserTimeZone(dateTime);
+    return new Timestamp(dateTime.getMillis());
+  }
 
   /**
    * Count the worklog end time.
@@ -359,14 +427,12 @@ public final class DateTimeConverterUtil {
    *          The time to set the calendar
    * @return The calendar which represents the start of the day
    */
-  public static Calendar setDateToDayStart(final Date date) {
-    Calendar startDate = Calendar.getInstance();
-    startDate.setTime(date);
-    startDate.set(Calendar.HOUR_OF_DAY, 0);
-    startDate.set(Calendar.MINUTE, 0);
-    startDate.set(Calendar.SECOND, 0);
-    startDate.set(Calendar.MILLISECOND, 0);
-    return startDate;
+  public static DateTime setDateToDayStart(final DateTime date) {
+    DateTime dateStartOfTheDay = date.withHourOfDay(0);
+    dateStartOfTheDay = dateStartOfTheDay.withMinuteOfHour(0);
+    dateStartOfTheDay = dateStartOfTheDay.withSecondOfMinute(0);
+    dateStartOfTheDay = dateStartOfTheDay.withMillisOfSecond(0);
+    return dateStartOfTheDay;
   }
 
   /**
@@ -465,6 +531,49 @@ public final class DateTimeConverterUtil {
       throws IllegalArgumentException {
     return DateTimeConverterUtil.stringToDateAndTime(date,
         DateTimeConverterUtil.stringTimeToDateTime(timeString));
+  }
+
+  /**
+   * Concat DateTime date and Date time to a DateTime date based on the originalDate param.
+   *
+   * @param originalDate
+   *          The date.
+   * @param time
+   *          The time.
+   * @return The concated date time.
+   */
+  public static DateTime stringToDateAndTime(final DateTime originalDate, final Date time) {
+    DateTime date;
+    try {
+      date = originalDate.withHourOfDay(time.getHours());
+      date = date.withMinuteOfHour(time.getMinutes());
+    } catch (IllegalArgumentException e) {
+      throw new WorklogException(WorklogComponent.PropertiesKey.DATE_PARSE,
+          originalDate + " " + time);
+    }
+    return date;
+  }
+
+  /**
+   * Concat DateTime date and String time to a DateTime date based on the originalDate param.
+   *
+   * @param originalDate
+   *          The date.
+   * @param time
+   *          The time.
+   * @return The concated date time.
+   */
+  public static DateTime stringToDateAndTime(final DateTime originalDate, final String time) {
+    Date timeDate;
+    DateTime date;
+    try {
+      timeDate = DateTimeConverterUtil.stringTimeToDateTime(time);
+      date = stringToDateAndTime(originalDate, timeDate);
+    } catch (IllegalArgumentException e) {
+      throw new WorklogException(WorklogComponent.PropertiesKey.DATE_PARSE,
+          originalDate + " " + time);
+    }
+    return date;
   }
 
   /**
