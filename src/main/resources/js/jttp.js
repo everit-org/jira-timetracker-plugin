@@ -554,7 +554,8 @@ everit.jttp.main = everit.jttp.main || {};
   function setExcludeDaysToWeekend(excludeDays) {
     var dayNumber = excludeDays.length;
     for (var i = 0; i < dayNumber; i++) {
-      var theDay = excludeDays[i];
+      var date = new Date(excludeDays[i]);
+      var theDay = date.getDate();
       var calendarDays = jQuery('.day.day-' + theDay);
       for (var j = 0; j < calendarDays.length; j++) {
         if (!(jQuery(calendarDays[j]).hasClass('selected')

@@ -475,8 +475,14 @@ public final class SummaryDTO {
     private Date getWeekStart(final Date date) {
       Calendar c = createNewCalendarWithWeekStart();
       c.setTime(date);
-      int dayOfWeek = c.get(Calendar.DAY_OF_WEEK) - c.getFirstDayOfWeek();
-      c.add(Calendar.DAY_OF_MONTH, -dayOfWeek);
+
+      int dayOfWeek = c.get(Calendar.DAY_OF_WEEK);
+      int firstDayOfWeek = c.getFirstDayOfWeek();
+      if (dayOfWeek < firstDayOfWeek) {
+        dayOfWeek += DateTimeConverterUtil.DAYS_PER_WEEK;
+      }
+      int days = dayOfWeek - firstDayOfWeek;
+      c.add(Calendar.DAY_OF_MONTH, -days);
       Date firstDate = c.getTime();
       return firstDate;
     }

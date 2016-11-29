@@ -48,7 +48,7 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.popu
 				firstDay : ${firstDay},
 				useISO8601 : ${currentCalendar.useISO8601},
 				dateFormatted : ${dateFormatted},
-				excludeDays : ${excludeDays},
+				excludeDays : [ #foreach( $tmp in ${excludeDays} )#if($velocityCount> 1),#end "$tmp"  #end ],
 				isColoring : ${userSettings.coloring},
 				loggedDays : ${loggedDays},
 				isDurationSelected : ${worklogValues.duration},
