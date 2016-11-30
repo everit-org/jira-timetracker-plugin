@@ -72,12 +72,10 @@ public class TimetrackerComponent implements TimetrackerManager {
   @Override
   public Date firstMissingWorklogsDate(final Set<Date> excludeDatesSet,
       final Set<Date> includeDatesSet) {
-    // TODO change the return type to DateTime in User TimeZone
     DateTime scannedDate = new DateTime(TimetrackerUtil.getLoggedUserTimeZone());
     // one week
     scannedDate = scannedDate.withDayOfYear(
         scannedDate.getDayOfYear() - DateTimeConverterUtil.DAYS_PER_WEEK);
-    // TODO i'm not sure this for cycle FIXME if necessary
     for (int i = 0; i < DateTimeConverterUtil.DAYS_PER_WEEK; i++) {
       // convert date to String
       Date scanedDateDate = DateTimeConverterUtil.convertDateTimeToDate(scannedDate);
@@ -136,6 +134,7 @@ public class TimetrackerComponent implements TimetrackerManager {
     return getExtraDaysOfTheMonth(date, includeDatesSet);
   }
 
+  // TODO use UTZ
   @Override
   public List<String> getLoggedDaysOfTheMonth(final DateTime date) {
     List<String> resultDays = new ArrayList<>();
@@ -151,7 +150,6 @@ public class TimetrackerComponent implements TimetrackerManager {
               DateTimeConverterUtil.convertDateZoneToSystemTimeZone(dayStart)))) {
         resultDays.add(Integer.toString(dayOfMonth));
       }
-      // startCalendar = startCalendar.withDayOfMonth(++dayOfMonth);
       startCalendar = startCalendar.plusDays(1);
       dayOfMonth++;
     }

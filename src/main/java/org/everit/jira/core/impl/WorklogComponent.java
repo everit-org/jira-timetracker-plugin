@@ -86,6 +86,7 @@ public class WorklogComponent implements EVWorklogManager {
     }
   }
 
+  // TODO use UTZ
   @Override
   public long countWorklogsWithoutPermissionChecks(final Date startDate, final Date endDate) {
     Calendar startDateCalendar = Calendar.getInstance();
@@ -112,6 +113,7 @@ public class WorklogComponent implements EVWorklogManager {
     return worklogGVList.size();
   }
 
+  // TODO use UTZ
   @Override
   public void createWorklog(final WorklogParameter worklogParameter) {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
@@ -177,6 +179,7 @@ public class WorklogComponent implements EVWorklogManager {
     remainingEstimateType.delete(worklogService, serviceContext, deleteWorklogResult);
   }
 
+  // TODO use UTZ
   @Override
   public void editWorklog(final Long worklogId, final WorklogParameter worklogParameter) {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
@@ -253,6 +256,7 @@ public class WorklogComponent implements EVWorklogManager {
     return worklog;
   }
 
+  // TODO UTZ
   @Override
   public List<EveritWorklog> getWorklogs(final String selectedUser, final Date startDate,
       final Date endDate) throws DataAccessException, ParseException {

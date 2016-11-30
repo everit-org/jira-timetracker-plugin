@@ -75,7 +75,7 @@ public class InitializerComponent implements InitializingBean, DisposableBean {
   }
 
   private long calculateInitialDelay() {
-    // DEFAULT 20:00
+    // DEFAULT 20:00 use system time
     Calendar now = Calendar.getInstance();
     long hours = now.get(Calendar.HOUR_OF_DAY);
     long minutes = now.get(Calendar.MINUTE);

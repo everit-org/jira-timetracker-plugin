@@ -195,6 +195,7 @@ public class SupportComponent implements SupportManager {
     }
   }
 
+  // TODO UTZ? check.. it would be good.
   @Override
   public long summary(final Date startSummary, final Date finishSummary,
       final List<Pattern> issuePatterns) {
