@@ -64,13 +64,34 @@ import com.google.gson.GsonBuilder;
  */
 public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
+  /**
+   * HTTP parameters.
+   */
+  public static final class Parameter {
+
+    public static final String DATEFROM = "dateFromMil";
+
+    public static final String DATETO = "dateToMil";
+
+    public static final String USERPICKER = "selectedUser";
+
+  }
+
+  /**
+   * Keys for properties.
+   */
+  public static final class PropertiesKey {
+
+    public static final String INVALID_END_TIME = "plugin.invalid_endTime";
+
+    public static final String INVALID_START_TIME = "plugin.invalid_startTime";
+
+    public static final String INVALID_USER_PICKER = "plugin.user.picker.label";
+
+    private static final String WRONG_DATES = "plugin.wrong.dates";
+  }
+
   private static final String GET_WORKLOGS_ERROR_MESSAGE = "Error when trying to get worklogs.";
-
-  private static final String INVALID_END_TIME = "plugin.invalid_endTime";
-
-  private static final String INVALID_START_TIME = "plugin.invalid_startTime";
-
-  private static final String INVALID_USER_PICKER = "plugin.user.picker.label";
 
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
 
@@ -78,12 +99,6 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
    * Logger.
    */
   private static final Logger LOGGER = Logger.getLogger(JiraTimetrackerChartWebAction.class);
-
-  private static final String PARAM_DATEFROM = "dateFromMil";
-
-  private static final String PARAM_DATETO = "dateToMil";
-
-  private static final String PARAM_USERPICKER = "selectedUser";
 
   private static final String SELF_WITH_DATE_AND_USER_URL_FORMAT =
       "/secure/JiraTimetrackerChartWebAction.jspa"
@@ -98,8 +113,6 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
   private static final long serialVersionUID = 1L;
 
   private static final String SESSION_KEY = "jttpChartStore";
-
-  private static final String WRONG_DATES = "plugin.wrong.dates";
 
   private AnalyticsDTO analyticsDTO;
 
@@ -157,6 +170,17 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     this.worklogManager = worklogManager;
   }
 
+  private void beforeAction() {
+    normalizeContextPath();
+    loadIssueCollectorSrc();
+
+    hasBrowseUsersPermission =
+        PermissionUtil.hasBrowseUserPermission(getLoggedInApplicationUser(), settingsHelper);
+
+    analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(PiwikPropertiesUtil.PIWIK_CHART_SITEID,
+        settingsHelper);
+  }
+
   private String checkConditions() {
     boolean isUserLogged = TimetrackerUtil.isUserLogged();
     if (!isUserLogged) {
@@ -180,14 +204,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     if (checkConditionsResult != null) {
       return checkConditionsResult;
     }
-    normalizeContextPath();
-    loadIssueCollectorSrc();
-
-    hasBrowseUsersPermission =
-        PermissionUtil.hasBrowseUserPermission(getLoggedInApplicationUser(), settingsHelper);
-
-    analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(PiwikPropertiesUtil.PIWIK_CHART_SITEID,
-        settingsHelper);
+    beforeAction();
 
     boolean loadedFromSession = loadDataFromSession();
     initDatesIfNecessary();
@@ -209,14 +226,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
       return checkConditionsResult;
     }
 
-    normalizeContextPath();
-    loadIssueCollectorSrc();
-
-    hasBrowseUsersPermission =
-        PermissionUtil.hasBrowseUserPermission(getLoggedInApplicationUser(), settingsHelper);
-
-    analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(PiwikPropertiesUtil.PIWIK_CHART_SITEID,
-        settingsHelper);
+    beforeAction();
 
     parseParams();
     if (!"".equals(message)) {
@@ -224,7 +234,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     }
 
     if (startDate.isAfter(lastDate)) {
-      message = WRONG_DATES;
+      message = PropertiesKey.WRONG_DATES;
       return INPUT;
     }
 
@@ -384,22 +394,22 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
   }
 
   private DateTime parseDateFrom() throws IllegalArgumentException {
-    String dateFromParam = getHttpRequest().getParameter(PARAM_DATEFROM);
+    String dateFromParam = getHttpRequest().getParameter(Parameter.DATEFROM);
     if ((dateFromParam != null) && !"".equals(dateFromParam)) {
       dateFromFormated = Long.valueOf(dateFromParam);
       return new DateTime(dateFromFormated);
     } else {
-      throw new IllegalArgumentException(INVALID_START_TIME);
+      throw new IllegalArgumentException(PropertiesKey.INVALID_START_TIME);
     }
   }
 
   private DateTime parseDateTo() throws IllegalArgumentException {
-    String dateToParam = getHttpRequest().getParameter(PARAM_DATETO);
+    String dateToParam = getHttpRequest().getParameter(Parameter.DATETO);
     if ((dateToParam != null) && !"".equals(dateToParam)) {
       dateToFormated = Long.valueOf(dateToParam);
       return new DateTime(dateToFormated);
     } else {
-      throw new IllegalArgumentException(INVALID_END_TIME);
+      throw new IllegalArgumentException(PropertiesKey.INVALID_END_TIME);
     }
   }
 
@@ -449,26 +459,10 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
             .dateTo(dateToFormated));
   }
 
-  public void setAvatarURL(final String avatarURL) {
-    this.avatarURL = avatarURL;
-  }
-
-  public void setChartDataList(final List<ChartData> chartDataList) {
-    this.chartDataList = chartDataList;
-  }
-
-  public void setContextPath(final String contextPath) {
-    this.contextPath = contextPath;
-  }
-
-  public void setCurrentUser(final String currentUserEmail) {
-    currentUser = currentUserEmail;
-  }
-
   private void setCurrentUserFromParam() throws IllegalArgumentException {
-    String selectedUser = getHttpRequest().getParameter(PARAM_USERPICKER);
+    String selectedUser = getHttpRequest().getParameter(Parameter.USERPICKER);
     if (selectedUser == null) {
-      throw new IllegalArgumentException(INVALID_USER_PICKER);
+      throw new IllegalArgumentException(PropertiesKey.INVALID_USER_PICKER);
     }
     currentUser = selectedUser;
     if ("".equals(currentUser) || !hasBrowseUsersPermission) {
@@ -478,36 +472,16 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     }
   }
 
-  public void setDateFromFormated(final Long dateFromFormated) {
-    this.dateFromFormated = dateFromFormated;
-  }
-
-  public void setDateToFormated(final Long dateToFormated) {
-    this.dateToFormated = dateToFormated;
-  }
-
-  public void setHasBrowseUsersPermission(final boolean hasBrowseUsersPermission) {
-    this.hasBrowseUsersPermission = hasBrowseUsersPermission;
-  }
-
-  public void setMessage(final String message) {
-    this.message = message;
-  }
-
-  public void setUserPickerObject(final ApplicationUser userPickerObject) {
-    this.userPickerObject = userPickerObject;
-  }
-
   private void setUserPickerObjectBasedOnCurrentUser() {
     if (!"".equals(currentUser)) {
       userPickerObject = ComponentAccessor.getUserUtil().getUserByName(currentUser);
       if (userPickerObject == null) {
-        throw new IllegalArgumentException(INVALID_USER_PICKER);
+        throw new IllegalArgumentException(PropertiesKey.INVALID_USER_PICKER);
       }
       AvatarService avatarService = ComponentAccessor.getComponent(AvatarService.class);
-      setAvatarURL(avatarService.getAvatarURL(
+      avatarURL = avatarService.getAvatarURL(
           ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser(),
-          userPickerObject, Avatar.Size.SMALL).toString());
+          userPickerObject, Avatar.Size.SMALL).toString();
     } else {
       userPickerObject = null;
     }
