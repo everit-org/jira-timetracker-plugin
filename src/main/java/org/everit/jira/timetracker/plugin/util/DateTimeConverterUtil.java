@@ -132,6 +132,25 @@ public final class DateTimeConverterUtil {
   private static final int YEAR_1900 = 1900;
 
   /**
+   * Convert the Timestamp to system timezone, cahnge the Timezone o user timezone and convert back
+   * to a new Timestamp.
+   *
+   * @param systemTimestamp
+   *          The original Timesatamp in system TimeZone.
+   * @return The new Timestamp in user TimeZone.
+   */
+  public static Timestamp addTimeZoneToTimestamp(final Timestamp systemTimestamp) {
+    if (systemTimestamp == null) {
+      return null;
+    }
+    // TODO DTS? add control over timeZOne and settings?
+    DateTime dateTime = new DateTime(TimetrackerUtil.getSystemTimeZone());
+    dateTime = dateTime.withMillis(systemTimestamp.getTime());
+    dateTime = DateTimeConverterUtil.convertDateZoneToUserTimeZone(dateTime);
+    return new Timestamp(dateTime.getMillis());
+  }
+
+  /**
    * Convert joda DateTime to java Date. Convert the date and time without Time Zone correction.
    * (the joda DateTime toDate metod add the time zone).
    *
@@ -172,24 +191,6 @@ public final class DateTimeConverterUtil {
   public static DateTime convertDateZoneToUserTimeZone(final DateTime date) {
     DateTime inUserTimeZone = date.withZone(TimetrackerUtil.getLoggedUserTimeZone());
     return inUserTimeZone;
-  }
-
-  /**
-   * Convert the Timestamp to system timezone, cahnge the Timezone o user timezone and convert back
-   * to a new Timestamp.
-   *
-   * @param systemTimestamp
-   *          The original Timesatamp in system TimeZone.
-   * @return The new Timestamp in user TimeZone.
-   */
-  public static Timestamp convertTimestampToUserTimeZone(final Timestamp systemTimestamp) {
-    if (systemTimestamp == null) {
-      return null;
-    }
-    DateTime dateTime = new DateTime(TimetrackerUtil.getSystemTimeZone());
-    dateTime = dateTime.withMillis(systemTimestamp.getTime());
-    dateTime = DateTimeConverterUtil.convertDateZoneToUserTimeZone(dateTime);
-    return new Timestamp(dateTime.getMillis());
   }
 
   /**

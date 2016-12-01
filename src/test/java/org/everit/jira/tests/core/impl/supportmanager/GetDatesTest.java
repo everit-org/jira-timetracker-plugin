@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.everit.jira.core.SupportManager;
+import org.everit.jira.core.impl.DateTimeServer;
 import org.everit.jira.core.impl.SupportComponent;
 import org.everit.jira.reporting.plugin.dto.MissingsWorklogsDTO;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
@@ -134,11 +135,13 @@ public class GetDatesTest {
     date = date.plusDays(1);
     todayPlus4 = date.toDateTime();
 
-    timeTrackerGlobalSettings.excludeDates(new HashSet<>(Arrays.asList(todayPlus1.getMillis())));
-    timeTrackerGlobalSettings.includeDates(new HashSet<>(Arrays.asList(today.getMillis(),
-        todayPlus2.getMillis(),
-        todayPlus3.getMillis(),
-        todayPlus4.getMillis())));
+    timeTrackerGlobalSettings
+        .excludeDates(new HashSet<>(Arrays.asList(todayPlus1.getMillis())));
+    timeTrackerGlobalSettings
+        .includeDates(new HashSet<>(Arrays.asList(today.getMillis(),
+            todayPlus2.getMillis(),
+            todayPlus3.getMillis(),
+            todayPlus4.getMillis())));
     timeTrackerGlobalSettings
         .filteredSummaryIssues(new ArrayList<>(Arrays.asList(Pattern.compile(NOWORK_ISSUE_KEY))));
 
@@ -346,13 +349,17 @@ public class GetDatesTest {
   public void testGetDates() throws GenericEntityException {
     initMockComponentWorker();
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    DateTimeServer today = new DateTimeServer(this.today);
+    DateTimeServer todayPlus4 = new DateTimeServer(this.todayPlus4);
+    DateTimeServer todayPlus3 = new DateTimeServer(this.todayPlus3);
+    DateTimeServer todayPlus2 = new DateTimeServer(this.todayPlus2);
 
     List<MissingsWorklogsDTO> dates =
         supportManager.getDates(today, todayPlus4, false, false, timeTrackerGlobalSettings);
     Assert.assertEquals(1, dates.size());
     MissingsWorklogsDTO dto1 = dates.get(0);
     Assert.assertEquals("1", dto1.getHour());
-    Assert.assertEquals(sdf.format(DateTimeConverterUtil.convertDateTimeToDate(todayPlus4)),
+    Assert.assertEquals(sdf.format(todayPlus4.getUserTimeZoneDate()),
         sdf.format(dto1.getDate()));
 
     dates =
@@ -360,7 +367,7 @@ public class GetDatesTest {
     Assert.assertEquals(1, dates.size());
     dto1 = dates.get(0);
     Assert.assertEquals("1", dto1.getHour());
-    Assert.assertEquals(sdf.format(DateTimeConverterUtil.convertDateTimeToDate(todayPlus4)),
+    Assert.assertEquals(sdf.format(todayPlus4.getUserTimeZoneDate()),
         sdf.format(dto1.getDate()));
 
     dates =
@@ -371,9 +378,9 @@ public class GetDatesTest {
     MissingsWorklogsDTO dto2 = dates.get(1);
     Assert.assertEquals("1", dto1.getHour());
     Assert.assertEquals(df.format(0.3), dto2.getHour());
-    Assert.assertEquals(sdf.format(DateTimeConverterUtil.convertDateTimeToDate(todayPlus4)),
+    Assert.assertEquals(sdf.format(todayPlus4.getUserTimeZoneDate()),
         sdf.format(dto1.getDate()));
-    Assert.assertEquals(sdf.format(DateTimeConverterUtil.convertDateTimeToDate(todayPlus3)),
+    Assert.assertEquals(sdf.format(todayPlus3.getUserTimeZoneDate()),
         sdf.format(dto2.getDate()));
 
     dates =
@@ -385,11 +392,11 @@ public class GetDatesTest {
     Assert.assertEquals("1", dto1.getHour());
     Assert.assertEquals(df.format(0.3), dto2.getHour());
     Assert.assertEquals(df.format(0.7), dto3.getHour());
-    Assert.assertEquals(sdf.format(DateTimeConverterUtil.convertDateTimeToDate(todayPlus4)),
+    Assert.assertEquals(sdf.format(todayPlus4.getUserTimeZoneDate()),
         sdf.format(dto1.getDate()));
-    Assert.assertEquals(sdf.format(DateTimeConverterUtil.convertDateTimeToDate(todayPlus3)),
+    Assert.assertEquals(sdf.format(todayPlus3.getUserTimeZoneDate()),
         sdf.format(dto2.getDate()));
-    Assert.assertEquals(sdf.format(DateTimeConverterUtil.convertDateTimeToDate(todayPlus2)),
+    Assert.assertEquals(sdf.format(todayPlus2.getUserTimeZoneDate()),
         sdf.format(dto3.getDate()));
   }
 }

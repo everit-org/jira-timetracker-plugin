@@ -193,15 +193,18 @@ public class ReportingPluginImpl implements ReportingPlugin, InitializingBean,
 
     List<WorklogDetailsDTO> worklogDetails = querydslSupport.execute(worklogDetailsQuery);
     for (WorklogDetailsDTO worklogDetail : worklogDetails) {
+
+      worklogDetail.setIssueCreated(
+          DateTimeConverterUtil.addTimeZoneToTimestamp(worklogDetail.getIssueCreated()));
       worklogDetail.setIssueUpdated(
-          DateTimeConverterUtil.convertTimestampToUserTimeZone(worklogDetail.getIssueUpdated()));
+          DateTimeConverterUtil.addTimeZoneToTimestamp(worklogDetail.getIssueUpdated()));
       worklogDetail.setWorklogCreated(
-          DateTimeConverterUtil.convertTimestampToUserTimeZone(worklogDetail.getWorklogCreated()));
+          DateTimeConverterUtil.addTimeZoneToTimestamp(worklogDetail.getWorklogCreated()));
       worklogDetail.setWorklogStartDate(
           DateTimeConverterUtil
-              .convertTimestampToUserTimeZone(worklogDetail.getWorklogStartDate()));
+              .addTimeZoneToTimestamp(worklogDetail.getWorklogStartDate()));
       worklogDetail.setWorklogUpdated(
-          DateTimeConverterUtil.convertTimestampToUserTimeZone(worklogDetail.getWorklogUpdated()));
+          DateTimeConverterUtil.addTimeZoneToTimestamp(worklogDetail.getWorklogUpdated()));
     }
 
     Long worklogDetailsCount = querydslSupport.execute(worklogDetailsCountQuery);

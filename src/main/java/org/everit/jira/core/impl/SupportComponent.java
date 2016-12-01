@@ -30,7 +30,6 @@ import org.everit.jira.core.util.WorklogUtil;
 import org.everit.jira.reporting.plugin.dto.MissingsWorklogsDTO;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
-import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.ofbiz.core.entity.EntityCondition;
 import org.ofbiz.core.entity.GenericEntityException;
@@ -57,38 +56,38 @@ public class SupportComponent implements SupportManager {
   }
 
   @Override
-  public List<MissingsWorklogsDTO> getDates(final DateTime from,
-      final DateTime to, final boolean workingHour, final boolean checkNonWorking,
+  public List<MissingsWorklogsDTO> getDates(final DateTimeServer from,
+      final DateTimeServer to, final boolean workingHour, final boolean checkNonWorking,
       final TimeTrackerGlobalSettings settings)
       throws GenericEntityException {
-    List<MissingsWorklogsDTO> datesWhereNoWorklog = new ArrayList<>();
-    DateTime fromDate = from;
-    DateTime toDate = to;
+    List<MissingsWorklogsDTO> datesWhereNoWorklog = new ArrayList<MissingsWorklogsDTO>();
+    DateTimeServer fromDate = from;
+    DateTimeServer toDate = to;
     Set<Date> excludeDatesAsSet = settings.getExcludeDates();
     Set<Date> includeDatesAsSet = settings.getIncludeDates();
-    while (!fromDate.isAfter(toDate)) {
+    while (!fromDate.getUserTimeZone().isAfter(toDate.getUserTimeZone())) {
       if (TimetrackerUtil.containsSetTheSameDay(excludeDatesAsSet,
-          DateTimeConverterUtil.convertDateTimeToDate(fromDate))) {
-        fromDate = fromDate.withDayOfYear(fromDate.getDayOfYear() + 1);
+          fromDate.getUserTimeZoneDate())) {
+        fromDate = new DateTimeServer(fromDate.getUserTimeZone().plusDays(1));
+        // fromDate = fromDate.withDayOfYear(fromDate.getDayOfYear() + 1);
         continue;
       }
       // check includes - not check weekend
       // check weekend - pass
       if (!TimetrackerUtil.containsSetTheSameDay(includeDatesAsSet,
-          DateTimeConverterUtil.convertDateTimeToDate(fromDate))
-          && ((fromDate.getDayOfWeek() == DateTimeConstants.SUNDAY)
-              || (fromDate.getDayOfWeek() == DateTimeConstants.SATURDAY))) {
-        fromDate = fromDate.withDayOfYear(fromDate.getDayOfYear() + 1);
+          fromDate.getUserTimeZoneDate())
+          && ((fromDate.getUserTimeZone().getDayOfWeek() == DateTimeConstants.SUNDAY)
+              || (fromDate.getUserTimeZone().getDayOfWeek() == DateTimeConstants.SATURDAY))) {
+        fromDate = new DateTimeServer(fromDate.getUserTimeZone().plusDays(1));
+        // fromDate = fromDate.withDayOfYear(fromDate.getDayOfYear() + 1);
         continue;
       }
       // check worklog. if no worklog set result else ++ scanedDate
       DecimalFormat decimalFormat = new DecimalFormat("#.#");
 
       if (workingHour) {
-        fromDate = DateTimeConverterUtil.setDateToDayStart(fromDate);
-        double missingsTime = isContainsEnoughWorklog(
-            DateTimeConverterUtil.convertDateTimeToDate(
-                DateTimeConverterUtil.convertDateZoneToSystemTimeZone(fromDate)),
+        // fromDate = DateTimeConverterUtil.setDateToDayStart(fromDate);
+        double missingsTime = isContainsEnoughWorklog(fromDate.getSystemTimeZoneDayStartDate(),
             checkNonWorking, settings.getNonWorkingIssuePatterns());
         if (missingsTime > 0) {
           missingsTime = missingsTime / DateTimeConverterUtil.SECONDS_PER_MINUTE
@@ -97,21 +96,17 @@ public class SupportComponent implements SupportManager {
           // new BigDecimal(Double.toString(missingsTime)).setScale(2, RoundingMode.HALF_EVEN);
           // missingsTime = bd.doubleValue();
           datesWhereNoWorklog
-              .add(new MissingsWorklogsDTO(DateTimeConverterUtil.convertDateTimeToDate(fromDate),
+              .add(new MissingsWorklogsDTO(fromDate.getUserTimeZoneDate(),
                   decimalFormat.format(missingsTime)));
         }
       } else {
-        fromDate = DateTimeConverterUtil.setDateToDayStart(fromDate);
-        if (!TimetrackerUtil.isContainsWorklog(
-            DateTimeConverterUtil.convertDateTimeToDate(
-                DateTimeConverterUtil.convertDateZoneToSystemTimeZone(fromDate)))) {
+        if (!TimetrackerUtil.isContainsWorklog(fromDate.getSystemTimeZoneDayStartDate())) {
           datesWhereNoWorklog
-              .add(new MissingsWorklogsDTO(DateTimeConverterUtil.convertDateTimeToDate(fromDate),
+              .add(new MissingsWorklogsDTO(fromDate.getUserTimeZoneDate(),
                   decimalFormat.format(timeTrackingConfiguration.getHoursPerDay().doubleValue())));
         }
       }
-      fromDate = fromDate.withDayOfYear(fromDate.getDayOfYear() + 1);
-
+      fromDate = new DateTimeServer(fromDate.getUserTimeZone().plusDays(1));
     }
     Collections.reverse(datesWhereNoWorklog);
     return datesWhereNoWorklog;
@@ -154,7 +149,8 @@ public class SupportComponent implements SupportManager {
         * DateTimeConverterUtil.MINUTES_PER_HOUR;
 
     List<EntityCondition> exprList =
-        WorklogUtil.createWorklogQueryExprListWithPermissionCheck(user, startDate, endDate);
+        WorklogUtil.createWorklogQueryExprListWithPermissionCheck(user, startDate.getTimeInMillis(),
+            endDate.getTimeInMillis());
     List<GenericValue> worklogGVList =
         ComponentAccessor.getOfBizDelegator().findByAnd("IssueWorklogView", exprList);
     if ((worklogGVList == null) || worklogGVList.isEmpty()) {
@@ -174,10 +170,6 @@ public class SupportComponent implements SupportManager {
   private void removeNonWorkingIssues(final List<GenericValue> worklogGVList,
       final List<Pattern> nonWorkingIssuePatterns) {
     List<GenericValue> worklogsCopy = new ArrayList<>(worklogGVList);
-    // if we have non-estimated issues
-
-    // TODO FIXME summaryFilteredIssuePatterns rename nonworking
-    // pattern
     if ((nonWorkingIssuePatterns != null) && !nonWorkingIssuePatterns.isEmpty()) {
       IssueManager issueManager = ComponentAccessor.getIssueManager();
       for (GenericValue worklog : worklogsCopy) {
@@ -195,7 +187,6 @@ public class SupportComponent implements SupportManager {
     }
   }
 
-  // TODO UTZ? check.. it would be good.
   @Override
   public long summary(final Date startSummary, final Date finishSummary,
       final List<Pattern> issuePatterns) {
@@ -210,7 +201,7 @@ public class SupportComponent implements SupportManager {
 
     List<EntityCondition> exprList =
         WorklogUtil.createWorklogQueryExprListWithPermissionCheck(user,
-            start, finish);
+            start.getTimeInMillis(), finish.getTimeInMillis());
 
     List<GenericValue> worklogs;
     // worklog query

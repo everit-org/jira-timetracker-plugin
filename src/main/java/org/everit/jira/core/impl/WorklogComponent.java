@@ -86,26 +86,27 @@ public class WorklogComponent implements EVWorklogManager {
     }
   }
 
-  // TODO use UTZ
   @Override
-  public long countWorklogsWithoutPermissionChecks(final Date startDate, final Date endDate) {
+  public long countWorklogsWithoutPermissionChecks(final DateTimeServer startDateServer,
+      final DateTimeServer endDateServer) {
+
     Calendar startDateCalendar = Calendar.getInstance();
-    startDateCalendar.setTime(startDate);
+    startDateCalendar.setTime(startDateServer.getSystemTimeZoneDayStartDate());
     Calendar endDateCalendar = (Calendar) startDateCalendar.clone();
-    if (endDate == null) {
+    if (endDateServer == null) {
       endDateCalendar.add(Calendar.DAY_OF_MONTH, 1);
     } else {
       endDateCalendar = Calendar.getInstance();
-      endDateCalendar.setTime(endDate);
+      endDateCalendar.setTime(endDateServer.getSystemTimeZoneDayStartDate());
       endDateCalendar.add(Calendar.DAY_OF_MONTH, 1);
     }
-
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
     ApplicationUser loggedInUser = authenticationContext.getUser();
 
     List<EntityCondition> exprList =
-        WorklogUtil.createWorklogQueryExprList(startDateCalendar, endDateCalendar,
+        WorklogUtil.createWorklogQueryExprList(startDateCalendar.getTimeInMillis(),
+            endDateCalendar.getTimeInMillis(),
             loggedInUser.getKey());
 
     List<GenericValue> worklogGVList = ComponentAccessor.getOfBizDelegator()
@@ -113,7 +114,6 @@ public class WorklogComponent implements EVWorklogManager {
     return worklogGVList.size();
   }
 
-  // TODO use UTZ
   @Override
   public void createWorklog(final WorklogParameter worklogParameter) {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
@@ -137,7 +137,7 @@ public class WorklogComponent implements EVWorklogManager {
           worklogParameter.getIssueKey());
     }
     Builder builder = getBuilder(issue,
-        worklogParameter.getDate(),
+        worklogParameter.getDate().getSystemTimeZoneDate(),
         worklogParameter.getTimeSpent(),
         worklogParameter.getComment(),
         null);
@@ -179,7 +179,6 @@ public class WorklogComponent implements EVWorklogManager {
     remainingEstimateType.delete(worklogService, serviceContext, deleteWorklogResult);
   }
 
-  // TODO use UTZ
   @Override
   public void editWorklog(final Long worklogId, final WorklogParameter worklogParameter) {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
@@ -212,8 +211,8 @@ public class WorklogComponent implements EVWorklogManager {
       }
 
       Builder builder =
-          getBuilder(issue, worklogParameter.getDate(), worklogParameter.getTimeSpent(),
-              worklogParameter.getComment(), worklogId);
+          getBuilder(issue, worklogParameter.getDate().getSystemTimeZoneDate(),
+              worklogParameter.getTimeSpent(), worklogParameter.getComment(), worklogId);
       RemainingEstimateType remainingEstimateType = worklogParameter.getRemainingEstimateType();
       WorklogInputParameters params = remainingEstimateType.build(builder,
           worklogParameter.getOptinalValue());
@@ -256,18 +255,19 @@ public class WorklogComponent implements EVWorklogManager {
     return worklog;
   }
 
-  // TODO UTZ
   @Override
-  public List<EveritWorklog> getWorklogs(final String selectedUser, final Date startDate,
-      final Date endDate) throws DataAccessException, ParseException {
+  public List<EveritWorklog> getWorklogs(final String selectedUser,
+      final DateTimeServer startDateServer,
+      final DateTimeServer endDateServer) throws DataAccessException, ParseException {
+
     Calendar startDateCalendar = Calendar.getInstance();
-    startDateCalendar.setTime(startDate);
+    startDateCalendar.setTime(startDateServer.getSystemTimeZoneDayStartDate());
     Calendar endDateCalendar = (Calendar) startDateCalendar.clone();
-    if (endDate == null) {
+    if (endDateServer == null) {
       endDateCalendar.add(Calendar.DAY_OF_MONTH, 1);
     } else {
       endDateCalendar = Calendar.getInstance();
-      endDateCalendar.setTime(endDate);
+      endDateCalendar.setTime(endDateServer.getSystemTimeZoneDayStartDate());
       endDateCalendar.add(Calendar.DAY_OF_MONTH, 1);
     }
 
@@ -286,7 +286,7 @@ public class WorklogComponent implements EVWorklogManager {
 
     List<EntityCondition> exprList =
         WorklogUtil.createWorklogQueryExprListWithPermissionCheck(userKey,
-            loggedInUser, startDateCalendar, endDateCalendar);
+            loggedInUser, startDateCalendar.getTimeInMillis(), endDateCalendar.getTimeInMillis());
 
     List<GenericValue> worklogGVList = ComponentAccessor.getOfBizDelegator()
         .findByAnd("IssueWorklogView", exprList);

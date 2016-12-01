@@ -25,6 +25,7 @@ import java.util.regex.Pattern;
 
 import org.everit.jira.core.SupportManager;
 import org.everit.jira.core.TimetrackerManager;
+import org.everit.jira.core.impl.DateTimeServer;
 import org.everit.jira.timetracker.plugin.DurationFormatter;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.joda.time.DateTime;
@@ -48,7 +49,7 @@ public final class SummaryDTO {
 
     private static final int SECOND_IN_HOUR = 3600;
 
-    private final DateTime date;
+    private final DateTimeServer date;
 
     private double dayExpectedWorkSeconds;
 
@@ -104,7 +105,7 @@ public final class SummaryDTO {
     public SummaryDTOBuilder(final TimeTrackingConfiguration timeTrackingConfiguration,
         final TimetrackerManager timetrackerManager,
         final SupportManager supportManager,
-        final DateTime date,
+        final DateTimeServer date,
         final Set<Date> excludeDatesAsSet,
         final Set<Date> includeDatesAsSet,
         final List<Pattern> issuePatterns) {
@@ -145,10 +146,10 @@ public final class SummaryDTO {
 
     private double calculateExpectedWorkSecondsInMonth(final double expectedWorkSecondsInDay) {
       Calendar dayIndex = createNewCalendarWithWeekStart();
-      dayIndex.setTime(DateTimeConverterUtil.convertDateTimeToDate(date));
+      dayIndex.setTime(date.getUserTimeZoneDate());
       dayIndex.set(Calendar.DAY_OF_MONTH, 1);
       Calendar monthLastDay = createNewCalendarWithWeekStart();
-      monthLastDay.setTime(DateTimeConverterUtil.convertDateTimeToDate(date));
+      monthLastDay.setTime(date.getUserTimeZoneDate());
       monthLastDay.set(Calendar.DAY_OF_MONTH,
           monthLastDay.getActualMaximum(Calendar.DAY_OF_MONTH));
 
@@ -156,11 +157,9 @@ public final class SummaryDTO {
           TimeUnit.DAYS.convert(monthLastDay.getTimeInMillis() - dayIndex.getTimeInMillis(),
               TimeUnit.MILLISECONDS) + 1;
       int excludeDtaes =
-          timetrackerManager.getExcludeDaysOfTheMonth(
-              DateTimeConverterUtil.convertDateTimeToDate(date), excludeDatesAsSet).size();
+          timetrackerManager.getExcludeDaysOfTheMonth(date, excludeDatesAsSet).size();
       int includeDtaes =
-          timetrackerManager.getIncludeDaysOfTheMonth(
-              DateTimeConverterUtil.convertDateTimeToDate(date), includeDatesAsSet).size();
+          timetrackerManager.getIncludeDaysOfTheMonth(date, includeDatesAsSet).size();
       int nonWorkDaysCount = 0;
       for (int i = 1; i < daysInMonth; i++) {
         int dayOfweek = dayIndex.get(Calendar.DAY_OF_WEEK);
@@ -176,7 +175,7 @@ public final class SummaryDTO {
     private double calculateExpectedWorkSecondsInWeek(final double expectedWorkSecondsInDay) {
       List<Date> weekdays = new ArrayList<>();
       Calendar dayIndex = createNewCalendarWithWeekStart();
-      dayIndex.setTime(getWeekStart(DateTimeConverterUtil.convertDateTimeToDate(date)));
+      dayIndex.setTime(getWeekStart(date.getUserTimeZoneDate()));
       for (int i = 0; i < DateTimeConverterUtil.DAYS_PER_WEEK; i++) {
         weekdays.add(dayIndex.getTime());
         dayIndex.add(Calendar.DAY_OF_MONTH, 1);
@@ -186,15 +185,20 @@ public final class SummaryDTO {
       return realWorkDaysInWeek * expectedWorkSecondsInDay;
     }
 
-    private void calculateFilteredAndNotFilteredSummarySeconds(final DateTime date,
+    // TODO supportManager summary have to change to DTS??
+    private void calculateFilteredAndNotFilteredSummarySeconds(final DateTimeServer date,
         final List<Pattern> issuesRegex) {
+      // .getUserTimeZone()
 
+      // TODO joda first day? is setable?
       Calendar startCalendar = createNewCalendarWithWeekStart();
-      startCalendar.setTime(DateTimeConverterUtil.convertDateTimeToDate(date));
-      startCalendar.set(Calendar.HOUR_OF_DAY, 0);
-      startCalendar.set(Calendar.MINUTE, 0);
-      startCalendar.set(Calendar.SECOND, 0);
-      startCalendar.set(Calendar.MILLISECOND, 0);
+      // startCalendar.setTime(DateTimeConverterUtil.convertDateTimeToDate(date));
+      // TODO remove not used code
+      startCalendar.setTime(date.getUserTimeZoneDayStartDate());
+      // startCalendar.set(Calendar.HOUR_OF_DAY, 0);
+      // startCalendar.set(Calendar.MINUTE, 0);
+      // startCalendar.set(Calendar.SECOND, 0);
+      // startCalendar.set(Calendar.MILLISECOND, 0);
 
       Calendar originalStartcalendar = (Calendar) startCalendar.clone();
       DateTime start = new DateTime(startCalendar.getTimeInMillis());

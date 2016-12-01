@@ -15,6 +15,9 @@
  */
 package org.everit.jira.core.impl;
 
+import java.util.Date;
+
+import org.everit.jira.core.util.TimetrackerUtil;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.joda.time.DateTime;
 
@@ -41,26 +44,35 @@ public class DateTimeServer {
   private DateTimeServer() {
   }
 
-  // FIXME userTimeZone as long?
   public DateTimeServer(final DateTime userTimeZone) {
     this.userTimeZone = userTimeZone;
     calculateBasedOnUserTimeZone();
   }
 
   /**
-   * Constuctor for DateTimeServer. Set the user DateTime time to startTime value. Make the
-   * calculations based on user TimeZone dateTime.
+   * Simple constructor. Create the userTimeZone based on the given milliseconds.
    *
-   * @param userTimeZone
-   *          The date in the user Time Zone.
+   * @param userTimeZoneInMillis
+   *          The user DateTime in millis.
+   */
+  public DateTimeServer(final long userTimeZoneInMillis) {
+    userTimeZone = new DateTime(userTimeZoneInMillis);
+    userTimeZone =
+        userTimeZone.withZoneRetainFields(TimetrackerUtil.getLoggedUserTimeZone());
+    calculateBasedOnUserTimeZone();
+  }
+
+  /**
+   * Add startTime (date time part) to DateTimeServer. Make the calculations based on user TimeZone
+   * dateTime.
+   *
    * @param startTime
    *          The new time value.
+   * @return The modified DateTimeServer.
    */
-  // FIXME start tome maybe Date?
-  public DateTimeServer(final DateTime userTimeZone, final String startTime) {
-    this.userTimeZone = userTimeZone;
-    // TODO add startTime to userTZ
-    calculateBasedOnUserTimeZone();
+  public DateTimeServer addStartTime(final String startTime) {
+    setUserTimeZone(DateTimeConverterUtil.stringToDateAndTime(userTimeZone, startTime));
+    return this;
   }
 
   private void calculateBasedOnSystemTimeZone() {
@@ -82,16 +94,33 @@ public class DateTimeServer {
     return systemTimeZone;
   }
 
+  // TODO incase of Date retuns and SYSTEM/USER select added. do not uese variables. use get methods
+  public Date getSystemTimeZoneDate() {
+    return DateTimeConverterUtil.convertDateTimeToDate(systemTimeZone);
+  }
+
   public DateTime getSystemTimeZoneDayStart() {
     return systemTimeZoneDayStart;
+  }
+
+  public Date getSystemTimeZoneDayStartDate() {
+    return DateTimeConverterUtil.convertDateTimeToDate(systemTimeZoneDayStart);
   }
 
   public DateTime getUserTimeZone() {
     return userTimeZone;
   }
 
+  public Date getUserTimeZoneDate() {
+    return DateTimeConverterUtil.convertDateTimeToDate(userTimeZone);
+  }
+
   public DateTime getUserTimeZoneDayStart() {
     return userTimeZoneDayStart;
+  }
+
+  public Date getUserTimeZoneDayStartDate() {
+    return DateTimeConverterUtil.convertDateTimeToDate(userTimeZoneDayStart);
   }
 
   public void setSystemTimeZone(final DateTime systemTimeZone) {

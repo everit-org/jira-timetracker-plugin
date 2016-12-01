@@ -23,11 +23,11 @@ import java.util.Locale;
 import org.everit.jira.core.EVWorklogManager;
 import org.everit.jira.core.RemainingEstimateType;
 import org.everit.jira.core.dto.WorklogParameter;
+import org.everit.jira.core.impl.DateTimeServer;
 import org.everit.jira.core.impl.WorklogComponent;
 import org.everit.jira.core.impl.WorklogComponent.PropertiesKey;
 import org.everit.jira.tests.core.DummyDateTimeFromatter;
 import org.everit.jira.timetracker.plugin.exception.WorklogException;
-import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Before;
@@ -51,8 +51,12 @@ import com.atlassian.jira.mock.issue.MockIssue;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.PermissionManager;
 import com.atlassian.jira.security.Permissions;
+import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.user.MockApplicationUser;
+import com.atlassian.jira.user.preferences.JiraUserPreferences;
+import com.atlassian.jira.user.preferences.UserPreferencesManager;
 import com.atlassian.jira.util.I18nHelper;
+import com.atlassian.jira.util.I18nHelper.BeanFactory;
 
 public class CreateWorklogTest {
 
@@ -126,6 +130,24 @@ public class CreateWorklogTest {
         .thenReturn(i18nHelper);
     Mockito.when(i18nHelper.getLocale())
         .thenReturn(Locale.ENGLISH);
+
+    JiraUserPreferences mockJiraUserPreferences =
+        Mockito.mock(JiraUserPreferences.class, Mockito.RETURNS_DEEP_STUBS);
+    Mockito.when(mockJiraUserPreferences.getString("jira.user.timezone"))
+        .thenReturn("UTC");
+
+    UserPreferencesManager mockUserPreferencesManager =
+        Mockito.mock(UserPreferencesManager.class, Mockito.RETURNS_DEEP_STUBS);
+    Mockito.when(mockUserPreferencesManager.getPreferences(Matchers.any(ApplicationUser.class)))
+        .thenReturn(mockJiraUserPreferences);
+    mockComponentWorker.addMock(UserPreferencesManager.class, mockUserPreferencesManager);
+
+    BeanFactory mockBeanFactory = Mockito.mock(BeanFactory.class, Mockito.RETURNS_DEEP_STUBS);
+
+    Mockito.when(mockBeanFactory.getInstance(Matchers.any(ApplicationUser.class)))
+        .thenReturn(i18nHelper);
+
+    mockComponentWorker.addMock(BeanFactory.class, mockBeanFactory);
 
     // incalid issue
     invalidIssueId = "invalidId";
@@ -272,14 +294,14 @@ public class CreateWorklogTest {
   public void testCreateWorklog() {
     String defaultComment = "comment";
     String defaultStartTime = "08:00";
-    DateTime defaultDate =
-        DateTimeConverterUtil.stringToDateAndTime(new DateTime(), defaultStartTime);
+    DateTimeServer defaultDate = new DateTimeServer(new DateTime());
+    defaultDate = defaultDate.addStartTime(defaultStartTime);
     String defaultTimeSpent = "1h";
 
     try {
       worklogManager.createWorklog(new WorklogParameter(invalidIssueId,
           defaultComment,
-          DateTimeConverterUtil.convertDateTimeToDate(defaultDate),
+          defaultDate,
           defaultTimeSpent,
           "",
           RemainingEstimateType.AUTO));
@@ -291,7 +313,7 @@ public class CreateWorklogTest {
     try {
       worklogManager.createWorklog(new WorklogParameter(noPermissionIssue.getKey(),
           defaultComment,
-          DateTimeConverterUtil.convertDateTimeToDate(defaultDate),
+          defaultDate,
           defaultTimeSpent,
           "",
           RemainingEstimateType.AUTO));
@@ -318,7 +340,7 @@ public class CreateWorklogTest {
     try {
       worklogManager.createWorklog(new WorklogParameter(validateProblemIssue.getKey(),
           defaultComment,
-          DateTimeConverterUtil.convertDateTimeToDate(defaultDate),
+          defaultDate,
           defaultTimeSpent,
           "",
           RemainingEstimateType.AUTO));
@@ -330,7 +352,7 @@ public class CreateWorklogTest {
     try {
       worklogManager.createWorklog(new WorklogParameter(createErrorIssue.getKey(),
           defaultComment,
-          DateTimeConverterUtil.convertDateTimeToDate(defaultDate),
+          defaultDate,
           defaultTimeSpent,
           "",
           RemainingEstimateType.AUTO));
@@ -341,7 +363,7 @@ public class CreateWorklogTest {
 
     worklogManager.createWorklog(new WorklogParameter(succesCreateIssue.getKey(),
         defaultComment,
-        DateTimeConverterUtil.convertDateTimeToDate(defaultDate),
+        defaultDate,
         defaultTimeSpent,
         "",
         RemainingEstimateType.AUTO));

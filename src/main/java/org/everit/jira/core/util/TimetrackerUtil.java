@@ -265,8 +265,8 @@ public final class TimetrackerUtil {
     endDate.add(Calendar.DAY_OF_MONTH, 1);
 
     List<EntityCondition> exprList =
-        WorklogUtil.createWorklogQueryExprListWithPermissionCheck(user, startDate,
-            endDate);
+        WorklogUtil.createWorklogQueryExprListWithPermissionCheck(user, startDate.getTimeInMillis(),
+            endDate.getTimeInMillis());
 
     List<GenericValue> worklogGVList =
         ComponentAccessor.getOfBizDelegator().findByAnd("IssueWorklogView", exprList);

@@ -245,6 +245,7 @@ public final class ConverterUtil {
       throw new NullPointerException("filterCondition parameter is null");
     }
 
+    // TODO issueCreated?
     DateTime worklogEndDate = new DateTime(filterCondition.getWorklogEndDate());
     worklogEndDate = DateTimeConverterUtil.setDateToDayStart(worklogEndDate);
     worklogEndDate = worklogEndDate.plusDays(1);
@@ -437,6 +438,7 @@ public final class ConverterUtil {
 
   private static void setBasicSearcherValuesParams(final FilterCondition filterCondition,
       final ReportSearchParam reportSearchParam) {
+    // TODO issueCreated UTZ convert????
     reportSearchParam.issueCreateDate(ConverterUtil.getDate(filterCondition.getIssueCreateDate()))
         .issueEpicLinkIssueIds(filterCondition.getIssueEpicLinkIssueIds())
         .issuePriorityIds(filterCondition.getIssuePriorityIds())

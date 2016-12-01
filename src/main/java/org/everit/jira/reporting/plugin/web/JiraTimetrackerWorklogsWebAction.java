@@ -24,6 +24,7 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 import org.everit.jira.analytics.AnalyticsDTO;
 import org.everit.jira.core.SupportManager;
+import org.everit.jira.core.impl.DateTimeServer;
 import org.everit.jira.core.util.TimetrackerUtil;
 import org.everit.jira.reporting.plugin.ReportingCondition;
 import org.everit.jira.reporting.plugin.dto.MissingsPageingDTO;
@@ -122,14 +123,14 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
   private String contextPath;
 
-  private DateTime dateFrom;
+  private DateTimeServer dateFrom;
 
   /**
    * The formated date.
    */
   private Long dateFromFormated;
 
-  private DateTime dateTo;
+  private DateTimeServer dateTo;
 
   /**
    * The formated date.
@@ -416,20 +417,19 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     if (requestDateFrom != null) {
       dateFromFormated = Long.valueOf(requestDateFrom);
     } else if (dateFromFormated == null) {
+      // TODO check this if else
       dateFromDefaultInit();
     }
-    dateFrom = new DateTime(dateFromFormated);
-    dateFrom = dateFrom.withZoneRetainFields(TimetrackerUtil.getLoggedUserTimeZone());
+    dateFrom = new DateTimeServer(dateFromFormated);
 
     String requestDateTo = getHttpRequest().getParameter(Parameter.DATETO);
     if (requestDateTo != null) {
       dateToFormated = Long.valueOf(requestDateTo);
     } else if (dateToFormated == null) {
+      // TODO check this if else
       dateToDefaultInit();
     }
-    dateTo = new DateTime(dateToFormated);
-    dateTo = dateTo.withZoneRetainFields(TimetrackerUtil.getLoggedUserTimeZone());
-
+    dateTo = new DateTimeServer(dateToFormated);
   }
 
   private void parsePagingParams() {
@@ -449,14 +449,14 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     // set actual page default! we start the new query with the first page
     actualPage = 1;
     if (searchValue != null) {
-      if (dateFrom.compareTo(dateTo) >= 0) {
+      if (dateFrom.getUserTimeZone().compareTo(dateTo.getUserTimeZone()) >= 0) {
         message = PropertiesKey.PLUGIN_WRONG_DATES;
         return INPUT;
       }
     } else {
       parsePagingParams();
-      dateFrom = new DateTime(dateFromFormated);
-      dateTo = new DateTime(dateToFormated);
+      dateFrom = new DateTimeServer(dateFromFormated);
+      dateTo = new DateTimeServer(dateToFormated);
     }
     parseCheckboxParam();
     return null;

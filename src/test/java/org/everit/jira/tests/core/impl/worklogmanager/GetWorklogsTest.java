@@ -28,9 +28,11 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.easymock.EasyMock;
+import org.everit.jira.core.impl.DateTimeServer;
 import org.everit.jira.core.impl.WorklogComponent;
 import org.everit.jira.tests.core.DummyDateTimeFromatter;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
+import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -337,12 +339,15 @@ public class GetWorklogsTest {
   @Test
   public void testGetWorklogs()
       throws DataAccessException, GenericEntityException, SQLException, ParseException {
-    List<EveritWorklog> worklogs = worklogManager.getWorklogs(null, defaultStatDate, null);
+    List<EveritWorklog> worklogs = worklogManager.getWorklogs(null,
+        new DateTimeServer(new DateTime(defaultStatDate.getTime())), null);
     Assert.assertEquals(2, worklogs.size());
     Assert.assertEquals(worklogs.get(0).getIssue(), "WORKLOG-1");
     Assert.assertEquals(worklogs.get(1).getIssue(), "NO-30");
 
-    worklogs = worklogManager.getWorklogs(SELECTED_USER, defaultStatDate, new Date());
+    worklogs = worklogManager.getWorklogs(SELECTED_USER,
+        new DateTimeServer(new DateTime(defaultStatDate.getTime())),
+        new DateTimeServer(new DateTime()));
     Assert.assertEquals(1, worklogs.size());
     Assert.assertEquals(worklogs.get(0).getIssue(), "WORKLOG-1");
 
