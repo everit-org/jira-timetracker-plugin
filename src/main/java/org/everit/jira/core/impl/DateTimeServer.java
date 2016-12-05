@@ -24,7 +24,7 @@ import org.joda.time.DateTime;
 /**
  * Server DateTime in different TimeZones and times.
  */
-public class DateTimeServer {
+public final class DateTimeServer {
   // DONE calculate variables based on the given one time.
   // DONE user DTCU methods
   // DONE cal sytem based user
@@ -32,6 +32,68 @@ public class DateTimeServer {
   // DONE add simple userTZ cons
   // DONE add simple userTZ + startTime cons
   // TODO add SYSTEM/USER settings
+
+  /**
+   * Simple instance generator. Create the systemTimezone based on the given Date Time.
+   *
+   * @param systemTimeZone
+   *          The Date Time in user Time Zone
+   *
+   * @return A new DateTimeServer object.
+   */
+  public static DateTimeServer getInstanceBasedOnSystemTimeZone(final DateTime systemTimeZone) {
+    DateTimeServer dateTimeServer = new DateTimeServer();
+    dateTimeServer.setSystemTimeZone(systemTimeZone);
+    return dateTimeServer;
+  }
+
+  /**
+   * Simple instance generator. Create the userTimeZone based on the given milliseconds.
+   *
+   * @param systemTimeZoneInMillis
+   *          The user DateTime in millis.
+   *
+   * @return A new DateTimeServer object.
+   */
+  public static DateTimeServer getInstanceBasedOnSystemTimeZone(final long systemTimeZoneInMillis) {
+    DateTime systemTimeZoneFromMilis = new DateTime(systemTimeZoneInMillis);
+    systemTimeZoneFromMilis =
+        systemTimeZoneFromMilis.withZoneRetainFields(TimetrackerUtil.getSystemTimeZone());
+    DateTimeServer dateTimeServer = new DateTimeServer();
+    dateTimeServer.setSystemTimeZone(systemTimeZoneFromMilis);
+    return dateTimeServer;
+  }
+
+  /**
+   * Simple instance generator. Create the userTimeZone based on the given Date Time.
+   *
+   * @param userTimeZone
+   *          The Date Time in user Time Zone
+   *
+   * @return A new DateTimeServer object.
+   */
+  public static DateTimeServer getInstanceBasedOnUserTimeZone(final DateTime userTimeZone) {
+    DateTimeServer dateTimeServer = new DateTimeServer();
+    dateTimeServer.setUserTimeZone(userTimeZone);
+    return dateTimeServer;
+  }
+
+  /**
+   * Simple instance generator. Create the userTimeZone based on the given milliseconds.
+   *
+   * @param userTimeZoneInMillis
+   *          The user DateTime in millis.
+   *
+   * @return A new DateTimeServer object.
+   */
+  public static DateTimeServer getInstanceBasedOnUserTimeZone(final long userTimeZoneInMillis) {
+    DateTime userTimeZoneFromMillis = new DateTime(userTimeZoneInMillis);
+    userTimeZoneFromMillis =
+        userTimeZoneFromMillis.withZoneRetainFields(TimetrackerUtil.getLoggedUserTimeZone());
+    DateTimeServer dateTimeServer = new DateTimeServer();
+    dateTimeServer.setUserTimeZone(userTimeZoneFromMillis);
+    return dateTimeServer;
+  }
 
   private DateTime systemTimeZone;
 
@@ -42,24 +104,6 @@ public class DateTimeServer {
   private DateTime userTimeZoneDayStart;
 
   private DateTimeServer() {
-  }
-
-  public DateTimeServer(final DateTime userTimeZone) {
-    this.userTimeZone = userTimeZone;
-    calculateBasedOnUserTimeZone();
-  }
-
-  /**
-   * Simple constructor. Create the userTimeZone based on the given milliseconds.
-   *
-   * @param userTimeZoneInMillis
-   *          The user DateTime in millis.
-   */
-  public DateTimeServer(final long userTimeZoneInMillis) {
-    userTimeZone = new DateTime(userTimeZoneInMillis);
-    userTimeZone =
-        userTimeZone.withZoneRetainFields(TimetrackerUtil.getLoggedUserTimeZone());
-    calculateBasedOnUserTimeZone();
   }
 
   /**
@@ -84,6 +128,12 @@ public class DateTimeServer {
   }
 
   private void calculateBasedOnUserTimeZone() {
+    // UTZ +14
+    // STZ +1
+    // userTZ = 15:00
+    // systemTZ = 02:00
+    // usersDS = 00:00
+    // systemDS = 11:00 (day before)
     systemTimeZone = DateTimeConverterUtil.convertDateZoneToSystemTimeZone(userTimeZone);
     userTimeZoneDayStart = DateTimeConverterUtil.setDateToDayStart(userTimeZone);
     systemTimeZoneDayStart =
@@ -123,12 +173,12 @@ public class DateTimeServer {
     return DateTimeConverterUtil.convertDateTimeToDate(userTimeZoneDayStart);
   }
 
-  public void setSystemTimeZone(final DateTime systemTimeZone) {
+  private void setSystemTimeZone(final DateTime systemTimeZone) {
     this.systemTimeZone = systemTimeZone;
     calculateBasedOnSystemTimeZone();
   }
 
-  public void setUserTimeZone(final DateTime userTimeZone) {
+  private void setUserTimeZone(final DateTime userTimeZone) {
     this.userTimeZone = userTimeZone;
     calculateBasedOnUserTimeZone();
   }

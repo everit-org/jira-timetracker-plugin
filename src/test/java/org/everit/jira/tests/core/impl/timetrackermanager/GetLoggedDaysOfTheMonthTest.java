@@ -135,7 +135,7 @@ public class GetLoggedDaysOfTheMonthTest {
     dateOfMonth = dateOfMonth.withMonthOfYear(1);
     initMockComponents(DateTimeConverterUtil.convertDateTimeToDate(dateOfMonth));
 
-    DateTimeServer dateOfMonthServer = new DateTimeServer(dateOfMonth);
+    DateTimeServer dateOfMonthServer = DateTimeServer.getInstanceBasedOnUserTimeZone(dateOfMonth);
     List<String> loggedDaysOfTheMonth =
         timetrackerComponent.getLoggedDaysOfTheMonth(dateOfMonthServer);
 
@@ -144,7 +144,7 @@ public class GetLoggedDaysOfTheMonthTest {
     dateOfMonth = dateOfMonth.withMonthOfYear(4);
     initMockComponents(DateTimeConverterUtil.convertDateTimeToDate(dateOfMonth));
 
-    dateOfMonthServer = new DateTimeServer(dateOfMonth);
+    dateOfMonthServer = DateTimeServer.getInstanceBasedOnUserTimeZone(dateOfMonth);
     loggedDaysOfTheMonth =
         timetrackerComponent.getLoggedDaysOfTheMonth(dateOfMonthServer);
 
@@ -154,7 +154,7 @@ public class GetLoggedDaysOfTheMonthTest {
     dateOfMonth = dateOfMonth.withYear(2016);
     initMockComponents(DateTimeConverterUtil.convertDateTimeToDate(dateOfMonth));
 
-    dateOfMonthServer = new DateTimeServer(dateOfMonth);
+    dateOfMonthServer = DateTimeServer.getInstanceBasedOnUserTimeZone(dateOfMonth);
     loggedDaysOfTheMonth =
         timetrackerComponent.getLoggedDaysOfTheMonth(dateOfMonthServer);
 
@@ -164,7 +164,7 @@ public class GetLoggedDaysOfTheMonthTest {
     dateOfMonth = dateOfMonth.withYear(2015);
     initMockComponents(DateTimeConverterUtil.convertDateTimeToDate(dateOfMonth));
 
-    dateOfMonthServer = new DateTimeServer(dateOfMonth);
+    dateOfMonthServer = DateTimeServer.getInstanceBasedOnUserTimeZone(dateOfMonth);
     loggedDaysOfTheMonth =
         timetrackerComponent.getLoggedDaysOfTheMonth(dateOfMonthServer);
 

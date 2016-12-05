@@ -494,9 +494,9 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private String decideToShowWarningUrl() {
     if (endDateTime != null) {
       try {
-        DateTime worklogEndDate =
-            DateTimeConverterUtil.stringToDateAndTime(date.getUserTimeZone(), endDateTime);
-        if (userSettings.isShowFutureLogWarning() && worklogEndDate.isAfterNow()) {
+        Date worklogEndDate =
+            DateTimeConverterUtil.stringToDateAndTime(date.getUserTimeZoneDate(), endDateTime);
+        if (userSettings.isShowFutureLogWarning() && worklogEndDate.after(new Date())) {
           return FUTURE_WORKLOG_WARNING_URL_PARAMETER;
         }
       } catch (IllegalArgumentException e) {
@@ -677,7 +677,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   }
 
   public Date getDate() {
-    return DateTimeConverterUtil.convertDateTimeToDate(date.getUserTimeZone());
+    return date.getUserTimeZoneDate();
   }
 
   public Long getDateFormatted() {
@@ -868,20 +868,17 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     String dateFromParam = getHttpRequest().getParameter(Parameter.DATE);
     if ((dateFromParam != null) && !"".equals(dateFromParam)) {
       dateFormatted = Long.valueOf(dateFromParam);
-      date = new DateTimeServer(dateFormatted);
-      // new DateTime(dateFormatted);
-      // date = date.withZoneRetainFields(TimetrackerUtil.getLoggedUserTimeZone());
+      date = DateTimeServer.getInstanceBasedOnUserTimeZone(dateFormatted);
     } else {
       if (userSettings.isActualDate()) {
-        date = new DateTimeServer(new DateTime(TimetrackerUtil.getLoggedUserTimeZone()));
-        dateFormatted = date.getUserTimeZone().getMillis();
+        date = DateTimeServer
+            .getInstanceBasedOnUserTimeZone(new DateTime(TimetrackerUtil.getLoggedUserTimeZone()));
+        dateFormatted = date.getUserTimeZoneDate().getTime();
       } else {
         Date fmd = timetrackerManager.firstMissingWorklogsDate(globalSettings.getExcludeDates(),
             globalSettings.getIncludeDates());
-        date = new DateTimeServer(fmd.getTime());
-        // date = new DateTime(fmd.getTime());
-        // date = date.withZoneRetainFields(TimetrackerUtil.getLoggedUserTimeZone());
-        dateFormatted = date.getUserTimeZone().getMillis();
+        date = DateTimeServer.getInstanceBasedOnUserTimeZone(fmd.getTime());
+        dateFormatted = date.getUserTimeZoneDate().getTime();
       }
     }
 
@@ -891,15 +888,16 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       final boolean today) {
     if (dayNext) {
       DateTime plusDays = date.getUserTimeZone().plusDays(1);
-      date = new DateTimeServer(plusDays);
-      dateFormatted = date.getUserTimeZone().getMillis();
+      date = DateTimeServer.getInstanceBasedOnUserTimeZone(plusDays);
+      dateFormatted = date.getUserTimeZoneDate().getTime();
     } else if (dayBack) {
       DateTime minusDays = date.getUserTimeZone().minusDays(1);
-      date = new DateTimeServer(minusDays);
-      dateFormatted = date.getUserTimeZone().getMillis();
+      date = DateTimeServer.getInstanceBasedOnUserTimeZone(minusDays);
+      dateFormatted = date.getUserTimeZoneDate().getTime();
     } else if (today) {
-      date = new DateTimeServer(new DateTime(TimetrackerUtil.getLoggedUserTimeZone()));
-      dateFormatted = date.getUserTimeZone().getMillis();
+      date = DateTimeServer
+          .getInstanceBasedOnUserTimeZone(new DateTime(TimetrackerUtil.getLoggedUserTimeZone()));
+      dateFormatted = date.getUserTimeZoneDate().getTime();
     }
   }
 

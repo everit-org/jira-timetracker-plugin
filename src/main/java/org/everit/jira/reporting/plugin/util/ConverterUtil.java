@@ -220,6 +220,9 @@ public final class ConverterUtil {
     } else {
       if (!users.isEmpty() && users.contains(PickerUserDTO.NONE_USER_NAME)) {
         users = ConverterUtil.getUserNamesFromGroup(filterCondition.getGroups());
+        if (users.isEmpty()) {
+          reportSearchParam.groupsHasNoMembers(true);
+        }
       } else if (users.remove(PickerUserDTO.CURRENT_USER_NAME)) {
         users.add(TimetrackerUtil.getLoggedUserName());
       }
@@ -249,12 +252,12 @@ public final class ConverterUtil {
     DateTime worklogEndDate = new DateTime(filterCondition.getWorklogEndDate());
     worklogEndDate = DateTimeConverterUtil.setDateToDayStart(worklogEndDate);
     worklogEndDate = worklogEndDate.plusDays(1);
-    // TODO check
+    // TODO check DTS?
     worklogEndDate = DateTimeConverterUtil.convertDateZoneToUserTimeZone(worklogEndDate);
 
     DateTime worklogStartDate = new DateTime(filterCondition.getWorklogStartDate());
     worklogStartDate = DateTimeConverterUtil.setDateToDayStart(worklogStartDate);
-    // TODO check
+    // TODO check DTS?
     worklogStartDate = DateTimeConverterUtil.convertDateZoneToUserTimeZone(worklogStartDate);
 
     ReportSearchParam reportSearchParam = new ReportSearchParam();

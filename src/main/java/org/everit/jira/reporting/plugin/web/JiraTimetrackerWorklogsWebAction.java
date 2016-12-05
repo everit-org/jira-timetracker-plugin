@@ -33,6 +33,7 @@ import org.everit.jira.settings.TimetrackerSettingsHelper;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.PluginCondition;
+import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.ExceptionUtil;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
@@ -233,7 +234,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
   private void dateFromDefaultInit() {
     DateTime date = new DateTime(TimetrackerUtil.getLoggedUserTimeZone());
     date = date.minusMonths(1);
-    dateFromFormated = date.getMillis();
+    dateFromFormated = DateTimeConverterUtil.convertDateTimeToDate(date).getTime();
   }
 
   /**
@@ -241,7 +242,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    */
   private void dateToDefaultInit() {
     DateTime date = new DateTime(TimetrackerUtil.getLoggedUserTimeZone());
-    dateToFormated = date.getMillis();
+    dateToFormated = DateTimeConverterUtil.convertDateTimeToDate(date).getTime();
   }
 
   @Override
@@ -420,7 +421,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
       // TODO check this if else
       dateFromDefaultInit();
     }
-    dateFrom = new DateTimeServer(dateFromFormated);
+    dateFrom = DateTimeServer.getInstanceBasedOnUserTimeZone(dateFromFormated);
 
     String requestDateTo = getHttpRequest().getParameter(Parameter.DATETO);
     if (requestDateTo != null) {
@@ -429,7 +430,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
       // TODO check this if else
       dateToDefaultInit();
     }
-    dateTo = new DateTimeServer(dateToFormated);
+    dateTo = DateTimeServer.getInstanceBasedOnUserTimeZone(dateToFormated);
   }
 
   private void parsePagingParams() {
@@ -455,8 +456,8 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
       }
     } else {
       parsePagingParams();
-      dateFrom = new DateTimeServer(dateFromFormated);
-      dateTo = new DateTimeServer(dateToFormated);
+      dateFrom = DateTimeServer.getInstanceBasedOnUserTimeZone(dateFromFormated);
+      dateTo = DateTimeServer.getInstanceBasedOnUserTimeZone(dateToFormated);
     }
     parseCheckboxParam();
     return null;

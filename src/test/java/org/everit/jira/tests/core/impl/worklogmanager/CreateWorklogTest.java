@@ -294,7 +294,7 @@ public class CreateWorklogTest {
   public void testCreateWorklog() {
     String defaultComment = "comment";
     String defaultStartTime = "08:00";
-    DateTimeServer defaultDate = new DateTimeServer(new DateTime());
+    DateTimeServer defaultDate = DateTimeServer.getInstanceBasedOnUserTimeZone(new DateTime());
     defaultDate = defaultDate.addStartTime(defaultStartTime);
     String defaultTimeSpent = "1h";
 

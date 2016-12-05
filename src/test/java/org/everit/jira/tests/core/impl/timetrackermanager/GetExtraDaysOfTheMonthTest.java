@@ -98,7 +98,8 @@ public class GetExtraDaysOfTheMonthTest {
   @Test
   public void testOneExcludeDate() throws ParseException {
     List<Date> excludeDaysOfTheMonth = timetrackerManager.getExcludeDaysOfTheMonth(
-        new DateTimeServer(new DateTime(DateTimeConverterUtil.fixFormatStringToDate("2016-01-05"))),
+        DateTimeServer.getInstanceBasedOnUserTimeZone(
+            new DateTime(DateTimeConverterUtil.fixFormatStringToDate("2016-01-05"))),
         new HashSet<>(Arrays.asList(DateTimeConverterUtil.fixFormatStringToDate("2016-01-05"),
             DateTimeConverterUtil.fixFormatStringToDate("2016-02-05"))));
     Assert.assertEquals(
@@ -109,7 +110,8 @@ public class GetExtraDaysOfTheMonthTest {
   @Test
   public void testOneIncludeDate() throws ParseException {
     List<Date> excludeDaysOfTheMonth = timetrackerManager.getIncludeDaysOfTheMonth(
-        new DateTimeServer(new DateTime(DateTimeConverterUtil.fixFormatStringToDate("2016-01-05"))),
+        DateTimeServer.getInstanceBasedOnUserTimeZone(
+            new DateTime(DateTimeConverterUtil.fixFormatStringToDate("2016-01-05"))),
         new HashSet<>(Arrays.asList(DateTimeConverterUtil.fixFormatStringToDate("2016-01-01"),
             DateTimeConverterUtil.fixFormatStringToDate("2016-02-01"))));
     Assert.assertEquals(

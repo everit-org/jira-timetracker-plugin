@@ -68,7 +68,8 @@ public class SupportComponent implements SupportManager {
     while (!fromDate.getUserTimeZone().isAfter(toDate.getUserTimeZone())) {
       if (TimetrackerUtil.containsSetTheSameDay(excludeDatesAsSet,
           fromDate.getUserTimeZoneDate())) {
-        fromDate = new DateTimeServer(fromDate.getUserTimeZone().plusDays(1));
+        fromDate =
+            DateTimeServer.getInstanceBasedOnUserTimeZone(fromDate.getUserTimeZone().plusDays(1));
         // fromDate = fromDate.withDayOfYear(fromDate.getDayOfYear() + 1);
         continue;
       }
@@ -78,7 +79,8 @@ public class SupportComponent implements SupportManager {
           fromDate.getUserTimeZoneDate())
           && ((fromDate.getUserTimeZone().getDayOfWeek() == DateTimeConstants.SUNDAY)
               || (fromDate.getUserTimeZone().getDayOfWeek() == DateTimeConstants.SATURDAY))) {
-        fromDate = new DateTimeServer(fromDate.getUserTimeZone().plusDays(1));
+        fromDate =
+            DateTimeServer.getInstanceBasedOnUserTimeZone(fromDate.getUserTimeZone().plusDays(1));
         // fromDate = fromDate.withDayOfYear(fromDate.getDayOfYear() + 1);
         continue;
       }
@@ -106,7 +108,8 @@ public class SupportComponent implements SupportManager {
                   decimalFormat.format(timeTrackingConfiguration.getHoursPerDay().doubleValue())));
         }
       }
-      fromDate = new DateTimeServer(fromDate.getUserTimeZone().plusDays(1));
+      fromDate =
+          DateTimeServer.getInstanceBasedOnUserTimeZone(fromDate.getUserTimeZone().plusDays(1));
     }
     Collections.reverse(datesWhereNoWorklog);
     return datesWhereNoWorklog;

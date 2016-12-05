@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.everit.jira.core.impl.DateTimeServer;
 import org.everit.jira.core.impl.WorklogComponent;
 import org.everit.jira.core.util.TimetrackerUtil;
 import org.everit.jira.timetracker.plugin.DurationFormatter;
@@ -143,11 +144,9 @@ public final class DateTimeConverterUtil {
     if (systemTimestamp == null) {
       return null;
     }
-    // TODO DTS? add control over timeZOne and settings?
-    DateTime dateTime = new DateTime(TimetrackerUtil.getSystemTimeZone());
-    dateTime = dateTime.withMillis(systemTimestamp.getTime());
-    dateTime = DateTimeConverterUtil.convertDateZoneToUserTimeZone(dateTime);
-    return new Timestamp(dateTime.getMillis());
+    DateTimeServer converter =
+        DateTimeServer.getInstanceBasedOnSystemTimeZone(systemTimestamp.getTime());
+    return new Timestamp(converter.getUserTimeZoneDate().getTime());
   }
 
   /**

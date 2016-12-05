@@ -349,10 +349,10 @@ public class GetDatesTest {
   public void testGetDates() throws GenericEntityException {
     initMockComponentWorker();
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-    DateTimeServer today = new DateTimeServer(this.today);
-    DateTimeServer todayPlus4 = new DateTimeServer(this.todayPlus4);
-    DateTimeServer todayPlus3 = new DateTimeServer(this.todayPlus3);
-    DateTimeServer todayPlus2 = new DateTimeServer(this.todayPlus2);
+    DateTimeServer today = DateTimeServer.getInstanceBasedOnUserTimeZone(this.today);
+    DateTimeServer todayPlus4 = DateTimeServer.getInstanceBasedOnUserTimeZone(this.todayPlus4);
+    DateTimeServer todayPlus3 = DateTimeServer.getInstanceBasedOnUserTimeZone(this.todayPlus3);
+    DateTimeServer todayPlus2 = DateTimeServer.getInstanceBasedOnUserTimeZone(this.todayPlus2);
 
     List<MissingsWorklogsDTO> dates =
         supportManager.getDates(today, todayPlus4, false, false, timeTrackerGlobalSettings);

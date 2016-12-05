@@ -142,15 +142,15 @@ public class TimetrackerComponent implements TimetrackerManager {
     List<String> resultDays = new ArrayList<>();
     int dayOfMonth = 1;
     int maxDayOfMonth = date.getUserTimeZone().dayOfMonth().getMaximumValue();
-    DateTimeServer startCalendar =
-        new DateTimeServer(date.getUserTimeZone().withDayOfMonth(dayOfMonth));
+    DateTimeServer startCalendar = DateTimeServer.getInstanceBasedOnUserTimeZone(
+        date.getUserTimeZone().withDayOfMonth(dayOfMonth));
 
     while (dayOfMonth <= maxDayOfMonth) {
       if (TimetrackerUtil.isContainsWorklog(startCalendar.getSystemTimeZoneDayStartDate())) {
         resultDays.add(Integer.toString(dayOfMonth));
       }
       DateTime plusDays = startCalendar.getUserTimeZone().plusDays(1);
-      startCalendar = new DateTimeServer(plusDays);
+      startCalendar = DateTimeServer.getInstanceBasedOnUserTimeZone(plusDays);
       dayOfMonth++;
     }
 

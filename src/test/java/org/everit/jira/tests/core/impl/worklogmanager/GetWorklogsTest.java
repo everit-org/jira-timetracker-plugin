@@ -340,14 +340,15 @@ public class GetWorklogsTest {
   public void testGetWorklogs()
       throws DataAccessException, GenericEntityException, SQLException, ParseException {
     List<EveritWorklog> worklogs = worklogManager.getWorklogs(null,
-        new DateTimeServer(new DateTime(defaultStatDate.getTime())), null);
+        DateTimeServer.getInstanceBasedOnUserTimeZone(new DateTime(defaultStatDate.getTime())),
+        null);
     Assert.assertEquals(2, worklogs.size());
     Assert.assertEquals(worklogs.get(0).getIssue(), "WORKLOG-1");
     Assert.assertEquals(worklogs.get(1).getIssue(), "NO-30");
 
     worklogs = worklogManager.getWorklogs(SELECTED_USER,
-        new DateTimeServer(new DateTime(defaultStatDate.getTime())),
-        new DateTimeServer(new DateTime()));
+        DateTimeServer.getInstanceBasedOnUserTimeZone(new DateTime(defaultStatDate.getTime())),
+        DateTimeServer.getInstanceBasedOnUserTimeZone(new DateTime()));
     Assert.assertEquals(1, worklogs.size());
     Assert.assertEquals(worklogs.get(0).getIssue(), "WORKLOG-1");
 

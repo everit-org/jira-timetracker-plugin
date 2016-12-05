@@ -44,6 +44,7 @@ import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.PluginCondition;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.dto.TimetrackerReportsSessionData;
+import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.everit.jira.timetracker.plugin.util.ExceptionUtil;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
@@ -508,11 +509,11 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     if (dateFromFormated == null) {
       DateTime dateTimeFrom = new DateTime(TimetrackerUtil.getLoggedUserTimeZone());
       dateTimeFrom = dateTimeFrom.minusWeeks(1);
-      dateFromFormated = dateTimeFrom.getMillis();
+      dateFromFormated = DateTimeConverterUtil.convertDateTimeToDate(dateTimeFrom).getTime();
     }
     if (dateToFormated == null) {
       DateTime dateTimeTo = new DateTime(TimetrackerUtil.getLoggedUserTimeZone());
-      dateToFormated = dateTimeTo.getMillis();
+      dateToFormated = DateTimeConverterUtil.convertDateTimeToDate(dateTimeTo).getTime();
     }
   }
 
@@ -564,7 +565,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     String dateFromParam = getHttpRequest().getParameter(Parameter.DATEFROM);
     if ((dateFromParam != null) && !"".equals(dateFromParam)) {
       dateFromFormated = Long.valueOf(dateFromParam);
-      return new DateTimeServer(dateFromFormated);
+      return DateTimeServer.getInstanceBasedOnUserTimeZone(dateFromFormated);
     } else {
       throw new IllegalArgumentException(PropertiesKey.INVALID_START_TIME);
     }
@@ -574,7 +575,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     String dateToParam = getHttpRequest().getParameter(Parameter.DATETO);
     if ((dateToParam != null) && !"".equals(dateToParam)) {
       dateToFormated = Long.valueOf(dateToParam);
-      return new DateTimeServer(dateToFormated);
+      return DateTimeServer.getInstanceBasedOnUserTimeZone(dateToFormated);
     } else {
       throw new IllegalArgumentException(PropertiesKey.INVALID_END_TIME);
     }

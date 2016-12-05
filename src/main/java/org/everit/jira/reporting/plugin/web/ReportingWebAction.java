@@ -458,11 +458,13 @@ public class ReportingWebAction extends JiraWebActionSupport {
     if (filterCondition.getWorklogStartDate() == null) {
       DateTime dateFrom = new DateTime(TimetrackerUtil.getLoggedUserTimeZone());
       dateFrom = dateFrom.minusWeeks(1);
-      filterCondition.setWorklogStartDate(dateFrom.getMillis());
+      filterCondition
+          .setWorklogStartDate(DateTimeConverterUtil.convertDateTimeToDate(dateFrom).getTime());
     }
     if (filterCondition.getWorklogEndDate() == null) {
       DateTime dateTo = new DateTime(TimetrackerUtil.getLoggedUserTimeZone());
-      filterCondition.setWorklogEndDate(dateTo.getMillis());
+      filterCondition
+          .setWorklogEndDate(DateTimeConverterUtil.convertDateTimeToDate(dateTo).getTime());
     }
   }
 
