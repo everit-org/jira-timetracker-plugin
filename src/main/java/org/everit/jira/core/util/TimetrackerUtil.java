@@ -26,6 +26,10 @@ import java.util.TimeZone;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.time.DateUtils;
+import org.everit.jira.core.impl.OwnStaticAccessor;
+import org.everit.jira.settings.TimetrackerSettingsHelper;
+import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
+import org.everit.jira.settings.dto.TimeZoneTypes;
 import org.everit.jira.timetracker.plugin.dto.WorklogValues;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.joda.time.DateTimeZone;
@@ -193,6 +197,12 @@ public final class TimetrackerUtil {
     return i18nKey;
   }
 
+  private static TimeZoneServiceImpl getInitializedTimeZoneServeice() {
+    return new TimeZoneServiceImpl(ComponentAccessor.getApplicationProperties(),
+        ComponentAccessor.getPermissionManager(),
+        ComponentAccessor.getUserPreferencesManager());
+  }
+
   /**
    * Give back the logged user userName.
    *
@@ -214,17 +224,26 @@ public final class TimetrackerUtil {
    * @return The logged user {@link DateTimeZone}.
    */
   public static DateTimeZone getLoggedUserTimeZone() {
+    TimetrackerSettingsHelper settingsHelper = OwnStaticAccessor.getSettingsHelper();
+    TimeTrackerGlobalSettings globalSettings = settingsHelper.loadGlobalSettings();
+    TimeZoneTypes timeZoneTypes = globalSettings.getTimeZone();
+    // TODO are you sure aboute this?
+    if (TimeZoneTypes.USER.equals(timeZoneTypes)) {
+      TimeZoneServiceImpl timeZoneServiceImpl = getInitializedTimeZoneServeice();
+      JiraServiceContext serviceContext = getServiceContext();
+      TimeZone timeZone = timeZoneServiceImpl.getUserTimeZone(serviceContext);
+      return DateTimeZone.forTimeZone(timeZone);
+    } else {
+      return getSystemTimeZone();
+    }
+
+  }
+
+  private static JiraServiceContext getServiceContext() {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
     ApplicationUser user = authenticationContext.getUser();
-    JiraServiceContext serviceContext = new JiraServiceContextImpl(user);
-
-    TimeZoneServiceImpl timeZoneServiceImpl =
-        new TimeZoneServiceImpl(ComponentAccessor.getApplicationProperties(),
-            ComponentAccessor.getPermissionManager(),
-            ComponentAccessor.getUserPreferencesManager());
-    TimeZone timeZone = timeZoneServiceImpl.getUserTimeZone(serviceContext);
-    return DateTimeZone.forTimeZone(timeZone);
+    return new JiraServiceContextImpl(user);
   }
 
   /**
@@ -233,15 +252,8 @@ public final class TimetrackerUtil {
    * @return The system {@link DateTimeZone}.
    */
   public static DateTimeZone getSystemTimeZone() {
-    JiraAuthenticationContext authenticationContext = ComponentAccessor
-        .getJiraAuthenticationContext();
-    ApplicationUser user = authenticationContext.getUser();
-    JiraServiceContext serviceContext = new JiraServiceContextImpl(user);
-
-    TimeZoneServiceImpl timeZoneServiceImpl =
-        new TimeZoneServiceImpl(ComponentAccessor.getApplicationProperties(),
-            ComponentAccessor.getPermissionManager(),
-            ComponentAccessor.getUserPreferencesManager());
+    TimeZoneServiceImpl timeZoneServiceImpl = getInitializedTimeZoneServeice();
+    JiraServiceContext serviceContext = getServiceContext();
     TimeZone timeZone = timeZoneServiceImpl.getJVMTimeZoneInfo(serviceContext).toTimeZone();
     return DateTimeZone.forTimeZone(timeZone);
   }

@@ -373,7 +373,7 @@ public final class DateTimeConverterUtil {
   public static boolean isValidTime(final String time) {
     boolean match24Format = Pattern.matches(TIME24HOURS_PATTERN, time);
     StringBuilder sb = new StringBuilder();
-    sb.append("^([01]?[0-9]):[0-5][0-9]( (");
+    sb.append("^([01]?[0-9]|2[0-3]):[0-5][0-9]( (");
     Locale locale = DateTimeConverterUtil.getLoggedUserLocal();
     DateFormatSymbols dateFormatSymbols = new DateFormatSymbols(locale);
     String[] amPmStrings = dateFormatSymbols.getAmPmStrings();

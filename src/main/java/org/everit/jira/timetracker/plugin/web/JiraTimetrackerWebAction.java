@@ -496,7 +496,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       try {
         Date worklogEndDate =
             DateTimeConverterUtil.stringToDateAndTime(date.getUserTimeZoneDate(), endDateTime);
-        if (userSettings.isShowFutureLogWarning() && worklogEndDate.after(new Date())) {
+        if (userSettings.isShowFutureLogWarning()
+            && worklogEndDate.after(DateTimeServer.getInstanceSystemNow().getUserTimeZoneDate())) {
           return FUTURE_WORKLOG_WARNING_URL_PARAMETER;
         }
       } catch (IllegalArgumentException e) {

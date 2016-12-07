@@ -95,6 +95,17 @@ public final class DateTimeServer {
     return dateTimeServer;
   }
 
+  /**
+   * Get a new instace of the DateTimeServer baed on the actual server time.
+   * 
+   * @return A new DateTimeServer object.
+   */
+  public static DateTimeServer getInstanceSystemNow() {
+    DateTimeServer dateTimeServer = new DateTimeServer();
+    dateTimeServer.setSystemTimeZone(new DateTime(TimetrackerUtil.getSystemTimeZone()));
+    return dateTimeServer;
+  }
+
   private DateTime systemTimeZone;
 
   private DateTime systemTimeZoneDayStart;
@@ -104,6 +115,7 @@ public final class DateTimeServer {
   private DateTime userTimeZoneDayStart;
 
   private DateTimeServer() {
+
   }
 
   /**
@@ -144,7 +156,6 @@ public final class DateTimeServer {
     return systemTimeZone;
   }
 
-  // TODO incase of Date retuns and SYSTEM/USER select added. do not uese variables. use get methods
   public Date getSystemTimeZoneDate() {
     return DateTimeConverterUtil.convertDateTimeToDate(systemTimeZone);
   }

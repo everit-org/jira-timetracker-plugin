@@ -43,7 +43,7 @@
     
  <component key="JTTPSettingsHelper" name="TimetrackerSettingsHelper"
     class="org.everit.jira.settings.TimeTrackerSettingsHelperImpl">
-    <interface>org.everit.jira.settings.TimeTrackerSettingsHelper</interface>
+    <interface public="true">org.everit.jira.settings.TimeTrackerSettingsHelper</interface>
   </component>
 
   <component key="EVWorklogManager" name="EVWorklogManager"
@@ -73,6 +73,8 @@
     class="org.everit.jira.analytics.AnalyticsSenderImpl">
     <interface>org.everit.jira.analytics.AnalyticsSender</interface>
   </component>
+
+  <component key="OwnStaticAccessor" name="OwnStaticAccessor" class="org.everit.jira.core.impl.OwnStaticAccessor" ></component>
 
   <web-item key="jttp_menu_item" name="JTTP Item" section="system.top.navigation.bar"
     weight="47">
@@ -113,6 +115,13 @@
     <label>Administration</label>
     <link linkId="jttp_admin_link"><![CDATA[/secure/admin/TimetrackerAdminSettingsWebAction!default.jspa]]></link>
     <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition" />
+  </web-item>
+
+   <web-item key="jttp_aboutus_link" name="JTTP About US Link" section="jttp_menu/jttp_doc_section"
+    weight="47">
+    <label>About Us</label>
+    <link linkId="jttp_abuot_link">http://www.everit.biz/solutions-for-atlassian-jira/index_en</link>
+    <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserLoggedInCondition" />
   </web-item>
 
   <web-resource name="JTTP Resources" key="jttp-resources-${project.version}-${build.time}">

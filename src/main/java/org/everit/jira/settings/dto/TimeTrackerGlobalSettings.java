@@ -239,6 +239,20 @@ public class TimeTrackerGlobalSettings {
   }
 
   /**
+   * Gets analytics check value.
+   *
+   * @return the analytics check value.
+   */
+  public TimeZoneTypes getTimeZone() {
+    TimeZoneTypes timeZoneTypes = TimeZoneTypes.SYSTEM;
+    if (TimeZoneTypes.USER.name()
+        .equals(pluginSettingsKeyValues.get(GlobalSettingsKey.TIME_ZONE))) {
+      timeZoneTypes = TimeZoneTypes.USER;
+    }
+    return timeZoneTypes;
+  }
+
+  /**
    * Put the include dates.
    */
   public TimeTrackerGlobalSettings includeDates(final Collection<Long> includeDates) {
@@ -295,6 +309,15 @@ public class TimeTrackerGlobalSettings {
    */
   public TimeTrackerGlobalSettings timetrackerGroups(final List<String> timetrackingGroups) {
     pluginSettingsKeyValues.put(GlobalSettingsKey.TIMETRACKER_PERMISSION, timetrackingGroups);
+    return this;
+  }
+
+  /**
+   * Put the time zone usage type value.
+   */
+  public TimeTrackerGlobalSettings timeZone(final TimeZoneTypes timeZoneType) {
+    pluginSettingsKeyValues.put(GlobalSettingsKey.TIME_ZONE,
+        timeZoneType.name());
     return this;
   }
 }

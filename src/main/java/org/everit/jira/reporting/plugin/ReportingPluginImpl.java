@@ -193,7 +193,6 @@ public class ReportingPluginImpl implements ReportingPlugin, InitializingBean,
 
     List<WorklogDetailsDTO> worklogDetails = querydslSupport.execute(worklogDetailsQuery);
     for (WorklogDetailsDTO worklogDetail : worklogDetails) {
-
       worklogDetail.setIssueCreated(
           DateTimeConverterUtil.addTimeZoneToTimestamp(worklogDetail.getIssueCreated()));
       worklogDetail.setIssueUpdated(
