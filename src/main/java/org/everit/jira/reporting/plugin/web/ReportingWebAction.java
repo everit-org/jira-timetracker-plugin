@@ -45,7 +45,7 @@ import org.everit.jira.reporting.plugin.dto.WorklogDetailsReportDTO;
 import org.everit.jira.reporting.plugin.exception.JTRPException;
 import org.everit.jira.reporting.plugin.util.ConverterUtil;
 import org.everit.jira.reporting.plugin.util.PermissionUtil;
-import org.everit.jira.settings.TimetrackerSettingsHelper;
+import org.everit.jira.settings.TimeTrackerSettingsHelper;
 import org.everit.jira.settings.dto.TimeTrackerUserSettings;
 import org.everit.jira.timetracker.plugin.DurationFormatter;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
@@ -58,6 +58,8 @@ import org.joda.time.DateTime;
 
 import com.atlassian.jira.bc.filter.DefaultSearchRequestService;
 import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.datetime.DateTimeFormatter;
+import com.atlassian.jira.datetime.DateTimeStyle;
 import com.atlassian.jira.issue.RendererManager;
 import com.atlassian.jira.issue.fields.renderer.IssueRenderContext;
 import com.atlassian.jira.issue.fields.renderer.JiraRendererPlugin;
@@ -159,7 +161,7 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   private List<String> selectedWorklogDetailsColumns = Collections.emptyList();
 
-  private TimetrackerSettingsHelper settingsHelper;
+  private TimeTrackerSettingsHelper settingsHelper;
 
   private String stacktrace = "";
 
@@ -178,7 +180,7 @@ public class ReportingWebAction extends JiraWebActionSupport {
    */
   public ReportingWebAction(final ReportingPlugin reportingPlugin,
       final AnalyticsSender analyticsSender,
-      final TimetrackerSettingsHelper settingsHelper) {
+      final TimeTrackerSettingsHelper settingsHelper) {
     this.reportingPlugin = reportingPlugin;
     reportingCondition = new ReportingCondition(settingsHelper);
     gson = new Gson();
@@ -360,6 +362,16 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   public Class<DateTimeConverterUtil> getDateConverterUtil() {
     return dateConverterUtil;
+  }
+
+  public DateTimeFormatter getDateTimeFormatterDate() {
+    return super.getDateTimeFormatter().withStyle(DateTimeStyle.DATE).withSystemZone();
+    // TODO with SystemZone?
+  }
+
+  public DateTimeFormatter getDateTimeFormatterDateTime() {
+    return super.getDateTimeFormatter().withStyle(DateTimeStyle.COMPLETE).withSystemZone();
+    // TODO with SystemZone?
   }
 
   public DurationFormatter getDurationFormatter() {

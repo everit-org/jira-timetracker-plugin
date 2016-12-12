@@ -23,7 +23,7 @@ import java.util.Set;
 
 import org.everit.jira.core.TimetrackerManager;
 import org.everit.jira.core.util.TimetrackerUtil;
-import org.everit.jira.settings.TimetrackerSettingsHelper;
+import org.everit.jira.settings.TimeTrackerSettingsHelper;
 import org.everit.jira.settings.dto.TimeTrackerUserSettings;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
@@ -37,7 +37,7 @@ import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
  */
 public class TimetrackerComponent implements TimetrackerManager {
 
-  private final TimetrackerSettingsHelper settingsHelper;
+  private final TimeTrackerSettingsHelper settingsHelper;
 
   private TimeTrackingConfiguration timeTrackingConfiguration;
 
@@ -46,7 +46,7 @@ public class TimetrackerComponent implements TimetrackerManager {
    */
   public TimetrackerComponent(
       final TimeTrackingConfiguration timeTrackingConfiguration,
-      final TimetrackerSettingsHelper settingsHelper) {
+      final TimeTrackerSettingsHelper settingsHelper) {
     this.timeTrackingConfiguration = timeTrackingConfiguration;
     this.settingsHelper = settingsHelper;
   }

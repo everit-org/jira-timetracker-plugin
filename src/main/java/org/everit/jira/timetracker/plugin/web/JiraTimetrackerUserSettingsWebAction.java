@@ -23,7 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.everit.jira.analytics.AnalyticsDTO;
 import org.everit.jira.core.util.TimetrackerUtil;
-import org.everit.jira.settings.TimetrackerSettingsHelper;
+import org.everit.jira.settings.TimeTrackerSettingsHelper;
 import org.everit.jira.settings.dto.TimeTrackerUserSettings;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.PluginCondition;
@@ -109,7 +109,7 @@ public class JiraTimetrackerUserSettingsWebAction extends JiraWebActionSupport {
 
   private boolean progressIndDaily;
 
-  private TimetrackerSettingsHelper settingsHelper;
+  private TimeTrackerSettingsHelper settingsHelper;
 
   private boolean showRemaningEstimate = false;
 
@@ -127,7 +127,7 @@ public class JiraTimetrackerUserSettingsWebAction extends JiraWebActionSupport {
    *
    */
   public JiraTimetrackerUserSettingsWebAction(
-      final TimetrackerSettingsHelper settingsHelper) {
+      final TimeTrackerSettingsHelper settingsHelper) {
     timetrackingCondition = new TimetrackerCondition(settingsHelper);
     pluginCondition = new PluginCondition(settingsHelper);
     this.settingsHelper = settingsHelper;

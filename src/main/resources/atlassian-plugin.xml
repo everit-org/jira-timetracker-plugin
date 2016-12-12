@@ -41,7 +41,7 @@
   <component-import key="timeTrackingConfiguration"
     interface="com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration" />
     
- <component key="JTTPSettingsHelper" name="TimetrackerSettingsHelper"
+ <component public="true" key="JTTPSettingsHelper" name="TimeTrackerSettingsHelper"
     class="org.everit.jira.settings.TimeTrackerSettingsHelperImpl">
     <interface public="true">org.everit.jira.settings.TimeTrackerSettingsHelper</interface>
   </component>
@@ -73,8 +73,6 @@
     class="org.everit.jira.analytics.AnalyticsSenderImpl">
     <interface>org.everit.jira.analytics.AnalyticsSender</interface>
   </component>
-
-  <component key="OwnStaticAccessor" name="OwnStaticAccessor" class="org.everit.jira.core.impl.OwnStaticAccessor" ></component>
 
   <web-item key="jttp_menu_item" name="JTTP Item" section="system.top.navigation.bar"
     weight="47">

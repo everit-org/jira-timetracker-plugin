@@ -31,7 +31,7 @@ public final class DateTimeServer {
   // DONE cal user based system (for worklogs etc.)
   // DONE add simple userTZ cons
   // DONE add simple userTZ + startTime cons
-  // TODO add SYSTEM/USER settings
+  // DONE add SYSTEM/USER settings
 
   /**
    * Simple instance generator. Create the systemTimezone based on the given Date Time.
@@ -97,7 +97,7 @@ public final class DateTimeServer {
 
   /**
    * Get a new instace of the DateTimeServer baed on the actual server time.
-   * 
+   *
    * @return A new DateTimeServer object.
    */
   public static DateTimeServer getInstanceSystemNow() {

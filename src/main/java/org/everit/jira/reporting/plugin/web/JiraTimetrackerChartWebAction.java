@@ -35,7 +35,7 @@ import org.everit.jira.core.impl.DateTimeServer;
 import org.everit.jira.core.util.TimetrackerUtil;
 import org.everit.jira.reporting.plugin.ReportingCondition;
 import org.everit.jira.reporting.plugin.util.PermissionUtil;
-import org.everit.jira.settings.TimetrackerSettingsHelper;
+import org.everit.jira.settings.TimeTrackerSettingsHelper;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.PluginCondition;
 import org.everit.jira.timetracker.plugin.dto.ChartData;
@@ -150,7 +150,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
 
   private ReportingCondition reportingCondition;
 
-  private TimetrackerSettingsHelper settingsHelper;
+  private TimeTrackerSettingsHelper settingsHelper;
 
   private String stacktrace = "";
 
@@ -163,7 +163,7 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
   /**
    * Simple constructor.
    */
-  public JiraTimetrackerChartWebAction(final TimetrackerSettingsHelper settingsHelper,
+  public JiraTimetrackerChartWebAction(final TimeTrackerSettingsHelper settingsHelper,
       final EVWorklogManager worklogManager) {
     this.settingsHelper = settingsHelper;
     reportingCondition = new ReportingCondition(settingsHelper);

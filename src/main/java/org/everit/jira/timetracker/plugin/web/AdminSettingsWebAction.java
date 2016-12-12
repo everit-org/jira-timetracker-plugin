@@ -33,7 +33,7 @@ import org.everit.jira.analytics.event.NoEstimateUsageChangedEvent;
 import org.everit.jira.analytics.event.NonWorkingUsageEvent;
 import org.everit.jira.core.SupportManager;
 import org.everit.jira.core.util.TimetrackerUtil;
-import org.everit.jira.settings.TimetrackerSettingsHelper;
+import org.everit.jira.settings.TimeTrackerSettingsHelper;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
 import org.everit.jira.settings.dto.TimeZoneTypes;
 import org.everit.jira.timetracker.plugin.util.ExceptionUtil;
@@ -134,7 +134,7 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    */
   private List<String> projectsId;
 
-  private TimetrackerSettingsHelper settingsHelper;
+  private TimeTrackerSettingsHelper settingsHelper;
 
   private String stacktrace = "";
 
@@ -147,7 +147,7 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    */
   public AdminSettingsWebAction(
       final SupportManager supportManager, final AnalyticsSender analyticsSender,
-      final TimetrackerSettingsHelper settingsHelper) {
+      final TimeTrackerSettingsHelper settingsHelper) {
     this.supportManager = supportManager;
     this.analyticsSender = analyticsSender;
     this.settingsHelper = settingsHelper;

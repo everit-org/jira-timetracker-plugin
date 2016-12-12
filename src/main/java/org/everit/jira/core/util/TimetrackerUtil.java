@@ -26,8 +26,7 @@ import java.util.TimeZone;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.time.DateUtils;
-import org.everit.jira.core.impl.OwnStaticAccessor;
-import org.everit.jira.settings.TimetrackerSettingsHelper;
+import org.everit.jira.settings.TimeTrackerSettingsHelper;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
 import org.everit.jira.settings.dto.TimeZoneTypes;
 import org.everit.jira.timetracker.plugin.dto.WorklogValues;
@@ -224,10 +223,10 @@ public final class TimetrackerUtil {
    * @return The logged user {@link DateTimeZone}.
    */
   public static DateTimeZone getLoggedUserTimeZone() {
-    TimetrackerSettingsHelper settingsHelper = OwnStaticAccessor.getSettingsHelper();
+    TimeTrackerSettingsHelper settingsHelper =
+        ComponentAccessor.getOSGiComponentInstanceOfType(TimeTrackerSettingsHelper.class);
     TimeTrackerGlobalSettings globalSettings = settingsHelper.loadGlobalSettings();
     TimeZoneTypes timeZoneTypes = globalSettings.getTimeZone();
-    // TODO are you sure aboute this?
     if (TimeZoneTypes.USER.equals(timeZoneTypes)) {
       TimeZoneServiceImpl timeZoneServiceImpl = getInitializedTimeZoneServeice();
       JiraServiceContext serviceContext = getServiceContext();

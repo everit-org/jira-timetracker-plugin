@@ -35,7 +35,7 @@ import org.everit.jira.core.TimetrackerManager;
 import org.everit.jira.core.dto.WorklogParameter;
 import org.everit.jira.core.impl.DateTimeServer;
 import org.everit.jira.core.util.TimetrackerUtil;
-import org.everit.jira.settings.TimetrackerSettingsHelper;
+import org.everit.jira.settings.TimeTrackerSettingsHelper;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
 import org.everit.jira.settings.dto.TimeTrackerUserSettings;
 import org.everit.jira.timetracker.plugin.DurationFormatter;
@@ -215,7 +215,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
    */
   private List<String> projectsId;
 
-  private final TimetrackerSettingsHelper settingsHelper;
+  private final TimeTrackerSettingsHelper settingsHelper;
 
   private boolean showMoveAllNoPermission = false;
 
@@ -261,7 +261,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       final SupportManager supportManager,
       final TimetrackerManager timetrackerManager,
       final TimeTrackingConfiguration timeTrackingConfiguration,
-      final TimetrackerSettingsHelper settingsHelper,
+      final TimeTrackerSettingsHelper settingsHelper,
       final EVWorklogManager worklogManager) {
     this.timetrackerManager = timetrackerManager;
     this.supportManager = supportManager;
@@ -688,6 +688,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   @Override
   public DateTimeFormatter getDateTimeFormatter() {
     return super.getDateTimeFormatter().withStyle(DateTimeStyle.DATE).withSystemZone();
+    // TODO with SystemZone?
   }
 
   public String getEditAllIds() {

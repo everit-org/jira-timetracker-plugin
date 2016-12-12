@@ -29,7 +29,7 @@ import org.everit.jira.core.util.TimetrackerUtil;
 import org.everit.jira.reporting.plugin.ReportingCondition;
 import org.everit.jira.reporting.plugin.dto.MissingsPageingDTO;
 import org.everit.jira.reporting.plugin.dto.MissingsWorklogsDTO;
-import org.everit.jira.settings.TimetrackerSettingsHelper;
+import org.everit.jira.settings.TimeTrackerSettingsHelper;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.PluginCondition;
@@ -161,7 +161,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
   private ReportingCondition reportingCondition;
 
-  private TimetrackerSettingsHelper settingsHelper;
+  private TimeTrackerSettingsHelper settingsHelper;
 
   private List<MissingsWorklogsDTO> showDatesWhereNoWorklog = new ArrayList<MissingsWorklogsDTO>();
 
@@ -174,7 +174,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    */
   public JiraTimetrackerWorklogsWebAction(
       final SupportManager supportManager,
-      final TimetrackerSettingsHelper settingsHelper) {
+      final TimeTrackerSettingsHelper settingsHelper) {
     this.supportManager = supportManager;
     this.settingsHelper = settingsHelper;
     reportingCondition = new ReportingCondition(settingsHelper);

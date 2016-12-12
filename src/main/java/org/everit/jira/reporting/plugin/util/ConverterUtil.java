@@ -33,7 +33,7 @@ import org.everit.jira.reporting.plugin.dto.PickerComponentDTO;
 import org.everit.jira.reporting.plugin.dto.PickerUserDTO;
 import org.everit.jira.reporting.plugin.dto.PickerVersionDTO;
 import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
-import org.everit.jira.settings.TimetrackerSettingsHelper;
+import org.everit.jira.settings.TimeTrackerSettingsHelper;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.joda.time.DateTime;
 
@@ -203,7 +203,7 @@ public final class ConverterUtil {
   }
 
   private static void collectUsersFromParams(final FilterCondition filterCondition,
-      final ReportSearchParam reportSearchParam, final TimetrackerSettingsHelper settingsHelper) {
+      final ReportSearchParam reportSearchParam, final TimeTrackerSettingsHelper settingsHelper) {
     ArrayList<String> users = new ArrayList<>(filterCondition.getUsers());
     JiraAuthenticationContext jiraAuthenticationContext =
         ComponentAccessor.getJiraAuthenticationContext();
@@ -243,7 +243,7 @@ public final class ConverterUtil {
    *           if has problem in convert. Contains property key name in message.
    */
   public static ConvertedSearchParam convertFilterConditionToConvertedSearchParam(
-      final FilterCondition filterCondition, final TimetrackerSettingsHelper settingsHelper) {
+      final FilterCondition filterCondition, final TimeTrackerSettingsHelper settingsHelper) {
     if (filterCondition == null) {
       throw new NullPointerException("filterCondition parameter is null");
     }
