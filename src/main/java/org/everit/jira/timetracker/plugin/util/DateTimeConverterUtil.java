@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.everit.jira.core.impl.DateTimeServer;
 import org.everit.jira.core.impl.WorklogComponent;
 import org.everit.jira.core.util.TimetrackerUtil;
 import org.everit.jira.timetracker.plugin.DurationFormatter;
@@ -132,6 +133,23 @@ public final class DateTimeConverterUtil {
   private static final int YEAR_1900 = 1900;
 
   /**
+   * Convert the Timestamp to system timezone, cahnge the Timezone o user timezone and convert back
+   * to a new Timestamp.
+   *
+   * @param systemTimestamp
+   *          The original Timesatamp in system TimeZone.
+   * @return The new Timestamp in user TimeZone.
+   */
+  public static Timestamp addTimeZoneToTimestamp(final Timestamp systemTimestamp) {
+    if (systemTimestamp == null) {
+      return null;
+    }
+    DateTimeServer converter =
+        DateTimeServer.getInstanceBasedOnSystemTimeZone(systemTimestamp.getTime());
+    return new Timestamp(converter.getUserTimeZoneDate().getTime());
+  }
+
+  /**
    * Convert joda DateTime to java Date. Convert the date and time without Time Zone correction.
    * (the joda DateTime toDate metod add the time zone).
    *
@@ -172,24 +190,6 @@ public final class DateTimeConverterUtil {
   public static DateTime convertDateZoneToUserTimeZone(final DateTime date) {
     DateTime inUserTimeZone = date.withZone(TimetrackerUtil.getLoggedUserTimeZone());
     return inUserTimeZone;
-  }
-
-  /**
-   * Convert the Timestamp to system timezone, cahnge the Timezone o user timezone and convert back
-   * to a new Timestamp.
-   *
-   * @param systemTimestamp
-   *          The original Timesatamp in system TimeZone.
-   * @return The new Timestamp in user TimeZone.
-   */
-  public static Timestamp convertTimestampToUserTimeZone(final Timestamp systemTimestamp) {
-    if (systemTimestamp == null) {
-      return null;
-    }
-    DateTime dateTime = new DateTime(TimetrackerUtil.getSystemTimeZone());
-    dateTime = dateTime.withMillis(systemTimestamp.getTime());
-    dateTime = DateTimeConverterUtil.convertDateZoneToUserTimeZone(dateTime);
-    return new Timestamp(dateTime.getMillis());
   }
 
   /**
@@ -373,7 +373,7 @@ public final class DateTimeConverterUtil {
   public static boolean isValidTime(final String time) {
     boolean match24Format = Pattern.matches(TIME24HOURS_PATTERN, time);
     StringBuilder sb = new StringBuilder();
-    sb.append("^([01]?[0-9]):[0-5][0-9]( (");
+    sb.append("^([01]?[0-9]|2[0-3]):[0-5][0-9]( (");
     Locale locale = DateTimeConverterUtil.getLoggedUserLocal();
     DateFormatSymbols dateFormatSymbols = new DateFormatSymbols(locale);
     String[] amPmStrings = dateFormatSymbols.getAmPmStrings();

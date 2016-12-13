@@ -16,17 +16,34 @@
 package org.everit.jira.tests.core.impl.timetrackermanager;
 
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 
 import org.everit.jira.core.TimetrackerManager;
+import org.everit.jira.core.impl.DateTimeServer;
 import org.everit.jira.core.impl.TimetrackerComponent;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
+import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Matchers;
+import org.mockito.Mockito;
+
+import com.atlassian.jira.mock.component.MockComponentWorker;
+import com.atlassian.jira.security.JiraAuthenticationContext;
+import com.atlassian.jira.security.PermissionManager;
+import com.atlassian.jira.security.Permissions;
+import com.atlassian.jira.user.ApplicationUser;
+import com.atlassian.jira.user.MockApplicationUser;
+import com.atlassian.jira.user.preferences.JiraUserPreferences;
+import com.atlassian.jira.user.preferences.UserPreferencesManager;
+import com.atlassian.jira.util.I18nHelper;
+import com.atlassian.jira.util.I18nHelper.BeanFactory;
 
 public class GetExtraDaysOfTheMonthTest {
 
@@ -35,12 +52,53 @@ public class GetExtraDaysOfTheMonthTest {
   @Before
   public void before() {
     timetrackerManager = new TimetrackerComponent(null, null);
+
+    MockComponentWorker mockComponentWorker = new MockComponentWorker();
+
+    PermissionManager permissionManager =
+        Mockito.mock(PermissionManager.class, Mockito.RETURNS_DEEP_STUBS);
+    Mockito.when(
+        permissionManager.getProjects(Matchers.eq(Permissions.BROWSE),
+            Matchers.any(ApplicationUser.class)))
+        .thenReturn(new ArrayList<>());
+    mockComponentWorker.addMock(PermissionManager.class, permissionManager);
+
+    JiraAuthenticationContext jiraAuthenticationContext =
+        Mockito.mock(JiraAuthenticationContext.class, Mockito.RETURNS_DEEP_STUBS);
+    final MockApplicationUser loggedUser = new MockApplicationUser("user-key", "username");
+    Mockito.when(jiraAuthenticationContext.getUser())
+        .thenReturn(loggedUser);
+    mockComponentWorker.addMock(JiraAuthenticationContext.class, jiraAuthenticationContext);
+
+    JiraUserPreferences mockJiraUserPreferences =
+        Mockito.mock(JiraUserPreferences.class, Mockito.RETURNS_DEEP_STUBS);
+    Mockito.when(mockJiraUserPreferences.getString("jira.user.timezone"))
+        .thenReturn("UTC");
+
+    UserPreferencesManager mockUserPreferencesManager =
+        Mockito.mock(UserPreferencesManager.class, Mockito.RETURNS_DEEP_STUBS);
+    Mockito.when(mockUserPreferencesManager.getPreferences(Matchers.any(ApplicationUser.class)))
+        .thenReturn(mockJiraUserPreferences);
+    mockComponentWorker.addMock(UserPreferencesManager.class, mockUserPreferencesManager);
+
+    I18nHelper i18nHelper = Mockito.mock(I18nHelper.class, Mockito.RETURNS_DEEP_STUBS);
+    BeanFactory mockBeanFactory = Mockito.mock(BeanFactory.class, Mockito.RETURNS_DEEP_STUBS);
+
+    Mockito.when(mockBeanFactory.getInstance(Matchers.any(ApplicationUser.class)))
+        .thenReturn(i18nHelper);
+
+    Mockito.when(i18nHelper.getLocale())
+        .thenReturn(Locale.ENGLISH);
+    mockComponentWorker.addMock(I18nHelper.class, i18nHelper);
+    mockComponentWorker.addMock(BeanFactory.class, mockBeanFactory).init();
+
   }
 
   @Test
   public void testOneExcludeDate() throws ParseException {
     List<Date> excludeDaysOfTheMonth = timetrackerManager.getExcludeDaysOfTheMonth(
-        DateTimeConverterUtil.fixFormatStringToDate("2016-01-05"),
+        DateTimeServer.getInstanceBasedOnUserTimeZone(
+            new DateTime(DateTimeConverterUtil.fixFormatStringToDate("2016-01-05"))),
         new HashSet<>(Arrays.asList(DateTimeConverterUtil.fixFormatStringToDate("2016-01-05"),
             DateTimeConverterUtil.fixFormatStringToDate("2016-02-05"))));
     Assert.assertEquals(
@@ -51,7 +109,8 @@ public class GetExtraDaysOfTheMonthTest {
   @Test
   public void testOneIncludeDate() throws ParseException {
     List<Date> excludeDaysOfTheMonth = timetrackerManager.getIncludeDaysOfTheMonth(
-        DateTimeConverterUtil.fixFormatStringToDate("2016-01-05"),
+        DateTimeServer.getInstanceBasedOnUserTimeZone(
+            new DateTime(DateTimeConverterUtil.fixFormatStringToDate("2016-01-05"))),
         new HashSet<>(Arrays.asList(DateTimeConverterUtil.fixFormatStringToDate("2016-01-01"),
             DateTimeConverterUtil.fixFormatStringToDate("2016-02-01"))));
     Assert.assertEquals(

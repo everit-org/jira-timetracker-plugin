@@ -28,9 +28,14 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.easymock.EasyMock;
+import org.everit.jira.core.impl.DateTimeServer;
 import org.everit.jira.core.impl.WorklogComponent;
+import org.everit.jira.settings.TimeTrackerSettingsHelper;
+import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
+import org.everit.jira.settings.dto.TimeZoneTypes;
 import org.everit.jira.tests.core.DummyDateTimeFromatter;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
+import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -290,6 +295,13 @@ public class GetWorklogsTest {
     Mockito.when(mockDateTimeFormatterFactory.formatter())
         .thenReturn(new DummyDateTimeFromatter());
 
+    TimeTrackerGlobalSettings ttGlobalSettings = new TimeTrackerGlobalSettings();
+    ttGlobalSettings.timeZone(TimeZoneTypes.SYSTEM);
+    TimeTrackerSettingsHelper settingsHelper =
+        Mockito.mock(TimeTrackerSettingsHelper.class, Mockito.RETURNS_DEEP_STUBS);
+    Mockito.when(settingsHelper.loadGlobalSettings()).thenReturn(ttGlobalSettings);
+    mockComponentWorker.addMock(TimeTrackerSettingsHelper.class, settingsHelper);
+
     // init components
     mockComponentWorker.addMock(JiraAuthenticationContext.class, mockJiraAuthenticationContext)
         .addMock(WorklogManager.class, mockWorklogManager)
@@ -337,12 +349,16 @@ public class GetWorklogsTest {
   @Test
   public void testGetWorklogs()
       throws DataAccessException, GenericEntityException, SQLException, ParseException {
-    List<EveritWorklog> worklogs = worklogManager.getWorklogs(null, defaultStatDate, null);
+    List<EveritWorklog> worklogs = worklogManager.getWorklogs(null,
+        DateTimeServer.getInstanceBasedOnUserTimeZone(new DateTime(defaultStatDate.getTime())),
+        null);
     Assert.assertEquals(2, worklogs.size());
     Assert.assertEquals(worklogs.get(0).getIssue(), "WORKLOG-1");
     Assert.assertEquals(worklogs.get(1).getIssue(), "NO-30");
 
-    worklogs = worklogManager.getWorklogs(SELECTED_USER, defaultStatDate, new Date());
+    worklogs = worklogManager.getWorklogs(SELECTED_USER,
+        DateTimeServer.getInstanceBasedOnUserTimeZone(new DateTime(defaultStatDate.getTime())),
+        DateTimeServer.getInstanceBasedOnUserTimeZone(new DateTime()));
     Assert.assertEquals(1, worklogs.size());
     Assert.assertEquals(worklogs.get(0).getIssue(), "WORKLOG-1");
 

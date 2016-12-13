@@ -36,15 +36,17 @@ import org.everit.jira.reporting.plugin.dto.ProjectSummaryReportDTO;
 import org.everit.jira.reporting.plugin.dto.UserSummaryReportDTO;
 import org.everit.jira.reporting.plugin.dto.WorklogDetailsReportDTO;
 import org.everit.jira.reporting.plugin.util.ConverterUtil;
-import org.everit.jira.settings.TimetrackerSettingsHelper;
+import org.everit.jira.settings.TimeTrackerSettingsHelper;
 import org.everit.jira.timetracker.plugin.DurationFormatter;
 
 import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.datetime.DateTimeFormatter;
+import com.atlassian.jira.datetime.DateTimeFormatterFactory;
+import com.atlassian.jira.datetime.DateTimeStyle;
 import com.atlassian.jira.issue.RendererManager;
 import com.atlassian.jira.issue.fields.renderer.IssueRenderContext;
 import com.atlassian.jira.issue.fields.renderer.JiraRendererPlugin;
 import com.atlassian.jira.util.I18nHelper;
-import com.atlassian.jira.web.util.OutlookDate;
 import com.atlassian.velocity.VelocityManager;
 import com.google.gson.Gson;
 
@@ -62,7 +64,7 @@ public class PagingReport {
 
   private ReportingPlugin reportingPlugin;
 
-  private TimetrackerSettingsHelper settingsHelper;
+  private TimeTrackerSettingsHelper settingsHelper;
 
   private VelocityManager velocityManager;
 
@@ -70,7 +72,7 @@ public class PagingReport {
    * Simple constructor. Initialize required members.
    */
   public PagingReport(final ReportingPlugin reportingPlugin,
-      final TimetrackerSettingsHelper settingsHelper) {
+      final TimeTrackerSettingsHelper settingsHelper) {
     this.reportingPlugin = reportingPlugin;
     this.settingsHelper = settingsHelper;
     gson = new Gson();
@@ -82,9 +84,8 @@ public class PagingReport {
     contextParameters.put("durationFormatter", new DurationFormatter());
     contextParameters.put("filterCondition", filterCondition);
 
-    Locale locale = ComponentAccessor.getJiraAuthenticationContext().getLocale();
-    OutlookDate outlookDate = new OutlookDate(locale);
-    contextParameters.put("outlookDate", outlookDate);
+    contextParameters.put("dateTimeFormatterDate", getDateTimeFormatterDate());
+    contextParameters.put("dateTimeFormatterDateTime", getDateTimeFormatterDateTime());
 
     IssueRenderContext issueRenderContext = new IssueRenderContext(null);
     contextParameters.put("issueRenderContext", issueRenderContext);
@@ -96,6 +97,7 @@ public class PagingReport {
 
     contextParameters.put("contextPath", getContextPath());
 
+    Locale locale = ComponentAccessor.getJiraAuthenticationContext().getLocale();
     I18nHelper i18nHelper = ComponentAccessor.getI18nHelperFactory().getInstance(locale);
     contextParameters.put("i18n", i18nHelper);
   }
@@ -115,6 +117,16 @@ public class PagingReport {
 
   private String getContextPath() {
     return ComponentAccessor.getWebResourceUrlProvider().getBaseUrl();
+  }
+
+  private DateTimeFormatter getDateTimeFormatterDate() {
+    return ComponentAccessor.getComponentOfType(DateTimeFormatterFactory.class).formatter()
+        .forLoggedInUser().withStyle(DateTimeStyle.DATE).withSystemZone();
+  }
+
+  private DateTimeFormatter getDateTimeFormatterDateTime() {
+    return ComponentAccessor.getComponentOfType(DateTimeFormatterFactory.class).formatter()
+        .withStyle(DateTimeStyle.COMPLETE).withSystemZone();
   }
 
   /**

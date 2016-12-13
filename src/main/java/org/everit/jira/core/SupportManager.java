@@ -19,9 +19,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.everit.jira.core.impl.DateTimeServer;
 import org.everit.jira.reporting.plugin.dto.MissingsWorklogsDTO;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
-import org.joda.time.DateTime;
 import org.ofbiz.core.entity.GenericEntityException;
 
 /**
@@ -48,7 +48,7 @@ public interface SupportManager {
    * @throws GenericEntityException
    *           If GenericEntity Exception.
    */
-  List<MissingsWorklogsDTO> getDates(DateTime from, DateTime to, boolean workingHours,
+  List<MissingsWorklogsDTO> getDates(DateTimeServer from, DateTimeServer to, boolean workingHours,
       boolean nonWorking, TimeTrackerGlobalSettings settings) throws GenericEntityException;
 
   /**

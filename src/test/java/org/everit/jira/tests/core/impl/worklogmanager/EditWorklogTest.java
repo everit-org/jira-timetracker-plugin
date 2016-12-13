@@ -21,11 +21,11 @@ import java.util.Locale;
 import org.everit.jira.core.EVWorklogManager;
 import org.everit.jira.core.RemainingEstimateType;
 import org.everit.jira.core.dto.WorklogParameter;
+import org.everit.jira.core.impl.DateTimeServer;
 import org.everit.jira.core.impl.WorklogComponent;
 import org.everit.jira.core.impl.WorklogComponent.PropertiesKey;
 import org.everit.jira.tests.core.DummyDateTimeFromatter;
 import org.everit.jira.timetracker.plugin.exception.WorklogException;
-import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Before;
@@ -49,8 +49,12 @@ import com.atlassian.jira.mock.issue.MockIssue;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.PermissionManager;
 import com.atlassian.jira.security.Permissions;
+import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.user.MockApplicationUser;
+import com.atlassian.jira.user.preferences.JiraUserPreferences;
+import com.atlassian.jira.user.preferences.UserPreferencesManager;
 import com.atlassian.jira.util.I18nHelper;
+import com.atlassian.jira.util.I18nHelper.BeanFactory;
 
 public class EditWorklogTest {
 
@@ -148,6 +152,24 @@ public class EditWorklogTest {
         .thenReturn(i18nHelper);
     Mockito.when(i18nHelper.getLocale())
         .thenReturn(Locale.ENGLISH);
+
+    JiraUserPreferences mockJiraUserPreferences =
+        Mockito.mock(JiraUserPreferences.class, Mockito.RETURNS_DEEP_STUBS);
+    Mockito.when(mockJiraUserPreferences.getString("jira.user.timezone"))
+        .thenReturn("UTC");
+
+    UserPreferencesManager mockUserPreferencesManager =
+        Mockito.mock(UserPreferencesManager.class, Mockito.RETURNS_DEEP_STUBS);
+    Mockito.when(mockUserPreferencesManager.getPreferences(Matchers.any(ApplicationUser.class)))
+        .thenReturn(mockJiraUserPreferences);
+    mockComponentWorker.addMock(UserPreferencesManager.class, mockUserPreferencesManager);
+
+    BeanFactory mockBeanFactory = Mockito.mock(BeanFactory.class, Mockito.RETURNS_DEEP_STUBS);
+
+    Mockito.when(mockBeanFactory.getInstance(Matchers.any(ApplicationUser.class)))
+        .thenReturn(i18nHelper);
+
+    mockComponentWorker.addMock(BeanFactory.class, mockBeanFactory);
 
     // invalid issue worklog
     invalidIssueWorklog = new DummyWorklog(0);
@@ -305,14 +327,14 @@ public class EditWorklogTest {
   public void testEditWorklog() {
     String defaultComment = "comment";
     String defaultStartTime = "08:00";
-    DateTime defaultDate =
-        DateTimeConverterUtil.stringToDateAndTime(new DateTime(), defaultStartTime);
+    DateTimeServer defaultDate = DateTimeServer.getInstanceBasedOnUserTimeZone(new DateTime());
+    defaultDate = defaultDate.addStartTime(defaultStartTime);
     String defaultTimeSpent = "10";
     try {
       worklogManager.editWorklog(invalidIssueWorklog.getId(),
           new WorklogParameter(invalidIssueWorklog.getIssue().getKey(),
               defaultComment,
-              DateTimeConverterUtil.convertDateTimeToDate(defaultDate),
+              defaultDate,
               defaultTimeSpent,
               "",
               RemainingEstimateType.AUTO));
@@ -326,7 +348,7 @@ public class EditWorklogTest {
       worklogManager.editWorklog(notSameIssueNoPermissionWorklog.getId(),
           new WorklogParameter(notSameIssueToNoPermission.getKey(),
               defaultComment,
-              DateTimeConverterUtil.convertDateTimeToDate(defaultDate),
+              defaultDate,
               defaultTimeSpent,
               "",
               RemainingEstimateType.AUTO));
@@ -340,7 +362,7 @@ public class EditWorklogTest {
       worklogManager.editWorklog(notSameIssueNoPermissionWorklog.getId(),
           new WorklogParameter(notSameIssueToNoPermission.getKey(),
               defaultComment,
-              DateTimeConverterUtil.convertDateTimeToDate(defaultDate),
+              defaultDate,
               defaultTimeSpent,
               "",
               RemainingEstimateType.AUTO));
@@ -354,7 +376,7 @@ public class EditWorklogTest {
       worklogManager.editWorklog(notSameIssueDeleteFailIssueWorklog.getId(),
           new WorklogParameter(notSameIssueToDeleteFail.getKey(),
               defaultComment,
-              DateTimeConverterUtil.convertDateTimeToDate(defaultDate),
+              defaultDate,
               defaultTimeSpent,
               "",
               RemainingEstimateType.AUTO));
@@ -368,7 +390,7 @@ public class EditWorklogTest {
       worklogManager.editWorklog(notSameIssueCreateFailIssueWorklog.getId(),
           new WorklogParameter(notSameIssueToCreateFail.getKey(),
               defaultComment,
-              DateTimeConverterUtil.convertDateTimeToDate(defaultDate),
+              defaultDate,
               defaultTimeSpent,
               "",
               RemainingEstimateType.AUTO));
@@ -399,7 +421,7 @@ public class EditWorklogTest {
       worklogManager.editWorklog(sameIssueNoPermissionToUpdateWorklog.getId(),
           new WorklogParameter(sameIssueNoPermissionToUpdateWorklog.getIssue().getKey(),
               defaultComment,
-              DateTimeConverterUtil.convertDateTimeToDate(defaultDate),
+              defaultDate,
               defaultTimeSpent,
               "",
               RemainingEstimateType.AUTO));
@@ -413,7 +435,7 @@ public class EditWorklogTest {
       worklogManager.editWorklog(sameIssueValidateFailWorklog.getId(),
           new WorklogParameter(sameIssueValidateFailWorklog.getIssue().getKey(),
               defaultComment,
-              DateTimeConverterUtil.convertDateTimeToDate(defaultDate),
+              defaultDate,
               defaultTimeSpent,
               "",
               RemainingEstimateType.AUTO));
@@ -426,7 +448,7 @@ public class EditWorklogTest {
     worklogManager.editWorklog(sameIssueSuccessWorklog.getId(),
         new WorklogParameter(sameIssueSuccessWorklog.getIssue().getKey(),
             defaultComment,
-            DateTimeConverterUtil.convertDateTimeToDate(defaultDate),
+            defaultDate,
             defaultTimeSpent,
             "",
             RemainingEstimateType.AUTO));

@@ -75,6 +75,14 @@ public enum GlobalSettingsKey implements SettingsMapper {
     }
 
   },
+  TIME_ZONE {
+
+    @Override
+    public String getSettingsKey() {
+      return JTTPSettingsKey.JTTP_PLUGIN_SETTINGS_TIME_ZONE;
+    }
+
+  },
   TIMETRACKER_PERMISSION {
 
     @Override

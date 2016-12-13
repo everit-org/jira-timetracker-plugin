@@ -23,8 +23,10 @@ import java.util.Locale;
 
 import org.everit.jira.core.TimetrackerManager;
 import org.everit.jira.core.impl.TimetrackerComponent;
-import org.everit.jira.settings.TimetrackerSettingsHelper;
+import org.everit.jira.settings.TimeTrackerSettingsHelper;
+import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
 import org.everit.jira.settings.dto.TimeTrackerUserSettings;
+import org.everit.jira.settings.dto.TimeZoneTypes;
 import org.everit.jira.tests.core.DummyDateTimeFromatter;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.junit.Assert;
@@ -109,21 +111,26 @@ public class LastEndTimeTest {
     Mockito.when(mockBeanFactory.getInstance(Matchers.any(ApplicationUser.class)))
         .thenReturn(i18nHelper);
 
-    mockComponentWorker.addMock(BeanFactory.class, mockBeanFactory);
+    TimeTrackerGlobalSettings ttGlobalSettings = new TimeTrackerGlobalSettings();
+    ttGlobalSettings.timeZone(TimeZoneTypes.SYSTEM);
 
-    mockComponentWorker.addMock(JiraAuthenticationContext.class, jiraAuthenticationContext)
-        .addMock(ApplicationProperties.class, applicationProperties)
-        .addMock(DateTimeFormatterFactory.class, mockDateTimeFormatterFactory)
-        .init();
-
-    TimetrackerSettingsHelper timetrackerSettingsHelper =
-        Mockito.mock(TimetrackerSettingsHelper.class);
+    TimeTrackerSettingsHelper timeTrackerSettingsHelper =
+        Mockito.mock(TimeTrackerSettingsHelper.class, Mockito.RETURNS_DEEP_STUBS);
     TimeTrackerUserSettings timeTrackerUserSettings = Mockito.mock(TimeTrackerUserSettings.class);
-    Mockito.when(timetrackerSettingsHelper.loadUserSettings())
+    Mockito.when(timeTrackerSettingsHelper.loadUserSettings())
         .thenReturn(timeTrackerUserSettings);
     Mockito.when(timeTrackerUserSettings.getDefaultStartTime())
         .thenReturn("08:00");
-    timetrackerManager = new TimetrackerComponent(null, timetrackerSettingsHelper);
+    Mockito.when(timeTrackerSettingsHelper.loadGlobalSettings()).thenReturn(ttGlobalSettings);
+    timetrackerManager = new TimetrackerComponent(null, timeTrackerSettingsHelper);
+
+    mockComponentWorker.addMock(TimeTrackerSettingsHelper.class, timeTrackerSettingsHelper);
+
+    mockComponentWorker.addMock(BeanFactory.class, mockBeanFactory)
+        .addMock(JiraAuthenticationContext.class, jiraAuthenticationContext)
+        .addMock(ApplicationProperties.class, applicationProperties)
+        .addMock(DateTimeFormatterFactory.class, mockDateTimeFormatterFactory)
+        .init();
   }
 
   @Test

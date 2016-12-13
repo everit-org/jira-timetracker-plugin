@@ -33,7 +33,7 @@ import org.everit.jira.reporting.plugin.dto.PickerComponentDTO;
 import org.everit.jira.reporting.plugin.dto.PickerUserDTO;
 import org.everit.jira.reporting.plugin.dto.PickerVersionDTO;
 import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
-import org.everit.jira.settings.TimetrackerSettingsHelper;
+import org.everit.jira.settings.TimeTrackerSettingsHelper;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.joda.time.DateTime;
 
@@ -202,7 +202,7 @@ public final class ConverterUtil {
   }
 
   private static void collectUsersFromParams(final FilterCondition filterCondition,
-      final ReportSearchParam reportSearchParam, final TimetrackerSettingsHelper settingsHelper) {
+      final ReportSearchParam reportSearchParam, final TimeTrackerSettingsHelper settingsHelper) {
     ArrayList<String> users = new ArrayList<>(filterCondition.getUsers());
     JiraAuthenticationContext jiraAuthenticationContext =
         ComponentAccessor.getJiraAuthenticationContext();
@@ -219,6 +219,9 @@ public final class ConverterUtil {
     } else {
       if (!users.isEmpty() && users.contains(PickerUserDTO.NONE_USER_NAME)) {
         users = ConverterUtil.getUserNamesFromGroup(filterCondition.getGroups());
+        if (users.isEmpty()) {
+          reportSearchParam.groupsHasNoMembers(true);
+        }
       } else if (users.remove(PickerUserDTO.CURRENT_USER_NAME)) {
         users.add(TimetrackerUtil.getLoggedUserName());
       }
@@ -239,20 +242,21 @@ public final class ConverterUtil {
    *           if has problem in convert. Contains property key name in message.
    */
   public static ConvertedSearchParam convertFilterConditionToConvertedSearchParam(
-      final FilterCondition filterCondition, final TimetrackerSettingsHelper settingsHelper) {
+      final FilterCondition filterCondition, final TimeTrackerSettingsHelper settingsHelper) {
     if (filterCondition == null) {
       throw new NullPointerException("filterCondition parameter is null");
     }
 
+    // TODO issueCreated?
     DateTime worklogEndDate = new DateTime(filterCondition.getWorklogEndDate());
     worklogEndDate = DateTimeConverterUtil.setDateToDayStart(worklogEndDate);
     worklogEndDate = worklogEndDate.plusDays(1);
-    // TODO check
+    // TODO check DTS?
     worklogEndDate = DateTimeConverterUtil.convertDateZoneToUserTimeZone(worklogEndDate);
 
     DateTime worklogStartDate = new DateTime(filterCondition.getWorklogStartDate());
     worklogStartDate = DateTimeConverterUtil.setDateToDayStart(worklogStartDate);
-    // TODO check
+    // TODO check DTS?
     worklogStartDate = DateTimeConverterUtil.convertDateZoneToUserTimeZone(worklogStartDate);
 
     ReportSearchParam reportSearchParam = new ReportSearchParam();
@@ -436,6 +440,7 @@ public final class ConverterUtil {
 
   private static void setBasicSearcherValuesParams(final FilterCondition filterCondition,
       final ReportSearchParam reportSearchParam) {
+    // TODO issueCreated UTZ convert????
     reportSearchParam.issueCreateDate(ConverterUtil.getDate(filterCondition.getIssueCreateDate()))
         .issueEpicLinkIssueIds(filterCondition.getIssueEpicLinkIssueIds())
         .issuePriorityIds(filterCondition.getIssuePriorityIds())
