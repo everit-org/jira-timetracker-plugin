@@ -18,7 +18,7 @@ package org.everit.jira.reporting.plugin;
 import java.util.Collection;
 import java.util.List;
 
-import org.everit.jira.settings.TimetrackerSettingsHelper;
+import org.everit.jira.settings.TimeTrackerSettingsHelper;
 
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.plugin.webfragment.conditions.AbstractWebCondition;
@@ -32,9 +32,9 @@ import com.atlassian.jira.user.ApplicationUser;
  */
 public class ReportingCondition extends AbstractWebCondition {
 
-  private TimetrackerSettingsHelper settingsHelper;
+  private TimeTrackerSettingsHelper settingsHelper;
 
-  public ReportingCondition(final TimetrackerSettingsHelper settingsHelper) {
+  public ReportingCondition(final TimeTrackerSettingsHelper settingsHelper) {
     this.settingsHelper = settingsHelper;
   }
 

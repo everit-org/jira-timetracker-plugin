@@ -17,7 +17,6 @@ package org.everit.jira.core.util;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
 
@@ -56,22 +55,20 @@ public final class WorklogUtil {
    * Creates worklog query expression list without permission check.
    *
    * @param startDate
-   *          the start date of the worklog.
+   *          the start date of the worklog in milliseconds.
    * @param endDate
-   *          the end date of the worklog.
+   *          the end date of the worklog in milliseconds.
    * @param userKey
    *          the user key for author.
    * @return the expression list.
    */
-  public static List<EntityCondition> createWorklogQueryExprList(final Calendar startDate,
-      final Calendar endDate,
+  public static List<EntityCondition> createWorklogQueryExprList(final long startDate,
+      final long endDate,
       final String userKey) {
-    // TODO remove calendar? set to long?
     EntityExpr startExpr = new EntityExpr("startdate",
-        EntityOperator.GREATER_THAN_EQUAL_TO, new Timestamp(
-            startDate.getTimeInMillis()));
+        EntityOperator.GREATER_THAN_EQUAL_TO, new Timestamp(startDate));
     EntityExpr endExpr = new EntityExpr("startdate",
-        EntityOperator.LESS_THAN, new Timestamp(endDate.getTimeInMillis()));
+        EntityOperator.LESS_THAN, new Timestamp(endDate));
     EntityExpr userExpr = new EntityExpr("author", EntityOperator.EQUALS,
         userKey);
     List<EntityCondition> exprList = new ArrayList<>();
@@ -94,7 +91,7 @@ public final class WorklogUtil {
    */
   public static List<EntityCondition> createWorklogQueryExprListWithPermissionCheck(
       final ApplicationUser user,
-      final Calendar startDate, final Calendar endDate) {
+      final long startDate, final long endDate) {
 
     String userKey = user.getKey();
 
@@ -111,16 +108,15 @@ public final class WorklogUtil {
    * @param loggedInUser
    *          the logged user.
    * @param startDate
-   *          the start date of the worklog.
+   *          the start date of the worklog in milliseconds.
    * @param endDate
-   *          the end date of the worklog.
+   *          the end date of the worklog in milliseconds.
    * @return the expression list.
    */
   public static List<EntityCondition> createWorklogQueryExprListWithPermissionCheck(
       final String selectedUser,
       final ApplicationUser loggedInUser,
-      final Calendar startDate, final Calendar endDate) {
-    // TODO remove calendar? set to long?
+      final long startDate, final long endDate) {
     String userKey = ((selectedUser == null) || "".equals(selectedUser))
         ? loggedInUser.getKey() : selectedUser;
 

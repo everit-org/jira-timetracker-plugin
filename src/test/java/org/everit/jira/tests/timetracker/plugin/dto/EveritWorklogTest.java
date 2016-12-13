@@ -25,6 +25,9 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.easymock.EasyMock;
+import org.everit.jira.settings.TimeTrackerSettingsHelper;
+import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
+import org.everit.jira.settings.dto.TimeZoneTypes;
 import org.everit.jira.tests.core.DummyDateTimeFromatter;
 import org.everit.jira.tests.timetracker.plugin.DurationBuilder;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
@@ -175,6 +178,13 @@ public class EveritWorklogTest {
     Mockito.when(mockUserPreferencesManager.getPreferences(Matchers.any(ApplicationUser.class)))
         .thenReturn(mockJiraUserPreferences);
     mockComponentWorker.addMock(UserPreferencesManager.class, mockUserPreferencesManager);
+
+    TimeTrackerGlobalSettings ttGlobalSettings = new TimeTrackerGlobalSettings();
+    ttGlobalSettings.timeZone(TimeZoneTypes.SYSTEM);
+    TimeTrackerSettingsHelper settingsHelper =
+        Mockito.mock(TimeTrackerSettingsHelper.class, Mockito.RETURNS_DEEP_STUBS);
+    Mockito.when(settingsHelper.loadGlobalSettings()).thenReturn(ttGlobalSettings);
+    mockComponentWorker.addMock(TimeTrackerSettingsHelper.class, settingsHelper);
 
     DateTimeFormatterFactory mockDateTimeFormatterFactory =
         Mockito.mock(DateTimeFormatterFactory.class, Mockito.RETURNS_DEEP_STUBS);

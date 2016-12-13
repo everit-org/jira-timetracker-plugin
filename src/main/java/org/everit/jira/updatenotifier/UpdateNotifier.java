@@ -15,7 +15,7 @@
  */
 package org.everit.jira.updatenotifier;
 
-import org.everit.jira.settings.TimetrackerSettingsHelper;
+import org.everit.jira.settings.TimeTrackerSettingsHelper;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
 import org.everit.jira.settings.dto.TimeTrackerUserSettings;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
@@ -30,12 +30,12 @@ public class UpdateNotifier {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(UpdateNotifier.class);
 
-  private TimetrackerSettingsHelper settingsHelper;
+  private TimeTrackerSettingsHelper settingsHelper;
 
   /**
    * Constructor for creating the settings.
    */
-  public UpdateNotifier(final TimetrackerSettingsHelper settingsHelper) {
+  public UpdateNotifier(final TimeTrackerSettingsHelper settingsHelper) {
     this.settingsHelper = settingsHelper;
   }
 

@@ -23,7 +23,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.everit.jira.analytics.AnalyticsDTO;
-import org.everit.jira.settings.TimetrackerSettingsHelper;
+import org.everit.jira.settings.TimeTrackerSettingsHelper;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
 import org.everit.jira.timetracker.plugin.util.HashUtil;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
@@ -58,7 +58,7 @@ public final class JiraTimetrackerAnalytics {
    * @return the {@link AnalyticsDTO} object.
    */
   public static AnalyticsDTO getAnalyticsDTO(final String siteIdPropertyKey,
-      final TimetrackerSettingsHelper settingsHelper) {
+      final TimeTrackerSettingsHelper settingsHelper) {
     Properties jttpBuildProperties = PropertiesUtil.getJttpBuildProperties();
 
     String piwikHost =

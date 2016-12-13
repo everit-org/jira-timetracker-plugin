@@ -46,10 +46,10 @@ import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
 /**
- * The implementation of {@link TimetrackerSettingsHelper} interface.
+ * The implementation of {@link TimeTrackerSettingsHelper} interface.
  */
 public class TimeTrackerSettingsHelperImpl
-    implements TimetrackerSettingsHelper, InitializingBean, Serializable {
+    implements TimeTrackerSettingsHelper, InitializingBean, Serializable {
 
   private static final long serialVersionUID = 8873665767837959963L;
 

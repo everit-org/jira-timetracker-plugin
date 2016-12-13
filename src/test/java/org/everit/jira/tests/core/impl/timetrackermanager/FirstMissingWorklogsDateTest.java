@@ -27,6 +27,9 @@ import java.util.Locale;
 import java.util.Set;
 
 import org.everit.jira.core.impl.TimetrackerComponent;
+import org.everit.jira.settings.TimeTrackerSettingsHelper;
+import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
+import org.everit.jira.settings.dto.TimeZoneTypes;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
@@ -95,6 +98,13 @@ public class FirstMissingWorklogsDateTest {
         .thenReturn(Locale.ENGLISH);
     mockComponentWorker.addMock(I18nHelper.class, i18nHelper);
     mockComponentWorker.addMock(BeanFactory.class, mockBeanFactory);
+
+    TimeTrackerGlobalSettings ttGlobalSettings = new TimeTrackerGlobalSettings();
+    ttGlobalSettings.timeZone(TimeZoneTypes.SYSTEM);
+    TimeTrackerSettingsHelper settingsHelper =
+        Mockito.mock(TimeTrackerSettingsHelper.class, Mockito.RETURNS_DEEP_STUBS);
+    Mockito.when(settingsHelper.loadGlobalSettings()).thenReturn(ttGlobalSettings);
+    mockComponentWorker.addMock(TimeTrackerSettingsHelper.class, settingsHelper);
 
     MockGenericValue mockGenericValue = new MockGenericValue("none");
     OfBizDelegator ofBizDelegator = Mockito.mock(OfBizDelegator.class, Mockito.RETURNS_DEEP_STUBS);

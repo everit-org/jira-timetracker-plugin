@@ -24,6 +24,8 @@ import java.util.List;
  */
 public class ReportSearchParam {
 
+  public boolean groupsHasNoMembers = false;
+
   public List<String> issueAffectedVersions = Collections.emptyList();
 
   public List<String> issueAssignees = Collections.emptyList();
@@ -77,6 +79,11 @@ public class ReportSearchParam {
   public Date worklogEndDate;
 
   public Date worklogStartDate;
+
+  public ReportSearchParam groupsHasNoMembers(final boolean groupsHasNoMembers) {
+    this.groupsHasNoMembers = groupsHasNoMembers;
+    return this;
+  }
 
   public ReportSearchParam issueAffectedVersions(final List<String> issueAffectedVersions) {
     this.issueAffectedVersions = issueAffectedVersions;
@@ -194,8 +201,8 @@ public class ReportSearchParam {
     return this;
   }
 
-  public ReportSearchParam selectUnresolvedResolution(final boolean selectUnreleasedFixVersion) {
-    selectUnresolvedResolution = selectUnreleasedFixVersion;
+  public ReportSearchParam selectUnresolvedResolution(final boolean selectUnresolvedResolution) {
+    this.selectUnresolvedResolution = selectUnresolvedResolution;
     return this;
   }
 

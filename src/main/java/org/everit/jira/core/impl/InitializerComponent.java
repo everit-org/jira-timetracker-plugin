@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 import org.everit.jira.analytics.AnalyticsSender;
 import org.everit.jira.analytics.event.NoEstimateUsageChangedEvent;
 import org.everit.jira.analytics.event.NonWorkingUsageEvent;
-import org.everit.jira.settings.TimetrackerSettingsHelper;
+import org.everit.jira.settings.TimeTrackerSettingsHelper;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
 import org.everit.jira.timetracker.plugin.IssueEstimatedTimeChecker;
 import org.springframework.beans.factory.DisposableBean;
@@ -53,10 +53,10 @@ public class InitializerComponent implements InitializingBean, DisposableBean {
   private final ScheduledExecutorService scheduledExecutorService = Executors
       .newScheduledThreadPool(1);
 
-  private TimetrackerSettingsHelper settingsHelper;
+  private TimeTrackerSettingsHelper settingsHelper;
 
   public InitializerComponent(final AnalyticsSender analyticsSender,
-      final TimetrackerSettingsHelper settingsHelper) {
+      final TimeTrackerSettingsHelper settingsHelper) {
     this.analyticsSender = analyticsSender;
     this.settingsHelper = settingsHelper;
   }
@@ -75,7 +75,7 @@ public class InitializerComponent implements InitializingBean, DisposableBean {
   }
 
   private long calculateInitialDelay() {
-    // DEFAULT 20:00
+    // DEFAULT 20:00 use system time
     Calendar now = Calendar.getInstance();
     long hours = now.get(Calendar.HOUR_OF_DAY);
     long minutes = now.get(Calendar.MINUTE);

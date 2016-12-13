@@ -25,7 +25,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.everit.jira.core.util.TimetrackerUtil;
-import org.everit.jira.settings.TimetrackerSettingsHelper;
+import org.everit.jira.settings.TimeTrackerSettingsHelper;
 import org.ofbiz.core.entity.EntityCondition;
 import org.ofbiz.core.entity.EntityExpr;
 import org.ofbiz.core.entity.EntityOperator;
@@ -56,7 +56,7 @@ public class IssueEstimatedTimeChecker implements Runnable {
    */
   private Calendar checkerCalendar;
 
-  private TimetrackerSettingsHelper settingsHelper;
+  private TimeTrackerSettingsHelper settingsHelper;
 
   /**
    * Simple constructor.
@@ -64,7 +64,7 @@ public class IssueEstimatedTimeChecker implements Runnable {
    * @param emailSender
    *          TThe email address of the sender, come from the plugin properties file.
    */
-  public IssueEstimatedTimeChecker(final TimetrackerSettingsHelper settingsHelper) {
+  public IssueEstimatedTimeChecker(final TimeTrackerSettingsHelper settingsHelper) {
     this.settingsHelper = settingsHelper;
   }
 

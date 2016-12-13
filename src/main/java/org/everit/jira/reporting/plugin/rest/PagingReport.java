@@ -36,7 +36,7 @@ import org.everit.jira.reporting.plugin.dto.ProjectSummaryReportDTO;
 import org.everit.jira.reporting.plugin.dto.UserSummaryReportDTO;
 import org.everit.jira.reporting.plugin.dto.WorklogDetailsReportDTO;
 import org.everit.jira.reporting.plugin.util.ConverterUtil;
-import org.everit.jira.settings.TimetrackerSettingsHelper;
+import org.everit.jira.settings.TimeTrackerSettingsHelper;
 import org.everit.jira.timetracker.plugin.DurationFormatter;
 
 import com.atlassian.jira.component.ComponentAccessor;
@@ -62,7 +62,7 @@ public class PagingReport {
 
   private ReportingPlugin reportingPlugin;
 
-  private TimetrackerSettingsHelper settingsHelper;
+  private TimeTrackerSettingsHelper settingsHelper;
 
   private VelocityManager velocityManager;
 
@@ -70,7 +70,7 @@ public class PagingReport {
    * Simple constructor. Initialize required members.
    */
   public PagingReport(final ReportingPlugin reportingPlugin,
-      final TimetrackerSettingsHelper settingsHelper) {
+      final TimeTrackerSettingsHelper settingsHelper) {
     this.reportingPlugin = reportingPlugin;
     this.settingsHelper = settingsHelper;
     gson = new Gson();

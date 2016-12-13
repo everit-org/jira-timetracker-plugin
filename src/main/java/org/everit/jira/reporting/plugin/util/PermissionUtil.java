@@ -18,7 +18,7 @@ package org.everit.jira.reporting.plugin.util;
 import java.util.Collection;
 import java.util.List;
 
-import org.everit.jira.settings.TimetrackerSettingsHelper;
+import org.everit.jira.settings.TimeTrackerSettingsHelper;
 
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.user.ApplicationUser;
@@ -36,7 +36,7 @@ public final class PermissionUtil {
    * @return True if has permission otherwise false.
    */
   public static boolean hasBrowseUserPermission(final ApplicationUser user,
-      final TimetrackerSettingsHelper settingsHelper) {
+      final TimeTrackerSettingsHelper settingsHelper) {
     List<String> browseGroups = settingsHelper.loadReportingGlobalSettings().getBrowseGroups();
     if (browseGroups.isEmpty()) {
       return true;

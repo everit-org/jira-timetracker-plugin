@@ -19,6 +19,9 @@ import java.text.ParseException;
 import java.util.Locale;
 
 import org.everit.jira.core.impl.WorklogComponent;
+import org.everit.jira.settings.TimeTrackerSettingsHelper;
+import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
+import org.everit.jira.settings.dto.TimeZoneTypes;
 import org.everit.jira.tests.core.DummyDateTimeFromatter;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.junit.Assert;
@@ -129,6 +132,13 @@ public class GetWorklogTest {
 
     mockComponentWorker.addMock(I18nHelper.class, i18nHelper);
     mockComponentWorker.addMock(BeanFactory.class, mockBeanFactory);
+
+    TimeTrackerGlobalSettings ttGlobalSettings = new TimeTrackerGlobalSettings();
+    ttGlobalSettings.timeZone(TimeZoneTypes.SYSTEM);
+    TimeTrackerSettingsHelper settingsHelper =
+        Mockito.mock(TimeTrackerSettingsHelper.class, Mockito.RETURNS_DEEP_STUBS);
+    Mockito.when(settingsHelper.loadGlobalSettings()).thenReturn(ttGlobalSettings);
+    mockComponentWorker.addMock(TimeTrackerSettingsHelper.class, settingsHelper);
 
     // init components
     mockComponentWorker.addMock(JiraAuthenticationContext.class, mockJiraAuthenticationContext)

@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import org.everit.jira.core.impl.DateTimeServer;
 import org.everit.jira.core.impl.TimetrackerComponent;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.joda.time.DateTime;
@@ -135,16 +136,18 @@ public class GetLoggedDaysOfTheMonthTest {
     dateOfMonth = dateOfMonth.withMonthOfYear(1);
     initMockComponents(DateTimeConverterUtil.convertDateTimeToDate(dateOfMonth));
 
+    DateTimeServer dateOfMonthServer = DateTimeServer.getInstanceBasedOnUserTimeZone(dateOfMonth);
     List<String> loggedDaysOfTheMonth =
-        timetrackerComponent.getLoggedDaysOfTheMonth(dateOfMonth);
+        timetrackerComponent.getLoggedDaysOfTheMonth(dateOfMonthServer);
 
     Assert.assertEquals(31, loggedDaysOfTheMonth.size());
 
     dateOfMonth = dateOfMonth.withMonthOfYear(4);
     initMockComponents(DateTimeConverterUtil.convertDateTimeToDate(dateOfMonth));
 
+    dateOfMonthServer = DateTimeServer.getInstanceBasedOnUserTimeZone(dateOfMonth);
     loggedDaysOfTheMonth =
-        timetrackerComponent.getLoggedDaysOfTheMonth(dateOfMonth);
+        timetrackerComponent.getLoggedDaysOfTheMonth(dateOfMonthServer);
 
     Assert.assertEquals(30, loggedDaysOfTheMonth.size());
 
@@ -152,8 +155,9 @@ public class GetLoggedDaysOfTheMonthTest {
     dateOfMonth = dateOfMonth.withYear(2016);
     initMockComponents(DateTimeConverterUtil.convertDateTimeToDate(dateOfMonth));
 
+    dateOfMonthServer = DateTimeServer.getInstanceBasedOnUserTimeZone(dateOfMonth);
     loggedDaysOfTheMonth =
-        timetrackerComponent.getLoggedDaysOfTheMonth(dateOfMonth);
+        timetrackerComponent.getLoggedDaysOfTheMonth(dateOfMonthServer);
 
     Assert.assertEquals(29, loggedDaysOfTheMonth.size());
 
@@ -161,8 +165,9 @@ public class GetLoggedDaysOfTheMonthTest {
     dateOfMonth = dateOfMonth.withYear(2015);
     initMockComponents(DateTimeConverterUtil.convertDateTimeToDate(dateOfMonth));
 
+    dateOfMonthServer = DateTimeServer.getInstanceBasedOnUserTimeZone(dateOfMonth);
     loggedDaysOfTheMonth =
-        timetrackerComponent.getLoggedDaysOfTheMonth(dateOfMonth);
+        timetrackerComponent.getLoggedDaysOfTheMonth(dateOfMonthServer);
 
     Assert.assertEquals(28, loggedDaysOfTheMonth.size());
   }

@@ -24,6 +24,7 @@ public final class JTTPSettingsKey {
    * The plugin reporting settings groups that have browse user permission.
    */
   public static final String JTTP_PLUGIN_REPORTING_SETTINGS_BROWSE_GROUPS = "browseGroups";
+
   /**
    * The plugin reporting settings user reporting groups.
    */
@@ -135,6 +136,8 @@ public final class JTTPSettingsKey {
    * The plugin setting Summary Filters key.
    */
   public static final String JTTP_PLUGIN_SETTINGS_SUMMARY_FILTERS = "SummaryFilters";
+
+  public static final String JTTP_PLUGIN_SETTINGS_TIME_ZONE = "timeZoneSetting";
 
   /**
    * The plugin setting Timetracker Permission key.

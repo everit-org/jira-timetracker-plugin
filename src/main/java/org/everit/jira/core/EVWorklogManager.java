@@ -16,10 +16,10 @@
 package org.everit.jira.core;
 
 import java.text.ParseException;
-import java.util.Date;
 import java.util.List;
 
 import org.everit.jira.core.dto.WorklogParameter;
+import org.everit.jira.core.impl.DateTimeServer;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.exception.WorklogException;
 
@@ -39,7 +39,7 @@ public interface EVWorklogManager {
    *          the end date.
    * @return the size of worklogs.
    */
-  long countWorklogsWithoutPermissionChecks(Date startDate, Date endDate);
+  long countWorklogsWithoutPermissionChecks(DateTimeServer startDate, DateTimeServer endDate);
 
   /**
    * Creates a worklog based on given parameters.
@@ -108,6 +108,7 @@ public interface EVWorklogManager {
    * @throws ParseException
    *           When can't parse the worklog date.
    */
-  List<EveritWorklog> getWorklogs(String selectedUser, Date startDate, Date endDate)
+  List<EveritWorklog> getWorklogs(String selectedUser, DateTimeServer startDate,
+      DateTimeServer endDate)
       throws DataAccessException, ParseException;
 }

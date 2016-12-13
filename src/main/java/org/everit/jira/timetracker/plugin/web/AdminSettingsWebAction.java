@@ -33,8 +33,9 @@ import org.everit.jira.analytics.event.NoEstimateUsageChangedEvent;
 import org.everit.jira.analytics.event.NonWorkingUsageEvent;
 import org.everit.jira.core.SupportManager;
 import org.everit.jira.core.util.TimetrackerUtil;
-import org.everit.jira.settings.TimetrackerSettingsHelper;
+import org.everit.jira.settings.TimeTrackerSettingsHelper;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
+import org.everit.jira.settings.dto.TimeZoneTypes;
 import org.everit.jira.timetracker.plugin.util.ExceptionUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 
@@ -63,6 +64,8 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    * Logger.
    */
   private static final Logger LOGGER = Logger.getLogger(AdminSettingsWebAction.class);
+
+  private static final String NON_EST_ALL = "nonEstAll";
 
   private static final String NON_EST_NONE = "nonEstNone";
 
@@ -131,18 +134,20 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    */
   private List<String> projectsId;
 
-  private TimetrackerSettingsHelper settingsHelper;
+  private TimeTrackerSettingsHelper settingsHelper;
 
   private String stacktrace = "";
 
   private SupportManager supportManager;
+
+  private TimeZoneTypes timeZoneType;
 
   /**
    * Simple constructor.
    */
   public AdminSettingsWebAction(
       final SupportManager supportManager, final AnalyticsSender analyticsSender,
-      final TimetrackerSettingsHelper settingsHelper) {
+      final TimeTrackerSettingsHelper settingsHelper) {
     this.supportManager = supportManager;
     this.analyticsSender = analyticsSender;
     this.settingsHelper = settingsHelper;
@@ -234,7 +239,7 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
    */
   public String getNonEstSelect() {
     if (collectorIssuePatterns.isEmpty()) {
-      return "nonEstAll";
+      return NON_EST_ALL;
     } else if ((collectorIssuePatterns.size() == 1)
         && collectorIssuePatterns.get(0).pattern().equals(".*")) {
       return NON_EST_NONE;
@@ -249,6 +254,10 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
 
   public String getStacktrace() {
     return stacktrace;
+  }
+
+  public TimeZoneTypes getTimeZoneType() {
+    return timeZoneType;
   }
 
   private void loadIssueCollectorSrc() {
@@ -273,6 +282,7 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     excludeDates = loadGlobalSettings.getExcludeDatesAsLong();
     includeDates = loadGlobalSettings.getIncludeDatesAsLong();
     analyticsCheck = loadGlobalSettings.getAnalyticsCheck();
+    timeZoneType = loadGlobalSettings.getTimeZone();
   }
 
   private void normalizeContextPath() {
@@ -328,11 +338,18 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
     String[] excludeDatesValue = request.getParameterValues("excludedates");
     String[] includeDatesValue = request.getParameterValues("includedates");
     String analyticsCheckValue = request.getParameter("analyticsCheck");
+    String timeZoneValue = request.getParameter("selectTimeZone");
 
     if ((analyticsCheckValue != null) && "enable".equals(analyticsCheckValue)) {
       analyticsCheck = true;
     } else {
       analyticsCheck = false;
+    }
+
+    if ((timeZoneValue != null) && "selectUserTimeZone".equals(timeZoneValue)) {
+      timeZoneType = TimeZoneTypes.USER;
+    } else {
+      timeZoneType = TimeZoneTypes.SYSTEM;
     }
 
     issuesPatterns = new ArrayList<>();
@@ -373,7 +390,8 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
         .includeDates(includeDates)
         .filteredSummaryIssues(issuesPatterns)
         .collectorIssues(collectorIssuePatterns)
-        .analyticsCheck(analyticsCheck);
+        .analyticsCheck(analyticsCheck)
+        .timeZone(timeZoneType);
     settingsHelper.saveGlobalSettings(globalSettings);
     sendNonEstAndNonWorkAnaliticsEvent();
   }

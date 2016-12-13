@@ -24,7 +24,7 @@ import java.util.Properties;
 import javax.servlet.http.HttpServletRequest;
 
 import org.everit.jira.core.util.TimetrackerUtil;
-import org.everit.jira.settings.TimetrackerSettingsHelper;
+import org.everit.jira.settings.TimeTrackerSettingsHelper;
 import org.everit.jira.settings.dto.ReportingGlobalSettings;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
@@ -61,14 +61,14 @@ public class PermissionSettingsWebAction extends JiraWebActionSupport {
 
   private List<String> reportingGroups;
 
-  private TimetrackerSettingsHelper settingsHelper;
+  private TimeTrackerSettingsHelper settingsHelper;
 
   private String stacktrace = "";
 
   private List<String> timetrackerGroups;
 
   public PermissionSettingsWebAction(
-      final TimetrackerSettingsHelper settingsHelper) {
+      final TimeTrackerSettingsHelper settingsHelper) {
     this.settingsHelper = settingsHelper;
   }
 
