@@ -76,7 +76,9 @@
             <Import-Package>
               *
             </Import-Package>
-            <Export-Package />
+            <Export-Package>
+              org.everit.jira.settings;version=1.0.0
+            </Export-Package>
             <_failok>true</_failok>
             <Embed-Dependency>sal-api;gson;poi;</Embed-Dependency>
           </instructions>

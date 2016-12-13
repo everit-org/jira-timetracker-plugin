@@ -23,7 +23,7 @@ import java.util.Set;
 
 import org.everit.jira.core.TimetrackerManager;
 import org.everit.jira.core.util.TimetrackerUtil;
-import org.everit.jira.settings.TimetrackerSettingsHelper;
+import org.everit.jira.settings.TimeTrackerSettingsHelper;
 import org.everit.jira.settings.dto.TimeTrackerUserSettings;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
@@ -37,7 +37,7 @@ import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
  */
 public class TimetrackerComponent implements TimetrackerManager {
 
-  private final TimetrackerSettingsHelper settingsHelper;
+  private final TimeTrackerSettingsHelper settingsHelper;
 
   private TimeTrackingConfiguration timeTrackingConfiguration;
 
@@ -46,7 +46,7 @@ public class TimetrackerComponent implements TimetrackerManager {
    */
   public TimetrackerComponent(
       final TimeTrackingConfiguration timeTrackingConfiguration,
-      final TimetrackerSettingsHelper settingsHelper) {
+      final TimeTrackerSettingsHelper settingsHelper) {
     this.timeTrackingConfiguration = timeTrackingConfiguration;
     this.settingsHelper = settingsHelper;
   }
@@ -69,15 +69,14 @@ public class TimetrackerComponent implements TimetrackerManager {
     return (timeTrackingConfiguration.getDaysPerWeek().doubleValue() - exludeDates) + includeDates;
   }
 
+  // TODO what about the lots of convert in the fMWD method
   @Override
   public Date firstMissingWorklogsDate(final Set<Date> excludeDatesSet,
       final Set<Date> includeDatesSet) {
-    // TODO change the return type to DateTime in User TimeZone
     DateTime scannedDate = new DateTime(TimetrackerUtil.getLoggedUserTimeZone());
     // one week
     scannedDate = scannedDate.withDayOfYear(
         scannedDate.getDayOfYear() - DateTimeConverterUtil.DAYS_PER_WEEK);
-    // TODO i'm not sure this for cycle FIXME if necessary
     for (int i = 0; i < DateTimeConverterUtil.DAYS_PER_WEEK; i++) {
       // convert date to String
       Date scanedDateDate = DateTimeConverterUtil.convertDateTimeToDate(scannedDate);
@@ -111,8 +110,9 @@ public class TimetrackerComponent implements TimetrackerManager {
   }
 
   @Override
-  public List<Date> getExcludeDaysOfTheMonth(final Date date, final Set<Date> excludeDatesSet) {
-    return getExtraDaysOfTheMonth(date, excludeDatesSet);
+  public List<Date> getExcludeDaysOfTheMonth(final DateTimeServer date,
+      final Set<Date> excludeDatesSet) {
+    return getExtraDaysOfTheMonth(date.getUserTimeZoneDate(), excludeDatesSet);
   }
 
   private List<Date> getExtraDaysOfTheMonth(final Date dateForMonth, final Set<Date> extraDates) {
@@ -132,27 +132,25 @@ public class TimetrackerComponent implements TimetrackerManager {
   }
 
   @Override
-  public List<Date> getIncludeDaysOfTheMonth(final Date date, final Set<Date> includeDatesSet) {
-    return getExtraDaysOfTheMonth(date, includeDatesSet);
+  public List<Date> getIncludeDaysOfTheMonth(final DateTimeServer date,
+      final Set<Date> includeDatesSet) {
+    return getExtraDaysOfTheMonth(date.getUserTimeZoneDate(), includeDatesSet);
   }
 
   @Override
-  public List<String> getLoggedDaysOfTheMonth(final DateTime date) {
+  public List<String> getLoggedDaysOfTheMonth(final DateTimeServer date) {
     List<String> resultDays = new ArrayList<>();
     int dayOfMonth = 1;
-    DateTime startCalendar = date.withDayOfMonth(dayOfMonth);
+    int maxDayOfMonth = date.getUserTimeZone().dayOfMonth().getMaximumValue();
+    DateTimeServer startCalendar = DateTimeServer.getInstanceBasedOnUserTimeZone(
+        date.getUserTimeZone().withDayOfMonth(dayOfMonth));
 
-    int maxDayOfMonth = startCalendar.dayOfMonth().getMaximumValue();
-    // TODO FIXME
     while (dayOfMonth <= maxDayOfMonth) {
-      DateTime dayStart = DateTimeConverterUtil.setDateToDayStart(startCalendar);
-      if (TimetrackerUtil.isContainsWorklog(
-          DateTimeConverterUtil.convertDateTimeToDate(
-              DateTimeConverterUtil.convertDateZoneToSystemTimeZone(dayStart)))) {
+      if (TimetrackerUtil.isContainsWorklog(startCalendar.getSystemTimeZoneDayStartDate())) {
         resultDays.add(Integer.toString(dayOfMonth));
       }
-      // startCalendar = startCalendar.withDayOfMonth(++dayOfMonth);
-      startCalendar = startCalendar.plusDays(1);
+      DateTime plusDays = startCalendar.getUserTimeZone().plusDays(1);
+      startCalendar = DateTimeServer.getInstanceBasedOnUserTimeZone(plusDays);
       dayOfMonth++;
     }
 

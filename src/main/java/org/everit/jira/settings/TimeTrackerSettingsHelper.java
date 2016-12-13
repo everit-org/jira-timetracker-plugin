@@ -23,7 +23,7 @@ import org.everit.jira.settings.dto.TimeTrackerUserSettings;
  * The time tracker plugin configuration helper class. Provides save and load methods for the
  * configurations.
  */
-public interface TimetrackerSettingsHelper {
+public interface TimeTrackerSettingsHelper {
   /**
    * Load all timetracker global configuration from the
    * {@link com.atlassian.sal.api.pluginsettings.PluginSettings}.

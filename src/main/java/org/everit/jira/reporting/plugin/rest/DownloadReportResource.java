@@ -45,7 +45,7 @@ import org.everit.jira.reporting.plugin.export.ExcelToCsvConverter;
 import org.everit.jira.reporting.plugin.export.ExportSummariesListReport;
 import org.everit.jira.reporting.plugin.export.ExportWorklogDetailsListReport;
 import org.everit.jira.reporting.plugin.util.ConverterUtil;
-import org.everit.jira.settings.TimetrackerSettingsHelper;
+import org.everit.jira.settings.TimeTrackerSettingsHelper;
 
 import com.google.gson.Gson;
 
@@ -65,13 +65,13 @@ public class DownloadReportResource {
 
   private final QuerydslSupport querydslSupport;
 
-  private TimetrackerSettingsHelper settingsHelper;
+  private TimeTrackerSettingsHelper settingsHelper;
 
   /**
    * Simple constructor.
    */
   public DownloadReportResource(final AnalyticsSender analyticsSender,
-      final TimetrackerSettingsHelper settingsHelper) {
+      final TimeTrackerSettingsHelper settingsHelper) {
     pluginId = settingsHelper.loadGlobalSettings().getPluginUUID();
     this.analyticsSender = analyticsSender;
     this.settingsHelper = settingsHelper;

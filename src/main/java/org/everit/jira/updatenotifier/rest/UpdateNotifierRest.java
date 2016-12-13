@@ -21,7 +21,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.everit.jira.settings.TimetrackerSettingsHelper;
+import org.everit.jira.settings.TimeTrackerSettingsHelper;
 import org.everit.jira.updatenotifier.UpdateNotifier;
 
 /**
@@ -30,9 +30,9 @@ import org.everit.jira.updatenotifier.UpdateNotifier;
 @Path("/update-notifier")
 public class UpdateNotifierRest {
 
-  private TimetrackerSettingsHelper settingsHelper;
+  private TimeTrackerSettingsHelper settingsHelper;
 
-  public UpdateNotifierRest(final TimetrackerSettingsHelper settingsHelper) {
+  public UpdateNotifierRest(final TimeTrackerSettingsHelper settingsHelper) {
     this.settingsHelper = settingsHelper;
   }
 

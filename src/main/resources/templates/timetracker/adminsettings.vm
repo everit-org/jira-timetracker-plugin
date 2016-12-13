@@ -54,7 +54,7 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.plug
       <div class="aui-page-header-image">
          <span class="aui-avatar aui-avatar-large">
            <span class="aui-avatar-inner">
-             <a href="http://www.everit.biz/index.php?nyelv=en" target="_blank">
+             <a href="http://www.everit.biz/solutions-for-atlassian-jira/index_en" target="_blank">
                <div class="everit_logo" alt="Everit TimeTracker logo"></div>
              </a>
            </span>
@@ -195,6 +195,17 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.plug
         class="aui-button aui-button-primary jttpDataPickerAddButton" onclick="everit.jttp.admin.addIncludeDate(this)"
         data-jttp-error-msg="$i18n.getText('plugin.setting.date.already.exists')"/>
       <div class="description">$i18n.getText("plugin.setting.include.dates.help")</div>
+    </div>
+    
+    <div class="field-group">
+      <label>$i18n.getText("plugin.settings.timezone")</label>
+      <div style="padding-top: 5px;">
+        <input id="selectUserTimeZone" type="radio" name="selectTimeZone" value="selectUserTimeZone" #if($timeZoneType.value == "user") checked #end/>
+        $i18n.getText("plugin.settings.timezone.radiobutton.user")
+        <input id="selectSystemTimeZone" type="radio" name="selectTimeZone" value="selectSystemTimeZone" #if($timeZoneType.value == "system")  checked #end/>
+        $i18n.getText("plugin.settings.timezone.radiobutton.system")
+      </div>
+      <div class="description">$i18n.getText("plugin.settings.timezone.help")</div>
     </div>
     
     <div class="field-group">

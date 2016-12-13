@@ -171,8 +171,8 @@ public class WorklogUtilTest {
     // has project to user.
     List<EntityCondition> test0UserConditions =
         WorklogUtil.createWorklogQueryExprListWithPermissionCheck(test0User,
-            startDate,
-            endDate);
+            startDate.getTimeInMillis(),
+            endDate.getTimeInMillis());
 
     EntityExpr ecAuthor = (EntityExpr) test0UserConditions.get(0);
     assertEntityExpression(ecAuthor, "author",
@@ -194,8 +194,8 @@ public class WorklogUtilTest {
     // no projects to user.
     List<EntityCondition> noProjectUserConditions =
         WorklogUtil.createWorklogQueryExprListWithPermissionCheck(noProjectUser,
-            startDate,
-            endDate);
+            startDate.getTimeInMillis(),
+            endDate.getTimeInMillis());
 
     ecAuthor = (EntityExpr) noProjectUserConditions.get(0);
     assertEntityExpression(ecAuthor, "author",
@@ -227,8 +227,8 @@ public class WorklogUtilTest {
     List<EntityCondition> test0UserConditions =
         WorklogUtil.createWorklogQueryExprListWithPermissionCheck("test",
             test0User,
-            startDate,
-            endDate);
+            startDate.getTimeInMillis(),
+            endDate.getTimeInMillis());
 
     EntityExpr ecAuthor = (EntityExpr) test0UserConditions.get(0);
     assertEntityExpression(ecAuthor, "author",
@@ -251,8 +251,8 @@ public class WorklogUtilTest {
     List<EntityCondition> noProjectUserConditions =
         WorklogUtil.createWorklogQueryExprListWithPermissionCheck("test",
             noProjectUser,
-            startDate,
-            endDate);
+            startDate.getTimeInMillis(),
+            endDate.getTimeInMillis());
 
     ecAuthor = (EntityExpr) noProjectUserConditions.get(0);
     assertEntityExpression(ecAuthor, "author",
@@ -274,8 +274,8 @@ public class WorklogUtilTest {
     // has project to user but no add selected user.
     List<EntityCondition> test0UserConditionsNullSelectedUser =
         WorklogUtil.createWorklogQueryExprListWithPermissionCheck(null, test0User,
-            startDate,
-            endDate);
+            startDate.getTimeInMillis(),
+            endDate.getTimeInMillis());
 
     ecAuthor = (EntityExpr) test0UserConditionsNullSelectedUser.get(0);
     assertEntityExpression(ecAuthor, "author",
@@ -298,8 +298,8 @@ public class WorklogUtilTest {
     // has project to user but no add selected user.
     List<EntityCondition> test0UserConditionsEmptySelectedUser =
         WorklogUtil.createWorklogQueryExprListWithPermissionCheck("", test0User,
-            startDate,
-            endDate);
+            startDate.getTimeInMillis(),
+            endDate.getTimeInMillis());
 
     ecAuthor = (EntityExpr) test0UserConditionsEmptySelectedUser.get(0);
     assertEntityExpression(ecAuthor, "author",

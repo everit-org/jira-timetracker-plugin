@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.everit.jira.analytics.AnalyticsDTO;
 import org.everit.jira.core.util.TimetrackerUtil;
 import org.everit.jira.reporting.plugin.ReportingCondition;
-import org.everit.jira.settings.TimetrackerSettingsHelper;
+import org.everit.jira.settings.TimeTrackerSettingsHelper;
 import org.everit.jira.settings.dto.TimeTrackerUserSettings;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.PluginCondition;
@@ -67,7 +67,7 @@ public class ReportingUserSettingsWebAction extends JiraWebActionSupport {
 
   private ReportingCondition reportingCondition;
 
-  private TimetrackerSettingsHelper settingsHelper;
+  private TimeTrackerSettingsHelper settingsHelper;
 
   private String stacktrace = "";
 
@@ -82,7 +82,7 @@ public class ReportingUserSettingsWebAction extends JiraWebActionSupport {
    *          the settings helper.
    */
   public ReportingUserSettingsWebAction(
-      final TimetrackerSettingsHelper settingsHelper) {
+      final TimeTrackerSettingsHelper settingsHelper) {
     reportingCondition = new ReportingCondition(settingsHelper);
     pluginCondition = new PluginCondition(settingsHelper);
     this.settingsHelper = settingsHelper;
