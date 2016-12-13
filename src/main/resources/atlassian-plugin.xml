@@ -275,7 +275,8 @@
         <view name="input">/templates/timetracker/user_settings.vm</view>
         <view name="error">/templates/common/error.vm</view>
       </action>
-      <action name="org.everit.jira.timetracker.plugin.web.AdminSettingsWebAction" alias="TimetrackerAdminSettingsWebAction">
+      <action name="org.everit.jira.timetracker.plugin.web.AdminSettingsWebAction" 
+        alias="TimetrackerAdminSettingsWebAction" roles-required="admin">
         <view name="success">/templates/timetracker/adminsettings.vm</view>
         <view name="input">/templates/timetracker/adminsettings.vm</view>
         <view name="error">/templates/common/error.vm</view>
@@ -311,7 +312,7 @@
         <view name="error">/templates/common/error.vm</view>
       </action>
       <action name="org.everit.jira.timetracker.plugin.web.PermissionSettingsWebAction"
-        alias="TimetrackerPermissionSettingsWebAction">
+        alias="TimetrackerPermissionSettingsWebAction" roles-required="admin">
         <view name="success">/templates/timetracker/permission_settings.vm</view>
         <view name="input">/templates/timetracker/permission_settings.vm</view>
         <view name="error">/templates/common/error.vm</view>
