@@ -205,7 +205,7 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.plug
         <input id="selectSystemTimeZone" type="radio" name="selectTimeZone" value="selectSystemTimeZone" #if($timeZoneType.value == "system")  checked #end/>
         $i18n.getText("plugin.settings.timezone.radiobutton.system")
       </div>
-      <div id="reveal-text-content" class="description aui-expander-content">$i18n.getText("plugin.settings.timezone.help")</div>
+      <div class="description">$i18n.getText("plugin.settings.timezone.help")</div>
     </div>
     
     <div class="field-group">
