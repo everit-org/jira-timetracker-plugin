@@ -140,19 +140,6 @@ public class TimeTrackerUserSettings {
   }
 
   /**
-   * Get the settings value of show issue summary column visible or not. Default is false.
-   */
-  public boolean getIsShowIssueSummary() {
-    boolean isShowIssueSummary = false;
-    if ("true".equals(
-        pluginSettingsKeyValues.get(
-            UserSettingKey.SHOW_ISSUE_SUMMARY_IN_WORKLOG_TABLE))) {
-      isShowIssueSummary = true;
-    }
-    return isShowIssueSummary;
-  }
-
-  /**
    * Get the user saved show tutorial value.
    *
    * @return The saved value from settings.
@@ -340,6 +327,19 @@ public class TimeTrackerUserSettings {
     pluginSettingsKeyValues.put(UserSettingKey.SHOW_FUTURE_LOG_WARNING,
         String.valueOf(isShowFutureLogWarning));
     return this;
+  }
+
+  /**
+   * Get the settings value of show issue summary column visible or not. Default is false.
+   */
+  public boolean isShowIssueSummary() {
+    boolean isShowIssueSummary = false;
+    if ("true".equals(
+        pluginSettingsKeyValues.get(
+            UserSettingKey.SHOW_ISSUE_SUMMARY_IN_WORKLOG_TABLE))) {
+      isShowIssueSummary = true;
+    }
+    return isShowIssueSummary;
   }
 
   /**
