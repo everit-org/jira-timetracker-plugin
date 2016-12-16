@@ -22,7 +22,7 @@
   
   
  .tab1-img{
-   background-image: url(issuesum.png);
+   background-image: url(timezone.png);
    background-position-x: 90%;
    background-position-y: 10%;
    background-size: 85%;
@@ -32,7 +32,7 @@
  }
  
  .tab2-img{
-   background-image: url(newtime.png);
+   background-image: url(remain.png);
    background-position-x: 90%;
    background-position-y: 10%;
    background-size: 85%;
@@ -41,27 +41,7 @@
  }
  
  .tab3-img{
-   background-image: url(exportformat.png);
-   background-position-x: 90%;
-   background-position-y: 10%;
-   background-size: 85%;
-   background-repeat-x: no-repeat;
-   background-repeat-y: no-repeat;
-   
- }
- 
- .tab4-img{
-   background-image: url(csvexport.png);
-   background-position-x: 90%;
-   background-position-y: 10%;
-   background-size: 85%;
-   background-repeat-x: no-repeat;
-   background-repeat-y: no-repeat;
-   
- }
- 
- .tab5-img{
-   background-image: url(future.png);
+   background-image: url(additional.png);
    background-position-x: 90%;
    background-position-y: 10%;
    background-size: 85%;

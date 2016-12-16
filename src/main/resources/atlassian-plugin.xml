@@ -100,18 +100,18 @@
     <condition class="org.everit.jira.reporting.plugin.ReportingCondition" />
   </web-item>
 
-  <web-item key="jttp_documentation_link" name="JTTP Documentaion Link" section="jttp_menu/jttp_doc_section"
-    weight="47">
-    <label>Help</label>
-    <link linkId="jttp_doc_link">https://confluence.everit.biz/display/TD/Timetracker+Documentation</link>
-    <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserLoggedInCondition" />
-  </web-item>
-
   <web-item key="jttp_admin_link" name="JTTP Administration Link" section="jttp_menu/jttp_doc_section"
     weight="47">
     <label>Administration</label>
     <link linkId="jttp_admin_link"><![CDATA[/secure/admin/TimetrackerAdminSettingsWebAction!default.jspa]]></link>
     <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition" />
+  </web-item>
+
+   <web-item key="jttp_documentation_link" name="JTTP Documentaion Link" section="jttp_menu/jttp_doc_section"
+    weight="47">
+    <label>Help</label>
+    <link linkId="jttp_doc_link">https://confluence.everit.biz/display/TD/Timetracker+Documentation</link>
+    <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserLoggedInCondition" />
   </web-item>
 
    <web-item key="jttp_aboutus_link" name="JTTP About US Link" section="jttp_menu/jttp_doc_section"
@@ -183,19 +183,13 @@
     <resource type="download" name="E_logo.png" location="/icons/E_logo.png">
       <param name="content-type" value="image/png" />
     </resource>
-    <resource type="download" name="csvexport.png" location="/images/csvexport.png">
+    <resource type="download" name="additional.png" location="/images/additional.png">
       <param name="content-type" value="image/png" />
     </resource>
-    <resource type="download" name="exportformat.png" location="/images/exportformat.png">
+    <resource type="download" name="remain.png" location="/images/remain.png">
       <param name="content-type" value="image/png" />
     </resource>
-    <resource type="download" name="future.png" location="/images/future.png">
-      <param name="content-type" value="image/png" />
-    </resource>
-    <resource type="download" name="issuesum.png" location="/images/issuesum.png">
-      <param name="content-type" value="image/png" />
-    </resource>
-    <resource type="download" name="newtime.png" location="/images/newtime.png">
+    <resource type="download" name="timezone.png" location="/images/timezone.png">
       <param name="content-type" value="image/png" />
     </resource>
     <resource type="download" name="reporting.css" location="/css/reporting.css" />
