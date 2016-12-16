@@ -35,6 +35,7 @@ import org.mockito.Matchers;
 import org.mockito.Mockito;
 
 import com.atlassian.jira.mock.component.MockComponentWorker;
+import com.atlassian.jira.project.Project;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.PermissionManager;
 import com.atlassian.jira.security.Permissions;
@@ -60,7 +61,7 @@ public class GetExtraDaysOfTheMonthTest {
     Mockito.when(
         permissionManager.getProjects(Matchers.eq(Permissions.BROWSE),
             Matchers.any(ApplicationUser.class)))
-        .thenReturn(new ArrayList<>());
+        .thenReturn(new ArrayList<Project>());
     mockComponentWorker.addMock(PermissionManager.class, permissionManager);
 
     JiraAuthenticationContext jiraAuthenticationContext =
