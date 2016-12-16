@@ -302,7 +302,7 @@ public class TimeTrackerSettingsHelperImpl
     checkAnalyticsForProgressIndicator(pluginSettings,
         userSettings.getUserSettingValue(UserSettingKey.PROGRESS_INDICATOR));
     checkAnalyticsForShowFutureLogWarning(pluginSettings, userSettings.isShowFutureLogWarning());
-    checkAnalyticsForShowIssueSummary(pluginSettings, userSettings.getIsShowIssueSummary());
+    checkAnalyticsForShowIssueSummary(pluginSettings, userSettings.isShowIssueSummary());
     checkAnalyticsForActiveFieldDuration(pluginSettings, userSettings.isActiveFieldDuration());
     checkAnalyticsForShowRemaningEstimate(pluginSettings, userSettings.isShowRemaningEstimate());
     for (Entry<UserSettingKey, String> settingEntry : userSettings.getPluginSettingsKeyValues()

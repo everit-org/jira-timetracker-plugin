@@ -269,7 +269,7 @@ public class JiraTimetrackerUserSettingsWebAction extends JiraWebActionSupport {
     isShowFutureLogWarning =
         loaduserSettings.isShowFutureLogWarning();
     isShowIssueSummary =
-        loaduserSettings.getIsShowIssueSummary();
+        loaduserSettings.isShowIssueSummary();
     startTime = loaduserSettings.getStartTimeChange();
     activeFieldDuration = loaduserSettings.isActiveFieldDuration();
     defaultStartTime = loaduserSettings.getDefaultStartTime();
