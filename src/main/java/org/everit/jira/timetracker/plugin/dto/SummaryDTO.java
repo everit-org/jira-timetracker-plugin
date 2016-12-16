@@ -185,20 +185,10 @@ public final class SummaryDTO {
       return realWorkDaysInWeek * expectedWorkSecondsInDay;
     }
 
-    // TODO supportManager summary have to change to DTS??
     private void calculateFilteredAndNotFilteredSummarySeconds(final DateTimeServer date,
         final List<Pattern> issuesRegex) {
-      // .getUserTimeZone()
-
-      // TODO joda first day? is setable?
       Calendar startCalendar = createNewCalendarWithWeekStart();
-      // startCalendar.setTime(DateTimeConverterUtil.convertDateTimeToDate(date));
-      // TODO remove not used code
       startCalendar.setTime(date.getUserTimeZoneDayStartDate());
-      // startCalendar.set(Calendar.HOUR_OF_DAY, 0);
-      // startCalendar.set(Calendar.MINUTE, 0);
-      // startCalendar.set(Calendar.SECOND, 0);
-      // startCalendar.set(Calendar.MILLISECOND, 0);
 
       Calendar originalStartcalendar = (Calendar) startCalendar.clone();
       DateTime start = new DateTime(startCalendar.getTimeInMillis());
@@ -365,16 +355,50 @@ public final class SummaryDTO {
 
       double dailyPercent = calculateDailyPercent(daySummaryInSeconds, hoursPerDay);
 
-      double dayFilteredRealWorkIndicatorPrecent =
-          (dayFilteredSummaryInSecond / dayExpectedWorkSeconds) * HUNDRED;
+      double dayFilteredRealWorkIndicatorPrecent = 1;
+      double dayFilteredNonWorkIndicatorPrecent = 1;
+      String dayFilteredSummary = "";
+      String formattedNonWorkTimeInDay = "";
+      double weekFilteredRealWorkIndicatorPrecent = 1;
+      double weekFilteredNonWorkIndicatorPrecent = 1;
+      String weekFilteredSummary = "";
+      String formattedNonWorkTimeInWeek = "";
+      double monthFilteredRealWorkIndicatorPrecent = 1;
+      double monthFilteredNonWorkIndicatorPrecent = 1;
+      String monthFilteredSummary = "";
+      String formattedNonWorkTimeInMonth = "";
 
-      double dayFilteredNonWorkIndicatorPrecent =
-          calculateDayFilteredNonWorkIndicatorPrecent(dayFilteredRealWorkIndicatorPrecent,
-              dayFilteredSummaryInSecond, daySummaryInSeconds, dayExpectedWorkSeconds);
+      if (isIssuePatternsNotEmpty()) {
+        dayFilteredRealWorkIndicatorPrecent =
+            (dayFilteredSummaryInSecond / dayExpectedWorkSeconds) * HUNDRED;
+        dayFilteredNonWorkIndicatorPrecent =
+            calculateDayFilteredNonWorkIndicatorPrecent(dayFilteredRealWorkIndicatorPrecent,
+                dayFilteredSummaryInSecond, daySummaryInSeconds, dayExpectedWorkSeconds);
+        dayFilteredSummary = format(dayFilteredSummaryInSecond);
+        formattedNonWorkTimeInDay =
+            calculateFormattedNonWorkTimeInDay(dayFilteredSummaryInSecond, daySummaryInSeconds);
+
+        weekFilteredRealWorkIndicatorPrecent =
+            (weekFilteredSummaryInSecond / weekExpectedWorkSeconds) * HUNDRED;
+        weekFilteredNonWorkIndicatorPrecent =
+            calculateWeekFilteredNonWorkIndicatorPrecent(weekFilteredRealWorkIndicatorPrecent,
+                weekFilteredSummaryInSecond, weekSummaryInSecond, weekExpectedWorkSeconds);
+        weekFilteredSummary = format(weekFilteredSummaryInSecond);
+        formattedNonWorkTimeInWeek =
+            calculateFormattedNonWorkTimeInWeek(weekFilteredSummaryInSecond, weekSummaryInSecond);
+
+        monthFilteredRealWorkIndicatorPrecent =
+            (monthFilteredSummaryInSecond / monthExpectedWorkSeconds) * HUNDRED;
+        monthFilteredNonWorkIndicatorPrecent =
+            calculateMonthFilteredNonWorkIndicatorPrecent(monthFilteredRealWorkIndicatorPrecent,
+                monthFilteredSummaryInSecond, monthSummaryInSecounds, monthExpectedWorkSeconds);
+        monthFilteredSummary = format(monthFilteredSummaryInSecond);
+        formattedNonWorkTimeInMonth = calculateFormattedNonWorkTimeInMonth(
+            monthFilteredSummaryInSecond, monthSummaryInSecounds);
+
+      }
 
       double dayFilteredPercent = daySummaryInSeconds / dayExpectedWorkSeconds;
-
-      String dayFilteredSummary = format(dayFilteredSummaryInSecond);
 
       double dayIndicatorPrecent = (daySummaryInSeconds / dayExpectedWorkSeconds) * HUNDRED;
 
@@ -386,41 +410,14 @@ public final class SummaryDTO {
 
       String formattedExpectedWorkTimeInMonth = format((long) monthExpectedWorkSeconds);
 
-      String formattedNonWorkTimeInDay =
-          calculateFormattedNonWorkTimeInDay(dayFilteredSummaryInSecond, daySummaryInSeconds);
-
-      String formattedNonWorkTimeInWeek =
-          calculateFormattedNonWorkTimeInWeek(weekFilteredSummaryInSecond, weekSummaryInSecond);
-
-      String formattedNonWorkTimeInMonth = calculateFormattedNonWorkTimeInMonth(
-          monthFilteredSummaryInSecond, monthSummaryInSecounds);
-
-      double monthFilteredRealWorkIndicatorPrecent =
-          (monthFilteredSummaryInSecond / monthExpectedWorkSeconds) * HUNDRED;
-
-      double monthFilteredNonWorkIndicatorPrecent =
-          calculateMonthFilteredNonWorkIndicatorPrecent(monthFilteredRealWorkIndicatorPrecent,
-              monthFilteredSummaryInSecond, monthSummaryInSecounds, monthExpectedWorkSeconds);
-
       double monthFilteredPercent = monthSummaryInSecounds / monthExpectedWorkSeconds;
-
-      String monthFilteredSummary = format(monthFilteredSummaryInSecond);
 
       double monthIndicatorPrecent =
           (monthSummaryInSecounds / monthExpectedWorkSeconds) * HUNDRED;
 
       String monthSummary = format(monthSummaryInSecounds);
 
-      double weekFilteredRealWorkIndicatorPrecent =
-          (weekFilteredSummaryInSecond / weekExpectedWorkSeconds) * HUNDRED;
-
-      double weekFilteredNonWorkIndicatorPrecent =
-          calculateWeekFilteredNonWorkIndicatorPrecent(weekFilteredRealWorkIndicatorPrecent,
-              weekFilteredSummaryInSecond, weekSummaryInSecond, weekExpectedWorkSeconds);
-
       double weekFilteredPercent = weekSummaryInSecond / weekExpectedWorkSeconds;
-
-      String weekFilteredSummary = format(weekFilteredSummaryInSecond);
 
       double weekIndicatorPrecent = (weekSummaryInSecond / weekExpectedWorkSeconds) * HUNDRED;
 

@@ -24,6 +24,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.everit.jira.core.impl.DateTimeServer;
 import org.everit.jira.core.util.TimetrackerUtil;
 import org.everit.jira.reporting.plugin.SearcherValue;
 import org.everit.jira.reporting.plugin.dto.ConvertedSearchParam;
@@ -34,8 +35,6 @@ import org.everit.jira.reporting.plugin.dto.PickerUserDTO;
 import org.everit.jira.reporting.plugin.dto.PickerVersionDTO;
 import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
 import org.everit.jira.settings.TimeTrackerSettingsHelper;
-import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
-import org.joda.time.DateTime;
 
 import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jira.bc.JiraServiceContext;
@@ -249,16 +248,22 @@ public final class ConverterUtil {
     }
 
     // TODO issueCreated?
-    DateTime worklogEndDate = new DateTime(filterCondition.getWorklogEndDate());
-    worklogEndDate = DateTimeConverterUtil.setDateToDayStart(worklogEndDate);
-    worklogEndDate = worklogEndDate.plusDays(1);
-    // TODO check DTS?
-    worklogEndDate = DateTimeConverterUtil.convertDateZoneToUserTimeZone(worklogEndDate);
+    DateTimeServer worklogEndDate =
+        DateTimeServer.getInstanceBasedOnUserTimeZone(filterCondition.getWorklogEndDate());
+    worklogEndDate =
+        DateTimeServer.getInstanceBasedOnUserTimeZone(worklogEndDate.getUserTimeZone().plusDays(1));
 
-    DateTime worklogStartDate = new DateTime(filterCondition.getWorklogStartDate());
-    worklogStartDate = DateTimeConverterUtil.setDateToDayStart(worklogStartDate);
+    // DateTime worklogEndDate = new DateTime(filterCondition.getWorklogEndDate());
+    // worklogEndDate = DateTimeConverterUtil.setDateToDayStart(worklogEndDate);
+    // worklogEndDate = worklogEndDate.plusDays(1);
     // TODO check DTS?
-    worklogStartDate = DateTimeConverterUtil.convertDateZoneToUserTimeZone(worklogStartDate);
+    // worklogEndDate = DateTimeConverterUtil.convertDateZoneToUserTimeZone(worklogEndDate);
+
+    DateTimeServer worklogStartDate =
+        DateTimeServer.getInstanceBasedOnUserTimeZone(filterCondition.getWorklogStartDate());
+    // worklogStartDate = DateTimeConverterUtil.setDateToDayStart(worklogStartDate);
+    // TODO check DTS?
+    // worklogStartDate = DateTimeConverterUtil.convertDateZoneToUserTimeZone(worklogStartDate);
 
     ReportSearchParam reportSearchParam = new ReportSearchParam();
     List<String> searchParamIssueKeys;
@@ -281,9 +286,8 @@ public final class ConverterUtil {
       notBrowsableProjectKeys =
           ConverterUtil.appendProjectIds(reportSearchParam, filterCondition.getProjectIds());
     }
-
-    reportSearchParam.worklogEndDate(DateTimeConverterUtil.convertDateTimeToDate(worklogEndDate))
-        .worklogStartDate(DateTimeConverterUtil.convertDateTimeToDate(worklogStartDate))
+    reportSearchParam.worklogEndDate(worklogEndDate.getSystemTimeZoneDayStartDate())
+        .worklogStartDate(worklogStartDate.getSystemTimeZoneDayStartDate())
         .issueKeys(searchParamIssueKeys);
 
     if (!reportSearchParam.worklogStartDate.before(reportSearchParam.worklogEndDate)) {
@@ -377,12 +381,12 @@ public final class ConverterUtil {
         .asc("ASC".equals(order));
   }
 
-  private static Date getDate(final Long date) {
-    if (date == null) {
-      return null;
-    }
-    return new Date(date);
-  }
+  // private static Date getDate(final Long date) {
+  // if (date == null) {
+  // return null;
+  // }
+  // return new Date(date);
+  // }
 
   private static List<String> getIssueKeysFromFilterSearcerValue(
       final FilterCondition filterCondition) throws SearchException, JqlParseException {
@@ -441,8 +445,13 @@ public final class ConverterUtil {
 
   private static void setBasicSearcherValuesParams(final FilterCondition filterCondition,
       final ReportSearchParam reportSearchParam) {
-    // TODO issueCreated UTZ convert????
-    reportSearchParam.issueCreateDate(ConverterUtil.getDate(filterCondition.getIssueCreateDate()))
+    Date issueCreated = null;
+    if (filterCondition.getIssueCreateDate() != null) {
+      DateTimeServer issueCreatedDateTimeServer =
+          DateTimeServer.getInstanceBasedOnUserTimeZone(filterCondition.getIssueCreateDate());
+      issueCreated = issueCreatedDateTimeServer.getSystemTimeZoneDate();
+    }
+    reportSearchParam.issueCreateDate(issueCreated)
         .issueEpicLinkIssueIds(filterCondition.getIssueEpicLinkIssueIds())
         .issuePriorityIds(filterCondition.getIssuePriorityIds())
         .issueStatusIds(filterCondition.getIssueStatusIds())
