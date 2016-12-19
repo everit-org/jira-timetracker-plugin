@@ -18,7 +18,7 @@ package org.everit.jira.reporting.plugin.dto;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
+import org.everit.jira.core.util.TimetrackerUtil;
 
 /**
  * Representation of version to picker.
@@ -48,7 +48,7 @@ public class PickerVersionDTO {
    */
   public static PickerVersionDTO createNoVersion() {
     PickerVersionDTO noversion = new PickerVersionDTO();
-    noversion.setName(JiraTimetrackerUtil.getI18nText(NO_VERSION));
+    noversion.setName(TimetrackerUtil.getI18nText(NO_VERSION));
     return noversion;
   }
 
@@ -57,7 +57,7 @@ public class PickerVersionDTO {
    */
   public static PickerVersionDTO createReleasedVersion() {
     PickerVersionDTO releasedVersion = new PickerVersionDTO();
-    releasedVersion.setName(JiraTimetrackerUtil.getI18nText(RELEASED_VERSION));
+    releasedVersion.setName(TimetrackerUtil.getI18nText(RELEASED_VERSION));
     return releasedVersion;
   }
 
@@ -66,7 +66,7 @@ public class PickerVersionDTO {
    */
   public static PickerVersionDTO createUnReleasedVersion() {
     PickerVersionDTO unreleasedVersion = new PickerVersionDTO();
-    unreleasedVersion.setName(JiraTimetrackerUtil.getI18nText(UNRELEASED_VERSION));
+    unreleasedVersion.setName(TimetrackerUtil.getI18nText(UNRELEASED_VERSION));
     return unreleasedVersion;
   }
 

@@ -23,14 +23,14 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.everit.jira.analytics.AnalyticsDTO;
+import org.everit.jira.settings.TimeTrackerSettingsHelper;
+import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
 import org.everit.jira.timetracker.plugin.util.HashUtil;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.util.BuildUtilsInfo;
-import com.atlassian.sal.api.pluginsettings.PluginSettings;
-import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
 /**
  * The Jira Timetracker plugin analytics class.
@@ -51,44 +51,25 @@ public final class JiraTimetrackerAnalytics {
   private static final String USER_ID = "org.everit.jira.timetracker.plugin.user.id.hash";
 
   /**
-   * Gets analytics check value.
-   *
-   * @param globalSettings
-   *          the global {@link PluginSettings} instance.
-   * @return the analytics check value.
-   */
-  public static boolean getAnalyticsCheck(final PluginSettings globalSettings) {
-    boolean analyticsCheckValue = true;
-    if ("false".equals(globalSettings.get(
-        GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
-            + GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_ANALYTICS_CHECK_CHANGE))) {
-      analyticsCheckValue = false;
-    }
-    return analyticsCheckValue;
-  }
-
-  /**
    * Gets {@link AnalyticsDTO} that contains all required detail to collect usage.
    *
-   * @param pluginSettingsFactory
-   *          the {@link PluginSettingsFactory} instance.
    * @param siteIdPropertyKey
    *          the site id property key.
    * @return the {@link AnalyticsDTO} object.
    */
-  public static AnalyticsDTO getAnalyticsDTO(final PluginSettingsFactory pluginSettingsFactory,
-      final String siteIdPropertyKey) {
+  public static AnalyticsDTO getAnalyticsDTO(final String siteIdPropertyKey,
+      final TimeTrackerSettingsHelper settingsHelper) {
     Properties jttpBuildProperties = PropertiesUtil.getJttpBuildProperties();
 
     String piwikHost =
         JiraTimetrackerAnalytics.getProperty(jttpBuildProperties, PiwikPropertiesUtil.PIWIK_HOST);
     String siteId = JiraTimetrackerAnalytics.getProperty(jttpBuildProperties, siteIdPropertyKey);
 
-    PluginSettings globalSettings = pluginSettingsFactory.createGlobalSettings();
+    TimeTrackerGlobalSettings loadGlobalSettings = settingsHelper.loadGlobalSettings();
     return new AnalyticsDTO()
-        .analyticsCheck(JiraTimetrackerAnalytics.getAnalyticsCheck(globalSettings))
+        .analyticsCheck(loadGlobalSettings.getAnalyticsCheck())
         .baseUrl(JiraTimetrackerAnalytics.getBaseUrl())
-        .installedPluginId(JiraTimetrackerAnalytics.getPluginUUID(globalSettings))
+        .installedPluginId(loadGlobalSettings.getPluginUUID())
         .jiraVersion(JiraTimetrackerAnalytics.getJiraVersionFromBuildUtilsInfo())
         .piwikHost(piwikHost)
         .piwikSiteId(siteId)
@@ -126,18 +107,6 @@ public final class JiraTimetrackerAnalytics {
   }
 
   /**
-   * Gets plugin UUID.
-   *
-   * @param globalSettings
-   *          the global {@link PluginSettings} instance.
-   * @return the plugin UUID.
-   */
-  public static String getPluginUUID(final PluginSettings globalSettings) {
-    return (String) globalSettings.get(GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX
-        + GlobalSettingsKey.JTTP_PLUGIN_UUID);
-  }
-
-  /**
    * Get the version of the plugin.
    *
    * @return The version.
@@ -163,7 +132,7 @@ public final class JiraTimetrackerAnalytics {
     String userId;
     try {
       userId = HashUtil.encryptString(ComponentAccessor
-          .getJiraAuthenticationContext().getUser().getKey());
+          .getJiraAuthenticationContext().getLoggedInUser().getKey());
     } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
       log.error("Error when try to hash the user ID.", e);
       return ERROR_USER_ID_HASH;

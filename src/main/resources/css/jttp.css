@@ -212,6 +212,10 @@ td.jttp-worklog-no-remaining {
 #jttp-worklog-table tbody tr:hover {
   background-color: #f5f5f5;
 }
+.operation-table tbody tr,
+.operation-table tbody tr:hover{
+  background-color: transparent!important;
+}
 
 table.aui>thead>tr>th {
   color: #707070;
@@ -281,7 +285,7 @@ div#jttp-logwork-time {
 
 div#jttp-logwork-time > div.field-group {
   width: auto;
-  margin-right: 3.3rem;
+  margin-right: 53px;
 }
 
 div#jttp-logwork-time > div.field-group > input.text{

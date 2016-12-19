@@ -20,7 +20,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
 
-import org.everit.jira.timetracker.plugin.GlobalSettingsKey;
+import org.everit.jira.settings.dto.JTTPSettingsKey;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 
 import com.atlassian.jira.component.ComponentAccessor;
@@ -102,9 +102,9 @@ public class SurveyDialogWebAction extends JiraWebActionSupport {
   private PluginSettings getUserPluginSettigns() {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
-    ApplicationUser user = authenticationContext.getUser();
+    ApplicationUser user = authenticationContext.getLoggedInUser();
     return pluginSettingsFactory.createSettingsForKey(
-        GlobalSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX + user.getName());
+        JTTPSettingsKey.JTTP_PLUGIN_SETTINGS_KEY_PREFIX + user.getName());
   }
 
   private void readObject(final java.io.ObjectInputStream stream) throws IOException,

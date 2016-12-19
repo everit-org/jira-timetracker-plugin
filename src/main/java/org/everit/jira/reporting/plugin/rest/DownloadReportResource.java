@@ -36,7 +36,6 @@ import org.everit.jira.analytics.event.ExportWorklogDetailsReportEvent;
 import org.everit.jira.analytics.event.ExportWorklogDetailsReportEvent.WorkLogDetailsExportFormat;
 import org.everit.jira.querydsl.support.QuerydslSupport;
 import org.everit.jira.querydsl.support.ri.QuerydslSupportImpl;
-import org.everit.jira.reporting.plugin.ReportingPlugin;
 import org.everit.jira.reporting.plugin.column.WorklogDetailsColumns;
 import org.everit.jira.reporting.plugin.dto.ConvertedSearchParam;
 import org.everit.jira.reporting.plugin.dto.DownloadWorklogDetailsParam;
@@ -46,11 +45,8 @@ import org.everit.jira.reporting.plugin.export.ExcelToCsvConverter;
 import org.everit.jira.reporting.plugin.export.ExportSummariesListReport;
 import org.everit.jira.reporting.plugin.export.ExportWorklogDetailsListReport;
 import org.everit.jira.reporting.plugin.util.ConverterUtil;
-import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
-import org.everit.jira.timetracker.plugin.UserReportingSettingsHelper;
-import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
+import org.everit.jira.settings.TimeTrackerSettingsHelper;
 
-import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.google.gson.Gson;
 
 /**
@@ -69,20 +65,16 @@ public class DownloadReportResource {
 
   private final QuerydslSupport querydslSupport;
 
-  private ReportingPlugin reportingPlugin;
-
-  private UserReportingSettingsHelper userReportingSettingsHelper;
+  private TimeTrackerSettingsHelper settingsHelper;
 
   /**
    * Simple constructor.
    */
-  public DownloadReportResource(final PluginSettingsFactory pluginSettingsFactory,
-      final AnalyticsSender analyticsSender, final ReportingPlugin reportingPlugin) {
-    pluginId = JiraTimetrackerAnalytics.getPluginUUID(pluginSettingsFactory.createGlobalSettings());
+  public DownloadReportResource(final AnalyticsSender analyticsSender,
+      final TimeTrackerSettingsHelper settingsHelper) {
+    pluginId = settingsHelper.loadGlobalSettings().getPluginUUID();
     this.analyticsSender = analyticsSender;
-    this.reportingPlugin = reportingPlugin;
-    userReportingSettingsHelper = new UserReportingSettingsHelper(pluginSettingsFactory,
-        JiraTimetrackerUtil.getLoggedUserName());
+    this.settingsHelper = settingsHelper;
     try {
       querydslSupport = new QuerydslSupportImpl();
     } catch (Exception e) {
@@ -124,11 +116,11 @@ public class DownloadReportResource {
         .fromJson(json, FilterCondition.class);
 
     ConvertedSearchParam converSearchParam = ConverterUtil
-        .convertFilterConditionToConvertedSearchParam(filterCondition, reportingPlugin);
+        .convertFilterConditionToConvertedSearchParam(filterCondition, settingsHelper);
 
     ExportSummariesListReport exportSummariesListReport =
         new ExportSummariesListReport(querydslSupport, converSearchParam.reportSearchParam,
-            converSearchParam.notBrowsableProjectKeys, userReportingSettingsHelper);
+            converSearchParam.notBrowsableProjectKeys, settingsHelper.loadUserSettings());
 
     HSSFWorkbook workbook = exportSummariesListReport.exportToXLS();
     return workbook;
@@ -138,7 +130,7 @@ public class DownloadReportResource {
       final DownloadWorklogDetailsParam downloadWorklogDetailsParam) {
     ConvertedSearchParam converSearchParam = ConverterUtil
         .convertFilterConditionToConvertedSearchParam(downloadWorklogDetailsParam.filterCondition,
-            reportingPlugin);
+            settingsHelper);
     OrderBy orderBy = ConverterUtil.convertToOrderBy(orderByString);
     HSSFWorkbook workbook =
         createWorklogDetailsExcel(downloadWorklogDetailsParam, converSearchParam, orderBy);
@@ -153,7 +145,8 @@ public class DownloadReportResource {
             downloadWorklogDetailsParam.selectedWorklogDetailsColumns,
             converSearchParam.reportSearchParam,
             converSearchParam.notBrowsableProjectKeys,
-            orderBy, userReportingSettingsHelper);
+            orderBy, settingsHelper.loadUserSettings());
+
     HSSFWorkbook workbook = exportWorklogDetailsListReport.exportToXLS();
     return workbook;
   }

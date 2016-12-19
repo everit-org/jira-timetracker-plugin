@@ -25,26 +25,45 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class WorklogValues {
 
   @XmlElement
-  private String comment;
+  private String adjustmentAmount = "";
 
   @XmlElement
-  private String durationTime;
+  private String comment = "";
+
+  public String commentForActions = "";
+
+  @XmlElement
+  private String durationTime = "";
 
   @XmlElement
   private String endTime;
 
   @XmlElement
-  private Boolean isDuration;
+  private Boolean isDuration = Boolean.FALSE;
 
   @XmlElement
-  private String issueKey;
+  private String issueKey = "";
+
+  @XmlElement
+  private String newEstimate = "";
+
+  @XmlElement
+  private String remainingEstimateType;
 
   @XmlElement
   private String startTime;
 
+  public String getAdjustmentAmount() {
+    return adjustmentAmount;
+  }
+
   @XmlElement
   public String getComment() {
     return comment;
+  }
+
+  public String getCommentForActions() {
+    return commentForActions;
   }
 
   public String getDurationTime() {
@@ -59,6 +78,14 @@ public class WorklogValues {
     return issueKey;
   }
 
+  public String getNewEstimate() {
+    return newEstimate;
+  }
+
+  public String getRemainingEstimateType() {
+    return remainingEstimateType;
+  }
+
   public String getStartTime() {
     return startTime;
   }
@@ -67,8 +94,16 @@ public class WorklogValues {
     return isDuration;
   }
 
+  public void setAdjustmentAmount(final String adjustmentAmount) {
+    this.adjustmentAmount = adjustmentAmount;
+  }
+
   public void setComment(final String comment) {
     this.comment = comment;
+  }
+
+  public void setCommentForActions(final String commentForActions) {
+    this.commentForActions = commentForActions;
   }
 
   public void setDurationTime(final String durationTime) {
@@ -85,6 +120,14 @@ public class WorklogValues {
 
   public void setIssueKey(final String issueKey) {
     this.issueKey = issueKey;
+  }
+
+  public void setNewEstimate(final String newEstimate) {
+    this.newEstimate = newEstimate;
+  }
+
+  public void setRemainingEstimateType(final String remainingEstimateType) {
+    this.remainingEstimateType = remainingEstimateType;
   }
 
   public void setStartTime(final String startTime) {

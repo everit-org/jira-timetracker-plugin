@@ -28,9 +28,7 @@ import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
 import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration.TimeFormat;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.security.JiraAuthenticationContext;
-import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.util.I18nHelper;
-import com.atlassian.jira.util.I18nHelper.BeanFactory;
 import com.atlassian.jira.util.JiraDurationUtils.DaysDurationFormatter;
 import com.atlassian.jira.util.JiraDurationUtils.HoursDurationFormatter;
 import com.atlassian.jira.util.JiraDurationUtils.PrettyDurationFormatter;
@@ -90,9 +88,7 @@ public class DurationFormatter implements Serializable {
     timeFormat = timeTrackingConfiguration.getTimeFormat();
     JiraAuthenticationContext jiraAuthenticationContext =
         ComponentAccessor.getJiraAuthenticationContext();
-    ApplicationUser loggedInUser = jiraAuthenticationContext.getLoggedInUser();
-    BeanFactory i18nHelperFactory = ComponentAccessor.getI18nHelperFactory();
-    I18nHelper i18nHelper = i18nHelperFactory.getInstance(loggedInUser);
+    I18nHelper i18nHelper = jiraAuthenticationContext.getI18nHelper();
 
     daysDurationFormatter = new DaysDurationFormatter(
         new BigDecimal(workHoursPerDay).setScale(2, RoundingMode.HALF_UP), i18nHelper);

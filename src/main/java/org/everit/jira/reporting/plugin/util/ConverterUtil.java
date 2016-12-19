@@ -16,7 +16,6 @@
 package org.everit.jira.reporting.plugin.util;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -25,7 +24,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import org.everit.jira.reporting.plugin.ReportingPlugin;
+import org.everit.jira.core.impl.DateTimeServer;
+import org.everit.jira.core.util.TimetrackerUtil;
 import org.everit.jira.reporting.plugin.SearcherValue;
 import org.everit.jira.reporting.plugin.dto.ConvertedSearchParam;
 import org.everit.jira.reporting.plugin.dto.FilterCondition;
@@ -34,8 +34,7 @@ import org.everit.jira.reporting.plugin.dto.PickerComponentDTO;
 import org.everit.jira.reporting.plugin.dto.PickerUserDTO;
 import org.everit.jira.reporting.plugin.dto.PickerVersionDTO;
 import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
-import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
-import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
+import org.everit.jira.settings.TimeTrackerSettingsHelper;
 
 import com.atlassian.jira.bc.JiraServiceContext;
 import com.atlassian.jira.bc.JiraServiceContextImpl;
@@ -76,7 +75,7 @@ public final class ConverterUtil {
       final List<String> issueAffectedVersions) {
     ArrayList<String> affectedVersions = new ArrayList<>();
     for (String affectedVersion : issueAffectedVersions) {
-      if (JiraTimetrackerUtil.getI18nText(PickerVersionDTO.NO_VERSION).equals(affectedVersion)) {
+      if (TimetrackerUtil.getI18nText(PickerVersionDTO.NO_VERSION).equals(affectedVersion)) {
         reportSearchParam.selectNoAffectedVersionIssue(true);
       } else {
         affectedVersions.add(affectedVersion);
@@ -89,11 +88,11 @@ public final class ConverterUtil {
       final List<String> issueAssignees) {
     ArrayList<String> assignees = new ArrayList<>();
     for (String assignee : issueAssignees) {
-      if (JiraTimetrackerUtil.getI18nText(PickerUserDTO.UNASSIGNED_USER_NAME).equals(assignee)) {
+      if (TimetrackerUtil.getI18nText(PickerUserDTO.UNASSIGNED_USER_NAME).equals(assignee)) {
         reportSearchParam.selectUnassgined(true);
-      } else if (JiraTimetrackerUtil.getI18nText(PickerUserDTO.CURRENT_USER_NAME)
+      } else if (TimetrackerUtil.getI18nText(PickerUserDTO.CURRENT_USER_NAME)
           .equals(assignee)) {
-        assignees.add(JiraTimetrackerUtil.getLoggedUserName());
+        assignees.add(TimetrackerUtil.getLoggedUserName());
       } else {
         assignees.add(assignee);
       }
@@ -105,7 +104,7 @@ public final class ConverterUtil {
       final List<String> issueComponents) {
     ArrayList<String> components = new ArrayList<>();
     for (String component : issueComponents) {
-      if (JiraTimetrackerUtil.getI18nText(PickerComponentDTO.NO_COMPONENT).equals(component)) {
+      if (TimetrackerUtil.getI18nText(PickerComponentDTO.NO_COMPONENT).equals(component)) {
         reportSearchParam.selectNoComponentIssue(true);
       } else {
         components.add(component);
@@ -118,12 +117,12 @@ public final class ConverterUtil {
       final List<String> issueFixedVersions) {
     ArrayList<String> fixedVersions = new ArrayList<>();
     for (String fixedVersion : issueFixedVersions) {
-      if (JiraTimetrackerUtil.getI18nText(PickerVersionDTO.NO_VERSION).equals(fixedVersion)) {
+      if (TimetrackerUtil.getI18nText(PickerVersionDTO.NO_VERSION).equals(fixedVersion)) {
         reportSearchParam.selectNoFixedVersionIssue(true);
-      } else if (JiraTimetrackerUtil.getI18nText(PickerVersionDTO.RELEASED_VERSION)
+      } else if (TimetrackerUtil.getI18nText(PickerVersionDTO.RELEASED_VERSION)
           .equals(fixedVersion)) {
         reportSearchParam.selectReleasedFixVersion(true);
-      } else if (JiraTimetrackerUtil.getI18nText(PickerVersionDTO.UNRELEASED_VERSION)
+      } else if (TimetrackerUtil.getI18nText(PickerVersionDTO.UNRELEASED_VERSION)
           .equals(fixedVersion)) {
         reportSearchParam.selectUnreleasedFixVersion(true);
       } else {
@@ -138,7 +137,7 @@ public final class ConverterUtil {
     ArrayList<String> reporters = new ArrayList<>();
     for (String reporter : issueReporters) {
       if (PickerUserDTO.CURRENT_USER_NAME.equals(reporter)) {
-        reporters.add(JiraTimetrackerUtil.getLoggedUserName());
+        reporters.add(TimetrackerUtil.getLoggedUserName());
       } else {
         reporters.add(reporter);
       }
@@ -169,7 +168,7 @@ public final class ConverterUtil {
     PermissionManager permissionManager = ComponentAccessor.getPermissionManager();
     JiraAuthenticationContext jiraAuthenticationContext =
         ComponentAccessor.getJiraAuthenticationContext();
-    ApplicationUser user = jiraAuthenticationContext.getUser();
+    ApplicationUser user = jiraAuthenticationContext.getLoggedInUser();
     Collection<Project> projects =
         permissionManager.getProjects(ProjectPermissions.BROWSE_PROJECTS, user);
     List<Long> allBrowsableProjectIds = new ArrayList<>();
@@ -202,16 +201,16 @@ public final class ConverterUtil {
   }
 
   private static void collectUsersFromParams(final FilterCondition filterCondition,
-      final ReportSearchParam reportSearchParam, final ReportingPlugin reportingPlugin) {
+      final ReportSearchParam reportSearchParam, final TimeTrackerSettingsHelper settingsHelper) {
     ArrayList<String> users = new ArrayList<>(filterCondition.getUsers());
     JiraAuthenticationContext jiraAuthenticationContext =
         ComponentAccessor.getJiraAuthenticationContext();
-    ApplicationUser user = jiraAuthenticationContext.getUser();
-    if (!PermissionUtil.hasBrowseUserPermission(user, reportingPlugin)) {
+    ApplicationUser user = jiraAuthenticationContext.getLoggedInUser();
+    if (!PermissionUtil.hasBrowseUserPermission(user, settingsHelper)) {
       if ((users.size() == 1) && (users.contains(PickerUserDTO.CURRENT_USER_NAME)
-          || users.contains(JiraTimetrackerUtil.getLoggedUserName()))) {
+          || users.contains(TimetrackerUtil.getLoggedUserName()))) {
         if (users.remove(PickerUserDTO.CURRENT_USER_NAME)) {
-          users.add(JiraTimetrackerUtil.getLoggedUserName());
+          users.add(TimetrackerUtil.getLoggedUserName());
         }
       } else {
         throw new IllegalArgumentException(NO_BROWSE_PERMISSION);
@@ -219,8 +218,11 @@ public final class ConverterUtil {
     } else {
       if (!users.isEmpty() && users.contains(PickerUserDTO.NONE_USER_NAME)) {
         users = ConverterUtil.getUserNamesFromGroup(filterCondition.getGroups());
+        if (users.isEmpty()) {
+          reportSearchParam.groupsHasNoMembers(true);
+        }
       } else if (users.remove(PickerUserDTO.CURRENT_USER_NAME)) {
-        users.add(JiraTimetrackerUtil.getLoggedUserName());
+        users.add(TimetrackerUtil.getLoggedUserName());
       }
     }
     reportSearchParam.users(users);
@@ -239,17 +241,28 @@ public final class ConverterUtil {
    *           if has problem in convert. Contains property key name in message.
    */
   public static ConvertedSearchParam convertFilterConditionToConvertedSearchParam(
-      final FilterCondition filterCondition, final ReportingPlugin reportingPlugin) {
+      final FilterCondition filterCondition, final TimeTrackerSettingsHelper settingsHelper) {
     if (filterCondition == null) {
       throw new NullPointerException("filterCondition parameter is null");
     }
 
-    Date worklogEndDate = new Date(filterCondition.getWorklogEndDate());
-    Calendar worklogEndDateCalendar = DateTimeConverterUtil.setDateToDayStart(worklogEndDate);
-    worklogEndDateCalendar.add(Calendar.DAY_OF_MONTH, 1);
-    worklogEndDate = worklogEndDateCalendar.getTime();
+    // TODO issueCreated?
+    DateTimeServer worklogEndDate =
+        DateTimeServer.getInstanceBasedOnUserTimeZone(filterCondition.getWorklogEndDate());
+    worklogEndDate =
+        DateTimeServer.getInstanceBasedOnUserTimeZone(worklogEndDate.getUserTimeZone().plusDays(1));
 
-    Date worklogStartDate = new Date(filterCondition.getWorklogStartDate());
+    // DateTime worklogEndDate = new DateTime(filterCondition.getWorklogEndDate());
+    // worklogEndDate = DateTimeConverterUtil.setDateToDayStart(worklogEndDate);
+    // worklogEndDate = worklogEndDate.plusDays(1);
+    // TODO check DTS?
+    // worklogEndDate = DateTimeConverterUtil.convertDateZoneToUserTimeZone(worklogEndDate);
+
+    DateTimeServer worklogStartDate =
+        DateTimeServer.getInstanceBasedOnUserTimeZone(filterCondition.getWorklogStartDate());
+    // worklogStartDate = DateTimeConverterUtil.setDateToDayStart(worklogStartDate);
+    // TODO check DTS?
+    // worklogStartDate = DateTimeConverterUtil.convertDateZoneToUserTimeZone(worklogStartDate);
 
     ReportSearchParam reportSearchParam = new ReportSearchParam();
     List<String> searchParamIssueKeys;
@@ -272,15 +285,14 @@ public final class ConverterUtil {
       notBrowsableProjectKeys =
           ConverterUtil.appendProjectIds(reportSearchParam, filterCondition.getProjectIds());
     }
-
-    reportSearchParam.worklogEndDate(worklogEndDate)
-        .worklogStartDate(worklogStartDate)
+    reportSearchParam.worklogEndDate(worklogEndDate.getSystemTimeZoneDayStartDate())
+        .worklogStartDate(worklogStartDate.getSystemTimeZoneDayStartDate())
         .issueKeys(searchParamIssueKeys);
 
     if (!reportSearchParam.worklogStartDate.before(reportSearchParam.worklogEndDate)) {
       throw new IllegalArgumentException(KEY_WRONG_DATES);
     }
-    ConverterUtil.collectUsersFromParams(filterCondition, reportSearchParam, reportingPlugin);
+    ConverterUtil.collectUsersFromParams(filterCondition, reportSearchParam, settingsHelper);
 
     if (filterCondition.getOffset() != null) {
       reportSearchParam.offset(filterCondition.getOffset());
@@ -368,12 +380,12 @@ public final class ConverterUtil {
         .asc("ASC".equals(order));
   }
 
-  private static Date getDate(final Long date) {
-    if (date == null) {
-      return null;
-    }
-    return new Date(date);
-  }
+  // private static Date getDate(final Long date) {
+  // if (date == null) {
+  // return null;
+  // }
+  // return new Date(date);
+  // }
 
   private static List<String> getIssueKeysFromFilterSearcerValue(
       final FilterCondition filterCondition) throws SearchException, JqlParseException {
@@ -432,7 +444,13 @@ public final class ConverterUtil {
 
   private static void setBasicSearcherValuesParams(final FilterCondition filterCondition,
       final ReportSearchParam reportSearchParam) {
-    reportSearchParam.issueCreateDate(ConverterUtil.getDate(filterCondition.getIssueCreateDate()))
+    Date issueCreated = null;
+    if (filterCondition.getIssueCreateDate() != null) {
+      DateTimeServer issueCreatedDateTimeServer =
+          DateTimeServer.getInstanceBasedOnUserTimeZone(filterCondition.getIssueCreateDate());
+      issueCreated = issueCreatedDateTimeServer.getSystemTimeZoneDate();
+    }
+    reportSearchParam.issueCreateDate(issueCreated)
         .issueEpicLinkIssueIds(filterCondition.getIssueEpicLinkIssueIds())
         .issuePriorityIds(filterCondition.getIssuePriorityIds())
         .issueStatusIds(filterCondition.getIssueStatusIds())

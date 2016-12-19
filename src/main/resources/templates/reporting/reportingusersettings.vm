@@ -41,7 +41,7 @@
       <div class="aui-page-header-image">
         <span class="aui-avatar aui-avatar-large">
           <span class="aui-avatar-inner">
-            <a href="http://www.everit.biz/index.php?nyelv=en" target="_blank">
+            <a href="http://www.everit.biz/solutions-for-atlassian-jira/index_en" target="_blank">
               <div class="everit_logo" alt="Everit reporting logo"></div>
             </a>
           </span>
@@ -49,13 +49,16 @@
       </div>
       <div class="aui-page-header-main">
         <h1>Reporting Settings</h1>
-      </div>                
+      </div>
+      <div class="aui-page-header-actions">
+        <p class="installed-version">$i18n.getText("plugin.settings.installed.plugin.version") $analyticsDTO.pluginVersion<p>
+      </div>
     </div>
   </header>
   
   <div class="aui-page-panel">
     <div class="aui-page-panel-inner aui-page-panel-content">
-      <form name="userSettingForm"  method="post" action="JiraTimetrackerReportingUserSettingsWebAction.jspa" class="aui">  
+      <form name="userSettingForm"  method="post" action="ReportingUserSettingsWebAction.jspa" class="aui">  
         #if(!$message.isEmpty())
         <div id="error_message">
           $i18n.getText($message)
@@ -110,7 +113,7 @@
         <div class="buttons-container">
           <div class="buttons">
             <input id="savesettings"  type="submit" name="savesettings" value="$i18n.getText('plugin.save')" class="aui-button aui-button-primary"/>
-            <input id="resetButton"  type="button" name="reset" value="$i18n.getText('plugin.reset')" onclick="location.href='JiraTimetrackerReportingUserSettingsWebAction!default.jspa'" class="aui-button"/>
+            <input id="resetButton"  type="button" name="reset" value="$i18n.getText('plugin.reset')" onclick="location.href='ReportingUserSettingsWebAction!default.jspa'" class="aui-button"/>
             <input id="cancelButton"  type="button" name="cancel" value="$i18n.getText('plugin.cancel')" onclick="location.href='ReportingWebAction!default.jspa'" class="aui-button"/>
           </div>
         </div>

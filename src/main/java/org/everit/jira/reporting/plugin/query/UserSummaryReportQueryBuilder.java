@@ -91,7 +91,7 @@ public class UserSummaryReportQueryBuilder extends AbstractReportQuery<UserSumma
         SQLQuery<Tuple> fromQuery = SQLExpressions.select(
             new CaseBuilder()
                 .when(QueryUtil.selectDisplayNameForUserExist(qWorklog.author))
-                .then(QueryUtil.selectDisplayNameForUser(qWorklog.author))
+                .then(QueryUtil.selectDisplayNameForUserByUserKey(qWorklog.author))
                 .otherwise(qWorklog.author)
                 .as(userPath),
             qWorklog.timeworked.sum().as(worklogTimeSumPath));

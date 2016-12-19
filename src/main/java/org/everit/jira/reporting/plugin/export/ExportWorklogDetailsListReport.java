@@ -27,7 +27,8 @@ import org.everit.jira.reporting.plugin.dto.OrderBy;
 import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
 import org.everit.jira.reporting.plugin.dto.WorklogDetailsDTO;
 import org.everit.jira.reporting.plugin.query.WorklogDetailsReportQueryBuilder;
-import org.everit.jira.timetracker.plugin.UserReportingSettingsHelper;
+import org.everit.jira.settings.dto.TimeTrackerUserSettings;
+import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 
 /**
  * Class that export worklog details list report.
@@ -55,14 +56,14 @@ public class ExportWorklogDetailsListReport extends AbstractExportListReport {
    *          the list of not browsable project keys.
    * @param orderBy
    *          the {@link OrderBy} object.
-   * @param userReportingSettingsHelper
+   * @param userSettings
    *          the user settings.
    */
   public ExportWorklogDetailsListReport(final QuerydslSupport querydslSupport,
       final List<String> selectedWorklogDetailsColumns, final ReportSearchParam reportSearchParam,
       final List<String> notBrowsableProjectKeys, final OrderBy orderBy,
-      final UserReportingSettingsHelper userReportingSettingsHelper) {
-    super(querydslSupport, reportSearchParam, notBrowsableProjectKeys, userReportingSettingsHelper);
+      final TimeTrackerUserSettings userSettings) {
+    super(querydslSupport, reportSearchParam, notBrowsableProjectKeys, userSettings);
     this.selectedWorklogDetailsColumns = selectedWorklogDetailsColumns;
     this.orderBy = orderBy;
   }
@@ -77,7 +78,19 @@ public class ExportWorklogDetailsListReport extends AbstractExportListReport {
         querydslSupport.execute(new WorklogDetailsReportQueryBuilder(reportSearchParam,
             orderBy)
                 .buildQuery());
-
+    for (WorklogDetailsDTO worklogDetail : worklogDetails) {
+      worklogDetail.setIssueCreated(
+          DateTimeConverterUtil.addTimeZoneToTimestamp(worklogDetail.getIssueCreated()));
+      worklogDetail.setIssueUpdated(
+          DateTimeConverterUtil.addTimeZoneToTimestamp(worklogDetail.getIssueUpdated()));
+      worklogDetail.setWorklogCreated(
+          DateTimeConverterUtil.addTimeZoneToTimestamp(worklogDetail.getWorklogCreated()));
+      worklogDetail.setWorklogStartDate(
+          DateTimeConverterUtil
+              .addTimeZoneToTimestamp(worklogDetail.getWorklogStartDate()));
+      worklogDetail.setWorklogUpdated(
+          DateTimeConverterUtil.addTimeZoneToTimestamp(worklogDetail.getWorklogUpdated()));
+    }
     for (WorklogDetailsDTO worklogDetailsDTO : worklogDetails) {
       insertBodyRow(worklogDetailsSheet, worklogDetailsDTO);
     }

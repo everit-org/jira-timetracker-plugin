@@ -25,6 +25,7 @@ everit.jttp.main = everit.jttp.main || {};
     jQuery('.aui-ss-editing').attr("style", "width: 250px;");
     jQuery('.aui-ss.aui-ss-editing .aui-ss-field').attr("style", "width: 250px;");
 
+    jttp.calculateDuration();
     durationSelectionSetup();
     issuePickerSetup();
     eventBinding();
@@ -86,36 +87,36 @@ everit.jttp.main = everit.jttp.main || {};
   }
   
   function addTooltips(){
-    var $issueTypeTooltip = AJS.$('#jttp-worklog-issue-type');
+    var $issueTypeTooltip = jQuery('#jttp-worklog-issue-type');
     if(!$issueTypeTooltip.hasClass('jtrp-tooltipped')) {
       $issueTypeTooltip.tooltip({gravity: 'w'});
       $issueTypeTooltip.addClass('jtrp-tooltipped');
     }
     
-    var $datePickerTooltip = AJS.$('#jttp-headline-day-calendar');
+    var $datePickerTooltip = jQuery('#jttp-headline-day-calendar');
     if(!$datePickerTooltip.hasClass('jtrp-tooltipped')) {
       $datePickerTooltip.tooltip();
       $datePickerTooltip.addClass('jtrp-tooltipped');
     }
     
-    AJS.$('.tooltip-left').each(function() {
-      var $element = AJS.$(this);
+    jQuery('.tooltip-left').each(function() {
+      var $element = jQuery(this);
       if(!$element.hasClass('jtrp-tooltipped')) {
         $element.tooltip({gravity: 'e'});
         $element.addClass('jtrp-tooltipped');
       }
     });
     
-    AJS.$('.tooltip-bottom').each(function() {
-      var $element = AJS.$(this);
+    jQuery('.tooltip-bottom').each(function() {
+      var $element = jQuery(this);
       if(!$element.hasClass('jtrp-tooltipped')) {
         $element.tooltip();
         $element.addClass('jtrp-tooltipped');
       }
     });
     
-    AJS.$('.img-tooltip').each(function() {
-      var $element = AJS.$(this);
+    jQuery('.img-tooltip').each(function() {
+      var $element = jQuery(this);
       if(!$element.hasClass('jtrp-tooltipped')) {
         $element.tooltip({gravity: 'w'});
         $element.addClass('jtrp-tooltipped');
@@ -143,12 +144,21 @@ everit.jttp.main = everit.jttp.main || {};
     }
   }
 
-  jttp.endTimeInputClick = function() {
+  jttp.endTimeInputClick = function(addFocus) {
     if (jttp.options.actionFlag != "editAll") {
-      jQuery("#endTimeInput").css("cursor", "text").hide().prev().prop("disabled", false).css(
-          "cursor", "text").focus();
-      jQuery("#durationTimeInput").css("cursor", "pointer").show().prev("input").prop("disabled",
-          true).css("cursor", "pointer");
+      var $input = jQuery("#endTimeInput").css("cursor", "text")
+                     .hide()
+                     .prev()
+                     .prop("disabled", false)
+                     .css("cursor", "text");
+      if(addFocus) {
+        $input.focus();
+      }
+      jQuery("#durationTimeInput").css("cursor", "pointer")
+        .show()
+        .prev("input")
+        .prop("disabled", true)
+        .css("cursor", "pointer");
       jQuery("#radioEnd").prop("checked", true);
     }
   }
@@ -163,12 +173,21 @@ everit.jttp.main = everit.jttp.main || {};
     }
   }
 
-  jttp.durationTimeInput = function() {
+  jttp.durationTimeInput = function(addFocus) {
     if (jttp.options.actionFlag != "editAll") {
-      jQuery("#durationTimeInput").css("cursor", "text").hide().prev("input[disabled]").prop(
-          "disabled", false).css("cursor", "text").focus();
-      jQuery("#endTimeInput").css("cursor", "pointer").show().prev("input").prop("disabled", true)
-          .css("cursor", "pointer");
+      var $input = jQuery("#durationTimeInput").css("cursor", "text")
+                     .hide()
+                     .prev("input[disabled]")
+                     .prop("disabled", false)
+                     .css("cursor", "text");
+      if(addFocus){
+        $input.focus();
+      }
+      jQuery("#endTimeInput").css("cursor", "pointer")
+        .show()
+        .prev("input")
+        .prop("disabled", true)
+        .css("cursor", "pointer");
       jQuery("#radioDuration").prop("checked", true);
     }
   }
@@ -184,7 +203,8 @@ everit.jttp.main = everit.jttp.main || {};
     var worklogValuesJson = jQuery('#worklogValuesJson');
     worklogValuesJson.val(json);
     
-    // Added Piwik Submit action to save action. (count create, edit, edit all saves)
+    // Added Piwik Submit action to save action. (count create, edit, edit all
+	// saves)
     _paq.push(['trackEvent', 'User', 'Submit']);
     return true;
   }
@@ -222,7 +242,7 @@ everit.jttp.main = everit.jttp.main || {};
  jttp.cancelClick = function(){
    var dateHidden = jQuery('#dateHidden').val();
    var dateInMil = Date.parseDate(dateHidden, jttp.options.dateFormat);
-   window.location = "JiraTimetrackerWebAction!default.jspa?date="+dateInMil.getTime();
+   window.location = "JiraTimetrackerWebAction.jspa?date="+dateInMil.getTime();
  }
  
   jttp.beforeSubmitChangeDate = function() {
@@ -292,11 +312,11 @@ everit.jttp.main = everit.jttp.main || {};
     AJS.progressBars.update($indicator, dailyPercent);
     var $progressIndicator = jQuery('#jttp-headline-progress-indicator .aui-progress-indicator-value');
     if (dailyPercent <= 0.2) {
-      AJS.$($progressIndicator).css("background-color", jttp_progress_red);
+      jQuery($progressIndicator).css("background-color", jttp_progress_red);
     } else if (dailyPercent >= 1.0){
-      AJS.$($progressIndicator).css("background-color", jttp_progress_green); 
+      jQuery($progressIndicator).css("background-color", jttp_progress_green); 
     } else {
-      AJS.$($progressIndicator).css("background-color", jttp_progress_yellow);  
+      jQuery($progressIndicator).css("background-color", jttp_progress_yellow);  
     }
   }
   
@@ -324,9 +344,9 @@ everit.jttp.main = everit.jttp.main || {};
   }
   function initTooltipsForIndicators(){
 	  jQuery('.jttpTooltip').each(function(i, obj) {
-		  AJS.$(obj).tooltip({
+		  jQuery(obj).tooltip({
 		      title: function () {
-		          return $( obj ).children('.jttpTooltiptext').html();
+		          return jQuery( obj ).children('.jttpTooltiptext').html();
 		      },
 		    html: true 
 		  });  
@@ -399,15 +419,18 @@ everit.jttp.main = everit.jttp.main || {};
   }
 
   function durationSelectionSetup() {
-    if (jttp.options.isDurationSelected) {
-      jQuery("#durationTimeInput").css("cursor", "text").hide().prev("input[disabled]").prop(
-          "disabled", false).css("cursor", "text").focus();
-      jQuery("#endTimeInput").css("cursor", "pointer").show().prev("input").prop("disabled", true)
-          .css("cursor", "pointer");
-      jQuery("#radioDuration").prop("checked", true);
+    if(jttp.options.defaultCommand){
+      if(jttp.options.activeFieldDuration){
+        jttp.durationTimeInput(false);
+      } else {
+        jttp.endTimeInputClick(false);
+      }
     } else {
-      jQuery("#endTimeInput").css("cursor", "text");
-      jQuery("#durationTimeInput").css("cursor", "pointer");
+      if (jttp.options.isDurationSelected) {
+        jttp.durationTimeInput(false);
+      } else {
+        jttp.endTimeInputClick(false);
+      }
     }
   }
 
@@ -467,6 +490,9 @@ everit.jttp.main = everit.jttp.main || {};
     if(endOrDuration == "end"){
       isDurationSelect = false;
     }
+    var remainingEstimateType = jQuery('#remainingEstimateType').val();
+    var newEstimate = jQuery('#newEstimate').val();
+    var adjustmentAmount = jQuery('#adjustmentAmount').val();
     
     var worklogValues = {
       "startTime": startTime,
@@ -475,6 +501,9 @@ everit.jttp.main = everit.jttp.main || {};
       "isDuration": isDurationSelect,
       "comment": comment,
       "issueKey": issueKey,
+      "remainingEstimateType": remainingEstimateType,
+      "newEstimate": newEstimate,
+      "adjustmentAmount": adjustmentAmount,
     }
     return worklogValues;
   }
@@ -525,7 +554,8 @@ everit.jttp.main = everit.jttp.main || {};
   function setExcludeDaysToWeekend(excludeDays) {
     var dayNumber = excludeDays.length;
     for (var i = 0; i < dayNumber; i++) {
-      var theDay = excludeDays[i];
+      var date = new Date(excludeDays[i]);
+      var theDay = date.getDate();
       var calendarDays = jQuery('.day.day-' + theDay);
       for (var j = 0; j < calendarDays.length; j++) {
         if (!(jQuery(calendarDays[j]).hasClass('selected')
@@ -801,4 +831,52 @@ everit.jttp.main = everit.jttp.main || {};
     $endInput.val(endTimeVal.toUpperCase());
   }
 
+  jttp.reamingEstimateChange = function(obj){
+    var $obj = jQuery(obj);
+    var type = $obj.attr('data-jttp-remaining-estimate-type');
+
+    jQuery('#remainingEstimateType').val(type);
+
+    jQuery('button[data-jttp-remaining-estimate-type]').children('span').hide();
+    $obj.children('span').show();
+    
+    var $newEstimate = jQuery('#newEstimate');
+    var $adjustmentAmount = jQuery('#adjustmentAmount');
+    $newEstimate.attr('disabled', 'disabled');
+    $adjustmentAmount.attr('disabled', 'disabled');
+    if(type == 'NEW'){
+      $newEstimate.removeAttr('disabled');
+    }
+    if(type == 'MANUAL'){
+      $adjustmentAmount.removeAttr('disabled');
+    }
+  }
+
+  jttp.showDeleteConfirmation = function(worklogId){
+    jQuery('#actionWorklogIdForDelete').val(worklogId);
+    AJS.dialog2('#delete_confirmation_dialog').show();
+  }
+
+  jttp.beforeSubmitDeleteAction = function() {
+    var type = jQuery('input[name="deleteRemainingEstimateType"]:checked').val();
+    if(typeof type == 'undefined' || type == '' || type == null){
+      type = 'AUTO';
+    }
+    jQuery('#deleteRemainingEstimateType').val(type);
+
+    var newEstimate = jQuery('input[name="delete_new_estimate"]').val();
+    jQuery('#delete_new_estimate').val(newEstimate);
+
+    var adjustmentAmount = jQuery('input[name="delete_adjustment_amount"]').val();
+    jQuery('#delete_adjustment_amount').val(adjustmentAmount);
+
+    var dateHidden = jQuery('#dateHidden').val();
+    var dateInMil = Date.parseDate(dateHidden, jttp.options.dateFormat);
+    var date = jQuery('#date');
+    date.val(dateInMil.getTime());
+    jQuery("#actionFormForDelete").append(date);
+    
+    return true;
+  }
+  
 })(everit.jttp.main, jQuery);

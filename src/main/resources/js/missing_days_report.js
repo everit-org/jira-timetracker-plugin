@@ -82,10 +82,10 @@ everit.jttp.missing_days_report = everit.jttp.missing_days_report || {};
   }
   
   function showErrorMessage(message_key){
-    AJS.$('#error_message label').hide();
-    var errorMessageLabel = AJS.$('#'+message_key);
+    jQuery('#error_message label').hide();
+    var errorMessageLabel = jQuery('#'+message_key);
     errorMessageLabel.show();
-    var errorMessage = AJS.$('#error_message');
+    var errorMessage = jQuery('#error_message');
     errorMessage.show();
   }
 })(everit.jttp.missing_days_report, jQuery);

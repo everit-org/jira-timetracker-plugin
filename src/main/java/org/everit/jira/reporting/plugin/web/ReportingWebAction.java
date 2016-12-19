@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -30,6 +29,7 @@ import javax.servlet.http.HttpSession;
 import org.everit.jira.analytics.AnalyticsDTO;
 import org.everit.jira.analytics.AnalyticsSender;
 import org.everit.jira.analytics.event.CreateReportEvent;
+import org.everit.jira.core.util.TimetrackerUtil;
 import org.everit.jira.reporting.plugin.ReportingCondition;
 import org.everit.jira.reporting.plugin.ReportingPlugin;
 import org.everit.jira.reporting.plugin.column.WorklogDetailsColumns;
@@ -45,25 +45,26 @@ import org.everit.jira.reporting.plugin.dto.WorklogDetailsReportDTO;
 import org.everit.jira.reporting.plugin.exception.JTRPException;
 import org.everit.jira.reporting.plugin.util.ConverterUtil;
 import org.everit.jira.reporting.plugin.util.PermissionUtil;
+import org.everit.jira.settings.TimeTrackerSettingsHelper;
+import org.everit.jira.settings.dto.TimeTrackerUserSettings;
 import org.everit.jira.timetracker.plugin.DurationFormatter;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
-import org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin;
 import org.everit.jira.timetracker.plugin.PluginCondition;
-import org.everit.jira.timetracker.plugin.UserReportingSettingsHelper;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
-import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 import org.everit.jira.updatenotifier.UpdateNotifier;
+import org.joda.time.DateTime;
 
 import com.atlassian.jira.bc.filter.DefaultSearchRequestService;
 import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.datetime.DateTimeFormatter;
+import com.atlassian.jira.datetime.DateTimeStyle;
 import com.atlassian.jira.issue.RendererManager;
 import com.atlassian.jira.issue.fields.renderer.IssueRenderContext;
 import com.atlassian.jira.issue.fields.renderer.JiraRendererPlugin;
 import com.atlassian.jira.issue.search.SearchRequest;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
-import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.google.gson.Gson;
 
 /**
@@ -160,7 +161,11 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   private List<String> selectedWorklogDetailsColumns = Collections.emptyList();
 
-  private PluginSettingsFactory settingsFactory;
+  private TimeTrackerSettingsHelper settingsHelper;
+
+  private String stacktrace = "";
+
+  private TimeTrackerUserSettings userSettings;
 
   private UserSummaryReportDTO userSummaryReport = new UserSummaryReportDTO();
 
@@ -174,21 +179,21 @@ public class ReportingWebAction extends JiraWebActionSupport {
    * Simple constructor.
    */
   public ReportingWebAction(final ReportingPlugin reportingPlugin,
-      final JiraTimetrackerPlugin timetrackerPlugin, final PluginSettingsFactory settingsFactory,
-      final AnalyticsSender analyticsSender) {
+      final AnalyticsSender analyticsSender,
+      final TimeTrackerSettingsHelper settingsHelper) {
     this.reportingPlugin = reportingPlugin;
-    reportingCondition = new ReportingCondition(this.reportingPlugin);
+    reportingCondition = new ReportingCondition(settingsHelper);
     gson = new Gson();
-    pluginCondition = new PluginCondition(timetrackerPlugin);
+    pluginCondition = new PluginCondition(settingsHelper);
     issueRenderContext = new IssueRenderContext(null);
     RendererManager rendererManager = ComponentAccessor.getRendererManager();
     atlassianWikiRenderer = rendererManager.getRendererForType("atlassian-wiki-renderer");
-    this.settingsFactory = settingsFactory;
+    this.settingsHelper = settingsHelper;
     this.analyticsSender = analyticsSender;
   }
 
   private String checkConditions() {
-    boolean isUserLogged = JiraTimetrackerUtil.isUserLogged();
+    boolean isUserLogged = TimetrackerUtil.isUserLogged();
     if (!isUserLogged) {
       setReturnUrl(JIRA_HOME_URL);
       return getRedirect(NONE);
@@ -220,7 +225,7 @@ public class ReportingWebAction extends JiraWebActionSupport {
     try {
       filterCondition = ConverterUtil.convertJsonToFilterCondition(filterConditionJson);
       convertedSearchParam = ConverterUtil
-          .convertFilterConditionToConvertedSearchParam(filterCondition, reportingPlugin);
+          .convertFilterConditionToConvertedSearchParam(filterCondition, settingsHelper);
     } catch (IllegalArgumentException e) {
       message = e.getMessage();
       return INPUT;
@@ -257,9 +262,8 @@ public class ReportingWebAction extends JiraWebActionSupport {
     if (!hasBrowseUsersPermission) {
       filterCondition.setUsers(Arrays.asList(PickerUserDTO.CURRENT_USER_NAME));
     }
-    String selectedWorklogDetailsColumnsJson = loadUserWorklogDetialsSelectedColumnsJson();
     String[] selectedWorklogDetailsColumnsArray =
-        gson.fromJson(selectedWorklogDetailsColumnsJson, String[].class);
+        gson.fromJson(userSettings.getUserSelectedColumns(), String[].class);
     selectedWorklogDetailsColumns = Arrays.asList(selectedWorklogDetailsColumnsArray);
     initDatesIfNecessary();
   }
@@ -271,19 +275,17 @@ public class ReportingWebAction extends JiraWebActionSupport {
     if (checkConditionsResult != null) {
       return checkConditionsResult;
     }
+    loadSettings();
 
     loadFavoriteFilters();
-
-    loadPageSizeLimit();
-    loadIsShowTutorial();
 
     loadIssueCollectorSrc();
     normalizeContextPath();
     hasBrowseUsersPermission =
-        PermissionUtil.hasBrowseUserPermission(getLoggedInApplicationUser(), reportingPlugin);
+        PermissionUtil.hasBrowseUserPermission(getLoggedInApplicationUser(), settingsHelper);
 
-    analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(settingsFactory,
-        PiwikPropertiesUtil.PIWIK_REPORTING_SITEID);
+    analyticsDTO = JiraTimetrackerAnalytics
+        .getAnalyticsDTO(PiwikPropertiesUtil.PIWIK_REPORTING_SITEID, settingsHelper);
 
     initializeData();
 
@@ -296,18 +298,17 @@ public class ReportingWebAction extends JiraWebActionSupport {
     if (checkConditionsResult != null) {
       return checkConditionsResult;
     }
-
+    loadSettings();
     normalizeContextPath();
 
     loadFavoriteFilters();
     hasBrowseUsersPermission =
-        PermissionUtil.hasBrowseUserPermission(getLoggedInApplicationUser(), reportingPlugin);
+        PermissionUtil.hasBrowseUserPermission(getLoggedInApplicationUser(), settingsHelper);
 
-    loadPageSizeLimit();
     loadIssueCollectorSrc();
 
-    analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(settingsFactory,
-        PiwikPropertiesUtil.PIWIK_REPORTING_SITEID);
+    analyticsDTO = JiraTimetrackerAnalytics
+        .getAnalyticsDTO(PiwikPropertiesUtil.PIWIK_REPORTING_SITEID, settingsHelper);
 
     HttpServletRequest httpRequest = getHttpRequest();
 
@@ -363,6 +364,16 @@ public class ReportingWebAction extends JiraWebActionSupport {
     return dateConverterUtil;
   }
 
+  public DateTimeFormatter getDateTimeFormatterDate() {
+    return super.getDateTimeFormatter().withStyle(DateTimeStyle.DATE).withSystemZone();
+    // TODO with SystemZone?
+  }
+
+  public DateTimeFormatter getDateTimeFormatterDateTime() {
+    return super.getDateTimeFormatter().withStyle(DateTimeStyle.COMPLETE).withSystemZone();
+    // TODO with SystemZone?
+  }
+
   public DurationFormatter getDurationFormatter() {
     return durationFormatter;
   }
@@ -384,7 +395,7 @@ public class ReportingWebAction extends JiraWebActionSupport {
   }
 
   public boolean getIsShowTutorialDialog() {
-    return isShowTutorialDialog;
+    return isShowTutorialDialog && defaultCommand;
   }
 
   public String getIssueCollectorSrc() {
@@ -435,6 +446,10 @@ public class ReportingWebAction extends JiraWebActionSupport {
     return selectedWorklogDetailsColumns;
   }
 
+  public String getStacktrace() {
+    return stacktrace;
+  }
+
   public UserSummaryReportDTO getUserSummaryReport() {
     return userSummaryReport;
   }
@@ -453,14 +468,15 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   private void initDatesIfNecessary() {
     if (filterCondition.getWorklogStartDate() == null) {
-      Calendar calendarFrom = Calendar.getInstance();
-      calendarFrom.add(Calendar.WEEK_OF_MONTH, -1);
-      filterCondition.setWorklogStartDate(calendarFrom.getTimeInMillis());
+      DateTime dateFrom = new DateTime(TimetrackerUtil.getLoggedUserTimeZone());
+      dateFrom = dateFrom.minusWeeks(1);
+      filterCondition
+          .setWorklogStartDate(DateTimeConverterUtil.convertDateTimeToDate(dateFrom).getTime());
     }
     if (filterCondition.getWorklogEndDate() == null) {
-      Calendar calendarTo = Calendar.getInstance();
-      // Date dateTo = calendarTo.getTime();
-      filterCondition.setWorklogEndDate(calendarTo.getTimeInMillis());
+      DateTime dateTo = new DateTime(TimetrackerUtil.getLoggedUserTimeZone());
+      filterCondition
+          .setWorklogEndDate(DateTimeConverterUtil.convertDateTimeToDate(dateTo).getTime());
     }
   }
 
@@ -519,27 +535,15 @@ public class ReportingWebAction extends JiraWebActionSupport {
         defaultSearchRequestService.getFavouriteFilters(getLoggedInApplicationUser()));
   }
 
-  private void loadIsShowTutorial() {
-    UserReportingSettingsHelper userReportingSettingsHelper =
-        new UserReportingSettingsHelper(settingsFactory, JiraTimetrackerUtil.getLoggedUserName());
-    isShowTutorialDialog = userReportingSettingsHelper.getIsShowTutorialDialog();
-  }
-
   private void loadIssueCollectorSrc() {
     Properties properties = PropertiesUtil.getJttpBuildProperties();
     issueCollectorSrc = properties.getProperty(PropertiesUtil.ISSUE_COLLECTOR_SRC);
   }
 
-  private void loadPageSizeLimit() {
-    UserReportingSettingsHelper userReportingSettingsHelper =
-        new UserReportingSettingsHelper(settingsFactory, JiraTimetrackerUtil.getLoggedUserName());
-    pageSizeLimit = userReportingSettingsHelper.getPageSize();
-  }
-
-  private String loadUserWorklogDetialsSelectedColumnsJson() {
-    UserReportingSettingsHelper userReportingSettingsHelper =
-        new UserReportingSettingsHelper(settingsFactory, JiraTimetrackerUtil.getLoggedUserName());
-    return userReportingSettingsHelper.getUserSelectedColumns();
+  private void loadSettings() {
+    userSettings = settingsHelper.loadUserSettings();
+    isShowTutorialDialog = userSettings.getIsShowTutorialDialog();
+    pageSizeLimit = userSettings.getPageSize();
   }
 
   private void morePickerParse(final String selectedMoreJson) {
@@ -570,8 +574,7 @@ public class ReportingWebAction extends JiraWebActionSupport {
    * @return true if bar should be render
    */
   public boolean renderUpdateNotifier() {
-    return new UpdateNotifier(settingsFactory, JiraTimetrackerUtil.getLoggedUserName())
-        .isShowUpdater();
+    return new UpdateNotifier(settingsHelper).isShowUpdater();
   }
 
   private void saveDataToSession(final String selectedMoreJson, final String selectedActiveTab,
@@ -587,15 +590,15 @@ public class ReportingWebAction extends JiraWebActionSupport {
   }
 
   private void saveIsShowTutorial(final boolean isDoNotShow) {
-    UserReportingSettingsHelper userReportingSettingsHelper =
-        new UserReportingSettingsHelper(settingsFactory, JiraTimetrackerUtil.getLoggedUserName());
-    userReportingSettingsHelper.saveIsShowTutorialDialog(isDoNotShow);
+    TimeTrackerUserSettings userSettings =
+        new TimeTrackerUserSettings().isShowTutorialDialog(isDoNotShow);
+    settingsHelper.saveUserSettings(userSettings);
   }
 
   private void saveUserWorklogDetialsSelectedColumns(final String selectedColumnsJson) {
-    UserReportingSettingsHelper userReportingSettingsHelper =
-        new UserReportingSettingsHelper(settingsFactory, JiraTimetrackerUtil.getLoggedUserName());
-    userReportingSettingsHelper.saveSelectedColumnsJSon(selectedColumnsJson);
+    TimeTrackerUserSettings userSettings =
+        new TimeTrackerUserSettings().selectedColumnsJSon(selectedColumnsJson);
+    settingsHelper.saveUserSettings(userSettings);
   }
 
   public void setContextPath(final String contextPath) {

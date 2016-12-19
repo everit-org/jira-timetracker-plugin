@@ -28,8 +28,8 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
 import org.everit.jira.querydsl.support.QuerydslSupport;
 import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
+import org.everit.jira.settings.dto.TimeTrackerUserSettings;
 import org.everit.jira.timetracker.plugin.DurationFormatter;
-import org.everit.jira.timetracker.plugin.UserReportingSettingsHelper;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 
 import com.atlassian.jira.component.ComponentAccessor;
@@ -54,7 +54,7 @@ public abstract class AbstractExportListReport {
 
   protected ReportSearchParam reportSearchParam;
 
-  protected UserReportingSettingsHelper userReportingSettingsHelper;
+  protected TimeTrackerUserSettings userSettings;
 
   /**
    * Simple constructor.
@@ -65,16 +65,16 @@ public abstract class AbstractExportListReport {
    *          the {@link ReportSearchParam} object, that contains parameters to filter condition.
    * @param notBrowsableProjectKeys
    *          the list of not browsable project keys.
-   * @param userReportingSettingsHelper
+   * @param userSettings
    *          the user settings.
    */
   public AbstractExportListReport(final QuerydslSupport querydslSupport,
       final ReportSearchParam reportSearchParam, final List<String> notBrowsableProjectKeys,
-      final UserReportingSettingsHelper userReportingSettingsHelper) {
+      final TimeTrackerUserSettings userSettings) {
     this.querydslSupport = querydslSupport;
     this.reportSearchParam = reportSearchParam;
     this.notBrowsableProjectKeys = notBrowsableProjectKeys;
-    this.userReportingSettingsHelper = userReportingSettingsHelper;
+    this.userSettings = userSettings;
     i18nHelper = ComponentAccessor.getJiraAuthenticationContext().getI18nHelper();
   }
 
@@ -191,7 +191,7 @@ public abstract class AbstractExportListReport {
     HSSFCell cell = bodyRow.createCell(newColumnIndex++);
     cell.setCellStyle(bodyCellStyle);
     if (value != null) {
-      cell.setCellValue(DateTimeConverterUtil.dateToString(value));
+      cell.setCellValue(DateTimeConverterUtil.dateAndTimeToString(value));
     }
     return newColumnIndex;
   }
@@ -232,7 +232,7 @@ public abstract class AbstractExportListReport {
     int newColumnIndex = columnIndex;
     HSSFCell cell = headerRow.createCell(newColumnIndex++);
     cell.setCellStyle(headerCellStyle);
-    if (userReportingSettingsHelper.getWorklogTimeInSeconds()) {
+    if (userSettings.getWorklogTimeInSeconds()) {
       cell.setCellValue(value + " (s)");
     } else {
       cell.setCellValue(value);
@@ -249,7 +249,7 @@ public abstract class AbstractExportListReport {
   protected String worklogInSec(final Long worklog) {
     DurationFormatter durationFormatter = new DurationFormatter();
     isWorklogInSec = true;
-    if (!userReportingSettingsHelper.getWorklogTimeInSeconds()) {
+    if (!userSettings.getWorklogTimeInSeconds()) {
       isWorklogInSec = false;
     }
     if (worklog != null) {

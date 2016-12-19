@@ -36,14 +36,17 @@ import org.everit.jira.reporting.plugin.dto.ProjectSummaryReportDTO;
 import org.everit.jira.reporting.plugin.dto.UserSummaryReportDTO;
 import org.everit.jira.reporting.plugin.dto.WorklogDetailsReportDTO;
 import org.everit.jira.reporting.plugin.util.ConverterUtil;
+import org.everit.jira.settings.TimeTrackerSettingsHelper;
 import org.everit.jira.timetracker.plugin.DurationFormatter;
 
 import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.datetime.DateTimeFormatter;
+import com.atlassian.jira.datetime.DateTimeFormatterFactory;
+import com.atlassian.jira.datetime.DateTimeStyle;
 import com.atlassian.jira.issue.RendererManager;
 import com.atlassian.jira.issue.fields.renderer.IssueRenderContext;
 import com.atlassian.jira.issue.fields.renderer.JiraRendererPlugin;
 import com.atlassian.jira.util.I18nHelper;
-import com.atlassian.jira.web.util.OutlookDate;
 import com.atlassian.velocity.VelocityManager;
 import com.google.gson.Gson;
 
@@ -61,13 +64,17 @@ public class PagingReport {
 
   private ReportingPlugin reportingPlugin;
 
+  private TimeTrackerSettingsHelper settingsHelper;
+
   private VelocityManager velocityManager;
 
   /**
    * Simple constructor. Initialize required members.
    */
-  public PagingReport(final ReportingPlugin reportingPlugin) {
+  public PagingReport(final ReportingPlugin reportingPlugin,
+      final TimeTrackerSettingsHelper settingsHelper) {
     this.reportingPlugin = reportingPlugin;
+    this.settingsHelper = settingsHelper;
     gson = new Gson();
     velocityManager = ComponentAccessor.getVelocityManager();
   }
@@ -77,9 +84,8 @@ public class PagingReport {
     contextParameters.put("durationFormatter", new DurationFormatter());
     contextParameters.put("filterCondition", filterCondition);
 
-    Locale locale = ComponentAccessor.getJiraAuthenticationContext().getLocale();
-    OutlookDate outlookDate = new OutlookDate(locale);
-    contextParameters.put("outlookDate", outlookDate);
+    contextParameters.put("dateTimeFormatterDate", getDateTimeFormatterDate());
+    contextParameters.put("dateTimeFormatterDateTime", getDateTimeFormatterDateTime());
 
     IssueRenderContext issueRenderContext = new IssueRenderContext(null);
     contextParameters.put("issueRenderContext", issueRenderContext);
@@ -91,6 +97,7 @@ public class PagingReport {
 
     contextParameters.put("contextPath", getContextPath());
 
+    Locale locale = ComponentAccessor.getJiraAuthenticationContext().getLocale();
     I18nHelper i18nHelper = ComponentAccessor.getI18nHelperFactory().getInstance(locale);
     contextParameters.put("i18n", i18nHelper);
   }
@@ -112,6 +119,16 @@ public class PagingReport {
     return ComponentAccessor.getWebResourceUrlProvider().getBaseUrl();
   }
 
+  private DateTimeFormatter getDateTimeFormatterDate() {
+    return ComponentAccessor.getComponentOfType(DateTimeFormatterFactory.class).formatter()
+        .forLoggedInUser().withStyle(DateTimeStyle.DATE).withSystemZone();
+  }
+
+  private DateTimeFormatter getDateTimeFormatterDateTime() {
+    return ComponentAccessor.getComponentOfType(DateTimeFormatterFactory.class).formatter()
+        .withStyle(DateTimeStyle.COMPLETE).withSystemZone();
+  }
+
   /**
    * Paging the issue summary report table.
    *
@@ -128,7 +145,7 @@ public class PagingReport {
     FilterCondition filterCondition = convertJsonToFilterCondition(filterConditionJson);
 
     ConvertedSearchParam converSearchParam = ConverterUtil
-        .convertFilterConditionToConvertedSearchParam(filterCondition, reportingPlugin);
+        .convertFilterConditionToConvertedSearchParam(filterCondition, settingsHelper);
 
     IssueSummaryReportDTO issueSummaryReport =
         reportingPlugin.getIssueSummaryReport(converSearchParam.reportSearchParam);
@@ -157,7 +174,7 @@ public class PagingReport {
     FilterCondition filterCondition = convertJsonToFilterCondition(filterConditionJson);
 
     ConvertedSearchParam converSearchParam = ConverterUtil
-        .convertFilterConditionToConvertedSearchParam(filterCondition, reportingPlugin);
+        .convertFilterConditionToConvertedSearchParam(filterCondition, settingsHelper);
 
     ProjectSummaryReportDTO projectSummaryReport =
         reportingPlugin.getProjectSummaryReport(converSearchParam.reportSearchParam);
@@ -186,7 +203,7 @@ public class PagingReport {
     FilterCondition filterCondition = convertJsonToFilterCondition(filterConditionJson);
 
     ConvertedSearchParam converSearchParam = ConverterUtil
-        .convertFilterConditionToConvertedSearchParam(filterCondition, reportingPlugin);
+        .convertFilterConditionToConvertedSearchParam(filterCondition, settingsHelper);
 
     UserSummaryReportDTO userSummaryReport =
         reportingPlugin.getUserSummaryReport(converSearchParam.reportSearchParam);
@@ -221,7 +238,7 @@ public class PagingReport {
     String[] selectedColumns = gson.fromJson(selectedColumnsJson, String[].class);
 
     ConvertedSearchParam converSearchParam = ConverterUtil
-        .convertFilterConditionToConvertedSearchParam(filterCondition, reportingPlugin);
+        .convertFilterConditionToConvertedSearchParam(filterCondition, settingsHelper);
 
     OrderBy orderBy = ConverterUtil.convertToOrderBy(orderByString);
 

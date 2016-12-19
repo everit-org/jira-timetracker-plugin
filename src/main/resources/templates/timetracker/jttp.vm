@@ -48,17 +48,19 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.popu
 				firstDay : ${firstDay},
 				useISO8601 : ${currentCalendar.useISO8601},
 				dateFormatted : ${dateFormatted},
-				excludeDays : ${excludeDays},
-				isColoring : ${isColoring},
+				excludeDays : [ #foreach( $tmp in ${excludeDays} )#if($velocityCount> 1),#end "$tmp"  #end ],
+				isColoring : ${userSettings.coloring},
 				loggedDays : ${loggedDays},
-				isDurationSelected : ${isDurationSelected},
+				isDurationSelected : ${worklogValues.duration},
 				projectsId : ${projectsId},
-				issueKey : '${issueKey}',
-				comment: '${comment}',
+				issueKey : '${worklogValues.issueKey}',
+				comment: '${worklogValues.comment}',
 				actionFlag: '${actionFlag}',
 				worklogSize: ${worklogs.size()},
-				isRounded : ${isRounded},
+				isRounded : ${userSettings.rounded},
 				dateFormat: '${dateFormat}',
+				activeFieldDuration: $userSettings.activeFieldDuration,
+				defaultCommand: $defaultCommand,
 			}
 		);
 	})(everit.jttp.main, AJS.$);
@@ -82,7 +84,7 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.popu
           <div class="aui-page-header-image">
             <span class="aui-avatar aui-avatar-large">
               <span class="aui-avatar-inner">
-                <a href="http://www.everit.biz/index.php?nyelv=en" target="_blank">
+                <a href="http://www.everit.biz/solutions-for-atlassian-jira/index_en" target="_blank">
                   <div class="everit_logo" alt="Everit reporting logo"></div>
                 </a>
               </span>
@@ -93,7 +95,7 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.popu
           </div>
           <div class="aui-page-header-actions">
             <div class="aui-buttons">
-              <button class="aui-button"  type="button" name="setting" onclick="location.href='JiraTimetrackerSettingsWebAction!default.jspa'">
+              <button class="aui-button"  type="button" name="setting" onclick="location.href='TimetrackerUserSettingsWebAction!default.jspa'">
                 <span class="aui-icon aui-icon-small aui-iconfont-configure"> </span>
               </button>
             </div>
@@ -123,7 +125,7 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.popu
                 #end
               </div>
             #end
-            #if($isShowMoveAllNoPermission)
+            #if($showMoveAllNoPermission)
               <div class="aui-message aui-message-error">
                 <p>$i18n.getText('jttp.error.moveall.no.permission')</p>
               </div>
@@ -134,7 +136,7 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.popu
               </div>
             #end
         #parse("templates/timetracker/jttp-head.vm")
-        #if(!$isProgressDaily)
+        #if(!$userSettings.progressIndicatordaily)
           #parse("templates/timetracker/summary.vm")
         #end
         <!-- Dont forget the "No data to display" message -->
@@ -186,13 +188,13 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.popu
                   <div class="field-group">
                     <label for="startTime">$i18n.getText("plugin.start.time")<span class="aui-icon icon-required">(required)</span></label>
                     <input id="startTime" class="text short-field"
-                      value="$startTime" onkeypress="everit.jttp.main.handleEnterKey(event, '#endTime');"
+                      value="$worklogValues.startTime" onkeypress="everit.jttp.main.handleEnterKey(event, '#endTime');"
                       name="startTime" tabindex="2"
                       data-jttp-timeformat="$timeFormatPattern"
                       onblur="everit.jttp.main.selectCalculationType();"
                       list="time-options" autocomplete="off">
                     <input id="startNow" name="startNow" class="button" type="button" value="$i18n.getText('plugin.now')"
-                      onclick="everit.jttp.main.startNowClick($startTimeChange);">
+                      onclick="everit.jttp.main.startNowClick($userSettings.startTimeChange);">
                   </div>
                   <div class="field-group">
                     <label for="endTime">$i18n.getText("plugin.end.time")</label>
@@ -201,13 +203,13 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.popu
                       <input id="endTime" class="text short-field"
                         name="endTime" tabindex="3"
                         data-jttp-timeformat="$timeFormatPattern"
-                        value="$endTime" onkeypress="everit.jttp.main.handleEnterKey(event, '#issueSelect-textarea');"
-                        onclick="everit.jttp.main.endTimeInputClick();"
+                        value="$worklogValues.endTime" onkeypress="everit.jttp.main.handleEnterKey(event, '#issueSelect-textarea');"
+                        onclick="everit.jttp.main.endTimeInputClick(true);"
                         onblur="everit.jttp.main.calculateDuration();"
                         list="time-options" autocomplete="off">
-                      <div id="endTimeInput" class="time-input-div" onclick="everit.jttp.main.endTimeInputClick();"></div>
+                      <div id="endTimeInput" class="time-input-div" onclick="everit.jttp.main.endTimeInputClick(true);"></div>
                     </span>
-                    <input id="endNow" class="button" type="button" name="endNow" value="$i18n.getText('plugin.now')" onclick="everit.jttp.main.endNowClick($endTimeChange);">
+                    <input id="endNow" class="button" type="button" name="endNow" value="$i18n.getText('plugin.now')" onclick="everit.jttp.main.endNowClick($userSettings.endTimeChange);">
                   </div>
                   
                   #parse("templates/common/timeselect.vm")
@@ -217,17 +219,70 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.popu
                     <span class="time-input-span">
                       <input id="durationTime" class="text short-field tooltip-bottom"
                         name="durationTime" tabindex="2"
-                        value="$durationTime" onkeypress="everit.jttp.main.handleEnterKey(event, '#issueSelect-textarea');"
-                        onclick="everit.jttp.main.durationTimeInput();"
+                        value="$worklogValues.durationTime" onkeypress="everit.jttp.main.handleEnterKey(event, '#issueSelect-textarea');"
+                        onclick="everit.jttp.main.durationTimeInput(true);"
                         title="hh:mm / xh xm" disabled 
                         onblur="everit.jttp.main.calculateEndTime();">
-                      <div id="durationTimeInput" class="time-input-div" onclick="everit.jttp.main.durationTimeInput();"></div>
+                      <div id="durationTimeInput" class="time-input-div" onclick="everit.jttp.main.durationTimeInput(true);"></div>
                     </span>
                   </div>
                 </div>
               </section>
             </div>
           </div>
+          #if($userSettings.showRemaningEstimate)
+          <div style="margin: 10px 0 0 0;">
+            <label>$i18n.getText("plugin.jttp.remainingestimate")</label>
+          </div>
+          <div class="aui-group" style="margin: 5px 0 10px 0;">
+            <div class="aui-item">
+              <button id="remaining_estimate_auto" type="button" name="remainingEstimateType" 
+                class="aui-button" data-jttp-remaining-estimate-type="AUTO"
+                #if($worklogValues.remainingEstimateType == 'AUTO') checked="true" #end 
+                onclick="return everit.jttp.main.reamingEstimateChange(this)">
+                <span class="aui-icon aui-icon-small aui-iconfont-success" #if($worklogValues.remainingEstimateType != 'AUTO') style="display:none;" #end>Checked </span>
+                $i18n.getText("plugin.jttp.remainingestimatetype.auto")
+              </button>  
+            </div>
+            <div class="aui-item" style="text-align: center;">
+              <button id="remaining_estimate_leave" type="button" name="remainingEstimateType" 
+                class="aui-button" data-jttp-remaining-estimate-type="LEAVE"
+                #if($worklogValues.remainingEstimateType == 'LEAVE') checked="true" #end 
+                onclick="return everit.jttp.main.reamingEstimateChange(this)">
+                <span class="aui-icon aui-icon-small aui-iconfont-success" #if($worklogValues.remainingEstimateType != 'LEAVE') style="display:none;" #end>Checked </span>
+                $i18n.getText("plugin.jttp.remainingestimatetype.leave")
+              </button>
+            </div>
+            <div class="aui-item" style="text-align: center;">
+              <button id="remaining_estimate_new" type="button" name="remainingEstimateType" 
+                class="aui-button" data-jttp-remaining-estimate-type="NEW" 
+                #if($worklogValues.remainingEstimateType == 'NEW') checked="true" #end 
+                onclick="return everit.jttp.main.reamingEstimateChange(this)">
+               <span class="aui-icon aui-icon-small aui-iconfont-success" #if($worklogValues.remainingEstimateType != 'NEW') style="display:none;" #end>Checked </span>
+                $i18n.getText("plugin.jttp.remainingestimatetype.new")
+              </button>
+              <input class="text short-field tooltip-bottom" id="newEstimate" name="newEstimate" 
+                type="text" title="$i18n.getText("plugin.jttp.remainingestimatetype.new.tooltip")" 
+                #if($worklogValues.remainingEstimateType != 'NEW') disabled="disabled" #end
+                value="$worklogValues.newEstimate">
+            </div>
+            <div class="aui-item" style="text-align: right;">
+            #if($actionFlag != 'edit')
+              <button id="remaining_estimate_manual" type="button" name="remainingEstimateType" 
+                class="aui-button" data-jttp-remaining-estimate-type="MANUAL" 
+                onclick="return everit.jttp.main.reamingEstimateChange(this)">
+                <span class="aui-icon aui-icon-small aui-iconfont-success" #if($worklogValues.remainingEstimateType != 'MANUAL') style="display:none;" #end>Checked </span>
+                $i18n.getText("plugin.jttp.remainingestimatetype.manual")
+              </button>
+              <input class="text short-field tooltip-bottom" id="adjustmentAmount" name="adjustmentAmount" 
+                type="text" title="$i18n.getText("plugin.jttp.remainingestimatetype.manual.tooltip")" 
+                #if($worklogValues.remainingEstimateType != 'MANUAL') disabled="disabled" #end
+                value="$worklogValues.adjustmentAmount">
+            #end
+            </div>
+          </div>
+          #end
+          <input type="hidden" hidden="hidden" id="remainingEstimateType" name="remainingEstimateType" value="$worklogValues.remainingEstimateType">
           <div class="field-group">
             <label for="comments">$i18n.getText("plugin.jttp-worklog-description")</label>
             #set($fieldId = "comments")
@@ -246,7 +301,7 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.popu
                     <input type="hidden" id="actionFlag" name="actionFlag" value="$actionFlag" >
                     <input type="hidden" id="date" name="date" >
                     <input type="hidden" id="editAll" name="editAll" value="$editAllIds" >
-                    <input type="hidden" id="isShowMoveAllNoPermission" name="isShowMoveAllNoPermission" value="$isShowMoveAllNoPermission" >
+                    <input type="hidden" id="isShowMoveAllNoPermission" name="isShowMoveAllNoPermission" value="$showMoveAllNoPermission" >
                     <input type="hidden" id="worklogValuesJson" name="worklogValuesJson" >
                     <input class="aui-button" type="reset" value="Cancel"
                       id="jttp-logwork-cancel" name="lw_cancel" onclick="everit.jttp.main.cancelClick();">
