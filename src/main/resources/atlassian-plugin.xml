@@ -32,7 +32,7 @@
     <param name="vendor-icon">icons/e_logo16.png</param>
     <param name="vendor-logo">icons/e_logo72.png</param>
     <param name="atlassian-data-center-compatible">true</param>
-    <param name="configure.url">/secure/admin/JiraTimetrackerAdminSettingsWebAction!default.jspa</param>
+    <param name="configure.url">/secure/admin/TimetrackerAdminSettingsWebAction!default.jspa</param>
   </plugin-info>
 
   <component-import key="pluginSettingFactroy"
@@ -40,12 +40,31 @@
 
   <component-import key="timeTrackingConfiguration"
     interface="com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration" />
-
-  <component key="JTTP" name="Timetracker"
-    class="org.everit.jira.timetracker.plugin.JiraTimetrackerPluginImpl">
-    <interface>org.everit.jira.timetracker.plugin.JiraTimetrackerPlugin</interface>
+    
+ <component public="true" key="JTTPSettingsHelper" name="TimeTrackerSettingsHelper"
+    class="org.everit.jira.settings.TimeTrackerSettingsHelperImpl">
+    <interface public="true">org.everit.jira.settings.TimeTrackerSettingsHelper</interface>
   </component>
 
+  <component key="EVWorklogManager" name="EVWorklogManager"
+    class="org.everit.jira.core.impl.WorklogComponent">
+    <interface>org.everit.jira.core.EVWorklogManager</interface>
+  </component>
+  
+  <component key="TimetrackerComponent" name="TimetrackerComponent"
+    class="org.everit.jira.core.impl.TimetrackerComponent">
+    <interface>org.everit.jira.core.TimetrackerManager</interface>
+  </component>
+  
+  <component key="SupportManager" name="SupportManager" 
+    class="org.everit.jira.core.impl.SupportComponent">
+    <interface>org.everit.jira.reporting.plugin.SupportManager</interface>
+  </component>
+  
+  <component key="InitializerComponent" name="InitializerComponent" 
+    class="org.everit.jira.core.impl.InitializerComponent">
+  </component>
+  
   <component key="JTRP" name="Reporting" class="org.everit.jira.reporting.plugin.ReportingPluginImpl">
     <interface>org.everit.jira.reporting.plugin.ReportingPlugin</interface>
   </component>
@@ -82,18 +101,25 @@
     <condition class="org.everit.jira.reporting.plugin.ReportingCondition" />
   </web-item>
 
-  <web-item key="jttp_documentation_link" name="JTTP Documentaion Link" section="jttp_menu/jttp_doc_section"
+  <web-item key="jttp_admin_link" name="JTTP Administration Link" section="jttp_menu/jttp_doc_section"
+    weight="47">
+    <label>Administration</label>
+    <link linkId="jttp_admin_link"><![CDATA[/secure/admin/TimetrackerAdminSettingsWebAction!default.jspa]]></link>
+    <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition" />
+  </web-item>
+
+   <web-item key="jttp_documentation_link" name="JTTP Documentaion Link" section="jttp_menu/jttp_doc_section"
     weight="47">
     <label>Help</label>
     <link linkId="jttp_doc_link">https://confluence.everit.biz/display/TD/Timetracker+Documentation</link>
     <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserLoggedInCondition" />
   </web-item>
 
-  <web-item key="jttp_admin_link" name="JTTP Administration Link" section="jttp_menu/jttp_doc_section"
+   <web-item key="jttp_aboutus_link" name="JTTP About US Link" section="jttp_menu/jttp_doc_section"
     weight="47">
-    <label>Administration</label>
-    <link linkId="jttp_admin_link"><![CDATA[/secure/admin/JiraTimetrackerAdminSettingsWebAction!default.jspa]]></link>
-    <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition" />
+    <label>About Us</label>
+    <link linkId="jttp_abuot_link">http://www.everit.biz/solutions-for-atlassian-jira/index_en</link>
+    <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserLoggedInCondition" />
   </web-item>
 
   <web-resource name="JTTP Resources" key="jttp-resources-${project.version}-${build.time}">
@@ -101,10 +127,11 @@
     <dependency>com.atlassian.auiplugin:ajs</dependency>
     <dependency>com.atlassian.auiplugin:aui-experimental-progress-indicator</dependency>
     <dependency>com.atlassian.auiplugin:aui-date-picker</dependency>
+    <dependency>com.atlassian.auiplugin:dialog2</dependency>
+    <dependency>com.atlassian.auiplugin:aui-experimental-expander</dependency>
     <transformation extension="js">
       <transformer key="jsI18n" />
     </transformation>
-    <resource type="download" name="jttp_feedback.css" location="/css/jttp_feedback.css"/>
     <resource type="download" name="jttp.js" location="/js/jttp.js"/>
     <resource type="download" name="moment-with-locales.js" location="/js/moment-with-locales.js"/>
     <resource type="download" name="E_logo.png" location="/icons/E_logo.png">
@@ -122,7 +149,6 @@
     <transformation extension="js">
       <transformer key="jsI18n" />
     </transformation>
-    <resource type="download" name="jttp_feedback.css" location="/css/jttp_feedback.css" />
     <resource type="download" name="E_logo.png" location="/icons/E_logo.png">
       <param name="content-type" value="image/png" />
     </resource>
@@ -136,7 +162,6 @@
     <dependency>com.atlassian.auiplugin:ajs</dependency>
     <dependency>com.atlassian.auiplugin:dialog2</dependency>
     <dependency>com.atlassian.auiplugin:aui-date-picker</dependency>
-    <resource type="download" name="jttp_feedback.css" location="/css/jttp_feedback.css" />
     <resource type="download" name="E_logo.png" location="/icons/E_logo.png">
       <param name="content-type" value="image/png" />
     </resource>
@@ -159,19 +184,13 @@
     <resource type="download" name="E_logo.png" location="/icons/E_logo.png">
       <param name="content-type" value="image/png" />
     </resource>
-    <resource type="download" name="csvexport.png" location="/images/csvexport.png">
+    <resource type="download" name="additional.png" location="/images/additional.png">
       <param name="content-type" value="image/png" />
     </resource>
-    <resource type="download" name="exportformat.png" location="/images/exportformat.png">
+    <resource type="download" name="remain.png" location="/images/remain.png">
       <param name="content-type" value="image/png" />
     </resource>
-    <resource type="download" name="future.png" location="/images/future.png">
-      <param name="content-type" value="image/png" />
-    </resource>
-    <resource type="download" name="issuesum.png" location="/images/issuesum.png">
-      <param name="content-type" value="image/png" />
-    </resource>
-    <resource type="download" name="newtime.png" location="/images/newtime.png">
+    <resource type="download" name="timezone.png" location="/images/timezone.png">
       <param name="content-type" value="image/png" />
     </resource>
     <resource type="download" name="reporting.css" location="/css/reporting.css" />
@@ -184,10 +203,12 @@
   <web-resource name="JTRP Resources" key="admin-settings-resources-${project.version}-${build.time}">
     <context>org.everit.jira.timetracker.plugin.admin-settings-resources</context>
     <dependency>com.atlassian.auiplugin:ajs</dependency>
+    <dependency>com.atlassian.auiplugin:aui-experimental-expander</dependency>
     <resource type="download" name="E_logo.png" location="/icons/E_logo.png">
       <param name="content-type" value="image/png" />
     </resource>
-    <resource type="download" name="admin_setting.css" location="/css/admin_settings.css" />
+    <resource type="download" name="admin_setting.css" location="/css/admin_settings.css"/>
+    <resource type="download" name="jttp_admin_setting.js" location="/js/jttp_admin_setting.js"/>
   </web-resource>
 
   <web-resource name="JTRP Resources"
@@ -219,7 +240,6 @@
     <transformation extension="js">
       <transformer key="jsI18n" />
     </transformation>
-    <resource type="download" name="jttp_feedback.css" location="/css/jttp_feedback.css" />
     <resource type="download" name="E_logo.png" location="/icons/E_logo.png">
       <param name="content-type" value="image/png" />
     </resource>
@@ -237,7 +257,6 @@
 
   <webwork1 key="jttp-webaction" name="JTTP Webwork actions" class="java.lang.Object">
     <resource type="i18n" name="i18n-jttp-vm" location="i18n/jttp" />
-    <resource type="i18n" name="i18n-feedback-vm" location="i18n/feedback" />
     <actions>
       <action name="org.everit.jira.timetracker.plugin.web.JiraTimetrackerWebAction" alias="JiraTimetrackerWebAction">
         <view name="success">/templates/timetracker/jttp.vm</view>
@@ -245,13 +264,14 @@
         <view name="error">/templates/common/error.vm</view>
       </action>
 
-      <action name="org.everit.jira.timetracker.plugin.web.JiraTimetrackerSettingsWebAction"
-        alias="JiraTimetrackerSettingsWebAction">
-        <view name="success">/templates/timetracker/settings.vm</view>
-        <view name="input">/templates/timetracker/settings.vm</view>
+      <action name="org.everit.jira.timetracker.plugin.web.JiraTimetrackerUserSettingsWebAction"
+        alias="TimetrackerUserSettingsWebAction">
+        <view name="success">/templates/timetracker/user_settings.vm</view>
+        <view name="input">/templates/timetracker/user_settings.vm</view>
         <view name="error">/templates/common/error.vm</view>
       </action>
-      <action name="org.everit.jira.timetracker.plugin.web.AdminSettingsWebAction" alias="JiraTimetrackerAdminSettingsWebAction">
+      <action name="org.everit.jira.timetracker.plugin.web.AdminSettingsWebAction" 
+        alias="TimetrackerAdminSettingsWebAction" roles-required="admin">
         <view name="success">/templates/timetracker/adminsettings.vm</view>
         <view name="input">/templates/timetracker/adminsettings.vm</view>
         <view name="error">/templates/common/error.vm</view>
@@ -262,7 +282,6 @@
   <webwork1 key="jtrp-webaction" name="JTRP Webwork actions" class="java.lang.Object">
     <resource type="i18n" name="i18n-jtrp-vm" location="i18n/jtrp" />
     <resource type="i18n" name="i18n-jttp-vm" location="i18n/jttp" />
-    <resource type="i18n" name="i18n-feedback-vm" location="i18n/feedback" />
     <actions>
       <action name="org.everit.jira.reporting.plugin.web.ReportingWebAction" alias="ReportingWebAction">
         <view name="success">/templates/reporting/reporting.vm</view>
@@ -287,14 +306,14 @@
         <view name="input">/templates/reporting/table_report.vm</view>
         <view name="error">/templates/common/error.vm</view>
       </action>
-      <action name="org.everit.jira.reporting.plugin.web.ReportingAdminSettingsWebAction"
-        alias="JiraTimetrackerReportingSettingsWebAction">
-        <view name="success">/templates/reporting/reportingadminsettings.vm</view>
-        <view name="input">/templates/reporting/reportingadminsettings.vm</view>
+      <action name="org.everit.jira.timetracker.plugin.web.PermissionSettingsWebAction"
+        alias="TimetrackerPermissionSettingsWebAction" roles-required="admin">
+        <view name="success">/templates/timetracker/permission_settings.vm</view>
+        <view name="input">/templates/timetracker/permission_settings.vm</view>
         <view name="error">/templates/common/error.vm</view>
       </action>
       <action name="org.everit.jira.reporting.plugin.web.ReportingUserSettingsWebAction"
-        alias="JiraTimetrackerReportingUserSettingsWebAction">
+        alias="ReportingUserSettingsWebAction">
         <view name="success">/templates/reporting/reportingusersettings.vm</view>
         <view name="input">/templates/reporting/reportingusersettings.vm</view>
         <view name="error">/templates/common/error.vm</view>
@@ -311,12 +330,12 @@
   <web-item key="jttp_settings_link" name="Jttp Settings Link" section="admin_plugins_menu/jttp_admin_section"
     weight="47">
     <label>Global Settings</label>
-    <link linkId="my_jttp_settings_link"><![CDATA[/secure/admin/JiraTimetrackerAdminSettingsWebAction!default.jspa]]></link>
+    <link linkId="my_jttp_settings_link"><![CDATA[/secure/admin/TimetrackerAdminSettingsWebAction!default.jspa]]></link>
   </web-item>
   <web-item key="jttp__reporting_settings_link" name="Jttp Reporting Settings Link"
     section="admin_plugins_menu/jttp_admin_section" weight="47">
-    <label>Reporting Settings</label>
-    <link linkId="my_jttp__reporting_settings_link"><![CDATA[/secure/admin/JiraTimetrackerReportingSettingsWebAction!default.jspa]]></link>
+    <label>Permission settings</label>
+    <link linkId="my_jttp__reporting_settings_link"><![CDATA[/secure/admin/TimetrackerPermissionSettingsWebAction!default.jspa]]></link>
   </web-item>
 
   <rest key="JTTP-REST" path="/jttp-rest" version="1">

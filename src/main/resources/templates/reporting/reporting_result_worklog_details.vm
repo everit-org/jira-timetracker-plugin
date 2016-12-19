@@ -590,8 +590,8 @@
                                         <td class="jtrp_col_reporter" style="#if( $isNotShowReporter )display:none;#end">$wd.issueReporter</td>
                                         <td class="jtrp_col_estimated" style="#if( $isNotShowEstimated )display:none;#end">#if ( !$wd.issueOriginalEstimate ) #else $durationFormatter.exactDuration($wd.issueOriginalEstimate) #end</td>
                                         <td class="jtrp_col_remainingTime" style="#if( $isNotShowRemainingTime )display:none;#end">#if ( !$wd.issueRemainingEstimate ) #else $durationFormatter.exactDuration($wd.issueRemainingEstimate) #end</td>
-                                        <td class="jtrp_col_created" style="#if( $isNotShowCreated )display:none;#end">$outlookDate.formatDMY($wd.issueCreated)</td>
-                                        <td class="jtrp_col_updated" style="#if( $isNotShowUpdated )display:none;#end">$outlookDate.formatDMY($wd.issueUpdated)</td>
+                                        <td class="jtrp_col_created" style="#if( $isNotShowCreated )display:none;#end">$dateTimeFormatterDate.format($wd.issueCreated)</td>
+                                        <td class="jtrp_col_updated" style="#if( $isNotShowUpdated )display:none;#end">$dateTimeFormatterDate.format($wd.issueUpdated)</td>
                                         <td class="jtrp_col_components" style="#if( $isNotShowComponents )display:none;#end">#if ( !$wd.issueComponents.isEmpty() ) #foreach ( $component in $wd.issueComponents )#if($velocityCount> 1),#end $component#end #end</td>
                                         <td class="jtrp_col_affectedVersions" style="#if( $isNotShowAffectedVersions )display:none;#end">#if ( !$wd.issueAffectedVersions.isEmpty() ) #foreach ( $affectedVersion in $wd.issueAffectedVersions )#if($velocityCount> 1),#end $affectedVersion #end #end</td>
                                         <td class="jtrp_col_fixVersions" style="#if( $isNotShowFixVersions )display:none;#end">#if ( !$wd.issueFixedVersions.isEmpty() ) #foreach ( $fixedVersion in $wd.issueFixedVersions )#if($velocityCount> 1),#end $fixedVersion #end #end</td>
@@ -600,10 +600,10 @@
                                         <td class="jtrp_col_issueEpicName" style="#if( $isNotShowIssueEpicName )display:none;#end">#if ( !$wd.issueEpicName ) #else $wd.issueEpicName #end</td>
                                         <td class="jtrp_col_issueEpicLink" style="#if( $isNotShowIssueEpicLink )display:none;#end">#if ( !$wd.issueEpicLink ) #else $wd.issueEpicLink #end</td>
                                         <td class="jtrp_col_user" style="#if( $isNotShowUser )display:none;#end">#if ($wd.worklogUser) $wd.worklogUser #else $i18n.getText("jtrp.plugin.anonymus") #end</td>
-                                        <td class="jtrp_col_startTime" style="#if( $isNotShowStartTime )display:none;#end">$outlookDate.formatDMYHMS($wd.worklogStartDate)</td>
+                                        <td class="jtrp_col_startTime" style="#if( $isNotShowStartTime )display:none;#end">$dateTimeFormatterDateTime.format($wd.worklogStartDate)</td>
                                         <td class="jtrp_col_timeSpent" style="#if( $isNotShowTimeSpent )display:none;#end">$durationFormatter.exactDuration($wd.worklogTimeWorked)</td>
-                                        <td class="jtrp_col_worklogCreated" style="#if( $isNotShowWorklogCreated )display:none;#end">$outlookDate.formatDMY($wd.worklogCreated)</td>
-                                        <td class="jtrp_col_worklogUpdated" style="#if( $isNotShowWorklogUpdated )display:none;#end">$outlookDate.formatDMY($wd.worklogUpdated)</td>
+                                        <td class="jtrp_col_worklogCreated" style="#if( $isNotShowWorklogCreated )display:none;#end">$dateTimeFormatterDate.format($wd.worklogCreated)</td>
+                                        <td class="jtrp_col_worklogUpdated" style="#if( $isNotShowWorklogUpdated )display:none;#end">$dateTimeFormatterDate.format($wd.worklogUpdated)</td>
                                     </tr>
                                     #end
                                 </tbody>

@@ -40,3 +40,7 @@ form.aui div.field-group textarea {
   background-size: 48px 48px;
   height: 48px;
 }
+
+.installed-version {
+  color: #707070;
+}

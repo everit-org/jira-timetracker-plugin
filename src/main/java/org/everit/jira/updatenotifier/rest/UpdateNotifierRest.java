@@ -21,20 +21,19 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
+import org.everit.jira.settings.TimeTrackerSettingsHelper;
 import org.everit.jira.updatenotifier.UpdateNotifier;
-
-import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
 /**
  * Rest for the Update notifier.
  */
 @Path("/update-notifier")
 public class UpdateNotifierRest {
-  private PluginSettingsFactory pluginSettingsFactory;
 
-  public UpdateNotifierRest(final PluginSettingsFactory pluginSettingsFactory) {
-    this.pluginSettingsFactory = pluginSettingsFactory;
+  private TimeTrackerSettingsHelper settingsHelper;
+
+  public UpdateNotifierRest(final TimeTrackerSettingsHelper settingsHelper) {
+    this.settingsHelper = settingsHelper;
   }
 
   /**
@@ -44,8 +43,7 @@ public class UpdateNotifierRest {
   @Produces(MediaType.TEXT_HTML)
   @Path("/cancel-update")
   public Response saveCancel() {
-    UpdateNotifier updateNotifierSettingsHelper = new UpdateNotifier(
-        pluginSettingsFactory, JiraTimetrackerUtil.getLoggedUserName());
+    UpdateNotifier updateNotifierSettingsHelper = new UpdateNotifier(settingsHelper);
     updateNotifierSettingsHelper.putDisableNotifierForVersion();
     return Response.ok().build();
   }

@@ -31,7 +31,7 @@ import org.everit.jira.reporting.plugin.dto.UserSummaryDTO;
 import org.everit.jira.reporting.plugin.query.IssueSummaryReportQueryBuilder;
 import org.everit.jira.reporting.plugin.query.ProjectSummaryReportQueryBuilder;
 import org.everit.jira.reporting.plugin.query.UserSummaryReportQueryBuilder;
-import org.everit.jira.timetracker.plugin.UserReportingSettingsHelper;
+import org.everit.jira.settings.dto.TimeTrackerUserSettings;
 
 /**
  * Class that export summaries list report (project summary, issue summary, user summary).
@@ -46,8 +46,8 @@ public class ExportSummariesListReport extends AbstractExportListReport {
 
   public ExportSummariesListReport(final QuerydslSupport querydslSupport,
       final ReportSearchParam reportSearchParam, final List<String> notBrowsableProjectKeys,
-      final UserReportingSettingsHelper userReportingSettingsHelper) {
-    super(querydslSupport, reportSearchParam, notBrowsableProjectKeys, userReportingSettingsHelper);
+      final TimeTrackerUserSettings userSettings) {
+    super(querydslSupport, reportSearchParam, notBrowsableProjectKeys, userSettings);
   }
 
   private void addIssueSummarySheet(final HSSFWorkbook workbook) {

@@ -18,7 +18,7 @@ package org.everit.jira.reporting.plugin.dto;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.everit.jira.timetracker.plugin.util.JiraTimetrackerUtil;
+import org.everit.jira.core.util.TimetrackerUtil;
 
 /**
  * Representation of user to picker.
@@ -60,8 +60,8 @@ public class PickerUserDTO {
    */
   public static PickerUserDTO createCurrentUser() {
     PickerUserDTO currentUser = new PickerUserDTO();
-    String loggedUserName = JiraTimetrackerUtil.getLoggedUserName();
-    currentUser.setDisplayName(JiraTimetrackerUtil.getI18nText(CURRENT_USER_DISPLAY_NAME));
+    String loggedUserName = TimetrackerUtil.getLoggedUserName();
+    currentUser.setDisplayName(TimetrackerUtil.getI18nText(CURRENT_USER_DISPLAY_NAME));
     currentUser.setUserName(CURRENT_USER_NAME);
     currentUser.setAvatarOwner(loggedUserName);
     currentUser.setActive(1);
@@ -73,7 +73,7 @@ public class PickerUserDTO {
    */
   public static PickerUserDTO createNoneUser() {
     PickerUserDTO unassigned = new PickerUserDTO();
-    unassigned.setDisplayName(JiraTimetrackerUtil.getI18nText(NONE_DISPLAY_NAME));
+    unassigned.setDisplayName(TimetrackerUtil.getI18nText(NONE_DISPLAY_NAME));
     unassigned.setUserName(NONE_USER_NAME);
     unassigned.setAvatarOwner(NONE_USER_NAME);
     unassigned.setActive(1);
@@ -85,7 +85,7 @@ public class PickerUserDTO {
    */
   public static PickerUserDTO createUnassignedUser() {
     PickerUserDTO unassigned = new PickerUserDTO();
-    unassigned.setDisplayName(JiraTimetrackerUtil.getI18nText(UNASSIGNED_DISPLAY_NAME));
+    unassigned.setDisplayName(TimetrackerUtil.getI18nText(UNASSIGNED_DISPLAY_NAME));
     unassigned.setUserName(UNASSIGNED_USER_NAME);
     unassigned.setAvatarOwner(UNASSIGNED_USER_NAME);
     unassigned.setActive(1);

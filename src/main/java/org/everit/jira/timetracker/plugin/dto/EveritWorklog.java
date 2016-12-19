@@ -15,13 +15,15 @@
  */
 package org.everit.jira.timetracker.plugin.dto;
 
+import java.io.IOException;
+import java.io.NotSerializableException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.text.ParseException;
-import java.util.Calendar;
 import java.util.Date;
 
+import org.everit.jira.core.impl.DateTimeServer;
 import org.everit.jira.timetracker.plugin.DurationFormatter;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.ofbiz.core.entity.GenericValue;
@@ -51,7 +53,7 @@ public class EveritWorklog implements Serializable {
    */
   private String body;
 
-  private Date date;
+  private DateTimeServer date;
 
   private int dayNo;
 
@@ -143,18 +145,22 @@ public class EveritWorklog implements Serializable {
    *          GenericValue worklog.
    * @throws ParseException
    *           If can't parse the date.
+   * @throws IllegalArgumentException
+   *           If can't parse the date.
    */
-  public EveritWorklog(final GenericValue worklogGv) throws ParseException {
+  public EveritWorklog(final GenericValue worklogGv)
+      throws ParseException, IllegalArgumentException {
     worklogId = worklogGv.getLong("id");
     startTime = worklogGv.getString("startdate");
-    date = DateTimeConverterUtil.stringToDateAndTime(startTime);
-    startTime = DateTimeConverterUtil.dateTimeToString(date);
-    startDate = DateTimeConverterUtil.dateToString(date);
-    Calendar calendar = Calendar.getInstance();
-    calendar.setTime(date);
-    weekNo = calendar.get(Calendar.WEEK_OF_YEAR);
-    monthNo = calendar.get(Calendar.MONTH) + 1;
-    dayNo = calendar.get(Calendar.DAY_OF_YEAR);
+    date = DateTimeServer.getInstanceBasedOnSystemTimeZone(
+        DateTimeConverterUtil.stringToDateAndTime(startTime).getTime());
+    startTime =
+        DateTimeConverterUtil.dateTimeToString(date.getUserTimeZoneDate());
+    startDate =
+        DateTimeConverterUtil.dateToString(date.getUserTimeZoneDate());
+    weekNo = date.getUserTimeZone().getWeekOfWeekyear();
+    monthNo = date.getUserTimeZone().getMonthOfYear() + 1;
+    dayNo = date.getUserTimeZone().getDayOfYear();
     issueId = Long.valueOf(worklogGv.getString("issue"));
     IssueManager issueManager = ComponentAccessor.getIssueManager();
     MutableIssue issueObject = issueManager.getIssueObject(issueId);
@@ -206,76 +212,23 @@ public class EveritWorklog implements Serializable {
   }
 
   /**
-   * Simple constructor with ResultSet.
-   *
-   * @param rs
-   *          ResultSet
-   * @throws ParseException
-   *           Cannot parse date time
-   * @throws SQLException
-   *           Cannot access resultSet fields
-   */
-  public EveritWorklog(final ResultSet rs)
-      throws ParseException, SQLException {
-    worklogId = rs.getLong("id");
-    startTime = rs.getString("startdate");
-    date = DateTimeConverterUtil.stringToDateAndTime(startTime);
-    startTime = DateTimeConverterUtil.dateTimeToString(date);
-    startDate = DateTimeConverterUtil.dateToString(date);
-    Calendar calendar = Calendar.getInstance();
-    calendar.setTime(date);
-    weekNo = calendar.get(Calendar.WEEK_OF_YEAR);
-    monthNo = calendar.get(Calendar.MONTH) + 1;
-    dayNo = calendar.get(Calendar.DAY_OF_YEAR);
-    issueId = rs.getLong("issueid");
-    IssueManager issueManager = ComponentAccessor.getIssueManager();
-    MutableIssue issueObject = issueManager.getIssueObject(issueId);
-    issue = issueObject.getKey();
-    issueSummary = issueObject.getSummary();
-    issueTypeName = issueObject.getIssueTypeObject().getName();
-    issueAvatarId = issueObject.getIssueTypeObject().getAvatar().getId();
-    issueTypeIconUrl = issueObject.getIssueTypeObject().getIconUrl();
-    if (StatusCategory.COMPLETE
-        .equals(issueObject.getStatusObject().getSimpleStatus().getStatusCategory().getKey())) {
-      isClosed = true;
-    }
-    if (issueObject.getParentObject() != null) {
-      issueParent = issueObject.getParentObject().getKey();
-    }
-    isMoreEstimatedTime = issueObject.getEstimate() == 0 ? false : true;
-    body = rs.getString("worklogbody");
-    if (body == null) {
-      body = "";
-    }
-    DurationFormatter durationFormatter = new DurationFormatter();
-    long timeSpentInSec = rs.getLong("timeworked");
-    milliseconds = timeSpentInSec
-        * DateTimeConverterUtil.MILLISECONDS_PER_SECOND;
-    duration = durationFormatter.exactDuration(timeSpentInSec);
-    endTime = DateTimeConverterUtil.countEndTime(startTime, milliseconds);
-
-    roundedRemaining = durationFormatter.roundedDuration(issueObject.getEstimate());
-    exactRemaining = durationFormatter.exactDuration(issueObject.getEstimate());
-  }
-
-  /**
    * Simple constructor whit Worklog.
    *
    * @param worklog
    *          The worklog.
-   * @throws ParseException
+   * @throws IllegalArgumentException
    *           If can't parse the date.
    */
-  public EveritWorklog(final Worklog worklog) throws ParseException {
+  public EveritWorklog(final Worklog worklog) throws IllegalArgumentException {
     worklogId = worklog.getId();
-    date = worklog.getStartDate();
-    startTime = DateTimeConverterUtil.dateTimeToString(date);
-    startDate = DateTimeConverterUtil.dateToString(date);
-    Calendar calendar = Calendar.getInstance();
-    calendar.setTime(date);
-    weekNo = calendar.get(Calendar.WEEK_OF_YEAR);
-    monthNo = calendar.get(Calendar.MONTH) + 1;
-    dayNo = calendar.get(Calendar.DAY_OF_YEAR);
+    date = DateTimeServer.getInstanceBasedOnSystemTimeZone(worklog.getStartDate().getTime());
+    startTime =
+        DateTimeConverterUtil.dateTimeToString(date.getUserTimeZoneDate());
+    startDate =
+        DateTimeConverterUtil.dateToString(date.getUserTimeZoneDate());
+    weekNo = date.getUserTimeZone().getWeekOfWeekyear();
+    monthNo = date.getUserTimeZone().getMonthOfYear() + 1;
+    dayNo = date.getUserTimeZone().getDayOfYear();
     issue = worklog.getIssue().getKey();
     issueSummary = worklog.getIssue().getSummary();
     body = worklog.getComment();
@@ -294,7 +247,7 @@ public class EveritWorklog implements Serializable {
   }
 
   public Date getDate() {
-    return (Date) date.clone();
+    return date.getUserTimeZoneDate();
   }
 
   public int getDayNo() {
@@ -381,12 +334,18 @@ public class EveritWorklog implements Serializable {
     return editOwnWorklogs;
   }
 
+  private void readObject(final ObjectInputStream stream) throws IOException,
+      ClassNotFoundException {
+    stream.close();
+    throw new NotSerializableException(getClass().getName());
+  }
+
   public void setBody(final String body) {
     this.body = body;
   }
 
   public void setDate(final Date date) {
-    this.date = (Date) date.clone();
+    this.date = DateTimeServer.getInstanceBasedOnUserTimeZone(date.getTime());
   }
 
   public void setDayNo(final int dayNo) {
@@ -463,6 +422,11 @@ public class EveritWorklog implements Serializable {
 
   public void setWorklogId(final Long worklogId) {
     this.worklogId = worklogId;
+  }
+
+  private void writeObject(final ObjectOutputStream stream) throws IOException {
+    stream.close();
+    throw new NotSerializableException(getClass().getName());
   }
 
 }
