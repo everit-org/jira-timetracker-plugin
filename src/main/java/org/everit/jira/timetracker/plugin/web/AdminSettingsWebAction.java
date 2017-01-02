@@ -31,6 +31,7 @@ import org.apache.log4j.Logger;
 import org.everit.jira.analytics.AnalyticsSender;
 import org.everit.jira.analytics.event.NoEstimateUsageChangedEvent;
 import org.everit.jira.analytics.event.NonWorkingUsageEvent;
+import org.everit.jira.analytics.event.TimeZoneUsageChangedEvent;
 import org.everit.jira.core.SupportManager;
 import org.everit.jira.core.util.TimetrackerUtil;
 import org.everit.jira.settings.TimeTrackerSettingsHelper;
@@ -393,16 +394,22 @@ public class AdminSettingsWebAction extends JiraWebActionSupport {
         .analyticsCheck(analyticsCheck)
         .timeZone(timeZoneType);
     settingsHelper.saveGlobalSettings(globalSettings);
-    sendNonEstAndNonWorkAnaliticsEvent();
+    sendAnaliticsEvent();
   }
 
-  private void sendNonEstAndNonWorkAnaliticsEvent() {
+  /**
+   * Send NoEstimateUsageChangedEvent, NonWorkingUsageEvent and TimeZoneUsageChangedEvent.
+   */
+  private void sendAnaliticsEvent() {
     NoEstimateUsageChangedEvent analyticsEvent =
         new NoEstimateUsageChangedEvent(pluginId, collectorIssuePatterns);
     analyticsSender.send(analyticsEvent);
     NonWorkingUsageEvent nonWorkingUsageEvent =
         new NonWorkingUsageEvent(pluginId, (issuesPatterns == null) || issuesPatterns.isEmpty());
     analyticsSender.send(nonWorkingUsageEvent);
+    TimeZoneUsageChangedEvent timeZoneAnalyticsEvent =
+        new TimeZoneUsageChangedEvent(pluginId, timeZoneType);
+    analyticsSender.send(timeZoneAnalyticsEvent);
   }
 
   public void setAnalyticsCheck(final boolean analyticsCheck) {
