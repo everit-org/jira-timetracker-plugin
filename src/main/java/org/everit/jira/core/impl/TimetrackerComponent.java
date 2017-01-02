@@ -75,14 +75,13 @@ public class TimetrackerComponent implements TimetrackerManager {
       final Set<Date> includeDatesSet) {
     DateTime scannedDate = new DateTime(TimetrackerUtil.getLoggedUserTimeZone());
     // one week
-    scannedDate = scannedDate.withDayOfYear(
-        scannedDate.getDayOfYear() - DateTimeConverterUtil.DAYS_PER_WEEK);
+    scannedDate = scannedDate.minusDays(DateTimeConverterUtil.DAYS_PER_WEEK);
     for (int i = 0; i < DateTimeConverterUtil.DAYS_PER_WEEK; i++) {
       // convert date to String
       Date scanedDateDate = DateTimeConverterUtil.convertDateTimeToDate(scannedDate);
       // check excludse - pass
       if (TimetrackerUtil.containsSetTheSameDay(excludeDatesSet, scanedDateDate)) {
-        scannedDate = scannedDate.withDayOfYear(scannedDate.getDayOfYear() + 1);
+        scannedDate = scannedDate.plusDays(1);
         continue;
       }
       // check includes - not check weekend
@@ -90,7 +89,7 @@ public class TimetrackerComponent implements TimetrackerManager {
       if (!TimetrackerUtil.containsSetTheSameDay(includeDatesSet, scanedDateDate)
           && ((scannedDate.getDayOfWeek() == DateTimeConstants.SUNDAY)
               || (scannedDate.getDayOfWeek() == DateTimeConstants.SATURDAY))) {
-        scannedDate = scannedDate.withDayOfYear(scannedDate.getDayOfYear() + 1);
+        scannedDate = scannedDate.plusDays(1);
         continue;
       }
       // check worklog. if no worklog set result else ++ scanedDate
@@ -102,7 +101,7 @@ public class TimetrackerComponent implements TimetrackerManager {
       if (!isDateContainsWorklog) {
         return scanedDateDate;
       } else {
-        scannedDate = scannedDate.withDayOfYear(scannedDate.getDayOfYear() + 1);
+        scannedDate = scannedDate.plusDays(1);
       }
     }
     // if we find everything all right then return with the current date
