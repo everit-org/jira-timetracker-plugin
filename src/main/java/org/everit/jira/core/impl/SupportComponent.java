@@ -70,7 +70,6 @@ public class SupportComponent implements SupportManager {
           fromDate.getUserTimeZoneDate())) {
         fromDate =
             DateTimeServer.getInstanceBasedOnUserTimeZone(fromDate.getUserTimeZone().plusDays(1));
-        // fromDate = fromDate.withDayOfYear(fromDate.getDayOfYear() + 1);
         continue;
       }
       // check includes - not check weekend
@@ -81,7 +80,6 @@ public class SupportComponent implements SupportManager {
               || (fromDate.getUserTimeZone().getDayOfWeek() == DateTimeConstants.SATURDAY))) {
         fromDate =
             DateTimeServer.getInstanceBasedOnUserTimeZone(fromDate.getUserTimeZone().plusDays(1));
-        // fromDate = fromDate.withDayOfYear(fromDate.getDayOfYear() + 1);
         continue;
       }
       // check worklog. if no worklog set result else ++ scanedDate
