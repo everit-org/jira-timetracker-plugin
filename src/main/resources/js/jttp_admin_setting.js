@@ -49,7 +49,7 @@ everit.jttp.admin = everit.jttp.admin || {};
 	  for (var i in dates) {
 	  	  var eDate=dates[i];
 	  	
-	    var includeDate= new Date(eDate); 
+	    var includeDate= new Date(millisTimeZoneCorrection(eDate)); 
 	    	var labelToAdd = aui.labels.label({
 	  		text: includeDate.print(jttpadmin.options.dateFormat),
 	  		id: diffCar+eDate,
@@ -61,6 +61,13 @@ everit.jttp.admin = everit.jttp.admin || {};
 	  	     });
 	  }
   }
+  
+  function millisTimeZoneCorrection(mil){
+    var osTimeZoneOffset = new Date().getTimezoneOffset() * -60000;
+    var correctMil = mil + osTimeZoneOffset;
+    return correctMil;
+  }
+  
   jttpadmin.beforeSubmit= function (){
 	  jQuery("#error_messageJS").hide();
 	  jQuery("#error_messageJS").empty();
@@ -72,14 +79,14 @@ everit.jttp.admin = everit.jttp.admin || {};
 	  jQuery("#excludeDatesDiv .aui-label.aui-label-closeable").each(function() {
 		  var actId= jQuery( this ).attr('id').substr(1);
 		  dates.push(actId);
-	  jQuery("#excludedatesHiddenSelect").append( '<option value="'+ actId +'" selected></option>' );
+	    jQuery("#excludedatesHiddenSelect").append( '<option value="'+ actId +'" selected></option>' );
 	  });
 	  jQuery("#includeDatesDiv .aui-label.aui-label-closeable").each(function() {
-		  var actId= jQuery( this ).attr('id').substr(1);
-		 if( jQuery.inArray(actId, dates) >-1){
+		var actId= jQuery( this ).attr('id').substr(1);
+		if( jQuery.inArray(actId, dates) >-1){
 			 errorDates.push(actId);
 			 error="duplicateDate";
-		 }
+		}
 	  jQuery("#includedatesHiddenSelect").append( '<option value="'+ actId +'" selected></option>' );
 	  });
 	  if(error!=""){

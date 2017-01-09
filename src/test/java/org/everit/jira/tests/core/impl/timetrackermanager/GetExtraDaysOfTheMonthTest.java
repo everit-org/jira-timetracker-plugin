@@ -100,8 +100,10 @@ public class GetExtraDaysOfTheMonthTest {
     List<Date> excludeDaysOfTheMonth = timetrackerManager.getExcludeDaysOfTheMonth(
         DateTimeServer.getInstanceBasedOnUserTimeZone(
             new DateTime(DateTimeConverterUtil.fixFormatStringToDate("2016-01-05"))),
-        new HashSet<>(Arrays.asList(DateTimeConverterUtil.fixFormatStringToDate("2016-01-05"),
-            DateTimeConverterUtil.fixFormatStringToDate("2016-02-05"))));
+        new HashSet<>(
+            Arrays.asList(
+                DateTimeConverterUtil.fixFormatStringToDate("2016-01-05"),
+                DateTimeConverterUtil.fixFormatStringToDate("2016-02-05"))));
     Assert.assertEquals(
         new HashSet<>(Arrays.asList(DateTimeConverterUtil.fixFormatStringToDate("2016-01-05"))),
         new HashSet<>(excludeDaysOfTheMonth));
@@ -112,8 +114,10 @@ public class GetExtraDaysOfTheMonthTest {
     List<Date> excludeDaysOfTheMonth = timetrackerManager.getIncludeDaysOfTheMonth(
         DateTimeServer.getInstanceBasedOnUserTimeZone(
             new DateTime(DateTimeConverterUtil.fixFormatStringToDate("2016-01-05"))),
-        new HashSet<>(Arrays.asList(DateTimeConverterUtil.fixFormatStringToDate("2016-01-01"),
-            DateTimeConverterUtil.fixFormatStringToDate("2016-02-01"))));
+        new HashSet<>(
+            Arrays.asList(
+                DateTimeConverterUtil.fixFormatStringToDate("2016-01-01"),
+                DateTimeConverterUtil.fixFormatStringToDate("2016-02-01"))));
     Assert.assertEquals(
         new HashSet<>(Arrays.asList(DateTimeConverterUtil.fixFormatStringToDate("2016-01-01"))),
         new HashSet<>(excludeDaysOfTheMonth));

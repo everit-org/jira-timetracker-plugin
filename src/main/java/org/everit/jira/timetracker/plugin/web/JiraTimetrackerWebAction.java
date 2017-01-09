@@ -883,7 +883,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
         dateFormatted = date.getUserTimeZoneDate().getTime();
       }
     }
-
   }
 
   private void parseDateParamAfterDateSwitcher(final boolean dayBack, final boolean dayNext,
