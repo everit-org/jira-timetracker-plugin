@@ -25,9 +25,9 @@ everit.jttp.report_common_scripts = everit.jttp.report_common_scripts || {};
   jQuery(document).ready(function() {
     opt = jttp.options;
       
-    var dateForm = new Date(opt.dateFromFormated).print(opt.dateFormat); 
+    var dateForm = new Date(millisTimeZoneCorrection(opt.dateFromFormated)).print(opt.dateFormat); 
     jQuery("#dateFrom").val(dateForm);
-    var dateTo = new Date(opt.dateToFormated).print(opt.dateFormat);
+    var dateTo = new Date(millisTimeZoneCorrection(opt.dateToFormated)).print(opt.dateFormat);
     jQuery("#dateTo").val(dateTo);
 
     jttp.calFrom = Calendar.setup({
@@ -61,6 +61,18 @@ everit.jttp.report_common_scripts = everit.jttp.report_common_scripts || {};
     jQuery('.aui-ss, .aui-ss-editing, .aui-ss-field').attr("style", "width: 300px;");
 
   });
+  
+  function millisTimeZoneCorrection(mil){
+    var osTimeZoneOffset = new Date().getTimezoneOffset() * -60000;
+    var correctMil = mil + osTimeZoneOffset;
+    return correctMil;
+  }
+  
+  function timeZoneCorrection(date){
+    var osTimeZoneOffset = date.getTimezoneOffset() * -60000;
+    var correctMil = date.getTime() + osTimeZoneOffset;
+    return correctMil;
+  }
   
   function browsePermissionCheck(){
     if(!jttp.options.hasBrowseUsersPermission){
@@ -111,7 +123,7 @@ everit.jttp.report_common_scripts = everit.jttp.report_common_scripts || {};
        showErrorMessage("error_message_label_df");
        return false;
      }
-     jQuery('#dateFromMil').val(dateFromMil.getTime());
+     jQuery('#dateFromMil').val(timeZoneCorrection(dateFromMil));
    }catch(err){
      showErrorMessage("error_message_label_df");
      return false;
@@ -123,7 +135,7 @@ everit.jttp.report_common_scripts = everit.jttp.report_common_scripts || {};
        showErrorMessage("error_message_label_dt");
        return false;
      }
-     jQuery('#dateToMil').val(dateToMil.getTime());
+     jQuery('#dateToMil').val(timeZoneCorrection(dateToMil));
    }catch(err){
      showErrorMessage("error_message_label_dt");
      return false;

@@ -161,7 +161,7 @@ public final class SummaryDTO {
       int includeDtaes =
           timetrackerManager.getIncludeDaysOfTheMonth(date, includeDatesAsSet).size();
       int nonWorkDaysCount = 0;
-      for (int i = 1; i < daysInMonth; i++) {
+      for (int i = 1; i <= daysInMonth; i++) {
         int dayOfweek = dayIndex.get(Calendar.DAY_OF_WEEK);
         if ((dayOfweek == Calendar.SUNDAY) || (dayOfweek == Calendar.SATURDAY)) {
           nonWorkDaysCount++;

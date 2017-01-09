@@ -40,9 +40,9 @@ everit.jttp.main = everit.jttp.main || {};
     }else{
       jQuery("#jttp-headline-day-calendar").blur();
     }
-
+    //This is create the corrected version, the calendar also use this variable
+    jttp.options.dateFormatted = millisTimeZoneCorrection(jttp.options.dateFormatted);
     var formatedDate =  new Date(jttp.options.dateFormatted).print(jttp.options.dateFormat);  
-
     jQuery("#dateHidden").val(formatedDate);
 
     popupCalendarsSetup();
@@ -192,11 +192,23 @@ everit.jttp.main = everit.jttp.main || {};
     }
   }
   
+  function millisTimeZoneCorrection(mil){
+    var osTimeZoneOffset =  new Date().getTimezoneOffset() * 60000;
+    var correctMil = mil + osTimeZoneOffset;
+    return correctMil;
+  }
+  
+  function dateTimeZoneCorrection(date){
+    var osTimeZoneOffset = date.getTimezoneOffset() * 60000;
+    var correctMil = date.getTime() - osTimeZoneOffset;
+    return correctMil;
+  }
+  
   jttp.beforeSubmit = function() {
     var dateHidden = jQuery('#dateHidden').val();
     var dateInMil = Date.parseDate(dateHidden, jttp.options.dateFormat);
     var date = jQuery('#date');
-    date.val(dateInMil.getTime());
+    date.val(dateTimeZoneCorrection(dateInMil));
     
     var worklogValues = getWorklogValuesJson();
     var json = JSON.stringify(worklogValues);
@@ -223,7 +235,7 @@ everit.jttp.main = everit.jttp.main || {};
     var dateHidden = jQuery('#dateHidden').val();
     var dateInMil = Date.parseDate(dateHidden, jttp.options.dateFormat);
     var date = jQuery('#date');
-    date.val(dateInMil.getTime());
+    date.val(dateTimeZoneCorrection(dateInMil));
     jQuery("#jttp-editall-form").append(date);
     
     return true;
@@ -233,7 +245,7 @@ everit.jttp.main = everit.jttp.main || {};
     var dateHidden = jQuery('#dateHidden').val();
     var dateInMil = Date.parseDate(dateHidden, jttp.options.dateFormat);
     var date = jQuery('#date');
-    date.val(dateInMil.getTime());
+    date.val(dateTimeZoneCorrection(dateInMil));
     jQuery(".actionForm_"+id).append(date);
     
     return true;
@@ -242,14 +254,14 @@ everit.jttp.main = everit.jttp.main || {};
  jttp.cancelClick = function(){
    var dateHidden = jQuery('#dateHidden').val();
    var dateInMil = Date.parseDate(dateHidden, jttp.options.dateFormat);
-   window.location = "JiraTimetrackerWebAction.jspa?date="+dateInMil.getTime();
+   window.location = "JiraTimetrackerWebAction.jspa?date="+dateTimeZoneCorrection(dateInMil);
  }
  
   jttp.beforeSubmitChangeDate = function() {
     var dateHidden = jQuery('#dateHidden').val();
     var dateInMil = Date.parseDate(dateHidden, jttp.options.dateFormat);
     var date = jQuery('#date');
-    date.val(dateInMil.getTime());
+    date.val(dateTimeZoneCorrection(dateInMil));
     jQuery("#jttp-datecahnge-form").append(date);
     
     var worklogValues = getWorklogValuesJson();
@@ -462,7 +474,7 @@ everit.jttp.main = everit.jttp.main || {};
         firstDay : jttp.options.firstDay,
         inputField : jQuery("#dateHidden"),
         button : jQuery("#jttp-headline-day-calendar"),
-        date : new Date(jttp.options.dateFormatted).print(jttp.options.dateFormat),
+     //   date : new Date(millisTimeZoneCorrection(jttp.options.dateFormatted)).print(jttp.options.dateFormat),
         ifFormat: jttp.options.dateFormat,
         align : 'Br',
         electric : false,
@@ -873,7 +885,7 @@ everit.jttp.main = everit.jttp.main || {};
     var dateHidden = jQuery('#dateHidden').val();
     var dateInMil = Date.parseDate(dateHidden, jttp.options.dateFormat);
     var date = jQuery('#date');
-    date.val(dateInMil.getTime());
+    date.val(dateTimeZoneCorrection(dateInMil));
     jQuery("#actionFormForDelete").append(date);
     
     return true;

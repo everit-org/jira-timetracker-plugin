@@ -30,6 +30,12 @@ everit.jttp.missing_days_report = everit.jttp.missing_days_report || {};
     }
   }
   
+  function timeZoneCorrection(date){
+    var osTimeZoneOffset = date.getTimezoneOffset() * -60000;
+    var correctMil = date.getTime() + osTimeZoneOffset;
+    return correctMil;
+  }
+  
   jttp.beforeSubmitMissingsReport = function() {
     try{
       var dateFrom = jQuery('#dateFrom').val();
@@ -38,7 +44,7 @@ everit.jttp.missing_days_report = everit.jttp.missing_days_report || {};
         showErrorMessage("error_message_label_df");
         return false;
       }
-      jQuery('#dateFromMil').val(dateFromMil.getTime());
+      jQuery('#dateFromMil').val(timeZoneCorrection(dateFromMil));
     }catch(err){
       showErrorMessage("error_message_label_df");
       return false;
@@ -50,7 +56,7 @@ everit.jttp.missing_days_report = everit.jttp.missing_days_report || {};
         showErrorMessage("error_message_label_dt");
         return false;
       }
-      jQuery('#dateToMil').val(dateToMil.getTime());
+      jQuery('#dateToMil').val(timeZoneCorrection(dateToMil));
     }catch(err){
       showErrorMessage("error_message_label_dt");
       return false;
