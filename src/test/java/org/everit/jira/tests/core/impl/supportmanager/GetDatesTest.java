@@ -17,7 +17,6 @@ package org.everit.jira.tests.core.impl.supportmanager;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,8 +33,10 @@ import org.everit.jira.core.impl.DateTimeServer;
 import org.everit.jira.core.impl.SupportComponent;
 import org.everit.jira.reporting.plugin.dto.MissingsWorklogsDTO;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
-import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
@@ -124,26 +125,24 @@ public class GetDatesTest {
 
   private void initMockComponentWorker() {
     timeTrackerGlobalSettings = new TimeTrackerGlobalSettings();
-    DateTime date = new DateTime();
-    today = date.toDateTime();
+    DateTime date = new DateTime(1452124800000L, DateTimeZone.UTC); // 2016.01.07
+    today = date.toDateTime(); // Thursday
     date = date.plusDays(1);
-    todayPlus1 = date.toDateTime();
+    todayPlus1 = date.toDateTime(); // excluded Friday
     date = date.plusDays(1);
-    todayPlus2 = date.toDateTime();
+    todayPlus2 = date.toDateTime();// included Staruday
     date = date.plusDays(1);
-    todayPlus3 = date.toDateTime();
+    todayPlus3 = date.toDateTime();// Sunday
     date = date.plusDays(1);
-    todayPlus4 = date.toDateTime();
+    todayPlus4 = date.toDateTime();// Monday
 
     timeTrackerGlobalSettings
-        .excludeDates(new HashSet<>(Arrays.asList(todayPlus1.getMillis())));
+        .excludeDates(new HashSet<>(Arrays.asList(1452211200000L))); // 2016.01.08 Friday
     timeTrackerGlobalSettings
-        .includeDates(new HashSet<>(Arrays.asList(today.getMillis(),
-            todayPlus2.getMillis(),
-            todayPlus3.getMillis(),
-            todayPlus4.getMillis())));
+        .includeDates(new HashSet<>(Arrays.asList(1452297600000L))); // 2016.01.09 Saturday
     timeTrackerGlobalSettings
         .filteredSummaryIssues(new ArrayList<>(Arrays.asList(Pattern.compile(NOWORK_ISSUE_KEY))));
+
 
     MockComponentWorker mockComponentWorker = new MockComponentWorker();
 
@@ -217,18 +216,19 @@ public class GetDatesTest {
               return false;
             }
             List<EntityCondition> exprList = (List<EntityCondition>) argument;
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            DateTimeFormatter sdf = DateTimeFormat.forPattern("yyyy-MM-dd");
             for (EntityCondition expression : exprList) {
               EntityExpr expr = (EntityExpr) expression;
-              try {
-                if ("startdate".equals(expr.getLhs())
-                    && EntityOperator.GREATER_THAN_EQUAL_TO.equals(expr.getOperator())
-                    && sdf.format(DateTimeConverterUtil.convertDateTimeToDate(today))
-                        .equals(sdf.format(sdf.parse(expr.getRhs().toString())))) {
-                  return true;
-                }
-              } catch (ParseException e) {
+              // try {
+              if ("startdate".equals(expr.getLhs())
+                  && EntityOperator.GREATER_THAN_EQUAL_TO.equals(expr.getOperator())
+                  && sdf.print(today)
+                      .equals(
+                          sdf.print(sdf.parseDateTime(expr.getRhs().toString().split(" ")[0])))) {
+                return true;
               }
+              // } catch (ParseException e) {
+              // }
             }
             return false;
           }
@@ -243,25 +243,26 @@ public class GetDatesTest {
               return false;
             }
             List<EntityCondition> exprList = (List<EntityCondition>) argument;
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            DateTimeFormatter sdf = DateTimeFormat.forPattern("yyyy-MM-dd");
             for (EntityCondition expression : exprList) {
               EntityExpr expr = (EntityExpr) expression;
-              try {
-                if ("startdate".equals(expr.getLhs())
-                    && EntityOperator.GREATER_THAN_EQUAL_TO.equals(expr.getOperator())
-                    && sdf.format(DateTimeConverterUtil.convertDateTimeToDate(todayPlus1))
-                        .equals(sdf.format(sdf.parse(expr.getRhs().toString())))) {
-                  return true;
-                }
-              } catch (ParseException e) {
+              // try {
+              if ("startdate".equals(expr.getLhs())
+                  && EntityOperator.GREATER_THAN_EQUAL_TO.equals(expr.getOperator())
+                  && sdf.print(todayPlus1)
+                      .equals(
+                          sdf.print(sdf.parseDateTime(expr.getRhs().toString().split(" ")[0])))) {
+                return true;
               }
+              // } catch (ParseException e) {
+              // }
             }
             return false;
           }
         })))
         .thenReturn(new ArrayList<>(Arrays.asList(
             createDummyGenericValue(workIssue.getId(), 1000L),
-            createDummyGenericValue(noworkIssue.getId(), 2000L))));
+            createDummyGenericValue(noworkIssue.getId(), 2000L)))); // not enough worklog
     Mockito.when(ofBizDelegator.findByAnd(Matchers.anyString(),
         Matchers.argThat(new ArgumentMatcher<List<EntityCondition>>() {
           @Override
@@ -270,25 +271,26 @@ public class GetDatesTest {
               return false;
             }
             List<EntityCondition> exprList = (List<EntityCondition>) argument;
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            DateTimeFormatter sdf = DateTimeFormat.forPattern("yyyy-MM-dd");
             for (EntityCondition expression : exprList) {
               EntityExpr expr = (EntityExpr) expression;
-              try {
-                if ("startdate".equals(expr.getLhs())
-                    && EntityOperator.GREATER_THAN_EQUAL_TO.equals(expr.getOperator())
-                    && sdf.format(DateTimeConverterUtil.convertDateTimeToDate(todayPlus2))
-                        .equals(sdf.format(sdf.parse(expr.getRhs().toString())))) {
-                  return true;
-                }
-              } catch (ParseException e) {
+              // try {
+              if ("startdate".equals(expr.getLhs())
+                  && EntityOperator.GREATER_THAN_EQUAL_TO.equals(expr.getOperator())
+                  && sdf.print(todayPlus2)
+                      .equals(
+                          sdf.print(sdf.parseDateTime(expr.getRhs().toString().split(" ")[0])))) {
+                return true;
               }
+              // } catch (ParseException e) {
+              // }
             }
             return false;
           }
         })))
         .thenReturn(new ArrayList<>(Arrays.asList(
             createDummyGenericValue(noworkIssue.getId(), 2600L),
-            createDummyGenericValue(workIssue.getId(), 1000L))));
+            createDummyGenericValue(workIssue.getId(), 1000L))));// enough but with non work issue
     Mockito.when(ofBizDelegator.findByAnd(Matchers.anyString(),
         Matchers.argThat(new ArgumentMatcher<List<EntityCondition>>() {
           @Override
@@ -297,18 +299,19 @@ public class GetDatesTest {
               return false;
             }
             List<EntityCondition> exprList = (List<EntityCondition>) argument;
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            DateTimeFormatter sdf = DateTimeFormat.forPattern("yyyy-MM-dd");
             for (EntityCondition expression : exprList) {
               EntityExpr expr = (EntityExpr) expression;
-              try {
-                if ("startdate".equals(expr.getLhs())
-                    && EntityOperator.GREATER_THAN_EQUAL_TO.equals(expr.getOperator())
-                    && sdf.format(DateTimeConverterUtil.convertDateTimeToDate(todayPlus3))
-                        .equals(sdf.format(sdf.parse(expr.getRhs().toString())))) {
-                  return true;
-                }
-              } catch (ParseException e) {
+              // try {
+              if ("startdate".equals(expr.getLhs())
+                  && EntityOperator.GREATER_THAN_EQUAL_TO.equals(expr.getOperator())
+                  && sdf.print(todayPlus3)
+                      .equals(
+                          sdf.print(sdf.parseDateTime(expr.getRhs().toString().split(" ")[0])))) {
+                return true;
               }
+              // } catch (ParseException e) {
+              // }
             }
             return false;
           }
@@ -316,7 +319,7 @@ public class GetDatesTest {
         .thenReturn(new ArrayList<>(Arrays.asList(
             createDummyGenericValue(workIssue.getId(), 500L),
             createDummyGenericValue(workIssue.getId(), 100L),
-            createDummyGenericValue(workIssue.getId(), 2000L))));
+            createDummyGenericValue(workIssue.getId(), 2000L)))); // not enough worklog
     Mockito.when(ofBizDelegator.findByAnd(Matchers.anyString(),
         Matchers.argThat(new ArgumentMatcher<List<EntityCondition>>() {
           @Override
@@ -325,18 +328,19 @@ public class GetDatesTest {
               return false;
             }
             List<EntityCondition> exprList = (List<EntityCondition>) argument;
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            DateTimeFormatter sdf = DateTimeFormat.forPattern("yyyy-MM-dd");
             for (EntityCondition expression : exprList) {
               EntityExpr expr = (EntityExpr) expression;
-              try {
-                if ("startdate".equals(expr.getLhs())
-                    && EntityOperator.GREATER_THAN_EQUAL_TO.equals(expr.getOperator())
-                    && sdf.format(DateTimeConverterUtil.convertDateTimeToDate(todayPlus4))
-                        .equals(sdf.format(sdf.parse(expr.getRhs().toString())))) {
-                  return true;
-                }
-              } catch (ParseException e) {
+              // try {
+              if ("startdate".equals(expr.getLhs())
+                  && EntityOperator.GREATER_THAN_EQUAL_TO.equals(expr.getOperator())
+                  && sdf.print(todayPlus4)
+                      .equals(
+                          sdf.print(sdf.parseDateTime(expr.getRhs().toString().split(" ")[0])))) {
+                return true;
               }
+              // } catch (ParseException e) {
+              // }
             }
             return false;
           }
@@ -373,30 +377,22 @@ public class GetDatesTest {
     dates =
         supportManager.getDates(today, todayPlus4, true, false, timeTrackerGlobalSettings);
     DecimalFormat df = new DecimalFormat("#.#");
+    Assert.assertEquals(1, dates.size());
+    dto1 = dates.get(0);
+    Assert.assertEquals("1", dto1.getHour());
+    Assert.assertEquals(sdf.format(todayPlus4.getUserTimeZoneDate()),
+        sdf.format(dto1.getDate()));
+
+    dates =
+        supportManager.getDates(today, todayPlus4, true, true, timeTrackerGlobalSettings);
     Assert.assertEquals(2, dates.size());
     dto1 = dates.get(0);
     MissingsWorklogsDTO dto2 = dates.get(1);
     Assert.assertEquals("1", dto1.getHour());
-    Assert.assertEquals(df.format(0.3), dto2.getHour());
+    Assert.assertEquals(df.format(0.7), dto2.getHour());
     Assert.assertEquals(sdf.format(todayPlus4.getUserTimeZoneDate()),
         sdf.format(dto1.getDate()));
-    Assert.assertEquals(sdf.format(todayPlus3.getUserTimeZoneDate()),
-        sdf.format(dto2.getDate()));
-
-    dates =
-        supportManager.getDates(today, todayPlus4, true, true, timeTrackerGlobalSettings);
-    Assert.assertEquals(3, dates.size());
-    dto1 = dates.get(0);
-    dto2 = dates.get(1);
-    MissingsWorklogsDTO dto3 = dates.get(2);
-    Assert.assertEquals("1", dto1.getHour());
-    Assert.assertEquals(df.format(0.3), dto2.getHour());
-    Assert.assertEquals(df.format(0.7), dto3.getHour());
-    Assert.assertEquals(sdf.format(todayPlus4.getUserTimeZoneDate()),
-        sdf.format(dto1.getDate()));
-    Assert.assertEquals(sdf.format(todayPlus3.getUserTimeZoneDate()),
-        sdf.format(dto2.getDate()));
     Assert.assertEquals(sdf.format(todayPlus2.getUserTimeZoneDate()),
-        sdf.format(dto3.getDate()));
+        sdf.format(dto2.getDate()));
   }
 }

@@ -59,9 +59,9 @@ public final class SummaryDTO {
 
     private final DurationFormatter durationFormatter;
 
-    private final Set<Date> excludeDatesAsSet;
+    private final Set<DateTime> excludeDatesAsSet;
 
-    private final Set<Date> includeDatesAsSet;
+    private final Set<DateTime> includeDatesAsSet;
 
     private final List<Pattern> issuePatterns;
 
@@ -106,8 +106,8 @@ public final class SummaryDTO {
         final TimetrackerManager timetrackerManager,
         final SupportManager supportManager,
         final DateTimeServer date,
-        final Set<Date> excludeDatesAsSet,
-        final Set<Date> includeDatesAsSet,
+        final Set<DateTime> excludeDatesAsSet,
+        final Set<DateTime> includeDatesAsSet,
         final List<Pattern> issuePatterns) {
       durationFormatter = new DurationFormatter();
       this.timeTrackingConfiguration = timeTrackingConfiguration;
@@ -157,9 +157,11 @@ public final class SummaryDTO {
           TimeUnit.DAYS.convert(monthLastDay.getTimeInMillis() - dayIndex.getTimeInMillis(),
               TimeUnit.MILLISECONDS) + 1;
       int excludeDtaes =
-          timetrackerManager.getExcludeDaysOfTheMonth(date, excludeDatesAsSet).size();
+          timetrackerManager.getExcludeDaysOfTheMonth(date.getUserTimeZone(), excludeDatesAsSet)
+              .size();
       int includeDtaes =
-          timetrackerManager.getIncludeDaysOfTheMonth(date, includeDatesAsSet).size();
+          timetrackerManager.getIncludeDaysOfTheMonth(date.getUserTimeZone(), includeDatesAsSet)
+              .size();
       int nonWorkDaysCount = 0;
       for (int i = 1; i <= daysInMonth; i++) {
         int dayOfweek = dayIndex.get(Calendar.DAY_OF_WEEK);
@@ -172,12 +174,13 @@ public final class SummaryDTO {
       return realWorkDaysInMonth * expectedWorkSecondsInDay;
     }
 
+    // TODO TESt hard
     private double calculateExpectedWorkSecondsInWeek(final double expectedWorkSecondsInDay) {
-      List<Date> weekdays = new ArrayList<>();
+      List<DateTime> weekdays = new ArrayList<>();
       Calendar dayIndex = createNewCalendarWithWeekStart();
       dayIndex.setTime(getWeekStart(date.getUserTimeZoneDate()));
       for (int i = 0; i < DateTimeConverterUtil.DAYS_PER_WEEK; i++) {
-        weekdays.add(dayIndex.getTime());
+        weekdays.add(new DateTime(dayIndex.getTime().getTime()));
         dayIndex.add(Calendar.DAY_OF_MONTH, 1);
       }
       double realWorkDaysInWeek = timetrackerManager.countRealWorkDaysInWeek(weekdays,

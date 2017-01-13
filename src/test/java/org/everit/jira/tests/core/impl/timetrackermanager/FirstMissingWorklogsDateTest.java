@@ -30,6 +30,9 @@ import org.everit.jira.core.impl.TimetrackerComponent;
 import org.everit.jira.settings.TimeTrackerSettingsHelper;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
 import org.everit.jira.settings.dto.TimeZoneTypes;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
@@ -117,17 +120,15 @@ public class FirstMissingWorklogsDateTest {
               return false;
             }
             List<EntityCondition> exprList = (List<EntityCondition>) argument;
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            DateTimeFormatter sdf = DateTimeFormat.forPattern("yyyy-MM-dd");
             for (EntityCondition expression : exprList) {
               EntityExpr expr = (EntityExpr) expression;
-              try {
-                if ("startdate".equals(expr.getLhs())
-                    && EntityOperator.GREATER_THAN_EQUAL_TO.equals(expr.getOperator())
-                    && !sdf.format(hasNoWorklogDate.getTime())
-                        .equals(sdf.format(sdf.parse(expr.getRhs().toString())))) {
-                  return true;
-                }
-              } catch (ParseException e) {
+              if ("startdate".equals(expr.getLhs())
+                  && EntityOperator.GREATER_THAN_EQUAL_TO.equals(expr.getOperator())
+                  && !sdf.print(new DateTime(hasNoWorklogDate.getTime().getTime()))
+                      .equals(
+                          sdf.print(sdf.parseDateTime(expr.getRhs().toString().split(" ")[0])))) {
+                return true;
               }
             }
             return false;
@@ -142,17 +143,15 @@ public class FirstMissingWorklogsDateTest {
               return false;
             }
             List<EntityCondition> exprList = (List<EntityCondition>) argument;
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            DateTimeFormatter sdf = DateTimeFormat.forPattern("yyyy-MM-dd");
             for (EntityCondition expression : exprList) {
               EntityExpr expr = (EntityExpr) expression;
-              try {
-                if ("startdate".equals(expr.getLhs())
-                    && EntityOperator.GREATER_THAN_EQUAL_TO.equals(expr.getOperator())
-                    && sdf.format(hasNoWorklogDate.getTime())
-                        .equals(sdf.format(sdf.parse(expr.getRhs().toString())))) {
-                  return true;
-                }
-              } catch (ParseException e) {
+              if ("startdate".equals(expr.getLhs())
+                  && EntityOperator.GREATER_THAN_EQUAL_TO.equals(expr.getOperator())
+                  && sdf.print(new DateTime(hasNoWorklogDate.getTime().getTime()))
+                      .equals(
+                          sdf.print(sdf.parseDateTime(expr.getRhs().toString().split(" ")[0])))) {
+                return true;
               }
             }
             return false;
@@ -194,23 +193,26 @@ public class FirstMissingWorklogsDateTest {
 
     initMockComponents(todayMinus7);
 
-    Set<Date> excludeDatesSet =
-        new HashSet<>(Arrays.asList(todayMinus1.getTime(),
-            todayMinus2.getTime(),
-            todayMinus4.getTime(),
-            todayMinus5.getTime(),
-            todayMinus6.getTime(),
-            todayMinus3.getTime()));
-    Set<Date> includeDatesSet =
-        new HashSet<>(Arrays.asList(today.getTime(),
-            todayPlus1.getTime(),
-            todayMinus7.getTime()));
+    Set<DateTime> excludeDatesSet =
+        new HashSet<>(Arrays.asList(
+            new DateTime(todayMinus1.getTime().getTime()),
+            new DateTime(todayMinus2.getTime().getTime()),
+            new DateTime(todayMinus4.getTime().getTime()),
+            new DateTime(todayMinus5.getTime().getTime()),
+            new DateTime(todayMinus6.getTime().getTime()),
+            new DateTime(todayMinus3.getTime().getTime())));
+    Set<DateTime> includeDatesSet =
+        new HashSet<>(Arrays.asList(new DateTime(today.getTime().getTime()),
+            new DateTime(todayPlus1.getTime().getTime()),
+            new DateTime(todayMinus7.getTime().getTime())));
 
     Date firstMissingWorklogsDate =
         timetrackerComponent.firstMissingWorklogsDate(excludeDatesSet, includeDatesSet);
 
+    DateTimeFormatter sdfdt = DateTimeFormat.forPattern("yyyy-MM-dd");
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-    Assert.assertEquals(sdf.format(todayMinus7.getTime()), sdf.format(firstMissingWorklogsDate));
+    Assert.assertEquals(sdfdt.print(new DateTime(todayMinus7.getTime().getTime())),
+        sdf.format(firstMissingWorklogsDate));
   }
 
   @Test
@@ -243,39 +245,45 @@ public class FirstMissingWorklogsDateTest {
 
     initMockComponents(todayMinus3);
 
-    Set<Date> excludeDatesSet =
-        new HashSet<>(Arrays.asList(todayMinus1.getTime(),
-            todayMinus2.getTime(),
-            todayMinus4.getTime(),
-            todayMinus5.getTime(),
-            todayMinus6.getTime(),
-            todayMinus7.getTime()));
-    Set<Date> includeDatesSet =
-        new HashSet<>(Arrays.asList(today.getTime(),
-            todayPlus1.getTime(),
-            todayMinus3.getTime()));
+    Set<DateTime> excludeDatesSet =
+        new HashSet<>(Arrays.asList(new DateTime(todayMinus1.getTime().getTime()),
+            new DateTime(todayMinus2.getTime().getTime()),
+            new DateTime(todayMinus4.getTime().getTime()),
+            new DateTime(todayMinus5.getTime().getTime()),
+            new DateTime(todayMinus6.getTime().getTime()),
+            new DateTime(todayMinus7.getTime().getTime())));
+    Set<DateTime> includeDatesSet =
+        new HashSet<>(Arrays.asList(
+            new DateTime(today.getTime()),
+            new DateTime(todayPlus1.getTime()),
+            new DateTime(todayMinus3.getTime())));
 
     Date firstMissingWorklogsDate =
         timetrackerComponent.firstMissingWorklogsDate(excludeDatesSet, includeDatesSet);
 
+    DateTimeFormatter sdfdt = DateTimeFormat.forPattern("yyyy-MM-dd");
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-    Assert.assertEquals(sdf.format(todayMinus3.getTime()), sdf.format(firstMissingWorklogsDate));
+    Assert.assertEquals(sdfdt.print(new DateTime(todayMinus3.getTime().getTime())),
+        sdf.format(firstMissingWorklogsDate));
   }
 
   @Test
   public void testFirstMissingWorklogsDateToday() throws ParseException, GenericEntityException {
 
     Calendar today = Calendar.getInstance();
+    today.getTime();
 
     initMockComponents(today);
 
-    Set<Date> excludeDatesSet = new HashSet<>();
-    Set<Date> includeDatesSet = new HashSet<>(Arrays.asList(today.getTime()));
+    Set<DateTime> excludeDatesSet = new HashSet<>();
+    Set<DateTime> includeDatesSet =
+        new HashSet<>(Arrays.asList(new DateTime(today.getTime().getTime())));
 
     Date firstMissingWorklogsDate =
         timetrackerComponent.firstMissingWorklogsDate(excludeDatesSet, includeDatesSet);
-
+    DateTimeFormatter sdfdt = DateTimeFormat.forPattern("yyyy-MM-dd");
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-    Assert.assertEquals(sdf.format(today.getTime()), sdf.format(firstMissingWorklogsDate));
+    Assert.assertEquals(sdfdt.print(new DateTime(today.getTime().getTime())),
+        sdf.format(firstMissingWorklogsDate));
   }
 }

@@ -34,6 +34,7 @@ import org.everit.jira.core.util.TimetrackerUtil;
 import org.everit.jira.timetracker.plugin.DurationFormatter;
 import org.everit.jira.timetracker.plugin.exception.WorklogException;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.config.properties.APKeys;
@@ -264,6 +265,12 @@ public final class DateTimeConverterUtil {
     return dateString;
   }
 
+  public static String dateToFixFormatString(final DateTime date) {
+    DateFormat formatterDate = new SimpleDateFormat(FIX_DATE_TIME_FORMAT);
+    String dateString = formatterDate.format(date);
+    return dateString;
+  }
+
   /**
    * Convert the date to String use the {@link APKeys#JIRA_LF_DATE_DMY}.
    *
@@ -314,6 +321,12 @@ public final class DateTimeConverterUtil {
       throw new ParseException("Invalid date value:" + dateString, 0);
     }
     return date;
+  }
+
+  public static DateTime fixFormatStringToUTCDateTime(final String dateString)
+      throws ParseException {
+    Date fixFormatStringToDate = DateTimeConverterUtil.fixFormatStringToDate(dateString);
+    return new DateTime(fixFormatStringToDate.getTime(), DateTimeZone.UTC);
   }
 
   /**
@@ -568,7 +581,7 @@ public final class DateTimeConverterUtil {
     DateTime date;
     try {
       timeDate = DateTimeConverterUtil.stringTimeToDateTime(time);
-      date = stringToDateAndTime(originalDate, timeDate);
+      date = DateTimeConverterUtil.stringToDateAndTime(originalDate, timeDate);
     } catch (IllegalArgumentException e) {
       throw new WorklogException(WorklogComponent.PropertiesKey.DATE_PARSE,
           originalDate + " " + time);

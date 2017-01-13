@@ -18,16 +18,15 @@ package org.everit.jira.tests.core.impl.timetrackermanager;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 
 import org.everit.jira.core.TimetrackerManager;
-import org.everit.jira.core.impl.DateTimeServer;
 import org.everit.jira.core.impl.TimetrackerComponent;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -97,29 +96,57 @@ public class GetExtraDaysOfTheMonthTest {
 
   @Test
   public void testOneExcludeDate() throws ParseException {
-    List<Date> excludeDaysOfTheMonth = timetrackerManager.getExcludeDaysOfTheMonth(
-        DateTimeServer.getInstanceBasedOnUserTimeZone(
-            new DateTime(DateTimeConverterUtil.fixFormatStringToDate("2016-01-05"))),
+    List<DateTime> excludeDaysOfTheMonth = timetrackerManager.getExcludeDaysOfTheMonth(
+        new DateTime(DateTimeConverterUtil.fixFormatStringToUTCDateTime("2016-01-05")),
         new HashSet<>(
             Arrays.asList(
-                DateTimeConverterUtil.fixFormatStringToDate("2016-01-05"),
-                DateTimeConverterUtil.fixFormatStringToDate("2016-02-05"))));
+                DateTimeConverterUtil.fixFormatStringToUTCDateTime("2016-01-05"),
+                DateTimeConverterUtil.fixFormatStringToUTCDateTime("2016-02-05"))));
     Assert.assertEquals(
-        new HashSet<>(Arrays.asList(DateTimeConverterUtil.fixFormatStringToDate("2016-01-05"))),
+        new HashSet<>(
+            Arrays.asList(DateTimeConverterUtil.fixFormatStringToUTCDateTime("2016-01-05"))),
         new HashSet<>(excludeDaysOfTheMonth));
   }
 
   @Test
   public void testOneIncludeDate() throws ParseException {
-    List<Date> excludeDaysOfTheMonth = timetrackerManager.getIncludeDaysOfTheMonth(
-        DateTimeServer.getInstanceBasedOnUserTimeZone(
-            new DateTime(DateTimeConverterUtil.fixFormatStringToDate("2016-01-05"))),
+    List<DateTime> excludeDaysOfTheMonth = timetrackerManager.getIncludeDaysOfTheMonth(
+        new DateTime(1451952000000L, DateTimeZone.UTC),
         new HashSet<>(
             Arrays.asList(
-                DateTimeConverterUtil.fixFormatStringToDate("2016-01-01"),
-                DateTimeConverterUtil.fixFormatStringToDate("2016-02-01"))));
+                DateTimeConverterUtil.fixFormatStringToUTCDateTime("2016-01-01"),
+                DateTimeConverterUtil.fixFormatStringToUTCDateTime("2016-02-04"))));
     Assert.assertEquals(
-        new HashSet<>(Arrays.asList(DateTimeConverterUtil.fixFormatStringToDate("2016-01-01"))),
+        new HashSet<>(
+            Arrays.asList(DateTimeConverterUtil.fixFormatStringToUTCDateTime("2016-01-01"))),
         new HashSet<>(excludeDaysOfTheMonth));
   }
+
+  @Test
+  public void testWithUserTimeZone() throws ParseException {
+    List<DateTime> excludeDaysOfTheMonth = timetrackerManager.getIncludeDaysOfTheMonth(
+        new DateTime(1451606400000L, DateTimeZone.forID("Pacific/Apia")),
+        new HashSet<>(
+            Arrays.asList(
+                DateTimeConverterUtil.fixFormatStringToUTCDateTime("2016-01-01"),
+                DateTimeConverterUtil.fixFormatStringToUTCDateTime("2016-02-04"))));
+    Assert.assertEquals(
+        new HashSet<>(),
+        new HashSet<>(excludeDaysOfTheMonth));
+  }
+
+  @Test
+  public void testWithUserTimeZone2() throws ParseException {
+    List<DateTime> excludeDaysOfTheMonth = timetrackerManager.getIncludeDaysOfTheMonth(
+        new DateTime(1451606400000L, DateTimeZone.forID("Pacific/Chatham")),
+        new HashSet<>(
+            Arrays.asList(
+                DateTimeConverterUtil.fixFormatStringToUTCDateTime("2016-01-01"),
+                DateTimeConverterUtil.fixFormatStringToUTCDateTime("2016-02-04"))));
+    Assert.assertEquals(
+        new HashSet<>(
+            Arrays.asList(DateTimeConverterUtil.fixFormatStringToUTCDateTime("2016-01-01"))),
+        new HashSet<>(excludeDaysOfTheMonth));
+  }
+
 }

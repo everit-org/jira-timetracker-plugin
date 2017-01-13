@@ -31,6 +31,7 @@ import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
 import org.everit.jira.settings.dto.TimeZoneTypes;
 import org.everit.jira.timetracker.plugin.dto.WorklogValues;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
+import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.ofbiz.core.entity.EntityCondition;
 import org.ofbiz.core.entity.GenericValue;
@@ -124,6 +125,16 @@ public final class TimetrackerUtil {
     Calendar instance = Calendar.getInstance();
     instance.setTime(date);
     return TimetrackerUtil.containsSetTheSameDay(dates, instance);
+  }
+
+  public static boolean containsSetTheSameDay(final Set<DateTime> dates,
+      final DateTime date) {
+    for (DateTime d : dates) {
+      if ((d.getYear() == date.getYear()) && (d.getDayOfYear() == date.getDayOfYear())) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
@@ -228,12 +239,12 @@ public final class TimetrackerUtil {
     TimeTrackerGlobalSettings globalSettings = settingsHelper.loadGlobalSettings();
     TimeZoneTypes timeZoneTypes = globalSettings.getTimeZone();
     if (TimeZoneTypes.USER.equals(timeZoneTypes)) {
-      TimeZoneServiceImpl timeZoneServiceImpl = getInitializedTimeZoneServeice();
-      JiraServiceContext serviceContext = getServiceContext();
+      TimeZoneServiceImpl timeZoneServiceImpl = TimetrackerUtil.getInitializedTimeZoneServeice();
+      JiraServiceContext serviceContext = TimetrackerUtil.getServiceContext();
       TimeZone timeZone = timeZoneServiceImpl.getUserTimeZone(serviceContext);
       return DateTimeZone.forTimeZone(timeZone);
     } else {
-      return getSystemTimeZone();
+      return TimetrackerUtil.getSystemTimeZone();
     }
 
   }
@@ -251,8 +262,8 @@ public final class TimetrackerUtil {
    * @return The system {@link DateTimeZone}.
    */
   public static DateTimeZone getSystemTimeZone() {
-    TimeZoneServiceImpl timeZoneServiceImpl = getInitializedTimeZoneServeice();
-    JiraServiceContext serviceContext = getServiceContext();
+    TimeZoneServiceImpl timeZoneServiceImpl = TimetrackerUtil.getInitializedTimeZoneServeice();
+    JiraServiceContext serviceContext = TimetrackerUtil.getServiceContext();
     TimeZone timeZone = timeZoneServiceImpl.getJVMTimeZoneInfo(serviceContext).toTimeZone();
     return DateTimeZone.forTimeZone(timeZone);
   }

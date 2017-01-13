@@ -19,13 +19,13 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
 import org.everit.jira.core.TimetrackerManager;
 import org.everit.jira.core.impl.TimetrackerComponent;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
+import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -41,18 +41,18 @@ public class CountWorkDaysInWeekTest {
     TimetrackerManager timetrackerManager = new TimetrackerComponent(mockConfiguration, null);
     Mockito.when(mockConfiguration.getDaysPerWeek().doubleValue()).thenReturn(5.0);
 
-    List<Date> weekdays = new ArrayList<>();
+    List<DateTime> weekdays = new ArrayList<>();
     List<String> days = Arrays.asList("2016-10-24", "2016-10-25", "2016-10-26", "2016-10-27",
         "2016-10-28", "2016-10-29", "2016-10-30");
     for (String date : days) {
-      weekdays.add(DateTimeConverterUtil.fixFormatStringToDate(date));
+      weekdays.add(DateTimeConverterUtil.fixFormatStringToUTCDateTime(date));
     }
     double workDaysInWeek =
         timetrackerManager.countRealWorkDaysInWeek(weekdays, new HashSet<>(
-            Arrays.asList(DateTimeConverterUtil.fixFormatStringToDate("2016-10-24"),
-                DateTimeConverterUtil.fixFormatStringToDate("2016-10-25"))),
+            Arrays.asList(DateTimeConverterUtil.fixFormatStringToUTCDateTime("2016-10-24"),
+                DateTimeConverterUtil.fixFormatStringToUTCDateTime("2016-10-25"))),
             new HashSet<>(
-                Arrays.asList(DateTimeConverterUtil.fixFormatStringToDate("2016-10-29"))));
+                Arrays.asList(DateTimeConverterUtil.fixFormatStringToUTCDateTime("2016-10-29"))));
     Assert.assertEquals(4.0, workDaysInWeek, 0.0001);
   }
 
@@ -63,15 +63,15 @@ public class CountWorkDaysInWeekTest {
     TimetrackerManager timetrackerManager = new TimetrackerComponent(mockConfiguration, null);
     Mockito.when(mockConfiguration.getDaysPerWeek().doubleValue()).thenReturn(5.0);
 
-    List<Date> weekdays = new ArrayList<>();
+    List<DateTime> weekdays = new ArrayList<>();
     List<String> days = Arrays.asList("2016-10-24", "2016-10-25", "2016-10-26", "2016-10-27",
         "2016-10-28", "2016-10-29", "2016-10-30");
     for (String date : days) {
-      weekdays.add(DateTimeConverterUtil.fixFormatStringToDate(date));
+      weekdays.add(DateTimeConverterUtil.fixFormatStringToUTCDateTime(date));
     }
     double workDaysInWeek =
         timetrackerManager.countRealWorkDaysInWeek(weekdays, new HashSet<>(Arrays.asList(
-            DateTimeConverterUtil.fixFormatStringToDate("2016-10-25"))),
+            DateTimeConverterUtil.fixFormatStringToUTCDateTime("2016-10-25"))),
             Collections.EMPTY_SET);
     Assert.assertEquals(4.0, workDaysInWeek, 0.0001);
   }
@@ -83,16 +83,16 @@ public class CountWorkDaysInWeekTest {
     TimetrackerManager timetrackerManager = new TimetrackerComponent(mockConfiguration, null);
     Mockito.when(mockConfiguration.getDaysPerWeek().doubleValue()).thenReturn(5.0);
 
-    List<Date> weekdays = new ArrayList<>();
+    List<DateTime> weekdays = new ArrayList<>();
     List<String> days = Arrays.asList("2016-10-24", "2016-10-25", "2016-10-26", "2016-10-27",
         "2016-10-28", "2016-10-29", "2016-10-30");
     for (String date : days) {
-      weekdays.add(DateTimeConverterUtil.fixFormatStringToDate(date));
+      weekdays.add(DateTimeConverterUtil.fixFormatStringToUTCDateTime(date));
     }
     double workDaysInWeek =
         timetrackerManager.countRealWorkDaysInWeek(weekdays, Collections.EMPTY_SET,
             new HashSet<>(
-                Arrays.asList(DateTimeConverterUtil.fixFormatStringToDate("2016-10-29"))));
+                Arrays.asList(DateTimeConverterUtil.fixFormatStringToUTCDateTime("2016-10-29"))));
     Assert.assertEquals(6.0, workDaysInWeek, 0.0001);
   }
 
@@ -103,11 +103,11 @@ public class CountWorkDaysInWeekTest {
     TimetrackerManager timetrackerManager = new TimetrackerComponent(mockConfiguration, null);
     Mockito.when(mockConfiguration.getDaysPerWeek().doubleValue()).thenReturn(5.0);
 
-    List<Date> weekdays = new ArrayList<>();
+    List<DateTime> weekdays = new ArrayList<>();
     List<String> days = Arrays.asList("2016-10-24", "2016-10-25", "2016-10-26", "2016-10-27",
         "2016-10-28", "2016-10-29", "2016-10-30");
     for (String date : days) {
-      weekdays.add(DateTimeConverterUtil.fixFormatStringToDate(date));
+      weekdays.add(DateTimeConverterUtil.fixFormatStringToUTCDateTime(date));
     }
     double workDaysInWeek =
         timetrackerManager.countRealWorkDaysInWeek(weekdays, Collections.EMPTY_SET,

@@ -47,7 +47,6 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.popu
 			{
 				firstDay : ${firstDay},
 				useISO8601 : ${currentCalendar.useISO8601},
-				dateFormatted : ${dateFormatted},
 				excludeDays : [ #foreach( $tmp in ${excludeDays} )#if($velocityCount> 1),#end "$tmp"  #end ],
 				isColoring : ${userSettings.coloring},
 				loggedDays : ${loggedDays},
@@ -61,6 +60,9 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.popu
 				dateFormat: '${dateFormat}',
 				activeFieldDuration: $userSettings.activeFieldDuration,
 				defaultCommand: $defaultCommand,
+				jiraOffset: ${jiraOffset},
+				jiraTime: ${jiraTime.getMillis()},
+				jiraFormatedDate: "${jiraDate}",
 			}
 		);
 	})(everit.jttp.main, AJS.$);
