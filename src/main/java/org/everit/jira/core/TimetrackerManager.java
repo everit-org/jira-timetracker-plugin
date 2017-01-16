@@ -16,7 +16,6 @@
 package org.everit.jira.core;
 
 import java.text.ParseException;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -44,6 +43,8 @@ public interface TimetrackerManager {
    * Give back the date of the first day where missing worklogs. Use the properties files includes
    * and excludes date settings.
    *
+   * @param currentDay
+   *          Represent the current day.
    * @param exludeDates
    *          the excluded dates.
    * @param includeDates
@@ -51,8 +52,8 @@ public interface TimetrackerManager {
    *
    * @return The Date representation of the day.
    */
-  Date firstMissingWorklogsDate(final Set<DateTime> excludeDatesSet,
-      final Set<DateTime> includeDatesSet);
+  DateTime firstMissingWorklogsDate(final Set<DateTime> excludeDatesSet,
+      final Set<DateTime> includeDatesSet, DateTime currentDay);
 
   /**
    * The method find the exclude dates of the given date month.

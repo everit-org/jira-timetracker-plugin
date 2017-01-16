@@ -43,6 +43,7 @@ public final class SummaryDTO {
   /**
    * Builder class to create {@link SummaryDTO} object.
    */
+  // TODO WRITE tests for this class
   public static class SummaryDTOBuilder {
 
     private static final long HUNDRED = 100;
@@ -174,7 +175,6 @@ public final class SummaryDTO {
       return realWorkDaysInMonth * expectedWorkSecondsInDay;
     }
 
-    // TODO TESt hard
     private double calculateExpectedWorkSecondsInWeek(final double expectedWorkSecondsInDay) {
       List<DateTime> weekdays = new ArrayList<>();
       Calendar dayIndex = createNewCalendarWithWeekStart();
@@ -190,78 +190,48 @@ public final class SummaryDTO {
 
     private void calculateFilteredAndNotFilteredSummarySeconds(final DateTimeServer date,
         final List<Pattern> issuesRegex) {
-      Calendar startCalendar = createNewCalendarWithWeekStart();
-      startCalendar.setTime(date.getUserTimeZoneDayStartDate());
+      Calendar currentStartCalendar = createNewCalendarWithWeekStart();
+      currentStartCalendar.setTime(date.getUserTimeZone().toDate());
+      currentStartCalendar.setTimeZone(date.getUserTimeZone().getZone().toTimeZone());
+      DateTime currentDayStart = DateTimeConverterUtil.setDateToDayStart(date.getUserTimeZone());
 
-      Calendar originalStartcalendar = (Calendar) startCalendar.clone();
-      DateTime start = new DateTime(startCalendar.getTimeInMillis());
-
-      Calendar endCalendar = (Calendar) startCalendar.clone();
-      endCalendar.add(Calendar.DAY_OF_MONTH, 1);
-      DateTime end = new DateTime(endCalendar.getTimeInMillis());
-
+      // calculate day summary
+      DateTime startDateTime = currentDayStart.toDateTime();
+      DateTime endDateTime = startDateTime.plusDays(1);
       daySummaryInSeconds = supportManager.summary(
-          DateTimeConverterUtil
-              .convertDateTimeToDate(DateTimeConverterUtil.convertDateZoneToSystemTimeZone(start)),
-          DateTimeConverterUtil
-              .convertDateTimeToDate(DateTimeConverterUtil.convertDateZoneToSystemTimeZone(end)),
-          null);
+          new Date(startDateTime.getMillis()), new Date(endDateTime.getMillis()), null);
       if (isIssuePatternsNotEmpty()) {
         dayFilteredSummaryInSecond = supportManager.summary(
-            DateTimeConverterUtil.convertDateTimeToDate(
-                DateTimeConverterUtil.convertDateZoneToSystemTimeZone(start)),
-            DateTimeConverterUtil
-                .convertDateTimeToDate(DateTimeConverterUtil.convertDateZoneToSystemTimeZone(end)),
+            new Date(date.getUserTimeZone().getMillis()), new Date(endDateTime.getMillis()),
             issuesRegex);
       }
-
-      startCalendar = (Calendar) originalStartcalendar.clone();
-      while (startCalendar.get(Calendar.DAY_OF_WEEK) != startCalendar.getFirstDayOfWeek()) {
-        startCalendar.add(Calendar.DATE, -1); // Substract 1 day until first day of week.
+      // calculate weeksummary
+      Calendar weekStart = (Calendar) currentStartCalendar.clone();
+      while (weekStart.get(Calendar.DAY_OF_WEEK) != weekStart.getFirstDayOfWeek()) {
+        weekStart.add(Calendar.DATE, -1); // Substract 1 day until first day of week.
       }
-      start = new DateTime(startCalendar.getTimeInMillis());
+      startDateTime = new DateTime(weekStart.getTimeInMillis());
+      endDateTime = startDateTime.plusDays(DateTimeConverterUtil.DAYS_PER_WEEK);
 
-      endCalendar = (Calendar) startCalendar.clone();
-      endCalendar.add(Calendar.DATE, DateTimeConverterUtil.DAYS_PER_WEEK);
-      end = new DateTime(endCalendar.getTimeInMillis());
-
-      weekSummaryInSecond = supportManager.summary(
-          DateTimeConverterUtil
-              .convertDateTimeToDate(DateTimeConverterUtil.convertDateZoneToSystemTimeZone(start)),
-          DateTimeConverterUtil
-              .convertDateTimeToDate(DateTimeConverterUtil.convertDateZoneToSystemTimeZone(end)),
-          null);
+      weekSummaryInSecond =
+          supportManager.summary(startDateTime.toDate(), endDateTime.toDate(), null);
       if (isIssuePatternsNotEmpty()) {
         weekFilteredSummaryInSecond = supportManager.summary(
-            DateTimeConverterUtil.convertDateTimeToDate(
-                DateTimeConverterUtil.convertDateZoneToSystemTimeZone(start)),
-            DateTimeConverterUtil
-                .convertDateTimeToDate(DateTimeConverterUtil.convertDateZoneToSystemTimeZone(end)),
-            issuesRegex);
+            startDateTime.toDate(), endDateTime.toDate(), issuesRegex);
       }
+      // calculate month summary
+      startDateTime = currentDayStart.withDayOfMonth(1);
 
-      startCalendar = (Calendar) originalStartcalendar.clone();
-      startCalendar.set(Calendar.DAY_OF_MONTH, 1);
-      start = new DateTime(startCalendar.getTimeInMillis());
-
-      endCalendar = (Calendar) originalStartcalendar.clone();
-      endCalendar.set(Calendar.DAY_OF_MONTH,
-          endCalendar.getActualMaximum(Calendar.DAY_OF_MONTH));
-      endCalendar.add(Calendar.DAY_OF_MONTH, 1);
-      end = new DateTime(endCalendar.getTimeInMillis());
-      monthSummaryInSecounds = supportManager.summary(
-          DateTimeConverterUtil
-              .convertDateTimeToDate(DateTimeConverterUtil.convertDateZoneToSystemTimeZone(start)),
-          DateTimeConverterUtil
-              .convertDateTimeToDate(DateTimeConverterUtil.convertDateZoneToSystemTimeZone(end)),
-          null);
+      Calendar monthEndCalendar = (Calendar) currentStartCalendar.clone();
+      monthEndCalendar.set(Calendar.DAY_OF_MONTH,
+          monthEndCalendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+      monthEndCalendar.add(Calendar.DAY_OF_MONTH, 1);
+      endDateTime = new DateTime(monthEndCalendar.getTimeInMillis());
+      monthSummaryInSecounds =
+          supportManager.summary(startDateTime.toDate(), endDateTime.toDate(), null);
       if (isIssuePatternsNotEmpty()) {
-        monthFilteredSummaryInSecond = supportManager.summary(
-            DateTimeConverterUtil.convertDateTimeToDate(
-                DateTimeConverterUtil.convertDateZoneToSystemTimeZone(start)),
-            DateTimeConverterUtil
-                .convertDateTimeToDate(DateTimeConverterUtil.convertDateZoneToSystemTimeZone(end)),
-            issuesRegex);
+        monthFilteredSummaryInSecond =
+            supportManager.summary(startDateTime.toDate(), endDateTime.toDate(), issuesRegex);
       }
     }
 

@@ -273,7 +273,7 @@ public final class TimetrackerUtil {
    *
    * @param date
    *          The date what have to check. The date have to be set to day start and after that
-   *          convert to system Time Zone.
+   *          convert to system Time Zone.//No need to convert. It sends EPOCh milis.
    * @return If The user have worklogs the given date then true, esle false.
    */
   public static boolean isContainsWorklog(final Date date) {

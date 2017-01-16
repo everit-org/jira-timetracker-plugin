@@ -538,7 +538,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     if (checkConditionsResult != null) {
       return checkConditionsResult;
     }
-
     beforeActions();
 
     loggedDays = timetrackerManager
@@ -887,16 +886,13 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     String jiraTimeParam = getHttpRequest().getParameter(Parameter.DATE);
     if ((jiraTimeParam != null) && !"".equals(jiraTimeParam)) {
       jiraTime = new DateTime(Long.valueOf(jiraTimeParam), TimetrackerUtil.getLoggedUserTimeZone());
-      // date = DateTimeServer.getInstanceBasedOnUserTimeZone(dateFormatted);
     } else {
       if (userSettings.isActualDate()) {
         jiraTime = new DateTime(TimetrackerUtil.getLoggedUserTimeZone());
-        // dateFormatted = date.getUserTimeZoneDate().getTime();
       } else {
-        // TODO check this
-        Date fmd = timetrackerManager.firstMissingWorklogsDate(globalSettings.getExcludeDates(),
-            globalSettings.getIncludeDates());
-        jiraTime = new DateTime(fmd.getTime(), TimetrackerUtil.getLoggedUserTimeZone());
+        jiraTime = timetrackerManager.firstMissingWorklogsDate(globalSettings.getExcludeDates(),
+            globalSettings.getIncludeDates(),
+            new DateTime(TimetrackerUtil.getLoggedUserTimeZone()));
       }
     }
   }

@@ -88,8 +88,9 @@ public class SupportComponent implements SupportManager {
 
       if (workingHour) {
         // fromDate = DateTimeConverterUtil.setDateToDayStart(fromDate);
-        double missingsTime = isContainsEnoughWorklog(fromDate.getUserTimeZoneDayStartDate(),
-            checkNonWorking, settings.getNonWorkingIssuePatterns());
+        double missingsTime =
+            isContainsEnoughWorklog(new Date(fromDate.getUserTimeZone().getMillis()),
+                checkNonWorking, settings.getNonWorkingIssuePatterns());
         if (missingsTime > 0) {
           missingsTime = missingsTime / DateTimeConverterUtil.SECONDS_PER_MINUTE
               / DateTimeConverterUtil.MINUTES_PER_HOUR;
@@ -97,13 +98,13 @@ public class SupportComponent implements SupportManager {
           // new BigDecimal(Double.toString(missingsTime)).setScale(2, RoundingMode.HALF_EVEN);
           // missingsTime = bd.doubleValue();
           datesWhereNoWorklog
-              .add(new MissingsWorklogsDTO(fromDate.getUserTimeZoneDate(),
+              .add(new MissingsWorklogsDTO(fromDate.getUserTimeZone().toDate(),
                   decimalFormat.format(missingsTime)));
         }
       } else {
-        if (!TimetrackerUtil.isContainsWorklog(fromDate.getUserTimeZoneDate())) {
+        if (!TimetrackerUtil.isContainsWorklog(fromDate.getUserTimeZone().toDate())) {
           datesWhereNoWorklog
-              .add(new MissingsWorklogsDTO(fromDate.getUserTimeZoneDate(),
+              .add(new MissingsWorklogsDTO(fromDate.getUserTimeZone().toDate(),
                   decimalFormat.format(timeTrackingConfiguration.getHoursPerDay().doubleValue())));
         }
       }
@@ -196,14 +197,9 @@ public class SupportComponent implements SupportManager {
         .getJiraAuthenticationContext();
     ApplicationUser user = authenticationContext.getUser();
 
-    Calendar start = Calendar.getInstance();
-    start.setTime(startSummary);
-    Calendar finish = Calendar.getInstance();
-    finish.setTime(finishSummary);
-
     List<EntityCondition> exprList =
         WorklogUtil.createWorklogQueryExprListWithPermissionCheck(user,
-            start.getTimeInMillis(), finish.getTimeInMillis());
+            startSummary.getTime(), finishSummary.getTime());
 
     List<GenericValue> worklogs;
     // worklog query
