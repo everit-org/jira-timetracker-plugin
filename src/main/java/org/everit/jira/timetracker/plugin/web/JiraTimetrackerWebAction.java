@@ -162,18 +162,11 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   private String contextPath;
 
-  /**
-   * The formated date.
-   */
-  private Long dateFormatted;
-
   private boolean defaultCommand = false;
 
   private DurationFormatter durationFormatter = new DurationFormatter();
 
   private String editAllIds;
-
-  private Date endDateTime;
 
   /**
    * List of the exclude days of the date variable current months.
@@ -234,6 +227,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private final TimeTrackingConfiguration timeTrackingConfiguration;
 
   private TimeTrackerUserSettings userSettings;
+
+  private Date workLogEndDateTime;
 
   private final EVWorklogManager worklogManager;
 
@@ -345,8 +340,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       } else {
         timeSpent = durationTime;
         int seconds = DateTimeConverterUtil.jiraDurationToSeconds(durationTime);
-        endDateTime = DateUtils.addSeconds(startDateTime, seconds);
-        if (!DateUtils.isSameDay(startDateTime, endDateTime)) {
+        workLogEndDateTime = DateUtils.addSeconds(startDateTime, seconds);
+        if (!DateUtils.isSameDay(startDateTime, workLogEndDateTime)) {
           message = PropertiesKey.INVALID_DURATION_TIME;
           return INPUT;
         }
@@ -366,8 +361,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       timeSpent = durationFormatter.exactDuration(seconds);
 
       // check the duration time to not exceed the present day
-      endDateTime = DateUtils.addSeconds(startDateTime, (int) seconds);
-      if (!DateUtils.isSameDay(startDateTime, endDateTime)) {
+      workLogEndDateTime = DateUtils.addSeconds(startDateTime, (int) seconds);
+      if (!DateUtils.isSameDay(startDateTime, workLogEndDateTime)) {
         message = PropertiesKey.INVALID_DURATION_TIME;
         return INPUT;
       }
@@ -384,13 +379,13 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     Date startDateTime;
     try {
       startDateTime = DateTimeConverterUtil.stringTimeToDateTime(startTime);
-      endDateTime = DateTimeConverterUtil.stringTimeToDateTime(endTime);
+      workLogEndDateTime = DateTimeConverterUtil.stringTimeToDateTime(endTime);
     } catch (IllegalArgumentException e) {
       message = PropertiesKey.PLUGIN_INVALID_END_TIME;
       return INPUT;
     }
 
-    long seconds = (endDateTime.getTime() - startDateTime.getTime())
+    long seconds = (workLogEndDateTime.getTime() - startDateTime.getTime())
         / DateTimeConverterUtil.MILLISECONDS_PER_SECOND;
     if (seconds > 0) {
       timeSpent = durationFormatter.exactDuration(seconds);
@@ -494,12 +489,12 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   }
 
   private String decideToShowWarningUrl() {
-    if (endDateTime != null) {
+    if (workLogEndDateTime != null) {
       try {
+        // TODO compare two long (worklogEnDateTime and system current time)
         Date worklogEndDate =
-            DateTimeConverterUtil.stringToDateAndTime(
-                DateTimeServer.getInstanceBasedOnUserTimeZone(jiraTime).getUserTimeZoneDate(),
-                endDateTime);
+            DateTimeConverterUtil.stringToDateAndTime(jiraTime.toDate(),
+                workLogEndDateTime);
         if (userSettings.isShowFutureLogWarning()
             && worklogEndDate.after(DateTimeServer.getInstanceSystemNow().getUserTimeZoneDate())) {
           return FUTURE_WORKLOG_WARNING_URL_PARAMETER;
@@ -646,7 +641,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
               "",
               RemainingEstimateType.AUTO);
           worklogManager.editWorklog(editWorklog.getWorklogId(), worklogParameter);
-          endDateTime = DateTimeConverterUtil.stringTimeToDateTime(editWorklog.getEndTime());
+          workLogEndDateTime = DateTimeConverterUtil.stringTimeToDateTime(editWorklog.getEndTime());
         } catch (WorklogException e) {
           message = e.getMessage();
           messageParameter = e.messageParameter;

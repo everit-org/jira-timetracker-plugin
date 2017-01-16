@@ -121,12 +121,6 @@ public final class TimetrackerUtil {
    *          the date that check contains.
    * @return true if contains, otherwise false.
    */
-  public static boolean containsSetTheSameDay(final Set<Date> dates, final Date date) {
-    Calendar instance = Calendar.getInstance();
-    instance.setTime(date);
-    return TimetrackerUtil.containsSetTheSameDay(dates, instance);
-  }
-
   public static boolean containsSetTheSameDay(final Set<DateTime> dates,
       final DateTime date) {
     for (DateTime d : dates) {

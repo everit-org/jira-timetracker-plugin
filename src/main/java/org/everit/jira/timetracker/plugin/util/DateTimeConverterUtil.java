@@ -259,12 +259,6 @@ public final class DateTimeConverterUtil {
    *          The Date to convert.
    * @return The result time.
    */
-  public static String dateToFixFormatString(final Date date) {
-    DateFormat formatterDate = new SimpleDateFormat(FIX_DATE_TIME_FORMAT);
-    String dateString = formatterDate.format(date);
-    return dateString;
-  }
-
   public static String dateToFixFormatString(final DateTime date) {
     DateFormat formatterDate = new SimpleDateFormat(FIX_DATE_TIME_FORMAT);
     String dateString = formatterDate.format(date);
