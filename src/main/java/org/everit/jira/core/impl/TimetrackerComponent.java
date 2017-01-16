@@ -50,16 +50,6 @@ public class TimetrackerComponent implements TimetrackerManager {
     this.settingsHelper = settingsHelper;
   }
 
-  private int countDaysInDateSet(final List<Date> weekDays, final Set<Date> dateSet) {
-    int counter = 0;
-    for (Date weekDay : weekDays) {
-      if (TimetrackerUtil.containsSetTheSameDay(dateSet, weekDay)) {
-        counter++;
-      }
-    }
-    return counter;
-  }
-
   private int countDaysInDateTimeSet(final List<DateTime> weekDays, final Set<DateTime> dateSet) {
     int counter = 0;
     for (DateTime weekDay : weekDays) {

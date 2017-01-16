@@ -178,9 +178,9 @@ public final class SummaryDTO {
     private double calculateExpectedWorkSecondsInWeek(final double expectedWorkSecondsInDay) {
       List<DateTime> weekdays = new ArrayList<>();
       Calendar dayIndex = createNewCalendarWithWeekStart();
-      dayIndex.setTime(getWeekStart(date.getUserTimeZoneDate()));
+      dayIndex.setTime(getWeekStart(date.getUserTimeZone().toDate()));
       for (int i = 0; i < DateTimeConverterUtil.DAYS_PER_WEEK; i++) {
-        weekdays.add(new DateTime(dayIndex.getTime().getTime()));
+        weekdays.add(new DateTime(dayIndex.getTimeInMillis(), date.getUserTimeZone().getZone()));
         dayIndex.add(Calendar.DAY_OF_MONTH, 1);
       }
       double realWorkDaysInWeek = timetrackerManager.countRealWorkDaysInWeek(weekdays,
@@ -199,11 +199,10 @@ public final class SummaryDTO {
       DateTime startDateTime = currentDayStart.toDateTime();
       DateTime endDateTime = startDateTime.plusDays(1);
       daySummaryInSeconds = supportManager.summary(
-          new Date(startDateTime.getMillis()), new Date(endDateTime.getMillis()), null);
+          startDateTime.toDate(), endDateTime.toDate(), null);
       if (isIssuePatternsNotEmpty()) {
         dayFilteredSummaryInSecond = supportManager.summary(
-            new Date(date.getUserTimeZone().getMillis()), new Date(endDateTime.getMillis()),
-            issuesRegex);
+            startDateTime.toDate(), endDateTime.toDate(), issuesRegex);
       }
       // calculate weeksummary
       Calendar weekStart = (Calendar) currentStartCalendar.clone();
