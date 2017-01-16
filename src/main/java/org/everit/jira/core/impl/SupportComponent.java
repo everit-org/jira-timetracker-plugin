@@ -89,7 +89,7 @@ public class SupportComponent implements SupportManager {
       if (workingHour) {
         // fromDate = DateTimeConverterUtil.setDateToDayStart(fromDate);
         double missingsTime =
-            isContainsEnoughWorklog(new Date(fromDate.getUserTimeZone().getMillis()),
+            isContainsEnoughWorklog(fromDate.getUserTimeZone().toDate(),
                 checkNonWorking, settings.getNonWorkingIssuePatterns());
         if (missingsTime > 0) {
           missingsTime = missingsTime / DateTimeConverterUtil.SECONDS_PER_MINUTE

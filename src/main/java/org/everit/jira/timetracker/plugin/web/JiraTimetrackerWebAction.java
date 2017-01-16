@@ -53,7 +53,6 @@ import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.TimeAutoCompleteUtil;
 import org.everit.jira.updatenotifier.UpdateNotifier;
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
 
 import com.atlassian.jira.bc.issue.worklog.TimeTrackingConfiguration;
 import com.atlassian.jira.component.ComponentAccessor;
@@ -684,8 +683,9 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   @Override
   public DateTimeFormatter getDateTimeFormatter() {
-    return super.getDateTimeFormatter().withStyle(DateTimeStyle.DATE).withSystemZone();
-    // TODO with SystemZone?
+    // TODO use getDmyDateFormatter insted of this??
+    return super.getDateTimeFormatter().withStyle(DateTimeStyle.DATE)
+        .withZone(TimetrackerUtil.getLoggedUserTimeZone().toTimeZone());
   }
 
   public String getEditAllIds() {
@@ -701,12 +701,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       excludeDaysAsString.add(DateTimeConverterUtil.dateToFixFormatString(excludeDate));
     }
     return excludeDaysAsString;
-  }
-
-  public String getFormattedJiraDate() {
-    org.joda.time.format.DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy.MM.dd HH:mm:ss");
-    String str = fmt.print(jiraTime);
-    return str;
   }
 
   public List<String> getGenerateAutoCompleteList() {
