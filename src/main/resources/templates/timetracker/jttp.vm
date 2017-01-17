@@ -62,7 +62,7 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.popu
 				defaultCommand: $defaultCommand,
 				jiraOffset: ${jiraOffset},
 				jiraTime: ${jiraTime.getMillis()},
-				jiraFormatedDate: "${jiraDate}",
+				jiraFormatedDate: "${jiraDateInJSDatePickerFormat}",
 			}
 		);
 	})(everit.jttp.main, AJS.$);

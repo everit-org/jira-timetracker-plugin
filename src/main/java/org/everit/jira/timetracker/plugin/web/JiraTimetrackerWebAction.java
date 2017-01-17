@@ -715,8 +715,9 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return issueRenderContext;
   }
 
-  public String getJiraDate() {
-    return getDmyDateFormatter().format(jiraTime.toDate());
+  public String getJiraDateInJSDatePickerFormat() {
+    return super.getDateTimeFormatter().withStyle(DateTimeStyle.DATE_PICKER)
+        .withZone(TimetrackerUtil.getLoggedUserTimeZone().toTimeZone()).format(jiraTime.toDate());
   }
 
   public long getJiraOffset() {
