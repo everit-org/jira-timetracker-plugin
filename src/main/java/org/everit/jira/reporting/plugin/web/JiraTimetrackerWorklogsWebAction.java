@@ -18,6 +18,7 @@ package org.everit.jira.reporting.plugin.web;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
@@ -323,6 +324,11 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     return contextPath;
   }
 
+  public DateTimeFormatter getDateFormatInUserTimeZOne() {
+    return super.getDateTimeFormatter().withStyle(DateTimeStyle.DATE_PICKER)
+        .withZone(TimetrackerUtil.getLoggedUserTimeZone().toTimeZone());
+  }
+
   public Long getDateFromFormated() {
     return dateFromFormated;
   }
@@ -338,6 +344,18 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
 
   public Long getDateToFormated() {
     return dateToFormated;
+  }
+
+  public String getEndDateInJSDatePickerFormat() {
+    return super.getDateTimeFormatter().withStyle(DateTimeStyle.DATE_PICKER)
+        .withZone(TimetrackerUtil.getLoggedUserTimeZone().toTimeZone())
+        .format(new Date(dateToFormated));
+  }
+
+  public String getFromDateInJSDatePickerFormat() {
+    return super.getDateTimeFormatter().withStyle(DateTimeStyle.DATE_PICKER)
+        .withZone(TimetrackerUtil.getLoggedUserTimeZone().toTimeZone())
+        .format(new Date(dateFromFormated));
   }
 
   public String getIssueCollectorSrc() {

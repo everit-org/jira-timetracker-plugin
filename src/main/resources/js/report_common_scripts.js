@@ -25,16 +25,14 @@ everit.jttp.report_common_scripts = everit.jttp.report_common_scripts || {};
   jQuery(document).ready(function() {
     opt = jttp.options;
       
-    var dateForm = new Date(millisTimeZoneCorrection(opt.dateFromFormated)).print(opt.dateFormat); 
-    jQuery("#dateFrom").val(dateForm);
-    var dateTo = new Date(millisTimeZoneCorrection(opt.dateToFormated)).print(opt.dateFormat);
-    jQuery("#dateTo").val(dateTo);
+    jQuery("#dateFrom").val(opt.dateFromInJSFormat);
+    jQuery("#dateTo").val(opt.dateToInJSFormat);
 
     jttp.calFrom = Calendar.setup({
       firstDay : opt.firstDay,
       inputField : jQuery("#dateFrom"),
       button : jQuery("#date_trigger_from"),
-      date : dateForm,
+      date : opt.dateFromInJSFormat,
       ifFormat: opt.dateFormat,
       align : 'Br',
       electric : false,
@@ -47,7 +45,7 @@ everit.jttp.report_common_scripts = everit.jttp.report_common_scripts || {};
       firstDay : opt.firstDay,
       inputField : jQuery("#dateTo"),
       button : jQuery("#date_trigger_to"),
-      date : dateTo,
+      date : opt.dateToInJSFormat,
       ifFormat: opt.dateFormat,
       align : 'Br',
       electric : false,
