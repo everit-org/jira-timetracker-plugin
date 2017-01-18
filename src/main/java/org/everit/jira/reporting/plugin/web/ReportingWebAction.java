@@ -20,6 +20,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
@@ -288,7 +289,6 @@ public class ReportingWebAction extends JiraWebActionSupport {
         .getAnalyticsDTO(PiwikPropertiesUtil.PIWIK_REPORTING_SITEID, settingsHelper);
 
     initializeData();
-
     return INPUT;
   }
 
@@ -378,6 +378,12 @@ public class ReportingWebAction extends JiraWebActionSupport {
     return durationFormatter;
   }
 
+  public String getEndDateInJSDatePickerFormat() {
+    return super.getDateTimeFormatter().withStyle(DateTimeStyle.DATE_PICKER)
+        .withZone(TimetrackerUtil.getLoggedUserTimeZone().toTimeZone())
+        .format(new Date(filterCondition.getWorklogEndDate()));
+  }
+
   public List<SearchRequest> getFavouriteFilters() {
     return favouriteFilters;
   }
@@ -408,6 +414,22 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   public IssueSummaryReportDTO getIssueSummaryReport() {
     return issueSummaryReport;
+  }
+
+  public String getIsueCreateDateInJSFormat() {
+    if (filterCondition.getIssueCreateDate() == null) {
+      return super.getDateTimeFormatter().withStyle(DateTimeStyle.DATE_PICKER)
+          .withZone(TimetrackerUtil.getLoggedUserTimeZone().toTimeZone())
+          .format(
+              DateTimeConverterUtil
+                  .setDateToDayStart(new DateTime(TimetrackerUtil.getLoggedUserTimeZone()))
+                  .toDate());
+    } else {
+      return super.getDateTimeFormatter().withStyle(DateTimeStyle.DATE_PICKER)
+          .withZone(TimetrackerUtil.getLoggedUserTimeZone().toTimeZone())
+          .format(new Date(filterCondition.getIssueCreateDate()));
+    }
+
   }
 
   public String getMessage() {
@@ -448,6 +470,12 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   public String getStacktrace() {
     return stacktrace;
+  }
+
+  public String getStartDateInJSDatePickerFormat() {
+    return super.getDateTimeFormatter().withStyle(DateTimeStyle.DATE_PICKER)
+        .withZone(TimetrackerUtil.getLoggedUserTimeZone().toTimeZone())
+        .format(new Date(filterCondition.getWorklogStartDate()));
   }
 
   public UserSummaryReportDTO getUserSummaryReport() {
