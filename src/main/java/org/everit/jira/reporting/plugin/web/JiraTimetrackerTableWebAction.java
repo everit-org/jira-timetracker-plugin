@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
@@ -55,6 +56,7 @@ import org.ofbiz.core.entity.GenericEntityException;
 import com.atlassian.jira.avatar.Avatar;
 import com.atlassian.jira.avatar.AvatarService;
 import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.datetime.DateTimeStyle;
 import com.atlassian.jira.exception.DataAccessException;
 import com.atlassian.jira.issue.RendererManager;
 import com.atlassian.jira.issue.fields.renderer.IssueRenderContext;
@@ -430,6 +432,12 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     return daySum;
   }
 
+  public String getEndDateInJSDatePickerFormat() {
+    return super.getDateTimeFormatter().withStyle(DateTimeStyle.DATE_PICKER)
+        .withZone(TimetrackerUtil.getLoggedUserTimeZone().toTimeZone())
+        .format(new Date(dateToFormated));
+  }
+
   private String getFormattedRedirectUrl() {
     String currentUserEncoded;
     try {
@@ -442,6 +450,12 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
         dateFromFormated,
         dateToFormated,
         currentUserEncoded);
+  }
+
+  public String getFromDateInJSDatePickerFormat() {
+    return super.getDateTimeFormatter().withStyle(DateTimeStyle.DATE_PICKER)
+        .withZone(TimetrackerUtil.getLoggedUserTimeZone().toTimeZone())
+        .format(new Date(dateFromFormated));
   }
 
   public boolean getHasBrowseUsersPermission() {

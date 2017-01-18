@@ -20,6 +20,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +53,7 @@ import org.ofbiz.core.entity.GenericEntityException;
 import com.atlassian.jira.avatar.Avatar;
 import com.atlassian.jira.avatar.AvatarService;
 import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.datetime.DateTimeStyle;
 import com.atlassian.jira.exception.DataAccessException;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.user.ApplicationUser;
@@ -302,6 +304,12 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     return dateToFormated;
   }
 
+  public String getEndDateInJSDatePickerFormat() {
+    return super.getDateTimeFormatter().withStyle(DateTimeStyle.DATE_PICKER)
+        .withZone(TimetrackerUtil.getLoggedUserTimeZone().toTimeZone())
+        .format(new Date(dateToFormated));
+  }
+
   private String getFormattedRedirectUrl() {
     String currentUserEncoded;
     try {
@@ -314,6 +322,12 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
         dateFromFormated,
         dateToFormated,
         currentUserEncoded);
+  }
+
+  public String getFromDateInJSDatePickerFormat() {
+    return super.getDateTimeFormatter().withStyle(DateTimeStyle.DATE_PICKER)
+        .withZone(TimetrackerUtil.getLoggedUserTimeZone().toTimeZone())
+        .format(new Date(dateFromFormated));
   }
 
   public boolean getHasBrowseUsersPermission() {
