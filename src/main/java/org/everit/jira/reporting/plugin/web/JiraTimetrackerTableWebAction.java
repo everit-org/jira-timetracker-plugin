@@ -432,6 +432,9 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     return daySum;
   }
 
+  /**
+   * Get end date for date picker.
+   */
   public String getEndDateInJSDatePickerFormat() {
     return super.getDateTimeFormatter().withStyle(DateTimeStyle.DATE_PICKER)
         .withZone(TimetrackerUtil.getLoggedUserTimeZone().toTimeZone())
@@ -452,6 +455,9 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
         currentUserEncoded);
   }
 
+  /**
+   * Get from date for date picker.
+   */
   public String getFromDateInJSDatePickerFormat() {
     return super.getDateTimeFormatter().withStyle(DateTimeStyle.DATE_PICKER)
         .withZone(TimetrackerUtil.getLoggedUserTimeZone().toTimeZone())

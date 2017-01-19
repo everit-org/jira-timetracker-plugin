@@ -378,6 +378,9 @@ public class ReportingWebAction extends JiraWebActionSupport {
     return durationFormatter;
   }
 
+  /**
+   * Get end date for date picker.
+   */
   public String getEndDateInJSDatePickerFormat() {
     return super.getDateTimeFormatter().withStyle(DateTimeStyle.DATE_PICKER)
         .withZone(TimetrackerUtil.getLoggedUserTimeZone().toTimeZone())
@@ -416,6 +419,9 @@ public class ReportingWebAction extends JiraWebActionSupport {
     return issueSummaryReport;
   }
 
+  /**
+   * Get issue creation date for date picker.
+   */
   public String getIsueCreateDateInJSFormat() {
     if (filterCondition.getIssueCreateDate() == null) {
       return super.getDateTimeFormatter().withStyle(DateTimeStyle.DATE_PICKER)
@@ -472,6 +478,9 @@ public class ReportingWebAction extends JiraWebActionSupport {
     return stacktrace;
   }
 
+  /**
+   * Get start date for date picker.
+   */
   public String getStartDateInJSDatePickerFormat() {
     return super.getDateTimeFormatter().withStyle(DateTimeStyle.DATE_PICKER)
         .withZone(TimetrackerUtil.getLoggedUserTimeZone().toTimeZone())

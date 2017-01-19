@@ -304,6 +304,9 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
     return dateToFormated;
   }
 
+  /**
+   * Get end date for date picker.
+   */
   public String getEndDateInJSDatePickerFormat() {
     return super.getDateTimeFormatter().withStyle(DateTimeStyle.DATE_PICKER)
         .withZone(TimetrackerUtil.getLoggedUserTimeZone().toTimeZone())
@@ -324,6 +327,9 @@ public class JiraTimetrackerChartWebAction extends JiraWebActionSupport {
         currentUserEncoded);
   }
 
+  /**
+   * Get from date for date picker.
+   */
   public String getFromDateInJSDatePickerFormat() {
     return super.getDateTimeFormatter().withStyle(DateTimeStyle.DATE_PICKER)
         .withZone(TimetrackerUtil.getLoggedUserTimeZone().toTimeZone())

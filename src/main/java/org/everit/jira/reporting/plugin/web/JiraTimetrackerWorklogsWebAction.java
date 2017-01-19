@@ -346,12 +346,18 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     return dateToFormated;
   }
 
+  /**
+   * Get end date for date picker.
+   */
   public String getEndDateInJSDatePickerFormat() {
     return super.getDateTimeFormatter().withStyle(DateTimeStyle.DATE_PICKER)
         .withZone(TimetrackerUtil.getLoggedUserTimeZone().toTimeZone())
         .format(new Date(dateToFormated));
   }
 
+  /**
+   * Get from date for date picker.
+   */
   public String getFromDateInJSDatePickerFormat() {
     return super.getDateTimeFormatter().withStyle(DateTimeStyle.DATE_PICKER)
         .withZone(TimetrackerUtil.getLoggedUserTimeZone().toTimeZone())
