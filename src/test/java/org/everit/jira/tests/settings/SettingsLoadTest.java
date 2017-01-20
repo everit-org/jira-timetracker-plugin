@@ -33,6 +33,7 @@ import org.everit.jira.settings.dto.ReportingSettingKey;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
 import org.everit.jira.settings.dto.TimeTrackerUserSettings;
 import org.everit.jira.settings.dto.UserSettingKey;
+import org.everit.jira.tests.util.converterUtilForTests;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.junit.Assert;
 import org.junit.Before;
@@ -262,13 +263,13 @@ public class SettingsLoadTest {
     Assert.assertEquals(true, loadGlobalSettings.getAnalyticsCheck());
     Assert.assertEquals(
         new HashSet<>(
-            Arrays.asList(DateTimeConverterUtil.fixFormatStringToUTCDateTime("2014-01-02"),
-                DateTimeConverterUtil.fixFormatStringToUTCDateTime("2014-01-03"))),
+            Arrays.asList(converterUtilForTests.fixFormatStringToUTCDateTime("2014-01-02"),
+                converterUtilForTests.fixFormatStringToUTCDateTime("2014-01-03"))),
         loadGlobalSettings.getExcludeDates());
     Assert.assertEquals(
         new HashSet<>(
-            Arrays.asList(DateTimeConverterUtil.fixFormatStringToUTCDateTime("2014-01-05"),
-                DateTimeConverterUtil.fixFormatStringToUTCDateTime("2014-01-06"))),
+            Arrays.asList(converterUtilForTests.fixFormatStringToUTCDateTime("2014-01-05"),
+                converterUtilForTests.fixFormatStringToUTCDateTime("2014-01-06"))),
         loadGlobalSettings.getIncludeDates());
     assertPatterns(new Pattern[] { Pattern.compile("sam-3"), Pattern.compile("sam-4") },
         loadGlobalSettings.getIssuePatterns().toArray(new Pattern[] {}));

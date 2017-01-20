@@ -24,7 +24,7 @@ import java.util.Locale;
 
 import org.everit.jira.core.TimetrackerManager;
 import org.everit.jira.core.impl.TimetrackerComponent;
-import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
+import org.everit.jira.tests.util.converterUtilForTests;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.Assert;
@@ -97,14 +97,14 @@ public class GetExtraDaysOfTheMonthTest {
   @Test
   public void testOneExcludeDate() throws ParseException {
     List<DateTime> excludeDaysOfTheMonth = timetrackerManager.getExcludeDaysOfTheMonth(
-        new DateTime(DateTimeConverterUtil.fixFormatStringToUTCDateTime("2016-01-05")),
+        new DateTime(converterUtilForTests.fixFormatStringToUTCDateTime("2016-01-05")),
         new HashSet<>(
             Arrays.asList(
-                DateTimeConverterUtil.fixFormatStringToUTCDateTime("2016-01-05"),
-                DateTimeConverterUtil.fixFormatStringToUTCDateTime("2016-02-05"))));
+                converterUtilForTests.fixFormatStringToUTCDateTime("2016-01-05"),
+                converterUtilForTests.fixFormatStringToUTCDateTime("2016-02-05"))));
     Assert.assertEquals(
         new HashSet<>(
-            Arrays.asList(DateTimeConverterUtil.fixFormatStringToUTCDateTime("2016-01-05"))),
+            Arrays.asList(converterUtilForTests.fixFormatStringToUTCDateTime("2016-01-05"))),
         new HashSet<>(excludeDaysOfTheMonth));
   }
 
@@ -114,11 +114,11 @@ public class GetExtraDaysOfTheMonthTest {
         new DateTime(1451952000000L, DateTimeZone.UTC),
         new HashSet<>(
             Arrays.asList(
-                DateTimeConverterUtil.fixFormatStringToUTCDateTime("2016-01-01"),
-                DateTimeConverterUtil.fixFormatStringToUTCDateTime("2016-02-04"))));
+                converterUtilForTests.fixFormatStringToUTCDateTime("2016-01-01"),
+                converterUtilForTests.fixFormatStringToUTCDateTime("2016-02-04"))));
     Assert.assertEquals(
         new HashSet<>(
-            Arrays.asList(DateTimeConverterUtil.fixFormatStringToUTCDateTime("2016-01-01"))),
+            Arrays.asList(converterUtilForTests.fixFormatStringToUTCDateTime("2016-01-01"))),
         new HashSet<>(excludeDaysOfTheMonth));
   }
 
@@ -128,8 +128,8 @@ public class GetExtraDaysOfTheMonthTest {
         new DateTime(1451606400000L, DateTimeZone.forID("Pacific/Apia")),
         new HashSet<>(
             Arrays.asList(
-                DateTimeConverterUtil.fixFormatStringToUTCDateTime("2016-01-01"),
-                DateTimeConverterUtil.fixFormatStringToUTCDateTime("2016-02-04"))));
+                converterUtilForTests.fixFormatStringToUTCDateTime("2016-01-01"),
+                converterUtilForTests.fixFormatStringToUTCDateTime("2016-02-04"))));
     Assert.assertEquals(
         new HashSet<>(),
         new HashSet<>(excludeDaysOfTheMonth));
@@ -141,11 +141,11 @@ public class GetExtraDaysOfTheMonthTest {
         new DateTime(1451606400000L, DateTimeZone.forID("Pacific/Chatham")),
         new HashSet<>(
             Arrays.asList(
-                DateTimeConverterUtil.fixFormatStringToUTCDateTime("2016-01-01"),
-                DateTimeConverterUtil.fixFormatStringToUTCDateTime("2016-02-04"))));
+                converterUtilForTests.fixFormatStringToUTCDateTime("2016-01-01"),
+                converterUtilForTests.fixFormatStringToUTCDateTime("2016-02-04"))));
     Assert.assertEquals(
         new HashSet<>(
-            Arrays.asList(DateTimeConverterUtil.fixFormatStringToUTCDateTime("2016-01-01"))),
+            Arrays.asList(converterUtilForTests.fixFormatStringToUTCDateTime("2016-01-01"))),
         new HashSet<>(excludeDaysOfTheMonth));
   }
 

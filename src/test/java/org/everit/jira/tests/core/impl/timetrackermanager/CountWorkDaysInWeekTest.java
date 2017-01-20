@@ -24,7 +24,7 @@ import java.util.List;
 
 import org.everit.jira.core.TimetrackerManager;
 import org.everit.jira.core.impl.TimetrackerComponent;
-import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
+import org.everit.jira.tests.util.converterUtilForTests;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
@@ -45,14 +45,14 @@ public class CountWorkDaysInWeekTest {
     List<String> days = Arrays.asList("2016-10-24", "2016-10-25", "2016-10-26", "2016-10-27",
         "2016-10-28", "2016-10-29", "2016-10-30");
     for (String date : days) {
-      weekdays.add(DateTimeConverterUtil.fixFormatStringToUTCDateTime(date));
+      weekdays.add(converterUtilForTests.fixFormatStringToUTCDateTime(date));
     }
     double workDaysInWeek =
         timetrackerManager.countRealWorkDaysInWeek(weekdays, new HashSet<>(
-            Arrays.asList(DateTimeConverterUtil.fixFormatStringToUTCDateTime("2016-10-24"),
-                DateTimeConverterUtil.fixFormatStringToUTCDateTime("2016-10-25"))),
+            Arrays.asList(converterUtilForTests.fixFormatStringToUTCDateTime("2016-10-24"),
+                converterUtilForTests.fixFormatStringToUTCDateTime("2016-10-25"))),
             new HashSet<>(
-                Arrays.asList(DateTimeConverterUtil.fixFormatStringToUTCDateTime("2016-10-29"))));
+                Arrays.asList(converterUtilForTests.fixFormatStringToUTCDateTime("2016-10-29"))));
     Assert.assertEquals(4.0, workDaysInWeek, 0.0001);
   }
 
@@ -67,11 +67,11 @@ public class CountWorkDaysInWeekTest {
     List<String> days = Arrays.asList("2016-10-24", "2016-10-25", "2016-10-26", "2016-10-27",
         "2016-10-28", "2016-10-29", "2016-10-30");
     for (String date : days) {
-      weekdays.add(DateTimeConverterUtil.fixFormatStringToUTCDateTime(date));
+      weekdays.add(converterUtilForTests.fixFormatStringToUTCDateTime(date));
     }
     double workDaysInWeek =
         timetrackerManager.countRealWorkDaysInWeek(weekdays, new HashSet<>(Arrays.asList(
-            DateTimeConverterUtil.fixFormatStringToUTCDateTime("2016-10-25"))),
+            converterUtilForTests.fixFormatStringToUTCDateTime("2016-10-25"))),
             Collections.EMPTY_SET);
     Assert.assertEquals(4.0, workDaysInWeek, 0.0001);
   }
@@ -87,12 +87,12 @@ public class CountWorkDaysInWeekTest {
     List<String> days = Arrays.asList("2016-10-24", "2016-10-25", "2016-10-26", "2016-10-27",
         "2016-10-28", "2016-10-29", "2016-10-30");
     for (String date : days) {
-      weekdays.add(DateTimeConverterUtil.fixFormatStringToUTCDateTime(date));
+      weekdays.add(converterUtilForTests.fixFormatStringToUTCDateTime(date));
     }
     double workDaysInWeek =
         timetrackerManager.countRealWorkDaysInWeek(weekdays, Collections.EMPTY_SET,
             new HashSet<>(
-                Arrays.asList(DateTimeConverterUtil.fixFormatStringToUTCDateTime("2016-10-29"))));
+                Arrays.asList(converterUtilForTests.fixFormatStringToUTCDateTime("2016-10-29"))));
     Assert.assertEquals(6.0, workDaysInWeek, 0.0001);
   }
 
@@ -107,7 +107,7 @@ public class CountWorkDaysInWeekTest {
     List<String> days = Arrays.asList("2016-10-24", "2016-10-25", "2016-10-26", "2016-10-27",
         "2016-10-28", "2016-10-29", "2016-10-30");
     for (String date : days) {
-      weekdays.add(DateTimeConverterUtil.fixFormatStringToUTCDateTime(date));
+      weekdays.add(converterUtilForTests.fixFormatStringToUTCDateTime(date));
     }
     double workDaysInWeek =
         timetrackerManager.countRealWorkDaysInWeek(weekdays, Collections.EMPTY_SET,

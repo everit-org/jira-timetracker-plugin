@@ -25,7 +25,6 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.time.DateUtils;
 import org.everit.jira.settings.TimeTrackerSettingsHelper;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
 import org.everit.jira.settings.dto.TimeZoneTypes;
@@ -89,27 +88,6 @@ public final class TimetrackerUtil {
       return false;
     }
     return true;
-  }
-
-  /**
-   * Check the date is contains the dates or not.
-   *
-   * @param dates
-   *          the dates set.
-   * @param date
-   *          the date that check contains.
-   * @return true if contains, otherwise false.
-   */
-  public static boolean containsSetTheSameDay(final Set<Date> dates,
-      final Calendar date) {
-    for (Date d : dates) {
-      Calendar c = Calendar.getInstance();
-      c.setTime(d);
-      if (DateUtils.isSameDay(c, date)) {
-        return true;
-      }
-    }
-    return false;
   }
 
   /**

@@ -60,9 +60,9 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.popu
 				dateFormat: '${dateFormat}',
 				activeFieldDuration: $userSettings.activeFieldDuration,
 				defaultCommand: $defaultCommand,
-				jiraOffset: ${jiraOffset},
-				jiraTime: ${jiraTime.getMillis()},
-				jiraFormatedDate: "${jiraDateInJSDatePickerFormat}",
+				userTimeZoneOffset: ${userTimeZoneOffset},
+				currentServerTime: ${currentTimeInUserTimeZone.getMillis()},
+				jiraFormatedDate: "${currentDateTimeInJSDatePickerFormat}",
 			}
 		);
 	})(everit.jttp.main, AJS.$);

@@ -324,7 +324,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     return contextPath;
   }
 
-  public DateTimeFormatter getDateFormatInUserTimeZOne() {
+  public DateTimeFormatter getDateFormatInUserTimeZone() {
     return super.getDateTimeFormatter().withStyle(DateTimeStyle.DATE_PICKER)
         .withZone(TimetrackerUtil.getLoggedUserTimeZone().toTimeZone());
   }

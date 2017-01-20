@@ -34,7 +34,6 @@ import org.everit.jira.core.util.TimetrackerUtil;
 import org.everit.jira.timetracker.plugin.DurationFormatter;
 import org.everit.jira.timetracker.plugin.exception.WorklogException;
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 
 import com.atlassian.jira.component.ComponentAccessor;
@@ -317,12 +316,6 @@ public final class DateTimeConverterUtil {
       throw new ParseException("Invalid date value:" + dateString, 0);
     }
     return date;
-  }
-
-  public static DateTime fixFormatStringToUTCDateTime(final String dateString)
-      throws ParseException {
-    Date fixFormatStringToDate = DateTimeConverterUtil.fixFormatStringToDate(dateString);
-    return new DateTime(fixFormatStringToDate.getTime(), DateTimeZone.UTC);
   }
 
   /**

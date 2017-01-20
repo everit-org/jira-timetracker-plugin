@@ -207,7 +207,7 @@ everit.jttp.main = everit.jttp.main || {};
   jttp.beforeSubmit = function() {
     var date = jQuery('#date');
     //Send back the jira server time
-    date.val(jttp.options.jiraTime);
+    date.val(jttp.options.currentServerTime);
     var worklogValues = getWorklogValuesJson();
     var json = JSON.stringify(worklogValues);
     var worklogValuesJson = jQuery('#worklogValuesJson');
@@ -231,7 +231,7 @@ everit.jttp.main = everit.jttp.main || {};
   
   jttp.beforeSubmitEditAll = function(){
     var date = jQuery('#date');
-    date.val(jttp.options.jiraTime);
+    date.val(jttp.options.currentServerTime);
     jQuery("#jttp-editall-form").append(date);
     
     return true;
@@ -239,14 +239,14 @@ everit.jttp.main = everit.jttp.main || {};
   
   jttp.beforeSubmitAction = function(id) {
     var date = jQuery('#date');
-    date.val(jttp.options.jiraTime);
+    date.val(jttp.options.currentServerTime);
     jQuery(".actionForm_"+id).append(date);
     
     return true;
   }
    
  jttp.cancelClick = function(){
-   window.location = "JiraTimetrackerWebAction.jspa?date="+jttp.options.jiraTime;
+   window.location = "JiraTimetrackerWebAction.jspa?date="+jttp.options.currentServerTime;
  }
  
   jttp.beforeSubmitChangeDate = function() {
@@ -258,12 +258,12 @@ everit.jttp.main = everit.jttp.main || {};
     	var dateInMil = Date.parseDate(dateHidden, jttp.options.dateFormat);
     	var offset=dateInMil.getTimezoneOffset()*60000;
     	var dateInMilisec=dateInMil.getTime()-offset;
-    	dateInMilisec= dateInMilisec-jttp.options.jiraOffset+7200000;
+    	dateInMilisec= dateInMilisec-jttp.options.userTimeZoneOffset+7200000;
     	currentJiraTime=dateInMilisec;
     }else {
     	//the date changed by the next or previous button
     	//add or subtract handled in server side
-    	currentJiraTime=jttp.options.jiraTime;
+    	currentJiraTime=jttp.options.currentServerTime;
     }
     var date = jQuery('#date');
     date.val(currentJiraTime);
@@ -888,7 +888,7 @@ everit.jttp.main = everit.jttp.main || {};
     jQuery('#delete_adjustment_amount').val(adjustmentAmount);
 
     var date = jQuery('#date');
-    date.val(jttp.options.jiraTime);
+    date.val(jttp.options.currentServerTime);
     jQuery("#actionFormForDelete").append(date);
     
     return true;

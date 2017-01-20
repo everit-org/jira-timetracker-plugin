@@ -162,6 +162,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   private String contextPath;
 
+  private DateTime currentTimeInUserTimeZone;
+
   private boolean defaultCommand = false;
 
   private DurationFormatter durationFormatter = new DurationFormatter();
@@ -178,8 +180,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private String issueCollectorSrc;
 
   private final IssueRenderContext issueRenderContext;
-
-  private DateTime jiraTime;
 
   /**
    * List of the logged days of the date variable current months.
@@ -275,18 +275,18 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
     excludeDays =
         timetrackerManager.getExcludeDaysOfTheMonth(
-            jiraTime,
+            currentTimeInUserTimeZone,
             globalSettings.getExcludeDates());
 
     projectsId = supportManager.getProjectsId();
 
     worklogsSizeWithoutPermissionChecks =
         worklogManager.countWorklogsWithoutPermissionChecks(
-            DateTimeServer.getInstanceBasedOnUserTimeZone(jiraTime), null);
+            DateTimeServer.getInstanceBasedOnUserTimeZone(currentTimeInUserTimeZone), null);
 
     summaryDTO = new SummaryDTO.SummaryDTOBuilder(
         timeTrackingConfiguration, timetrackerManager, supportManager,
-        DateTimeServer.getInstanceBasedOnUserTimeZone(jiraTime),
+        DateTimeServer.getInstanceBasedOnUserTimeZone(currentTimeInUserTimeZone),
         globalSettings.getExcludeDates(),
         globalSettings.getIncludeDates(), globalSettings.getNonWorkingIssuePatterns())
             .createSummaryDTO();
@@ -436,7 +436,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       return INPUT;
     }
     String result = createWorklog(worklogValues.getIssueKey(), worklogValues.getCommentForActions(),
-        DateTimeServer.getInstanceBasedOnUserTimeZone(jiraTime), worklogValues.getStartTime(),
+        DateTimeServer.getInstanceBasedOnUserTimeZone(currentTimeInUserTimeZone),
+        worklogValues.getStartTime(),
         timeSpent);
     if (SUCCESS.equals(result)) {
       if ((actionWorklogId != null) && "copy".equals(actionFlag)) {
@@ -493,7 +494,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       try {
         // TODO compare two long (worklogEnDateTime and system current time)
         Date worklogEndDate =
-            DateTimeConverterUtil.stringToDateAndTime(jiraTime.toDate(),
+            DateTimeConverterUtil.stringToDateAndTime(currentTimeInUserTimeZone.toDate(),
                 workLogEndDateTime);
         if (userSettings.isShowFutureLogWarning()
             && worklogEndDate.after(DateTimeServer.getInstanceSystemNow().getUserTimeZoneDate())) {
@@ -535,7 +536,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     beforeActions();
 
     loggedDays = timetrackerManager
-        .getLoggedDaysOfTheMonth(DateTimeServer.getInstanceBasedOnUserTimeZone(jiraTime));
+        .getLoggedDaysOfTheMonth(
+            DateTimeServer.getInstanceBasedOnUserTimeZone(currentTimeInUserTimeZone));
     try {
       loadWorklogs();
       parseWorklogValues();
@@ -578,7 +580,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     }
     // success or input result
     loggedDays = timetrackerManager
-        .getLoggedDaysOfTheMonth(DateTimeServer.getInstanceBasedOnUserTimeZone(jiraTime));
+        .getLoggedDaysOfTheMonth(
+            DateTimeServer.getInstanceBasedOnUserTimeZone(currentTimeInUserTimeZone));
     try {
       loadWorklogs();
     } catch (ParseException | DataAccessException e) {
@@ -605,8 +608,9 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       } else if (RemainingEstimateType.MANUAL.equals(remainingEstimateType)) {
         optinalValue = worklogValues.getAdjustmentAmount();
       }
-      DateTimeServer dateStartTime = DateTimeServer.getInstanceBasedOnUserTimeZone(jiraTime)
-          .addStartTime(worklogValues.getStartTime());
+      DateTimeServer dateStartTime =
+          DateTimeServer.getInstanceBasedOnUserTimeZone(currentTimeInUserTimeZone)
+              .addStartTime(worklogValues.getStartTime());
 
       WorklogParameter worklogParameter = new WorklogParameter(worklogValues.getIssueKey(),
           worklogValues.getCommentForActions(),
@@ -631,8 +635,9 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       for (Long editWorklogId : editWorklogIds) {
         try {
           EveritWorklog editWorklog = worklogManager.getWorklog(editWorklogId);
-          DateTimeServer dateTime = DateTimeServer.getInstanceBasedOnUserTimeZone(jiraTime)
-              .addStartTime(editWorklog.getStartTime());
+          DateTimeServer dateTime =
+              DateTimeServer.getInstanceBasedOnUserTimeZone(currentTimeInUserTimeZone)
+                  .addStartTime(editWorklog.getStartTime());
 
           WorklogParameter worklogParameter = new WorklogParameter(editWorklog.getIssue(),
               editWorklog.getBody(),
@@ -676,6 +681,20 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return contextPath;
   }
 
+  /**
+   *
+   * Get the current date in JS format for date picker.
+   */
+  public String getCurrentDateTimeInJSDatePickerFormat() {
+    return super.getDateTimeFormatter().withStyle(DateTimeStyle.DATE_PICKER)
+        .withZone(TimetrackerUtil.getLoggedUserTimeZone().toTimeZone())
+        .format(currentTimeInUserTimeZone.toDate());
+  }
+
+  public DateTime getCurrentTimeInUserTimeZone() {
+    return currentTimeInUserTimeZone;
+  }
+
   @Override
   public DateTimeFormatter getDateTimeFormatter() {
     // TODO use getDmyDateFormatter insted of this??
@@ -715,19 +734,6 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     return issueRenderContext;
   }
 
-  public String getJiraDateInJSDatePickerFormat() {
-    return super.getDateTimeFormatter().withStyle(DateTimeStyle.DATE_PICKER)
-        .withZone(TimetrackerUtil.getLoggedUserTimeZone().toTimeZone()).format(jiraTime.toDate());
-  }
-
-  public long getJiraOffset() {
-    return TimetrackerUtil.getLoggedUserTimeZone().getOffset(System.currentTimeMillis());
-  }
-
-  public DateTime getJiraTime() {
-    return jiraTime;
-  }
-
   public List<String> getLoggedDays() {
     return loggedDays;
   }
@@ -758,6 +764,10 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
   public TimeTrackerUserSettings getUserSettings() {
     return userSettings;
+  }
+
+  public long getUserTimeZoneOffset() {
+    return TimetrackerUtil.getLoggedUserTimeZone().getOffset(System.currentTimeMillis());
   }
 
   public List<EveritWorklog> getWorklogs() {
@@ -805,7 +815,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private void loadWorklogs()
       throws ParseException, DataAccessException {
     worklogs = worklogManager.getWorklogs(null,
-        DateTimeServer.getInstanceBasedOnUserTimeZone(jiraTime), null);
+        DateTimeServer.getInstanceBasedOnUserTimeZone(currentTimeInUserTimeZone), null);
     worklogsIds = copyWorklogIdsToArray(worklogs);
   }
 
@@ -875,14 +885,16 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private void parseDateParam() {
     String jiraTimeParam = getHttpRequest().getParameter(Parameter.DATE);
     if ((jiraTimeParam != null) && !"".equals(jiraTimeParam)) {
-      jiraTime = new DateTime(Long.valueOf(jiraTimeParam), TimetrackerUtil.getLoggedUserTimeZone());
+      currentTimeInUserTimeZone =
+          new DateTime(Long.valueOf(jiraTimeParam), TimetrackerUtil.getLoggedUserTimeZone());
     } else {
       if (userSettings.isActualDate()) {
-        jiraTime = new DateTime(TimetrackerUtil.getLoggedUserTimeZone());
+        currentTimeInUserTimeZone = new DateTime(TimetrackerUtil.getLoggedUserTimeZone());
       } else {
-        jiraTime = timetrackerManager.firstMissingWorklogsDate(globalSettings.getExcludeDates(),
-            globalSettings.getIncludeDates(),
-            new DateTime(TimetrackerUtil.getLoggedUserTimeZone()));
+        currentTimeInUserTimeZone =
+            timetrackerManager.firstMissingWorklogsDate(globalSettings.getExcludeDates(),
+                globalSettings.getIncludeDates(),
+                new DateTime(TimetrackerUtil.getLoggedUserTimeZone()));
       }
     }
   }
@@ -890,11 +902,11 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
   private void parseDateParamAfterDateSwitcher(final boolean dayBack, final boolean dayNext,
       final boolean today) {
     if (dayNext) {
-      jiraTime = jiraTime.plusDays(1);
+      currentTimeInUserTimeZone = currentTimeInUserTimeZone.plusDays(1);
     } else if (dayBack) {
-      jiraTime = jiraTime.minusDays(1);
+      currentTimeInUserTimeZone = currentTimeInUserTimeZone.minusDays(1);
     } else if (today) {
-      jiraTime = new DateTime(TimetrackerUtil.getLoggedUserTimeZone());
+      currentTimeInUserTimeZone = new DateTime(TimetrackerUtil.getLoggedUserTimeZone());
     }
   }
 
@@ -961,7 +973,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
     String returnJson = TimetrackerUtil.convertWorklogValuesToJson(worklogValues);
     setReturnUrl(
         String.format(SELF_WITH_DATE_WORKLOG_URL_FORMAT,
-            jiraTime.getMillis(),
+            currentTimeInUserTimeZone.getMillis(),
             TimetrackerUtil.urlEndcodeHandleException(returnJson)) + warningUrlParameter);
     return getRedirect(action);
   }
@@ -970,7 +982,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       final String warningUrlParameter) {
     setReturnUrl(
         String.format(SELF_WITH_DATE_MESSAGES_URL_FORMAT,
-            jiraTime.getMillis(), message, messageParameter) + warningUrlParameter);
+            currentTimeInUserTimeZone.getMillis(), message, messageParameter)
+            + warningUrlParameter);
     return getRedirect(action);
   }
 
@@ -978,7 +991,7 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       final String warningUrlParameter) {
     setReturnUrl(
         String.format(SELF_WITH_DATE_URL_FORMAT,
-            jiraTime.getMillis()) + warningUrlParameter);
+            currentTimeInUserTimeZone.getMillis()) + warningUrlParameter);
     return getRedirect(action);
   }
 
