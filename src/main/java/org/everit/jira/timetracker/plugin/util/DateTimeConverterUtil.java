@@ -35,6 +35,7 @@ import org.everit.jira.timetracker.plugin.DurationFormatter;
 import org.everit.jira.timetracker.plugin.exception.WorklogException;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
 
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.config.properties.APKeys;
@@ -260,8 +261,9 @@ public final class DateTimeConverterUtil {
    * @return The result time.
    */
   public static String dateToFixFormatString(final DateTime date) {
-    DateFormat formatterDate = new SimpleDateFormat(FIX_DATE_TIME_FORMAT);
-    String dateString = formatterDate.format(date);
+    org.joda.time.format.DateTimeFormatter formatterDate =
+        DateTimeFormat.forPattern(FIX_DATE_TIME_FORMAT);
+    String dateString = formatterDate.print(date);
     return dateString;
   }
 
