@@ -63,7 +63,7 @@ everit.jttp.admin = everit.jttp.admin || {};
   }
   
   function millisTimeZoneCorrection(mil){
-    var osTimeZoneOffset = new Date().getTimezoneOffset() * -60000;
+    var osTimeZoneOffset = new Date().getTimezoneOffset() * 60000;
     var correctMil = mil + osTimeZoneOffset;
     return correctMil;
   }

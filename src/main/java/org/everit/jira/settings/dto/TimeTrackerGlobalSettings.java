@@ -17,7 +17,6 @@ package org.everit.jira.settings.dto;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -26,6 +25,9 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
+
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 /**
  * Mapping and converter class for the timetracker global settings.
@@ -93,15 +95,15 @@ public class TimeTrackerGlobalSettings {
   /**
    * Get the exclude dates as Set. Faster solution for check element exists or not in the set.
    */
-  public Set<Date> getExcludeDates() {
+  public Set<DateTime> getExcludeDates() {
     String excludeDatesString =
         (String) pluginSettingsKeyValues.get(GlobalSettingsKey.EXCLUDE_DATES);
-    Set<Date> excludeDatesSet = new HashSet<>();
+    Set<DateTime> excludeDatesSet = new HashSet<>();
     if ((excludeDatesString == null) || excludeDatesString.isEmpty()) {
       return excludeDatesSet;
     }
     for (String excludeDate : excludeDatesString.split(",")) {
-      excludeDatesSet.add(new Date(Long.parseLong(excludeDate)));
+      excludeDatesSet.add(new DateTime(Long.parseLong(excludeDate), DateTimeZone.UTC));
     }
     return excludeDatesSet;
   }
@@ -123,17 +125,18 @@ public class TimeTrackerGlobalSettings {
   }
 
   /**
-   * Get include dates as Set. The dates not sorted.
+   * Get include dates as Set. The dates not sorted. The dates are stored in long with 00:00 hour
+   * and minute in UTC.
    */
-  public Set<Date> getIncludeDates() {
+  public Set<DateTime> getIncludeDates() {
     String tempSpecialDates =
         (String) pluginSettingsKeyValues.get(GlobalSettingsKey.INCLUDE_DATES);
-    Set<Date> includeDatesSet = new HashSet<>();
+    Set<DateTime> includeDatesSet = new HashSet<>();
     if ((tempSpecialDates == null) || tempSpecialDates.isEmpty()) {
       return includeDatesSet;
     }
     for (String includeDate : tempSpecialDates.split(",")) {
-      includeDatesSet.add(new Date(Long.parseLong(includeDate)));
+      includeDatesSet.add(new DateTime(Long.parseLong(includeDate), DateTimeZone.UTC));
     }
     return includeDatesSet;
   }

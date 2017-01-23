@@ -16,12 +16,12 @@
 package org.everit.jira.core;
 
 import java.text.ParseException;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
 import org.everit.jira.core.impl.DateTimeServer;
 import org.everit.jira.timetracker.plugin.dto.EveritWorklog;
+import org.joda.time.DateTime;
 
 /**
  * Provides information for timetracker.
@@ -36,13 +36,15 @@ public interface TimetrackerManager {
    *
    * @return the counted real work days number.
    */
-  double countRealWorkDaysInWeek(final List<Date> weekDaysAsString,
-      final Set<Date> exludeDates, final Set<Date> includeDates);
+  double countRealWorkDaysInWeek(final List<DateTime> weekDaysAsString,
+      final Set<DateTime> exludeDates, final Set<DateTime> includeDates);
 
   /**
    * Give back the date of the first day where missing worklogs. Use the properties files includes
    * and excludes date settings.
    *
+   * @param currentDay
+   *          Represent the current day.
    * @param exludeDates
    *          the excluded dates.
    * @param includeDates
@@ -50,7 +52,8 @@ public interface TimetrackerManager {
    *
    * @return The Date representation of the day.
    */
-  Date firstMissingWorklogsDate(Set<Date> exludeDates, Set<Date> includeDates);
+  DateTime firstMissingWorklogsDate(final Set<DateTime> excludeDatesSet,
+      final Set<DateTime> includeDatesSet, DateTime currentDay);
 
   /**
    * The method find the exclude dates of the given date month.
@@ -61,18 +64,18 @@ public interface TimetrackerManager {
    *          the excluded dates.
    * @return The list of the days in String format. (Eg. ["12","15"])
    */
-  List<Date> getExcludeDaysOfTheMonth(DateTimeServer date, Set<Date> exludeDates);
+  List<DateTime> getExcludeDaysOfTheMonth(DateTime date, Set<DateTime> exludeDates);
 
   /**
    * The method find the include dates of the given date month.
    *
-   * @param date
+   * @param dateTime
    *          The date in User TimeZone.
    * @param includeDates
    *          the include dates.
    * @return The list of the days in String format. (Eg. ["12","15"])
    */
-  List<Date> getIncludeDaysOfTheMonth(DateTimeServer date, Set<Date> includeDates);
+  List<DateTime> getIncludeDaysOfTheMonth(DateTime dateTime, Set<DateTime> includeDates);
 
   /**
    * The method find the logged days of the given date month.

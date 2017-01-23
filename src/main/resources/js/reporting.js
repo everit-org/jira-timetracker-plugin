@@ -25,16 +25,16 @@ const MAX_ELEMENTS_DISPLAYED = 100; // EQUAL TO JIRA.Issues.SearcherGroupListDia
     
     var opt = reporting.values;
       
-    var dateForm = new Date(millisTimeZoneCorrection(opt.dateFromFormated)).print(opt.dateFormat); 
-    jQuery("#dateFrom").val(dateForm);
-    var dateTo = new Date(millisTimeZoneCorrection(opt.dateToFormated)).print(opt.dateFormat);
-    jQuery("#dateTo").val(dateTo);
+//    var dateForm = new Date(millisTimeZoneCorrection(opt.dateFromFormated)).print(opt.dateFormat); 
+    jQuery("#dateFrom").val(opt.dateFromInJSFormat);
+//    var dateTo = new Date(millisTimeZoneCorrection(opt.dateToFormated)).print(opt.dateFormat);
+    jQuery("#dateTo").val(opt.dateToInJSFormat);
     
     var calFrom = Calendar.setup({
       firstDay : opt.firstDay,
       inputField : jQuery("#dateFrom"),
       button : jQuery("#date_trigger_from"),
-      date : dateForm,
+      date : opt.dateFromInJSFormat,
       ifFormat: opt.dateFormat,
       align : 'Br',
       electric : false,
@@ -47,7 +47,7 @@ const MAX_ELEMENTS_DISPLAYED = 100; // EQUAL TO JIRA.Issues.SearcherGroupListDia
       firstDay : opt.firstDay,
       inputField : jQuery("#dateTo"),
       button : jQuery("#date_trigger_to"),
-      date : dateTo,
+      date : opt.dateToInJSFormat,
       ifFormat: opt.dateFormat,
       align : 'Br',
       electric : false,
@@ -310,14 +310,12 @@ const MAX_ELEMENTS_DISPLAYED = 100; // EQUAL TO JIRA.Issues.SearcherGroupListDia
   }
   
  function initCreatedDatePicker(){
-    if(!isNaN(reporting.values.dateCreatedFormated)){
-      jQuery("#createdPicker").val(new Date(millisTimeZoneCorrection(reporting.values.dateCreatedFormated)).print(reporting.values.dateFormat));
-    }
+      jQuery("#createdPicker").val(reporting.values.createDateInJSFormat);
     var createdDate = Calendar.setup({
       firstDay : reporting.values.firstDay,
       inputField : jQuery("#createdPicker"),
       button : jQuery("#createdPickerTrigger"),
-      date : new Date(millisTimeZoneCorrection(reporting.values.dateCreatedFormated)).print(reporting.values.dateFormat),
+      date : reporting.values.createDateInJSFormat,
       ifFormat: reporting.values.dateFormat,
       align : 'Br',
       electric : false,
