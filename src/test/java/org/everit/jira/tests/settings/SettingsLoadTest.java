@@ -33,6 +33,7 @@ import org.everit.jira.settings.dto.ReportingSettingKey;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
 import org.everit.jira.settings.dto.TimeTrackerUserSettings;
 import org.everit.jira.settings.dto.UserSettingKey;
+import org.everit.jira.tests.util.converterUtilForTests;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.junit.Assert;
 import org.junit.Before;
@@ -46,6 +47,8 @@ import com.atlassian.jira.mock.component.MockComponentWorker;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.user.MockApplicationUser;
+import com.atlassian.jira.user.preferences.JiraUserPreferences;
+import com.atlassian.jira.user.preferences.UserPreferencesManager;
 import com.atlassian.jira.util.I18nHelper.BeanFactory;
 import com.atlassian.plugin.PluginAccessor;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
@@ -72,11 +75,21 @@ public class SettingsLoadTest {
 
     Mockito.when(beanFactoryMock.getInstance(Locale.getDefault())).thenReturn(null);
     Mockito.when(jiraAuthenticationContext.getLoggedInUser()).thenReturn(fred);
+
+    JiraUserPreferences mockJiraUserPreferences =
+        Mockito.mock(JiraUserPreferences.class, Mockito.RETURNS_DEEP_STUBS);
+    Mockito.when(mockJiraUserPreferences.getString("jira.user.timezone"))
+        .thenReturn("UTC");
+    UserPreferencesManager mockUserPreferencesManager =
+        Mockito.mock(UserPreferencesManager.class, Mockito.RETURNS_DEEP_STUBS);
+    Mockito.when(mockUserPreferencesManager.getPreferences(Matchers.any(ApplicationUser.class)))
+        .thenReturn(mockJiraUserPreferences);
     new MockComponentWorker()
         .addMock(ConstantsManager.class, new MockConstantsManager())
         .addMock(JiraAuthenticationContext.class, jiraAuthenticationContext)
         .addMock(BeanFactory.class, beanFactoryMock)
         .addMock(PluginAccessor.class, pluginAccessorMock)
+        .addMock(UserPreferencesManager.class, mockUserPreferencesManager)
         .init();
   }
 
@@ -213,6 +226,7 @@ public class SettingsLoadTest {
     Assert.assertNull(loadUserSettings.getUserCanceledUpdate());
   }
 
+  // TODO find mock dependencies
   @Test
   public void testLoadPreConfiguredtGlobalSetting() throws ParseException {
     PluginSettingsFactory settingsFactoryMock = Mockito.mock(PluginSettingsFactory.class);
@@ -234,7 +248,8 @@ public class SettingsLoadTest {
         Arrays.asList("group-3", "group-4"));
     dummyPluginSettings.putGlobalSetting(GlobalSettingsKey.UPDATE_NOTIFIER_LAST_UPDATE,
         "1287479054000");
-    dummyPluginSettings.putGlobalSetting(GlobalSettingsKey.UPDATE_NOTIFIER_LATEST_VERSION, "2.6.7");
+    dummyPluginSettings.putGlobalSetting(GlobalSettingsKey.UPDATE_NOTIFIER_LATEST_VERSION,
+        "2.6.7");
 
     Mockito.when(settingsFactoryMock.createGlobalSettings()).thenReturn(dummyPluginSettings);
     TimeTrackerSettingsHelperImpl timeTrackerSettingsHelperImpl =
@@ -247,12 +262,14 @@ public class SettingsLoadTest {
     Assert.assertEquals(10, dummyPluginSettings.getMap().size());
     Assert.assertEquals(true, loadGlobalSettings.getAnalyticsCheck());
     Assert.assertEquals(
-        new HashSet<>(Arrays.asList(DateTimeConverterUtil.fixFormatStringToDate("2014-01-02"),
-            DateTimeConverterUtil.fixFormatStringToDate("2014-01-03"))),
+        new HashSet<>(
+            Arrays.asList(converterUtilForTests.fixFormatStringToUTCDateTime("2014-01-02"),
+                converterUtilForTests.fixFormatStringToUTCDateTime("2014-01-03"))),
         loadGlobalSettings.getExcludeDates());
     Assert.assertEquals(
-        new HashSet<>(Arrays.asList(DateTimeConverterUtil.fixFormatStringToDate("2014-01-05"),
-            DateTimeConverterUtil.fixFormatStringToDate("2014-01-06"))),
+        new HashSet<>(
+            Arrays.asList(converterUtilForTests.fixFormatStringToUTCDateTime("2014-01-05"),
+                converterUtilForTests.fixFormatStringToUTCDateTime("2014-01-06"))),
         loadGlobalSettings.getIncludeDates());
     assertPatterns(new Pattern[] { Pattern.compile("sam-3"), Pattern.compile("sam-4") },
         loadGlobalSettings.getIssuePatterns().toArray(new Pattern[] {}));
