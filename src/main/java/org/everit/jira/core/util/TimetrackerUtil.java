@@ -25,12 +25,12 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.time.DateUtils;
 import org.everit.jira.settings.TimeTrackerSettingsHelper;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
 import org.everit.jira.settings.dto.TimeZoneTypes;
 import org.everit.jira.timetracker.plugin.dto.WorklogValues;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
+import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.ofbiz.core.entity.EntityCondition;
 import org.ofbiz.core.entity.GenericValue;
@@ -99,31 +99,14 @@ public final class TimetrackerUtil {
    *          the date that check contains.
    * @return true if contains, otherwise false.
    */
-  public static boolean containsSetTheSameDay(final Set<Date> dates,
-      final Calendar date) {
-    for (Date d : dates) {
-      Calendar c = Calendar.getInstance();
-      c.setTime(d);
-      if (DateUtils.isSameDay(c, date)) {
+  public static boolean containsSetTheSameDay(final Set<DateTime> dates,
+      final DateTime date) {
+    for (DateTime d : dates) {
+      if ((d.getYear() == date.getYear()) && (d.getDayOfYear() == date.getDayOfYear())) {
         return true;
       }
     }
     return false;
-  }
-
-  /**
-   * Check the date is contains the dates or not.
-   *
-   * @param dates
-   *          the dates set.
-   * @param date
-   *          the date that check contains.
-   * @return true if contains, otherwise false.
-   */
-  public static boolean containsSetTheSameDay(final Set<Date> dates, final Date date) {
-    Calendar instance = Calendar.getInstance();
-    instance.setTime(date);
-    return TimetrackerUtil.containsSetTheSameDay(dates, instance);
   }
 
   /**
@@ -228,12 +211,12 @@ public final class TimetrackerUtil {
     TimeTrackerGlobalSettings globalSettings = settingsHelper.loadGlobalSettings();
     TimeZoneTypes timeZoneTypes = globalSettings.getTimeZone();
     if (TimeZoneTypes.USER.equals(timeZoneTypes)) {
-      TimeZoneServiceImpl timeZoneServiceImpl = getInitializedTimeZoneServeice();
-      JiraServiceContext serviceContext = getServiceContext();
+      TimeZoneServiceImpl timeZoneServiceImpl = TimetrackerUtil.getInitializedTimeZoneServeice();
+      JiraServiceContext serviceContext = TimetrackerUtil.getServiceContext();
       TimeZone timeZone = timeZoneServiceImpl.getUserTimeZone(serviceContext);
       return DateTimeZone.forTimeZone(timeZone);
     } else {
-      return getSystemTimeZone();
+      return TimetrackerUtil.getSystemTimeZone();
     }
 
   }
@@ -251,8 +234,8 @@ public final class TimetrackerUtil {
    * @return The system {@link DateTimeZone}.
    */
   public static DateTimeZone getSystemTimeZone() {
-    TimeZoneServiceImpl timeZoneServiceImpl = getInitializedTimeZoneServeice();
-    JiraServiceContext serviceContext = getServiceContext();
+    TimeZoneServiceImpl timeZoneServiceImpl = TimetrackerUtil.getInitializedTimeZoneServeice();
+    JiraServiceContext serviceContext = TimetrackerUtil.getServiceContext();
     TimeZone timeZone = timeZoneServiceImpl.getJVMTimeZoneInfo(serviceContext).toTimeZone();
     return DateTimeZone.forTimeZone(timeZone);
   }
@@ -262,7 +245,7 @@ public final class TimetrackerUtil {
    *
    * @param date
    *          The date what have to check. The date have to be set to day start and after that
-   *          convert to system Time Zone.
+   *          convert to system Time Zone.//No need to convert. It sends EPOCh milis.
    * @return If The user have worklogs the given date then true, esle false.
    */
   public static boolean isContainsWorklog(final Date date) {

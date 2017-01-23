@@ -17,7 +17,7 @@ package org.everit.jira.tests.core.impl.supportmanager;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -63,7 +63,7 @@ import com.atlassian.jira.user.preferences.UserPreferencesManager;
 import com.atlassian.jira.util.I18nHelper;
 import com.atlassian.jira.util.I18nHelper.BeanFactory;
 
-public class GetDatesTest {
+public class GetDatesTestWithUserTimeZone {
 
   static class DummyGenericValue extends GenericValue {
     private static final long serialVersionUID = 3415063923321743460L;
@@ -101,6 +101,8 @@ public class GetDatesTest {
 
   private SupportManager supportManager;
 
+  private long timeOffset = 25200000L;
+
   private TimeTrackerGlobalSettings timeTrackerGlobalSettings;
 
   private DateTime today;
@@ -112,6 +114,10 @@ public class GetDatesTest {
   private DateTime todayPlus3;
 
   private DateTime todayPlus4;
+
+  private DateTime todayPlus5;
+
+  private DateTimeZone useTimeZOne = DateTimeZone.forID("America/Denver");
 
   private GenericValue createDummyGenericValue(final long issueId, final long timeworked) {
     HashMap<String, Object> values = new HashMap<>();
@@ -133,6 +139,8 @@ public class GetDatesTest {
     todayPlus3 = date.toDateTime();// Sunday
     date = date.plusDays(1);
     todayPlus4 = date.toDateTime();// Monday
+    date = date.plusDays(1);
+    todayPlus5 = date.toDateTime();// Tuesday in UTC
 
     timeTrackerGlobalSettings
         .excludeDates(new HashSet<>(Arrays.asList(1452211200000L))); // 2016.01.08 Friday
@@ -145,7 +153,7 @@ public class GetDatesTest {
 
     JiraAuthenticationContext jiraAuthenticationContext =
         Mockito.mock(JiraAuthenticationContext.class, Mockito.RETURNS_DEEP_STUBS);
-    Mockito.when(jiraAuthenticationContext.getLoggedInUser())
+    Mockito.when(jiraAuthenticationContext.getUser())
         .thenReturn(new MockApplicationUser("userkey", "username"));
 
     TimeTrackingConfiguration timeTrackingConfiguration =
@@ -218,7 +226,7 @@ public class GetDatesTest {
               EntityExpr expr = (EntityExpr) expression;
               if ("startdate".equals(expr.getLhs())
                   && EntityOperator.GREATER_THAN_EQUAL_TO.equals(expr.getOperator())
-                  && (today.getMillis() == ((Timestamp) expr.getRhs()).getTime())) {
+                  && ((today.getMillis()) == ((Timestamp) expr.getRhs()).getTime())) {
                 return true;
               }
             }
@@ -239,7 +247,8 @@ public class GetDatesTest {
               EntityExpr expr = (EntityExpr) expression;
               if ("startdate".equals(expr.getLhs())
                   && EntityOperator.GREATER_THAN_EQUAL_TO.equals(expr.getOperator())
-                  && (todayPlus1.getMillis() == ((Timestamp) expr.getRhs()).getTime())) {
+                  && ((todayPlus1.getMillis()) == ((Timestamp) expr.getRhs())
+                      .getTime())) {
                 return true;
               }
             }
@@ -261,7 +270,8 @@ public class GetDatesTest {
               EntityExpr expr = (EntityExpr) expression;
               if ("startdate".equals(expr.getLhs())
                   && EntityOperator.GREATER_THAN_EQUAL_TO.equals(expr.getOperator())
-                  && (todayPlus2.getMillis() == ((Timestamp) expr.getRhs()).getTime())) {
+                  && ((todayPlus2.getMillis()) == ((Timestamp) expr.getRhs())
+                      .getTime())) {
                 return true;
               }
             }
@@ -283,7 +293,8 @@ public class GetDatesTest {
               EntityExpr expr = (EntityExpr) expression;
               if ("startdate".equals(expr.getLhs())
                   && EntityOperator.GREATER_THAN_EQUAL_TO.equals(expr.getOperator())
-                  && (todayPlus3.getMillis() == ((Timestamp) expr.getRhs()).getTime())) {
+                  && ((todayPlus3.getMillis()) == ((Timestamp) expr.getRhs())
+                      .getTime())) {
                 return true;
               }
             }
@@ -306,7 +317,29 @@ public class GetDatesTest {
               EntityExpr expr = (EntityExpr) expression;
               if ("startdate".equals(expr.getLhs())
                   && EntityOperator.GREATER_THAN_EQUAL_TO.equals(expr.getOperator())
-                  && (todayPlus4.getMillis() == ((Timestamp) expr.getRhs()).getTime())) {
+                  && ((todayPlus4.getMillis()) == ((Timestamp) expr.getRhs())
+                      .getTime())) {
+                return true;
+              }
+            }
+            return false;
+          }
+        })))
+        .thenReturn(null);
+    Mockito.when(ofBizDelegator.findByAnd(Matchers.anyString(),
+        Matchers.argThat(new ArgumentMatcher<List<EntityCondition>>() {
+          @Override
+          public boolean matches(final Object argument) {
+            if (argument == null) {
+              return false;
+            }
+            List<EntityCondition> exprList = (List<EntityCondition>) argument;
+            for (EntityCondition expression : exprList) {
+              EntityExpr expr = (EntityExpr) expression;
+              if ("startdate".equals(expr.getLhs())
+                  && EntityOperator.GREATER_THAN_EQUAL_TO.equals(expr.getOperator())
+                  && ((todayPlus5.getMillis()) == ((Timestamp) expr.getRhs())
+                      .getTime())) {
                 return true;
               }
             }
@@ -317,44 +350,30 @@ public class GetDatesTest {
     return ofBizDelegator;
   }
 
+  /**
+   * Use same worklogs which used in {@link GetDatesTest} but the user in different time zone. So
+   * Add an extra day work log which is in 2016.01.11 in user time zone (MONDAY) (Su8nday in UTC)
+   *
+   */
   @Test
   public void testGetDates() throws GenericEntityException {
     initMockComponentWorker();
-    DateTimeServer today = DateTimeServer.getInstanceBasedOnUserTimeZone(this.today);
-    DateTimeServer todayPlus4 = DateTimeServer.getInstanceBasedOnUserTimeZone(this.todayPlus4);
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    DateTimeServer today = DateTimeServer
+        .getInstanceBasedOnUserTimeZone(
+            new DateTime(this.today.getMillis(), useTimeZOne)); // in user timezone it
+                                                                // is 2016.01.06
+    DateTimeServer todayPlus5 = DateTimeServer
+        .getInstanceBasedOnUserTimeZone(new DateTime(this.todayPlus5.getMillis(), useTimeZOne));
     // DateTimeServer todayPlus3 = DateTimeServer.getInstanceBasedOnUserTimeZone(this.todayPlus3);
-    DateTimeServer todayPlus2 = DateTimeServer.getInstanceBasedOnUserTimeZone(this.todayPlus2);
+    // DateTimeServer todayPlus2 = DateTimeServer.getInstanceBasedOnUserTimeZone(this.todayPlus2);
 
     List<MissingsWorklogsDTO> dates =
-        supportManager.getDates(today, todayPlus4, false, false, timeTrackerGlobalSettings);
+        supportManager.getDates(today, todayPlus5, false, false, timeTrackerGlobalSettings);
     Assert.assertEquals(1, dates.size());
     MissingsWorklogsDTO dto1 = dates.get(0);
     Assert.assertEquals("1", dto1.getHour());
-    Assert.assertEquals(todayPlus4.getUserTimeZone().getMillis(), dto1.getDate().getTime());
+    Assert.assertEquals(todayPlus5.getUserTimeZone().getMillis(), dto1.getDate().getTime());
 
-    dates =
-        supportManager.getDates(today, todayPlus4, false, true, timeTrackerGlobalSettings);
-    Assert.assertEquals(1, dates.size());
-    dto1 = dates.get(0);
-    Assert.assertEquals("1", dto1.getHour());
-    Assert.assertEquals(todayPlus4.getUserTimeZone().getMillis(), dto1.getDate().getTime());
-
-    dates =
-        supportManager.getDates(today, todayPlus4, true, false, timeTrackerGlobalSettings);
-    DecimalFormat df = new DecimalFormat("#.#");
-    Assert.assertEquals(1, dates.size());
-    dto1 = dates.get(0);
-    Assert.assertEquals("1", dto1.getHour());
-    Assert.assertEquals(todayPlus4.getUserTimeZone().getMillis(), dto1.getDate().getTime());
-
-    dates =
-        supportManager.getDates(today, todayPlus4, true, true, timeTrackerGlobalSettings);
-    Assert.assertEquals(2, dates.size());
-    dto1 = dates.get(0);
-    MissingsWorklogsDTO dto2 = dates.get(1);
-    Assert.assertEquals("1", dto1.getHour());
-    Assert.assertEquals(df.format(0.7), dto2.getHour());
-    Assert.assertEquals(todayPlus4.getUserTimeZone().getMillis(), dto1.getDate().getTime());
-    Assert.assertEquals(todayPlus2.getUserTimeZone().getMillis(), dto2.getDate().getTime());
   }
 }

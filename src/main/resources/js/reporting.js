@@ -25,16 +25,16 @@ const MAX_ELEMENTS_DISPLAYED = 100; // EQUAL TO JIRA.Issues.SearcherGroupListDia
     
     var opt = reporting.values;
       
-    var dateForm = new Date(opt.dateFromFormated).print(opt.dateFormat); 
-    jQuery("#dateFrom").val(dateForm);
-    var dateTo = new Date(opt.dateToFormated).print(opt.dateFormat);
-    jQuery("#dateTo").val(dateTo);
+//    var dateForm = new Date(millisTimeZoneCorrection(opt.dateFromFormated)).print(opt.dateFormat); 
+    jQuery("#dateFrom").val(opt.dateFromInJSFormat);
+//    var dateTo = new Date(millisTimeZoneCorrection(opt.dateToFormated)).print(opt.dateFormat);
+    jQuery("#dateTo").val(opt.dateToInJSFormat);
     
     var calFrom = Calendar.setup({
       firstDay : opt.firstDay,
       inputField : jQuery("#dateFrom"),
       button : jQuery("#date_trigger_from"),
-      date : dateForm,
+      date : opt.dateFromInJSFormat,
       ifFormat: opt.dateFormat,
       align : 'Br',
       electric : false,
@@ -47,7 +47,7 @@ const MAX_ELEMENTS_DISPLAYED = 100; // EQUAL TO JIRA.Issues.SearcherGroupListDia
       firstDay : opt.firstDay,
       inputField : jQuery("#dateTo"),
       button : jQuery("#date_trigger_to"),
-      date : dateTo,
+      date : opt.dateToInJSFormat,
       ifFormat: opt.dateFormat,
       align : 'Br',
       electric : false,
@@ -113,7 +113,18 @@ const MAX_ELEMENTS_DISPLAYED = 100; // EQUAL TO JIRA.Issues.SearcherGroupListDia
       changeNavigationButtonVisibility();
     }
   };
-    
+
+  function millisTimeZoneCorrection(mil){
+    var osTimeZoneOffset = new Date().getTimezoneOffset() * -60000;
+    var correctMil = mil + osTimeZoneOffset;
+    return correctMil;
+  }
+  
+  function timeZoneCorrection(date){
+    var osTimeZoneOffset = date.getTimezoneOffset() * -60000;
+    var correctMil = date.getTime() + osTimeZoneOffset;
+    return correctMil;
+  }
 
   reporting.tutorialDialogHide = function(){
     if(jQuery('#tutorial_dns:checked').length){
@@ -299,14 +310,12 @@ const MAX_ELEMENTS_DISPLAYED = 100; // EQUAL TO JIRA.Issues.SearcherGroupListDia
   }
   
  function initCreatedDatePicker(){
-    if(!isNaN(reporting.values.dateCreatedFormated)){
-      jQuery("#createdPicker").val(new Date(reporting.values.dateCreatedFormated).print(reporting.values.dateFormat));
-    }
+      jQuery("#createdPicker").val(reporting.values.createDateInJSFormat);
     var createdDate = Calendar.setup({
       firstDay : reporting.values.firstDay,
       inputField : jQuery("#createdPicker"),
       button : jQuery("#createdPickerTrigger"),
-      date : new Date(reporting.values.dateCreatedFormated).print(reporting.values.dateFormat),
+      date : reporting.values.createDateInJSFormat,
       ifFormat: reporting.values.dateFormat,
       align : 'Br',
       electric : false,
@@ -1074,7 +1083,7 @@ const MAX_ELEMENTS_DISPLAYED = 100; // EQUAL TO JIRA.Issues.SearcherGroupListDia
           showErrorMessage("error_message_label_cd");
           return false;
         }
-        var issueCreateDateMilis = issueCreateDate.getTime();
+        var issueCreateDateMilis = timeZoneCorrection(issueCreateDate);
       }catch(err){
         showErrorMessage("error_message_label_cd");
         return false;
@@ -1088,7 +1097,7 @@ const MAX_ELEMENTS_DISPLAYED = 100; // EQUAL TO JIRA.Issues.SearcherGroupListDia
         showErrorMessage("error_message_label_df");
         return false;
       }
-      filterCondition["worklogStartDate"] = worklogStartDate.getTime();
+      filterCondition["worklogStartDate"] = timeZoneCorrection(worklogStartDate);
     }catch(err){
       showErrorMessage("error_message_label_df");
       return false;
@@ -1100,7 +1109,7 @@ const MAX_ELEMENTS_DISPLAYED = 100; // EQUAL TO JIRA.Issues.SearcherGroupListDia
         showErrorMessage("error_message_label_dt");
         return false;
       }
-      filterCondition["worklogEndDate"] = worklogEndDate.getTime();
+      filterCondition["worklogEndDate"] = timeZoneCorrection(worklogEndDate);
     }catch(err){
       showErrorMessage("error_message_label_dt");
       return false;

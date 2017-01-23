@@ -186,7 +186,7 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.plug
        <select id="includedatesHiddenSelect" name="includedates" style="display: none" multiple></select>
         <div id="includeDatesDiv" class="jttpDatePickerCollector"></div>
      <div class="from-date inline-calendar">
-       <input id="includeDate" name="includeDate" class="text medium-field datepicker-input"  readonly/>
+       <input id="includeDate" name="includeDate" class="text medium-field datepicker-input" readonly/>
         <a href="#" title="Select a date">
          <span id="includedate_trigger_from" class="aui-icon aui-icon-small aui-iconfont-calendar">Select a date</span>
         </a>
