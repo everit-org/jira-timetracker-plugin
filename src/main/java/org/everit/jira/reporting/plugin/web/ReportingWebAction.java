@@ -424,12 +424,7 @@ public class ReportingWebAction extends JiraWebActionSupport {
    */
   public String getIsueCreateDateInJSFormat() {
     if (filterCondition.getIssueCreateDate() == null) {
-      return super.getDateTimeFormatter().withStyle(DateTimeStyle.DATE_PICKER)
-          .withZone(TimetrackerUtil.getLoggedUserTimeZone().toTimeZone())
-          .format(
-              DateTimeConverterUtil
-                  .setDateToDayStart(new DateTime(TimetrackerUtil.getLoggedUserTimeZone()))
-                  .toDate());
+      return "";
     } else {
       return super.getDateTimeFormatter().withStyle(DateTimeStyle.DATE_PICKER)
           .withZone(TimetrackerUtil.getLoggedUserTimeZone().toTimeZone())
