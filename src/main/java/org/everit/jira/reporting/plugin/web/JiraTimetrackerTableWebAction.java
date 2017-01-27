@@ -355,7 +355,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     if (checkConditionsResult != null) {
       return checkConditionsResult;
     }
-
+    issuesRegex = settingsHelper.loadGlobalSettings().getNonWorkingIssuePatterns();
     beforeAction();
 
     parseParams();
