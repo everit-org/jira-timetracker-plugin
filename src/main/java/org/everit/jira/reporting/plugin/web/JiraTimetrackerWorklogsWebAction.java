@@ -255,6 +255,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     }
 
     beforeAction();
+    actualPage = 1;
 
     TimeTrackerGlobalSettings globalSettings = settingsHelper.loadGlobalSettings();
     try {
