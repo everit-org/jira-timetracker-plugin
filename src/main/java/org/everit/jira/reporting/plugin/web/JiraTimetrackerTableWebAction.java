@@ -297,6 +297,9 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
     loadIssueCollectorSrc();
     normalizeContextPath();
+
+    issuesRegex = settingsHelper.loadGlobalSettings().getNonWorkingIssuePatterns();
+
     hasBrowseUsersPermission =
         PermissionUtil.hasBrowseUserPermission(getLoggedInApplicationUser(),
             settingsHelper);
@@ -336,8 +339,6 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
     beforeAction();
 
-    issuesRegex = settingsHelper.loadGlobalSettings().getNonWorkingIssuePatterns();
-
     boolean loadedFromSession = loadDataFromSession();
     initDatesIfNecessary();
     initCurrentUserIfNecessary();
@@ -356,7 +357,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     if (checkConditionsResult != null) {
       return checkConditionsResult;
     }
-    issuesRegex = settingsHelper.loadGlobalSettings().getNonWorkingIssuePatterns();
+
     beforeAction();
 
     parseParams();
