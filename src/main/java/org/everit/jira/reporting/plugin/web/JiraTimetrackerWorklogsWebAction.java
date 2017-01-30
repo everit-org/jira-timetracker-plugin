@@ -255,6 +255,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     }
 
     beforeAction();
+    actualPage = 1;
 
     TimeTrackerGlobalSettings globalSettings = settingsHelper.loadGlobalSettings();
     try {
@@ -282,7 +283,6 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     }
 
     beforeAction();
-    actualPage = 1;
 
     String searchActionResult = parseParams();
     if (searchActionResult != null) {
