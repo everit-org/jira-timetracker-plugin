@@ -18,7 +18,7 @@
                  <div class="aui-item">
                  #if($userSettings.progressIndicatordaily)
                    <div class="jttp-headline-progress" id="jttp-headline-progress">
-                     <div class="jttp-headline-progress-date" id="jttp-headline-progress-date">$dateTimeFormatter.format($date)</div>
+                     <div class="jttp-headline-progress-date" id="jttp-headline-progress-date">$dateTimeFormatter.format($currentTimeInUserTimeZone.toDate())</div>
                      <div class="jttp-headline-progress-number" id="jttp-headline-progress-number">$summaryDTO.daySumIndustryFormatted / $summaryDTO.hoursPerDayFormatted</div>
                      <div id="jttp-headline-progress-bar">
                        <div id="jttp-headline-progress-indicator" class="aui-progress-indicator" data-jttp-percent="$summaryDTO.dailyPercent">
@@ -28,7 +28,7 @@
                    </div>
                  #else
                    <div class="jttp-headline-date" id="jttp-headline-date">
-                       <p id="jttp-headline-date-span">$dateTimeFormatter.format($date)</p>
+                       <p id="jttp-headline-date-span">$dateTimeFormatter.format($currentTimeInUserTimeZone.toDate())</p>
                    </div>
                  #end
                  </div>

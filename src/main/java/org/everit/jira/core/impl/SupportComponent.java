@@ -30,6 +30,7 @@ import org.everit.jira.core.util.WorklogUtil;
 import org.everit.jira.reporting.plugin.dto.MissingsWorklogsDTO;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
+import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.ofbiz.core.entity.EntityCondition;
 import org.ofbiz.core.entity.GenericEntityException;
@@ -63,11 +64,11 @@ public class SupportComponent implements SupportManager {
     List<MissingsWorklogsDTO> datesWhereNoWorklog = new ArrayList<MissingsWorklogsDTO>();
     DateTimeServer fromDate = from;
     DateTimeServer toDate = to;
-    Set<Date> excludeDatesAsSet = settings.getExcludeDates();
-    Set<Date> includeDatesAsSet = settings.getIncludeDates();
+    Set<DateTime> excludeDatesAsSet = settings.getExcludeDates();
+    Set<DateTime> includeDatesAsSet = settings.getIncludeDates();
     while (!fromDate.getUserTimeZone().isAfter(toDate.getUserTimeZone())) {
       if (TimetrackerUtil.containsSetTheSameDay(excludeDatesAsSet,
-          fromDate.getUserTimeZoneDate())) {
+          fromDate.getUserTimeZone())) {
         fromDate =
             DateTimeServer.getInstanceBasedOnUserTimeZone(fromDate.getUserTimeZone().plusDays(1));
         continue;
@@ -75,7 +76,7 @@ public class SupportComponent implements SupportManager {
       // check includes - not check weekend
       // check weekend - pass
       if (!TimetrackerUtil.containsSetTheSameDay(includeDatesAsSet,
-          fromDate.getUserTimeZoneDate())
+          fromDate.getUserTimeZone())
           && ((fromDate.getUserTimeZone().getDayOfWeek() == DateTimeConstants.SUNDAY)
               || (fromDate.getUserTimeZone().getDayOfWeek() == DateTimeConstants.SATURDAY))) {
         fromDate =
@@ -87,8 +88,9 @@ public class SupportComponent implements SupportManager {
 
       if (workingHour) {
         // fromDate = DateTimeConverterUtil.setDateToDayStart(fromDate);
-        double missingsTime = isContainsEnoughWorklog(fromDate.getSystemTimeZoneDayStartDate(),
-            checkNonWorking, settings.getNonWorkingIssuePatterns());
+        double missingsTime =
+            isContainsEnoughWorklog(fromDate.getUserTimeZone().toDate(),
+                checkNonWorking, settings.getNonWorkingIssuePatterns());
         if (missingsTime > 0) {
           missingsTime = missingsTime / DateTimeConverterUtil.SECONDS_PER_MINUTE
               / DateTimeConverterUtil.MINUTES_PER_HOUR;
@@ -96,13 +98,13 @@ public class SupportComponent implements SupportManager {
           // new BigDecimal(Double.toString(missingsTime)).setScale(2, RoundingMode.HALF_EVEN);
           // missingsTime = bd.doubleValue();
           datesWhereNoWorklog
-              .add(new MissingsWorklogsDTO(fromDate.getUserTimeZoneDate(),
+              .add(new MissingsWorklogsDTO(fromDate.getUserTimeZone().toDate(),
                   decimalFormat.format(missingsTime)));
         }
       } else {
-        if (!TimetrackerUtil.isContainsWorklog(fromDate.getSystemTimeZoneDayStartDate())) {
+        if (!TimetrackerUtil.isContainsWorklog(fromDate.getUserTimeZone().toDate())) {
           datesWhereNoWorklog
-              .add(new MissingsWorklogsDTO(fromDate.getUserTimeZoneDate(),
+              .add(new MissingsWorklogsDTO(fromDate.getUserTimeZone().toDate(),
                   decimalFormat.format(timeTrackingConfiguration.getHoursPerDay().doubleValue())));
         }
       }
@@ -195,14 +197,9 @@ public class SupportComponent implements SupportManager {
         .getJiraAuthenticationContext();
     ApplicationUser user = authenticationContext.getLoggedInUser();
 
-    Calendar start = Calendar.getInstance();
-    start.setTime(startSummary);
-    Calendar finish = Calendar.getInstance();
-    finish.setTime(finishSummary);
-
     List<EntityCondition> exprList =
         WorklogUtil.createWorklogQueryExprListWithPermissionCheck(user,
-            start.getTimeInMillis(), finish.getTimeInMillis());
+            startSummary.getTime(), finishSummary.getTime());
 
     List<GenericValue> worklogs;
     // worklog query

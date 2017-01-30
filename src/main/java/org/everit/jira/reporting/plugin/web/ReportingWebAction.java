@@ -20,6 +20,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
@@ -55,6 +56,7 @@ import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 import org.everit.jira.updatenotifier.UpdateNotifier;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 import com.atlassian.jira.bc.filter.DefaultSearchRequestService;
 import com.atlassian.jira.component.ComponentAccessor;
@@ -288,7 +290,6 @@ public class ReportingWebAction extends JiraWebActionSupport {
         .getAnalyticsDTO(PiwikPropertiesUtil.PIWIK_REPORTING_SITEID, settingsHelper);
 
     initializeData();
-
     return INPUT;
   }
 
@@ -378,6 +379,15 @@ public class ReportingWebAction extends JiraWebActionSupport {
     return durationFormatter;
   }
 
+  /**
+   * Get end date for date picker.
+   */
+  public String getEndDateInJSDatePickerFormat() {
+    return super.getDateTimeFormatter().withStyle(DateTimeStyle.DATE_PICKER)
+        .withZone(DateTimeZone.UTC.toTimeZone())
+        .format(new Date(filterCondition.getWorklogEndDate()));
+  }
+
   public List<SearchRequest> getFavouriteFilters() {
     return favouriteFilters;
   }
@@ -408,6 +418,20 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   public IssueSummaryReportDTO getIssueSummaryReport() {
     return issueSummaryReport;
+  }
+
+  /**
+   * Get issue creation date for date picker.
+   */
+  public String getIsueCreateDateInJSFormat() {
+    if (filterCondition.getIssueCreateDate() == null) {
+      return "";
+    } else {
+      return super.getDateTimeFormatter().withStyle(DateTimeStyle.DATE_PICKER)
+          .withZone(DateTimeZone.UTC.toTimeZone())
+          .format(new Date(filterCondition.getIssueCreateDate()));
+    }
+
   }
 
   public String getMessage() {
@@ -448,6 +472,15 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   public String getStacktrace() {
     return stacktrace;
+  }
+
+  /**
+   * Get start date for date picker.
+   */
+  public String getStartDateInJSDatePickerFormat() {
+    return super.getDateTimeFormatter().withStyle(DateTimeStyle.DATE_PICKER)
+        .withZone(DateTimeZone.UTC.toTimeZone())
+        .format(new Date(filterCondition.getWorklogStartDate()));
   }
 
   public UserSummaryReportDTO getUserSummaryReport() {

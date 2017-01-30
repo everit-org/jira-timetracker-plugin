@@ -29,6 +29,9 @@ import java.util.regex.Pattern;
 import org.everit.jira.core.util.TimetrackerUtil;
 import org.everit.jira.tests.core.DummyDateTimeFromatter;
 import org.everit.jira.timetracker.plugin.dto.WorklogValues;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
@@ -208,19 +211,19 @@ public class TimetrackerUtilTest {
 
   @Test
   public void testContainsSetTheSameDay() throws ParseException {
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-    Date date1 = sdf.parse("2015-10-21");
-    Date date2 = sdf.parse("2016-10-21");
-    Date date3 = sdf.parse("2017-10-21");
-    Set<Date> dates = new HashSet<>();
+    DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd");
+    DateTime date1 = formatter.parseDateTime("2015-10-21");
+    DateTime date2 = formatter.parseDateTime("2016-10-21");
+    DateTime date3 = formatter.parseDateTime("2017-10-21");
+    Set<DateTime> dates = new HashSet<>();
     dates.add(date1);
     dates.add(date2);
     dates.add(date3);
 
-    Date sameDate = sdf.parse("2017-10-21");
+    DateTime sameDate = formatter.parseDateTime("2017-10-21");
     Assert.assertTrue(TimetrackerUtil.containsSetTheSameDay(dates, sameDate));
 
-    Date notSameDate = sdf.parse("2017-10-23");
+    DateTime notSameDate = formatter.parseDateTime("2017-10-23");
     Assert.assertFalse(TimetrackerUtil.containsSetTheSameDay(dates, notSameDate));
   }
 
