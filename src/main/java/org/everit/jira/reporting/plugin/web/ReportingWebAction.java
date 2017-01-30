@@ -56,6 +56,7 @@ import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 import org.everit.jira.updatenotifier.UpdateNotifier;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 import com.atlassian.jira.bc.filter.DefaultSearchRequestService;
 import com.atlassian.jira.component.ComponentAccessor;
@@ -383,7 +384,7 @@ public class ReportingWebAction extends JiraWebActionSupport {
    */
   public String getEndDateInJSDatePickerFormat() {
     return super.getDateTimeFormatter().withStyle(DateTimeStyle.DATE_PICKER)
-        .withZone(TimetrackerUtil.getLoggedUserTimeZone().toTimeZone())
+        .withZone(DateTimeZone.UTC.toTimeZone())
         .format(new Date(filterCondition.getWorklogEndDate()));
   }
 
@@ -424,15 +425,10 @@ public class ReportingWebAction extends JiraWebActionSupport {
    */
   public String getIsueCreateDateInJSFormat() {
     if (filterCondition.getIssueCreateDate() == null) {
-      return super.getDateTimeFormatter().withStyle(DateTimeStyle.DATE_PICKER)
-          .withZone(TimetrackerUtil.getLoggedUserTimeZone().toTimeZone())
-          .format(
-              DateTimeConverterUtil
-                  .setDateToDayStart(new DateTime(TimetrackerUtil.getLoggedUserTimeZone()))
-                  .toDate());
+      return "";
     } else {
       return super.getDateTimeFormatter().withStyle(DateTimeStyle.DATE_PICKER)
-          .withZone(TimetrackerUtil.getLoggedUserTimeZone().toTimeZone())
+          .withZone(DateTimeZone.UTC.toTimeZone())
           .format(new Date(filterCondition.getIssueCreateDate()));
     }
 
@@ -483,7 +479,7 @@ public class ReportingWebAction extends JiraWebActionSupport {
    */
   public String getStartDateInJSDatePickerFormat() {
     return super.getDateTimeFormatter().withStyle(DateTimeStyle.DATE_PICKER)
-        .withZone(TimetrackerUtil.getLoggedUserTimeZone().toTimeZone())
+        .withZone(DateTimeZone.UTC.toTimeZone())
         .format(new Date(filterCondition.getWorklogStartDate()));
   }
 
