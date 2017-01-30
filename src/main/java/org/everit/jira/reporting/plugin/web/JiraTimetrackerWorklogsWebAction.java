@@ -282,6 +282,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
     }
 
     beforeAction();
+    actualPage = 1;
 
     String searchActionResult = parseParams();
     if (searchActionResult != null) {

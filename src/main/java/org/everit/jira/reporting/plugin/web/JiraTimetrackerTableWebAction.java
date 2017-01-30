@@ -300,6 +300,7 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     hasBrowseUsersPermission =
         PermissionUtil.hasBrowseUserPermission(getLoggedInApplicationUser(),
             settingsHelper);
+    issuesRegex = settingsHelper.loadGlobalSettings().getNonWorkingIssuePatterns();
 
     analyticsDTO = JiraTimetrackerAnalytics.getAnalyticsDTO(PiwikPropertiesUtil.PIWIK_TABLE_SITEID,
         settingsHelper);
@@ -336,8 +337,6 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
 
     beforeAction();
 
-    issuesRegex = settingsHelper.loadGlobalSettings().getNonWorkingIssuePatterns();
-
     boolean loadedFromSession = loadDataFromSession();
     initDatesIfNecessary();
     initCurrentUserIfNecessary();
@@ -356,7 +355,6 @@ public class JiraTimetrackerTableWebAction extends JiraWebActionSupport {
     if (checkConditionsResult != null) {
       return checkConditionsResult;
     }
-    issuesRegex = settingsHelper.loadGlobalSettings().getNonWorkingIssuePatterns();
     beforeAction();
 
     parseParams();
