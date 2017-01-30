@@ -411,8 +411,6 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    * Handle the page changer action.
    */
   public void pageChangeAction() {
-    actualPage = 1;
-
     String dayBackValue = getHttpRequest().getParameter(Parameter.PAGE_BACK);
     String dayNextValue = getHttpRequest().getParameter(Parameter.PAGE_NEXT);
     String paging = getHttpRequest().getParameter(Parameter.PAGING);
