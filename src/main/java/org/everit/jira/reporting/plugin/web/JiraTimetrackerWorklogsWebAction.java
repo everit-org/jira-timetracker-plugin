@@ -40,6 +40,7 @@ import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
 import org.everit.jira.timetracker.plugin.util.PropertiesUtil;
 import org.everit.jira.updatenotifier.UpdateNotifier;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.ofbiz.core.entity.GenericEntityException;
 
 import com.atlassian.jira.datetime.DateTimeFormatter;
@@ -351,7 +352,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    */
   public String getEndDateInJSDatePickerFormat() {
     return super.getDateTimeFormatter().withStyle(DateTimeStyle.DATE_PICKER)
-        .withZone(TimetrackerUtil.getLoggedUserTimeZone().toTimeZone())
+        .withZone(DateTimeZone.UTC.toTimeZone())
         .format(new Date(dateToFormated));
   }
 
@@ -360,7 +361,7 @@ public class JiraTimetrackerWorklogsWebAction extends JiraWebActionSupport {
    */
   public String getFromDateInJSDatePickerFormat() {
     return super.getDateTimeFormatter().withStyle(DateTimeStyle.DATE_PICKER)
-        .withZone(TimetrackerUtil.getLoggedUserTimeZone().toTimeZone())
+        .withZone(DateTimeZone.UTC.toTimeZone())
         .format(new Date(dateFromFormated));
   }
 
