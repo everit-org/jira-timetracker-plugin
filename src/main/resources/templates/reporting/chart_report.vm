@@ -49,6 +49,8 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.plug
 				hasBrowseUsersPermission: ${hasBrowseUsersPermission},
 				dateFromFormated : ${dateFromFormated},
 				dateToFormated : ${dateToFormated},
+				dateToInJSFormat: "${endDateInJSDatePickerFormat}",
+				dateFromInJSFormat: "${fromDateInJSDatePickerFormat}",
 				dateFormat: "${dateFormat}"
 			}
 		);

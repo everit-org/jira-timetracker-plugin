@@ -369,4 +369,5 @@ public class WorklogUtilTest {
         defaultGV);
     Assert.assertTrue(hasWorklogVisibility);
   }
+
 }

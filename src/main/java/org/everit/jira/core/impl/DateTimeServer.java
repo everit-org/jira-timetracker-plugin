@@ -20,6 +20,7 @@ import java.util.Date;
 import org.everit.jira.core.util.TimetrackerUtil;
 import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 /**
  * Server DateTime in different TimeZones and times.
@@ -87,7 +88,7 @@ public final class DateTimeServer {
    * @return A new DateTimeServer object.
    */
   public static DateTimeServer getInstanceBasedOnUserTimeZone(final long userTimeZoneInMillis) {
-    DateTime userTimeZoneFromMillis = new DateTime(userTimeZoneInMillis);
+    DateTime userTimeZoneFromMillis = new DateTime(userTimeZoneInMillis, DateTimeZone.UTC);
     userTimeZoneFromMillis =
         userTimeZoneFromMillis.withZoneRetainFields(TimetrackerUtil.getLoggedUserTimeZone());
     DateTimeServer dateTimeServer = new DateTimeServer();
@@ -133,7 +134,6 @@ public final class DateTimeServer {
 
   private void calculateBasedOnSystemTimeZone() {
     userTimeZone = DateTimeConverterUtil.convertDateZoneToUserTimeZone(systemTimeZone);
-    // TODO do i have to convert day starts?
     systemTimeZoneDayStart = DateTimeConverterUtil.setDateToDayStart(systemTimeZone);
     userTimeZoneDayStart =
         DateTimeConverterUtil.convertDateZoneToSystemTimeZone(systemTimeZoneDayStart);

@@ -15,21 +15,26 @@
  */
 package org.everit.jira.tests.core.impl.timetrackermanager;
 
+import java.sql.Timestamp;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
 import org.everit.jira.core.impl.TimetrackerComponent;
+import org.everit.jira.core.util.TimetrackerUtil;
 import org.everit.jira.settings.TimeTrackerSettingsHelper;
 import org.everit.jira.settings.dto.TimeTrackerGlobalSettings;
 import org.everit.jira.settings.dto.TimeZoneTypes;
+import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
@@ -59,7 +64,12 @@ public class FirstMissingWorklogsDateTest {
 
   private TimetrackerComponent timetrackerComponent = new TimetrackerComponent(null, null);
 
-  public void initMockComponents(final Calendar hasNoWorklogDate) {
+  public void initMockComponents(final long hasNoWorklogDayStartUTC) {
+    initMockComponents(hasNoWorklogDayStartUTC, "UTC", TimeZoneTypes.SYSTEM);
+  }
+
+  public void initMockComponents(final long hasNoWorklogDate, final String userTimeZone,
+      final TimeZoneTypes jttpTimeZoneSettings) {
     MockComponentWorker mockComponentWorker = new MockComponentWorker();
 
     PermissionManager permissionManager =
@@ -79,7 +89,7 @@ public class FirstMissingWorklogsDateTest {
     JiraUserPreferences mockJiraUserPreferences =
         Mockito.mock(JiraUserPreferences.class, Mockito.RETURNS_DEEP_STUBS);
     Mockito.when(mockJiraUserPreferences.getString("jira.user.timezone"))
-        .thenReturn("UTC");
+        .thenReturn(userTimeZone);
 
     UserPreferencesManager mockUserPreferencesManager =
         Mockito.mock(UserPreferencesManager.class, Mockito.RETURNS_DEEP_STUBS);
@@ -99,7 +109,7 @@ public class FirstMissingWorklogsDateTest {
     mockComponentWorker.addMock(BeanFactory.class, mockBeanFactory);
 
     TimeTrackerGlobalSettings ttGlobalSettings = new TimeTrackerGlobalSettings();
-    ttGlobalSettings.timeZone(TimeZoneTypes.SYSTEM);
+    ttGlobalSettings.timeZone(jttpTimeZoneSettings);
     TimeTrackerSettingsHelper settingsHelper =
         Mockito.mock(TimeTrackerSettingsHelper.class, Mockito.RETURNS_DEEP_STUBS);
     Mockito.when(settingsHelper.loadGlobalSettings()).thenReturn(ttGlobalSettings);
@@ -117,17 +127,13 @@ public class FirstMissingWorklogsDateTest {
               return false;
             }
             List<EntityCondition> exprList = (List<EntityCondition>) argument;
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            DateTimeFormatter sdf = DateTimeFormat.forPattern("yyyy-MM-dd");
             for (EntityCondition expression : exprList) {
               EntityExpr expr = (EntityExpr) expression;
-              try {
-                if ("startdate".equals(expr.getLhs())
-                    && EntityOperator.GREATER_THAN_EQUAL_TO.equals(expr.getOperator())
-                    && !sdf.format(hasNoWorklogDate.getTime())
-                        .equals(sdf.format(sdf.parse(expr.getRhs().toString())))) {
-                  return true;
-                }
-              } catch (ParseException e) {
+              if ("startdate".equals(expr.getLhs())
+                  && EntityOperator.GREATER_THAN_EQUAL_TO.equals(expr.getOperator())
+                  && !(hasNoWorklogDate == ((Timestamp) expr.getRhs()).getTime())) {
+                return true;
               }
             }
             return false;
@@ -142,17 +148,13 @@ public class FirstMissingWorklogsDateTest {
               return false;
             }
             List<EntityCondition> exprList = (List<EntityCondition>) argument;
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            DateTimeFormatter sdf = DateTimeFormat.forPattern("yyyy-MM-dd");
             for (EntityCondition expression : exprList) {
               EntityExpr expr = (EntityExpr) expression;
-              try {
-                if ("startdate".equals(expr.getLhs())
-                    && EntityOperator.GREATER_THAN_EQUAL_TO.equals(expr.getOperator())
-                    && sdf.format(hasNoWorklogDate.getTime())
-                        .equals(sdf.format(sdf.parse(expr.getRhs().toString())))) {
-                  return true;
-                }
-              } catch (ParseException e) {
+              if ("startdate".equals(expr.getLhs())
+                  && EntityOperator.GREATER_THAN_EQUAL_TO.equals(expr.getOperator())
+                  && (hasNoWorklogDate == ((Timestamp) expr.getRhs()).getTime())) {
+                return true;
               }
             }
             return false;
@@ -192,25 +194,30 @@ public class FirstMissingWorklogsDateTest {
     Calendar todayMinus7 = (Calendar) today.clone();
     todayMinus7.add(Calendar.DAY_OF_YEAR, -7);
 
-    initMockComponents(todayMinus7);
+    initMockComponents(
+        DateTimeConverterUtil.setDateToDayStart(new DateTime(todayMinus7.getTimeInMillis()))
+            .getMillis());
 
-    Set<Date> excludeDatesSet =
-        new HashSet<>(Arrays.asList(todayMinus1.getTime(),
-            todayMinus2.getTime(),
-            todayMinus4.getTime(),
-            todayMinus5.getTime(),
-            todayMinus6.getTime(),
-            todayMinus3.getTime()));
-    Set<Date> includeDatesSet =
-        new HashSet<>(Arrays.asList(today.getTime(),
-            todayPlus1.getTime(),
-            todayMinus7.getTime()));
+    Set<DateTime> excludeDatesSet =
+        new HashSet<>(Arrays.asList(
+            new DateTime(todayMinus1.getTime().getTime()),
+            new DateTime(todayMinus2.getTime().getTime()),
+            new DateTime(todayMinus4.getTime().getTime()),
+            new DateTime(todayMinus5.getTime().getTime()),
+            new DateTime(todayMinus6.getTime().getTime()),
+            new DateTime(todayMinus3.getTime().getTime())));
+    Set<DateTime> includeDatesSet =
+        new HashSet<>(Arrays.asList(new DateTime(today.getTime().getTime()),
+            new DateTime(todayPlus1.getTime().getTime()),
+            new DateTime(todayMinus7.getTime().getTime())));
 
-    Date firstMissingWorklogsDate =
-        timetrackerComponent.firstMissingWorklogsDate(excludeDatesSet, includeDatesSet);
+    DateTime firstMissingWorklogsDate =
+        timetrackerComponent.firstMissingWorklogsDate(excludeDatesSet, includeDatesSet,
+            new DateTime(TimetrackerUtil.getLoggedUserTimeZone()));
 
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-    Assert.assertEquals(sdf.format(todayMinus7.getTime()), sdf.format(firstMissingWorklogsDate));
+    DateTimeFormatter sdfdt = DateTimeFormat.forPattern("yyyy-MM-dd");
+    Assert.assertEquals(sdfdt.print(new DateTime(todayMinus7.getTime().getTime())),
+        sdfdt.print(firstMissingWorklogsDate));
   }
 
   @Test
@@ -241,25 +248,29 @@ public class FirstMissingWorklogsDateTest {
     Calendar todayMinus7 = (Calendar) today.clone();
     todayMinus7.add(Calendar.DAY_OF_YEAR, -7);
 
-    initMockComponents(todayMinus3);
+    initMockComponents(
+        DateTimeConverterUtil.setDateToDayStart(new DateTime(todayMinus3.getTimeInMillis()))
+            .getMillis());
+    Set<DateTime> excludeDatesSet =
+        new HashSet<>(Arrays.asList(new DateTime(todayMinus1.getTime().getTime()),
+            new DateTime(todayMinus2.getTime().getTime()),
+            new DateTime(todayMinus4.getTime().getTime()),
+            new DateTime(todayMinus5.getTime().getTime()),
+            new DateTime(todayMinus6.getTime().getTime()),
+            new DateTime(todayMinus7.getTime().getTime())));
+    Set<DateTime> includeDatesSet =
+        new HashSet<>(Arrays.asList(
+            new DateTime(today.getTime()),
+            new DateTime(todayPlus1.getTime()),
+            new DateTime(todayMinus3.getTime())));
 
-    Set<Date> excludeDatesSet =
-        new HashSet<>(Arrays.asList(todayMinus1.getTime(),
-            todayMinus2.getTime(),
-            todayMinus4.getTime(),
-            todayMinus5.getTime(),
-            todayMinus6.getTime(),
-            todayMinus7.getTime()));
-    Set<Date> includeDatesSet =
-        new HashSet<>(Arrays.asList(today.getTime(),
-            todayPlus1.getTime(),
-            todayMinus3.getTime()));
+    DateTime firstMissingWorklogsDate =
+        timetrackerComponent.firstMissingWorklogsDate(excludeDatesSet, includeDatesSet,
+            new DateTime(TimetrackerUtil.getLoggedUserTimeZone()));
 
-    Date firstMissingWorklogsDate =
-        timetrackerComponent.firstMissingWorklogsDate(excludeDatesSet, includeDatesSet);
-
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-    Assert.assertEquals(sdf.format(todayMinus3.getTime()), sdf.format(firstMissingWorklogsDate));
+    DateTimeFormatter sdfdt = DateTimeFormat.forPattern("yyyy-MM-dd");
+    Assert.assertEquals(sdfdt.print(new DateTime(todayMinus3.getTime().getTime())),
+        sdfdt.print(firstMissingWorklogsDate));
   }
 
   @Test
@@ -267,15 +278,43 @@ public class FirstMissingWorklogsDateTest {
 
     Calendar today = Calendar.getInstance();
 
-    initMockComponents(today);
+    initMockComponents(
+        DateTimeConverterUtil.setDateToDayStart(new DateTime(today.getTimeInMillis())).getMillis());
+    Set<DateTime> excludeDatesSet = new HashSet<>();
+    Set<DateTime> includeDatesSet =
+        new HashSet<>(Arrays.asList(new DateTime(today.getTime().getTime())));
 
-    Set<Date> excludeDatesSet = new HashSet<>();
-    Set<Date> includeDatesSet = new HashSet<>(Arrays.asList(today.getTime()));
+    DateTime firstMissingWorklogsDate =
+        timetrackerComponent.firstMissingWorklogsDate(excludeDatesSet, includeDatesSet,
+            new DateTime(TimetrackerUtil.getLoggedUserTimeZone()));
+    DateTimeFormatter sdfdt = DateTimeFormat.forPattern("yyyy-MM-dd");
+    Assert.assertEquals(sdfdt.print(new DateTime(today.getTime().getTime())),
+        sdfdt.print(firstMissingWorklogsDate));
+  }
 
-    Date firstMissingWorklogsDate =
-        timetrackerComponent.firstMissingWorklogsDate(excludeDatesSet, includeDatesSet);
+  @Test
+  public void testFirstMissingWorklogsDateWithUserSpecificTimeZone()
+      throws ParseException, GenericEntityException {
 
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-    Assert.assertEquals(sdf.format(today.getTime()), sdf.format(firstMissingWorklogsDate));
+    long hasNoWorklog = 1482710400000L;// 2016.12.26 00:00 in utc
+    // 2016.12.26 00:00 in user time zone 03:00 in utc
+    long hasNoWorklogDateMidNightInUserTImeZone = 1482721200000L;
+    initMockComponents(hasNoWorklogDateMidNightInUserTImeZone, "Atlantic/Stanley",
+        TimeZoneTypes.USER);
+
+    Set<DateTime> excludeDatesSet = new HashSet<>();
+    Set<DateTime> includeDatesSet =
+        new HashSet<>(Arrays.asList(new DateTime(hasNoWorklog, DateTimeZone.UTC)));
+
+    DateTime firstMissingWorklogsDate =
+        timetrackerComponent.firstMissingWorklogsDate(excludeDatesSet, includeDatesSet,
+            // in user timezone the current date is 2016.12.31. 23:00 in utc is 2017.01.01 02:00
+            // no worklog found in 2016.12.26
+            new DateTime(1483236000000L, DateTimeZone.forID("Atlantic/Stanley")));
+    DateTimeFormatter sdfdt = DateTimeFormat.forPattern("yyyy-MM-dd");
+    Assert.assertEquals(
+        sdfdt.print(new DateTime(hasNoWorklogDateMidNightInUserTImeZone,
+            DateTimeZone.forID("Atlantic/Stanley"))),
+        sdfdt.print(firstMissingWorklogsDate));
   }
 }
