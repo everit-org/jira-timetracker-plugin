@@ -409,11 +409,11 @@ public final class ConverterUtil {
     if (filter == null) {
       throw new IllegalArgumentException(KEY_WRONG_JQL);
     }
-    searchParamIssueKeys = ConverterUtil.getIssuesIDByJQL(filter.getQuery().getQueryString());
+    searchParamIssueKeys = ConverterUtil.getIssuesIdByJQL(filter.getQuery().getQueryString());
     return searchParamIssueKeys;
   }
 
-  private static List<Long> getIssuesIDByJQL(final String jql)
+  private static List<Long> getIssuesIdByJQL(final String jql)
       throws SearchException,
       JqlParseException {
     JiraAuthenticationContext authenticationContext = ComponentAccessor

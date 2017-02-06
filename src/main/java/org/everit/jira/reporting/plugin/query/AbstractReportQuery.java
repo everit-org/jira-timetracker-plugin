@@ -501,7 +501,6 @@ public abstract class AbstractReportQuery<T> {
           .join(subQueryProject).on(subQueryIssue.project.eq(subQueryProject.id))
           .where(predicate)));
     } else if (!reportSearchParam.issueIds.isEmpty()) {
-
       return where.and(qIssue.id.in(reportSearchParam.issueIds));
     }
     return where;
