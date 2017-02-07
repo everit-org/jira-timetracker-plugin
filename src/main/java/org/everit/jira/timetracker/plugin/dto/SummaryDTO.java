@@ -190,10 +190,10 @@ public final class SummaryDTO {
 
     private void calculateFilteredAndNotFilteredSummarySeconds(final DateTimeServer date,
         final List<Pattern> issuesRegex) {
-      Calendar currentStartCalendar = createNewCalendarWithWeekStart();
-      currentStartCalendar.setTime(date.getUserTimeZone().toDate());
-      currentStartCalendar.setTimeZone(date.getUserTimeZone().getZone().toTimeZone());
       DateTime currentDayStart = DateTimeConverterUtil.setDateToDayStart(date.getUserTimeZone());
+      Calendar currentStartCalendar = createNewCalendarWithWeekStart();
+      currentStartCalendar.setTime(currentDayStart.toDate());
+      currentStartCalendar.setTimeZone(date.getUserTimeZone().getZone().toTimeZone());
 
       // calculate day summary
       DateTime startDateTime = currentDayStart.toDateTime();
