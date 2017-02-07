@@ -17,6 +17,7 @@ package org.everit.jira.reporting.plugin.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -203,7 +204,7 @@ public final class ConverterUtil {
 
   private static void collectUsersFromParams(final FilterCondition filterCondition,
       final ReportSearchParam reportSearchParam, final TimeTrackerSettingsHelper settingsHelper) {
-    ArrayList<String> users = new ArrayList<>(filterCondition.getUsers());
+    List<String> users = new ArrayList<>(filterCondition.getUsers());
     JiraAuthenticationContext jiraAuthenticationContext =
         ComponentAccessor.getJiraAuthenticationContext();
     ApplicationUser user = jiraAuthenticationContext.getUser();
@@ -218,10 +219,7 @@ public final class ConverterUtil {
       }
     } else {
       if (!users.isEmpty() && users.contains(PickerUserDTO.NONE_USER_NAME)) {
-        users = ConverterUtil.getUserNamesFromGroup(filterCondition.getGroups());
-        if (users.isEmpty() && !filterCondition.getGroups().isEmpty()) {
-          reportSearchParam.groupsHasNoMembers(true);
-        }
+        users = ConverterUtil.queryUsersInGroup(filterCondition.getGroups(), reportSearchParam);
       } else if (users.remove(PickerUserDTO.CURRENT_USER_NAME)) {
         users.add(TimetrackerUtil.getLoggedUserName());
       }
@@ -381,13 +379,6 @@ public final class ConverterUtil {
         .asc("ASC".equals(order));
   }
 
-  // private static Date getDate(final Long date) {
-  // if (date == null) {
-  // return null;
-  // }
-  // return new Date(date);
-  // }
-
   private static List<String> getIssueKeysFromFilterSearcerValue(
       final FilterCondition filterCondition) throws SearchException, JqlParseException {
     List<String> searchParamIssueKeys;
@@ -408,6 +399,13 @@ public final class ConverterUtil {
     searchParamIssueKeys = ConverterUtil.getIssuesKeyByJQL(filter.getQuery().getQueryString());
     return searchParamIssueKeys;
   }
+
+  // private static Date getDate(final Long date) {
+  // if (date == null) {
+  // return null;
+  // }
+  // return new Date(date);
+  // }
 
   private static List<String> getIssuesKeyByJQL(final String jql)
       throws SearchException,
@@ -441,6 +439,18 @@ public final class ConverterUtil {
       }
     }
     return userNames;
+  }
+
+  private static List<String> queryUsersInGroup(final List<String> groups,
+      final ReportSearchParam reportSearchParam) {
+    if (groups.isEmpty()) {
+      return Collections.emptyList();
+    }
+    ArrayList<String> users = ConverterUtil.getUserNamesFromGroup(groups);
+    if (users.isEmpty()) {
+      reportSearchParam.groupsHasNoMembers(true);
+    }
+    return users;
   }
 
   private static void setBasicSearcherValuesParams(final FilterCondition filterCondition,
