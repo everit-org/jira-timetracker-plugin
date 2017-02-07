@@ -1040,7 +1040,7 @@ const MAX_ELEMENTS_DISPLAYED = 100; // EQUAL TO JIRA.Issues.SearcherGroupListDia
 	    var json = JSON.stringify(downloadWorklogDetailsParam);
 	    var $detailsCustomExport = jQuery(element);
 	    var href = $detailsCustomExport.attr('data-jttp-href');
-	    $detailsCustomExport.attr('href', href + '?json=' + json + "&orderBy=" + getOrderBy());
+	    $detailsCustomExport.attr('href', href + '?json=' + encodeURIComponent(json) + "&orderBy=" + getOrderBy());
 	    return true;
   }
   reporting.updateSummariesExportHref = function(element) {
@@ -1055,7 +1055,7 @@ const MAX_ELEMENTS_DISPLAYED = 100; // EQUAL TO JIRA.Issues.SearcherGroupListDia
     var json = JSON.stringify(filterCondition);
     var $detailsCustomExport = jQuery(element)
     var href = $detailsCustomExport.attr('data-jttp-href');
-    $detailsCustomExport.attr('href', href + '?json=' + json);
+    $detailsCustomExport.attr('href', href + '?json=' + encodeURIComponent(json));
     return true;
   }
   
