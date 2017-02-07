@@ -218,7 +218,7 @@ public final class ConverterUtil {
     } else {
       if (!users.isEmpty() && users.contains(PickerUserDTO.NONE_USER_NAME)) {
         users = ConverterUtil.getUserNamesFromGroup(filterCondition.getGroups());
-        if (users.isEmpty()) {
+        if (users.isEmpty() && !filterCondition.getGroups().isEmpty()) {
           reportSearchParam.groupsHasNoMembers(true);
         }
       } else if (users.remove(PickerUserDTO.CURRENT_USER_NAME)) {
