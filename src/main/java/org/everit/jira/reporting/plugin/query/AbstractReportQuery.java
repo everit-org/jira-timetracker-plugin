@@ -182,7 +182,8 @@ public abstract class AbstractReportQuery<T> {
    * Build count query.
    */
   public QuerydslCallable<Long> buildCountQuery() {
-    if ((reportSearchParam.issueKeys == null) || reportSearchParam.groupsHasNoMembers) {
+    if (((reportSearchParam.issueKeys == null) && (reportSearchParam.issueIds == null))
+        || reportSearchParam.groupsHasNoMembers) {
       return new QuerydslCallable<Long>() {
         @Override
         public Long call(final Connection connection, final Configuration configuration)
@@ -202,7 +203,8 @@ public abstract class AbstractReportQuery<T> {
       @Override
       public Long call(final Connection connection, final Configuration configuration)
           throws SQLException {
-        if ((reportSearchParam.issueKeys == null) || reportSearchParam.groupsHasNoMembers) {
+        if (((reportSearchParam.issueKeys == null) && (reportSearchParam.issueIds == null))
+            || reportSearchParam.groupsHasNoMembers) {
           return 0L;
         }
         NumberPath<Long> worklogTimeSumPath = Expressions.numberPath(Long.class,
@@ -229,7 +231,8 @@ public abstract class AbstractReportQuery<T> {
    * Build query.
    */
   public QuerydslCallable<List<T>> buildQuery() {
-    if ((reportSearchParam.issueKeys == null) || reportSearchParam.groupsHasNoMembers) {
+    if (((reportSearchParam.issueKeys == null) && (reportSearchParam.issueIds == null))
+        || reportSearchParam.groupsHasNoMembers) {
       return new QuerydslCallable<List<T>>() {
         @Override
         public List<T> call(final Connection connection, final Configuration configuration)
@@ -497,6 +500,8 @@ public abstract class AbstractReportQuery<T> {
           .from(subQueryIssue)
           .join(subQueryProject).on(subQueryIssue.project.eq(subQueryProject.id))
           .where(predicate)));
+    } else if (!reportSearchParam.issueIds.isEmpty()) {
+      return where.and(qIssue.id.in(reportSearchParam.issueIds));
     }
     return where;
   }
