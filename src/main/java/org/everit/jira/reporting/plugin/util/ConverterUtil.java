@@ -266,17 +266,21 @@ public final class ConverterUtil {
 
     ReportSearchParam reportSearchParam = new ReportSearchParam();
     List<String> searchParamIssueKeys;
+    List<Long> searchParamIssueIds;
     List<String> notBrowsableProjectKeys;
 
     if (SearcherValue.FILTER.lowerCaseValue
         .equals(filterCondition.getSearcherValue())) {
       try {
-        searchParamIssueKeys = ConverterUtil.getIssueKeysFromFilterSearcerValue(filterCondition);
+        searchParamIssueIds = ConverterUtil.getIssueKeysFromFilterSearcerValue(filterCondition);
         notBrowsableProjectKeys =
             ConverterUtil.appendProjectIds(reportSearchParam, new ArrayList<Long>());
       } catch (SearchException | JqlParseException e) {
         throw new IllegalArgumentException(KEY_WRONG_JQL);
       }
+      reportSearchParam.worklogEndDate(worklogEndDate.getSystemTimeZoneDayStartDate())
+          .worklogStartDate(worklogStartDate.getSystemTimeZoneDayStartDate())
+          .issueIds(searchParamIssueIds);
     } else {
       searchParamIssueKeys = filterCondition.getIssueKeys();
 
@@ -284,10 +288,10 @@ public final class ConverterUtil {
 
       notBrowsableProjectKeys =
           ConverterUtil.appendProjectIds(reportSearchParam, filterCondition.getProjectIds());
+      reportSearchParam.worklogEndDate(worklogEndDate.getSystemTimeZoneDayStartDate())
+          .worklogStartDate(worklogStartDate.getSystemTimeZoneDayStartDate())
+          .issueKeys(searchParamIssueKeys);
     }
-    reportSearchParam.worklogEndDate(worklogEndDate.getSystemTimeZoneDayStartDate())
-        .worklogStartDate(worklogStartDate.getSystemTimeZoneDayStartDate())
-        .issueKeys(searchParamIssueKeys);
 
     if (!reportSearchParam.worklogStartDate.before(reportSearchParam.worklogEndDate)) {
       throw new IllegalArgumentException(KEY_WRONG_DATES);
@@ -387,9 +391,9 @@ public final class ConverterUtil {
   // return new Date(date);
   // }
 
-  private static List<String> getIssueKeysFromFilterSearcerValue(
+  private static List<Long> getIssueKeysFromFilterSearcerValue(
       final FilterCondition filterCondition) throws SearchException, JqlParseException {
-    List<String> searchParamIssueKeys;
+    List<Long> searchParamIssueKeys;
     DefaultSearchRequestService defaultSearchRequestService =
         ComponentAccessor.getComponentOfType(DefaultSearchRequestService.class);
     JiraAuthenticationContext authenticationContext = ComponentAccessor
@@ -404,17 +408,17 @@ public final class ConverterUtil {
     if (filter == null) {
       throw new IllegalArgumentException(KEY_WRONG_JQL);
     }
-    searchParamIssueKeys = ConverterUtil.getIssuesKeyByJQL(filter.getQuery().getQueryString());
+    searchParamIssueKeys = ConverterUtil.getIssuesIdByJQL(filter.getQuery().getQueryString());
     return searchParamIssueKeys;
   }
 
-  private static List<String> getIssuesKeyByJQL(final String jql)
+  private static List<Long> getIssuesIdByJQL(final String jql)
       throws SearchException,
       JqlParseException {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
     ApplicationUser loggedInUser = authenticationContext.getLoggedInUser();
-    List<String> issuesKeys = new ArrayList<>();
+    List<Long> issuesIds = new ArrayList<>();
     SearchService searchService = ComponentAccessor.getComponentOfType(SearchService.class);
     ParseResult parseResult = searchService.parseQuery(loggedInUser, jql);
     if (parseResult.isValid()) {
@@ -422,12 +426,12 @@ public final class ConverterUtil {
           parseResult.getQuery(), PagerFilter.getUnlimitedFilter());
       List<Issue> issues = results.getIssues();
       for (Issue issue : issues) {
-        issuesKeys.add(issue.getKey());
+        issuesIds.add(issue.getId());
       }
     } else {
       throw new JqlParseException(null, parseResult.getErrors().toString());
     }
-    return issuesKeys;
+    return issuesIds;
   }
 
   private static ArrayList<String> getUserNamesFromGroup(final List<String> groupNames) {
