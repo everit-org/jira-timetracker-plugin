@@ -40,6 +40,8 @@ public class ReportSearchParam {
 
   public List<String> issueFixedVersions = Collections.emptyList();
 
+  public List<Long> issueIds = Collections.emptyList();
+
   public List<String> issueKeys = Collections.emptyList();
 
   public List<String> issuePriorityIds = Collections.emptyList();
@@ -117,6 +119,11 @@ public class ReportSearchParam {
 
   public ReportSearchParam issueFixedVersions(final List<String> issueFixedVersions) {
     this.issueFixedVersions = issueFixedVersions;
+    return this;
+  }
+
+  public ReportSearchParam issueIds(final List<Long> issueIds) {
+    this.issueIds = issueIds;
     return this;
   }
 
