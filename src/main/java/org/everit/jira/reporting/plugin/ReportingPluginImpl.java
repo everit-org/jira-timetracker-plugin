@@ -17,6 +17,7 @@ package org.everit.jira.reporting.plugin;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Iterator;
 import java.util.List;
 
 import org.everit.jira.querydsl.support.QuerydslCallable;
@@ -41,6 +42,14 @@ import org.everit.jira.timetracker.plugin.util.DateTimeConverterUtil;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
+import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.issue.IssueManager;
+import com.atlassian.jira.issue.MutableIssue;
+import com.atlassian.jira.permission.ProjectPermissions;
+import com.atlassian.jira.security.JiraAuthenticationContext;
+import com.atlassian.jira.security.PermissionManager;
+import com.atlassian.jira.user.ApplicationUser;
+
 /**
  * The implementation of the {@link ReportingPlugin}.
  */
@@ -56,6 +65,12 @@ public class ReportingPluginImpl implements ReportingPlugin, InitializingBean,
    */
   private static final long serialVersionUID = -3872710932298672883L;
 
+  private JiraAuthenticationContext authenticationContext;
+
+  private IssueManager issueManager;
+
+  private PermissionManager permissionManager;
+
   private QuerydslSupport querydslSupport;
 
   /**
@@ -67,6 +82,10 @@ public class ReportingPluginImpl implements ReportingPlugin, InitializingBean,
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
+    permissionManager = ComponentAccessor.getPermissionManager();
+    authenticationContext = ComponentAccessor
+        .getJiraAuthenticationContext();
+    issueManager = ComponentAccessor.getIssueManager();
   }
 
   @Override
@@ -192,7 +211,14 @@ public class ReportingPluginImpl implements ReportingPlugin, InitializingBean,
         worklogDetailsReportQueryBuilder.buildGrandTotalQuery();
 
     List<WorklogDetailsDTO> worklogDetails = querydslSupport.execute(worklogDetailsQuery);
-    for (WorklogDetailsDTO worklogDetail : worklogDetails) {
+    for (Iterator<WorklogDetailsDTO> iterator = worklogDetails.iterator(); iterator.hasNext();) {
+      WorklogDetailsDTO worklogDetail = iterator.next();
+      ApplicationUser user = authenticationContext.getUser();
+      MutableIssue issue = issueManager.getIssueObject(worklogDetail.getIssueKey());
+      if (!permissionManager.hasPermission(ProjectPermissions.BROWSE_PROJECTS, issue, user)) {
+        iterator.remove();
+        continue;
+      }
       worklogDetail.setIssueCreated(
           DateTimeConverterUtil.addTimeZoneToTimestamp(worklogDetail.getIssueCreated()));
       worklogDetail.setIssueUpdated(

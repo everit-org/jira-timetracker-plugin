@@ -44,10 +44,12 @@ import com.atlassian.jira.bc.issue.worklog.WorklogService;
 import com.atlassian.jira.datetime.DateTimeFormatterFactory;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.IssueManager;
+import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.worklog.Worklog;
 import com.atlassian.jira.issue.worklog.WorklogImpl;
 import com.atlassian.jira.mock.component.MockComponentWorker;
 import com.atlassian.jira.mock.issue.MockIssue;
+import com.atlassian.jira.permission.ProjectPermissions;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.PermissionManager;
 import com.atlassian.jira.security.Permissions;
@@ -120,10 +122,16 @@ public class CreateWorklogTest {
     IssueManager issueManager = Mockito.mock(IssueManager.class, Mockito.RETURNS_DEEP_STUBS);
     PermissionManager permissionManager =
         Mockito.mock(PermissionManager.class, Mockito.RETURNS_DEEP_STUBS);
+
     WorklogService worklogService = Mockito.mock(WorklogService.class, Mockito.RETURNS_DEEP_STUBS);
 
     // logged user
     MockApplicationUser loggedUser = new MockApplicationUser("test_userkey", "test_username");
+    Mockito.when(
+        permissionManager.hasPermission(Matchers.eq(ProjectPermissions.BROWSE_PROJECTS),
+            Matchers.any(MutableIssue.class),
+            Matchers.eq(loggedUser)))
+        .thenReturn(true);
     Mockito.when(mockJiraAuthenticationContext.getUser())
         .thenReturn(loggedUser);
     Mockito.when(mockJiraAuthenticationContext.getI18nHelper())
@@ -163,6 +171,7 @@ public class CreateWorklogTest {
             noPermissionIssue,
             loggedUser))
         .thenReturn(false);
+
     Mockito.when(
         worklogService.hasPermissionToCreate((JiraServiceContext) Matchers.any(),
             Matchers.eq(noPermissionIssue),
