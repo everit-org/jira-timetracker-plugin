@@ -20,7 +20,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -31,9 +30,9 @@ import org.everit.jira.reporting.plugin.dto.ConvertedSearchParam;
 import org.everit.jira.reporting.plugin.dto.FilterCondition;
 import org.everit.jira.reporting.plugin.dto.OrderBy;
 import org.everit.jira.reporting.plugin.dto.PickerComponentDTO;
-import org.everit.jira.reporting.plugin.dto.PickerUserDTO;
 import org.everit.jira.reporting.plugin.dto.PickerVersionDTO;
 import org.everit.jira.reporting.plugin.dto.ReportSearchParam;
+import org.everit.jira.reporting.plugin.dto.UserForPickerDTO;
 import org.everit.jira.settings.TimeTrackerSettingsHelper;
 
 import com.atlassian.crowd.embedded.api.User;
@@ -54,6 +53,7 @@ import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.PermissionManager;
 import com.atlassian.jira.security.groups.GroupManager;
 import com.atlassian.jira.user.ApplicationUser;
+import com.atlassian.jira.user.util.UserManager;
 import com.atlassian.jira.web.bean.PagerFilter;
 import com.google.gson.Gson;
 
@@ -89,11 +89,11 @@ public final class ConverterUtil {
       final List<String> issueAssignees) {
     ArrayList<String> assignees = new ArrayList<>();
     for (String assignee : issueAssignees) {
-      if (TimetrackerUtil.getI18nText(PickerUserDTO.UNASSIGNED_USER_NAME).equals(assignee)) {
+      if (TimetrackerUtil.getI18nText(UserForPickerDTO.UNASSIGNED_USER_KEY).equals(assignee)) {
         reportSearchParam.selectUnassgined(true);
-      } else if (TimetrackerUtil.getI18nText(PickerUserDTO.CURRENT_USER_NAME)
+      } else if (TimetrackerUtil.getI18nText(UserForPickerDTO.CURRENT_USER_KEY)
           .equals(assignee)) {
-        assignees.add(TimetrackerUtil.getLoggedUserName());
+        assignees.add(TimetrackerUtil.getLoggedUserKey());
       } else {
         assignees.add(assignee);
       }
@@ -137,8 +137,8 @@ public final class ConverterUtil {
       final List<String> issueReporters) {
     ArrayList<String> reporters = new ArrayList<>();
     for (String reporter : issueReporters) {
-      if (PickerUserDTO.CURRENT_USER_NAME.equals(reporter)) {
-        reporters.add(TimetrackerUtil.getLoggedUserName());
+      if (UserForPickerDTO.CURRENT_USER_KEY.equals(reporter)) {
+        reporters.add(TimetrackerUtil.getLoggedUserKey());
       } else {
         reporters.add(reporter);
       }
@@ -207,23 +207,24 @@ public final class ConverterUtil {
     JiraAuthenticationContext jiraAuthenticationContext =
         ComponentAccessor.getJiraAuthenticationContext();
     ApplicationUser user = jiraAuthenticationContext.getUser();
+    String loggedUserKey = TimetrackerUtil.getLoggedUserKey();
     if (!PermissionUtil.hasBrowseUserPermission(user, settingsHelper)) {
-      if ((users.size() == 1) && (users.contains(PickerUserDTO.CURRENT_USER_NAME)
-          || users.contains(TimetrackerUtil.getLoggedUserName()))) {
-        if (users.remove(PickerUserDTO.CURRENT_USER_NAME)) {
-          users.add(TimetrackerUtil.getLoggedUserName());
+      if ((users.size() == 1) && (users.contains(UserForPickerDTO.CURRENT_USER_KEY)
+          || users.contains(loggedUserKey))) {
+        if (users.remove(UserForPickerDTO.CURRENT_USER_KEY)) {
+          users.add(loggedUserKey);
         }
       } else {
         throw new IllegalArgumentException(NO_BROWSE_PERMISSION);
       }
     } else {
-      if (!users.isEmpty() && users.contains(PickerUserDTO.NONE_USER_NAME)) {
+      if (!users.isEmpty() && users.contains(UserForPickerDTO.NONE_USER_KEY)) {
         users = ConverterUtil.getUserNamesFromGroup(filterCondition.getGroups());
         if (users.isEmpty()) {
           reportSearchParam.groupsHasNoMembers(true);
         }
-      } else if (users.remove(PickerUserDTO.CURRENT_USER_NAME)) {
-        users.add(TimetrackerUtil.getLoggedUserName());
+      } else if (users.remove(UserForPickerDTO.CURRENT_USER_KEY)) {
+        users.add(loggedUserKey);
       }
     }
     reportSearchParam.users(users);
@@ -436,15 +437,17 @@ public final class ConverterUtil {
   }
 
   private static ArrayList<String> getUserNamesFromGroup(final List<String> groupNames) {
-    ArrayList<String> userNames = new ArrayList<>();
+    ArrayList<String> userKeys = new ArrayList<>();
     GroupManager groupManager = ComponentAccessor.getGroupManager();
+    UserManager userManager = ComponentAccessor.getUserManager();
     for (String groupName : groupNames) {
       Collection<String> userNamesInGroup = groupManager.getUserNamesInGroup(groupName);
       for (String userName : userNamesInGroup) {
-        userNames.add(userName.toLowerCase(Locale.getDefault()));
+        ApplicationUser user = userManager.getUserByName(userName);
+        userKeys.add(user.getKey());
       }
     }
-    return userNames;
+    return userKeys;
   }
 
   private static void setBasicSearcherValuesParams(final FilterCondition filterCondition,

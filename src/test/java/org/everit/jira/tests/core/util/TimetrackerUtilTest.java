@@ -310,30 +310,18 @@ public class TimetrackerUtilTest {
 
     mockComponentWorker.addMock(JiraAuthenticationContext.class, jiraAuthenticationContext)
         .init();
-    Assert.assertEquals("", TimetrackerUtil.getLoggedUserName());
+    Assert.assertEquals("", TimetrackerUtil.getLoggedUserKey());
 
     mockComponentWorker = new MockComponentWorker();
 
     jiraAuthenticationContext =
         Mockito.mock(JiraAuthenticationContext.class, Mockito.RETURNS_DEEP_STUBS);
     Mockito.when(jiraAuthenticationContext.getUser())
-        .thenReturn(new MockApplicationUser("userKey", "lower-user-name-default"));
+        .thenReturn(new MockApplicationUser("lower-user-key-default", "lower-user-name-default"));
 
     mockComponentWorker.addMock(JiraAuthenticationContext.class, jiraAuthenticationContext)
         .init();
-    Assert.assertEquals("lower-user-name-default", TimetrackerUtil.getLoggedUserName());
-
-    mockComponentWorker = new MockComponentWorker();
-
-    jiraAuthenticationContext =
-        Mockito.mock(JiraAuthenticationContext.class, Mockito.RETURNS_DEEP_STUBS);
-    Mockito.when(jiraAuthenticationContext.getUser())
-        .thenReturn(new MockApplicationUser("userKey", "NOT-LOWER-USERNAME"));
-
-    mockComponentWorker.addMock(JiraAuthenticationContext.class, jiraAuthenticationContext)
-        .init();
-    Assert.assertEquals("not-lower-username", TimetrackerUtil.getLoggedUserName());
-
+    Assert.assertEquals("lower-user-key-default", TimetrackerUtil.getLoggedUserKey());
   }
 
   @Test
