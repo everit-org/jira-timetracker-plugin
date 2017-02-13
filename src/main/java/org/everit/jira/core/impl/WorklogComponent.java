@@ -87,7 +87,8 @@ public class WorklogComponent implements EVWorklogManager {
     }
   }
 
-  private void checkPermissionOnIssueCreateWorklog(final ApplicationUser user, final MutableIssue issue) {
+  private void checkPermissionOnIssueCreateWorklog(final ApplicationUser user,
+      final MutableIssue issue) {
     PermissionManager permissionManager = ComponentAccessor.getPermissionManager();
     if (!permissionManager.hasPermission(Permissions.WORK_ISSUE, issue,
         user)
