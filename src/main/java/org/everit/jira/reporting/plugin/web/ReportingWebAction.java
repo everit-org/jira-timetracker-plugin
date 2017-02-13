@@ -16,6 +16,7 @@
 package org.everit.jira.reporting.plugin.web;
 
 import java.io.IOException;
+import java.net.URI;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,9 +39,10 @@ import org.everit.jira.reporting.plugin.dto.ConvertedSearchParam;
 import org.everit.jira.reporting.plugin.dto.FilterCondition;
 import org.everit.jira.reporting.plugin.dto.IssueSummaryReportDTO;
 import org.everit.jira.reporting.plugin.dto.OrderBy;
-import org.everit.jira.reporting.plugin.dto.PickerUserDTO;
 import org.everit.jira.reporting.plugin.dto.ProjectSummaryReportDTO;
 import org.everit.jira.reporting.plugin.dto.ReportingSessionData;
+import org.everit.jira.reporting.plugin.dto.UserForPickerDTO;
+import org.everit.jira.reporting.plugin.dto.UserPickerContainerDTO;
 import org.everit.jira.reporting.plugin.dto.UserSummaryReportDTO;
 import org.everit.jira.reporting.plugin.dto.WorklogDetailsReportDTO;
 import org.everit.jira.reporting.plugin.exception.JTRPException;
@@ -58,6 +60,9 @@ import org.everit.jira.updatenotifier.UpdateNotifier;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
+import com.atlassian.jira.avatar.Avatar;
+import com.atlassian.jira.avatar.Avatar.Size;
+import com.atlassian.jira.avatar.AvatarService;
 import com.atlassian.jira.bc.filter.DefaultSearchRequestService;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.datetime.DateTimeFormatter;
@@ -66,6 +71,12 @@ import com.atlassian.jira.issue.RendererManager;
 import com.atlassian.jira.issue.fields.renderer.IssueRenderContext;
 import com.atlassian.jira.issue.fields.renderer.JiraRendererPlugin;
 import com.atlassian.jira.issue.search.SearchRequest;
+import com.atlassian.jira.security.JiraAuthenticationContext;
+import com.atlassian.jira.user.ApplicationUser;
+import com.atlassian.jira.user.UserHistoryItem;
+import com.atlassian.jira.user.UserHistoryManager;
+import com.atlassian.jira.user.UserHistoryStore;
+import com.atlassian.jira.user.util.UserManager;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
 import com.google.gson.Gson;
 
@@ -92,6 +103,8 @@ public class ReportingWebAction extends JiraWebActionSupport {
   private static final String HTTP_PARAM_TUTORIAL_DNS = "tutorial_dns";
 
   private static final String JIRA_HOME_URL = "/secure/Dashboard.jspa";
+
+  private static final int MAXIMUM_HISTORY = 5;
 
   /**
    * Serial version UID.
@@ -167,6 +180,8 @@ public class ReportingWebAction extends JiraWebActionSupport {
 
   private String stacktrace = "";
 
+  private UserPickerContainerDTO userPicker = new UserPickerContainerDTO();
+
   private TimeTrackerUserSettings userSettings;
 
   private UserSummaryReportDTO userSummaryReport = new UserSummaryReportDTO();
@@ -192,6 +207,17 @@ public class ReportingWebAction extends JiraWebActionSupport {
     atlassianWikiRenderer = rendererManager.getRendererForType("atlassian-wiki-renderer");
     this.settingsHelper = settingsHelper;
     this.analyticsSender = analyticsSender;
+  }
+
+  private void addUserHistory() {
+    UserHistoryManager userHistoryManager =
+        ComponentAccessor.getComponent(UserHistoryManager.class);
+    JiraAuthenticationContext jiraAuthenticationContext =
+        ComponentAccessor.getJiraAuthenticationContext();
+    ApplicationUser user = jiraAuthenticationContext.getUser();
+    for (String userKey : filterCondition.getUsers()) {
+      userHistoryManager.addItemToHistory(UserHistoryItem.USED_USER, user, userKey);
+    }
   }
 
   private String checkConditions() {
@@ -255,14 +281,106 @@ public class ReportingWebAction extends JiraWebActionSupport {
       return INPUT;
     }
 
+    addUserHistory();
     return SUCCESS;
+  }
+
+  private List<UserForPickerDTO> createSuggestedUsers(final ApplicationUser loggedUser) {
+    UserHistoryManager userHistoryManager =
+        ComponentAccessor.getComponent(UserHistoryManager.class);
+    List<UserHistoryItem> usedUserHistories =
+        userHistoryManager.getHistory(UserHistoryItem.USED_USER, loggedUser);
+    ComponentAccessor.getComponent(UserHistoryStore.class);
+    usedUserHistories =
+        usedUserHistories.subList(0,
+            usedUserHistories.size() > MAXIMUM_HISTORY
+                ? MAXIMUM_HISTORY
+                : usedUserHistories.size());
+
+    UserManager userManager = ComponentAccessor.getUserManager();
+    AvatarService avatarService = ComponentAccessor.getAvatarService();
+    List<UserForPickerDTO> suggestedUsers = new ArrayList<>();
+    for (UserHistoryItem userHistoryItem : usedUserHistories) {
+      ApplicationUser historyUser = userManager.getUserByKey(userHistoryItem.getEntityId());
+      if (historyUser == null) {
+        continue;
+      }
+
+      URI avatarUri =
+          avatarService.getAvatarAbsoluteURL(loggedUser, historyUser, Avatar.Size.SMALL);
+      UserForPickerDTO userForPickerDTO = new UserForPickerDTO(avatarUri.toString(),
+          historyUser.getDisplayName(),
+          historyUser.getKey());
+      suggestedUsers.add(userForPickerDTO);
+    }
+    return suggestedUsers;
+  }
+
+  private void createUserPickersValue() {
+    ApplicationUser loggedUser = ComponentAccessor.getJiraAuthenticationContext().getUser();
+    userPicker.setSuggestedUsers(createSuggestedUsers(loggedUser));
+    userPicker.setUsers(createUsers(loggedUser, filterCondition.getUsers()));
+    userPicker.setIssueReporters(createUsers(loggedUser, filterCondition.getIssueReporters()));
+    userPicker.setIssueAssignees(createUsers(loggedUser, filterCondition.getIssueAssignees()));
+
+    AvatarService avatarService = ComponentAccessor.getAvatarService();
+    URI avatarURI = avatarService.getAvatarAbsoluteURL(loggedUser, loggedUser, Size.SMALL);
+    userPicker.setCurrentUser(new UserForPickerDTO(avatarURI.toString(),
+        TimetrackerUtil.getI18nText(UserForPickerDTO.CURRENT_USER_DISPLAY_NAME),
+        UserForPickerDTO.CURRENT_USER_KEY));
+
+    String defaultAvaratar =
+        avatarService.getProjectDefaultAvatarAbsoluteURL(Size.SMALL).toString();
+
+    userPicker.setNoneUser(new UserForPickerDTO(defaultAvaratar,
+        TimetrackerUtil.getI18nText(UserForPickerDTO.NONE_DISPLAY_NAME),
+        UserForPickerDTO.NONE_USER_KEY));
+    userPicker.setUnassigedUser(new UserForPickerDTO(defaultAvaratar,
+        TimetrackerUtil.getI18nText(UserForPickerDTO.UNASSIGNED_DISPLAY_NAME),
+        UserForPickerDTO.UNASSIGNED_USER_KEY));
+
+  }
+
+  private List<UserForPickerDTO> createUsers(final ApplicationUser loggedUser,
+      final List<String> usersForIteration) {
+    List<UserForPickerDTO> users = new ArrayList<>();
+    UserManager userManager = ComponentAccessor.getUserManager();
+    AvatarService avatarService = ComponentAccessor.getAvatarService();
+    for (String userKey : usersForIteration) {
+      UserForPickerDTO userForPickerDTO = null;
+      if (UserForPickerDTO.NONE_USER_KEY.equals(userKey)) {
+        userForPickerDTO = new UserForPickerDTO("",
+            TimetrackerUtil.getI18nText(UserForPickerDTO.NONE_DISPLAY_NAME),
+            "none");
+      } else if (UserForPickerDTO.CURRENT_USER_KEY.equals(userKey)) {
+        userForPickerDTO = new UserForPickerDTO("",
+            TimetrackerUtil.getI18nText(UserForPickerDTO.CURRENT_USER_DISPLAY_NAME),
+            "currentUser");
+      } else if (UserForPickerDTO.UNASSIGNED_USER_KEY.equals(userKey)) {
+        userForPickerDTO = new UserForPickerDTO("",
+            TimetrackerUtil.getI18nText(UserForPickerDTO.UNASSIGNED_DISPLAY_NAME),
+            "empty");
+      } else {
+        ApplicationUser historyUser = userManager.getUserByKey(userKey);
+        if (historyUser == null) {
+          continue;
+        }
+        URI avatarUri =
+            avatarService.getAvatarAbsoluteURL(loggedUser, historyUser, Avatar.Size.SMALL);
+        userForPickerDTO = new UserForPickerDTO(avatarUri.toString(),
+            historyUser.getDisplayName(),
+            historyUser.getKey());
+      }
+      users.add(userForPickerDTO);
+    }
+    return users;
   }
 
   private void defaultInitalizeData() {
     selectedMore = new ArrayList<>();
     filterCondition = new FilterCondition();
     if (!hasBrowseUsersPermission) {
-      filterCondition.setUsers(Arrays.asList(PickerUserDTO.CURRENT_USER_NAME));
+      filterCondition.setUsers(Arrays.asList(UserForPickerDTO.CURRENT_USER_KEY));
     }
     String[] selectedWorklogDetailsColumnsArray =
         gson.fromJson(userSettings.getUserSelectedColumns(), String[].class);
@@ -346,6 +464,9 @@ public class ReportingWebAction extends JiraWebActionSupport {
               selectedWorklogDetailsColumns, selectedActiveTab);
       analyticsSender.send(analyticsEvent);
     }
+
+    createUserPickersValue();
+
     return createReportResult;
   }
 
@@ -483,6 +604,10 @@ public class ReportingWebAction extends JiraWebActionSupport {
         .format(new Date(filterCondition.getWorklogStartDate()));
   }
 
+  public UserPickerContainerDTO getUserPicker() {
+    return userPicker;
+  }
+
   public UserSummaryReportDTO getUserSummaryReport() {
     return userSummaryReport;
   }
@@ -537,6 +662,8 @@ public class ReportingWebAction extends JiraWebActionSupport {
     } else {
       defaultInitalizeData();
     }
+
+    createUserPickersValue();
   }
 
   public boolean isCollapsedDetailsModule() {

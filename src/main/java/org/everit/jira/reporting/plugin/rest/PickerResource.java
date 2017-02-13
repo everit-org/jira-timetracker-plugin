@@ -29,13 +29,10 @@ import org.everit.jira.querydsl.support.ri.QuerydslSupportImpl;
 import org.everit.jira.reporting.plugin.dto.PickerComponentDTO;
 import org.everit.jira.reporting.plugin.dto.PickerEpicLinkDTO;
 import org.everit.jira.reporting.plugin.dto.PickerLabelDTO;
-import org.everit.jira.reporting.plugin.dto.PickerUserDTO;
 import org.everit.jira.reporting.plugin.dto.PickerVersionDTO;
 import org.everit.jira.reporting.plugin.query.PickerComponentQuery;
 import org.everit.jira.reporting.plugin.query.PickerEpicLinkQuery;
 import org.everit.jira.reporting.plugin.query.PickerLabelQuery;
-import org.everit.jira.reporting.plugin.query.PickerUserQuery;
-import org.everit.jira.reporting.plugin.query.PickerUserQuery.PickerUserQueryType;
 import org.everit.jira.reporting.plugin.query.PickerVersionQuery;
 import org.everit.jira.reporting.plugin.query.PickerVersionQuery.PickerVersionQueryType;
 import org.slf4j.Logger;
@@ -101,24 +98,6 @@ public class PickerResource {
     List<PickerLabelDTO> labels = querydslSupport.execute(new PickerLabelQuery());
 
     return buildResponse(labels);
-  }
-
-  /**
-   * List JIRA users.
-   *
-   * @param pickerUserQueryType
-   *          the type name, that define how to modify list (add static no users to result or not).
-   * @return the JIRA users. If no one return empty list response.
-   */
-  @GET
-  @Produces(MediaType.APPLICATION_JSON)
-  @Path("/listUsers")
-  public Response listUsers(@QueryParam("pickerUserQueryType") final String pickerUserQueryType) {
-    PickerUserQueryType type = PickerUserQueryType.getPickerUserQueryType(pickerUserQueryType);
-
-    List<PickerUserDTO> users = querydslSupport.execute(new PickerUserQuery(type));
-
-    return buildResponse(users);
   }
 
   /**

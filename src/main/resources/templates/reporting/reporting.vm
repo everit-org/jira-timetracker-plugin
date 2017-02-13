@@ -308,6 +308,20 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.popu
                                                  <div class='form-body checkboxmultiselect-container'>
                                                    <div class='field-group aui-field-issuetype'>
                                                      <select  id="assignePicker" name="assignePicker" multiple="multiple" >
+                                                       <optgroup>
+                                                         #foreach( $user in $userPicker.issueAssignees )
+                                                         <option data-icon="$user.avatarURL" value="$user.userKey" selected="selected" title="$user.displayName">$user.displayName</option>
+                                                         #end
+                                                       </optgroup>
+                                                       <optgroup>
+                                                        <option data-icon="$userPicker.currentUser.avatarURL" value="$userPicker.currentUser.userKey" title="$userPicker.currentUser.displayName">$userPicker.currentUser.displayName</option>
+                                                        <option data-icon="$userPicker.unassigedUser.avatarURL" value="$userPicker.unassigedUser.userKey" title="$userPicker.unassigedUser.displayName">$userPicker.unassigedUser.displayName</option>
+                                                       </optgroup>
+                                                       <optgroup #if(!$userPicker.suggestedUsers.isEmpty())label="$i18n.getText("jtrp.picker.suggested.user")"#end>
+                                                         #foreach( $user in $userPicker.suggestedUsers )
+                                                         <option data-icon="$user.avatarURL" value="$user.userKey" title="$user.displayName">$user.displayName</option>
+                                                         #end
+                                                       <optgroup>
                                                      </select>
                                                    </div>
                                                  </div>
@@ -326,6 +340,19 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.popu
                                                  <div class='form-body checkboxmultiselect-container'>
                                                    <div class='field-group aui-field-issuetype'>
                                                      <select  id="reporterPicker" name="reporterPicker" multiple="multiple" >
+                                                       <optgroup>
+                                                         #foreach( $user in $userPicker.issueReporters )
+                                                         <option data-icon="$user.avatarURL" value="$user.userKey" selected="selected" title="$user.displayName">$user.displayName</option>
+                                                         #end
+                                                       </optgroup>
+                                                       <optgroup>
+                                                        <option data-icon="$userPicker.currentUser.avatarURL" value="$userPicker.currentUser.userKey" title="$userPicker.currentUser.displayName">$userPicker.currentUser.displayName</option>
+                                                       </optgroup>
+                                                       <optgroup #if(!$userPicker.suggestedUsers.isEmpty())label="$i18n.getText("jtrp.picker.suggested.user")"#end>
+                                                         #foreach( $user in $userPicker.suggestedUsers )
+                                                         <option data-icon="$user.avatarURL" value="$user.userKey" title="$user.displayName">$user.displayName</option>
+                                                         #end
+                                                       <optgroup>
                                                      </select>
                                                    </div>
                                                  </div>
@@ -492,7 +519,21 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.popu
                                                <div data-query>
                                                  <div class='form-body checkboxmultiselect-container'>
                                                    <div class='field-group aui-field-issuetype'>
-                                                     <select  id="userPicker" name="userPicker" multiple="multiple" >
+                                                     <select id="userPicker" name="userPicker" multiple="multiple">
+                                                       <optgroup>
+                                                         #foreach( $user in $userPicker.users )
+                                                         <option data-icon="$user.avatarURL" value="$user.userKey" selected="selected" title="$user.displayName">$user.displayName</option>
+                                                         #end
+                                                       </optgroup>
+                                                       <optgroup>
+                                                        <option data-icon="$userPicker.noneUser.avatarURL" value="$userPicker.noneUser.userKey" title="$userPicker.noneUser.displayName">$userPicker.noneUser.displayName</option>
+                                                        <option data-icon="$userPicker.currentUser.avatarURL" value="$userPicker.currentUser.userKey" title="$userPicker.currentUser.displayName">$userPicker.currentUser.displayName</option>
+                                                       </optgroup>
+                                                       <optgroup #if(!$userPicker.suggestedUsers.isEmpty())label="$i18n.getText("jtrp.picker.suggested.user")"#end>
+                                                         #foreach( $user in $userPicker.suggestedUsers )
+                                                         <option data-icon="$user.avatarURL" value="$user.userKey" title="$user.displayName">$user.displayName</option>
+                                                         #end
+                                                       <optgroup>
                                                      </select>
                                                    </div>
                                                  </div>

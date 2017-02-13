@@ -390,105 +390,113 @@ const MAX_ELEMENTS_DISPLAYED = 100; // EQUAL TO JIRA.Issues.SearcherGroupListDia
   };
   
   function initAssigneSelect(){
-    var selectedArray =  jQuery.makeArray( reporting.values.selectedAssignes ); 
-    jQuery.ajax({
-      async: true,
-      type: 'GET',
-      url : contextPath + "/rest/jttp-rest/1/picker/listUsers?pickerUserQueryType=ASSIGNEE",
-      data : [],
-      success : function(result){
-        for( var i in result) {
-          var obj = result[i];
-          var avatarId =  contextPath + "/secure/useravatar?size=xsmall&ownerId=" + obj.avatarOwner;
-          var selected = checkSelected(obj.userName, selectedArray);
-          jQuery("#assignePicker").append('<option data-icon="' + avatarId + '" value="'+obj.userName + '" '+ selected + '>' +obj.displayName +'</option>');
+    var jttpUserPicker = new AJS.CheckboxMultiSelect({
+      element:  jQuery("#assignePicker"),
+      submitInputVal: true,
+      maxInlineResultsDisplayed: MAX_ELEMENTS_DISPLAYED,
+      content: "mixed",
+      ajaxOptions: {
+        url: AJS.contextPath() + "/rest/api/2/user/picker",
+        data: {
+          showAvatar: true
+        },
+        query: true,
+        formatResponse: function (items) {
+          return _.map(items.users, function (item) {
+                 return new AJS.ItemDescriptor({
+                   highlighted: true,
+                   html: item.html,
+                   icon: item.avatarUrl,
+                   label: item.displayName,
+                   value: item.key
+                 });
+          })
         }
-        var options= initializeOptionsForSelect(result.length,"#assignePicker");
-        var pp = new AJS.CheckboxMultiSelect(options);
-        updatePickerButtonText("#assignePicker" , "#assignePickerButton", AJS.I18n.getText("jtrp.picker.all.assigne"));
-        jQuery("#assignePicker").on("change unselect", function() {
-          updatePickerButtonText("#assignePicker" , "#assignePickerButton", AJS.I18n.getText("jtrp.picker.all.assigne"));
-        });
-      },
-      error : function(XMLHttpRequest, status, error){
       }
     });
-  };
+    updatePickerButtonText("#assignePicker" , "#assignePickerButton", AJS.I18n.getText("jtrp.picker.all.assigne"));
+    jQuery("#assignePicker").on("change unselect", function() {
+      updatePickerButtonText("#assignePicker" , "#assignePickerButton", AJS.I18n.getText("jtrp.picker.all.assigne"));
+    });
+  }
   
   function initReporterSelect(){
-    var selectedArray =  jQuery.makeArray( reporting.values.selectedReportes ); 
-    jQuery.ajax({
-      async: true,
-      type: 'GET',
-      url : contextPath + "/rest/jttp-rest/1/picker/listUsers?pickerUserQueryType=REPORTER",
-      data : [],
-      success : function(result){
-        for( var i in result) {
-          var obj = result[i];
-          var avatarId =  contextPath + "/secure/useravatar?size=xsmall&ownerId=" + obj.avatarOwner;
-          var selected = checkSelected(obj.userName, selectedArray);
-          jQuery("#reporterPicker").append('<option data-icon="' + avatarId + '" value="'+obj.userName + '" '+ selected + '>' +obj.displayName +'</option>');
+    var jttpUserPicker = new AJS.CheckboxMultiSelect({
+      element:  jQuery("#reporterPicker"),
+      submitInputVal: true,
+      maxInlineResultsDisplayed: MAX_ELEMENTS_DISPLAYED,
+      content: "mixed",
+      ajaxOptions: {
+        url: AJS.contextPath() + "/rest/api/2/user/picker",
+        data: {
+          showAvatar: true
+        },
+        query: true,
+        formatResponse: function (items) {
+           return _.map(items.users, function (item) {
+                return new AJS.ItemDescriptor({
+                    highlighted: true,
+                    html: item.html,
+                    icon: item.avatarUrl,
+                    label: item.displayName,
+                    value: item.key
+                });
+           })
         }
-        var options= initializeOptionsForSelect(result.length,"#reporterPicker");
-        var pp = new AJS.CheckboxMultiSelect(options);
-        updatePickerButtonText("#reporterPicker" , "#reporterPickerButton", AJS.I18n.getText("jtrp.picker.all.reporter"));
-        jQuery("#reporterPicker").on("change unselect", function() {
-          updatePickerButtonText("#reporterPicker" , "#reporterPickerButton", AJS.I18n.getText("jtrp.picker.all.reporter"));
-        });
-      },
-      error : function(XMLHttpRequest, status, error){
       }
     });
-  };
+    updatePickerButtonText("#reporterPicker" , "#reporterPickerButton", AJS.I18n.getText("jtrp.picker.all.reporter"));
+    jQuery("#reporterPicker").on("change unselect", function() {
+      updatePickerButtonText("#reporterPicker" , "#reporterPickerButton", AJS.I18n.getText("jtrp.picker.all.reporter"));
+    });
+  }
   
   function initUserSelect(){
-    var selectedArray =  jQuery.makeArray( reporting.values.selectedUsers ); 
-    jQuery.ajax({
-      async: true,
-      type: 'GET',
-      url : contextPath + "/rest/jttp-rest/1/picker/listUsers",
-      data : [],
-      success : function(result){
-        for( var i in result) {
-          var obj = result[i];
-          var avatarId =  contextPath + "/secure/useravatar?size=xsmall&ownerId=" + obj.avatarOwner;
-          var selected = checkSelected(obj.userName, selectedArray);
-          var activeSuffux="";
-          if(obj.active==0){
-        	  activeSuffux=" (Inactive)";
-          }
-          jQuery("#userPicker").append('<option data-icon="' + avatarId + '" value="'+obj.userName + '" '+ selected + '>'
-        		  +obj.displayName + activeSuffux +'</option>');
+   var jttpUserPicker = new AJS.CheckboxMultiSelect({
+      element:  jQuery("#userPicker"),
+      submitInputVal: true,
+      maxInlineResultsDisplayed: MAX_ELEMENTS_DISPLAYED,
+      content: "mixed",
+      ajaxOptions: {
+        url: AJS.contextPath() + "/rest/api/2/user/picker",
+        data: {
+          showAvatar: true
+        },
+        query: true,
+        formatResponse: function (items) {
+          return _.map(items.users, function (item) {
+               return new AJS.ItemDescriptor({
+                 highlighted: true,
+                 html: item.html,
+                 icon: item.avatarUrl,
+                 label: item.displayName,
+                 value: item.key
+               });
+          })
         }
-        var options= initializeOptionsForSelect(result.length,"#userPicker");
-        var pp = new AJS.CheckboxMultiSelect(options);
-        pp._setDescriptorSelection = function(descriptor, $input) {
-          var descriptValue = descriptor.value();
-          if (!descriptor.selected()) {
-              this.selectItem(descriptor);
-              $input.attr("checked", "checked");
-              if(descriptValue == "none"){
-                var triggerData = {type:"click",name:"UserSelectClick",fakeClick:true};
-                jQuery('#userPicker-suggestions input[checked="checked"][value!="none"]').click();
-                jQuery('#groupPicker-suggestions [value="-1"]').trigger(triggerData);
-                jQuery("#groupPickerButton").attr("aria-disabled", false);
-              }
-          } else {
-              this.unselectItem(descriptor);
-              $input.removeAttr("checked");
-          }
-        };
-        
-        updatePickerButtonTextWithNone("#userPicker" , "#userPickerButton",  AJS.I18n.getText("jtrp.picker.all.user"),  AJS.I18n.getText("jtrp.picker.none.user"), "none");
-        jQuery("#userPicker").on("change unselect", function() {
-          updatePickerButtonTextWithNone("#userPicker" , "#userPickerButton", AJS.I18n.getText("jtrp.picker.all.user"),  AJS.I18n.getText("jtrp.picker.none.user"), "none");
-        });
-     
-      },
-      error : function(XMLHttpRequest, status, error){
       }
     });
-  };
+    jttpUserPicker._setDescriptorSelection = function(descriptor, $input) {
+      var descriptValue = descriptor.value();
+      if (!descriptor.selected()) {
+          this.selectItem(descriptor);
+          $input.attr("checked", "checked");
+          if(descriptValue == "none"){
+            var triggerData = {type:"click",name:"UserSelectClick",fakeClick:true};
+            jQuery('#userPicker-suggestions input[checked="checked"][value!="none"]').click();
+            jQuery('#groupPicker-suggestions [value="-1"]').trigger(triggerData);
+            jQuery("#groupPickerButton").attr("aria-disabled", false);
+          }
+      } else {
+          this.unselectItem(descriptor);
+          $input.removeAttr("checked");
+      }
+    };
+    updatePickerButtonTextWithNone("#userPicker" , "#userPickerButton",  AJS.I18n.getText("jtrp.picker.all.user"),  AJS.I18n.getText("jtrp.picker.none.user"), "none");
+    jQuery("#userPicker").on("change unselect", function() {
+      updatePickerButtonTextWithNone("#userPicker" , "#userPickerButton", AJS.I18n.getText("jtrp.picker.all.user"),  AJS.I18n.getText("jtrp.picker.none.user"), "none");
+    });
+  }
     
   function updatePickerButtonTextWithNone(picker, button, defaultText, noneText, noneValue){ //Example vallues: "#userPicker" , "#userPickerButton", "User: All", "User: None"
     //FIND and decide none checked
