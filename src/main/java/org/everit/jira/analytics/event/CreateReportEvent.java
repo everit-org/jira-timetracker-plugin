@@ -22,7 +22,7 @@ import java.util.Objects;
 import org.everit.jira.analytics.PiwikUrlBuilder;
 import org.everit.jira.analytics.UserSelection;
 import org.everit.jira.reporting.plugin.dto.FilterCondition;
-import org.everit.jira.reporting.plugin.dto.PickerUserDTO;
+import org.everit.jira.reporting.plugin.dto.UserForPickerDTO;
 import org.everit.jira.reporting.plugin.util.ConverterUtil;
 import org.everit.jira.timetracker.plugin.JiraTimetrackerAnalytics;
 import org.everit.jira.timetracker.plugin.util.PiwikPropertiesUtil;
@@ -167,7 +167,7 @@ public class CreateReportEvent implements AnalyticsEvent {
         ActiveFilterConditionName.EPIC_NAME);
 
     List<String> users = new ArrayList<>(filterCondition.getUsers());
-    boolean removedNoneUser = users.remove(PickerUserDTO.NONE_USER_NAME);
+    boolean removedNoneUser = users.remove(UserForPickerDTO.NONE_USER_KEY);
     appendActiveFilterCondition(sb, users, ActiveFilterConditionName.USER);
 
     List<String> groups = new ArrayList<>(filterCondition.getGroups());
@@ -179,7 +179,7 @@ public class CreateReportEvent implements AnalyticsEvent {
     UserSelection userSelection;
     if (removedNoneUser) {
       userSelection = UserSelection.GROUP;
-    } else if ((users.size() == 1) && PickerUserDTO.CURRENT_USER_NAME.equals(users.get(0))) {
+    } else if ((users.size() == 1) && UserForPickerDTO.CURRENT_USER_KEY.equals(users.get(0))) {
       userSelection = UserSelection.ONLY_OWN;
     } else {
       userSelection = UserSelection.USER;

@@ -20,7 +20,6 @@ import java.net.URLEncoder;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
@@ -186,18 +185,18 @@ public final class TimetrackerUtil {
   }
 
   /**
-   * Give back the logged user userName.
+   * Give back the logged user userKey.
    *
-   * @return The logged application user userName or empty String.
+   * @return The logged application user userKey or empty String.
    */
-  public static String getLoggedUserName() {
+  public static String getLoggedUserKey() {
     JiraAuthenticationContext authenticationContext = ComponentAccessor
         .getJiraAuthenticationContext();
     ApplicationUser user = authenticationContext.getUser();
     if (user == null) {
       return "";
     }
-    return user.getUsername().toLowerCase(Locale.getDefault());
+    return user.getKey();
   }
 
   /**
