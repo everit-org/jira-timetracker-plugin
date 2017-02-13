@@ -45,6 +45,7 @@ import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.worklog.Worklog;
 import com.atlassian.jira.issue.worklog.WorklogManager;
+import com.atlassian.jira.permission.ProjectPermissions;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.PermissionManager;
 import com.atlassian.jira.security.Permissions;
@@ -83,6 +84,16 @@ public class WorklogComponent implements EVWorklogManager {
     public static final String WORKLOG_UPDATE_FAIL = "plugin.worklog.update.fail";
 
     private PropertiesKey() {
+    }
+  }
+
+  private void checkPermissionOnIssueCreateWorklog(final ApplicationUser user,
+      final MutableIssue issue) {
+    PermissionManager permissionManager = ComponentAccessor.getPermissionManager();
+    if (!permissionManager.hasPermission(Permissions.WORK_ISSUE, issue,
+        user)
+        || !permissionManager.hasPermission(ProjectPermissions.BROWSE_PROJECTS, issue, user)) {
+      throw new WorklogException(PropertiesKey.NOPERMISSION_ISSUE, issue.getKey());
     }
   }
 
@@ -125,12 +136,9 @@ public class WorklogComponent implements EVWorklogManager {
     if (issue == null) {
       throw new WorklogException(PropertiesKey.INVALID_ISSUE, worklogParameter.getIssueKey());
     }
-    PermissionManager permissionManager = ComponentAccessor.getPermissionManager();
-    if (!permissionManager.hasPermission(Permissions.WORK_ISSUE, issue,
-        user)) {
-      throw new WorklogException(PropertiesKey.NOPERMISSION_ISSUE, worklogParameter.getIssueKey());
-    }
+    checkPermissionOnIssueCreateWorklog(user, issue);
 
+    // securityLevel.
     WorklogService worklogService = ComponentAccessor.getComponent(WorklogService.class);
     if (!worklogService.hasPermissionToCreate(serviceContext, issue, true)) {
       throw new WorklogException(PropertiesKey.NOPERMISSION_CREATE_WORKLOG,
@@ -193,12 +201,7 @@ public class WorklogComponent implements EVWorklogManager {
       throw new WorklogException(PropertiesKey.INVALID_ISSUE, worklogParameter.getIssueKey());
     }
     if (!worklog.getIssue().getKey().equals(worklogParameter.getIssueKey())) {
-      PermissionManager permissionManager = ComponentAccessor.getPermissionManager();
-      if (!permissionManager.hasPermission(Permissions.WORK_ISSUE, issue,
-          user)) {
-        throw new WorklogException(PropertiesKey.NOPERMISSION_ISSUE,
-            worklogParameter.getIssueKey());
-      }
+      checkPermissionOnIssueCreateWorklog(user, issue);
 
       createWorklog(worklogParameter);
 
