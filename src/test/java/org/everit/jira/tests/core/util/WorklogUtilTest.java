@@ -39,9 +39,11 @@ import org.ofbiz.core.entity.model.ModelEntity;
 
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.issue.IssueManager;
+import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.mock.MockProjectRoleManager.MockProjectRole;
 import com.atlassian.jira.mock.component.MockComponentWorker;
 import com.atlassian.jira.mock.issue.MockIssue;
+import com.atlassian.jira.permission.ProjectPermissions;
 import com.atlassian.jira.project.MockProject;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.security.JiraAuthenticationContext;
@@ -156,7 +158,14 @@ public class WorklogUtilTest {
         (Project) Matchers.any()))
         .thenReturn(projectRoles);
     mockComponentWorker.addMock(ProjectRoleManager.class, projectRoleManager);
-
+    PermissionManager permissionManager =
+        Mockito.mock(PermissionManager.class, Mockito.RETURNS_DEEP_STUBS);
+    Mockito.when(
+        permissionManager.hasPermission(Matchers.eq(ProjectPermissions.BROWSE_PROJECTS),
+            Matchers.any(MutableIssue.class),
+            Matchers.eq(null)))
+        .thenReturn(true);
+    mockComponentWorker.addMock(PermissionManager.class, permissionManager);
     mockComponentWorker.init();
   }
 
@@ -326,6 +335,7 @@ public class WorklogUtilTest {
 
     IssueManager issueManager = ComponentAccessor.getIssueManager();
     GroupManager groupManager = ComponentAccessor.getGroupManager();
+    PermissionManager permissionManager = ComponentAccessor.getPermissionManager();
     ProjectRoleManager projectRoleManager =
         ComponentAccessor.getComponent(ProjectRoleManager.class);
 
@@ -334,6 +344,7 @@ public class WorklogUtilTest {
         issueManager,
         groupManager,
         projectRoleManager,
+        permissionManager,
         existsRoleLevelGV);
     Assert.assertTrue(hasWorklogVisibility);
 
@@ -342,6 +353,7 @@ public class WorklogUtilTest {
         issueManager,
         groupManager,
         projectRoleManager,
+        permissionManager,
         existsGroupLevelGV);
     Assert.assertTrue(hasWorklogVisibility);
 
@@ -350,6 +362,7 @@ public class WorklogUtilTest {
         issueManager,
         groupManager,
         projectRoleManager,
+        permissionManager,
         notExistsRoleLevelGV);
     Assert.assertFalse(hasWorklogVisibility);
 
@@ -358,6 +371,7 @@ public class WorklogUtilTest {
         issueManager,
         groupManager,
         projectRoleManager,
+        permissionManager,
         notExistsGroupLevelGV);
     Assert.assertFalse(hasWorklogVisibility);
 
@@ -366,6 +380,7 @@ public class WorklogUtilTest {
         issueManager,
         groupManager,
         projectRoleManager,
+        permissionManager,
         defaultGV);
     Assert.assertTrue(hasWorklogVisibility);
   }
