@@ -163,7 +163,7 @@ public class WorklogUtilTest {
     Mockito.when(
         permissionManager.hasPermission(Matchers.eq(ProjectPermissions.BROWSE_PROJECTS),
             Matchers.any(MutableIssue.class),
-            Matchers.eq(null)))
+            Matchers.any()))
         .thenReturn(true);
     mockComponentWorker.addMock(PermissionManager.class, permissionManager);
     mockComponentWorker.init();
