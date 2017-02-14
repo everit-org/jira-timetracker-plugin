@@ -147,6 +147,7 @@ public final class WorklogUtil {
    * @param projectRoleManager
    *          the {@link ProjectRoleManager} instance.
    * @param permissionManager
+   *          the {@link PermissionManager} instance.}
    * @param worklogGv
    *          the {@link GenericValue} for the worklog.
    * @return true if has worklog visibility, otherwise false.
