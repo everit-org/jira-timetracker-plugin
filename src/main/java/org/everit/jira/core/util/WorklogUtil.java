@@ -28,7 +28,9 @@ import org.ofbiz.core.entity.GenericValue;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.MutableIssue;
+import com.atlassian.jira.permission.ProjectPermissions;
 import com.atlassian.jira.project.Project;
+import com.atlassian.jira.security.PermissionManager;
 import com.atlassian.jira.security.Permissions;
 import com.atlassian.jira.security.groups.GroupManager;
 import com.atlassian.jira.security.roles.ProjectRole;
@@ -144,18 +146,24 @@ public final class WorklogUtil {
    *          the {@link GroupManager} instance.
    * @param projectRoleManager
    *          the {@link ProjectRoleManager} instance.
+   * @param permissionManager
+   *          the {@link PermissionManager} instance.}
    * @param worklogGv
    *          the {@link GenericValue} for the worklog.
    * @return true if has worklog visibility, otherwise false.
    */
   public static boolean hasWorklogVisibility(final ApplicationUser loggedInUser,
       final IssueManager issueManager, final GroupManager groupManager,
-      final ProjectRoleManager projectRoleManager, final GenericValue worklogGv) {
+      final ProjectRoleManager projectRoleManager, final PermissionManager permissionManager,
+      final GenericValue worklogGv) {
     Collection<String> loggedUserGroupNames = groupManager.getGroupNamesForUser(loggedInUser);
     Long roleLevelId = worklogGv.getLong("rolelevel");
     String groupLevel = worklogGv.getString("grouplevel");
     Long issueId = worklogGv.getLong("issue");
     MutableIssue issue = issueManager.getIssueObject(issueId);
+    if (!permissionManager.hasPermission(ProjectPermissions.BROWSE_PROJECTS, issue, loggedInUser)) {
+      return false;
+    }
     boolean hasWorklogVisibility = true;
     if ((roleLevelId != null)) {
       hasWorklogVisibility = false;
