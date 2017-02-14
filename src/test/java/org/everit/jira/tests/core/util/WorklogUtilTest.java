@@ -83,6 +83,7 @@ public class WorklogUtilTest {
   private MockApplicationUser noProjectUser;
   private Calendar startDate;
   private MockApplicationUser test0User;
+  private MockApplicationUser user;
 
   private void assertEntityExpression(final EntityExpr expression, final String expectedLhs,
       final EntityOperator expectedOperator, final Object expectedRhs) {
@@ -132,8 +133,9 @@ public class WorklogUtilTest {
         Mockito.mock(JiraAuthenticationContext.class, Mockito.RETURNS_DEEP_STUBS);
     Mockito.when(mockJiraAuthenticationContext.getI18nHelper().getLocale())
         .thenReturn(new Locale("en", "US"));
+    user = new MockApplicationUser("userKey", "username");
     Mockito.when(mockJiraAuthenticationContext.getUser())
-        .thenReturn(null);
+        .thenReturn(user);
     mockComponentWorker.addMock(JiraAuthenticationContext.class, mockJiraAuthenticationContext);
 
     MockIssue mockIssue = new MockIssue(1, "KEY-12");
@@ -163,7 +165,7 @@ public class WorklogUtilTest {
     Mockito.when(
         permissionManager.hasPermission(Matchers.eq(ProjectPermissions.BROWSE_PROJECTS),
             Matchers.any(MutableIssue.class),
-            Matchers.any()))
+            Matchers.eq(user)))
         .thenReturn(true);
     mockComponentWorker.addMock(PermissionManager.class, permissionManager);
     mockComponentWorker.init();
@@ -340,7 +342,7 @@ public class WorklogUtilTest {
         ComponentAccessor.getComponent(ProjectRoleManager.class);
 
     DummyGenericValue existsRoleLevelGV = createDummyGenericValue(0L, null, 1);
-    boolean hasWorklogVisibility = WorklogUtil.hasWorklogVisibility(null,
+    boolean hasWorklogVisibility = WorklogUtil.hasWorklogVisibility(user,
         issueManager,
         groupManager,
         projectRoleManager,
@@ -349,7 +351,7 @@ public class WorklogUtilTest {
     Assert.assertTrue(hasWorklogVisibility);
 
     DummyGenericValue existsGroupLevelGV = createDummyGenericValue(null, "group_1", 1);
-    hasWorklogVisibility = WorklogUtil.hasWorklogVisibility(null,
+    hasWorklogVisibility = WorklogUtil.hasWorklogVisibility(user,
         issueManager,
         groupManager,
         projectRoleManager,
@@ -358,7 +360,7 @@ public class WorklogUtilTest {
     Assert.assertTrue(hasWorklogVisibility);
 
     DummyGenericValue notExistsRoleLevelGV = createDummyGenericValue(-1L, null, 1);
-    hasWorklogVisibility = WorklogUtil.hasWorklogVisibility(null,
+    hasWorklogVisibility = WorklogUtil.hasWorklogVisibility(user,
         issueManager,
         groupManager,
         projectRoleManager,
@@ -367,7 +369,7 @@ public class WorklogUtilTest {
     Assert.assertFalse(hasWorklogVisibility);
 
     DummyGenericValue notExistsGroupLevelGV = createDummyGenericValue(null, "no_group", 1);
-    hasWorklogVisibility = WorklogUtil.hasWorklogVisibility(null,
+    hasWorklogVisibility = WorklogUtil.hasWorklogVisibility(user,
         issueManager,
         groupManager,
         projectRoleManager,
@@ -376,7 +378,7 @@ public class WorklogUtilTest {
     Assert.assertFalse(hasWorklogVisibility);
 
     DummyGenericValue defaultGV = createDummyGenericValue(null, null, 1);
-    hasWorklogVisibility = WorklogUtil.hasWorklogVisibility(null,
+    hasWorklogVisibility = WorklogUtil.hasWorklogVisibility(user,
         issueManager,
         groupManager,
         projectRoleManager,
