@@ -296,6 +296,7 @@ public class WorklogComponent implements EVWorklogManager {
 
     IssueManager issueManager = ComponentAccessor.getIssueManager();
     GroupManager groupManager = ComponentAccessor.getGroupManager();
+    PermissionManager permissionManager = ComponentAccessor.getPermissionManager();
     ProjectRoleManager projectRoleManager =
         ComponentAccessor.getComponent(ProjectRoleManager.class);
 
@@ -304,6 +305,7 @@ public class WorklogComponent implements EVWorklogManager {
           issueManager,
           groupManager,
           projectRoleManager,
+          permissionManager,
           worklogGv);
       if (hasWorklogVisibility) {
         EveritWorklog worklog = new EveritWorklog(worklogGv);
