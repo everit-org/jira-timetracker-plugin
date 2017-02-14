@@ -62,6 +62,7 @@ import com.atlassian.jira.issue.worklog.WorklogImpl;
 import com.atlassian.jira.issue.worklog.WorklogManager;
 import com.atlassian.jira.mock.component.MockComponentWorker;
 import com.atlassian.jira.ofbiz.OfBizDelegator;
+import com.atlassian.jira.permission.ProjectPermissions;
 import com.atlassian.jira.project.MockProject;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.security.JiraAuthenticationContext;
@@ -206,7 +207,11 @@ public class GetWorklogsTest {
     projects.add(new MockProject(2));
     Mockito.when(permissionManager.getProjects(Permissions.BROWSE, loggedUser))
         .thenReturn(projects);
-
+    Mockito.when(
+        permissionManager.hasPermission(Matchers.eq(ProjectPermissions.BROWSE_PROJECTS),
+            Matchers.any(MutableIssue.class),
+            Matchers.eq(loggedUser)))
+        .thenReturn(true);
     List<GenericValue> genericValues = new ArrayList<>();
     genericValues.add(createDummyGenericValue(null, null, dummyWorklog.getIssue().getId()));
     MutableIssue mockIssue = createIssue(30L, "NO-");
