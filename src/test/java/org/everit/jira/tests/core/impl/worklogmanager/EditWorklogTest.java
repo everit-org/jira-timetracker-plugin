@@ -41,11 +41,13 @@ import com.atlassian.jira.bc.issue.worklog.WorklogService;
 import com.atlassian.jira.datetime.DateTimeFormatterFactory;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.IssueManager;
+import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.worklog.Worklog;
 import com.atlassian.jira.issue.worklog.WorklogImpl;
 import com.atlassian.jira.issue.worklog.WorklogManager;
 import com.atlassian.jira.mock.component.MockComponentWorker;
 import com.atlassian.jira.mock.issue.MockIssue;
+import com.atlassian.jira.permission.ProjectPermissions;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.PermissionManager;
 import com.atlassian.jira.security.Permissions;
@@ -146,6 +148,11 @@ public class EditWorklogTest {
 
     // logged user
     MockApplicationUser loggedUser = new MockApplicationUser("test_userkey", "test_username");
+    Mockito.when(
+        permissionManager.hasPermission(Matchers.eq(ProjectPermissions.BROWSE_PROJECTS),
+            Matchers.any(MutableIssue.class),
+            Matchers.eq(loggedUser)))
+        .thenReturn(true);
     Mockito.when(mockJiraAuthenticationContext.getUser())
         .thenReturn(loggedUser);
     Mockito.when(mockJiraAuthenticationContext.getI18nHelper())

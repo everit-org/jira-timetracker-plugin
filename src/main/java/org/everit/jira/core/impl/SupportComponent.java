@@ -41,6 +41,7 @@ import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.security.JiraAuthenticationContext;
+import com.atlassian.jira.security.PermissionManager;
 import com.atlassian.jira.security.groups.GroupManager;
 import com.atlassian.jira.security.roles.ProjectRoleManager;
 import com.atlassian.jira.user.ApplicationUser;
@@ -209,6 +210,7 @@ public class SupportComponent implements SupportManager {
 
     IssueManager issueManager = ComponentAccessor.getIssueManager();
     GroupManager groupManager = ComponentAccessor.getGroupManager();
+    PermissionManager permissionManager = ComponentAccessor.getPermissionManager();
     ProjectRoleManager projectRoleManager =
         ComponentAccessor.getComponent(ProjectRoleManager.class);
     // if we have non-estimated issues
@@ -230,6 +232,7 @@ public class SupportComponent implements SupportManager {
           issueManager,
           groupManager,
           projectRoleManager,
+          permissionManager,
           worklog);
       if (!hasWorklogVisibility) {
         worklogs.remove(worklog);

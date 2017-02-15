@@ -36,9 +36,11 @@ import org.ofbiz.core.entity.model.ModelEntity;
 
 import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jira.issue.IssueManager;
+import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.mock.component.MockComponentWorker;
 import com.atlassian.jira.mock.issue.MockIssue;
 import com.atlassian.jira.ofbiz.OfBizDelegator;
+import com.atlassian.jira.permission.ProjectPermissions;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.PermissionManager;
 import com.atlassian.jira.security.Permissions;
@@ -129,15 +131,20 @@ public class SummaryTest {
 
     JiraAuthenticationContext jiraAuthenticationContext =
         Mockito.mock(JiraAuthenticationContext.class, Mockito.RETURNS_DEEP_STUBS);
+    MockApplicationUser user = new MockApplicationUser("userKey", "username");
     Mockito.when(jiraAuthenticationContext.getUser())
-        .thenReturn(new MockApplicationUser("userKey", "username"));
+        .thenReturn(user);
 
     PermissionManager permissionManager =
         Mockito.mock(PermissionManager.class, Mockito.RETURNS_DEEP_STUBS);
     Mockito.when(
         permissionManager.getProjects(Matchers.eq(Permissions.BROWSE), Matchers.any(User.class)))
         .thenReturn(new ArrayList<GenericValue>());
-
+    Mockito.when(
+        permissionManager.hasPermission(Matchers.eq(ProjectPermissions.BROWSE_PROJECTS),
+            Matchers.any(MutableIssue.class),
+            Matchers.eq(user)))
+        .thenReturn(true);
     IssueManager issueManager = Mockito.mock(IssueManager.class, Mockito.RETURNS_DEEP_STUBS);
     Mockito.when(issueManager.getIssueObject(workIssue.getId()))
         .thenReturn(workIssue);
