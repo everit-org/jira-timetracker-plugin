@@ -17,7 +17,6 @@ package org.everit.jira.timetracker.plugin.util;
 
 import java.sql.Timestamp;
 import java.text.DateFormat;
-import java.text.DateFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -373,24 +372,30 @@ public final class DateTimeConverterUtil {
    * @return If valid then true else false.
    */
   public static boolean isValidTime(final String time) {
-    boolean match24Format = Pattern.matches(TIME24HOURS_PATTERN, time);
-    StringBuilder sb = new StringBuilder();
-    sb.append("^([01]?[0-9]|2[0-3]):[0-5][0-9]( (");
-    Locale locale = DateTimeConverterUtil.getLoggedUserLocal();
-    DateFormatSymbols dateFormatSymbols = new DateFormatSymbols(locale);
-    String[] amPmStrings = dateFormatSymbols.getAmPmStrings();
-    int index = 0;
-    for (String string : amPmStrings) {
-      sb.append(string + "|");
-      sb.append(string.toLowerCase(locale));
-      if (index < (amPmStrings.length - 1)) {
-        sb.append("|");
-      }
-      index++;
+    try {
+      DateTimeConverterUtil.getDateTimeTimeFormatter().forLoggedInUser().parse(time);
+    } catch (IllegalArgumentException e) {
+      return false;
     }
-    sb.append("))$");
-    boolean matchAmPmFormat = Pattern.matches(sb.toString(), time);
-    return match24Format || matchAmPmFormat;
+    return true;
+    // boolean match24Format = Pattern.matches(TIME24HOURS_PATTERN, time);
+    // StringBuilder sb = new StringBuilder();
+    // sb.append("^([01]?[0-9]|2[0-3]):[0-5][0-9]( (");
+    // Locale locale = DateTimeConverterUtil.getLoggedUserLocal();
+    // DateFormatSymbols dateFormatSymbols = new DateFormatSymbols(locale);
+    // String[] amPmStrings = dateFormatSymbols.getAmPmStrings();
+    // int index = 0;
+    // for (String string : amPmStrings) {
+    // sb.append(string + "|");
+    // sb.append(string.toLowerCase(locale));
+    // if (index < (amPmStrings.length - 1)) {
+    // sb.append("|");
+    // }
+    // index++;
+    // }
+    // sb.append("))$");
+    // boolean matchAmPmFormat = Pattern.matches(sb.toString(), time);
+    // return match24Format || matchAmPmFormat;
 
   }
 
