@@ -17,6 +17,7 @@ package org.everit.jira.timetracker.plugin.util;
 
 import java.sql.Timestamp;
 import java.text.DateFormat;
+import java.text.DateFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -354,18 +355,53 @@ public final class DateTimeConverterUtil {
   }
 
   /**
+   * Check a date contains seconds.
+   */
+  public static boolean isDateContainsSeconds(final Date date) {
+    Calendar calendar = Calendar.getInstance();
+    calendar.setTime(date);
+    int seconds = calendar.get(Calendar.SECOND);
+    return seconds != 0;
+  }
+
+  /**
+   * Check a duration validity. Two pattern accepted. The Jira duration format and the normal time
+   * format with or without AM/PM.
+   */
+  public static boolean isValidDurationTime(final String time) {
+    boolean match24Format = Pattern.matches(TIME24HOURS_PATTERN, time);
+    StringBuilder sb = new StringBuilder();
+    sb.append("^([01]?[0-9]|2[0-3]):[0-5][0-9]( (");
+    Locale locale = DateTimeConverterUtil.getLoggedUserLocal();
+    DateFormatSymbols dateFormatSymbols = new DateFormatSymbols(locale);
+    String[] amPmStrings = dateFormatSymbols.getAmPmStrings();
+    int index = 0;
+    for (String string : amPmStrings) {
+      sb.append(string + "|");
+      sb.append(string.toLowerCase(locale));
+      if (index < (amPmStrings.length - 1)) {
+        sb.append("|");
+      }
+      index++;
+    }
+    sb.append("))$");
+    boolean matchAmPmFormat = Pattern.matches(sb.toString(), time);
+    return match24Format || matchAmPmFormat;
+  }
+
+  /**
    * Check the Time is valid to the {@value #JIRA_DURATION_PATTERN} pattern.
    *
    * @param time
    *          The time to validate.
    * @return If valid then true else false.
    */
-  public static boolean isValidJiraTime(final String time) {
+  public static boolean isValidJiraDurationFormatTime(final String time) {
     return Pattern.matches(JIRA_DURATION_PATTERN, time);
   }
 
   /**
-   * Check the Time is valid to the {@value #TIME24HOURS_PATTERN} pattern.
+   * Check the Time is valid to the look and feel settings pattern.
    *
    * @param time
    *          The time to validate.
@@ -378,25 +414,6 @@ public final class DateTimeConverterUtil {
       return false;
     }
     return true;
-    // boolean match24Format = Pattern.matches(TIME24HOURS_PATTERN, time);
-    // StringBuilder sb = new StringBuilder();
-    // sb.append("^([01]?[0-9]|2[0-3]):[0-5][0-9]( (");
-    // Locale locale = DateTimeConverterUtil.getLoggedUserLocal();
-    // DateFormatSymbols dateFormatSymbols = new DateFormatSymbols(locale);
-    // String[] amPmStrings = dateFormatSymbols.getAmPmStrings();
-    // int index = 0;
-    // for (String string : amPmStrings) {
-    // sb.append(string + "|");
-    // sb.append(string.toLowerCase(locale));
-    // if (index < (amPmStrings.length - 1)) {
-    // sb.append("|");
-    // }
-    // index++;
-    // }
-    // sb.append("))$");
-    // boolean matchAmPmFormat = Pattern.matches(sb.toString(), time);
-    // return match24Format || matchAmPmFormat;
-
   }
 
   /**
