@@ -57,7 +57,7 @@ public final class DateTimeConverterUtil {
   /**
    * The date time format.
    */
-  public static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm";
+  public static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
   /**
    * The number of days per week.

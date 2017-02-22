@@ -209,7 +209,7 @@ public class EveritWorklogTest {
   private EveritWorklog worklogWithRemaining(final int remainingInSeconds) {
     HashMap<String, Object> values = new HashMap<String, Object>();
     setupMockIssueManager(remainingInSeconds);
-    values.put("startdate", "2011-11-11 11:11");
+    values.put("startdate", "2011-11-11 11:11:00");
     values.put("issue", "11");
     values.put("timeworked", 10L);
     try {
