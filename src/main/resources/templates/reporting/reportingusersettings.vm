@@ -61,7 +61,7 @@
       <form name="userSettingForm"  method="post" action="ReportingUserSettingsWebAction.jspa" class="aui">  
         #if(!$message.isEmpty())
         <div id="error_message">
-          $i18n.getText($message)
+          #if($i18n.isKeyDefined($message))$i18n.getText($message)#else$message#end
         </div>
         #end
         
