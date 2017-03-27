@@ -15,6 +15,8 @@
  */
 package org.everit.jira.reporting.plugin.rest;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
@@ -47,7 +49,8 @@ import com.atlassian.jira.issue.RendererManager;
 import com.atlassian.jira.issue.fields.renderer.IssueRenderContext;
 import com.atlassian.jira.issue.fields.renderer.JiraRendererPlugin;
 import com.atlassian.jira.util.I18nHelper;
-import com.atlassian.velocity.VelocityManager;
+import com.atlassian.templaterenderer.RenderingException;
+import com.atlassian.templaterenderer.TemplateRenderer;
 import com.google.gson.Gson;
 
 /**
@@ -55,8 +58,6 @@ import com.google.gson.Gson;
  */
 @Path("/paging-report")
 public class PagingReport {
-
-  private static final String ENCODING = "UTF-8";
 
   private static final String TEMPLATE_DIRECTORY = "/templates/reporting/";
 
@@ -66,17 +67,17 @@ public class PagingReport {
 
   private TimeTrackerSettingsHelper settingsHelper;
 
-  private VelocityManager velocityManager;
+  private TemplateRenderer templateRenderer;
 
   /**
    * Simple constructor. Initialize required members.
    */
   public PagingReport(final ReportingPlugin reportingPlugin,
-      final TimeTrackerSettingsHelper settingsHelper) {
+      final TimeTrackerSettingsHelper settingsHelper, final TemplateRenderer templateRenderer) {
     this.reportingPlugin = reportingPlugin;
     this.settingsHelper = settingsHelper;
     gson = new Gson();
-    velocityManager = ComponentAccessor.getVelocityManager();
+    this.templateRenderer = templateRenderer;
   }
 
   private void appendRequiredContextParameters(final Map<String, Object> contextParameters,
@@ -104,11 +105,13 @@ public class PagingReport {
 
   private Response buildResponse(final String templateFileName,
       final Map<String, Object> contextParameters) {
-    String encodedBody = velocityManager.getEncodedBody(TEMPLATE_DIRECTORY,
-        templateFileName,
-        ENCODING,
-        contextParameters);
-    return Response.ok(encodedBody).build();
+    StringWriter sw = new StringWriter();
+    try {
+      templateRenderer.render(TEMPLATE_DIRECTORY + templateFileName, contextParameters, sw);
+    } catch (RenderingException | IOException e) {
+      throw new RuntimeException(e);
+    }
+    return Response.ok(sw.toString()).build();
   }
 
   private FilterCondition convertJsonToFilterCondition(final String filterConditionJson) {
