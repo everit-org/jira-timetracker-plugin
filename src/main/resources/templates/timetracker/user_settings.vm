@@ -45,7 +45,7 @@
       <form name="settingsForm"  method="post" action="TimetrackerUserSettingsWebAction.jspa" class="aui">
         #if(!$message.isEmpty())
         <div id="error_message">
-          $i18n.getText($message) $messageParameter
+          #if($i18n.isKeyDefined($message))$i18n.getText($message)#else$message#end $messageParameter
         </div>
         #end
         

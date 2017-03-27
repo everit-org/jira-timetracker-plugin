@@ -35,6 +35,9 @@
     <param name="configure.url">/secure/admin/TimetrackerAdminSettingsWebAction!default.jspa</param>
   </plugin-info>
 
+  <component-import key="templateRenderer"
+    interface="com.atlassian.templaterenderer.TemplateRenderer"/>
+
   <component-import key="pluginSettingFactroy"
     interface="com.atlassian.sal.api.pluginsettings.PluginSettingsFactory" />
 
