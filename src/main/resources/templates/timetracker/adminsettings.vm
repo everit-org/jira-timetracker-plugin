@@ -69,7 +69,7 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.plug
   <input hidden="hidden" name="action" value="doExecute"/>
     #if(!$message.isEmpty())
     <div id="error_message" class="aui-message aui-message-error">
-      $i18n.getText($message) 
+      #if($i18n.isKeyDefined($message))$i18n.getText($message)#else$message#end
     </div>
     #end
     <div id="error_messageJS" class="aui-message aui-message-error" style="display:none" ></div>

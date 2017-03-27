@@ -120,9 +120,9 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.popu
             #if(!$message.isEmpty())
               <div class="aui-message aui-message-error">
                 #if($message != 'plugin.nopermission_issue' && $message != 'jttp.nopermission.worklog.create')
-                  <p>$i18n.getText($message) #if($messageParameter) <a href="$contextPath/browse/$messageParameter" class="issue-link link-title">$messageParameter</a> #end</p>
+                  <p>#if($i18n.isKeyDefined($message))$i18n.getText($message)#else$message#end #if($messageParameter) <a href="$contextPath/browse/$messageParameter" class="issue-link link-title">$messageParameter</a> #end</p>
                 #else
-                  <p class="title"><strong>$i18n.getText($message) #if($messageParameter) <a href="$contextPath/browse/$messageParameter" class="issue-link link-title">$messageParameter</a> #end</strong></p>
+                  <p class="title"><strong>#if($i18n.isKeyDefined($message))$i18n.getText($message)#else$message#end #if($messageParameter) <a href="$contextPath/browse/$messageParameter" class="issue-link link-title">$messageParameter</a> #end</strong></p>
                   <p>$i18n.getText('plugin.nopermission_issue.detials')</p>
                 #end
               </div>
