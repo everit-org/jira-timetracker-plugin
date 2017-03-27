@@ -101,7 +101,7 @@ $webResourceManager.requireResourcesForContext("org.everit.jira.timetracker.plug
   
   <div class="chart-search-criteria-container">
                <div id="error_message"  #if($message.isEmpty()) style="display:none;" #end>
-                 <label id="error_message_label" #if($message.isEmpty()) style="display:none;" #end>$i18n.getText($message)</label>
+                 <label id="error_message_label" #if($message.isEmpty()) style="display:none;" #end>#if($i18n.isKeyDefined($message))$i18n.getText($message)#else$message#end</label>
                  <label id="error_message_label_df" style="display:none;">$i18n.getText('plugin.invalid_startTime')</label>
                  <label id="error_message_label_dt" style="display:none;">$i18n.getText('plugin.invalid_endTime')</label>
                </div>
