@@ -57,7 +57,7 @@ public final class DateTimeConverterUtil {
   /**
    * The date time format.
    */
-  public static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm";
+  public static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
   /**
    * The number of days per week.
@@ -355,24 +355,20 @@ public final class DateTimeConverterUtil {
   }
 
   /**
-   * Check the Time is valid to the {@value #JIRA_DURATION_PATTERN} pattern.
-   *
-   * @param time
-   *          The time to validate.
-   * @return If valid then true else false.
+   * Check a date contains seconds.
    */
-  public static boolean isValidJiraTime(final String time) {
-    return Pattern.matches(JIRA_DURATION_PATTERN, time);
+  public static boolean isDateContainsSeconds(final Date date) {
+    Calendar calendar = Calendar.getInstance();
+    calendar.setTime(date);
+    int seconds = calendar.get(Calendar.SECOND);
+    return seconds != 0;
   }
 
   /**
-   * Check the Time is valid to the {@value #TIME24HOURS_PATTERN} pattern.
-   *
-   * @param time
-   *          The time to validate.
-   * @return If valid then true else false.
+   * Check a duration validity. Two pattern accepted. The Jira duration format and the normal time
+   * format with or without AM/PM.
    */
-  public static boolean isValidTime(final String time) {
+  public static boolean isValidDurationTime(final String time) {
     boolean match24Format = Pattern.matches(TIME24HOURS_PATTERN, time);
     StringBuilder sb = new StringBuilder();
     sb.append("^([01]?[0-9]|2[0-3]):[0-5][0-9]( (");
@@ -391,7 +387,33 @@ public final class DateTimeConverterUtil {
     sb.append("))$");
     boolean matchAmPmFormat = Pattern.matches(sb.toString(), time);
     return match24Format || matchAmPmFormat;
+  }
 
+  /**
+   * Check the Time is valid to the {@value #JIRA_DURATION_PATTERN} pattern.
+   *
+   * @param time
+   *          The time to validate.
+   * @return If valid then true else false.
+   */
+  public static boolean isValidJiraDurationFormatTime(final String time) {
+    return Pattern.matches(JIRA_DURATION_PATTERN, time);
+  }
+
+  /**
+   * Check the Time is valid to the look and feel settings pattern.
+   *
+   * @param time
+   *          The time to validate.
+   * @return If valid then true else false.
+   */
+  public static boolean isValidTime(final String time) {
+    try {
+      DateTimeConverterUtil.getDateTimeTimeFormatter().forLoggedInUser().parse(time);
+    } catch (IllegalArgumentException e) {
+      return false;
+    }
+    return true;
   }
 
   /**

@@ -117,6 +117,9 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
 
     public static final String PLUGIN_INVALID_END_TIME = "plugin.invalid_endTime";
 
+    public static final String PLUGIN_INVALID_TIME_CONTAINS_SECOND =
+        "plugin.invalid_timeContainsSecond";
+
     public static final String PLUGIN_INVALID_TIME_INTERVAL = "plugin.invalid_timeInterval";
   }
 
@@ -333,8 +336,8 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       return INPUT;
     }
 
-    if (!DateTimeConverterUtil.isValidTime(durationTime)) {
-      if (!DateTimeConverterUtil.isValidJiraTime(durationTime)) {
+    if (!DateTimeConverterUtil.isValidDurationTime(durationTime)) {
+      if (!DateTimeConverterUtil.isValidJiraDurationFormatTime(durationTime)) {
         message = PropertiesKey.INVALID_DURATION_TIME;
         return INPUT;
       } else {
@@ -384,7 +387,11 @@ public class JiraTimetrackerWebAction extends JiraWebActionSupport {
       message = PropertiesKey.PLUGIN_INVALID_END_TIME;
       return INPUT;
     }
-
+    if (DateTimeConverterUtil.isDateContainsSeconds(startDateTime)
+        || DateTimeConverterUtil.isDateContainsSeconds(workLogEndDateTime)) {
+      message = PropertiesKey.PLUGIN_INVALID_TIME_CONTAINS_SECOND;
+      return INPUT;
+    }
     long seconds = (workLogEndDateTime.getTime() - startDateTime.getTime())
         / DateTimeConverterUtil.MILLISECONDS_PER_SECOND;
     if (seconds > 0) {

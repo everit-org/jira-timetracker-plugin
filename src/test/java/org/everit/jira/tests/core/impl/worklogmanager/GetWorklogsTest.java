@@ -328,7 +328,7 @@ public class GetWorklogsTest {
     values.put("rolelevel", roleLevelId);
     values.put("grouplevel", groupLevel);
     values.put("issue", issueId);
-    values.put("startdate", "2000-11-22 08:00");
+    values.put("startdate", "2000-11-22 08:00:00");
     values.put("timeworked", 10);
     return new DummyGenericValue(values);
   }
